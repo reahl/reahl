@@ -898,17 +898,15 @@ class Field(object):
     def update_valid_value_in_disambiguated_input(self, input_dict):
         input_dict[self.name_in_input] = self.as_user_input_value(for_input_status='defaulted')
 
-    def extract_unparsed_input_from_dict_of_lists(self, input_dict, default_if_not_found=True):
+    def extract_unparsed_input_from_dict_of_lists(self, input_dict):
         list_of_input = input_dict.get(self.name_in_input, [])
         if list_of_input:
             return list_of_input[0]
-        elif default_if_not_found:
-            return self.as_input()
         else:
-            raise ExpectedInputNotFound(self.name_in_input, input_dict)
+            return self.as_input()
 
-    def from_disambiguated_input(self, input_dict, ignore_validation=False, default_if_not_found=True):
-        input_value = self.extract_unparsed_input_from_dict_of_lists(input_dict, default_if_not_found=default_if_not_found)
+    def from_disambiguated_input(self, input_dict, ignore_validation=False):
+        input_value = self.extract_unparsed_input_from_dict_of_lists(input_dict)
         self.from_input(input_value, ignore_validation=ignore_validation)
 
     def parse_input(self, unparsed_input):
@@ -1557,15 +1555,13 @@ class MultiChoiceField(ChoiceField):
         elif list_value:
             input_dict[self.name_in_input] = list_value
 
-    def extract_unparsed_input_from_dict_of_lists(self, input_dict, default_if_not_found=True):
+    def extract_unparsed_input_from_dict_of_lists(self, input_dict):
         submitted_as_empty = len(input_dict.get(self.get_empty_sentinel_name(self.name_in_input), [])) > 0
         if submitted_as_empty:
             return []
         else:
             list_value = input_dict.get(self.name_in_input, [])
             if not list_value:
-                if not default_if_not_found:
-                    raise ExpectedInputNotFound(self.name_in_input, input_dict)
                 return None
             else:
                 return list_value

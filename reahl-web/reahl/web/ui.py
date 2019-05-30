@@ -216,18 +216,17 @@ class AjaxMethod(RemoteMethod):
             widget.query_fields.accept_input(state, ignore_validation=True)
 
             if widget.is_Input and widget.registers_with_form and not isinstance(widget.bound_field, Event): 
-                widget.bound_field.from_disambiguated_input(state, ignore_validation=True, default_if_not_found=False)
-                if widget.bound_field.input_status == 'validly_entered':
-                   widget.bound_field.clear_user_input()
+                widget.bound_field.from_disambiguated_input(state, ignore_validation=True)
 
         self.widget.fire_on_refresh()
 
         self.view.empty_client_side_state()
         for widget in self.view.page.contained_widgets():
-            if widget.is_Input and widget.registers_with_form and not isinstance(widget.bound_field, Event):
-                self.view.update_client_side_state(widget.bound_field)
             for field in widget.query_fields.values():
                 self.view.update_client_side_state(field)
+
+            if widget.is_Input and widget.registers_with_form and not isinstance(widget.bound_field, Event):
+                self.view.update_client_side_state(widget.bound_field)
     
 
 # Uses: reahl/web/reahl.hashchange.js
@@ -1508,28 +1507,16 @@ class PrimitiveInput(Input):
 
     def prepare_input(self):
         previously_entered_value = None
-        try: # If input came in as part of current client state, that value has preference above possibly saved values in the DB
-            construction_state = self.view.get_construction_state()
+        construction_state = self.view.get_construction_state()
+        if construction_state:
+            self.bound_field.from_disambiguated_input(construction_state, ignore_validation=True)
 
-            if construction_state:
-                self.bound_field.from_disambiguated_input(construction_state, ignore_validation=True, default_if_not_found=False)
-                self.bound_field.clear_user_input()
+        previously_entered_value = self.persisted_userinput_class.get_previously_entered_for_form(self.form, self.name, self.bound_field.entered_input_type)
 
-                raise  ExpectedInputNotFound(self.name, {})
-            else:
-                request = ExecutionContext.get_context().request
-                if self.refresh_widget and request.POST:
-                    self.accept_input(request.POST)
-                else:
-                    raise ExpectedInputNotFound(self.name, {})
-
-        except ExpectedInputNotFound:
-            previously_entered_value = self.persisted_userinput_class.get_previously_entered_for_form(self.form, self.name, self.bound_field.entered_input_type)
-
-            if previously_entered_value is not None:
-                self.bound_field.set_user_input(previously_entered_value, ignore_validation=True)
-            else:
-                self.bound_field.clear_user_input()
+        if previously_entered_value is not None:
+            self.bound_field.set_user_input(previously_entered_value, ignore_validation=True)
+        else:
+            self.bound_field.clear_user_input()
 
     def persist_input(self, input_values):
         input_value = self.get_value_from_input(input_values)
