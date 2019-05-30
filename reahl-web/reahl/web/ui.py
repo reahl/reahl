@@ -185,9 +185,29 @@ class AjaxMethod(RemoteMethod):
         
     def cleanup_after_exception(self, input_values, ex):
         self.view.save_client_side_state()
+        self.remove_previously_persisted_form_data()
+        self.save_invalid_form_data()
         
     def cleanup_after_success(self):
         self.view.save_client_side_state()
+        self.remove_previously_persisted_form_data()
+        self.save_invalid_form_data()
+
+    def remove_previously_persisted_form_data(self):
+        forms = set()
+        for widget in self.view.page.contained_widgets():
+            if widget.is_Input and widget.registers_with_form and not isinstance(widget.bound_field, Event):
+                forms.add(widget.form)
+        for form in forms:
+            form.cleanup_after_success()
+
+    def save_invalid_form_data(self):
+        for widget in self.view.page.contained_widgets():
+            if widget.is_Input and widget.registers_with_form and not isinstance(widget.bound_field, Event):
+                field = widget.bound_field
+                if field.input_status == 'invalidly_entered':
+                    widget.enter_value(field.as_user_input_value())
+
 
     def fire_ajax_event(self, *args, **kwargs):
         state = self.view.current_POSTed_state_as_dict_of_lists
@@ -1091,7 +1111,8 @@ class Form(HTMLElement):
     def persist_input(self, input_values):
         self.clear_saved_inputs()
         for input_widget in self.inputs.values():
-            input_widget.persist_input(input_values)
+            if input_widget.can_write():
+                input_widget.persist_input(input_values)
 
     def clear_saved_inputs(self):
         self.persisted_userinput_class.clear_for_form(self)
@@ -1494,14 +1515,7 @@ class PrimitiveInput(Input):
                 self.bound_field.from_disambiguated_input(construction_state, ignore_validation=True, default_if_not_found=False)
                 self.bound_field.clear_user_input()
 
-                last_POSTed_state = self.view.last_POSTed_state_as_dict_of_lists
-                try:
-                    previously_entered_value = self.bound_field.extract_unparsed_input_from_dict_of_lists(last_POSTed_state, default_if_not_found=False)
-                except ExpectedInputNotFound:
-                    pass
-                else:
-                    if self.bound_field.can_write():
-                        self.bound_field.set_user_input(previously_entered_value, ignore_validation=True)
+                raise  ExpectedInputNotFound(self.name, {})
             else:
                 request = ExecutionContext.get_context().request
                 if self.refresh_widget and request.POST:

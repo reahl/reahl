@@ -840,7 +840,8 @@ class RecalculatedWidgetScenarios(Fixture):
 
         def check_widget_value(browser, value):
             browser.wait_for(browser.is_element_value, XPath.input_labelled('Calculated'), str(value))
-            assert browser.is_element_present(XPath.paragraph_containing('Status: defaulted'))
+            status_text = browser.get_text(XPath.paragraph_containing('Status: '))
+            assert 'invalidly_entered' not in status_text
 
         self.add_to_form = add_to_form
         self.check_widget_value = check_widget_value

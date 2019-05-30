@@ -1835,7 +1835,7 @@ class UrlBoundView(View):
         return config.web.persisted_userinput_class
 
     def empty_client_side_state(self):
-        self._construction_client_side_state = {}
+        self._construction_client_side_state = ''
 
     def update_client_side_state(self, field):
         construction_state = self.construction_client_side_state_as_dict_of_lists
@@ -1853,22 +1853,12 @@ class UrlBoundView(View):
         return state or ''
 
     @property
-    def last_POSTed_state(self):
-        if not hasattr(self, '_last_POSTed_state'):
-            state = self.persisted_userinput_class.get_persisted_for_view(self, '__reahl_last_POSTed_state__', six.text_type)
-            self._last_POSTed_state = state
-        else:
-            state = self._last_POSTed_state
-
-        return state or ''
-
-    @property
     def current_POSTed_client_side_state(self):
         if not hasattr(self, '_current_POSTed_client_side_state'):
             request = ExecutionContext.get_context().request
             client_state_string = request.POST.dict_of_lists().get('__reahl_client_side_state__', [''])[0]
             client_state = urllib_parse.parse_qs(client_state_string, keep_blank_values=True)
-            client_state.update(request.POST)
+            client_state.update(request.POST) # TODO: issue: request.POST is not in disambigiated format....
             client_state_string = urllib_parse.urlencode(client_state, doseq=True)
             self._current_POSTed_client_side_state = client_state_string
         else:
@@ -1880,10 +1870,6 @@ class UrlBoundView(View):
         return urllib_parse.parse_qs(self.construction_client_side_state, keep_blank_values=True)
 
     @property
-    def last_POSTed_state_as_dict_of_lists(self):
-        return urllib_parse.parse_qs(self.last_POSTed_state, keep_blank_values=True)
-
-    @property
     def current_POSTed_state_as_dict_of_lists(self):
         return urllib_parse.parse_qs(self.current_POSTed_client_side_state, keep_blank_values=True)
 
@@ -1891,11 +1877,9 @@ class UrlBoundView(View):
     def save_client_side_state(self):
         self.clear_client_side_state()
         self.persisted_userinput_class.add_persisted_for_view(self.view, '__reahl_last_construction_client_side_state__', self.construction_client_side_state, six.text_type)
-        self.persisted_userinput_class.add_persisted_for_view(self.view, '__reahl_last_POSTed_state__', self.current_POSTed_client_side_state, six.text_type)
 
     def clear_client_side_state(self):
         self.persisted_userinput_class.remove_persisted_for_view(self.view, '__reahl_last_construction_client_side_state__')
-        self.persisted_userinput_class.remove_persisted_for_view(self.view, '__reahl_last_POSTed_state__')
 
     def get_construction_state(self):
         # This is the stuff a View needs to know before we can construct it properly (arguments and input values applicable for this view)
