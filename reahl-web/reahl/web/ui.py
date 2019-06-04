@@ -184,50 +184,35 @@ class AjaxMethod(RemoteMethod):
         self.widget = widget
         
     def cleanup_after_exception(self, input_values, ex):
-        self.view.save_client_side_state()
-        self.remove_previously_persisted_form_data()
-        self.save_invalid_form_data()
+        self.view.save_last_construction_state()
+        self.persist_invalid_input()
         
     def cleanup_after_success(self):
-        self.view.save_client_side_state()
-        self.remove_previously_persisted_form_data()
-        self.save_invalid_form_data()
+        self.view.save_last_construction_state()
+        self.persist_invalid_input()
 
-    def remove_previously_persisted_form_data(self):
-        forms = set()
-        for widget in self.view.page.contained_widgets():
-            if widget.is_Input and widget.registers_with_form and not isinstance(widget.bound_field, Event):
-                forms.add(widget.form)
-        for form in forms:
-            form.cleanup_after_success()
+    @property
+    def contained_forms(self):
+        return set([widget for widget in self.view.page.contained_widgets() if widget.is_Form])
 
-    def save_invalid_form_data(self):
-        for widget in self.view.page.contained_widgets():
-            if widget.is_Input and widget.registers_with_form and not isinstance(widget.bound_field, Event):
-                field = widget.bound_field
-                if field.input_status == 'invalidly_entered':
-                    widget.enter_value(field.as_user_input_value())
-
+    def persist_invalid_input(self):
+        for form in self.contained_forms:
+            form.clear_all_saved_data()
+            form.persist_invalid_input()
 
     def fire_ajax_event(self, *args, **kwargs):
         state = self.view.current_POSTed_state_as_dict_of_lists
 
         for widget in self.view.page.contained_widgets():
-            widget.query_fields.accept_input(state, ignore_validation=True)
-
-            if widget.is_Input and widget.registers_with_form and not isinstance(widget.bound_field, Event): 
-                widget.bound_field.from_disambiguated_input(state, ignore_validation=True)
+            widget.accept_disambiguated_input(state)
 
         self.widget.fire_on_refresh()
 
-        self.view.empty_client_side_state()
+        construction_state =  {}
         for widget in self.view.page.contained_widgets():
-            for field in widget.query_fields.values():
-                self.view.update_client_side_state(field)
+            widget.update_construction_state(construction_state)
+        self.view.set_construction_state_from_state_dict(construction_state)
 
-            if widget.is_Input and widget.registers_with_form and not isinstance(widget.bound_field, Event):
-                self.view.update_client_side_state(widget.bound_field)
-    
 
 # Uses: reahl/web/reahl.hashchange.js
 class HashChangeHandler(object):
@@ -1068,7 +1053,7 @@ class Form(HTMLElement):
         return six.text_type(action)
 
     def register_input(self, input_widget):
-        assert input_widget not in self.inputs.values(), 'Cannot register the same input twice to this form' #xxx
+        assert input_widget not in self.inputs.values(), 'Cannot register the same input twice to this form' 
         assert input_widget.name not in self.inputs, 'Cannot add an input with same name as another'
         self.inputs[input_widget.name] = input_widget
 
@@ -1113,6 +1098,13 @@ class Form(HTMLElement):
             if input_widget.can_write():
                 input_widget.persist_input(input_values)
 
+    def persist_invalid_input(self):
+        self.clear_saved_inputs()
+        for input in self.inputs.values():
+            field = input.bound_field
+            if field.input_status == 'invalidly_entered':
+                input.enter_value(field.as_user_input_value())
+
     def clear_saved_inputs(self):
         self.persisted_userinput_class.clear_for_form(self)
         self.persisted_exception_class.clear_for_all_inputs(self)
@@ -1125,6 +1117,9 @@ class Form(HTMLElement):
         self.persist_exception(ex)
 
     def cleanup_after_success(self):
+        self.clear_all_saved_data()
+
+    def clear_all_saved_data(self):
         self.clear_saved_inputs()
         self.clear_exception()
         self.clear_uploaded_files()
@@ -1485,6 +1480,17 @@ class PrimitiveInput(Input):
     def accept_input(self, input_values):
         value = self.get_value_from_input(input_values)
         self.bound_field.from_input(value)
+
+    def accept_disambiguated_input(self, disambiguated_input):
+        super(PrimitiveInput, self).accept_disambiguated_input(disambiguated_input)
+        if self.registers_with_form:
+            self.bound_field.from_disambiguated_input(disambiguated_input, ignore_validation=True)
+
+    def update_construction_state(self, disambiguated_input):
+        super(PrimitiveInput, self).update_construction_state(disambiguated_input)
+        if self.registers_with_form:
+            self.bound_field.update_valid_value_in_disambiguated_input(disambiguated_input)
+
 
     def get_ocurred_event(self):
         return None

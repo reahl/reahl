@@ -32,6 +32,7 @@ import sys
 import threading
 from contextlib import contextmanager
 from datetime import datetime
+import itertools
 
 import cssmin
 import functools
@@ -985,7 +986,14 @@ class Widget(object):
            
            The `@exposed query_fields` of a Widget is exactly like the `@exposed fields` used for input to a model object.
         """
-        
+    
+    def accept_disambiguated_input(self, disambiguated_input):
+        self.query_fields.accept_input(disambiguated_input, ignore_validation=True)
+
+    def update_construction_state(self, disambiguated_input):
+        for field in self.query_fields.values():
+            field.update_valid_value_in_disambiguated_input(disambiguated_input)
+
     def set_arguments(self):
         widget_arguments = self.view.get_construction_state()
         self.query_fields.accept_input(widget_arguments, ignore_validation=True)
@@ -1134,7 +1142,7 @@ class Widget(object):
         inputs = []
         forms = []
 
-        for widget, parents_set in self.parent_widget_pairs(set([])):
+        for widget in itertools.chain([self], self.contained_widgets()):
             if widget.is_Form:
                 forms.append(widget)
             elif widget.is_Input:
@@ -1834,13 +1842,8 @@ class UrlBoundView(View):
         config = ExecutionContext.get_context().config
         return config.web.persisted_userinput_class
 
-    def empty_client_side_state(self):
-        self._construction_client_side_state = ''
-
-    def update_client_side_state(self, field):
-        construction_state = self.construction_client_side_state_as_dict_of_lists
-        field.update_valid_value_in_disambiguated_input(construction_state)
-        self._construction_client_side_state = urllib_parse.urlencode(construction_state, doseq=True)
+    def set_construction_state_from_state_dict(self, construction_state_dict):
+        self._construction_client_side_state = urllib_parse.urlencode(construction_state_dict, doseq=True)
 
     @property
     def construction_client_side_state(self):
@@ -1873,12 +1876,11 @@ class UrlBoundView(View):
     def current_POSTed_state_as_dict_of_lists(self):
         return urllib_parse.parse_qs(self.current_POSTed_client_side_state, keep_blank_values=True)
 
-
-    def save_client_side_state(self):
-        self.clear_client_side_state()
+    def save_last_construction_state(self):
+        self.clear_last_construction_state()
         self.persisted_userinput_class.add_persisted_for_view(self.view, '__reahl_last_construction_client_side_state__', self.construction_client_side_state, six.text_type)
 
-    def clear_client_side_state(self):
+    def clear_last_construction_state(self):
         self.persisted_userinput_class.remove_persisted_for_view(self.view, '__reahl_last_construction_client_side_state__')
 
     def get_construction_state(self):
@@ -2391,12 +2393,12 @@ class EventChannel(RemoteMethod):
     def cleanup_after_exception(self, input_values, ex):
         self.form.persisted_userinput_class.clear_for_view(self.form.view)
         self.form.cleanup_after_exception(input_values, ex)
-        self.form.view.save_client_side_state()
+        self.form.view.save_last_construction_state()
         
     def cleanup_after_success(self):
         self.form.cleanup_after_success()
         self.form.persisted_userinput_class.clear_for_view(self.form.view)
-        self.form.view.clear_client_side_state()
+        self.form.view.clear_last_construction_state()
 
 
 class ComposedPage(Resource):
