@@ -239,7 +239,7 @@ $.widget('reahl.hashchange', {
                         _this.element.find('form').each(function(i, form) {
                             $(form).validate().destroy();
                         });
-                        _this.element.html(data.widget);
+                        _this.replaceContents(data.widgets);
                         _this.arguments = newArguments;
                     } else {
                         //TODO: redirect to error page?
@@ -251,6 +251,12 @@ $.widget('reahl.hashchange', {
                 },
                 traditional: true
         });
+    },
+    replaceContents: function(widgetContents) {
+        for (var cssId in widgetContents) {
+            var widget = $('#'+cssId);
+            widget.html(widgetContents[cssId]);
+        }
     },
     hasChanged: function(newArguments){
         var _this = this;

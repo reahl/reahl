@@ -220,14 +220,14 @@ class ResultScenarios(Fixture):
         self.results_match = lambda x, y: x == y
 
     @stubclass(Widget)
-    class WidgetStub(object):
+    class WidgetStub(Widget):
         css_id = 'someid'
         def render_contents(self): return '<the widget contents>'
         def get_contents_js(self, context=None): return ['some', 'some', 'javascript']
 
     @scenario
     def widget(self):
-        self.method_result = WidgetResult(self.WidgetStub())
+        self.method_result = WidgetResult(self.WidgetStub(self.web_fixture.view))
         self.value_to_return = 'ignored in this case'
         self.expected_response = '<the widget contents><script type="text/javascript">javascriptsome</script>'
         self.exception_response = Exception
@@ -237,9 +237,9 @@ class ResultScenarios(Fixture):
 
     @scenario
     def widget_as_json(self):
-        self.method_result = WidgetResult(self.WidgetStub(), as_json_and_result=True)
+        self.method_result = WidgetResult(self.WidgetStub(self.web_fixture.view), as_json_and_result=True)
         self.value_to_return = 'ignored in this case'
-        self.expected_response = {'widget': '<the widget contents><script type="text/javascript">javascriptsome</script>',
+        self.expected_response = {'widgets': {"someid": '<the widget contents><script type="text/javascript">javascriptsome</script>'},
                                   'success': True}
         self.expected_charset = self.method_result.encoding
         self.expected_content_type = 'application/json'
@@ -358,13 +358,15 @@ def test_regenerating_method_results(reahl_system_fixture, web_fixture,
 
 class WidgetResultScenarios(Fixture):
     changes_made = False
-    @stubclass(Widget)
-    class WidgetChildStub(object):
-        is_Widget = True
-        def __init__(self, text):
-            self.text = text
-        def render(self): return '<%s>' % self.text
-        def get_js(self, context=None): return ['js(%s)' % self.text]
+    def new_WidgetChildStub(self):
+        @stubclass(Widget)
+        class WidgetChildStub(Widget):
+            def __init__(self, view, text):
+                super(WidgetChildStub, self).__init__(view)
+                self.text = text
+            def render(self): return '<%s>' % self.text
+            def get_js(self, context=None): return ['js(%s)' % self.text]
+        return WidgetChildStub
 
     def new_WidgetStub(self):
         fixture = self
@@ -374,7 +376,7 @@ class WidgetResultScenarios(Fixture):
             def __init__(self, view):
                 super(WidgetStub, self).__init__(view)
                 message = 'changed contents' if fixture.changes_made else 'initial contents'
-                self.add_child(fixture.WidgetChildStub(message))
+                self.add_child(fixture.WidgetChildStub(view, message))
         return WidgetStub
 
     def new_WidgetWithRemoteMethod(self):
@@ -397,13 +399,13 @@ class WidgetResultScenarios(Fixture):
     def success(self):
         self.exception = False
         self.expected_response = {'success': True,
-                                  'widget': '<changed contents><script type="text/javascript">js(changed contents)</script>'}
+                                  'widgets': {'an_id': '<changed contents><script type="text/javascript">js(changed contents)</script>'}}
 
     @scenario
     def exception(self):
         self.exception = True
         self.expected_response = {'success': False,
-                                  'widget': '<changed contents><script type="text/javascript">js(changed contents)</script>'}
+                                  'widgets': {'an_id': '<changed contents><script type="text/javascript">js(changed contents)</script>'}}
 
 
 @with_fixtures(WebFixture, WidgetResultScenarios)

@@ -952,7 +952,6 @@ class Widget(object):
         self.write_check = write_check       #:
         self.created_by = None               #: The factory that was used to create this Widget
         self.layout = None                   #: The Layout used for visual layout of this Widget
-
         
     def use_layout(self, layout):
         """Attaches the given Layout to this Widget. The Layout is also given a chance to customise the Widget.
@@ -987,6 +986,10 @@ class Widget(object):
            The `@exposed query_fields` of a Widget is exactly like the `@exposed fields` used for input to a model object.
         """
     
+    @property
+    def coactive_widgets(self):
+        return []
+
     def accept_disambiguated_input(self, disambiguated_input):
         self.query_fields.accept_input(disambiguated_input, ignore_validation=True)
 
@@ -1082,7 +1085,14 @@ class Widget(object):
 
     def get_contents_js(self, context=None):
         return self.children.get_js(context=context)
-        
+
+    def render_contents_js(self):
+        js = set(self.get_contents_js(context='#%s' % self.css_id))
+        result = '<script type="text/javascript">' 
+        result += ''.join(sorted(js))
+        result += '</script>'
+        return result
+
     def get_js(self, context=None):
         """Override this method if your Widget needs JavaScript to be activated on the browser side."""
         return self.get_contents_js(context=context)
@@ -1198,6 +1208,14 @@ class Widget(object):
     def attach_out_of_bound_forms(self, forms):
         for child in self.children:
             child.attach_out_of_bound_forms(forms)
+
+    def get_out_of_bounds_forms_widget(self):
+        widgets = [widget for widget in [child.get_out_of_bounds_forms_widget() for child in self.children]
+                          if widget]
+        if not widgets:
+            return None
+        assert len(widgets) == 1
+        return widgets[0]
 
 
 class ViewPreCondition(object):
@@ -2201,23 +2219,23 @@ class WidgetResult(MethodResult):
         self.result_widget = result_widget
         self.as_json_and_result = as_json_and_result
 
-    def render_html(self):
-        result = self.result_widget.render_contents()
-        js = set(self.result_widget.get_contents_js(context='#%s' % self.result_widget.css_id))
-        result += '<script type="text/javascript">' 
-        result += ''.join(sorted(js))
-        result += '</script>'
-        return result
-
     def render_as_json(self, exception):
-        rendered_widget = self.render_html()
+        widgets_to_render = set(self.get_all_coactive_widgets(self.result_widget))
+        widgets_to_render.add(self.result_widget)
+        rendered_widgets = {widget.css_id: widget.render_contents() + widget.render_contents_js() 
+                            for widget in widgets_to_render}
         success = exception is None
-        return json.dumps({ 'success': success, 'widget': rendered_widget })
+        return json.dumps({ 'success': success, 'widgets': rendered_widgets })
+
+    def get_all_coactive_widgets(self, widget):
+        for w in itertools.chain([widget], widget.contained_widgets()):
+            for coactive_widget in w.coactive_widgets:
+                yield coactive_widget
 
     def render(self, return_value):
         if self.as_json_and_result:
             return self.render_as_json(None)
-        return self.render_html()
+        return self.result_widget.render_contents() + self.result_widget.render_contents_js()
 
     def render_exception(self, exception):
         if self.as_json_and_result:

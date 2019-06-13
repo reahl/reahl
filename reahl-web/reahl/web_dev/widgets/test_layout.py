@@ -145,7 +145,7 @@ def test_page_layout_basics(web_fixture):
     layout = PageLayout()
     widget = HTML5Page(fixture.view).use_layout(layout)
 
-    assert [layout.document] == widget.body.children[:-1]
+    assert [layout.document] == widget.body.children[1:-1]
     header, contents_div, footer = layout.document.children
 
     assert isinstance(header, Header)

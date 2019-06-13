@@ -1092,3 +1092,8 @@ def test_invalid_non_trigger_input_corner_case(web_fixture, query_string_fixture
 # DONE Nuke core related to using inputs as trigger inputs aka widget arguments
 # DONE nuke javascript code that used to block and unblock stuff
 
+# Added concept of coactive widgets: widgets (anywhere else on the page) that also get refreshed if a particualr widget is refreshed.
+#  - a descendent widget is not allowed as coactive widget (break if my coactive widget is my child....)
+
+# NestedForms would work when they appear on a Widget after an ajax refresh
+#   - Grouped out-of-bound-forms into one widget, and made that widget the coactive widget of NestedForm so that:

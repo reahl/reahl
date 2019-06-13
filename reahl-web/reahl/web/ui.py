@@ -550,6 +550,7 @@ class Body(HTMLElement):
     """
     def __init__(self, view, css_id=None):
         super(Body, self).__init__(view, 'body', children_allowed=True, css_id=css_id)
+        self.out_of_bound_forms = self.add_child(Div(self.view, css_id='_reahl_out_of_bound_forms'))
         self.add_child(Slot(self.view, name='reahl_footer'))
 
     def footer_already_added(self):
@@ -568,7 +569,11 @@ class Body(HTMLElement):
         return child
 
     def attach_out_of_bound_forms(self, forms):
-        self.add_children(forms)
+        self.out_of_bound_forms.add_children(forms)
+
+    def get_out_of_bounds_forms_widget(self):
+        return self.out_of_bound_forms
+
 
 class HTML5Page(HTMLElement):
     """A web page that may be used as the page of a web application. It ensures that everything needed by
@@ -1175,6 +1180,10 @@ class NestedForm(Div):
         self.add_to_attribute('class', ['reahl-nested-form'])
         self.set_id(self.css_id)
         view.add_out_of_bound_form(self.out_of_bound_form)
+
+    @property
+    def coactive_widgets(self):
+        return super(NestedForm, self).coactive_widgets + [self.view.page.get_out_of_bounds_forms_widget()]
 
     @property
     def form(self):

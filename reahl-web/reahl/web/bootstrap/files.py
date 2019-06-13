@@ -201,7 +201,7 @@ class FileUploadPanel(Div):
         return '$(%s).%s({%s});' % (selector, widget_name, option_args)
 
     def get_js(self, context=None):
-        selector = self.contextualise_selector('"#%s .reahl-bootstrap-file-upload-panel"' % self.input_form.css_id, context)
+        selector = self.contextualise_selector('".reahl-bootstrap-file-upload-panel"', context)
         unique_names_constraint = self.fields.uploaded_file.get_validation_constraint_of_class(UniqueFilesConstraint)
         js = self.attach_jq_widget(selector, 'bootstrapfileuploadpanel',
                     form_id=self.upload_form.form.css_id,
