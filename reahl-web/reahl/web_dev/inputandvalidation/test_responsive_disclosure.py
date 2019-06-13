@@ -976,7 +976,8 @@ def test_invalid_trigger_inputs(web_fixture, query_string_fixture, sql_alchemy_f
 
 @with_fixtures(WebFixture, QueryStringFixture, SqlAlchemyFixture)
 def test_invalid_non_trigger_input_corner_case(web_fixture, query_string_fixture, sql_alchemy_fixture):
-    """."""
+    """If an invalid value was submitted via ajax for a non-trigger input, and a valid value is submitted for is with a 
+       form, and a DomainException happens... then the non-trigger input must retain its new, valid value."""
 
     fixture = scenario
 
@@ -984,12 +985,11 @@ def test_invalid_non_trigger_input_corner_case(web_fixture, query_string_fixture
         __tablename__ = 'test_responsive_disclosure_recalculate_invalids'
         id = Column(Integer, primary_key=True)
         choice = Column(Integer, default=1)
-        choice2 = Column(Integer, default=4)
         choice3 = Column(Integer, default=9)
         calculated_state = Column(Integer, default=0)
 
         def recalculate(self):
-            self.calculated_state = self.choice + self.choice2
+            self.calculated_state = self.choice * 10
 
         def submit(self):
             raise DomainException(message='An exception happened on submit')
@@ -1005,10 +1005,6 @@ def test_invalid_non_trigger_input_corner_case(web_fixture, query_string_fixture
                                         Choice(2, IntegerField(label='Two')),
                                         Choice(3, IntegerField(label='Three'))],
                                         label='Choice')
-            fields.choice2 = ChoiceField([Choice(4, IntegerField(label='Four')),
-                                        Choice(5, IntegerField(label='Five')),
-                                        Choice(6, IntegerField(label='Six'))],
-                                        label='Choice2')
             fields.choice3 = ChoiceField([Choice(7, IntegerField(label='Seven')),
                                         Choice(8, IntegerField(label='Eight')),
                                         Choice(9, IntegerField(label='Nine'))],
@@ -1026,13 +1022,9 @@ def test_invalid_non_trigger_input_corner_case(web_fixture, query_string_fixture
             self.add_child(Label(view, for_input=self.change_trigger_input))
             self.add_child(self.change_trigger_input)
             self.add_child(P(self.view, text='My choice state is now %s' % an_object.choice))
-            self.change2_trigger_input = TextInput(self, an_object.fields.choice2, refresh_widget=self)
-            self.add_child(Label(view, for_input=self.change2_trigger_input))
-            self.add_child(self.change2_trigger_input)
-            self.add_child(P(self.view, text='My choice2 state is now %s' % an_object.choice2))
-            self.change3_trigger_input = TextInput(self, an_object.fields.choice3)
-            self.add_child(Label(view, for_input=self.change3_trigger_input))
-            self.add_child(self.change3_trigger_input)
+            self.change3_non_trigger_input = TextInput(self, an_object.fields.choice3)
+            self.add_child(Label(view, for_input=self.change3_non_trigger_input))
+            self.add_child(self.change3_non_trigger_input)
             self.add_child(P(self.view, text='My calculated state is now %s' % an_object.calculated_state))
             self.define_event_handler(an_object.events.submit)
             self.add_child(ButtonInput(self, an_object.events.submit))
@@ -1055,20 +1047,19 @@ def test_invalid_non_trigger_input_corner_case(web_fixture, query_string_fixture
 
         browser.open('/')
         assert browser.wait_for(query_string_fixture.is_state_labelled_now, 'My choice state', 1)
-        assert browser.wait_for(query_string_fixture.is_state_labelled_now, 'My choice2 state', 4)
-        assert browser.wait_for(query_string_fixture.is_state_labelled_now, 'My calculated state', '5')
+        assert browser.wait_for(query_string_fixture.is_state_labelled_now, 'My calculated state', '10')
 
         browser.type(XPath.input_labelled('Choice3'), 'other invalid input')
         browser.type(XPath.input_labelled('Choice'), '2')
         browser.press_tab()
-        assert browser.wait_for(query_string_fixture.is_state_labelled_now, 'My calculated state', '6')
+        assert browser.wait_for(query_string_fixture.is_state_labelled_now, 'My calculated state', '20')
 
         assert browser.is_element_value(XPath.input_labelled('Choice3'), 'other invalid input')
         browser.type(XPath.input_labelled('Choice3'), '8')
         browser.click(XPath.button_labelled('submit'))
         assert browser.is_element_present(XPath.paragraph_containing('An exception happened on submit'))
         assert browser.is_element_value(XPath.input_labelled('Choice3'), '8')
-        # --- see line 1515 in ui.py...for what makes this break
+        
 
 
 # TODO: 
@@ -1087,7 +1078,7 @@ def test_invalid_non_trigger_input_corner_case(web_fixture, query_string_fixture
 #   DONE - on the G of a PRG, the you should see recalculated stuff if there was an exception
 # DONE - if the input of a trigger input is invalid, retain the invalid input, but render values calculated on its last valid value
 # DONE - do some ajax, with invalid value present (like existing account number); then supply valid value for it, then submit (but the submit throws an exception); then check that the valid value was retained in the input
-# - put some input in amounts; uncheck I agree; check it again - the values should default again... currently they get last POSTed and the read=only ones are marked as invalid
+# DONE - put some input in amounts; uncheck I agree; check it again - the values should default again... currently they get last POSTed and the read=only ones are marked as invalid
 # - something to say here about working with a persisted vs transient object and what will work/not
 
 # Unrelated: get_value_from_input of CheckboxSelectInput | a bug - see test_marshalling_of_checkbox_select_input, and add a similar test using a BooleanField
@@ -1098,9 +1089,6 @@ def test_invalid_non_trigger_input_corner_case(web_fixture, query_string_fixture
     #         return input_values.get(self.name, self.bound_field.false_value) #TODO: this fixes a bug - see test_marshalling_of_checkbox_select_input, and add a similar test using a BooleanField
 
 
-# Nuke core related to using inputs as trigger inputs aka widget arguments
-# nuke javascript code that used to block and unblock stuff
+# DONE Nuke core related to using inputs as trigger inputs aka widget arguments
+# DONE nuke javascript code that used to block and unblock stuff
 
-# Nuke enable_refresh(on_refresh=on_refresh) 
-#- reahl/web_dev/inputandvalidation/test_widgetqueryargs.py:228 test_refresh_widget_without_query_fields_raises_error[web_fixture0]
-#--> no need to check this anymore..see  enable_refresh(code commented out)

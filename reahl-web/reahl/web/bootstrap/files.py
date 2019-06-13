@@ -222,7 +222,7 @@ class FileUploadPanel(Div):
             self.persisted_file_class.add_persisted_for_form(self.input_form, self.name, self.uploaded_file)
 
 
-class FileUploadInput(PrimitiveInput):
+class FileUploadInput(reahl.web.ui.Input):
     """A Widget that allows the user to upload several files.  FileUploadInput
     makes use of JavaScript to save a user some time: once you choose a file, 
     it is immediately uploaded to the server in the background so that you can
@@ -236,6 +236,22 @@ class FileUploadInput(PrimitiveInput):
     :param bound_field: (See :class:`~reahl.web.ui.Input`, must be of 
               type :class:`reahl.component.modelinterface.FileField`)
     """
+    is_for_file = False
+    def __init__(self, form, bound_field, name=None):
+        super(FileUploadInput, self).__init__(form, bound_field)
+        if name:
+            bound_field.override_unqualified_name_in_input(name)
+        form.register_input(self) # bound_field must be set for this registration to work
+
+        self.set_html_representation(self.add_child(self.create_html_widget()))
+
+    @property
+    def name(self):
+        return self.bound_field.name_in_input
+
+    def get_ocurred_event(self):
+        return None
+
     @property
     def persisted_file_class(self):
         config = ExecutionContext.get_context().config
@@ -248,10 +264,10 @@ class FileUploadInput(PrimitiveInput):
     def html_control(self):
         return None
 
-    def get_value_from_input(self, input_values):
-        return [UploadedFile(f.filename, f.file_obj.read(), f.mime_type)
+    def accept_input(self, input_values):
+        value = [UploadedFile(f.filename, f.file_obj.read(), f.mime_type)
                  for f in self.persisted_file_class.get_persisted_for_form(self.form, self.name)]
+        self.bound_field.from_input(value)
 
-    def enter_value(self, input_value):
+    def persist_input(self, input_values):
         pass
-

@@ -97,6 +97,7 @@ class IDDocumentSection(FieldSet):
             self.layout.add_input(TextInput(form, id_document.fields.id_number))
         else:
             raise Exception(id_document.document_type)
+        self.layout.add_input(FileUploadInput(form, id_document.fields.files))
 
 
 class AllocationDetailSection(Div):
@@ -303,6 +304,7 @@ class IDDocument(Base):
                      Choice('Kenya', Field(label='Kenya'))
                      ]
         fields.country = ChoiceField(countries, label='Country', required=True)
+        fields.files = FileField(allow_multiple=True)
 
     def __str__(self):
         if self.document_type == 'rsa_id':

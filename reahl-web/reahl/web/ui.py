@@ -1411,7 +1411,6 @@ class PrimitiveInput(Input):
                 raise ProgrammerError('%s is not set to refresh. You can only refresh widgets on which enable_refresh() was called.' % refresh_widget)
         self.refresh_widget = refresh_widget
 
-
         self.registers_with_form = registers_with_form
         if self.registers_with_form:
             form.register_input(self) # bound_field must be set for this registration to work
@@ -1424,8 +1423,6 @@ class PrimitiveInput(Input):
             self.add_input_data_attributes()
         if self.refresh_widget:
             self.set_attribute('data-refresh-widget-id', self.refresh_widget.css_id)
-
-
 
     def add_input_data_attributes(self):
         if isinstance(self.bound_field, BooleanField):
