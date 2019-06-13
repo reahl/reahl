@@ -179,7 +179,7 @@ class HTMLAttributeDict(dict):
 class AjaxMethod(RemoteMethod):
     def __init__(self, widget):
         method_name = 'refresh_%s' % widget.css_id
-        super(AjaxMethod, self).__init__(method_name, self.fire_ajax_event, WidgetResult(widget), immutable=True, method='post')
+        super(AjaxMethod, self).__init__(method_name, self.fire_ajax_event, WidgetResult(widget, as_json_and_result=True), immutable=True, method='post')
         self.view = widget.view
         self.widget = widget
         

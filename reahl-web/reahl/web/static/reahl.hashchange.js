@@ -235,11 +235,15 @@ $.widget('reahl.hashchange', {
                 cache:   _this.options.cache,
                 data:    data,
                 success: function(data){
-                    _this.element.find('form').each(function(i, form) {
-                        $(form).validate().destroy();
-                    });
-                    _this.element.html(data);
-                    _this.arguments = newArguments;
+                    if (data.success) {
+                        _this.element.find('form').each(function(i, form) {
+                            $(form).validate().destroy();
+                        });
+                        _this.element.html(data.widget);
+                        _this.arguments = newArguments;
+                    } else {
+                        //TODO: redirect to error page?
+                    }
                 },
                 complete: function(data){
                     _this.element.unblock();
