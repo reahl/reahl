@@ -988,7 +988,7 @@ class Widget(object):
     
     @property
     def coactive_widgets(self):
-        return []
+        return [widget for child in self.children for widget in child.coactive_widgets]
 
     def accept_disambiguated_input(self, disambiguated_input):
         self.query_fields.accept_input(disambiguated_input, ignore_validation=True)
@@ -2220,17 +2220,32 @@ class WidgetResult(MethodResult):
         self.as_json_and_result = as_json_and_result
 
     def render_as_json(self, exception):
-        widgets_to_render = set(self.get_all_coactive_widgets(self.result_widget))
+        widgets_to_render = set(self.get_coactive_widgets_recursively(self.result_widget))
         widgets_to_render.add(self.result_widget)
         rendered_widgets = {widget.css_id: widget.render_contents() + widget.render_contents_js() 
                             for widget in widgets_to_render}
         success = exception is None
         return json.dumps({ 'success': success, 'widgets': rendered_widgets })
 
-    def get_all_coactive_widgets(self, widget):
-        for w in itertools.chain([widget], widget.contained_widgets()):
-            for coactive_widget in w.coactive_widgets:
-                yield coactive_widget
+    def get_coactive_widgets_recursively(self, widget):
+        all_coactive_widgets = []
+        for direct_coactive_widget in widget.coactive_widgets:
+            all_coactive_widgets.append(direct_coactive_widget)
+            for indirect_coactive_widget in direct_coactive_widget.coactive_widgets:
+                all_coactive_widgets.append(indirect_coactive_widget)
+
+        descendant_widgets = set(itertools.chain([widget], widget.contained_widgets()))
+        descendant_coactive_widgets = descendant_widgets & set(all_coactive_widgets)
+        if descendant_coactive_widgets:
+            raise ProgrammerError('%s are coactive widgets of %s and are also itself or one of its descendants' % (descendant_coactive_widgets, widget))
+
+        for coactive_widget in all_coactive_widgets:
+            descendant_widgets = set(itertools.chain([coactive_widget], coactive_widget.contained_widgets()))
+            if widget in descendant_widgets:
+                raise ProgrammerError('%s is a coactive widget of %s and is also one of its ancestors' % (coactive_widget, widget))
+
+        return all_coactive_widgets
+
 
     def render(self, return_value):
         if self.as_json_and_result:

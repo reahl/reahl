@@ -26,9 +26,9 @@ from reahl.component.exceptions import ProgrammerError
 
 from reahl.webdev.tools import Browser, XPath
 
-from reahl.component.modelinterface import Field, exposed, IntegerField, MultiChoiceField, Choice
+from reahl.component.modelinterface import Field, exposed, IntegerField, MultiChoiceField, Choice, Action, Event
 from reahl.web.fw import Bookmark, Widget
-from reahl.web.ui import A, P, Form, TextInput, Div, CheckboxSelectInput, SelectInput, Label
+from reahl.web.ui import A, P, Form, TextInput, Div, CheckboxSelectInput, SelectInput, Label, NestedForm, ButtonInput
 
 from reahl.web_dev.fixtures import WebFixture
 
@@ -223,6 +223,50 @@ def test_refreshing_only_for_specific_args(web_fixture, query_string_fixture):
     web_fixture.driver_browser.set_fragment('#non_refreshing_state=4')
     assert web_fixture.driver_browser.wait_for(fixture.is_state_labelled_now, 'My refreshing state', 3)
     assert web_fixture.driver_browser.wait_for(fixture.is_state_labelled_now, 'My non-refreshing state', 2)
+
+
+@with_fixtures(WebFixture, QueryStringFixture)
+def test_refresh_nested_forms(web_fixture, query_string_fixture):
+    """NestedForms work correctly when they appear as children of a refreshed widget."""
+
+    fixture = query_string_fixture
+    fixture.submitted = False
+
+    class MyFancyWidget(Div):
+        def __init__(self, view):
+            super(MyFancyWidget, self).__init__(view, css_id='sedrick')
+            self.enable_refresh()
+            self.add_child(P(self.view, text='My state is now %s' % self.fancy_state))
+            if self.fancy_state == 2:
+                form = self.add_child(NestedForm(view, 'nestedform'))
+                form.define_event_handler(self.events.submit)
+                form.add_child(ButtonInput(form.form, self.events.submit))
+            fixture.widget = self
+
+        def submit(self):
+            fixture.submitted = True
+
+        @exposed
+        def query_fields(self, fields):
+            fields.fancy_state = IntegerField(required=False, default=1)
+
+        @exposed
+        def events(self, events):
+            events.submit = Event(action=Action(self.submit))
+
+    wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=MyFancyWidget.factory())
+    web_fixture.reahl_server.set_app(wsgi_app)
+    web_fixture.driver_browser.open('/')
+
+    assert web_fixture.driver_browser.wait_for(fixture.is_state_now, '1')
+
+    web_fixture.driver_browser.set_fragment('#fancy_state=%s' % '2')
+    assert web_fixture.driver_browser.wait_for(fixture.is_state_now, '2')
+
+    assert not fixture.submitted
+    web_fixture.driver_browser.click(XPath.button_labelled('submit'))
+    assert fixture.submitted
+
 
 
 @with_fixtures(WebFixture)

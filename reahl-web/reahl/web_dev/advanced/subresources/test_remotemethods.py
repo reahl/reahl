@@ -26,8 +26,9 @@ from reahl.tofu import scenario, expected, Fixture, uses
 from reahl.tofu.pytestsupport import with_fixtures
 
 from reahl.webdev.tools import Browser
-from reahl.component.exceptions import DomainException
+from reahl.component.exceptions import DomainException, ProgrammerError
 from reahl.web.fw import CheckedRemoteMethod, JsonResult, MethodResult, RemoteMethod, Widget, WidgetResult
+from reahl.web.ui import Div
 from reahl.component.modelinterface import Field, IntegerField
 
 from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
@@ -423,6 +424,23 @@ def test_widgets_that_change_during_method_processing(web_fixture, widget_result
     assert json_response == widget_result_scenarios.expected_response
 
 
+
+
+@stubclass(Widget)
+class CoactiveWidgetStub(Widget):
+    def __init__(self, view, css_id, coactive_widgets):
+        super(CoactiveWidgetStub, self).__init__(view)
+        self._coactive_widgets = coactive_widgets
+        self.css_id = css_id
+
+    def render_contents(self): 
+        return '<%s>' % self.css_id
+
+    @property
+    def coactive_widgets(self):
+        return super(CoactiveWidgetStub, self).coactive_widgets + self._coactive_widgets
+
+
 @with_fixtures(WebFixture)
 def test_coactive_widgets(web_fixture):
     """Coactive Widgets of a Widget are Widgets that are included in a WidgetResult for that Widget.
@@ -431,26 +449,12 @@ def test_coactive_widgets(web_fixture):
     """
 
     @stubclass(Widget)
-    class WidgetStub(Widget):
-        def __init__(self, view, css_id, coactive_widgets):
-            super(WidgetStub, self).__init__(view)
-            self._coactive_widgets = coactive_widgets
-            self.css_id = css_id
-
-        def render_contents(self): 
-            return '<%s>' % self.css_id
-
-        @property
-        def coactive_widgets(self):
-            return self._coactive_widgets
-
-    @stubclass(Widget)
     class WidgetWithRemoteMethod(Widget):
         def __init__(self, view):
             super(WidgetWithRemoteMethod, self).__init__(view)
-            coactive_widgets = [self.add_child(WidgetStub(view, 'coactive1', [self.add_child(WidgetStub(view, 'coactive2', []))]))]
-            result_widget = self.add_child(WidgetStub(view, 'main', []))
-            result_widget.add_child(WidgetStub(view, 'child', coactive_widgets))
+            coactive_widgets = [self.add_child(CoactiveWidgetStub(view, 'coactive1', [self.add_child(CoactiveWidgetStub(view, 'coactive2', []))]))]
+            result_widget = self.add_child(CoactiveWidgetStub(view, 'main', []))
+            result_widget.add_child(CoactiveWidgetStub(view, 'child', coactive_widgets))
             method_result = WidgetResult(result_widget, as_json_and_result=True)
             remote_method = RemoteMethod('amethod', lambda: None, default_result=method_result)
             view.add_resource(remote_method)
@@ -467,3 +471,45 @@ def test_coactive_widgets(web_fixture):
                                 'coactive2': '<coactive2><script type="text/javascript"></script>'}
                              }
 
+@with_fixtures(WebFixture)
+def test_coactive_widgets_cannot_be_descendants(web_fixture):
+    """The descendant Widgets of a given Widget cannot be its coactive Widgets."""
+
+    @stubclass(Widget)
+    class WidgetWithRemoteMethod(Widget):
+        def __init__(self, view):
+            super(WidgetWithRemoteMethod, self).__init__(view)
+            child = CoactiveWidgetStub(view, 'child', [])
+            result_widget = CoactiveWidgetStub(view, 'parent', [child])
+            result_widget.add_child(child)
+            method_result = WidgetResult(result_widget, as_json_and_result=True)
+            remote_method = RemoteMethod('amethod', lambda: None, default_result=method_result)
+            view.add_resource(remote_method)
+
+    wsgi_app = web_fixture.new_wsgi_app(child_factory=WidgetWithRemoteMethod.factory())
+    browser = Browser(wsgi_app)
+
+    with expected(ProgrammerError, '.+ are coactive widgets of .+ and are also itself or one of its descendants'):
+        browser.post('/_amethod_method', {})
+
+@with_fixtures(WebFixture)
+def test_coactive_widgets_cannot_be_parents(web_fixture):
+    """The ancestor Widgets of a given Widget cannot be its coactive Widgets."""
+
+    @stubclass(Widget)
+    class WidgetWithRemoteMethod(Widget):
+        def __init__(self, view):
+            super(WidgetWithRemoteMethod, self).__init__(view)
+            result_widget = CoactiveWidgetStub(view, 'parent', [])
+            grandparent = self.add_child(Div(view, css_id='grandparent'))
+            result_widget.add_child(CoactiveWidgetStub(view, 'child', [grandparent]))
+            grandparent.add_child(result_widget)
+            method_result = WidgetResult(result_widget, as_json_and_result=True)
+            remote_method = RemoteMethod('amethod', lambda: None, default_result=method_result)
+            view.add_resource(remote_method)
+
+    wsgi_app = web_fixture.new_wsgi_app(child_factory=WidgetWithRemoteMethod.factory())
+    browser = Browser(wsgi_app)
+
+    with expected(ProgrammerError, '.+ is a coactive widget of .+ and is also one of its ancestors'):
+        browser.post('/_amethod_method', {})
