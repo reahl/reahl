@@ -26,15 +26,6 @@ class DynamicExampleFixture(Fixture):
     def new_domain_exception_alert(self):
         return XPath.div().including_class('alert').with_text('Please ensure allocation percentages add up to 100')
 
-    def new_investment_allocation_details(self):
-        return XPath.legend_with_text('Investment allocation')
-
-    def new_investor_information(self):
-        return XPath.legend_with_text('Investor information')
-
-    def new_new_investor_specific_information(self):
-        return XPath.legend_with_text('New investor information')
-
 
 @with_fixtures(WebFixture, DynamicExampleFixture)
 def test_example(web_fixture, dynamic_example_fixture):
