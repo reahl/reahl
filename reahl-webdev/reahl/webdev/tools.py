@@ -21,6 +21,7 @@ import six
 import io
 import re
 import contextlib
+import itertools
 import time
 from six.moves.urllib import parse as urllib_parse
 import logging
@@ -427,19 +428,55 @@ class Browser(BasicBrowser):
         assert None, 'Not yet implemented'
 
 
-
 class XPath(object):
     """An object representing an XPath expression for locating a particular element on a web page.
        A programmer is not supposed to instantiate an XPath directly. Use one of the descriptive
        class methods to instantiate an XPath instance.
 
        An XPath expression in a string is returned when an XPath object is cast to six.text_type.
+
+       .. versionchanged:: 4.1
+          Removed .checkbox_in_table_row() method.
+          Made XPath instances composable (added .inside_of).
+          Added __getitem__ so that something like .table()[5] gives you the 5th table in its parent.
     """
-    def __init__(self, xpath):
-        self.xpath = xpath
+    def __init__(self, *xpaths):
+        self.xpaths = xpaths
         
     def __str__(self):
         return self.xpath
+
+    def __getitem__(self, n):
+        """Returns an XPath for the nth positioned element matching the current element.
+
+           .. versionadded:: 4.1
+        """
+        return self.__class__(*['%s[%s]' % (xpath, n) for xpath in self.xpaths])
+        
+    @property
+    def xpath(self):
+        return '|'.join(self.xpaths)
+
+    def inside_of(self, another):
+        """Returns an XPath that is positioned inside of another.
+
+           .. versionadded:: 4.1
+        """
+        return self.__class__(*['%s/.%s' % (b,a) for a, b in itertools.product(self.xpaths, another.xpaths)])
+
+    def including_class(self, css_class):
+        return self.__class__(*['%s[contains(concat(" ", @class, " "), " %s ")]' % (xpath, css_class) for xpath in self.xpaths])
+
+    def with_text(self, text):
+        return self.__class__(*['%s[normalize-space()=normalize-space("%s")]' % (xpath, text) for xpath in self.xpaths])
+
+    @classmethod
+    def div(cls):
+        """Returns an XPath to find an HTML <div>.
+        
+           .. versionadded:: 4.1
+        """
+        return cls('//div')
 
     @classmethod
     def label_with_text(cls, text):
@@ -450,6 +487,14 @@ class XPath(object):
     def heading_with_text(cls, level, text):
         """Returns an XPath to find an HTML <h> of level `level` containing the text in `text`."""
         return cls('//h%s[node()="%s"]' % (level, text))
+
+    @classmethod
+    def checkbox(cls):
+        """Returns a XPath to a checkbox input.
+        
+           .. versionadded:: 4.1
+        """
+        return cls('//input[@type="checkbox"]')
 
     @classmethod
     def caption_with_text(cls, text):
@@ -467,19 +512,81 @@ class XPath(object):
         return cls('//table[@summary="%s"]' % (text))
 
     @classmethod
+    def table(cls):
+        """Returns a XPath to a table.
+        
+           .. versionadded:: 4.1
+        """
+        return cls('//table')
+
+    @classmethod
+    def table_body(cls):
+        """Returns a XPath to a table body.
+        
+           .. versionadded:: 4.1
+        """
+        return cls('//tbody')
+
+    @classmethod
+    def table_header(cls):
+        """Returns a XPath to a table header.
+        
+           .. versionadded:: 4.1
+        """
+        return cls('//thead')
+
+    @classmethod
+    def table_footer(cls):
+        """Returns a XPath to a table footer.
+        
+           .. versionadded:: 4.1
+        """
+        return cls('//tfoot')
+
+    @classmethod
+    def table_row(cls):
+        """Returns a XPath to a table row.
+        
+           .. versionadded:: 4.1
+        """
+        return cls('//tr')
+
+    @classmethod
+    def table_cell(cls):
+        """Returns a XPath to a table cell.
+        
+           .. versionadded:: 4.1
+        """
+        return cls('//td', '//th')
+
+    @classmethod
     def table_cell_with_text(cls, text):
-        """Returns an XPath to find an HTML <tr> that contains a <td> / cell with text matching the text in `text`"""
-        return cls('//tr/td[normalize-space(node())="%s"]' % (text))
+        """Returns an XPath to find an HTML <td> or a <th>  with text matching the text in `text`.
+        
+           ..versionchanged:: 4.1
+             Included <th> tags, and dropped the requirement for it to be inside a <tr>
+        """
+        return cls('//*[(self::td or self::th) and normalize-space(node())="%s"]' % (text))
 
     @classmethod
-    def checkbox_in_table_row(cls, nth):
-        """Returns an XPath to find an HTML <tr> that contains a <td> / cell with text matching the text in `text`"""
-        return cls('(//tr/td/input[@type="checkbox"])[%s]' % nth)
+    def table_cell_aligned_to(cls, column_heading_text, search_column_heading, search_cell_text):
+        """Find a cell (td or th) in the column with column_heading_text which is in the same row as 
+           where a cell in search_column_heading matches search_cell_text.
+
+            ..versionadded:: 4.1
+        """
+
+        target_column_index = 'count(%s/preceding-sibling::th)+1' % cls.table_cell_with_text(column_heading_text).inside_of(cls.table_header())
+        search_column_index = 'count(%s/preceding-sibling::th)+1' % cls.table_cell_with_text(search_column_heading).inside_of(cls.table_header())
+        found_cell = '//td[position()=(%s) and string()=normalize-space("%s")]' % (search_column_index, search_cell_text)
+        found_row_index = 'count(%s/parent::tr/preceding-sibling::tr)+1' % found_cell
+
+        return cls.table_cell()[target_column_index].inside_of(XPath.table_row()[found_row_index])
 
     @classmethod
-    def link_with_text(cls, text, nth=1):
+    def link_with_text(cls, text):
         """Returns an XPath to find an HTML <a> containing the text in `text`."""
-        return cls('(//a[normalize-space(.)=normalize-space("%s")])[%s]' % (text, nth))
+        return cls('//a[normalize-space(.)=normalize-space("%s")]' % text)
 
     @classmethod
     def link_starting_with_text(cls, text):
@@ -487,22 +594,34 @@ class XPath(object):
         return cls('//a[starts-with(node(), "%s")]' % text)
 
     @classmethod
+    def legend_with_text(cls, text):
+        """Returns an XPath to find an HTML <legend> containing the text in `text`."""
+        return cls('//legend[normalize-space(.)=normalize-space("%s")]' % text)
+
+    @classmethod
     def paragraph_containing(cls, text):
         """Returns an XPath to find an HTML <p> that contains the text in `text`."""
         return cls('//p[contains(node(), "%s")]' % text)
 
     @classmethod
+    def input(cls):
+        return cls('//input')
+
+    @classmethod
     def input_named(cls, name):
         """Returns an XPath to find an HTML <input> with the given name."""
-        return '//input[@name="%s"]' % name
+        return cls('//input[@name="%s"]' % name)
 
     @classmethod
     def input_labelled(cls, label):
         """Returns an XPath to find an HTML <input> referred to by a <label> that contains the text in `label`."""
         for_based_xpath = '//input[@id=//label[normalize-space(node())=normalize-space("%s")]/@for]' % label
         nested_xpath = '//label[normalize-space()=normalize-space("%s")]//input' % label
-        return cls('%s|%s' % (for_based_xpath, nested_xpath))
-
+        return cls(for_based_xpath, nested_xpath)
+        # for_based = '@id=//label[normalize-space(node())=normalize-space("%s")]/@for]' % label
+        # nested_in_label = 'ancestor::label[normalize-space()=normalize-space("%s")]' % label
+        # return cls('''//*[(self::input and ( %s or %s )''' % (for_based, nested_in_label))
+                    
     @classmethod
     def select_labelled(cls, label):
         """Returns an XPath to find an HTML <select> referred to by a <label> that contains the text in `label`."""
@@ -531,13 +650,13 @@ class XPath(object):
         arguments = arguments or {}
         if arguments:
             encoded_arguments = '?'+urllib_parse.urlencode(arguments)
-            argument_selector = '[substring(@name, string-length(@name)-string-length("%s")+1) = "%s"]' % (encoded_arguments, encoded_arguments)
+            argument_selector = 'and substring(@name, string-length(@name)-string-length("%s")+1) = "%s"' % (encoded_arguments, encoded_arguments)
         else:
             argument_selector = ''
-        value_selector = '[normalize-space(@value)=normalize-space("%s")]'  % label
-        inputButtonXPath = '//input%s%s' % (argument_selector, value_selector)
-        buttonTagXPath = '//button[normalize-space(node())=normalize-space("%s")]' % label
-        return cls('%s | %s' % (inputButtonXPath, buttonTagXPath))
+        value_selector = 'normalize-space(@value)=normalize-space("%s")'  % label
+        input_button_xpath = 'self::input %s and %s' % (argument_selector, value_selector)
+        button_tag_xpath = 'self::button and normalize-space(node())=normalize-space("%s")' % label
+        return cls('//*[(%s) or (%s)]' % (input_button_xpath, button_tag_xpath))
 
     @classmethod
     def error_label_containing(cls, text):
@@ -553,6 +672,11 @@ class XPath(object):
     def div_containing(cls, text):
         """Returns an XPath to find a Div containing the message in `text`."""
         return cls('//div[contains(text(),"%s")]' % text)
+
+    @classmethod
+    def ul(cls):
+        """Returns an XPath to find a Div containing the message in `text`."""
+        return cls('//ul')
 
 
 class UnexpectedLoadOf(Exception):
@@ -579,6 +703,7 @@ class DriverBrowser(BasicBrowser):
         self.default_scheme = scheme
         self.default_port = port
         self.set_window_size('xl')
+        self.wait_for_ajax = True
 
     def set_window_size(self, size):
         sizes = {'xs': (576-20, 600),
@@ -694,7 +819,7 @@ class DriverBrowser(BasicBrowser):
         """
         def wrapped(driver):
             try:
-                return condition(*args, **kwargs)
+                return (not self.wait_for_ajax or self.is_ajax_finished()) and condition(*args, **kwargs)
             except Exception as ex:
                 if isinstance(ex.args[0], CannotSendRequest):
                     return False
@@ -705,13 +830,16 @@ class DriverBrowser(BasicBrowser):
         """Waits until the given `condition` is **not** satisfied. See :meth:`DriverBrowser.wait_for`."""
         def wrapped(driver):
             try:
-                return not condition(*args, **kwargs)
+                return (not self.wait_for_ajax or self.is_ajax_finished()) and not condition(*args, **kwargs)
             except Exception as ex:
                 if isinstance(ex.args[0], CannotSendRequest):
                     return False
                 raise
         return WebDriverWait(self.web_driver, 2).until(wrapped)
 
+    def is_ajax_finished(self):
+        return self.web_driver.execute_script('return (("undefined" !== typeof jQuery) && (jQuery.active == 0)) || ("undefined" == typeof jQuery);')
+                         
     def wait_for_element_visible(self, locator):
         """Waits for the element found by `locator` to become visible.
 
@@ -811,21 +939,32 @@ class DriverBrowser(BasicBrowser):
         if wait:
             self.wait_for_page_to_load()
 
-    def type(self, locator, text, wait=True):
+    @contextlib.contextmanager
+    def ajax_in_background(self):
+        self.wait_for_ajax = False
+        try:
+            yield self
+        finally:
+            self.wait_for_ajax = True
+        
+    def type(self, locator, text, trigger_blur=True):
         """Types the text in `value` into the input found by the `locator`.
         
            :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
            :param text: The text to be typed.
-           :keyword wait: If False, don't wait_for_page_to_load after having typed into the input.
+           :keyword trigger_blur: If False, don't trigger the blur event on the input after typing (by default blur is triggered).
  
+            .. versionchanged:: 4.1
+               Removed wait kwarg, since we don't ever need to wait_for_page_to_load after typing into an input
+               Added trigger_blur to trigger possible onchange events automatically after typing.
         """
         self.wait_for_element_interactable(locator)
         el = self.find_element(locator)
         if el.get_attribute('type') != 'file':
             el.send_keys(Keys.CONTROL+'a'+Keys.BACKSPACE) # To clear() the element without triggering extra onchange events
         el.send_keys(text)
-        if wait:
-            self.wait_for_page_to_load()
+        if trigger_blur:
+            self.web_driver.execute_script('if ( "undefined" !== typeof jQuery) { jQuery(arguments[0]).blur().focus(); };', el)
 
     def select(self, locator, label_to_choose):
         """Finds the select element indicated by `locator` and selects one of its options.

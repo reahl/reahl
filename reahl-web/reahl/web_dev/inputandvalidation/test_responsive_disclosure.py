@@ -331,12 +331,14 @@ def test_the_form_is_blocked_while_the_widget_is_being_refreshed(web_fixture, bl
     browser.open('/')
 
     fixture.should_pause_to_simulate_long_refresh = True
-    with web_fixture.reahl_server.in_background(wait_till_done_serving=False):
-        browser.click(XPath.option_with_text('Three'))
+    with browser.ajax_in_background():
+        with web_fixture.reahl_server.in_background(wait_till_done_serving=False):
+            browser.click(XPath.option_with_text('Three'))
 
-    assert fixture.is_form_blocked(browser)
+        assert fixture.is_form_blocked(browser)
 
-    fixture.simulate_long_refresh_done()
+        fixture.simulate_long_refresh_done()
+
     assert browser.wait_for(query_string_fixture.is_state_now, 3)
     assert not fixture.is_form_blocked(browser)
 
@@ -559,13 +561,13 @@ def test_correct_tab_order_for_responsive_widgets(web_fixture, disclosed_input_t
     assert browser.get_value(XPath.input_labelled('Trigger field')) == 'off'
     browser.press_tab()
     assert browser.is_focus_on(XPath.input_labelled('Trigger field'))
-    browser.type(XPath.input_labelled('Trigger field'), 'on')
+    browser.type(XPath.input_labelled('Trigger field'), 'on', trigger_blur=False)
     browser.press_tab()
     browser.press_tab()
     assert browser.is_focus_on(XPath.input_labelled('Email'))
     
     # Case: an input disappears from the next tab order position
-    browser.type(XPath.input_labelled('Trigger field'), 'off')
+    browser.type(XPath.input_labelled('Trigger field'), 'off', trigger_blur=False)
     browser.press_tab()
     browser.press_tab()
     assert browser.is_focus_on(XPath.button_labelled('click me'))
@@ -588,7 +590,7 @@ def test_ignore_button_click_on_change(web_fixture, disclosed_input_trigger_fixt
     assert browser.get_value(XPath.input_labelled('Trigger field')) == 'off'
     assert not browser.is_element_present(XPath.input_labelled('Email'))
 
-    browser.type(XPath.input_labelled('Trigger field'), 'on')
+    browser.type(XPath.input_labelled('Trigger field'), 'on', trigger_blur=False) 
     with browser.no_page_load_expected():
         browser.click(XPath.button_labelled('click me'))
 

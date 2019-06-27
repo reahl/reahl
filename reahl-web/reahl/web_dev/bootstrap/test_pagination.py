@@ -81,8 +81,8 @@ class PageMenuFixture(Fixture):
     def page_range_links_match(self, link_labels):
         return self.web_fixture.driver_browser.execute_script('return window.jQuery(".pagination a").slice(2,-2).map(function(){return window.jQuery(this).html();}).toArray() == "%s"' % link_labels)
 
-    def is_marked_active(self, link_label, nth=1):
-        [li] = self.web_fixture.driver_browser.xpath('%s/..' % (XPath.link_with_text(link_label, nth=nth)))
+    def is_marked_active(self, link_label, nth=1):        
+        [li] = self.web_fixture.driver_browser.xpath('%s/..' % (XPath.link_with_text(link_label).inside_of(XPath.ul().including_class('reahl-menu')[nth])))
         return 'active' in li.attrib.get('class', '')
 
     def new_wsgi_app(self):

@@ -51,17 +51,17 @@ class NewInvestmentForm(Form):
         if self.exception:
             self.add_child(Alert(view, str(self.exception), 'warning'))
 
-        investment = Investment.for_current_session()
+        investment_order = InvestmentOrder.for_current_session()
         type_of_investor = self.add_child(FieldSet(view, legend_text='Introduction'))
         type_of_investor.use_layout(FormLayout())
-        type_of_investor.layout.add_input(RadioButtonSelectInput(self, investment.fields.new_or_existing, refresh_widget=self))
+        type_of_investor.layout.add_input(RadioButtonSelectInput(self, investment_order.fields.new_or_existing, refresh_widget=self))
 
-        if investment.new_or_existing:
-            self.add_child(InvestorDetailsSection(self, investment))
+        if investment_order.new_or_existing:
+            self.add_child(InvestorDetailsSection(self, investment_order))
 
 
 class InvestorDetailsSection(Div):
-    def __init__(self, form, investment):
+    def __init__(self, form, investment_order):
         super(InvestorDetailsSection, self).__init__(form.view, css_id='investor_details_section')
         self.enable_refresh()
         self.use_layout(FormLayout())
@@ -69,19 +69,19 @@ class InvestorDetailsSection(Div):
         investor_info = self.add_child(FieldSet(self.view, legend_text='Investor information'))
         investor_info.use_layout(FormLayout())
 
-        if investment.new_or_existing == 'new':
-            investor_info.layout.add_input(TextInput(form, investment.fields.name))
-            investor_info.layout.add_input(TextInput(form, investment.fields.surname))
-            self.add_child(IDDocumentSection(form, investment.id_document))
+        if investment_order.new_or_existing == 'new':
+            investor_info.layout.add_input(TextInput(form, investment_order.fields.name))
+            investor_info.layout.add_input(TextInput(form, investment_order.fields.surname))
+            self.add_child(IDDocumentSection(form, investment_order.id_document))
 
-        elif investment.new_or_existing == 'existing':
-            investor_info.layout.add_input(TextInput(form, investment.fields.existing_account_number))
+        elif investment_order.new_or_existing == 'existing':
+            investor_info.layout.add_input(TextInput(form, investment_order.fields.existing_account_number))
 
-        self.layout.add_input(CheckboxInput(form, investment.fields.agreed_to_terms, refresh_widget=self))
-        if investment.agreed_to_terms:
-            self.add_child(AllocationDetailSection(form, investment))
+        self.layout.add_input(CheckboxInput(form, investment_order.fields.agreed_to_terms, refresh_widget=self))
+        if investment_order.agreed_to_terms:
+            self.add_child(AllocationDetailSection(form, investment_order))
 
-        
+
 class IDDocumentSection(FieldSet):
     def __init__(self, form, id_document):
         super(IDDocumentSection, self).__init__(form.view, legend_text='New investor information', css_id='id_document_section')
@@ -93,24 +93,31 @@ class IDDocumentSection(FieldSet):
         if document_type == 'passport':
             self.layout.add_input(SelectInput(form, id_document.fields.country))
             self.layout.add_input(TextInput(form, id_document.fields.passport_number))
-        elif document_type == 'rsa_id':
-            self.layout.add_input(TextInput(form, id_document.fields.id_number))
+        elif document_type == 'id_card':
+            self.layout.add_input(TextInput(form, id_document.fields.id_card_number))
         else:
             raise Exception(id_document.document_type)
-        self.layout.add_input(FileUploadInput(form, id_document.fields.files))
+
+
+class TotalsRow(object):
+    def __init__(self, investment_order):
+        self.investment_order = investment_order
+        self.fund = 'Totals'
+        self.amount = sum([i.amount for i in investment_order.allocations])
+        self.percentage = sum([i.percentage for i in investment_order.allocations])
 
 
 class AllocationDetailSection(Div):
-    def __init__(self, form, investment):
+    def __init__(self, form, investment_order):
         super(AllocationDetailSection, self).__init__(form.view, css_id='investment_allocation_details')
-        self.enable_refresh(on_refresh=investment.events.allocation_changed)
+        self.enable_refresh(on_refresh=investment_order.events.allocation_changed)
         self.use_layout(FormLayout())
 
         allocation_controls = self.add_child(FieldSet(self.view, legend_text='Investment allocation'))
         allocation_controls.use_layout(FormLayout())
         
-        allocation_controls.layout.add_input(TextInput(form, investment.fields.amount, refresh_widget=self))
-        allocation_controls.layout.add_input(RadioButtonSelectInput(form, investment.fields.amount_or_percentage, refresh_widget=self))
+        allocation_controls.layout.add_input(TextInput(form, investment_order.fields.amount, refresh_widget=self))
+        allocation_controls.layout.add_input(RadioButtonSelectInput(form, investment_order.fields.amount_or_percentage, refresh_widget=self))
 
 
         def make_amount_input(view, allocation):
@@ -128,27 +135,18 @@ class AllocationDetailSection(Div):
             else:
                 return P(view, text=str(allocation.percentage))
 
-        class TotalsRow(object):
-            def __init__(self, investment):
-                self.investment = investment
-                self.fund = 'Totals'
-                self.amount = sum([i.amount for i in investment.allocations])
-                self.percentage = sum([i.percentage for i in investment.allocations])
-
         columns = [StaticColumn(Field(label='Fund'), 'fund')]
         columns.append(DynamicColumn('Percentage', make_percentage_input))
         columns.append(DynamicColumn('Amount', make_amount_input))
-        table = Table(form.view).with_data(columns, investment.allocations+[TotalsRow(investment)])
+        table = Table(form.view).with_data(columns, investment_order.allocations+[TotalsRow(investment_order)])
         self.add_child(table)
-        self.define_event_handler(investment.events.submit)
-        self.add_child(Button(form, investment.events.submit))
-
-
+        self.define_event_handler(investment_order.events.submit)
+        self.add_child(Button(form, investment_order.events.submit))
 
 
 @session_scoped
-class Investment(Base):
-    __tablename__ = 'responsive_disclosure_investment'
+class InvestmentOrder(Base):
+    __tablename__ = 'responsive_disclosure_investment_order'
 
     id              = Column(Integer, primary_key=True)
     agreed_to_terms = Column(Boolean)
@@ -158,8 +156,8 @@ class Investment(Base):
     surname         = Column(UnicodeText)
     amount          = Column(Integer)
     amount_or_percentage = Column(UnicodeText)
-    allocations     = relationship('Allocation', back_populates='investment', lazy='immediate')
-    id_document     = relationship('IDDocument', uselist=False, back_populates='investment')
+    allocations     = relationship('reahl.doc.examples.howtos.responsivedisclosure.responsivedisclosure.Allocation', back_populates='investment_order', lazy='immediate')
+    id_document     = relationship('reahl.doc.examples.howtos.responsivedisclosure.responsivedisclosure.IDDocument', uselist=False, back_populates='investment_order')
 
     @exposed
     def fields(self, fields):
@@ -181,7 +179,7 @@ class Investment(Base):
         events.allocation_changed = Event(action=Action(self.recalculate))
 
     def __init__(self, **kwargs):
-        super(Investment, self).__init__(**kwargs)
+        super(InvestmentOrder, self).__init__(**kwargs)
         self.amount_or_percentage = 'percentage'
         self.name = None
         self.surname = None
@@ -193,7 +191,7 @@ class Investment(Base):
             Allocation(self, 'Fund A')
             Allocation(self, 'Fund B')
         if not self.id_document:
-            self.id_document = IDDocument(investment=self)
+            self.id_document = IDDocument(investment_order=self)
 
     @property
     def is_in_percentage(self):
@@ -233,6 +231,7 @@ class Investment(Base):
 
         Session.delete(self)
 
+
 class Allocation(Base):
     __tablename__ = 'responsive_disclosure_allocation'
 
@@ -240,16 +239,16 @@ class Allocation(Base):
     percentage = Column(Integer)
     amount     = Column(Integer)
     fund       = Column(UnicodeText)
-    investment_id = Column(Integer, ForeignKey(Investment.id))
-    investment  = relationship('Investment', back_populates='allocations')
+    investment_id = Column(Integer, ForeignKey(InvestmentOrder.id))
+    investment_order  = relationship('reahl.doc.examples.howtos.responsivedisclosure.responsivedisclosure.InvestmentOrder', back_populates='allocations')
 
     @exposed
     def fields(self, fields):
         fields.percentage    = IntegerField(label='Percentage', required=True, writable=lambda field: self.is_in_percentage)
         fields.amount        = IntegerField(label='Amount', required=True, writable=lambda field: self.is_in_amount)
 
-    def __init__(self, investment, fund_name):
-        super(Allocation, self).__init__(investment=investment)
+    def __init__(self, investment_order, fund_name):
+        super(Allocation, self).__init__(investment_order=investment_order)
         self.fund = fund_name
         self.amount = 0
         self.percentage = 0
@@ -260,7 +259,7 @@ class Allocation(Base):
 
     @property
     def is_in_percentage(self):
-        return self.investment.is_in_percentage
+        return self.investment_order.is_in_percentage
 
     @property
     def is_in_amount(self):
@@ -281,34 +280,42 @@ class IDDocument(Base):
 
     id         = Column(Integer, primary_key=True)
     
-    document_type = Column(UnicodeText, default='rsa_id')
-    id_number     = Column(UnicodeText)
+    document_type = Column(UnicodeText, default='id_card')
+    id_card_number     = Column(UnicodeText)
     passport_number = Column(UnicodeText)
     country = Column(UnicodeText)
-    investment_id = Column(Integer, ForeignKey(Investment.id))
-    investment  = relationship('Investment', back_populates='id_document')
-
+    investment_id = Column(Integer, ForeignKey(InvestmentOrder.id))
+    investment_order  = relationship('reahl.doc.examples.howtos.responsivedisclosure.responsivedisclosure.InvestmentOrder', back_populates='id_document')
 
     @exposed
     def fields(self, fields):
         types = [Choice('passport', Field(label='Passport')),
-                 Choice('rsa_id', Field(label='RSA ID'))]
+                 Choice('id_card', Field(label='National ID Card'))]
         fields.document_type = ChoiceField(types, label='Type', required=True)
-        fields.id_number     = Field(label='ID number', required=True)
+        fields.id_card_number  = Field(label='ID card number', required=True)
         fields.passport_number = Field(label='Passport number', required=True)
-        countries = [Choice('Ghana', Field(label='Ghana')),
-                     Choice('South Africa', Field(label='South Africa')),
-                     Choice('Nigeria', Field(label='Nigeria')),
-                     Choice('Namibia', Field(label='Namibia')),
-                     Choice('Zimbabwe', Field(label='Zimbabwe')),
-                     Choice('Kenya', Field(label='Kenya'))
-                     ]
+        countries = [
+            Choice('Australia', Field(label='Australia')),
+            Choice('Chile', Field(label='Chile')),
+            Choice('China', Field(label='China')),
+            Choice('France', Field(label='France')),
+            Choice('Germany', Field(label='Germany')),
+            Choice('Ghana', Field(label='Ghana')),
+            Choice('India', Field(label='India')),
+            Choice('Japan', Field(label='Japan')),
+            Choice('Kenya', Field(label='Kenya')),
+            Choice('Namibia', Field(label='Namibia')),
+            Choice('Nigeria', Field(label='Nigeria')),
+            Choice('South Africa', Field(label='South Africa')),
+            Choice('United States', Field(label='United States of America')),
+            Choice('United Kingdom', Field(label='United Kingdom')),
+            Choice('Zimbabwe', Field(label='Zimbabwe'))
+            ]
         fields.country = ChoiceField(countries, label='Country', required=True)
-        fields.files = FileField(allow_multiple=True)
 
     def __str__(self):
-        if self.document_type == 'rsa_id':
-            return 'RSA ID: %s' % self.id_number
+        if self.document_type == 'id_card':
+            return 'ID Card: %s' % self.id_card_number
         else:
             return 'Passport (%s): %s' % (self.country, self.passport_number)
 
