@@ -38,7 +38,6 @@ def test_example(web_fixture, dynamic_example_fixture):
 
     browser.open('/')
 
-    import pdb; pdb.set_trace()
     # Check calculating totals
     browser.type(fixture.percentage_input_for('Fund A'), '80')
     browser.wait_for(fixture.percentage_total_is, '80')

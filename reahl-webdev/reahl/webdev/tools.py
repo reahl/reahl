@@ -71,7 +71,7 @@ class BasicBrowser(object):
 
     def is_element_present(self, locator):
         xpath = six.text_type(locator)
-        return len(self.lxml_html.xpath(xpath)) == 1 
+        return len(self.lxml_html.xpath(xpath)) > 0
 
     @property
     def lxml_html(self):
@@ -464,11 +464,28 @@ class XPath(object):
         """
         return self.__class__(*['%s/.%s' % (b,a) for a, b in itertools.product(self.xpaths, another.xpaths)])
 
+    def __or__(self, other):
+        return self.__class__(*(self.xpaths + other.xpaths))
+
     def including_class(self, css_class):
         return self.__class__(*['%s[contains(concat(" ", @class, " "), " %s ")]' % (xpath, css_class) for xpath in self.xpaths])
 
     def with_text(self, text):
         return self.__class__(*['%s[normalize-space()=normalize-space("%s")]' % (xpath, text) for xpath in self.xpaths])
+
+    def including_text(self, text):
+        return self.__class__(*['%s[contains(normalize-space(), normalize-space("%s"))]' % (xpath, text) for xpath in self.xpaths])
+
+    def with_text_starting(self, text):
+        return self.__class__(*['%s[starts-with(normalize-space(), normalize-space("%s"))]' % (xpath, text) for xpath in self.xpaths])
+
+    @classmethod
+    def any(cls, tag_name):
+        """Returns an XPath to find an HTML tag with name=tag_name.
+        
+           .. versionadded:: 4.1
+        """
+        return cls('//%s' % tag_name)
 
     @classmethod
     def div(cls):
@@ -476,17 +493,17 @@ class XPath(object):
         
            .. versionadded:: 4.1
         """
-        return cls('//div')
+        return cls.any('div')
 
     @classmethod
     def label_with_text(cls, text):
         """Returns an XPath to find an HTML <label> containing the text in `text`."""
-        return cls('//label[normalize-space()=normalize-space("%s")]' % text)
+        return cls.any('label').with_text(text)
 
     @classmethod
     def heading_with_text(cls, level, text):
         """Returns an XPath to find an HTML <h> of level `level` containing the text in `text`."""
-        return cls('//h%s[node()="%s"]' % (level, text))
+        return cls.any('h%s' % level).with_text(text)
 
     @classmethod
     def checkbox(cls):
@@ -494,22 +511,22 @@ class XPath(object):
         
            .. versionadded:: 4.1
         """
-        return cls('//input[@type="checkbox"]')
+        return cls.any('input')['@type="checkbox"']
 
     @classmethod
     def caption_with_text(cls, text):
         """Returns an XPath to find an HTML <caption> matching the text in `text`."""
-        return cls('//caption[node()="%s"]' % (text))
+        return cls.any('caption').with_text(text)
 
     @classmethod
     def option_with_text(cls, text):
         """Returns an XPath to find an HTML <option> containing the text in `text`."""
-        return cls('//option[node()="%s"]' % (text))
+        return cls.any('option').with_text(text)
 
     @classmethod
     def table_with_summary(cls, text):
         """Returns an XPath to find an HTML <table summary='...'> matching the text in `text` in its summary attribute value."""
-        return cls('//table[@summary="%s"]' % (text))
+        return cls.any('table')['@summary="%s"' % (text)]
 
     @classmethod
     def table(cls):
@@ -517,7 +534,7 @@ class XPath(object):
         
            .. versionadded:: 4.1
         """
-        return cls('//table')
+        return cls.any('table')
 
     @classmethod
     def table_body(cls):
@@ -525,7 +542,7 @@ class XPath(object):
         
            .. versionadded:: 4.1
         """
-        return cls('//tbody')
+        return cls.any('tbody')
 
     @classmethod
     def table_header(cls):
@@ -533,7 +550,7 @@ class XPath(object):
         
            .. versionadded:: 4.1
         """
-        return cls('//thead')
+        return cls.any('thead')
 
     @classmethod
     def table_footer(cls):
@@ -541,7 +558,7 @@ class XPath(object):
         
            .. versionadded:: 4.1
         """
-        return cls('//tfoot')
+        return cls.any('tfoot')
 
     @classmethod
     def table_row(cls):
@@ -549,7 +566,7 @@ class XPath(object):
         
            .. versionadded:: 4.1
         """
-        return cls('//tr')
+        return cls.any('tr')
 
     @classmethod
     def table_cell(cls):
@@ -557,7 +574,7 @@ class XPath(object):
         
            .. versionadded:: 4.1
         """
-        return cls('//td', '//th')
+        return cls.any('td') | cls.any('th')
 
     @classmethod
     def table_cell_with_text(cls, text):
@@ -566,7 +583,7 @@ class XPath(object):
            ..versionchanged:: 4.1
              Included <th> tags, and dropped the requirement for it to be inside a <tr>
         """
-        return cls('//*[(self::td or self::th) and normalize-space(node())="%s"]' % (text))
+        return cls.table_cell().with_text(text)
 
     @classmethod
     def table_cell_aligned_to(cls, column_heading_text, search_column_heading, search_cell_text):
@@ -578,7 +595,7 @@ class XPath(object):
 
         target_column_index = 'count(%s/preceding-sibling::th)+1' % cls.table_cell_with_text(column_heading_text).inside_of(cls.table_header())
         search_column_index = 'count(%s/preceding-sibling::th)+1' % cls.table_cell_with_text(search_column_heading).inside_of(cls.table_header())
-        found_cell = '//td[position()=(%s) and string()=normalize-space("%s")]' % (search_column_index, search_cell_text)
+        found_cell = cls.any('td')[search_column_index].with_text(search_cell_text).xpath
         found_row_index = 'count(%s/parent::tr/preceding-sibling::tr)+1' % found_cell
 
         return cls.table_cell()[target_column_index].inside_of(XPath.table_row()[found_row_index])
@@ -586,51 +603,50 @@ class XPath(object):
     @classmethod
     def link_with_text(cls, text):
         """Returns an XPath to find an HTML <a> containing the text in `text`."""
-        return cls('//a[normalize-space(.)=normalize-space("%s")]' % text)
+        return cls.any('a').with_text(text)
 
     @classmethod
     def link_starting_with_text(cls, text):
         """Returns an XPath to find an HTML <a> containing text that starts with the contents of `text`."""
-        return cls('//a[starts-with(node(), "%s")]' % text)
+        return cls.any('a').with_text_starting(text)
 
     @classmethod
     def legend_with_text(cls, text):
         """Returns an XPath to find an HTML <legend> containing the text in `text`."""
-        return cls('//legend[normalize-space(.)=normalize-space("%s")]' % text)
+        return cls.any('legend').with_text(text)
 
     @classmethod
     def paragraph_containing(cls, text):
         """Returns an XPath to find an HTML <p> that contains the text in `text`."""
-        return cls('//p[contains(node(), "%s")]' % text)
+        return cls.any('p').including_text(text)
 
     @classmethod
     def input(cls):
-        return cls('//input')
+        return cls.any('input')
 
     @classmethod
     def input_named(cls, name):
         """Returns an XPath to find an HTML <input> with the given name."""
-        return cls('//input[@name="%s"]' % name)
+        return cls.any('input')['@name="%s"' % name]
 
     @classmethod
-    def input_labelled(cls, label):
+    def input_labelled(cls, label_text):
         """Returns an XPath to find an HTML <input> referred to by a <label> that contains the text in `label`."""
-        for_based_xpath = '//input[@id=//label[normalize-space(node())=normalize-space("%s")]/@for]' % label
-        nested_xpath = '//label[normalize-space()=normalize-space("%s")]//input' % label
-        return cls(for_based_xpath, nested_xpath)
-        # for_based = '@id=//label[normalize-space(node())=normalize-space("%s")]/@for]' % label
-        # nested_in_label = 'ancestor::label[normalize-space()=normalize-space("%s")]' % label
-        # return cls('''//*[(self::input and ( %s or %s )''' % (for_based, nested_in_label))
-                    
+        label = cls.any('label').with_text(label_text)
+        for_based_xpath = cls.any('input')['@id=%s/@for' % label]
+        nested_xpath = cls.any('input').inside_of(label)
+        return cls(str(for_based_xpath), str(nested_xpath))
+
     @classmethod
-    def select_labelled(cls, label):
+    def select_labelled(cls, label_text):
         """Returns an XPath to find an HTML <select> referred to by a <label> that contains the text in `label`."""
-        return cls('//select[@id=//label[normalize-space(node())=normalize-space("%s")]/@for]' % label)
+        label = cls.any('label').with_text(label_text)
+        return cls.any('select')['@id=%s/@for' % label]
 
     @classmethod
     def input_of_type(cls, input_type):
         """Returns an XPath to find an HTML <input> with type attribute `input_type`."""
-        return '//input[@type="%s"]' % input_type
+        return cls.any('input')['@type="%s"' % input_type]
 
     @classmethod
     def fieldset_with_legend(cls, legend_text):
@@ -638,7 +654,8 @@ class XPath(object):
 
         .. versionadded:: 3.2
         """
-        return cls('//fieldset[legend[normalize-space(node())=normalize-space("%s")]]' % legend_text)
+        legend = cls('legend').with_text(legend_text)
+        return cls.any('fieldset')[('//fieldset[%s]' % legend)]
 
     @classmethod
     def button_labelled(cls, label, **arguments):
@@ -648,35 +665,36 @@ class XPath(object):
            and value (kwarg value) of an Event argument which this ButtonInput instance should match.
         """
         arguments = arguments or {}
+
+        value_selector = 'normalize-space(@value)=normalize-space("%s")'  % label
+        input_button = cls.any('input')[value_selector]
         if arguments:
             encoded_arguments = '?'+urllib_parse.urlencode(arguments)
-            argument_selector = 'and substring(@name, string-length(@name)-string-length("%s")+1) = "%s"' % (encoded_arguments, encoded_arguments)
-        else:
-            argument_selector = ''
-        value_selector = 'normalize-space(@value)=normalize-space("%s")'  % label
-        input_button_xpath = 'self::input %s and %s' % (argument_selector, value_selector)
-        button_tag_xpath = 'self::button and normalize-space(node())=normalize-space("%s")' % label
-        return cls('//*[(%s) or (%s)]' % (input_button_xpath, button_tag_xpath))
+            argument_selector = 'substring(@name, string-length(@name)-string-length("%s")+1) = "%s"' % (encoded_arguments, encoded_arguments)
+            input_button = input_button[argument_selector]
+
+        button = cls.any('button').with_text(label)
+        return button | input_button
 
     @classmethod
     def error_label_containing(cls, text):
         """Returns an XPath to find a Label containing the error message in `text`."""
-        return cls('//label[@class="error" and contains(node(),"%s")]' % text)
+        return cls.any('label')['@class="error"'].including_text(text)
 
     @classmethod
     def span_containing(cls, text):
         """Returns an XPath to find a Span containing the message in `text`."""
-        return cls('//span[contains(node(),"%s")]' % text)
+        return cls.any('span').including_text(text)
 
     @classmethod
     def div_containing(cls, text):
         """Returns an XPath to find a Div containing the message in `text`."""
-        return cls('//div[contains(text(),"%s")]' % text)
+        return cls.any('div').including_text(text)
 
     @classmethod
     def ul(cls):
         """Returns an XPath to find a Div containing the message in `text`."""
-        return cls('//ul')
+        return cls.any('ul')
 
 
 class UnexpectedLoadOf(Exception):

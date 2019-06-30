@@ -46,7 +46,7 @@ def test_example(web_fixture, responsive_example_fixture):
     browser = fixture.browser
 
     browser.open('/')
-
+    
     # Reveal sections for new investors    
     assert not browser.is_visible(fixture.investor_information)  
     browser.click(XPath.label_with_text('New'))
