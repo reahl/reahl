@@ -679,7 +679,7 @@ class XPath(object):
     @classmethod
     def error_label_containing(cls, text):
         """Returns an XPath to find a Label containing the error message in `text`."""
-        return cls.any('label')['@class="error"'].including_text(text)
+        return cls.any('label').including_class('error').including_text(text)
 
     @classmethod
     def span_containing(cls, text):
