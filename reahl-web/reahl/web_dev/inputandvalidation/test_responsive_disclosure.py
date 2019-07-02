@@ -873,7 +873,6 @@ def test_recalculate_on_refresh(web_fixture, query_string_fixture, sql_alchemy_f
         assert browser.wait_for(query_string_fixture.is_state_now, 1)
         scenario.check_widget_value(browser, 10)
         browser.type(XPath.input_labelled('Choice'), '2')
-        browser.press_tab()
 
         # Case: values are recalculated after ajax
         assert browser.wait_for(query_string_fixture.is_state_now, 2)

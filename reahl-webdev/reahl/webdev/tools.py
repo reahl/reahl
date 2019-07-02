@@ -738,7 +738,7 @@ class DriverBrowser(BasicBrowser):
         """Returns the HTML for the current location unchanged."""
         return self.web_driver.page_source
 
-    def find_element(self, locator):
+    def find_element(self, locator, wait=True):
         """Returns the (WebDriver) element found by `locator`. If not found, the method will keep waiting until 2 seconds
            have passed before it will report not finding an element. This timeout mechanism makes it possible to call find_element
            for elements that will be created via JavaScript, and may need some time before they appear.
@@ -746,15 +746,17 @@ class DriverBrowser(BasicBrowser):
            :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
         """
         xpath = six.text_type(locator)
-        return WebDriverWait(self.web_driver, 2).until(lambda d: d.find_element_by_xpath(xpath), 'waited for %s' % xpath)
+        if wait:
+            return WebDriverWait(self.web_driver, 2).until(lambda d: d.find_element_by_xpath(xpath), 'waited for %s' % xpath)
+        else:
+            return self.web_driver.find_element_by_xpath(xpath)        
 
     def is_element_enabled(self, locator):
         """Answers whether the element found by `locator` is responsive to user activity or not.
 
            :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
         """
-        xpath = six.text_type(locator)
-        el = self.web_driver.find_element_by_xpath(xpath)
+        el = self.find_element(locator, wait=False)
         if el and el.is_enabled():
             return el
         return False
@@ -772,8 +774,7 @@ class DriverBrowser(BasicBrowser):
 
            :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
         """
-        xpath = six.text_type(locator)
-        el = self.web_driver.find_element_by_xpath(xpath)
+        el = self.find_element(locator, wait=False)
         if el and el.is_displayed() and el.is_enabled():
             return el
         return False
@@ -793,7 +794,7 @@ class DriverBrowser(BasicBrowser):
         """
         xpath = six.text_type(locator)
         try:
-            el = self.web_driver.find_element_by_xpath(xpath)
+            el = self.find_element(locator, wait=False)
         except:
             return False
         if el.is_displayed():
@@ -817,8 +818,7 @@ class DriverBrowser(BasicBrowser):
 
            .. versionadded:: 3.2
         """
-        xpath = six.text_type(locator)
-        el = self.web_driver.find_element_by_xpath(xpath)
+        el = self.find_element(locator, wait=False)
         if el and el.get_attribute(attribute) is not None:   # el is present and has attribute
             if (value is None) or (el.get_attribute(attribute) == value):  # attribute has specified value if specified
                return el
@@ -1021,6 +1021,7 @@ class DriverBrowser(BasicBrowser):
            :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
         """
         xpath = six.text_type(locator)
+        self.wait_for_element_present(locator)
         el = self.find_element(xpath)
         actions = ActionChains(self.web_driver)
         actions.move_to_element(el)
@@ -1034,8 +1035,7 @@ class DriverBrowser(BasicBrowser):
            ..versionadded:: 4.1
 
         """
-        xpath = six.text_type(locator)
-        el = self.find_element(xpath)
+        el = self.find_element(locator, wait=False)
         return self.web_driver.execute_script('''
             var element = arguments[0];
             var boundingRectangle = element.getBoundingClientRect();
@@ -1053,6 +1053,7 @@ class DriverBrowser(BasicBrowser):
 
         """
         xpath = six.text_type(locator)
+        self.wait_for_element_present(locator)
         el = self.find_element(xpath)
         return self.web_driver.execute_script('arguments[0].focus();', el)
 
@@ -1065,8 +1066,7 @@ class DriverBrowser(BasicBrowser):
            ..versionadded:: 4.1
 
         """
-        xpath = six.text_type(locator)
-        el = self.find_element(xpath)
+        el = self.find_element(locator, wait=False)
         active_element = self.web_driver.switch_to.active_element
         #self.web_driver.switch_to.default_content #restore the focus
         return el == active_element
@@ -1107,7 +1107,8 @@ class DriverBrowser(BasicBrowser):
            :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
            :param attribute_name: The name of the attribute to return.
         """
-        return self.find_element(locator).get_attribute(attribute_name)
+        el = self.find_element(locator, wait=False)
+        return el.get_attribute(attribute_name)
 
     def get_value(self, locator): 
         """Returns the value of the input indicated by `locator`.
@@ -1141,7 +1142,7 @@ class DriverBrowser(BasicBrowser):
 
            :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
         """
-        return self.find_element(locator).text
+        return self.find_element(locator, wait=False).text
 
     def is_image_shown(self, locator):
         """Answers whether the located image is available from the server (ie, whether the src attribute 
@@ -1163,7 +1164,7 @@ class DriverBrowser(BasicBrowser):
 
            :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
         """
-        return self.find_element(locator).is_enabled()
+        return self.find_element(locator, wait=False).is_enabled()
 
     def is_active(self, locator):
         """Answers whether the <a> element found by `locator` is currently clickable.
@@ -1184,6 +1185,7 @@ class DriverBrowser(BasicBrowser):
 
            :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
         """
+        self.wait_for_element_enabled(locator) # Cant wait for interactable, since it may be display=none
         if not self.is_checked(locator):
            self.click(self.checkbox_clickable_element(locator))
 
@@ -1192,6 +1194,7 @@ class DriverBrowser(BasicBrowser):
 
            :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
         """
+        self.wait_for_element_enabled(locator) # Cant wait for interactable, since it may be display=none
         if self.is_checked(locator):
             self.click(self.checkbox_clickable_element(locator))
 
@@ -1205,7 +1208,7 @@ class DriverBrowser(BasicBrowser):
         return locator
 
     def is_checkbox(self, locator):
-        element = self.find_element(locator)
+        element = self.find_element(locator, wait=False)
         try:
             return element.get_attribute('type') == 'checkbox'
         except:
@@ -1231,8 +1234,7 @@ class DriverBrowser(BasicBrowser):
         
            :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
         """
-        xpath = six.text_type(locator)
-        el = self.find_element(xpath)
+        el = self.find_element(locator, wait=False)
         return self.web_driver.execute_script('return arguments[0].outerHTML', el)
         
     def get_inner_html_for(self, locator):
@@ -1241,8 +1243,7 @@ class DriverBrowser(BasicBrowser):
         
            :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
         """
-        xpath = six.text_type(locator)
-        el = self.find_element(xpath)
+        el = self.find_element(locator, wait=False)
         return self.web_driver.execute_script('return arguments[0].innerHTML', el)
 
     def get_xpath_count(self, locator):
@@ -1292,7 +1293,7 @@ class DriverBrowser(BasicBrowser):
 
            :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
         """
-        self.find_element(locator).send_keys(Keys.BACK_SPACE)
+        self.find_element(locator, wait=False).send_keys(Keys.BACK_SPACE)
 
     @property
     def title(self):
