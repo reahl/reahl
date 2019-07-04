@@ -19,7 +19,7 @@ class AddressAppFixture(Fixture):
         return address
 
     def error_is_displayed(self, text):
-        return self.web_fixture.driver_browser.is_element_present(XPath.span_containing(text))
+        return self.web_fixture.driver_browser.is_element_present(XPath.span().including_text(text))
 
 
 @with_fixtures(WebFixture, AddressAppFixture)

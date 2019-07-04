@@ -637,7 +637,7 @@ def test_prevent_duplicate_upload_js(web_fixture, file_upload_input_fixture):
     web_fixture.reahl_server.set_app(fixture.new_wsgi_app(enable_js=True))
     browser = web_fixture.driver_browser
 
-    error_locator = XPath.span_containing('uploaded files should all have different names')
+    error_locator = XPath.span().including_text('uploaded files should all have different names')
     def error_is_visible():
         return browser.is_visible(error_locator)
 
@@ -731,7 +731,7 @@ def test_async_upload_error(web_fixture, broken_file_upload_input_fixture):
     with expected(Exception):
         browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload1.name)
 
-    assert browser.wait_for_element_present(XPath.span_containing('an error occurred, please try again later.')) 
+    assert browser.wait_for_element_present(XPath.span().including_text('an error occurred, please try again later.')) 
     assert not browser.is_element_enabled(XPath.button_labelled('Cancel')) 
 
 
@@ -758,11 +758,11 @@ def test_async_upload_domain_exception(web_fixture, toggle_validation_fixture):
     # JS Stuff on re-rendered form still work
 
     # 1: Server-rendered validation message has been cleared
-    assert browser.is_visible(XPath.span_containing('test validation message')) 
+    assert browser.is_visible(XPath.span().including_text('test validation message')) 
     fixture.make_validation_fail = False
     with browser.no_page_load_expected():
         browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload2.name)
-    browser.wait_for_not(browser.is_visible, XPath.span_containing('test validation message'))
+    browser.wait_for_not(browser.is_visible, XPath.span().including_text('test validation message'))
 
     # 2: The remove button still happens via ajax
     with browser.no_page_load_expected():
@@ -823,7 +823,7 @@ def test_async_validation(web_fixture, per_file_constrained_file_upload_input_fi
 
     browser.type(XPath.input_labelled('Choose file(s)'), fixture.invalid_file.name)
     assert not fixture.uploaded_file_is_listed( fixture.invalid_file.name ) 
-    assert browser.is_element_present(XPath.span_containing(fixture.validation_error_message)) 
+    assert browser.is_element_present(XPath.span().including_text(fixture.validation_error_message)) 
 
     browser.type(XPath.input_labelled('Choose file(s)'), fixture.valid_file.name)
     assert fixture.uploaded_file_is_listed( fixture.valid_file.name ) 
@@ -849,12 +849,12 @@ def test_async_number_files_validation(web_fixture, max_number_of_files_file_upl
     browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload1.name)
     assert fixture.uploaded_file_is_listed( fixture.file_to_upload1.name ) 
     # Corner case: max are uploaded, but you've not asked to add to them yet:
-    assert browser.wait_for_not(browser.is_visible, XPath.span_containing('a maximum of 1 files may be uploaded')) 
+    assert browser.wait_for_not(browser.is_visible, XPath.span().including_text('a maximum of 1 files may be uploaded')) 
 
     # Normal case: max are uploaded, and you're asking to upload another:
     browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload2.name)
     assert not fixture.uploaded_file_is_listed( fixture.file_to_upload2.name ) 
-    assert browser.wait_for(browser.is_visible, XPath.span_containing('a maximum of 1 files may be uploaded')) 
+    assert browser.wait_for(browser.is_visible, XPath.span().including_text('a maximum of 1 files may be uploaded')) 
 
     browser.click(XPath.button_labelled('Remove', filename=fixture.file_to_upload1_name))
-    assert browser.wait_for_not(browser.is_visible, XPath.span_containing('a maximum of 1 files may be uploaded')) 
+    assert browser.wait_for_not(browser.is_visible, XPath.span().including_text('a maximum of 1 files may be uploaded')) 

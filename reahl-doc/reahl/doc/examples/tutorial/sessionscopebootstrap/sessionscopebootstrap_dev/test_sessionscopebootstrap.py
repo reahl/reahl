@@ -85,4 +85,4 @@ def test_domain_exception(web_fixture, session_scope_fixture):
     browser.type(XPath.input_labelled('Password'), 'wrong password')
     browser.click(XPath.button_labelled('Log in'))
 
-    assert browser.is_element_present(XPath.div_containing('The email/password given do not match'))
+    assert browser.is_element_present(XPath.div().including_text('The email/password given do not match'))

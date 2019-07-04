@@ -439,6 +439,9 @@ class XPath(object):
           Removed .checkbox_in_table_row() method.
           Made XPath instances composable (added .inside_of).
           Added __getitem__ so that something like .table()[5] gives you the 5th table in its parent.
+          Removed .error_label_containing()
+          Removed .span_containing()
+          Removed .div_containing()
     """
     def __init__(self, *xpaths):
         self.xpaths = xpaths
@@ -685,23 +688,16 @@ class XPath(object):
         return button | input_button
 
     @classmethod
-    def error_label_containing(cls, text):
-        """Returns an XPath to find a Label containing the error message in `text`."""
-        return cls.any('label').including_class('error').including_text(text)
-
-    @classmethod
-    def span_containing(cls, text):
-        """Returns an XPath to find a Span containing the message in `text`."""
-        return cls.any('span').including_text(text)
-
-    @classmethod
-    def div_containing(cls, text):
-        """Returns an XPath to find a Div containing the message in `text`."""
-        return cls.any('div').including_text(text)
+    def span(cls, text):
+        """Returns an XPath to find a Span.
+        
+           .. versionadded:: 4.1
+        """
+        return cls.any('span')
 
     @classmethod
     def ul(cls):
-        """Returns an XPath to find a Div containing the message in `text`."""
+        """Returns an XPath to find an unordered list."""
         return cls.any('ul')
 
 

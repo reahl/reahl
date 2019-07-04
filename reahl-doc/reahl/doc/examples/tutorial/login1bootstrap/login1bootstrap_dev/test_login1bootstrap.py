@@ -70,4 +70,4 @@ def test_domain_exception(web_fixture, login_fixture):
     browser.type(XPath.input_labelled('Password'), 'wrong password')
     browser.click(XPath.button_labelled('Log in'))
 
-    assert browser.is_element_present(XPath.div_containing('Invalid login credentials'))
+    assert browser.is_element_present(XPath.div().including_text('Invalid login credentials'))
