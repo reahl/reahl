@@ -446,6 +446,7 @@ class XPath(object):
           Removed .legend_with_text()
           Removed .link_starting_with_text()
           Removed .link_with_text()
+          Removed .table_cell_with_text()
     """
     def __init__(self, *xpaths):
         self.xpaths = xpaths
@@ -592,15 +593,6 @@ class XPath(object):
         return cls.any('td') | cls.any('th')
 
     @classmethod
-    def table_cell_with_text(cls, text):
-        """Returns an XPath to find an HTML <td> or a <th>  with text matching the text in `text`.
-        
-           ..versionchanged:: 4.1
-             Included <th> tags, and dropped the requirement for it to be inside a <tr>
-        """
-        return cls.table_cell().with_text(text)
-
-    @classmethod
     def table_cell_aligned_to(cls, column_heading_text, search_column_heading, search_cell_text):
         """Find a cell (td or th) in the column with column_heading_text which is in the same row as 
            where a cell in search_column_heading matches search_cell_text.
@@ -608,8 +600,8 @@ class XPath(object):
             ..versionadded:: 4.1
         """
 
-        target_column_index = 'count(%s/preceding-sibling::th)+1' % cls.table_cell_with_text(column_heading_text).inside_of(cls.table_header())
-        search_column_index = 'count(%s/preceding-sibling::th)+1' % cls.table_cell_with_text(search_column_heading).inside_of(cls.table_header())
+        target_column_index = 'count(%s/preceding-sibling::th)+1' % cls.table_cell().with_text(column_heading_text).inside_of(cls.table_header())
+        search_column_index = 'count(%s/preceding-sibling::th)+1' % cls.table_cell().with_text(search_column_heading).inside_of(cls.table_header())
         found_cell = cls.any('td')[search_column_index].with_text(search_cell_text).xpath
         found_row_index = 'count(%s/parent::tr/preceding-sibling::tr)+1' % found_cell
 

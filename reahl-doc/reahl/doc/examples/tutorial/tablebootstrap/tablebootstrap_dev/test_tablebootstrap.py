@@ -31,7 +31,7 @@ class TableExampleFixture(Fixture):
         return self.browser.title == 'Addresses'
 
     def address_is_listed_as(self, name):
-        return self.browser.is_element_present(XPath.table_cell_with_text(name))
+        return self.browser.is_element_present(XPath.table_cell().with_text(name))
 
 
 @with_fixtures(SqlAlchemyFixture, TableExampleFixture)

@@ -25,7 +25,7 @@ class DataTableExampleFixture(Fixture):
         return self.browser.title == 'Edit %s' % address_name
 
     def address_is_listed_as(self, name):
-        return self.browser.is_element_present(XPath.table_cell_with_text(name))
+        return self.browser.is_element_present(XPath.table_cell().with_text(name))
 
     def number_of_rows_in_table(self):
         return len(self.browser.xpath('//table/tbody/tr'))
