@@ -498,177 +498,6 @@ class XPath(object):
         return cls('//%s' % tag_name)
 
     @classmethod
-    def div(cls):
-        """Returns an XPath to find an HTML <div>.
-        
-           .. versionadded:: 4.1
-        """
-        return cls.any('div')
-
-    @classmethod
-    def label(cls):
-        """Returns an XPath to find an HTML <label>.
-
-           .. versionadded:: 4.1
-        """
-        return cls.any('label')
-
-    @classmethod
-    def heading(cls, level):
-        """Returns an XPath to find an HTML <h?> of level `level`.
-        
-           .. versionadded:: 4.1
-        """
-        return cls.any('h%s' % level)
-
-    @classmethod
-    def checkbox(cls):
-        """Returns a XPath to a checkbox input.
-        
-           .. versionadded:: 4.1
-        """
-        return cls.any('input')['@type="checkbox"']
-
-    @classmethod
-    def caption_with_text(cls, text):
-        """Returns an XPath to find an HTML <caption> matching the text in `text`."""
-        return cls.any('caption').with_text(text)
-
-    @classmethod
-    def option_with_text(cls, text):
-        """Returns an XPath to find an HTML <option> containing the text in `text`."""
-        return cls.any('option').with_text(text)
-
-    @classmethod
-    def table_with_summary(cls, text):
-        """Returns an XPath to find an HTML <table summary='...'> matching the text in `text` in its summary attribute value."""
-        return cls.any('table')['@summary="%s"' % (text)]
-
-    @classmethod
-    def table(cls):
-        """Returns a XPath to a table.
-        
-           .. versionadded:: 4.1
-        """
-        return cls.any('table')
-
-    @classmethod
-    def table_body(cls):
-        """Returns a XPath to a table body.
-        
-           .. versionadded:: 4.1
-        """
-        return cls.any('tbody')
-
-    @classmethod
-    def table_header(cls):
-        """Returns a XPath to a table header.
-        
-           .. versionadded:: 4.1
-        """
-        return cls.any('thead')
-
-    @classmethod
-    def table_footer(cls):
-        """Returns a XPath to a table footer.
-        
-           .. versionadded:: 4.1
-        """
-        return cls.any('tfoot')
-
-    @classmethod
-    def table_row(cls):
-        """Returns a XPath to a table row.
-        
-           .. versionadded:: 4.1
-        """
-        return cls.any('tr')
-
-    @classmethod
-    def table_cell(cls):
-        """Returns a XPath to a table cell.
-        
-           .. versionadded:: 4.1
-        """
-        return cls.any('td') | cls.any('th')
-
-    @classmethod
-    def table_cell_aligned_to(cls, column_heading_text, search_column_heading, search_cell_text):
-        """Find a cell (td or th) in the column with column_heading_text which is in the same row as 
-           where a cell in search_column_heading matches search_cell_text.
-
-            ..versionadded:: 4.1
-        """
-
-        target_column_index = 'count(%s/preceding-sibling::th)+1' % cls.table_cell().with_text(column_heading_text).inside_of(cls.table_header())
-        search_column_index = 'count(%s/preceding-sibling::th)+1' % cls.table_cell().with_text(search_column_heading).inside_of(cls.table_header())
-        found_cell = cls.any('td')[search_column_index].with_text(search_cell_text).xpath
-        found_row_index = 'count(%s/parent::tr/preceding-sibling::tr)+1' % found_cell
-
-        return cls.table_cell()[target_column_index].inside_of(XPath.table_row()[found_row_index])
-
-    @classmethod
-    def link(cls, text):
-        """Returns an XPath to find an HTML <a>.
-                
-           .. versionadded:: 4.1
-        """
-        return cls.any('a').with_text_starting(text)
-
-    @classmethod
-    def legend(cls, text):
-        """Returns an XPath to find an HTML <legend>.
-        
-           .. versionadded:: 4.1
-        """
-        return cls.any('legend')
-
-    @classmethod
-    def paragraph(cls, text):
-        """Returns an XPath to find an HTML <p>.
-        
-           .. versionadded:: 4.1
-        """
-        return cls.any('p')
-
-    @classmethod
-    def input(cls):
-        return cls.any('input')
-
-    @classmethod
-    def input_named(cls, name):
-        """Returns an XPath to find an HTML <input> with the given name."""
-        return cls.any('input')['@name="%s"' % name]
-
-    @classmethod
-    def input_labelled(cls, label_text):
-        """Returns an XPath to find an HTML <input> referred to by a <label> that contains the text in `label`."""
-        label = cls.any('label').with_text(label_text)
-        for_based_xpath = cls.any('input')['@id=%s/@for' % label]
-        nested_xpath = cls.any('input').inside_of(label)
-        return cls(str(for_based_xpath), str(nested_xpath))
-
-    @classmethod
-    def select_labelled(cls, label_text):
-        """Returns an XPath to find an HTML <select> referred to by a <label> that contains the text in `label`."""
-        label = cls.any('label').with_text(label_text)
-        return cls.any('select')['@id=%s/@for' % label]
-
-    @classmethod
-    def input_of_type(cls, input_type):
-        """Returns an XPath to find an HTML <input> with type attribute `input_type`."""
-        return cls.any('input')['@type="%s"' % input_type]
-
-    @classmethod
-    def fieldset_with_legend(cls, legend_text):
-        """Returns an XPath to find a FieldSet with the given `legend_text`.
-
-        .. versionadded:: 3.2
-        """
-        legend = cls('legend').with_text(legend_text)
-        return cls.any('fieldset')[('//fieldset[%s]' % legend)]
-
-    @classmethod
     def button_labelled(cls, label, **arguments):
         """Returns an XPath to find an ButtonInput whose visible label is the text in `label`.
 
@@ -688,12 +517,183 @@ class XPath(object):
         return button | input_button
 
     @classmethod
-    def span(cls, text):
+    def caption_with_text(cls, text):
+        """Returns an XPath to find an HTML <caption> matching the text in `text`."""
+        return cls.any('caption').with_text(text)
+
+    @classmethod
+    def checkbox(cls):
+        """Returns a XPath to a checkbox input.
+        
+           .. versionadded:: 4.1
+        """
+        return cls.any('input')['@type="checkbox"']
+
+    @classmethod
+    def div(cls):
+        """Returns an XPath to find an HTML <div>.
+        
+           .. versionadded:: 4.1
+        """
+        return cls.any('div')
+
+    @classmethod
+    def fieldset_with_legend(cls, legend_text):
+        """Returns an XPath to find a FieldSet with the given `legend_text`.
+
+        .. versionadded:: 3.2
+        """
+        legend = cls('legend').with_text(legend_text)
+        return cls.any('fieldset')[('//fieldset[%s]' % legend)]
+
+    @classmethod
+    def heading(cls, level):
+        """Returns an XPath to find an HTML <h?> of level `level`.
+        
+           .. versionadded:: 4.1
+        """
+        return cls.any('h%s' % level)
+
+    @classmethod
+    def input(cls):
+        return cls.any('input')
+
+    @classmethod
+    def input_labelled(cls, label_text):
+        """Returns an XPath to find an HTML <input> referred to by a <label> that contains the text in `label`."""
+        label = cls.any('label').with_text(label_text)
+        for_based_xpath = cls.any('input')['@id=%s/@for' % label]
+        nested_xpath = cls.any('input').inside_of(label)
+        return cls(str(for_based_xpath), str(nested_xpath))
+
+    @classmethod
+    def input_named(cls, name):
+        """Returns an XPath to find an HTML <input> with the given name."""
+        return cls.any('input')['@name="%s"' % name]
+
+    @classmethod
+    def input_of_type(cls, input_type):
+        """Returns an XPath to find an HTML <input> with type attribute `input_type`."""
+        return cls.any('input')['@type="%s"' % input_type]
+
+    @classmethod
+    def label(cls):
+        """Returns an XPath to find an HTML <label>.
+
+           .. versionadded:: 4.1
+        """
+        return cls.any('label')
+
+    @classmethod
+    def legend(cls):
+        """Returns an XPath to find an HTML <legend>.
+        
+           .. versionadded:: 4.1
+        """
+        return cls.any('legend')
+ 
+    @classmethod
+    def link(cls):
+        """Returns an XPath to find an HTML <a>.
+                
+           .. versionadded:: 4.1
+        """
+        return cls.any('a')
+
+    @classmethod
+    def option_with_text(cls, text):
+        """Returns an XPath to find an HTML <option> containing the text in `text`."""
+        return cls.any('option').with_text(text)
+
+    @classmethod
+    def paragraph(cls):
+        """Returns an XPath to find an HTML <p>.
+        
+           .. versionadded:: 4.1
+        """
+        return cls.any('p')
+
+    @classmethod
+    def select_labelled(cls, label_text):
+        """Returns an XPath to find an HTML <select> referred to by a <label> that contains the text in `label`."""
+        label = cls.any('label').with_text(label_text)
+        return cls.any('select')['@id=%s/@for' % label]
+
+    @classmethod
+    def span(cls):
         """Returns an XPath to find a Span.
         
            .. versionadded:: 4.1
         """
         return cls.any('span')
+
+    @classmethod
+    def table(cls):
+        """Returns a XPath to a table.
+        
+           .. versionadded:: 4.1
+        """
+        return cls.any('table')
+
+    @classmethod
+    def table_with_summary(cls, text):
+        """Returns an XPath to find an HTML <table summary='...'> matching the text in `text` in its summary attribute value."""
+        return cls.any('table')['@summary="%s"' % (text)]
+
+    @classmethod
+    def table_header(cls):
+        """Returns a XPath to a table header.
+        
+           .. versionadded:: 4.1
+        """
+        return cls.any('thead')
+
+    @classmethod
+    def table_body(cls):
+        """Returns a XPath to a table body.
+        
+           .. versionadded:: 4.1
+        """
+        return cls.any('tbody')
+
+    @classmethod
+    def table_row(cls):
+        """Returns a XPath to a table row.
+        
+           .. versionadded:: 4.1
+        """
+        return cls.any('tr')
+
+    @classmethod
+    def table_footer(cls):
+        """Returns a XPath to a table footer.
+        
+           .. versionadded:: 4.1
+        """
+        return cls.any('tfoot')
+
+    @classmethod
+    def table_cell(cls):
+        """Returns a XPath to a table cell.
+        
+           .. versionadded:: 4.1
+        """
+        return cls.any('*')['self::td or self::th']
+
+    @classmethod
+    def table_cell_aligned_to(cls, column_heading_text, search_column_heading, search_cell_text):
+        """Find a cell (td or th) in the column with column_heading_text which is in the same row as 
+           where a cell in search_column_heading matches search_cell_text.
+
+            ..versionadded:: 4.1
+        """
+
+        target_column_index = 'count(%s/preceding-sibling::th)+1' % cls.table_cell().with_text(column_heading_text).inside_of(cls.table_header())
+        search_column_index = 'count(%s/preceding-sibling::th)+1' % cls.table_cell().with_text(search_column_heading).inside_of(cls.table_header())
+        found_cell = cls.any('td')[search_column_index].with_text(search_cell_text).xpath
+        found_row_index = 'count(%s/parent::tr/preceding-sibling::tr)+1' % found_cell
+
+        return cls.table_cell()[target_column_index].inside_of(XPath.table_row()[found_row_index])
 
     @classmethod
     def ul(cls):
