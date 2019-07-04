@@ -443,6 +443,7 @@ class XPath(object):
           Removed .span_containing()
           Removed .div_containing()
           Removed .paragraph_containing()
+          Removed .legend_with_text()
     """
     def __init__(self, *xpaths):
         self.xpaths = xpaths
@@ -623,9 +624,12 @@ class XPath(object):
         return cls.any('a').with_text_starting(text)
 
     @classmethod
-    def legend_with_text(cls, text):
-        """Returns an XPath to find an HTML <legend> containing the text in `text`."""
-        return cls.any('legend').with_text(text)
+    def legend(cls, text):
+        """Returns an XPath to find an HTML <legend>.
+        
+           .. versionadded:: 4.1
+        """
+        return cls.any('legend')
 
     @classmethod
     def paragraph(cls, text):
