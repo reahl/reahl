@@ -301,13 +301,11 @@ def test_validation(web_fixture, validation_scenario):
     web_fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path('validation1.png'))
     
     web_fixture.driver_browser.type('//input', 'johndoe')
-    web_fixture.driver_browser.press_tab()
     assert web_fixture.driver_browser.wait_for(fixture.error_is_visible)
     assert fixture.is_error_text('Email address should be a valid email address') 
     web_fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path('validation2.png'))
 
     web_fixture.driver_browser.type('//input', '')
-    web_fixture.driver_browser.press_tab()
     assert web_fixture.driver_browser.wait_for(fixture.error_is_visible) 
     assert fixture.is_error_text('Email address is required') 
     web_fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path('validation3.png'))
@@ -320,7 +318,6 @@ def test_layout(web_fixture, layout_scenario):
     fixture.start_example_app()
     web_fixture.driver_browser.open('/')
     web_fixture.driver_browser.type(XPath.input_labelled('Email address'), 'johndoe')
-    web_fixture.driver_browser.press_tab()
     assert web_fixture.driver_browser.wait_for(fixture.error_is_visible) 
     web_fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path('layout.png'))
 

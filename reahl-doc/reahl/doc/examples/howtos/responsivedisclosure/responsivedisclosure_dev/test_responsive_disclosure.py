@@ -49,13 +49,13 @@ def test_example(web_fixture, responsive_example_fixture):
     
     # Reveal sections for new investors    
     assert not browser.is_visible(fixture.investor_information)  
-    browser.click(XPath.label_with_text('New'))
+    browser.set_selected(XPath.input_labelled('New'))
 
     browser.wait_for_element_visible(fixture.investor_information)  
     browser.wait_for_element_visible(fixture.new_investor_specific_information)  
 
     # Reveal and complete sections for existing investors
-    browser.click(XPath.label_with_text('Existing'))
+    browser.set_selected(XPath.input_labelled('Existing'))
 
     browser.wait_for_element_visible(fixture.investor_information)  
     browser.wait_for_element_not_visible(fixture.new_investor_specific_information)  

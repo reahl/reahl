@@ -401,14 +401,14 @@ def test_marshalling_of_checkbox_input(web_fixture, checkbox_fixture):
     web_fixture.driver_browser.open('/')
 
     # Case: checkbox is submitted with form (ie checked)
-    web_fixture.driver_browser.check("//input[@type='checkbox']")
+    web_fixture.driver_browser.set_selected("//input[@type='checkbox']")
     web_fixture.driver_browser.click("//input[@value='click me']")
 
     assert model_object.an_attribute
     assert fixture.checkbox.value == 'on'
 
     # Case: checkbox is not submitted with form (ie unchecked)
-    web_fixture.driver_browser.uncheck("//input[@type='checkbox']")
+    web_fixture.driver_browser.set_deselected("//input[@type='checkbox']")
     web_fixture.driver_browser.click("//input[@value='click me']")
 
     assert not model_object.an_attribute
@@ -431,21 +431,21 @@ def test_marshalling_of_checkbox_select_input(web_fixture, checkbox_fixture):
     web_fixture.reahl_server.set_app(wsgi_app)
     web_fixture.driver_browser.open('/')
 
-    assert web_fixture.driver_browser.is_checked(XPath.input_labelled('One'))
-    assert not web_fixture.driver_browser.is_checked(XPath.input_labelled('Two'))
-    assert not web_fixture.driver_browser.is_checked(XPath.input_labelled('Three'))
+    assert web_fixture.driver_browser.is_selected(XPath.input_labelled('One'))
+    assert not web_fixture.driver_browser.is_selected(XPath.input_labelled('Two'))
+    assert not web_fixture.driver_browser.is_selected(XPath.input_labelled('Three'))
 
     # Case: checkbox is submitted with form (ie checked)
-    web_fixture.driver_browser.uncheck(XPath.input_labelled('One'))
-    web_fixture.driver_browser.check(XPath.input_labelled('Two'))
-    web_fixture.driver_browser.check(XPath.input_labelled('Three'))
+    web_fixture.driver_browser.set_deselected(XPath.input_labelled('One'))
+    web_fixture.driver_browser.set_selected(XPath.input_labelled('Two'))
+    web_fixture.driver_browser.set_selected(XPath.input_labelled('Three'))
     web_fixture.driver_browser.click(XPath.button_labelled('click me'))
 
     assert model_object.an_attribute == [2, 3]
     assert fixture.checkbox.value == '2,3'
-    assert not web_fixture.driver_browser.is_checked(XPath.input_labelled('One'))
-    assert web_fixture.driver_browser.is_checked(XPath.input_labelled('Two'))
-    assert web_fixture.driver_browser.is_checked(XPath.input_labelled('Three'))
+    assert not web_fixture.driver_browser.is_selected(XPath.input_labelled('One'))
+    assert web_fixture.driver_browser.is_selected(XPath.input_labelled('Two'))
+    assert web_fixture.driver_browser.is_selected(XPath.input_labelled('Three'))
 
 
 @with_fixtures(WebFixture)
@@ -501,12 +501,12 @@ def test_marshalling_of_radio_button_select_input(web_fixture, input_fixture, fi
     radio_one = XPath.input_labelled('One')
     radio_two = XPath.input_labelled('Two')
     # One is pre selected
-    assert web_fixture.driver_browser.is_checked(radio_one)
-    assert not web_fixture.driver_browser.is_checked(radio_two)
+    assert web_fixture.driver_browser.is_selected(radio_one)
+    assert not web_fixture.driver_browser.is_selected(radio_two)
 
     # click on Two
     web_fixture.driver_browser.click(radio_two)
-    assert not web_fixture.driver_browser.is_checked(radio_one)
+    assert not web_fixture.driver_browser.is_selected(radio_one)
 
     web_fixture.driver_browser.click(XPath.button_labelled('click me'))
 

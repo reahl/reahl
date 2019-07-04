@@ -124,7 +124,7 @@ def test_button_submits_only_once(web_fixture):
     assert not browser.does_element_have_attribute(button_xpath, 'readonly')
 
     # case : if there is a validation error, don't block
-    fixture.driver_browser.type("//input[@type='text']", 'not a number')
+    fixture.driver_browser.type("//input[@type='text']", 'not a number', trigger_blur=False, wait_for_ajax=False)
     browser.press_tab() #trigger validation exception
     with browser.no_page_load_expected():
         browser.click(button_xpath)
@@ -134,7 +134,7 @@ def test_button_submits_only_once(web_fixture):
     assert not browser.does_element_have_attribute(button_xpath, 'readonly')
 
     # case : if the form is valid, do block
-    fixture.driver_browser.type("//input[@type='text']", '1')
+    fixture.driver_browser.type("//input[@type='text']", '1', trigger_blur=False, wait_for_ajax=False)
     browser.press_tab() #trigger validation
     with browser.new_tab_closed():
         browser.click(button_xpath)
@@ -649,7 +649,7 @@ def test_form_input_validation(web_fixture):
     fixture.reahl_server.set_app(wsgi_app)
     fixture.driver_browser.open('/')
     fixture.driver_browser.wait_for_element_not_visible(error_xpath)
-    fixture.driver_browser.type('//input[@type="text"]', 'not@notvalid')
+    fixture.driver_browser.type('//input[@type="text"]', 'not@notvalid', trigger_blur=False, wait_for_ajax=False)
     fixture.driver_browser.press_tab()
     fixture.driver_browser.wait_for_element_visible(error_xpath)
 

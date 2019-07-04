@@ -134,7 +134,7 @@ def test_workings_of_check_checkbox_button(web_fixture, popup_a_fixture):
     browser.click(XPath.button_labelled('Checkit'))
     browser.wait_for_not(popup_a_fixture.is_popped_up)
 
-    assert browser.is_checked(XPath.input_labelled('a checkbox'))
+    assert browser.is_selected(XPath.input_labelled('a checkbox'))
 
 
 @with_fixtures(WebFixture, PopupAFixture)

@@ -9,9 +9,9 @@ python-reahl (4.1) unstable; urgency=low
  * Changed nested_transaction to yield a TransactionVeto object.
  * Changed Inputs to NOT automatically fix name clashes.
  * Changed XPath to be composable from other XPath instances and morphable with special methods.
- * Changed DriverBrowser.wait_for (and variants) to first wait for ajax to finish.
- * Added DriverBrowser.ajax_in_background() to escape waiting for ajax where necessary.
- 
+ * Changed DriverBrowser element getter methods and condition methods to never wait.
+ * Changed DriverBrowser interacting methods (like click, type) to iconsistently trigger onchange and wait for ajax by default. 
+ * Renamed is_checked, check, and uncheck methods on DriverBrowser to work for radio buttons too.
 
  -- Iwan Vosloo <iwan@reahl.org>  Thu, 13 Dec 2018 15:15:00 +0200
 

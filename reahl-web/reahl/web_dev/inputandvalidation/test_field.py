@@ -122,19 +122,19 @@ def test_remote_constraints(web_fixture, constraint_rendering_fixture):
     web_fixture.driver_browser.wait_for_element_not_visible(fixture.error_xpath)
 
     # A failing string value causes an ajax call resulting in an error
-    web_fixture.driver_browser.type('//input[@type="text"]', 'failing_string_value')
+    web_fixture.driver_browser.type('//input[@type="text"]', 'failing_string_value', trigger_blur=False, wait_for_ajax=False)
     web_fixture.driver_browser.press_tab()
     web_fixture.driver_browser.wait_for_element_visible(fixture.error_xpath)
     assert fixture.is_error_text('an attribute is invalid')
 
     # A passing value causes an ajax call resulting in clearing of any previous errors
-    web_fixture.driver_browser.type('//input[@type="text"]', 'passing value')
+    web_fixture.driver_browser.type('//input[@type="text"]', 'passing value', trigger_blur=False, wait_for_ajax=False)
 
     web_fixture.driver_browser.press_tab()
     web_fixture.driver_browser.wait_for_element_not_visible(fixture.error_xpath)
 
     # A failing python value causes an ajax call resulting in an error
-    web_fixture.driver_browser.type('//input[@type="text"]', 'failing_parsed_value')
+    web_fixture.driver_browser.type('//input[@type="text"]', 'failing_parsed_value', trigger_blur=False, wait_for_ajax=False)
     web_fixture.driver_browser.press_tab()
     web_fixture.driver_browser.wait_for_element_visible(fixture.error_xpath)
     assert fixture.is_error_text('an attribute is invalid')
@@ -156,7 +156,7 @@ def test_required_constraint_js(web_fixture, constraint_rendering_fixture):
 
     web_fixture.driver_browser.open('/')
 
-    web_fixture.driver_browser.type('//input[@type="text"]', 'something')
+    web_fixture.driver_browser.type('//input[@type="text"]', 'something', trigger_blur=False, wait_for_ajax=False)
     web_fixture.driver_browser.press_tab()
     web_fixture.driver_browser.wait_for_element_not_visible(fixture.error_xpath)
 
@@ -183,7 +183,7 @@ def test_min_length_constraint_js(web_fixture, constraint_rendering_fixture):
 
     web_fixture.driver_browser.open('/')
 
-    web_fixture.driver_browser.type('//input[@type="text"]', '1234')
+    web_fixture.driver_browser.type('//input[@type="text"]', '1234', trigger_blur=False, wait_for_ajax=False)
     web_fixture.driver_browser.press_tab()
     web_fixture.driver_browser.wait_for_element_visible(fixture.error_xpath)
 
@@ -228,11 +228,11 @@ def test_pattern_constraint_js(web_fixture, constraint_rendering_fixture):
 
     web_fixture.driver_browser.open('/')
 
-    web_fixture.driver_browser.type('//input[@type="text"]', 'aba')
+    web_fixture.driver_browser.type('//input[@type="text"]', 'aba', trigger_blur=False, wait_for_ajax=False)
     web_fixture.driver_browser.press_tab()
     web_fixture.driver_browser.wait_for_element_visible(fixture.error_xpath)
 
-    web_fixture.driver_browser.type('//input[@type="text"]', 'ababab')
+    web_fixture.driver_browser.type('//input[@type="text"]', 'ababab', trigger_blur=False, wait_for_ajax=False)
     web_fixture.driver_browser.press_tab()
     web_fixture.driver_browser.wait_for_element_not_visible(fixture.error_xpath)
 
@@ -254,7 +254,7 @@ def test_allowed_values_constraint_js(web_fixture, constraint_rendering_fixture)
     web_fixture.reahl_server.set_app(wsgi_app)
     web_fixture.driver_browser.open('/')
 
-    web_fixture.driver_browser.type('//input[@type="text"]', 'ba')
+    web_fixture.driver_browser.type('//input[@type="text"]', 'ba', trigger_blur=False, wait_for_ajax=False)
     web_fixture.driver_browser.press_tab()
     web_fixture.driver_browser.wait_for_element_visible(fixture.error_xpath)
 
@@ -288,11 +288,11 @@ def test_equal_to_constraint_js(web_fixture, constraint_rendering_fixture):
     web_fixture.driver_browser.open('/')
 
     web_fixture.driver_browser.type('//input[@id="other"]', 'something')
-    web_fixture.driver_browser.type('//input[@id="one"]', 'something else')
+    web_fixture.driver_browser.type('//input[@id="one"]', 'something else', trigger_blur=False, wait_for_ajax=False)
     web_fixture.driver_browser.press_tab()
     web_fixture.driver_browser.wait_for_element_visible(fixture.error_xpath)
     assert fixture.is_error_text('an attribute, other attribute')
 
-    web_fixture.driver_browser.type('//input[@id="one"]', 'something')
+    web_fixture.driver_browser.type('//input[@id="one"]', 'something', trigger_blur=False, wait_for_ajax=False)
     web_fixture.driver_browser.press_tab()
     web_fixture.driver_browser.wait_for_element_not_visible(fixture.error_xpath)

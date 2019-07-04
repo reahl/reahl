@@ -331,13 +331,12 @@ def test_the_form_is_blocked_while_the_widget_is_being_refreshed(web_fixture, bl
     browser.open('/')
 
     fixture.should_pause_to_simulate_long_refresh = True
-    with browser.ajax_in_background():
-        with web_fixture.reahl_server.in_background(wait_till_done_serving=False):
-            browser.click(XPath.option_with_text('Three'))
+    with web_fixture.reahl_server.in_background(wait_till_done_serving=False):
+        browser.click(XPath.option_with_text('Three'), wait_for_ajax=False)
 
-        assert fixture.is_form_blocked(browser)
+    assert fixture.is_form_blocked(browser)
 
-        fixture.simulate_long_refresh_done()
+    fixture.simulate_long_refresh_done()
 
     assert browser.wait_for(query_string_fixture.is_state_now, 3)
     assert not fixture.is_form_blocked(browser)
@@ -503,7 +502,7 @@ def test_input_values_retained_upon_domain_exception(web_fixture, disclosed_inpu
     browser.click(XPath.button_labelled('click me'))
 
     assert browser.is_element_present(XPath.paragraph_containing('Exception raised'))
-    assert browser.is_checked(XPath.input_labelled('Trigger field'))
+    assert browser.is_selected(XPath.input_labelled('Trigger field'))
     assert browser.get_value(XPath.input_labelled('Email')) == 'expectme@example.org'
 
 
@@ -537,7 +536,7 @@ def test_inputs_cleared_after_domain_exception_resubmit(web_fixture, disclosed_i
 
     # Values are all defaulted like on a first render
     assert not browser.is_element_present(XPath.paragraph_containing('Exception raised'))
-    assert not browser.is_checked(XPath.input_labelled('Trigger field'))
+    assert not browser.is_selected(XPath.input_labelled('Trigger field'))
     assert not browser.is_element_present(XPath.paragraph_containing('Email'))
     browser.click(XPath.input_labelled('Trigger field'))
     assert browser.get_value(XPath.input_labelled('Email')) == ''
@@ -561,13 +560,13 @@ def test_correct_tab_order_for_responsive_widgets(web_fixture, disclosed_input_t
     assert browser.get_value(XPath.input_labelled('Trigger field')) == 'off'
     browser.press_tab()
     assert browser.is_focus_on(XPath.input_labelled('Trigger field'))
-    browser.type(XPath.input_labelled('Trigger field'), 'on', trigger_blur=False)
+    browser.type(XPath.input_labelled('Trigger field'), 'on', trigger_blur=False, wait_for_ajax=False)
     browser.press_tab()
     browser.press_tab()
     assert browser.is_focus_on(XPath.input_labelled('Email'))
     
     # Case: an input disappears from the next tab order position
-    browser.type(XPath.input_labelled('Trigger field'), 'off', trigger_blur=False)
+    browser.type(XPath.input_labelled('Trigger field'), 'off', trigger_blur=False, wait_for_ajax=False)
     browser.press_tab()
     browser.press_tab()
     assert browser.is_focus_on(XPath.button_labelled('click me'))
@@ -962,13 +961,11 @@ def test_invalid_trigger_inputs(web_fixture, query_string_fixture, sql_alchemy_f
         assert browser.wait_for(query_string_fixture.is_state_labelled_now, 'My calculated state', '5')
 
         # Case: Entering an invalid value does not trigger a refresh of the input doing the triggering
-        browser.type(XPath.input_labelled('Choice'), 'invalid value')
         with web_fixture.driver_browser.no_load_expected_for('input[name=choice]'):
-            browser.press_tab()
+            browser.type(XPath.input_labelled('Choice'), 'invalid value')
 
         # Case: Entering an valid value in a different trigger, triggers a refresh, but last valid value of choice is used
         browser.type(XPath.input_labelled('Choice2'), '5')
-        browser.press_tab()
         assert browser.wait_for(query_string_fixture.is_state_labelled_now, 'My calculated state', '6')
 
         #       But, the invalid input is retained

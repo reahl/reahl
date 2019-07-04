@@ -34,7 +34,6 @@ def test_edit_errors(web_fixture, address_app_fixture):
     browser.click(XPath.button_labelled('Edit'))
 
     browser.type(XPath.input_labelled('Email'), 'invalid email address')
-    browser.press_tab()  #tab out so that validation is triggered
 
     assert address_app_fixture.error_is_displayed('Email should be a valid email address')
 

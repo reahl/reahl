@@ -496,6 +496,14 @@ class XPath(object):
         return cls.any('div')
 
     @classmethod
+    def label(cls):
+        """Returns an XPath to find an HTML <label>.
+
+           .. versionadded:: 4.1
+        """
+        return cls.any('label')
+
+    @classmethod
     def label_with_text(cls, text):
         """Returns an XPath to find an HTML <label> containing the text in `text`."""
         return cls.any('label').with_text(text)
@@ -721,7 +729,6 @@ class DriverBrowser(BasicBrowser):
         self.default_scheme = scheme
         self.default_port = port
         self.set_window_size('xl')
-        self.wait_for_ajax = True
 
     def set_window_size(self, size):
         sizes = {'xs': (576-20, 600),
@@ -729,7 +736,7 @@ class DriverBrowser(BasicBrowser):
                  'md': (922-20, 600),
                  'lg': (1200-20, 900),
                  'xl': (1200+300, 900)}
-        assert size in sizes.keys(), 'size should be one of: %' % (', '.join(sizes.keys()))
+        assert size in sizes.keys(), 'size should be one of: %s' % (', '.join(sizes.keys()))
         self.web_driver.set_window_size(*sizes[size]) # Setting it once requires some sort of delay before it actually happens, twice does that trick.
         self.web_driver.set_window_size(*sizes[size]) 
         
@@ -837,7 +844,7 @@ class DriverBrowser(BasicBrowser):
         """
         def wrapped(driver):
             try:
-                return (not self.wait_for_ajax or self.is_ajax_finished()) and condition(*args, **kwargs)
+                return condition(*args, **kwargs)
             except Exception as ex:
                 if isinstance(ex.args[0], CannotSendRequest):
                     return False
@@ -848,7 +855,7 @@ class DriverBrowser(BasicBrowser):
         """Waits until the given `condition` is **not** satisfied. See :meth:`DriverBrowser.wait_for`."""
         def wrapped(driver):
             try:
-                return (not self.wait_for_ajax or self.is_ajax_finished()) and not condition(*args, **kwargs)
+                return not condition(*args, **kwargs)
             except Exception as ex:
                 if isinstance(ex.args[0], CannotSendRequest):
                     return False
@@ -946,35 +953,35 @@ class DriverBrowser(BasicBrowser):
         self.web_driver.get(six.text_type(url))
         self.wait_for_page_to_load()
 
-    def click(self, locator, wait=True):
+    def click(self, locator, wait=True, wait_for_ajax=True):
         """Clicks on the element found by `locator`.
 
            :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
            :keyword wait: If False, don't wait_for_page_to_load after having clicked the input.
+           :keyword wait_for_ajax: If False, don't wait for ajax to finish before continuing (default is to wait).
+
+           .. versionchanged:: 4.1
+              Added keyword wait_for_ajax
         """
         self.wait_for_element_interactable(locator)
         self.find_element(locator).click()
         if wait:
             self.wait_for_page_to_load()
+        if wait_for_ajax:
+            self.wait_for(self.is_ajax_finished)
 
-    @contextlib.contextmanager
-    def ajax_in_background(self):
-        self.wait_for_ajax = False
-        try:
-            yield self
-        finally:
-            self.wait_for_ajax = True
-        
-    def type(self, locator, text, trigger_blur=True):
+    def type(self, locator, text, trigger_blur=True, wait_for_ajax=True):
         """Types the text in `value` into the input found by the `locator`.
         
            :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
            :param text: The text to be typed.
            :keyword trigger_blur: If False, don't trigger the blur event on the input after typing (by default blur is triggered).
+           :keyword wait_for_ajax: If False, don't wait for ajax to finish before continuing (default is to wait).
  
-            .. versionchanged:: 4.1
-               Removed wait kwarg, since we don't ever need to wait_for_page_to_load after typing into an input
-               Added trigger_blur to trigger possible onchange events automatically after typing.
+           .. versionchanged:: 4.1
+              Removed wait kwarg, since we don't ever need to wait_for_page_to_load after typing into an input
+              Added trigger_blur to trigger possible onchange events automatically after typing.
+              Added keyword wait_for_ajax
         """
         self.wait_for_element_interactable(locator)
         el = self.find_element(locator)
@@ -983,37 +990,55 @@ class DriverBrowser(BasicBrowser):
         el.send_keys(text)
         if trigger_blur:
             self.web_driver.execute_script('if ( "undefined" !== typeof jQuery) { jQuery(arguments[0]).blur().focus(); };', el)
+        if wait_for_ajax:
+            self.wait_for(self.is_ajax_finished)
 
-    def select(self, locator, label_to_choose):
+    def select(self, locator, label_to_choose, wait_for_ajax=True):
         """Finds the select element indicated by `locator` and selects one of its options.
 
            :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
            :param label_to_choose: The label of the option that should be selected.
-        """
-        self.select_many(locator, [label_to_choose])
+           :keyword wait_for_ajax: If False, don't wait for ajax to finish before continuing (default is to wait).
 
-    def select_many(self, locator, labels_to_choose):
+            .. versionchanged:: 4.1
+               Added keyword wait_for_ajax
+        """
+        self.select_many(locator, [label_to_choose], wait_for_ajax=wait_for_ajax)
+
+    def select_many(self, locator, labels_to_choose, wait_for_ajax=True):
         """Finds the select element indicated by `locator` and selects some of its options.
 
            :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
            :param labels_to_choose: A list of the labels of the options that should be selected.
+           :keyword wait_for_ajax: If False, don't wait for ajax to finish before continuing (default is to wait).
+
+           .. versionchanged:: 4.1
+              Added keyword wait_for_ajax
         """
         self.wait_for_element_interactable(locator)
         el = self.find_element(locator)
         select = Select(el)
         for label_to_choose in labels_to_choose:
             select.select_by_visible_text(label_to_choose)
+        if wait_for_ajax:
+            self.wait_for(self.is_ajax_finished)
 
-    def select_none(self, locator):
+    def select_none(self, locator, wait_for_ajax=True):
         """Finds the select element indicated by `locator` and deselects all options.
 
            :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
            :param label_to_choose: The label of the option that should be selected.
+           :keyword wait_for_ajax: If False, don't wait for ajax to finish before continuing (default is to wait).
+
+           .. versionchanged:: 4.1
+              Added keyword wait_for_ajax
         """
         self.wait_for_element_interactable(locator)
         el = self.find_element(locator)
         select = Select(el)
         select.deselect_all()
+        if wait_for_ajax:
+            self.wait_for(self.is_ajax_finished)
 
     def mouse_over(self, locator):
         """Moves the mouse pointer over the element found by the `locator`.
@@ -1056,7 +1081,6 @@ class DriverBrowser(BasicBrowser):
         self.wait_for_element_present(locator)
         el = self.find_element(xpath)
         return self.web_driver.execute_script('arguments[0].focus();', el)
-
 
     def is_focus_on(self, locator):
         """Answers whether the tab-focus is on the element found by the `locator`.
@@ -1115,7 +1139,13 @@ class DriverBrowser(BasicBrowser):
 
            :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
         """
-        assert not self.is_checkbox(locator), 'You should rather use is_checked method for checkbox input types'
+        element = self.find_element(locator, wait=False)
+        try:
+            input_type = element.get_attribute('type')
+        except:
+            input_type = None
+        assert input_type not in ['checkbox', 'radio'], 'You should rather use is_selected method for checkboxes and radio buttons'
+
         return self.get_attribute(locator, 'value')
 
     def execute_script(self, script, *arguments):
@@ -1173,46 +1203,56 @@ class DriverBrowser(BasicBrowser):
         """
         return self.get_attribute(locator, 'href') is not None
     
-    def is_checked(self, locator):
-        """Answers whether the CheckBoxInput element found by `locator` is currently checked.
+    def is_selected(self, locator):
+        """Answers whether the CheckBoxInput or RadionButton element found by `locator` is currently checked.
 
            :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
+
+           .. versionchanged:: 4.1
+              Renamed from is_checked() to is_selected()
         """
         return self.get_attribute(locator, 'checked') is not None
 
-    def check(self, locator):
-        """Ensures the CheckBoxInput element found by `locator` is currently checked.
+    def set_selected(self, locator, wait_for_ajax=True):
+        """Ensures the CheckBoxInput or RadioButton element found by `locator` is currently checked.
 
            :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
+           :keyword wait_for_ajax: If False, don't wait for ajax to finish before continuing (default is to wait).
+
+           .. versionchanged:: 4.1
+              Changed to break is locator is already checked.
+              Added keyword wait_for_ajax.
+              Renamed from check() to set_selected()
         """
         self.wait_for_element_enabled(locator) # Cant wait for interactable, since it may be display=none
-        if not self.is_checked(locator):
-           self.click(self.checkbox_clickable_element(locator))
+        assert not self.is_selected(locator)
+        self.click(self.checkbox_clickable_element(locator), wait_for_ajax=wait_for_ajax)
 
-    def uncheck(self, locator):
-        """Ensures the CheckBoxInput element found by `locator` is currently **not** checked.
+    def set_deselected(self, locator, wait_for_ajax=True):
+        """Ensures the CheckBoxInput or RadioButton element found by `locator` is currently **not** checked.
 
            :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
+           :keyword wait_for_ajax: If False, don't wait for ajax to finish before continuing (default is to wait).
+
+           .. versionchanged:: 4.1
+              Changed to break is locator is already unchecked.
+              Added keyword wait_for_ajax
+              Renamed from check() to set_deselected()
         """
         self.wait_for_element_enabled(locator) # Cant wait for interactable, since it may be display=none
-        if self.is_checked(locator):
-            self.click(self.checkbox_clickable_element(locator))
+        assert self.is_selected(locator)
+        self.click(self.checkbox_clickable_element(locator), wait_for_ajax=wait_for_ajax)
 
     def checkbox_clickable_element(self, locator):
         if not self.is_visible(locator):
             #it may be that the input type=checkbox may not be visible and represented by another visual element
             #as my be in the case of for example with bootstrap .custom-checkbox.
             #We simply click on the label, which checks the checkbox too.
-            label_for_input = XPath('(%s)/following-sibling::label' % locator.xpath)
-            return label_for_input
-        return locator
 
-    def is_checkbox(self, locator):
-        element = self.find_element(locator, wait=False)
-        try:
-            return element.get_attribute('type') == 'checkbox'
-        except:
-            return False
+            locators = [XPath.label()['@for=%s/@id' % xpath] for xpath in locator.xpaths]
+            locators += [XPath('%s/parent::label' % xpath) for xpath in locator.xpaths]
+            return XPath(*[locator.xpath for locator in locators])
+        return locator
 
     def create_cookie(self, cookie_dict):
         """Creates a cookie from the given `cookie_dict`.
