@@ -30,7 +30,7 @@ class ConfigFixture(Fixture):
         return self.browser.is_element_present(XPath.paragraph().including_text('%s: %s' % (name, email_address)))
 
     def heading_is_displayed(self):
-        return self.browser.is_element_present(XPath.heading_with_text(1, 'Addresses'))
+        return self.browser.is_element_present(XPath.heading(1).with_text('Addresses'))
 
 
 @with_fixtures(WebFixture, ConfigFixture)

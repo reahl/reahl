@@ -447,6 +447,7 @@ class XPath(object):
           Removed .link_starting_with_text()
           Removed .link_with_text()
           Removed .table_cell_with_text()
+          Removed .heading_with_text()
     """
     def __init__(self, *xpaths):
         self.xpaths = xpaths
@@ -517,9 +518,12 @@ class XPath(object):
         return cls.any('label').with_text(text)
 
     @classmethod
-    def heading_with_text(cls, level, text):
-        """Returns an XPath to find an HTML <h> of level `level` containing the text in `text`."""
-        return cls.any('h%s' % level).with_text(text)
+    def heading(cls, level):
+        """Returns an XPath to find an HTML <h?> of level `level`.
+        
+           .. versionadded:: 4.1
+        """
+        return cls.any('h%s' % level)
 
     @classmethod
     def checkbox(cls):
