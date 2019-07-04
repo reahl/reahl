@@ -542,10 +542,10 @@ def test_detour_is_non_reentrant(web_fixture):
         return urllib_parse.parse_qs(browser.current_url.query)['returnTo'] == [url_path]
 
     browser.open('/initial')
-    browser.click(XPath.link_with_text('Step 1'))
+    browser.click(XPath.link().with_text('Step 1'))
     assert browser.current_url.path == '/firstStepOfDetour'
     assert locationIsSetToReturnTo('http://localhost/initial')
 
-    browser.click(XPath.link_with_text('Step 1'))
+    browser.click(XPath.link().with_text('Step 1'))
     assert browser.current_url.path == '/firstStepOfDetour'
     assert locationIsSetToReturnTo('http://localhost/initial')

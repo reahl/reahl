@@ -241,12 +241,12 @@ def test_clicking_on_different_tabs_switch(web_fixture, panel_switch_fixture, ta
     assert browser.wait_for_not(tabbed_panel_ajax_fixture.tab_is_active, 'tab 3 name')
     assert browser.wait_for_not(tabbed_panel_ajax_fixture.tab_contents_equals, '<p>tab 3 content</p>')
 
-    browser.click(XPath.link_with_text('tab 3 name'))
+    browser.click(XPath.link().with_text('tab 3 name'))
 
     assert browser.wait_for(tabbed_panel_ajax_fixture.tab_is_active, 'tab 3 name')
     assert browser.wait_for(tabbed_panel_ajax_fixture.tab_contents_equals, '<p>tab 3 content</p>')
 
-    browser.click(XPath.link_with_text('tab 4 name'))
+    browser.click(XPath.link().with_text('tab 4 name'))
 
     assert browser.wait_for_not(tabbed_panel_ajax_fixture.tab_is_active, 'tab 3 name')
     assert browser.wait_for(tabbed_panel_ajax_fixture.tab_is_active, 'tab 4 name')
@@ -265,21 +265,21 @@ def test_clicking_on_multi_tab(web_fixture, panel_switch_fixture, tabbed_panel_a
     browser.open('/')
 
     # Make tab 3 the active one
-    browser.click(XPath.link_with_text('tab 3 name'))
+    browser.click(XPath.link().with_text('tab 3 name'))
     assert browser.wait_for(tabbed_panel_ajax_fixture.tab_is_active, 'tab 3 name')
     assert browser.wait_for(tabbed_panel_ajax_fixture.tab_contents_equals, '<p>tab 3 content</p>')
 
     # Clicking on the multitab toggles the dropdown
-    assert browser.wait_for_element_not_visible(XPath.link_with_text('tab 2 name'))
-    browser.click(XPath.link_with_text('multitab name'))
-    assert browser.wait_for_element_visible(XPath.link_with_text('tab 2 name'))
+    assert browser.wait_for_element_not_visible(XPath.link().with_text('tab 2 name'))
+    browser.click(XPath.link().with_text('multitab name'))
+    assert browser.wait_for_element_visible(XPath.link().with_text('tab 2 name'))
 
     # - current active tab not changed
     assert browser.wait_for(tabbed_panel_ajax_fixture.tab_is_active, 'tab 3 name')
     assert browser.wait_for(tabbed_panel_ajax_fixture.tab_contents_equals, '<p>tab 3 content</p>')
 
     # Clicking on the multitab toggles the dropdown again
-    browser.click(XPath.link_with_text('multitab name'))
+    browser.click(XPath.link().with_text('multitab name'))
 
     # - current active tab not changed
     assert browser.wait_for(tabbed_panel_ajax_fixture.tab_is_active, 'tab 3 name')
@@ -297,15 +297,15 @@ def test_clicking_on_sub_tab_switches(web_fixture, panel_switch_fixture, tabbed_
     browser = web_fixture.driver_browser
     browser.open('/')
 
-    browser.click(XPath.link_with_text('tab 3 name'))
+    browser.click(XPath.link().with_text('tab 3 name'))
     assert browser.wait_for(tabbed_panel_ajax_fixture.tab_is_active, 'tab 3 name')
     assert browser.wait_for(tabbed_panel_ajax_fixture.tab_contents_equals, '<p>tab 3 content</p>')
 
     assert browser.wait_for_not(tabbed_panel_ajax_fixture.tab_is_active, 'tab 2 name')
     assert browser.wait_for_not(tabbed_panel_ajax_fixture.tab_contents_equals, '<p>tab 1/2 content</p>')
 
-    browser.click(XPath.link_with_text('multitab name'))
-    browser.click(XPath.link_with_text('tab 2 name'))
+    browser.click(XPath.link().with_text('multitab name'))
+    browser.click(XPath.link().with_text('tab 2 name'))
 
     # - active status removed from previous
     assert browser.wait_for_not(tabbed_panel_ajax_fixture.tab_is_active, 'tab 3 name')
@@ -315,7 +315,7 @@ def test_clicking_on_sub_tab_switches(web_fixture, panel_switch_fixture, tabbed_
     assert browser.wait_for(tabbed_panel_ajax_fixture.tab_contents_equals, '<p>tab 1/2 content</p>')
 
     # Clicking away from the multitab sub-tab removes its active status
-    browser.click(XPath.link_with_text('tab 3 name'))
+    browser.click(XPath.link().with_text('tab 3 name'))
     # tab2 is not active anymore
     assert browser.wait_for_not(tabbed_panel_ajax_fixture.tab_is_active, 'tab 2 name')
     # TODO: cs Remove the next commented code - there used to be a problem with bootstrap4 alpha

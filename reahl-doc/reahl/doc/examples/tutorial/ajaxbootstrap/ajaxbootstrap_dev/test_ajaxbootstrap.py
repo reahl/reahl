@@ -46,7 +46,7 @@ def test_refreshing_widget(web_fixture, refresh_fixture):
     assert not refresh_fixture.text_shows_selected(3)
 
     with browser.no_page_load_expected():
-        browser.click(XPath.link_with_text('Select 3'))
+        browser.click(XPath.link().with_text('Select 3'))
 
     assert not refresh_fixture.text_shows_selected(1)
     assert refresh_fixture.text_shows_selected(3)

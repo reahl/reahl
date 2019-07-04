@@ -650,7 +650,7 @@ def test_button_layouts_on_anchors(web_fixture):
 
     anchor = A(web_fixture.view, href=Url('/an/href'), description='link text').use_layout(ButtonLayout())
     tester = WidgetTester(anchor)
-    [rendered_anchor] = tester.xpath(XPath.link_with_text('link text'))
+    [rendered_anchor] = tester.xpath(XPath.link().with_text('link text'))
     assert rendered_anchor.attrib['class'] == 'btn'
 
 
@@ -665,6 +665,6 @@ def test_button_layouts_on_disabled_anchors(web_fixture):
     anchor.use_layout(ButtonLayout())
 
     tester = WidgetTester(anchor)
-    [rendered_anchor] = tester.xpath(XPath.link_with_text('link text'))
+    [rendered_anchor] = tester.xpath(XPath.link().with_text('link text'))
     assert rendered_anchor.attrib['class'] == 'btn disabled'
 

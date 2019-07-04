@@ -53,7 +53,7 @@ def test_editing_an_address(web_fixture, fixture):
     original_address_name = 'friend 7'   #choose the seventh address to edit
 
     fixture.browser.open('/')
-    fixture.browser.click(XPath.link_with_text('Edit').inside_of(XPath.table_row()[7]))
+    fixture.browser.click(XPath.link().with_text('Edit').inside_of(XPath.table_row()[7]))
 
     assert fixture.is_on_edit_page_for(original_address_name)
     fixture.browser.type(XPath.input_labelled('Name'), 'John Doe-changed')

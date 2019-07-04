@@ -39,7 +39,7 @@ def test_paging(web_fixture, paging_fixture):
     assert not paging_fixture.is_email_listed('friend9@some.org')
 
     with browser.no_page_load_expected():
-        browser.click(XPath.link_with_text('2'))
+        browser.click(XPath.link().with_text('2'))
 
     assert not paging_fixture.is_email_listed('friend0@some.org')
     assert paging_fixture.is_email_listed('friend9@some.org')

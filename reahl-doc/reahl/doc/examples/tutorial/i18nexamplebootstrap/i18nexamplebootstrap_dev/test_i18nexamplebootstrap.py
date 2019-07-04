@@ -42,6 +42,6 @@ def test_translations(web_fixture, translation_example_fixture):
     assert browser.is_element_present(XPath.label_with_text("Name"))
 
     #go to the the translated page
-    browser.click(XPath.link_with_text('Afrikaans'))
+    browser.click(XPath.link().with_text('Afrikaans'))
     assert browser.is_element_present(XPath.heading_with_text(1, "Adresse"))
     assert browser.is_element_present(XPath.label_with_text("Naam"))

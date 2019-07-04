@@ -64,7 +64,7 @@ def test_default_behaviour(web_fixture, popup_a_fixture):
     assert browser.is_element_present("//a[@title='Home page' and text()='Home page' and @href='/']")
 
     # subsequent behaviour
-    browser.click(XPath.link_with_text('Home page'))
+    browser.click(XPath.link().with_text('Home page'))
     browser.wait_for(popup_a_fixture.is_popped_up)
 
     #check some bootstrap attributes
@@ -97,7 +97,7 @@ def test_customising_dialog_buttons(web_fixture, popup_a_fixture):
 
     browser.open('/')
 
-    browser.click(XPath.link_with_text('Home page'))
+    browser.click(XPath.link().with_text('Home page'))
     browser.wait_for(popup_a_fixture.is_popped_up)
 
     assert browser.is_element_present(button1_xpath)
@@ -128,7 +128,7 @@ def test_workings_of_check_checkbox_button(web_fixture, popup_a_fixture):
     browser = web_fixture.driver_browser
     browser.open('/')
 
-    browser.click(XPath.link_with_text('Home page'))
+    browser.click(XPath.link().with_text('Home page'))
     browser.wait_for(popup_a_fixture.is_popped_up)
 
     browser.click(XPath.button_labelled('Checkit'))
@@ -153,7 +153,7 @@ def test_centering_dialog_vertically(web_fixture, popup_a_fixture):
     browser = web_fixture.driver_browser
     browser.open('/')
 
-    browser.click(XPath.link_with_text('Home page'))
+    browser.click(XPath.link().with_text('Home page'))
     browser.wait_for(popup_a_fixture.is_popped_up)
 
     dialog_xpath = "//div[@class='modal fade show' and @tabindex='-1' and @role='dialog']/div[@class='modal-dialog modal-dialog-centered']/div[@class='modal-content']"

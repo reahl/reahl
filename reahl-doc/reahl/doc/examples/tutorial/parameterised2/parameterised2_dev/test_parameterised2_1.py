@@ -15,7 +15,7 @@ def test_adding_an_address(web_fixture):
     browser = Browser(web_fixture.new_wsgi_app(site_root=AddressBookUI))
 
     browser.open('/')
-    browser.click(XPath.link_with_text('Add'))
+    browser.click(XPath.link().with_text('Add'))
 
     actual_title = browser.title
     assert actual_title == 'Add', 'Expected to be on the Add an address page'

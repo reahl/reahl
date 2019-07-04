@@ -261,10 +261,10 @@ def test_language_menu(web_fixture):
 
     assert browser.is_element_present(XPath.paragraph().including_text('This is an English sentence.'))
 
-    browser.click(XPath.link_with_text('Afrikaans'))
+    browser.click(XPath.link().with_text('Afrikaans'))
     assert browser.is_element_present(XPath.paragraph().including_text('Hierdie is \'n sin in Afrikaans.'))
 
-    browser.click(XPath.link_with_text('English (United Kingdom)'))
+    browser.click(XPath.link().with_text('English (United Kingdom)'))
     assert browser.is_element_present(XPath.paragraph().including_text('This is an English sentence.'))
 
 

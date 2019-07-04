@@ -249,7 +249,7 @@ def test_slots(web_fixture, slots_scenario):
     
     web_fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path('slots1.png'))
 
-    web_fixture.driver_browser.click(XPath.link_with_text('Page 2'))
+    web_fixture.driver_browser.click(XPath.link().with_text('Page 2'))
     expected_main_contents = 'This could, for example, be where a photo gallery shows a large photo.'
     expected_secondary_contents = 'Thumbnails will then sit on the side of the big photo.'
     main_contents = fixture.get_main_slot_contents()
@@ -274,7 +274,7 @@ def test_widgets_using_factories(web_fixture, tabbed_panel_scenario):
     assert web_fixture.driver_browser.wait_for(fixture.tab_contents_equals, 'A paragraph to give content to the first tab.')
     web_fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path('tabbedpanel1.png'))
 
-    web_fixture.driver_browser.click(XPath.link_with_text('Tab 2'))
+    web_fixture.driver_browser.click(XPath.link().with_text('Tab 2'))
     assert web_fixture.driver_browser.wait_for(fixture.tab_is_active, 'Tab 2')
     assert web_fixture.driver_browser.wait_for(fixture.tab_contents_equals, 'And another ...  to give content to the second tab.')
     web_fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path('tabbedpanel2.png'))
@@ -286,7 +286,7 @@ def test_widgets(web_fixture, carousel_panel_scenario):
     fixture.start_example_app()
     web_fixture.driver_browser.open('/')
     assert web_fixture.driver_browser.wait_for(fixture.carousel_caption_equals, 'a paragraph with text')
-    web_fixture.driver_browser.click(XPath.link_with_text('Next'))
+    web_fixture.driver_browser.click(XPath.link().with_text('Next'))
     assert web_fixture.driver_browser.wait_for(fixture.carousel_caption_equals, 'a different paragraph')
 
 
@@ -396,7 +396,7 @@ def test_i18n(web_fixture, i18n_scenario):
     assert web_fixture.driver_browser.title == 'Translated example' 
     web_fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path('i18n1.png'))
 
-    web_fixture.driver_browser.click(XPath.link_with_text('Afrikaans'))
+    web_fixture.driver_browser.click(XPath.link().with_text('Afrikaans'))
     assert fixture.get_text_in_p() == 'Hierdie is \'n vertaalde boodskap. Die huidige URL is "/af/some_page".' 
     assert web_fixture.driver_browser.title == 'Vertaalde voorbeeld' 
     web_fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path('i18n2.png'))
@@ -460,7 +460,7 @@ def test_pageflow1(web_fixture, pageflow1_scenario):
 
     assert browser.is_element_present('//ul[contains(@class,"nav")]') 
 
-    browser.click(XPath.link_with_text('Add'))
+    browser.click(XPath.link().with_text('Add'))
     assert browser.location_path == '/add' 
 
     browser.type(XPath.input_labelled('Name'), 'John') 
@@ -477,13 +477,13 @@ def test_parameterised1(web_fixture, parameterised1_scenario):
     browser = Browser(parameterised1_scenario.wsgi_app)
     browser.open('/')
 
-    browser.click(XPath.link_with_text('Add'))
+    browser.click(XPath.link().with_text('Add'))
     browser.type(XPath.input_labelled('Name'), 'John') 
     browser.type(XPath.input_labelled('Email'), 'johndoe@some.org')
     browser.click(XPath.button_labelled('Save'))
 
     assert browser.location_path == '/' 
-    browser.click(XPath.link_with_text('edit'))
+    browser.click(XPath.link().with_text('edit'))
 
     john = Session.query(parameterised1.Address).one()
     assert browser.location_path == '/edit/%s' % john.id 

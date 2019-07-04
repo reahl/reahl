@@ -444,6 +444,8 @@ class XPath(object):
           Removed .div_containing()
           Removed .paragraph_containing()
           Removed .legend_with_text()
+          Removed .link_starting_with_text()
+          Removed .link_with_text()
     """
     def __init__(self, *xpaths):
         self.xpaths = xpaths
@@ -614,13 +616,11 @@ class XPath(object):
         return cls.table_cell()[target_column_index].inside_of(XPath.table_row()[found_row_index])
 
     @classmethod
-    def link_with_text(cls, text):
-        """Returns an XPath to find an HTML <a> containing the text in `text`."""
-        return cls.any('a').with_text(text)
-
-    @classmethod
-    def link_starting_with_text(cls, text):
-        """Returns an XPath to find an HTML <a> containing text that starts with the contents of `text`."""
+    def link(cls, text):
+        """Returns an XPath to find an HTML <a>.
+                
+           .. versionadded:: 4.1
+        """
         return cls.any('a').with_text_starting(text)
 
     @classmethod
