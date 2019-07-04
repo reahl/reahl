@@ -27,13 +27,13 @@ class ResponsiveExampleFixture(Fixture):
         return XPath.div().including_class('alert').with_text('Please ensure allocation percentages add up to 100')
 
     def new_investment_allocation_details(self):
-        return XPath.legend().with_text('Investment allocation')
+        return XPath.fieldset_with_legend('Investment allocation')
 
     def new_investor_information(self):
-        return XPath.legend().with_text('Investor information')
+        return XPath.fieldset_with_legend('Investor information')
 
     def new_new_investor_specific_information(self):
-        return XPath.legend().with_text('New investor information')
+        return XPath.fieldset_with_legend('New investor information')
 
 
 @with_fixtures(WebFixture, ResponsiveExampleFixture)

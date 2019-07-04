@@ -449,6 +449,8 @@ class XPath(object):
           Removed .table_cell_with_text()
           Removed .heading_with_text()
           Removed .label_with_text()
+          Removed .caption_with_text()
+          Removed .option_with_text()
     """
     def __init__(self, *xpaths):
         self.xpaths = xpaths
@@ -458,6 +460,7 @@ class XPath(object):
 
     def __getitem__(self, n):
         """Returns an XPath for the nth positioned element matching the current element.
+           Can also be used to construct an XPath with an xpath condition (as a string) in the [].
 
            .. versionadded:: 4.1
         """
@@ -475,19 +478,46 @@ class XPath(object):
         return self.__class__(*['%s/.%s' % (b,a) for a, b in itertools.product(self.xpaths, another.xpaths)])
 
     def __or__(self, other):
+        """Returns an XPath that matches one of self or other.
+
+           .. versionadded:: 4.1
+        """
         return self.__class__(*(self.xpaths + other.xpaths))
 
     def including_class(self, css_class):
+        """Returns an XPath that additionally has a given css_class.
+
+           .. versionadded:: 4.1
+        """
         return self.__class__(*['%s[contains(concat(" ", @class, " "), " %s ")]' % (xpath, css_class) for xpath in self.xpaths])
 
     def with_text(self, text):
+        """Returns an XPath that additionally matches the given text exactly.
+
+           .. versionadded:: 4.1
+        """
         return self.__class__(*['%s[normalize-space()=normalize-space("%s")]' % (xpath, text) for xpath in self.xpaths])
 
     def including_text(self, text):
+        """Returns an XPath that additionally includes text matching the given text.
+
+           .. versionadded:: 4.1
+        """
         return self.__class__(*['%s[contains(normalize-space(), normalize-space("%s"))]' % (xpath, text) for xpath in self.xpaths])
 
     def with_text_starting(self, text):
+        """Returns an XPath that additionally has text that starts with the given text.
+
+           .. versionadded:: 4.1
+        """
         return self.__class__(*['%s[starts-with(normalize-space(), normalize-space("%s"))]' % (xpath, text) for xpath in self.xpaths])
+
+    def containing(self, another):
+        """Returns an XPath that additionally contains another XPath.
+
+           .. versionadded:: 4.1
+        """
+        return self.__class__(*[final_xpath for xpath in another.xpaths for final_xpath in self[re.sub('^\/\/','',xpath)].xpaths])
 
     @classmethod
     def any(cls, tag_name):
@@ -517,9 +547,12 @@ class XPath(object):
         return button | input_button
 
     @classmethod
-    def caption_with_text(cls, text):
-        """Returns an XPath to find an HTML <caption> matching the text in `text`."""
-        return cls.any('caption').with_text(text)
+    def caption(cls):
+        """Returns an XPath to find an HTML <caption>.
+        
+           ..versionadded:: 4.1
+        """
+        return cls.any('caption')
 
     @classmethod
     def checkbox(cls):
@@ -543,8 +576,8 @@ class XPath(object):
 
         .. versionadded:: 3.2
         """
-        legend = cls('legend').with_text(legend_text)
-        return cls.any('fieldset')[('//fieldset[%s]' % legend)]
+        legend = cls.legend().with_text(legend_text)
+        return cls.any('fieldset').containing(legend)
 
     @classmethod
     def heading(cls, level):
@@ -601,9 +634,12 @@ class XPath(object):
         return cls.any('a')
 
     @classmethod
-    def option_with_text(cls, text):
-        """Returns an XPath to find an HTML <option> containing the text in `text`."""
-        return cls.any('option').with_text(text)
+    def option(cls):
+        """Returns an XPath to find an HTML <option>.
+        
+           .. versionadded:: 4.1
+        """
+        return cls.any('option')
 
     @classmethod
     def paragraph(cls):

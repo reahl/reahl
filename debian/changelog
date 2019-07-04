@@ -9,6 +9,7 @@ python-reahl (4.1) unstable; urgency=low
  * Changed nested_transaction to yield a TransactionVeto object.
  * Changed Inputs to NOT automatically fix name clashes.
  * Changed XPath to be composable from other XPath instances and morphable with special methods.
+ * Removed old XPath methods that can now be composed (like _with_text methods).
  * Changed DriverBrowser element getter methods and condition methods to never wait.
  * Changed DriverBrowser interacting methods (like click, type) to iconsistently trigger onchange and wait for ajax by default. 
  * Renamed is_checked, check, and uncheck methods on DriverBrowser to work for radio buttons too.

@@ -542,7 +542,7 @@ class ManyChoicesScenarios(Fixture):
     @scenario
     def select_input(self):
         self.input_type = SelectInput
-        self.xpath_function_to_choice = XPath.option_with_text
+        self.xpath_function_to_choice = XPath.option().with_text
 
 
 @with_fixtures(WebFixture, SimpleInputFixture2, ManyChoicesScenarios)

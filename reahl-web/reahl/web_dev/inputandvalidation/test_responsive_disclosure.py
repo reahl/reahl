@@ -332,7 +332,7 @@ def test_the_form_is_blocked_while_the_widget_is_being_refreshed(web_fixture, bl
 
     fixture.should_pause_to_simulate_long_refresh = True
     with web_fixture.reahl_server.in_background(wait_till_done_serving=False):
-        browser.click(XPath.option_with_text('Three'), wait_for_ajax=False)
+        browser.click(XPath.option().with_text('Three'), wait_for_ajax=False)
 
     assert fixture.is_form_blocked(browser)
 
@@ -391,7 +391,7 @@ def test_form_values_are_not_persisted_until_form_is_submitted(web_fixture, resp
         browser.open('/')
 
         assert fixture.model_object.choice == 1
-        browser.click(XPath.option_with_text('Three'))
+        browser.click(XPath.option().with_text('Three'))
 
         assert browser.wait_for(query_string_fixture.is_state_now, 3)  # The screen was updated,
         assert fixture.model_object.choice == 1                                # but the database not.

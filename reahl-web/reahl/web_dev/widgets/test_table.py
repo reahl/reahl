@@ -43,7 +43,7 @@ class TableFixture(Fixture):
         return [DataItem(1, 'T'), DataItem(2, 'H'), DataItem(3, 'E')]
 
     def table_caption_is(self, expected):
-        return  self.web_fixture.driver_browser.find_element(XPath.caption_with_text(expected))
+        return  self.web_fixture.driver_browser.find_element(XPath.caption().with_text(expected))
 
     def table_summary_is(self, summary):
         return  self.web_fixture.driver_browser.find_element(XPath.table_with_summary(summary))
