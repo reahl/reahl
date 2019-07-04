@@ -39,7 +39,7 @@ from reahl.web_dev.fixtures import WebFixture
 class FileInputButtonFixture(Fixture):
 
     def upload_button_indicates_focus(self):
-        element = self.web_fixture.driver_browser.find_element(XPath.label_with_text('Choose file(s)'))
+        element = self.web_fixture.driver_browser.find_element(XPath.label().with_text('Choose file(s)'))
         return 'focus' in element.get_attribute('class')
 
     def new_domain_object(self):
@@ -726,7 +726,7 @@ def test_async_upload_error(web_fixture, broken_file_upload_input_fixture):
     browser = web_fixture.driver_browser
     browser.open('/')
 
-    assert not browser.is_element_present(XPath.label_with_text('an error ocurred, please try again later.')) 
+    assert not browser.is_element_present(XPath.label().with_text('an error ocurred, please try again later.')) 
 
     with expected(Exception):
         browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload1.name)

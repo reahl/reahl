@@ -448,6 +448,7 @@ class XPath(object):
           Removed .link_with_text()
           Removed .table_cell_with_text()
           Removed .heading_with_text()
+          Removed .label_with_text()
     """
     def __init__(self, *xpaths):
         self.xpaths = xpaths
@@ -511,11 +512,6 @@ class XPath(object):
            .. versionadded:: 4.1
         """
         return cls.any('label')
-
-    @classmethod
-    def label_with_text(cls, text):
-        """Returns an XPath to find an HTML <label> containing the text in `text`."""
-        return cls.any('label').with_text(text)
 
     @classmethod
     def heading(cls, level):

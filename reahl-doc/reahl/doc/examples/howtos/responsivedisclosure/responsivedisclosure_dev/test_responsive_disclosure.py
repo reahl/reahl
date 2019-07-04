@@ -65,7 +65,7 @@ def test_example(web_fixture, responsive_example_fixture):
     # Reveal sections for Investment allocation details
     assert not browser.is_visible(fixture.investment_allocation_details)  
 
-    browser.click(XPath.label_with_text('I agree to the terms and conditions'))
+    browser.click(XPath.label().with_text('I agree to the terms and conditions'))
     browser.wait_for_element_visible(fixture.investment_allocation_details)  
     
     browser.type(XPath.input_labelled('Total amount'), '10000')
