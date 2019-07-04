@@ -45,7 +45,7 @@ def test_logging_in(web_fixture, session_scope_fixture):
     browser.click(XPath.button_labelled('Log in'))
 
     browser.click(XPath.link_with_text('Home'))
-    assert browser.is_element_present(XPath.paragraph_containing('Welcome John Doe'))
+    assert browser.is_element_present(XPath.paragraph().including_text('Welcome John Doe'))
     
 
 @with_fixtures(WebFixture, SessionScopeFixture)

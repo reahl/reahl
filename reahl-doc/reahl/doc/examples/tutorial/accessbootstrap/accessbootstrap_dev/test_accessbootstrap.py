@@ -215,7 +215,7 @@ def test_edit_and_add_own(web_fixture, access_domain_fixture, access_ui_fixture)
     browser.type(XPath.input_labelled('Email'), 'someone@some.org')
     browser.click(XPath.button_labelled('Save'))
 
-    assert browser.is_element_present(XPath.paragraph_containing('Someone: someone@some.org'))
+    assert browser.is_element_present(XPath.paragraph().including_text('Someone: someone@some.org'))
 
     # edit
     browser.click(XPath.button_labelled('Edit'))
@@ -223,7 +223,7 @@ def test_edit_and_add_own(web_fixture, access_domain_fixture, access_ui_fixture)
     browser.type(XPath.input_labelled('Email'), 'else@some.org')
     browser.click(XPath.button_labelled('Update'))
 
-    assert browser.is_element_present(XPath.paragraph_containing('Else: else@some.org'))
+    assert browser.is_element_present(XPath.paragraph().including_text('Else: else@some.org'))
 
 
 # ------- Tests added for access control
@@ -247,7 +247,7 @@ def test_see_other(web_fixture, access_domain_fixture, access_ui_fixture):
 
     browser.click(XPath.link_with_text('Address book of other@some.org'))
 
-    assert browser.is_element_present(XPath.paragraph_containing('Friend: friend@some.org'))
+    assert browser.is_element_present(XPath.paragraph().including_text('Friend: friend@some.org'))
 
     # Case: can only see
     assert not browser.is_element_enabled(XPath.link_with_text('Add address'))
@@ -270,7 +270,7 @@ def test_see_other(web_fixture, access_domain_fixture, access_ui_fixture):
     browser.type(XPath.input_labelled('Email'), 'else@some.org')
     browser.click(XPath.button_labelled('Update'))
 
-    assert browser.is_element_present(XPath.paragraph_containing('Else: else@some.org'))
+    assert browser.is_element_present(XPath.paragraph().including_text('Else: else@some.org'))
 
 
 @with_fixtures(WebFixture, AccessDomainFixture, AccessUIFixture)
@@ -305,7 +305,7 @@ def test_edit_other(web_fixture, access_domain_fixture, access_ui_fixture):
     browser.type(XPath.input_labelled('Email'), 'else@some.org')
     browser.click(XPath.button_labelled('Update'))
 
-    assert browser.is_element_present(XPath.paragraph_containing('Friend: else@some.org'))
+    assert browser.is_element_present(XPath.paragraph().including_text('Friend: else@some.org'))
 
 
 @with_fixtures(WebFixture, AccessDomainFixture, AccessUIFixture)

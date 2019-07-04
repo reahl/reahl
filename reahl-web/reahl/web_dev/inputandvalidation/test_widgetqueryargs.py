@@ -128,7 +128,7 @@ class QueryStringFixture(Fixture):
         return self.is_state_labelled_now('My state', state)
 
     def is_state_labelled_now(self, label, state):
-        return self.web_fixture.driver_browser.is_element_present(XPath.paragraph_containing('%s is now %s' % (label, state)))
+        return self.web_fixture.driver_browser.is_element_present(XPath.paragraph().including_text('%s is now %s' % (label, state)))
 
 
 @with_fixtures(WebFixture, QueryStringFixture, ValueScenarios)

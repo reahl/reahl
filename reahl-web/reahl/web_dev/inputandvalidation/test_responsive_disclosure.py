@@ -501,7 +501,7 @@ def test_input_values_retained_upon_domain_exception(web_fixture, disclosed_inpu
     browser.type(XPath.input_labelled('Email'), 'expectme@example.org')
     browser.click(XPath.button_labelled('click me'))
 
-    assert browser.is_element_present(XPath.paragraph_containing('Exception raised'))
+    assert browser.is_element_present(XPath.paragraph().including_text('Exception raised'))
     assert browser.is_selected(XPath.input_labelled('Trigger field'))
     assert browser.get_value(XPath.input_labelled('Email')) == 'expectme@example.org'
 
@@ -527,7 +527,7 @@ def test_inputs_cleared_after_domain_exception_resubmit(web_fixture, disclosed_i
     browser.click(XPath.input_labelled('Trigger field'))
     browser.type(XPath.input_labelled('Email'), 'expectme@example.org')
     browser.click(XPath.button_labelled('click me'))
-    assert browser.is_element_present(XPath.paragraph_containing('Exception raised'))
+    assert browser.is_element_present(XPath.paragraph().including_text('Exception raised'))
 
     # Then successful commit
     fixture.raise_domain_exception_on_submit = False
@@ -535,9 +535,9 @@ def test_inputs_cleared_after_domain_exception_resubmit(web_fixture, disclosed_i
     browser.click(XPath.button_labelled('click me'))
 
     # Values are all defaulted like on a first render
-    assert not browser.is_element_present(XPath.paragraph_containing('Exception raised'))
+    assert not browser.is_element_present(XPath.paragraph().including_text('Exception raised'))
     assert not browser.is_selected(XPath.input_labelled('Trigger field'))
-    assert not browser.is_element_present(XPath.paragraph_containing('Email'))
+    assert not browser.is_element_present(XPath.paragraph().including_text('Email'))
     browser.click(XPath.input_labelled('Trigger field'))
     assert browser.get_value(XPath.input_labelled('Email')) == ''
 
@@ -648,7 +648,7 @@ class NestedResponsiveDisclosureFixture(Fixture):
     def are_all_parts_enabled(self, browser):
         return browser.is_interactable(XPath.input_labelled('Trigger field')) and \
             browser.is_interactable(XPath.input_labelled('Nested trigger field')) and \
-            browser.is_on_top(XPath.paragraph_containing('showing nested responsive content'))
+            browser.is_on_top(XPath.paragraph().including_text('showing nested responsive content'))
 
 
 @with_fixtures(WebFixture, QueryStringFixture, NestedResponsiveDisclosureFixture)
@@ -841,7 +841,7 @@ class RecalculatedWidgetScenarios(Fixture):
 
         def check_widget_value(browser, value):
             browser.wait_for(browser.is_element_value, XPath.input_labelled('Calculated'), str(value))
-            status_text = browser.get_text(XPath.paragraph_containing('Status: '))
+            status_text = browser.get_text(XPath.paragraph().including_text('Status: '))
             assert 'invalidly_entered' not in status_text
 
         self.add_to_form = add_to_form
@@ -879,7 +879,7 @@ def test_recalculate_on_refresh(web_fixture, query_string_fixture, sql_alchemy_f
 
         # Case: values stay recalculated after submit with exception
         browser.click(XPath.button_labelled('submit'))
-        assert browser.is_element_present(XPath.paragraph_containing('An exception happened on submit'))
+        assert browser.is_element_present(XPath.paragraph().including_text('An exception happened on submit'))
         scenario.check_widget_value(browser, 20)
 
 
@@ -1055,6 +1055,6 @@ def test_invalid_non_trigger_input_corner_case(web_fixture, query_string_fixture
         assert browser.is_element_value(XPath.input_labelled('Choice3'), 'other invalid input')
         browser.type(XPath.input_labelled('Choice3'), '8')
         browser.click(XPath.button_labelled('submit'))
-        assert browser.is_element_present(XPath.paragraph_containing('An exception happened on submit'))
+        assert browser.is_element_present(XPath.paragraph().including_text('An exception happened on submit'))
         assert browser.is_element_value(XPath.input_labelled('Choice3'), '8')
         

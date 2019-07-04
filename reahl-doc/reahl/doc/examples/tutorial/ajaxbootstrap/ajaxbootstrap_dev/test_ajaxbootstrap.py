@@ -26,7 +26,7 @@ class RefreshFixture(Fixture):
         return self.web_fixture.new_wsgi_app(site_root=WidgetRefreshUI, enable_js=True)
 
     def text_shows_selected(self, expected_selected):
-        return self.browser.is_element_present(XPath.paragraph_containing('You selected link number %s' % expected_selected))
+        return self.browser.is_element_present(XPath.paragraph().including_text('You selected link number %s' % expected_selected))
 
 
 #------ Tests

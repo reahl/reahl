@@ -102,7 +102,7 @@ def test_views_with_parameters(web_fixture, parameterised_scenarios):
     if fixture.should_exist:
         browser.open(fixture.url)
         assert browser.title == 'View for: %s' % fixture.expected_value
-        assert browser.is_element_present(XPath.paragraph_containing('content for %s' % fixture.expected_value))
+        assert browser.is_element_present(XPath.paragraph().including_text('content for %s' % fixture.expected_value))
     else:
         browser.open(fixture.url, status=404)
 

@@ -219,10 +219,10 @@ class NavbarToggleFixture(Fixture):
                self.web_fixture.driver_browser.does_element_have_attribute(locator, 'class', value='collapse show')
 
     def panel_is_visible(self):
-        return self.web_fixture.driver_browser.is_visible(XPath.paragraph_containing('Peek-A-Boo'))
+        return self.web_fixture.driver_browser.is_visible(XPath.paragraph().including_text('Peek-A-Boo'))
 
     def panel_is_expanded(self):
-        return self.is_expanded(XPath.paragraph_containing('Peek-A-Boo'))
+        return self.is_expanded(XPath.paragraph().including_text('Peek-A-Boo'))
 
     def xpath_to_locate_toggle(self):
         return XPath('//span[contains(@class,"navbar-toggler-icon")]')

@@ -259,13 +259,13 @@ def test_language_menu(web_fixture):
     browser = Browser(wsgi_app)
     browser.open('/')
 
-    assert browser.is_element_present(XPath.paragraph_containing('This is an English sentence.'))
+    assert browser.is_element_present(XPath.paragraph().including_text('This is an English sentence.'))
 
     browser.click(XPath.link_with_text('Afrikaans'))
-    assert browser.is_element_present(XPath.paragraph_containing('Hierdie is \'n sin in Afrikaans.'))
+    assert browser.is_element_present(XPath.paragraph().including_text('Hierdie is \'n sin in Afrikaans.'))
 
     browser.click(XPath.link_with_text('English (United Kingdom)'))
-    assert browser.is_element_present(XPath.paragraph_containing('This is an English sentence.'))
+    assert browser.is_element_present(XPath.paragraph().including_text('This is an English sentence.'))
 
 
 def test_nav_layout_restricts_option_to_alignment_or_justfication():

@@ -416,7 +416,7 @@ def test_addressbook1(web_fixture, addressbook1_scenario):
     browser = Browser(addressbook1_scenario.wsgi_app)
     browser.open('/')
 
-    assert browser.is_element_present(XPath.paragraph_containing('John: johndoe@some.org')) 
+    assert browser.is_element_present(XPath.paragraph().including_text('John: johndoe@some.org')) 
 
 
 @with_fixtures(WebFixture, ExampleFixture.addressbook2)
@@ -429,7 +429,7 @@ def test_addressbook2(web_fixture, addressbook2_scenario):
     browser.type(XPath.input_labelled('Email'), 'johndoe@some.org')
     browser.click(XPath.button_labelled('Save'))
 
-    assert browser.is_element_present(XPath.paragraph_containing('John: johndoe@some.org')) 
+    assert browser.is_element_present(XPath.paragraph().including_text('John: johndoe@some.org')) 
 
 
 @with_fixtures(WebFixture, ExampleFixture.addressbook2bootstrap)
@@ -468,7 +468,7 @@ def test_pageflow1(web_fixture, pageflow1_scenario):
     browser.click(XPath.button_labelled('Save'))
 
     assert browser.location_path == '/'
-    assert browser.is_element_present(XPath.paragraph_containing('John: johndoe@some.org'))
+    assert browser.is_element_present(XPath.paragraph().including_text('John: johndoe@some.org'))
 
 
 @with_fixtures(WebFixture, ExampleFixture.parameterised1)
@@ -492,4 +492,4 @@ def test_parameterised1(web_fixture, parameterised1_scenario):
     browser.click(XPath.button_labelled('Update'))
 
     assert browser.location_path == '/' 
-    assert browser.is_element_present(XPath.paragraph_containing('Johnny: johnny@walker.org')) 
+    assert browser.is_element_present(XPath.paragraph().including_text('Johnny: johnny@walker.org')) 
