@@ -25,12 +25,24 @@ Dishing out money
 
 You can make parts of your page refresh in response to having changed the value of an input.
 
-This example is a page on which you choose how to divide an amount you want to invest into two different funds.
+This example is a page on which you choose how to divide an amount you want to invest into two different funds:
+
+.. figure:: ../_build/screenshots/dynamiccontent_1.png
+   :align: center
+   :alt: AllocationDetailForm.
 
 You enter the total amount, and then the percentage allocated to each fund. Each time you tab out of a 
 percentage input, the amount portion next to it and the totals at the bottom of the table are recalculated.
 
+.. figure:: ../_build/screenshots/dynamiccontent_2.png
+   :align: center
+   :alt: AllocationDetailForm with totals and amounts recalculated.
+
 You can also change the total amount or elect to rather specify portions as amounts instead of percentages.
+
+.. figure:: ../_build/screenshots/dynamiccontent_3.png
+   :align: center
+   :alt: AllocationDetailForm specified in amount.
 
 
 Make an |HTMLElement| refreshable

@@ -53,6 +53,9 @@ from reahl.doc.examples.tutorial.bootstrapgrids import bootstrapgrids
 from reahl.doc.examples.tutorial.pageflow1 import pageflow1
 from reahl.doc.examples.tutorial.parameterised1 import parameterised1
 
+from reahl.doc.examples.howtos.responsivedisclosure import responsivedisclosure
+from reahl.doc.examples.howtos.dynamiccontent import dynamiccontent
+
 from reahl.web_dev.fixtures import WebFixture
 
 
@@ -182,6 +185,14 @@ class ExampleFixture(Fixture):
     def bootstrapgrids(self):
         self.wsgi_app = self.web_fixture.new_wsgi_app(site_root=bootstrapgrids.BootstrapGridsUI, enable_js=True)
 
+    @scenario
+    def dynamiccontent(self):
+        self.wsgi_app = self.web_fixture.new_wsgi_app(site_root=dynamiccontent.DynamicUI, enable_js=True)
+
+    @scenario
+    def responsivedisclosure(self):
+        self.wsgi_app = self.web_fixture.new_wsgi_app(site_root=responsivedisclosure.ResponsiveUI, enable_js=True)
+
 
 @with_fixtures(WebFixture, ExampleFixture)
 def test_hit_home_page(web_fixture, example_fixture):
@@ -279,7 +290,6 @@ def test_widgets_using_factories(web_fixture, tabbed_panel_scenario):
     assert web_fixture.driver_browser.wait_for(fixture.tab_contents_equals, 'And another ...  to give content to the second tab.')
     web_fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path('tabbedpanel2.png'))
 
-
 @with_fixtures(WebFixture, ExampleFixture.carousel_panel)
 def test_widgets(web_fixture, carousel_panel_scenario):
     fixture = carousel_panel_scenario
@@ -311,6 +321,7 @@ def test_validation(web_fixture, validation_scenario):
     web_fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path('validation3.png'))
 
     web_fixture.driver_browser.type('//input', 'johndoe@some.org')
+
 @with_fixtures(WebFixture, ExampleFixture.layout)
 def test_layout(web_fixture, layout_scenario):
     fixture = layout_scenario
@@ -346,6 +357,7 @@ def test_pageflow(web_fixture, pageflow_scenario):
         assert output.captured_output == 'johndoe@some.org submitted a comment:\nsome comment text\n' 
         assert web_fixture.driver_browser.current_url.path == '/thanks' 
         output.capture_console_screenshot(fixture.new_screenshot_path('pageflow2.txt'))
+
 @with_fixtures(WebFixture, ExampleFixture.persistence)
 def test_persistence(web_fixture, persistence_scenario):
     fixture = persistence_scenario
@@ -493,3 +505,37 @@ def test_parameterised1(web_fixture, parameterised1_scenario):
 
     assert browser.location_path == '/' 
     assert browser.is_element_present(XPath.paragraph().including_text('Johnny: johnny@walker.org')) 
+
+
+@with_fixtures(WebFixture, ExampleFixture.dynamiccontent)
+def test_dynamiccontent(web_fixture, dynamiccontent_scenario):
+    fixture = dynamiccontent_scenario
+    browser = web_fixture.driver_browser
+
+    fixture.start_example_app()
+    browser.open('/')
+    browser.capture_cropped_screenshot(fixture.new_screenshot_path('dynamiccontent_1.png'))
+
+    browser.type(XPath.input_labelled('Total amount'), '3000')
+    percentage_input = XPath.input().inside_of(XPath.table_cell_aligned_to('Percentage', 'Fund', 'Fund A'))
+    browser.type(percentage_input, '80')
+    browser.capture_cropped_screenshot(fixture.new_screenshot_path('dynamiccontent_2.png'))
+
+    browser.set_selected(XPath.input_labelled('Amount'))
+    browser.capture_cropped_screenshot(fixture.new_screenshot_path('dynamiccontent_3.png'))
+
+
+@with_fixtures(WebFixture, ExampleFixture.responsivedisclosure)
+def test_responsivedisclosure(web_fixture, responsivedisclosure_scenario):
+    fixture = responsivedisclosure_scenario
+    browser = web_fixture.driver_browser
+
+    fixture.start_example_app()
+    browser.open('/')
+    browser.capture_cropped_screenshot(fixture.new_screenshot_path('responsivedisclosure_1.png'))
+
+    browser.set_selected(XPath.input_labelled('Existing'))
+    browser.capture_cropped_screenshot(fixture.new_screenshot_path('responsivedisclosure_2.png'))
+
+    browser.set_selected(XPath.input_labelled('New'))
+    browser.capture_cropped_screenshot(fixture.new_screenshot_path('responsivedisclosure_3.png'))

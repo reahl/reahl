@@ -54,7 +54,9 @@ class NewInvestmentForm(Form):
         investment_order = InvestmentOrder.for_current_session()
         type_of_investor = self.add_child(FieldSet(view, legend_text='Introduction'))
         type_of_investor.use_layout(FormLayout())
-        type_of_investor.layout.add_input(RadioButtonSelectInput(self, investment_order.fields.new_or_existing, refresh_widget=self))
+
+        new_or_existing_radio = RadioButtonSelectInput(self, investment_order.fields.new_or_existing, refresh_widget=self)
+        type_of_investor.layout.add_input(new_or_existing_radio)
 
         if investment_order.new_or_existing:
             self.add_child(InvestorDetailsSection(self, investment_order))
@@ -110,38 +112,53 @@ class TotalsRow(object):
 class AllocationDetailSection(Div):
     def __init__(self, form, investment_order):
         super(AllocationDetailSection, self).__init__(form.view, css_id='investment_allocation_details')
-        self.enable_refresh(on_refresh=investment_order.events.allocation_changed)
+        self.form = form
         self.use_layout(FormLayout())
 
+        self.investment_order = InvestmentOrder.for_current_session()
+        self.enable_refresh(on_refresh=self.investment_order.events.allocation_changed)
+
+        self.add_allocation_controls()
+        self.add_allocation_table()
+
+        self.define_event_handler(self.investment_order.events.submit)
+        self.add_child(Button(self.form, self.investment_order.events.submit))
+
+    def add_allocation_controls(self):
         allocation_controls = self.add_child(FieldSet(self.view, legend_text='Investment allocation'))
         allocation_controls.use_layout(FormLayout())
+
+        if self.form.exception:
+            self.add_child(Alert(self.view, str(self.form.exception), 'warning'))
         
-        allocation_controls.layout.add_input(TextInput(form, investment_order.fields.amount, refresh_widget=self))
-        allocation_controls.layout.add_input(RadioButtonSelectInput(form, investment_order.fields.amount_or_percentage, refresh_widget=self))
+        total_amount_input = TextInput(self.form, self.investment_order.fields.amount, refresh_widget=self)
+        allocation_controls.layout.add_input(total_amount_input)
 
+        amount_or_percentage_radio = RadioButtonSelectInput(self.form, self.investment_order.fields.amount_or_percentage, refresh_widget=self)
+        allocation_controls.layout.add_input(amount_or_percentage_radio)
 
+    def add_allocation_table(self):
         def make_amount_input(view, allocation):
             if isinstance(allocation, Allocation):
                 div = Div(view).use_layout(FormLayout())
-                div.layout.add_input(TextInput(form, allocation.fields.amount, name='amount.%s' % allocation.fund_code, refresh_widget=self), hide_label=True)
+                div.layout.add_input(TextInput(self.form, allocation.fields.amount, name='amount.%s' % allocation.fund_code, refresh_widget=self), hide_label=True)
                 return div
             else:
                 return P(view, text=str(allocation.amount))
         def make_percentage_input(view, allocation):
             if isinstance(allocation, Allocation):
                 div = Div(view).use_layout(FormLayout())
-                div.layout.add_input(TextInput(form, allocation.fields.percentage, name='percentage.%s' % allocation.fund_code, refresh_widget=self), hide_label=True)
+                div.layout.add_input(TextInput(self.form, allocation.fields.percentage, name='percentage.%s' % allocation.fund_code, refresh_widget=self), hide_label=True)
                 return div
             else:
                 return P(view, text=str(allocation.percentage))
 
+
         columns = [StaticColumn(Field(label='Fund'), 'fund')]
         columns.append(DynamicColumn('Percentage', make_percentage_input))
         columns.append(DynamicColumn('Amount', make_amount_input))
-        table = Table(form.view).with_data(columns, investment_order.allocations+[TotalsRow(investment_order)])
+        table = Table(self.view).with_data(columns, self.investment_order.allocations+[TotalsRow(self.investment_order)])
         self.add_child(table)
-        self.define_event_handler(investment_order.events.submit)
-        self.add_child(Button(form, investment_order.events.submit))
 
 
 @session_scoped

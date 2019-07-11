@@ -17,7 +17,7 @@ Vagrant.configure(2) do |config|
   config.vm.network "forwarded_port", guest: 8363, host: 8363, auto_correct: true
 
   config.vm.provision "shell", privileged: true, inline: <<-SHELL
-    apt-get install -y --no-install-recommends plantuml inkscape
+    apt-get install -y --no-install-recommends plantuml inkscape imagemagick
   SHELL
 
   config.vm.provision "shell", privileged: false, inline: <<-SHELL
