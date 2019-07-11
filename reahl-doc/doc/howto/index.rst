@@ -6,6 +6,7 @@ Howtos
 .. toctree::
    :maxdepth: 3
 
+   Dynamically changing page content <dynamiccontent>
    Responsive disclosure <responsivedisclosure>
    Programmatic arguments to parameterised views <programmaticparameterised>
    Transitions to parameterised Views <transitionstoparameterised>

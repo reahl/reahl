@@ -190,6 +190,12 @@ Input
 .. autoclass:: Input
    :members:
 
+PrimitiveInput
+""""""""""""""
+
+.. autoclass:: PrimitiveInput
+   :members:
+
 TextArea
 """"""""
 

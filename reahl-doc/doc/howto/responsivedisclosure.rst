@@ -1,11 +1,11 @@
-.. Copyright 2018 Reahl Software Services (Pty) Ltd. All rights reserved.
+.. Copyright 2019 Reahl Software Services (Pty) Ltd. All rights reserved.
 
 Responsive disclosure
 =====================
 
 .. sidebar:: Examples in this section
 
-   - web.responsivedisclosure
+   - howtos.responsivedisclosure
 
    Get a copy of an example by running:
 

@@ -45,7 +45,7 @@ class _UnstyledHTMLFileInput(reahl.web.ui.SimpleFileInput):
 
 
 class FileInputButton(reahl.web.ui.WrappedInput):
-    """A single button which activated the browser's file choice dialog
+    """A single button which activates the browser's file choice dialog
        when clicked. The chosen file will only be uploaded once the
        user clicks on any :class:`Button` associated with the same
        :class:`Form` as this Input.

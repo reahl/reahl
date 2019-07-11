@@ -81,9 +81,10 @@ class TextInput(reahl.web.ui.TextInput):
        :keyword placeholder: If given a string, placeholder is displayed in the TextInput if the TextInput
                      is empty in order to provide a hint to the user of what may be entered into the TextInput.
                      If given True instead of a string, the label of the TextInput is used.
+       :keyword refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
 
        .. versionchanged:: 4.1
-          Added `name`                     
+          Added `name` and `refresh_widget`
     """
     def __init__(self, form, bound_field, name=None, fuzzy=False, placeholder=False, refresh_widget=None):
         super(TextInput, self).__init__(form, bound_field, name=name, fuzzy=fuzzy, placeholder=placeholder, refresh_widget=refresh_widget)
@@ -96,9 +97,10 @@ class PasswordInput(reahl.web.ui.PasswordInput):
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
        :keyword name: (See :class:`~reahl.web.ui.PasswordInput`)
+       :keyword refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
 
        .. versionchanged:: 4.1
-          Added `name`       
+          Added `name` and `refresh_widget`
     """
     def __init__(self, form, bound_field, name=None, refresh_widget=None):
         super(PasswordInput, self).__init__(form, bound_field, name=name, refresh_widget=refresh_widget)
@@ -113,9 +115,10 @@ class TextArea(reahl.web.ui.TextArea):
        :keyword name: (See :class:`~reahl.web.ui.TextArea`)
        :param rows: The number of rows that this Input should have.
        :param columns: The number of columns that this Input should have.
+       :keyword refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
 
        .. versionchanged:: 4.1
-          Added `name`       
+          Added `name` and `refresh_widget`
     """
     def __init__(self, form, bound_field, name=None, rows=None, columns=None, refresh_widget=None):
         super(TextArea, self).__init__(form, bound_field, name=name, rows=rows, columns=columns, refresh_widget=refresh_widget)
@@ -129,9 +132,10 @@ class SelectInput(reahl.web.ui.SelectInput):
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
        :keyword name: (See :class:`~reahl.web.ui.SelectInput`)
+       :keyword refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
 
        .. versionchanged:: 4.1
-          Added `name`       
+          Added `name` and `refresh_widget`
     """
     def __init__(self, form, bound_field, name=None, refresh_widget=None):
         super(SelectInput, self).__init__(form, bound_field, name=name, refresh_widget=refresh_widget)
@@ -161,9 +165,10 @@ class CheckboxInput(reahl.web.ui.CheckboxSelectInput):
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
        :keyword name: (See :class:`~reahl.web.ui.CheckboxSelectInput`)
        :keyword contents_layout: An optional :class:`ChoicesLayout` used to lay out the checkboxes in this input.
+       :keyword refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
 
        .. versionchanged:: 4.1
-          Added `name`       
+          Added `name` and `refresh_widget`
     """
     allowed_field_types = [ChoiceField]
     def __init__(self, form, bound_field, name=None, contents_layout=None, refresh_widget=None):
@@ -206,7 +211,7 @@ class RadioButtonSelectInput(reahl.web.ui.RadioButtonSelectInput):
        :param contents_layout: An optional :class:`ChoicesLayout` used to lay out the many choices in this input.
 
        .. versionchanged:: 4.1
-          Added `name`       
+          Added `name` and `refresh_widget`
     """
     def __init__(self, form, bound_field, name=None, contents_layout=None, refresh_widget=None):
         assert contents_layout is None or isinstance(contents_layout, ChoicesLayout), 'contents_layout should be an instance of ChoicesLayout but isn\'t' #TODO: this should be in @argchecks(...)
@@ -230,7 +235,7 @@ class ButtonInput(reahl.web.ui.ButtonInput):
        :keyword css_id: (See :class:`HTMLElement`)
 
        .. versionchanged:: 4.1
-          Added `name`       
+          Added `name`
     """
     def __init__(self, form, event, name=None):
         super(ButtonInput, self).__init__(form, event, name=name)

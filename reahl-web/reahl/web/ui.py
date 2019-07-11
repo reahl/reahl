@@ -268,15 +268,22 @@ class HTMLElement(Widget):
         return '<%s %s%s>' % (self.__class__.__name__, self.tag_name, self.attributes.as_html_snippet())
 
     def enable_refresh(self, *for_fields, on_refresh=None):
-        """Sets this HTMLElement up so that it will refresh itself without reloading its page when it senses that
-           one of the given `query_fields` have changed. If no Fields are specified here, the HTMLElement
-           is refreshed when any of its `query_fields` change.
+        """Sets this HTMLElement up so that it can be refreshed without reloading the whole page.
+        
+           A refresh is triggered when:
+            - one of the `query_fields` given in `for_fields` change'; or
+            - if no `for_fields` are given, when any of its `query_fields` change; or
+            - if a :class:`PrimitiveInput` refers to this HTMLElement via its `refresh_widget`.
 
-           :arg for_fields: A selection of the `.query_fields` defined on this HTMLElement.
+           :arg for_fields: A selection of the :meth:`~reahl.web.fw.Widget.query_fields` defined on this HTMLElement.
+           :keyword on_refresh: An :class:`~reahl.component.modelinterface.Event` that will be triggered upon refresh, before rerendering.
 
            .. versionchanged:: 3.2
               The `for_fields` arguments were added to allow control over which of an
               HTMLElement's `query_fields` trigger a refresh.
+
+           .. versionchanged:: 4.1
+              Added `on_refresh`.   
         """
         if not self.css_id_is_set:
             raise ProgrammerError('%s does not have a css_id set. A fixed css_id is mandatory when a Widget self-refreshes' % self)
@@ -1408,6 +1415,15 @@ class WrappedInput(Input):
 
 
 class PrimitiveInput(Input):
+    """A simple HTML control.
+
+       :param form: (See :class:`~reahl.web.ui.Input`)
+       :param bound_field: (See :class:`~reahl.web.ui.Input`)
+       :keyword name: An optional name for this input (overrides the default).
+       :keyword registers_with_form: (for internal use)
+       :keyword refresh_widget: An :class:`HTMLElement` that will be refreshed when the value of this input changes.
+
+    """
     is_for_file = False
     is_contained = False
 
@@ -1602,9 +1618,10 @@ class TextArea(PrimitiveInput):
        :keyword name: An optional name for this input (overrides the default).
        :param rows: The number of rows that this Input should have.
        :param columns: The number of columns that this Input should have.
+       :param refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
 
        .. versionchanged:: 4.1
-          Added `name`       
+          Added `name` and `refresh_widget`.      
     """
     def __init__(self, form, bound_field, name=None, rows=None, columns=None, refresh_widget=None):
         self.rows = rows
@@ -1801,12 +1818,13 @@ class RadioButtonSelectInput(PrimitiveInput):
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
        :keyword name: An optional name for this input (overrides the default).
+       :param refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
 
        .. versionchanged:: 4.0
           Renamed from RadioButtonInput
 
        .. versionchanged:: 4.1
-          Added `name`
+          Added `name` and `refresh_widget`
     """
 
     choice_type = 'radio'
@@ -1862,12 +1880,13 @@ class TextInput(PrimitiveInput):
        :keyword placeholder: If given a string, placeholder is displayed in the TextInput if the TextInput
                      is empty in order to provide a hint to the user of what may be entered into the TextInput.
                      If given True instead of a string, the label of the TextInput is used.
+       :param refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
 
        .. versionchanged:: 3.2
           Added `placeholder`.
 
        .. versionchanged:: 4.1
-          Added `name`
+          Added `name` and `refresh_widget`
     """
     def __init__(self, form, bound_field, name=None, fuzzy=False, placeholder=False, refresh_widget=None):
         super(TextInput, self).__init__(form, bound_field, name=name, refresh_widget=refresh_widget)
@@ -1898,9 +1917,10 @@ class PasswordInput(PrimitiveInput):
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
        :keyword name: An optional name for this input (overrides the default).
+       :param refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
 
        .. versionchanged:: 4.1
-          Added `name`       
+          Added `name` and `refresh_widget`
     """
     def __init__(self, form, bound_field, name=None, refresh_widget=None):
         super(PasswordInput, self).__init__(form, bound_field, name=name, refresh_widget=refresh_widget)
@@ -1927,9 +1947,10 @@ class CheckboxInput(PrimitiveInput):
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
        :keyword name: An optional name for this input (overrides the default).
+       :keyword refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
 
        .. versionchanged:: 4.1
-          Added `name`       
+          Added `name` and `refresh_widget`
     """
     choice_type = 'checkbox'
 
@@ -1969,11 +1990,12 @@ class CheckboxSelectInput(PrimitiveInput):
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
        :keyword name: An optional name for this input (overrides the default).
+       :keyword refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
 
        .. versionadded:: 4.0
 
        .. versionchanged:: 4.1
-          Added `name`        
+          Added `name` and `refresh_widget`
     """
     choice_type = 'checkbox'
     allowed_field_types = [MultiChoiceField]
@@ -2160,9 +2182,10 @@ class SimpleFileInput(PrimitiveInput):
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`, must be of type :class:`reahl.component.modelinterface.FileField`
        :keyword name: (See :class:`~reahl.web.ui.PrimitiveInput`)
+       :keyword refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
 
        .. versionchanged:: 4.1
-          Added `name`       
+          Added `name` and `refresh_widget`
     """
     is_for_file = True
 
