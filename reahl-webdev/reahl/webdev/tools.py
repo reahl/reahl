@@ -491,33 +491,41 @@ class XPath(object):
         """
         return self.__class__(*['%s[contains(concat(" ", @class, " "), " %s ")]' % (xpath, css_class) for xpath in self.xpaths])
 
+    @classmethod
+    def delimit_text(cls, text):
+        bits = text.split('"')
+        if len(bits) > 1:
+            return 'concat(%s)' % (',\'"\','.join(['"%s"' % bit for bit in bits]))
+        else:
+            return '"%s"' % text
+
     def with_text(self, text):
         """Returns an XPath that additionally matches the given text exactly.
 
            .. versionadded:: 4.1
         """
-        return self.__class__(*['%s[normalize-space()=normalize-space("%s")]' % (xpath, text) for xpath in self.xpaths])
+        return self.__class__(*['%s[normalize-space()=normalize-space(%s)]' % (xpath, self.delimit_text(text)) for xpath in self.xpaths])
 
     def including_text(self, text):
         """Returns an XPath that additionally includes text matching the given text.
 
            .. versionadded:: 4.1
         """
-        return self.__class__(*['%s[contains(normalize-space(), normalize-space("%s"))]' % (xpath, text) for xpath in self.xpaths])
+        return self.__class__(*['%s[contains(normalize-space(), normalize-space(%s))]' % (xpath, self.delimit_text(text)) for xpath in self.xpaths])
 
     def with_text_starting(self, text):
         """Returns an XPath that additionally has text that starts with the given text.
 
            .. versionadded:: 4.1
         """
-        return self.__class__(*['%s[starts-with(normalize-space(), normalize-space("%s"))]' % (xpath, text) for xpath in self.xpaths])
+        return self.__class__(*['%s[starts-with(normalize-space(), normalize-space(%s))]' % (xpath, self.delimit_text(text)) for xpath in self.xpaths])
 
     def containing(self, another):
         """Returns an XPath that additionally contains another XPath.
 
            .. versionadded:: 4.1
         """
-        return self.__class__(*[final_xpath for xpath in another.xpaths for final_xpath in self[re.sub('^\/\/','',xpath)].xpaths])
+        return self.__class__(*[final_xpath for xpath in another.xpaths for final_xpath in self[re.sub(r'^//','',xpath)].xpaths])
 
     @classmethod
     def any(cls, tag_name):
@@ -536,7 +544,7 @@ class XPath(object):
         """
         arguments = arguments or {}
 
-        value_selector = 'normalize-space(@value)=normalize-space("%s")'  % label
+        value_selector = 'normalize-space(@value)=normalize-space(%s)'  % cls.delimit_text(label)
         input_button = cls.any('input')[value_selector]
         if arguments:
             encoded_arguments = '?'+urllib_parse.urlencode(arguments)
