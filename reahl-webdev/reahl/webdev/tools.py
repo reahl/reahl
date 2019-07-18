@@ -1357,7 +1357,7 @@ class DriverBrowser(BasicBrowser):
     def press_tab(self):
         """Simulates the user pressing the tab key on element that is currently focussed.
 
-        .. versionchanged: 4.0
+        .. versionchanged:: 4.0
            Changed to operate on the currently focussed element.
         """
         el = self.web_driver.switch_to.active_element

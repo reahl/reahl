@@ -520,7 +520,7 @@ class UserInterface(object):
              user is allowed to perform any actions linked to this :class:`View` or not.
            :param assemble_args: keyword arguments that will be passed to the `assemble` of this :class:`View` upon creation
 
-           ..versionchanged: 4.0
+           ..versionchanged:: 4.0
              Removed slot_definitions keyword argument, rather use :meth:`ViewFactory.set_slot`.
         """
         title = title or _('Untitled')
@@ -738,7 +738,7 @@ class Bookmark(object):
        :param read_check: A no-args callable, usually the read_check of the target View. If it returns True, the current user will be allowed to see (but not click) links representing this Bookmark.
        :param write_check: A no-args callable, usually the write_check of the target View. If it returns True, the current user will be allowed to click links representing this Bookmark.
 
-       .. versionchanged: 3.2
+       .. versionchanged:: 3.2
           Added the locale kwarg.
 
     """
@@ -795,7 +795,7 @@ class Bookmark(object):
     def on_view(self, view):
         """For page-internal Bookmarks, answers a new Bookmark which is to the current Bookmark, but on the given View.
         
-        .. versionadded: 3.2
+        .. versionadded:: 3.2
         """
         if view is view.user_interface.current_view:
             request = ExecutionContext.get_context().request
@@ -978,12 +978,22 @@ class Widget(object):
 
     @exposed
     def query_fields(self, fields):
-        """query_fields(self, fields)
+        """Accessed as a property, but is a method:: 
 
-           Override this method to parameterise this this Widget. The Widget will find its arguments from the current
-           query string, using the names and validation details as given by the Field instances assigned to `fields`.
+              @exposed
+              query_fields(self, fields)
+
+           Override this method to parameterise this Widget. 
            
-           The `@exposed query_fields` of a Widget is exactly like the `@exposed fields` used for input to a model object.
+           When accessed as a property for the first time, this method is called, and passed an empty 
+           :class:`~reahl.component.modelinterface.FieldIndex` as `fields`. 
+           
+           Inside the method you can declare each argument of the Widget by assigning a
+           :class:`~reahl.component.modelinterface.Field` to an attribute of `fields`.
+
+           When constructed, the Widget uses the names and validation details of each Field to 
+           parse values for its arguments from the current query string. The resultant
+           argument values set as attributes on this Widget (with names matching the argument names).
         """
     
     @property
@@ -1837,7 +1847,7 @@ class UrlBoundView(View):
            :param ajax: (not for general use)
            :param locale: (See :class:`Bookmark`.)
 
-        .. versionchanged: 3.2
+        .. versionchanged:: 3.2
            Added locale kwarg.
 
         """
@@ -2093,7 +2103,7 @@ class MethodResult(object):
        :keyword replay_request: If True, first recreate everything (including this MethodResult) before generating \
             the final response in order to take possible changes made by the execution of the RemoteMethod into account.
             
-       .. versionchanged: 3.2
+       .. versionchanged:: 3.2
           Added the replay_request functionality.
           Set the default for catch_exception to DomainException
     """
@@ -2156,7 +2166,7 @@ class RedirectAfterPost(MethodResult):
        :param encoding: (See :class:`MethodResult`.)
 
 
-       .. versionchanged: 4.0
+       .. versionchanged:: 4.0
           Renamed content_type to mime_type and charset to encoding in line with MethodResult args.
     """
     def __init__(self, mime_type='text/html', encoding='utf-8'):

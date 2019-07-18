@@ -23,6 +23,7 @@ import six
 import copy
 import re
 import fnmatch
+import functools
 import sre_constants
 from six.moves.urllib import parse as urllib_parse
 from string import Template
@@ -155,6 +156,7 @@ class ExposedDecorator(object):
             self.func = None
         else:
             self.func = args[0]
+            functools.update_wrapper(self, self.func)
 
     def add_fake_events(self, event_names):
         events = []
@@ -167,6 +169,7 @@ class ExposedDecorator(object):
 
     def __call__(self, func):
         self.func = func
+        functools.update_wrapper(self, self.func)
         return self
         
     def __get__(self, instance, owner):

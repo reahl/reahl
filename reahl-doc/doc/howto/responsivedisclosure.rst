@@ -46,6 +46,7 @@ Here is how different sections nest inside of one another::
 Optionally displaying a section
 -------------------------------
 
+
 NewInvestmentForm is always present:
 
 .. figure:: ../_build/screenshots/responsivedisclosure_1.png

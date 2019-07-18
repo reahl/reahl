@@ -83,7 +83,7 @@ class Menu(HTMLWidget):
 
            Answers the same Menu.
 
-           .. versionadded: 3.2
+           .. versionadded:: 3.2
         """
         for bookmark in bookmark_list:
             self.add_bookmark(bookmark)
@@ -94,7 +94,7 @@ class Menu(HTMLWidget):
 
            Answers the same Menu.
 
-           .. versionadded: 3.2
+           .. versionadded:: 3.2
         """
         context = ExecutionContext.get_context()
         supported_locales = ReahlEgg.get_languages_supported_by_all(context.config.reahlsystem.root_egg)
@@ -114,7 +114,7 @@ class Menu(HTMLWidget):
 
            Answers the same Menu.
 
-           .. versionadded: 3.2
+           .. versionadded:: 3.2
         """
         for a in a_list:
             self.add_a(a)
@@ -125,7 +125,7 @@ class Menu(HTMLWidget):
 
            Answers the added MenuItem.
 
-           .. versionadded: 3.2
+           .. versionadded:: 3.2
         """
         return self.add_a(A.from_bookmark(self.view, bookmark), active_regex=active_regex, exact_match=bookmark.exact)
 
@@ -134,7 +134,7 @@ class Menu(HTMLWidget):
 
            Answers the added MenuItem.
 
-           .. versionadded: 3.2
+           .. versionadded:: 3.2
         """
         menu_item = MenuItem(self.view, a, active_regex=active_regex, exact_match=exact_match)
         self.menu_items.append(menu_item)

@@ -979,7 +979,7 @@ class Form(HTMLElement):
        :param view: (See :class:`reahl.web.fw.Widget`)
        :param unique_name: A name for this form, unique in the UserInterface where it is used.
 
-       .. versionchanged: 4.0
+       .. versionchanged:: 4.0
           Added create_error_label.
     """
     is_Form = True
@@ -1211,10 +1211,10 @@ class FieldSet(HTMLElement):
        :keyword legend_text: If given, the FieldSet will have a Legend containing this text.
        :keyword css_id: (See :class:`reahl.web.ui.HTMLElement`)
 
-       .. versionchanged: 3.2
+       .. versionchanged:: 3.2
           Deprecated label_text and instead added legend_text: FieldSets should have Legends, not Labels.
 
-       .. versionchanged: 4.0
+       .. versionchanged:: 4.0
           Removed label_text that was deprecated.
     """
     def __init__(self, view, legend_text=None, css_id=None):
@@ -1227,7 +1227,7 @@ class FieldSet(HTMLElement):
 class Legend(HTMLElement):
     """A caption for an :class:`reahl.web.ui.HTMLElement`.
 
-    .. versionadded: 3.2
+    .. versionadded:: 3.2
 
     .. admonition:: Styling
 
@@ -1468,7 +1468,8 @@ class PrimitiveInput(Input):
 
     def create_html_widget(self):
         """Override this in subclasses to create the HTMLElement that represents this Input in HTML to the user.
-           .. versionadded: 3.2
+
+           .. versionadded:: 3.2
         """
         self.not_implemented()
 
