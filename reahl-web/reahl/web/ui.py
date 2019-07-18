@@ -2347,9 +2347,9 @@ class Cell(HTMLElement):
     def __init__(self, view, html_tag_name, rowspan=None, colspan=None, css_id=None):
         super(Cell, self).__init__(view, html_tag_name, children_allowed=True, css_id=css_id)
         if rowspan:
-            self.set_attribute('rowspan', rowspan)
+            self.set_attribute('rowspan', six.text_type(rowspan))
         if colspan:
-            self.set_attribute('colspan', colspan)
+            self.set_attribute('colspan', six.text_type(colspan))
 
 
 class Th(Cell):
@@ -2391,7 +2391,7 @@ class DynamicColumn(object):
               to be displayed in the current column for the given data item.
        :keyword sort_key: If specified, this value will be passed to sort() for sortable tables.
     """
-    def __init__(self, make_heading_or_string, make_widget, sort_key=None):
+    def __init__(self, make_heading_or_string, make_widget, make_footer_widget=None, sort_key=None):
         if isinstance(make_heading_or_string, six.string_types):
             def make_span(view):
                 return Span(view, text=make_heading_or_string)
@@ -2400,6 +2400,7 @@ class DynamicColumn(object):
             self.make_heading_widget = make_heading_or_string
 
         self.make_widget = make_widget
+        self.make_footer_widget = make_footer_widget
         self.sort_key = sort_key
 
     def heading_as_widget(self, view):
@@ -2407,6 +2408,16 @@ class DynamicColumn(object):
 
     def as_widget(self, view, item):
         return self.make_widget(view, item)
+
+    @property
+    def has_footer(self):
+        return self.make_footer_widget is not None
+
+    def footer_as_widget(self, view, item):
+        if self.make_footer_widget:
+            return self.make_footer_widget(view, item)
+        else:
+            return Widget(view)
 
     def with_overridden_heading_widget(self, make_heading_widget):
         new_column = copy.copy(self)
@@ -2423,15 +2434,20 @@ class StaticColumn(DynamicColumn):
               on each data item when rendering this column.
        :keyword sort_key: If specified, this value will be passed to sort() for sortable tables.
     """
-    def __init__(self, field, attribute_name, sort_key=None):
-        super(StaticColumn, self).__init__(field.label, self.make_text_node, sort_key=sort_key)
+    def __init__(self, field, attribute_name, footer_label=None, sort_key=None):
+        make_footer_widget = self.make_footer if footer_label else None
+        super(StaticColumn, self).__init__(field.label, self.make_text_node, make_footer_widget=make_footer_widget, sort_key=sort_key)
         self.field = field
         self.attribute_name = attribute_name
+        self.footer_label = footer_label
 
     def make_text_node(self, view, item):
         field = self.field.copy()
         field.bind(self.attribute_name, item)
         return TextNode(view, field.as_input())
+
+    def make_footer(self, view, item):
+        return TextNode(view, self.footer_label)
 
 
 class Table(HTMLElement):
@@ -2452,18 +2468,24 @@ class Table(HTMLElement):
         if summary:
             self.set_attribute('summary', '%s' % summary)
 
-    def with_data(self, columns, items):
+    def with_data(self, columns, items, footer_items=None):
         """Populate the table with the given data. Data is arranged into columns as
            defined by the list of :class:`DynamicColumn` or :class:`StaticColumn` instances passed in.
 
            :param columns: The :class:`DynamicColumn` instances that define the contents of the table.
            :param items: A list containing objects represented in each row of the table.
+           :keyword footer_items: If given a footer is added. A list containing objects represented in each footer row of the table.
+
+           .. versionchanged:: 4.1
+              Added `footer_items`.
         """
         if self.has_data:
             raise ProgrammerError('This table has already been populated.')
         self.has_data = True
         self.create_header_columns(columns)
-        self.create_rows(columns, items)
+        self.create_body_rows(columns, items)
+        if footer_items is not None:
+            self.create_footer_rows(columns, footer_items)
         return self
 
     def create_header_columns(self, columns):
@@ -2483,7 +2505,7 @@ class Table(HTMLElement):
                 return child
         return None
 
-    def create_rows(self, columns, items):
+    def create_body_rows(self, columns, items):
         body = self.add_child(Tbody(self.view))
         for item in items:
             row = body.add_child(Tr(self.view))
@@ -2491,4 +2513,17 @@ class Table(HTMLElement):
                 row_td = row.add_child(Td(self.view))
                 row_td.add_child(column.as_widget(self.view, item))
 
-
+    def create_footer_rows(self, columns, items):
+        footer = self.add_child(Tfoot(self.view))
+        for item in items:
+            row = footer.add_child(Tr(self.view))
+            footer_columns = [(columns.index(column), column) for column in columns if column.has_footer]
+            next_index = 0
+            for index, column in footer_columns:
+                if index > next_index:
+                    row.add_child(Td(self.view, colspan=index-next_index))
+                next_index = index + 1
+                row_td = row.add_child(Td(self.view))
+                row_td.add_child(column.footer_as_widget(self.view, item))
+                
+ 

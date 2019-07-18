@@ -23,7 +23,8 @@ from reahl.tofu import Fixture, scenario, uses
 from reahl.tofu.pytestsupport import with_fixtures
 
 from reahl.webdev.tools import XPath, WidgetTester
-from reahl.web.ui import StaticColumn, DynamicColumn, Table, Thead, Span, Div, P
+from reahl.web.fw import Widget
+from reahl.web.ui import StaticColumn, DynamicColumn, Table, Thead, Span, Div, P, TextNode
 
 from reahl.component.modelinterface import Field, BooleanField
 
@@ -66,7 +67,7 @@ class TableFixture(Fixture):
 
 @with_fixtures(WebFixture, TableFixture)
 def test_table_basics(web_fixture, table_fixture):
-    """A Table created .from_columns() displays a list of items as defined by a list of Columns"""
+    """A Table populated .with_data() displays a list of items as defined by a list of Columns"""
 
     class MainWidget(Div):
         def __init__(self, view):
@@ -99,6 +100,53 @@ def test_table_basics(web_fixture, table_fixture):
     assert fixture.get_table_row(1) == ['1', 'T']
     assert fixture.get_table_row(2) == ['2', 'H']
     assert fixture.get_table_row(3) == ['3', 'E']
+
+
+class Scenarios(Fixture):
+    @scenario
+    def static_column(self):
+        self.total_column = StaticColumn(Field(label='Alpha'), 'alpha', footer_label='Total')
+        self.expected_total = 'Total'
+
+    @scenario
+    def dynamic_column(self):
+        self.total_column = DynamicColumn('Heading', lambda view, item: Widget(view), 
+                                          make_footer_widget=lambda view, item: TextNode(view, str(item.total)))
+        self.expected_total = '123'
+
+
+@with_fixtures(WebFixture, TableFixture, Scenarios)
+def test_table_totals(web_fixture, table_fixture, scenario):
+    """You can pass footer_items to with_data to add a footer with a row for each footer_item.
+    Each column with footer content defined will have that content rendered in its footer row,
+    columns inbetween will be collapsed with a colspan to ensure alignment.
+    """
+
+    class MainWidget(Div):
+        def __init__(self, view):
+            super(MainWidget, self).__init__(view)
+            table = Table(view)
+            table.with_data(
+                            [StaticColumn(Field(label='Another Row Number'), 'row_another'),
+                             StaticColumn(Field(label='Row Number'), 'row'),
+                             scenario.total_column],
+                             table_fixture.data,
+                             footer_items=[EmptyStub(total=123)]
+                            )
+            self.add_child(table)
+
+    fixture = table_fixture
+
+    wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=MainWidget.factory())
+    web_fixture.reahl_server.set_app(wsgi_app)
+    browser = web_fixture.driver_browser
+    browser.open('/')
+
+    filler_cell = XPath.table_cell()[1].inside_of(XPath.table_footer())
+    assert browser.get_attribute(filler_cell, 'colspan') == '2'
+    total_cell = XPath.table_cell()[2].inside_of(XPath.table_footer())
+    assert browser.get_text(total_cell) == scenario.expected_total
+    assert not browser.get_attribute(total_cell, 'colspan') 
 
 
 @uses(web_fixture=WebFixture)

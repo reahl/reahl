@@ -64,8 +64,8 @@ class Table(reahl.web.ui.HTMLWidget):
         self.table = self.main_div.add_child(reahl.web.ui.Table(view, caption_text=caption_text, summary=summary))
         self.table.append_class('table')
 
-    def with_data(self, columns, items):
-        self.table.with_data(columns, items)
+    def with_data(self, columns, items, footer_items=None):
+        self.table.with_data(columns, items, footer_items=footer_items)
         return self
 
     @property

@@ -15,7 +15,7 @@ class DynamicExampleFixture(Fixture):
         return self.web_fixture.driver_browser
 
     def percentage_total_is(self, percentage):
-        return self.browser.get_text(self.percentage_cell_for('Totals')) == percentage
+        return self.browser.get_text(self.percentage_cell_for('Totals').inside_of(XPath.table_footer())) == percentage
 
     def percentage_input_for(self, fund_name):
         return XPath.input().inside_of(self.percentage_cell_for(fund_name))

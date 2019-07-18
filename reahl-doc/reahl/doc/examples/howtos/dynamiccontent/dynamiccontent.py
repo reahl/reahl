@@ -41,14 +41,6 @@ class DynamicUI(UserInterface):
         home.set_slot('main', AllocationDetailForm.factory())
 
 
-class TotalsRow(object):
-    def __init__(self, investment_order):
-        self.investment_order = investment_order
-        self.fund = 'Totals'
-        self.amount = sum([i.amount for i in investment_order.allocations])
-        self.percentage = sum([i.percentage for i in investment_order.allocations])
-
-
 class AllocationDetailForm(Form):
     def __init__(self, view):
         super(AllocationDetailForm, self).__init__(view, 'investment_order_allocation_details_form')
@@ -76,27 +68,32 @@ class AllocationDetailForm(Form):
         amount_or_percentage_radio = RadioButtonSelectInput(self, self.investment_order.fields.amount_or_percentage, refresh_widget=self)
         allocation_controls.layout.add_input(amount_or_percentage_radio)
 
+    def make_allocation_input(self, allocation, field):
+        div = Div(self.view).use_layout(FormLayout())
+        div.layout.add_input(TextInput(self, field, name='%s.%s' % (field.name, allocation.fund_code), refresh_widget=self), hide_label=True)
+        return div
+
+    def make_total_widget(self, total_value):
+        return P(self.view, text=str(total_value))
+
     def add_allocation_table(self):
         def make_amount_input(view, allocation):
-            if isinstance(allocation, Allocation):
-                div = Div(view).use_layout(FormLayout())
-                div.layout.add_input(TextInput(self, allocation.fields.amount, name='amount.%s' % allocation.fund_code, refresh_widget=self), hide_label=True)
-                return div
-            else:
-                return P(view, text=str(allocation.amount))
+            return self.make_allocation_input(allocation, allocation.fields.amount)
+
         def make_percentage_input(view, allocation):
-            if isinstance(allocation, Allocation):
-                div = Div(view).use_layout(FormLayout())
-                div.layout.add_input(TextInput(self, allocation.fields.percentage, name='percentage.%s' % allocation.fund_code, refresh_widget=self), hide_label=True)
-                return div
-            else:
-                return P(view, text=str(allocation.percentage))
+            return self.make_allocation_input(allocation, allocation.fields.percentage)
 
+        def make_percentage_total(view, investment_order):
+            return self.make_total_widget(investment_order.total_allocation_percentage)
 
-        columns = [StaticColumn(Field(label='Fund'), 'fund')]
-        columns.append(DynamicColumn('Percentage', make_percentage_input))
-        columns.append(DynamicColumn('Amount', make_amount_input))
-        table = Table(self.view).with_data(columns, self.investment_order.allocations+[TotalsRow(self.investment_order)])
+        def make_amount_total(view, investment_order):
+            return self.make_total_widget(investment_order.total_allocation_amount)
+
+        columns = [StaticColumn(Field(label='Fund'), 'fund', footer_label='Totals')]
+        columns.append(DynamicColumn('Percentage', make_percentage_input, make_footer_widget=make_percentage_total))
+        columns.append(DynamicColumn('Amount', make_amount_input, make_footer_widget=make_amount_total))
+        table = Table(self.view).with_data(columns, self.investment_order.allocations,
+                                           footer_items=[self.investment_order])
         self.add_child(table)
 
 
@@ -136,6 +133,14 @@ class InvestmentOrder(Base):
     def recalculate(self):
         for allocation in self.allocations:
             allocation.recalculate(self.amount)
+
+    @property
+    def total_allocation_amount(self):
+       return sum([i.amount for i in self.allocations])
+
+    @property
+    def total_allocation_percentage(self):
+        return sum([i.percentage for i in self.allocations])
 
     def validate_allocations(self):
         if self.is_in_percentage:
