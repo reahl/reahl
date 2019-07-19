@@ -2389,7 +2389,13 @@ class DynamicColumn(object):
        :param make_widget: A callable that takes two arguments: the current view, and an item \
               of data of the current table row. It will be called to compute a Widget \
               to be displayed in the current column for the given data item.
+       :keyword make_footer_widget: A callable that takes two arguments: the current view, and \
+              an item representing a row of footer data. It will be called to compute \
+              a Widget to be displayed in the footer column representing the footer item. \
        :keyword sort_key: If specified, this value will be passed to sort() for sortable tables.
+
+       .. versionchanged:: 4.1
+            Added `make_footer_widget`.
     """
     def __init__(self, make_heading_or_string, make_widget, make_footer_widget=None, sort_key=None):
         if isinstance(make_heading_or_string, six.string_types):
@@ -2428,11 +2434,16 @@ class DynamicColumn(object):
 class StaticColumn(DynamicColumn):
     """StaticColumn defines a column whose heading and contents are derived from the given field.
 
-       :param field: The :class:`Field` that defines the heading for this column, and which \
+        :param field: The :class:`Field` that defines the heading for this column, and which \
               will also be used to get the data to be displayed for each row in this column.
-       :param attribute_name: The name of the attribute to which `field` should be bound to \
+        :param attribute_name: The name of the attribute to which `field` should be bound to \
               on each data item when rendering this column.
-       :keyword sort_key: If specified, this value will be passed to sort() for sortable tables.
+        :keyword footer_label: If specified, this text will be put in a footer row for each footer \
+              item in this column.              
+        :keyword sort_key: If specified, this value will be passed to sort() for sortable tables.
+
+        .. versionchanged:: 4.1
+            Added `footer_label`.
     """
     def __init__(self, field, attribute_name, footer_label=None, sort_key=None):
         make_footer_widget = self.make_footer if footer_label else None

@@ -9,7 +9,7 @@ from reahl.sqlalchemysupport import Session, Base
 
 from reahl.web.fw import CannotCreate, UrlBoundView, UserInterface
 from reahl.web.layout import PageLayout
-from reahl.web.bootstrap.ui import HTML5Page, Div, P, H, A
+from reahl.web.bootstrap.ui import HTML5Page, Div, P, H, A, TextNode
 from reahl.web.bootstrap.forms import Form, TextInput, Button, FieldSet, PrimitiveCheckboxInput, FormLayout, ButtonLayout
 from reahl.web.bootstrap.grid import ColumnLayout, ColumnOptions, ResponsiveSize, Container
 from reahl.web.bootstrap.navs import Nav, TabLayout
@@ -73,6 +73,11 @@ class Row(object):
         return getattr(self.address, name)
 
 
+class TotalRow(object):
+    def __init__(self, all_items):
+        self.total_rows = len(all_items)
+    
+
 class AddressBookPanel(Div):
     def __init__(self, view, address_book_ui):
         super(AddressBookPanel, self).__init__(view)
@@ -92,14 +97,17 @@ class AddressBookPanel(Div):
         def make_delete_selected_button(view):
             return Button(form, self.events.delete_selected)
 
-        columns = [StaticColumn(Field(label='Name'), 'name'),
+        def make_total(view, item):
+            return TextNode(view, str(item.total_rows))
+
+        columns = [StaticColumn(Field(label='Name'), 'name', footer_label='Total friends'),
                    StaticColumn(EmailField(label='Email'), 'email_address'),
                    DynamicColumn('', make_link_widget),
-                   DynamicColumn(make_delete_selected_button, make_checkbox_widget)]
+                   DynamicColumn(make_delete_selected_button, make_checkbox_widget, make_footer_widget=make_total)]
 
         table = Table(view, caption_text='All my friends', summary='Summary for screen reader')
         table.use_layout(TableLayout(striped=True))
-        table.with_data(columns, self.rows)
+        table.with_data(columns, self.rows, footer_items=[TotalRow(self.rows)])
 
         form.add_child(table)
 

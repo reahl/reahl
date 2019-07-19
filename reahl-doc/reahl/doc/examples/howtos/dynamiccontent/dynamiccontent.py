@@ -144,12 +144,10 @@ class InvestmentOrder(Base):
 
     def validate_allocations(self):
         if self.is_in_percentage:
-            total_percentage = sum([a.percentage for a in self.allocations])
-            if total_percentage != 100:
+            if self.total_allocation_percentage != 100:
                 raise DomainException(message='Please ensure allocation percentages add up to 100')
         else:
-            total_amount = sum([a.amount for a in self.allocations])
-            if total_amount != self.amount:
+            if self.total_allocation_amount != self.amount:
                 raise DomainException(message='Please ensure allocation amounts add up to your total amount (%s)' % self.amount)
 
     def submit(self):

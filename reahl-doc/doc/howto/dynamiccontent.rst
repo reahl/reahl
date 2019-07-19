@@ -4,6 +4,7 @@
 .. |TextInput| replace:: :class:`~reahl.web.bootstrap.forms.TextInput`
 .. |Event| replace:: :class:`~reahl.component.modelinterface.Event`
 .. |Action| replace:: :class:`~reahl.component.modelinterface.Action`
+.. |DomainException| replace:: :class:`~reahl.component.exceptions.DomainException`
 .. |enable_refresh| replace:: :meth:`~reahl.web.ui.HTMLElement.enable_refresh`
 
 Dynamically changing page content
@@ -76,3 +77,23 @@ Specify an `on_refresh` |Event| in your |enable_refresh| call to trigger a recal
 .. literalinclude:: ../../reahl/doc/examples/howtos/dynamiccontent/dynamiccontent.py
    :pyobject: InvestmentOrder.recalculate
 
+
+Validating results
+------------------
+
+When the user finally submits the InvestmentOrder, recalculate the order before validating 
+the newly recalculated results. 
+
+.. literalinclude:: ../../reahl/doc/examples/howtos/dynamiccontent/dynamiccontent.py
+   :pyobject: InvestmentOrder.submit
+
+If the submitted data is not correct, raise a |DomainException| to indicate the problem:
+
+.. literalinclude:: ../../reahl/doc/examples/howtos/dynamiccontent/dynamiccontent.py
+   :pyobject: InvestmentOrder.validate_allocations
+
+Communicate the error condition to the user by displaying the |DomainException| as part of 
+AllocationDetailForm:
+
+.. literalinclude:: ../../reahl/doc/examples/howtos/dynamiccontent/dynamiccontent.py
+   :pyobject: AllocationDetailForm.add_allocation_controls

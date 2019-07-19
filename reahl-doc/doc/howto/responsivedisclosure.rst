@@ -22,14 +22,14 @@ Responsive disclosure
 Revealing parts of a page
 -------------------------
 
-Instead of showing an intimidating page to a user, you can break it
-up into manageable sections that are revealed only if needed.
+Instead of showing a long intimidating page to a user, you can break it
+up into manageable sections that are revealed only if and when needed.
 
 This example gathers information from someone who wants to make an
 investment. What you need to fill in is different depending on whether you are a
 new investor or an existing one. Sections are revealed as you enter information.
 
-Here is how different sections nest inside of one another::
+Each section optionally contains one or more other sections::
 
       NewInvestmentForm
             |
@@ -80,7 +80,7 @@ The InvestorDetailSection has different contents, depending on whether you chose
    :align: center
    :alt: InvestorDetailsSection showing different contents.
 
-The AllocationDetailSection is only displayed when you agree to the terms inside the InvestorDetailSection.
+The last section, AllocationDetailSection, is only displayed once you agree to the terms inside the InvestorDetailSection.
 
 .. literalinclude:: ../../reahl/doc/examples/howtos/responsivedisclosure/responsivedisclosure.py
    :pyobject: InvestorDetailsSection
