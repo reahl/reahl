@@ -523,7 +523,6 @@ class ReahlWebServer(object):
         if self.in_separate_thread:
             self.start_thread()
 
-
     def stop(self):
         """Stops the webserver and web application from running."""
         if self.running:

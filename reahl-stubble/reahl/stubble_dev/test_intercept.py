@@ -141,7 +141,7 @@ def test_replace():
     def replacement(self, n, y=None):
         return y
 
-    with pytest.raises(ValueError, message='You have to supply a on= when stubbing an unbound method'):
+    with pytest.raises(ValueError, match='You have to supply a on= when stubbing an unbound method'):
         with replaced(SomethingElse.foo, replacement):
             pass
 
