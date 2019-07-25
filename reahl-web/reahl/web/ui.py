@@ -267,16 +267,18 @@ class HTMLElement(Widget):
     def __str__(self):
         return '<%s %s%s>' % (self.__class__.__name__, self.tag_name, self.attributes.as_html_snippet())
 
-    def enable_refresh(self, *for_fields, on_refresh=None):
+    def enable_refresh(self, *for_fields, **kwargs):
         """Sets this HTMLElement up so that it can be refreshed without reloading the whole page.
+
+           **enable_refresh(self, *for_fields, on_refresh=None)**
         
            A refresh is triggered when:
             - one of the `query_fields` given in `for_fields` change'; or
             - if no `for_fields` are given, when any of its `query_fields` change; or
             - if a :class:`PrimitiveInput` refers to this HTMLElement via its `refresh_widget`.
 
-           :arg for_fields: A selection of the :meth:`~reahl.web.fw.Widget.query_fields` defined on this HTMLElement.
            :keyword on_refresh: An :class:`~reahl.component.modelinterface.Event` that will be triggered upon refresh, before rerendering.
+           :arg for_fields: A selection of the :meth:`~reahl.web.fw.Widget.query_fields` defined on this HTMLElement.
 
            .. versionchanged:: 3.2
               The `for_fields` arguments were added to allow control over which of an
@@ -285,6 +287,8 @@ class HTMLElement(Widget):
            .. versionchanged:: 4.1
               Added `on_refresh`.   
         """
+        on_refresh = kwargs.get('on_refresh', None)
+
         if not self.css_id_is_set:
             raise ProgrammerError('%s does not have a css_id set. A fixed css_id is mandatory when a Widget self-refreshes' % self)
         assert all([(field in self.query_fields.values()) for field in for_fields])

@@ -48,6 +48,8 @@ import six
 import inspect
 import warnings
 
+import platform
+import pkg_resources
 import wrapt
 
 @wrapt.decorator
@@ -67,7 +69,6 @@ def memoized(wrapped, instance, args, kwargs):
     except KeyError:
         res = cache[key] = wrapped(*args, **kwargs)
     return res
-        
 
 def deprecated(message, version='n/a'):
     def catch_wrapped(f):
@@ -87,7 +88,7 @@ def deprecated(message, version='n/a'):
                 
             return wrapped(*args, **kwargs)
 
-        if six.PY3 and f.__doc__:
+        if pkg_resources.parse_version(platform.python_version()) > pkg_resources.parse_version('3.6') and f.__doc__:
             f.__doc__ = '%s\n\n.. deprecated:: %s\n   %s' % (f.__doc__, version, message)
 
         if inspect.isclass(f):
