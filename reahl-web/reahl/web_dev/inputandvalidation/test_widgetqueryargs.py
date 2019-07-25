@@ -31,8 +31,10 @@ from reahl.web.fw import Bookmark, Widget
 from reahl.web.ui import A, P, Form, TextInput, Div, CheckboxSelectInput, SelectInput, Label, NestedForm, ButtonInput
 
 from reahl.web_dev.fixtures import WebFixture
+from reahl.dev.fixtures import ReahlSystemFixture
 
 
+@uses(reahl_system_fixture=ReahlSystemFixture)
 class ValueScenarios(Fixture):
     @scenario
     def single_value(self):

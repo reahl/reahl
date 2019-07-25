@@ -29,6 +29,7 @@ from reahl.web.ui import StaticColumn, DynamicColumn, Table, Thead, Span, Div, P
 from reahl.component.modelinterface import Field, BooleanField
 
 from reahl.web_dev.fixtures import WebFixture
+from reahl.dev.fixtures import ReahlSystemFixture
 
 
 class DataItem(object):
@@ -102,6 +103,7 @@ def test_table_basics(web_fixture, table_fixture):
     assert fixture.get_table_row(3) == ['3', 'E']
 
 
+@uses(reahl_system_fixture=ReahlSystemFixture)
 class Scenarios(Fixture):
     @scenario
     def static_column(self):
