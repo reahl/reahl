@@ -1,4 +1,5 @@
 # Copyright 2018 Reahl Software Services (Pty) Ltd. All rights reserved.
+# -*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
 #
@@ -115,8 +116,8 @@ class ResponsiveWidgetScenarios(ResponsiveDisclosureFixture):
                 self.choice = False
             @exposed
             def fields(self, fields):
-                fields.choice = BooleanField(label='Choice',
-                                             true_value='✓', false_value='⍻')
+                fields.choice = BooleanField(label=u'Choice',
+                                             true_value=u'true_value', false_value=u'false_value')
         self.ModelObject = ModelObject
 
         def create_trigger_input(form, an_object):
@@ -245,7 +246,6 @@ def test_inputs_can_refresh_parent_widgets(web_fixture, query_string_fixture, re
     assert browser.wait_for(query_string_fixture.is_state_now, fixture.initial_state)
     fixture.change_value(browser)
     assert browser.wait_for(query_string_fixture.is_state_now, fixture.changed_state)
-
 
 @with_fixtures(WebFixture, QueryStringFixture, ResponsiveDisclosureFixture)
 def test_overridden_names(web_fixture, query_string_fixture, responsive_disclosure_fixture):

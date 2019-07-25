@@ -1111,7 +1111,7 @@ class Event(Field):
 
     @property
     def variable_name(self):
-        return 'arguments'
+        return u'arguments'
    
     def parse_input(self, unparsed_input):
         if unparsed_input:
@@ -1136,7 +1136,7 @@ class Event(Field):
             
             arguments.update(fields.as_input_kwargs())
             input_string='?%s' % urllib_parse.urlencode(arguments)
-            return six.text_type(input_string)
+            return input_string.decode('utf-8')
         else:
             return '?'
     
