@@ -19,6 +19,8 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 import os
 import os.path
 
+import pytest
+
 from reahl.tofu import Fixture, scenario, expected, temp_file_with, uses
 from reahl.tofu.pytestsupport import with_fixtures
 from reahl.stubble import SystemOutStub
@@ -415,9 +417,8 @@ def test_i18n(web_fixture, i18n_scenario):
 
 def test_model_examples():
     # These examples are built to run outside of our infrastructure, hence have to be run like this:
-    for example in ['test_model1.py', 'test_model2.py', 'test_model3.py']:
-        Executable('pytest').check_call(['reahl/doc/examples/tutorial/%s' % example ])
-
+    for example in ['test_model1', 'test_model2', 'test_model3']:
+        pytest.main(['reahl.doc.examples.tutorial.%s' % example])
 
 @with_fixtures(WebFixture, ExampleFixture.addressbook1)
 def test_addressbook1(web_fixture, addressbook1_scenario):
