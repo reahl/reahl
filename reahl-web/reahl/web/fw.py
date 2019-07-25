@@ -1871,7 +1871,10 @@ class UrlBoundView(View):
         return config.web.persisted_userinput_class
 
     def set_construction_state_from_state_dict(self, construction_state_dict):
-        self._construction_client_side_state = urllib_parse.urlencode(construction_state_dict, doseq=True).decode('utf-8')
+        url_encoded_state = urllib_parse.urlencode(construction_state_dict, doseq=True)
+        if six.PY2:
+            url_encoded_state = url_encoded_state.decode('utf-8')
+        self._construction_client_side_state = url_encoded_state
 
     @property
     def construction_client_side_state(self):
@@ -1890,7 +1893,9 @@ class UrlBoundView(View):
             client_state_string = request.POST.dict_of_lists().get('__reahl_client_side_state__', [''])[0]
             client_state = urllib_parse.parse_qs(client_state_string, keep_blank_values=True)
             client_state.update(request.POST) # TODO: issue: request.POST is not in disambigiated format....
-            client_state_string = urllib_parse.urlencode(client_state, doseq=True).decode('utf-8')
+            client_state_string = urllib_parse.urlencode(client_state, doseq=True)
+            if six.PY2:
+                client_state_string = client_state_string.decode('utf-8')
             self._current_POSTed_client_side_state = client_state_string
         else:
             client_state_string = self._current_POSTed_client_side_state

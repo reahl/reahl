@@ -1136,7 +1136,10 @@ class Event(Field):
             
             arguments.update(fields.as_input_kwargs())
             input_string='?%s' % urllib_parse.urlencode(arguments)
-            return input_string.decode('utf-8')
+            if six.PY2:
+                return input_string.decode('utf-8')
+            else:
+                return input_string
         else:
             return '?'
     
