@@ -300,7 +300,7 @@ class WebDriverHandler(object):
             command_thread.start()
             started.wait()
 
-            self.reahl_server.serve_until(lambda: not command_thread.is_alive())
+            self.reahl_server.serve_until(lambda: not command_thread.is_alive() and not self.reahl_server.connection_is_pending(0.01))
             if exceptions:
                 raise Exception(exceptions[0])
             command_thread.join(5)
