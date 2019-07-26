@@ -31,7 +31,7 @@ class JobsFixture(Fixture):
 
     def address_is_listed_as(self, name, email_address, is_new):
         new = ' (new)' if is_new else ''
-        return self.browser.is_element_present(XPath.paragraph_containing('%s: %s%s' % (name, email_address, new)))
+        return self.browser.is_element_present(XPath.paragraph().including_text('%s: %s%s' % (name, email_address, new)))
 
 
 @with_fixtures(WebFixture, JobsFixture)

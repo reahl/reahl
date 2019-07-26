@@ -45,14 +45,14 @@ def test_logging_in(web_fixture, login_fixture):
     login_fixture.new_account()
 
     browser.open('/')
-    browser.click(XPath.link_with_text('Log in with email and password'))
+    browser.click(XPath.link().with_text('Log in with email and password'))
 
     browser.type(XPath.input_labelled('Email'), 'johndoe@some.org')
     browser.type(XPath.input_labelled('Password'), 'topsecret')
     browser.click(XPath.button_labelled('Log in'))
 
-    browser.click(XPath.link_with_text('Home'))
-    assert browser.is_element_present(XPath.paragraph_containing('Welcome johndoe@some.org'))
+    browser.click(XPath.link().with_text('Home'))
+    assert browser.is_element_present(XPath.paragraph().including_text('Welcome johndoe@some.org'))
 
         
 

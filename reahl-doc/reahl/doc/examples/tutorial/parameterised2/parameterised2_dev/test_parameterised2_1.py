@@ -15,7 +15,7 @@ def test_adding_an_address(web_fixture):
     browser = Browser(web_fixture.new_wsgi_app(site_root=AddressBookUI))
 
     browser.open('/')
-    browser.click(XPath.link_with_text('Add'))
+    browser.click(XPath.link().with_text('Add'))
 
     actual_title = browser.title
     assert actual_title == 'Add', 'Expected to be on the Add an address page'
@@ -28,6 +28,6 @@ def test_adding_an_address(web_fixture):
     actual_title = browser.title
     assert actual_title == 'Show', 'Expected to be back on the home page after editing'
 
-    assert browser.is_element_present(XPath.paragraph_containing('John Doe: johndoe@some.org')), \
+    assert browser.is_element_present(XPath.paragraph().including_text('John Doe: johndoe@some.org')), \
            'Expected the newly added address to be listed on the home page'
 

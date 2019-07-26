@@ -27,10 +27,10 @@ class ConfigFixture(Fixture):
         return Browser(self.wsgi_app)
 
     def address_is_listed_as(self, name, email_address):
-        return self.browser.is_element_present(XPath.paragraph_containing('%s: %s' % (name, email_address)))
+        return self.browser.is_element_present(XPath.paragraph().including_text('%s: %s' % (name, email_address)))
 
     def heading_is_displayed(self):
-        return self.browser.is_element_present(XPath.heading_with_text(1, 'Addresses'))
+        return self.browser.is_element_present(XPath.heading(1).with_text('Addresses'))
 
 
 @with_fixtures(WebFixture, ConfigFixture)

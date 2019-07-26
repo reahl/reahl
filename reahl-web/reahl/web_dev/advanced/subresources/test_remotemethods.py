@@ -19,16 +19,20 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 import json
 from webob import Response
 
+from sqlalchemy import Column, UnicodeText, Integer
+
 from reahl.stubble import stubclass, CallMonitor
 from reahl.tofu import scenario, expected, Fixture, uses
 from reahl.tofu.pytestsupport import with_fixtures
 
 from reahl.webdev.tools import Browser
-from reahl.component.exceptions import DomainException
+from reahl.component.exceptions import DomainException, ProgrammerError
 from reahl.web.fw import CheckedRemoteMethod, JsonResult, MethodResult, RemoteMethod, Widget, WidgetResult
+from reahl.web.ui import Div
 from reahl.component.modelinterface import Field, IntegerField
 
 from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
+from reahl.sqlalchemysupport import Base, Session
 from reahl.dev.fixtures import ReahlSystemFixture
 from reahl.web_dev.fixtures import WebFixture
 
@@ -100,18 +104,17 @@ def test_exception_handling(web_fixture, remote_method_fixture):
 
 
 @with_fixtures(WebFixture, RemoteMethodFixture)
-def test_immutable_remote_methods(web_fixture, remote_method_fixture):
-    """A RemoteMethod that is immutable is accessible via GET (instead of POST)."""
-
+def test_idempotent_remote_methods(web_fixture, remote_method_fixture):
+    """A RemoteMethod that is idempotent is accessible via GET (instead of POST)."""
 
     def callable_object():
         return 'value returned from method'
-    remote_method = RemoteMethod('amethod', callable_object, MethodResult(), immutable=True)
+    remote_method = RemoteMethod('amethod', callable_object, MethodResult(), idempotent=True)
 
     wsgi_app = remote_method_fixture.new_wsgi_app(remote_method=remote_method)
     browser = Browser(wsgi_app)
 
-    # GET, since the method is immutable
+    # GET, since the method is idempotent
     browser.open('/_amethod_method')
     assert browser.raw_html == 'value returned from method'
 
@@ -119,13 +122,42 @@ def test_immutable_remote_methods(web_fixture, remote_method_fixture):
     browser.post('/_amethod_method', {}, status=405)
 
 
+@with_fixtures(WebFixture, RemoteMethodFixture, SqlAlchemyFixture)
+def test_immutable_remote_methods(web_fixture, remote_method_fixture, sql_alchemy_fixture):
+    """The database is always rolled back at the end of an immutable RemoteMethod."""
+
+    class TestObject(Base):
+        __tablename__ = 'test_remotemethods_test_object'
+        id = Column(Integer, primary_key=True)
+        name = Column(UnicodeText)
+
+    with sql_alchemy_fixture.persistent_test_classes(TestObject):
+        def callable_object():
+            Session.add(TestObject(name='new object'))
+            assert Session.query(TestObject).count() == 1
+            return 'value returned from method'
+        
+        remote_method = RemoteMethod('amethod', callable_object, MethodResult(), immutable=True)
+
+        assert remote_method.idempotent  # Immutable methods are idempotent
+
+        wsgi_app = remote_method_fixture.new_wsgi_app(remote_method=remote_method)
+        browser = Browser(wsgi_app)
+
+        browser.open('/_amethod_method')
+        assert browser.raw_html == 'value returned from method'
+
+        # The database is rolled back to ensure immutability
+        assert Session.query(TestObject).count() == 0
+
+
 class ArgumentScenarios(Fixture):
     @scenario
     def get(self):
-        self.immutable = True
+        self.idempotent = True
     @scenario
     def post(self):
-        self.immutable = False
+        self.idempotent = False
 
 
 @with_fixtures(WebFixture, RemoteMethodFixture, ArgumentScenarios)
@@ -137,13 +169,14 @@ def test_arguments_to_remote_methods(web_fixture, remote_method_fixture, argumen
     def callable_object(**kwargs):
         fixture.method_kwargs = kwargs
         return ''
-    remote_method = RemoteMethod('amethod', callable_object, MethodResult(), immutable=fixture.immutable)
+
+    remote_method = RemoteMethod('amethod', callable_object, MethodResult(), idempotent=fixture.idempotent)
 
     wsgi_app = remote_method_fixture.new_wsgi_app(remote_method=remote_method)
     browser = Browser(wsgi_app)
 
     kwargs_sent = {'a':'AAA', 'b':'BBB'}
-    if fixture.immutable:
+    if fixture.idempotent:
         browser.open('/_amethod_method?a=AAA&b=BBB')
     else:
         browser.post('/_amethod_method', kwargs_sent)
@@ -159,15 +192,16 @@ def test_checked_arguments(web_fixture, remote_method_fixture, argument_scenario
     def callable_object(anint=None, astring=None):
         fixture.method_kwargs = {'anint': anint, 'astring': astring}
         return ''
+
     remote_method = CheckedRemoteMethod('amethod', callable_object, MethodResult(),
-                                        immutable=fixture.immutable,
+                                        idempotent=fixture.idempotent,
                                         anint=IntegerField(),
                                         astring=Field())
 
     wsgi_app = remote_method_fixture.new_wsgi_app(remote_method=remote_method)
     browser = Browser(wsgi_app)
 
-    if fixture.immutable:
+    if fixture.idempotent:
         browser.open('/_amethod_method?anint=5&astring=SupercalifraGilisticexpialidocious')
     else:
         browser.post('/_amethod_method', {'anint':'5', 'astring':'SupercalifraGilisticexpialidocious'})
@@ -187,14 +221,14 @@ class ResultScenarios(Fixture):
         self.results_match = lambda x, y: x == y
 
     @stubclass(Widget)
-    class WidgetStub(object):
+    class WidgetStub(Widget):
         css_id = 'someid'
         def render_contents(self): return '<the widget contents>'
         def get_contents_js(self, context=None): return ['some', 'some', 'javascript']
 
     @scenario
     def widget(self):
-        self.method_result = WidgetResult(self.WidgetStub())
+        self.method_result = WidgetResult(self.WidgetStub(self.web_fixture.view))
         self.value_to_return = 'ignored in this case'
         self.expected_response = '<the widget contents><script type="text/javascript">javascriptsome</script>'
         self.exception_response = Exception
@@ -204,9 +238,9 @@ class ResultScenarios(Fixture):
 
     @scenario
     def widget_as_json(self):
-        self.method_result = WidgetResult(self.WidgetStub(), as_json_and_result=True)
+        self.method_result = WidgetResult(self.WidgetStub(self.web_fixture.view), as_json_and_result=True)
         self.value_to_return = 'ignored in this case'
-        self.expected_response = {'widget': '<the widget contents><script type="text/javascript">javascriptsome</script>',
+        self.expected_response = {'widgets': {"someid": '<the widget contents><script type="text/javascript">javascriptsome</script>'},
                                   'success': True}
         self.expected_charset = self.method_result.encoding
         self.expected_content_type = 'application/json'
@@ -325,13 +359,15 @@ def test_regenerating_method_results(reahl_system_fixture, web_fixture,
 
 class WidgetResultScenarios(Fixture):
     changes_made = False
-    @stubclass(Widget)
-    class WidgetChildStub(object):
-        is_Widget = True
-        def __init__(self, text):
-            self.text = text
-        def render(self): return '<%s>' % self.text
-        def get_js(self, context=None): return ['js(%s)' % self.text]
+    def new_WidgetChildStub(self):
+        @stubclass(Widget)
+        class WidgetChildStub(Widget):
+            def __init__(self, view, text):
+                super(WidgetChildStub, self).__init__(view)
+                self.text = text
+            def render(self): return '<%s>' % self.text
+            def get_js(self, context=None): return ['js(%s)' % self.text]
+        return WidgetChildStub
 
     def new_WidgetStub(self):
         fixture = self
@@ -341,7 +377,7 @@ class WidgetResultScenarios(Fixture):
             def __init__(self, view):
                 super(WidgetStub, self).__init__(view)
                 message = 'changed contents' if fixture.changes_made else 'initial contents'
-                self.add_child(fixture.WidgetChildStub(message))
+                self.add_child(fixture.WidgetChildStub(view, message))
         return WidgetStub
 
     def new_WidgetWithRemoteMethod(self):
@@ -364,13 +400,13 @@ class WidgetResultScenarios(Fixture):
     def success(self):
         self.exception = False
         self.expected_response = {'success': True,
-                                  'widget': '<changed contents><script type="text/javascript">js(changed contents)</script>'}
+                                  'widgets': {'an_id': '<changed contents><script type="text/javascript">js(changed contents)</script>'}}
 
     @scenario
     def exception(self):
         self.exception = True
         self.expected_response = {'success': False,
-                                  'widget': '<changed contents><script type="text/javascript">js(changed contents)</script>'}
+                                  'widgets': {'an_id': '<changed contents><script type="text/javascript">js(changed contents)</script>'}}
 
 
 @with_fixtures(WebFixture, WidgetResultScenarios)
@@ -380,10 +416,100 @@ def test_widgets_that_change_during_method_processing(web_fixture, widget_result
        its RemoteMethod have been committed.
     """
 
-
     wsgi_app = web_fixture.new_wsgi_app(child_factory=widget_result_scenarios.WidgetWithRemoteMethod.factory())
     browser = Browser(wsgi_app)
 
     browser.post('/_amethod_method', {})
     json_response = json.loads(browser.raw_html)
     assert json_response == widget_result_scenarios.expected_response
+
+
+
+
+@stubclass(Widget)
+class CoactiveWidgetStub(Widget):
+    def __init__(self, view, css_id, coactive_widgets):
+        super(CoactiveWidgetStub, self).__init__(view)
+        self._coactive_widgets = coactive_widgets
+        self.css_id = css_id
+
+    def render_contents(self): 
+        return '<%s>' % self.css_id
+
+    @property
+    def coactive_widgets(self):
+        return super(CoactiveWidgetStub, self).coactive_widgets + self._coactive_widgets
+
+
+@with_fixtures(WebFixture)
+def test_coactive_widgets(web_fixture):
+    """Coactive Widgets of a Widget are Widgets that are included in a WidgetResult for that Widget.
+
+    Included are: the coactive widgets of children of the result widget as well as the coactive widgets of coactive widgets.
+    """
+
+    @stubclass(Widget)
+    class WidgetWithRemoteMethod(Widget):
+        def __init__(self, view):
+            super(WidgetWithRemoteMethod, self).__init__(view)
+            coactive_widgets = [self.add_child(CoactiveWidgetStub(view, 'coactive1', [self.add_child(CoactiveWidgetStub(view, 'coactive2', []))]))]
+            result_widget = self.add_child(CoactiveWidgetStub(view, 'main', []))
+            result_widget.add_child(CoactiveWidgetStub(view, 'child', coactive_widgets))
+            method_result = WidgetResult(result_widget, as_json_and_result=True)
+            remote_method = RemoteMethod('amethod', lambda: None, default_result=method_result)
+            view.add_resource(remote_method)
+
+    wsgi_app = web_fixture.new_wsgi_app(child_factory=WidgetWithRemoteMethod.factory())
+    browser = Browser(wsgi_app)
+
+    browser.post('/_amethod_method', {})
+    json_response = json.loads(browser.raw_html)
+    assert json_response == {'success': True,
+                             'widgets': {
+                                'main': '<main><script type="text/javascript"></script>',
+                                'coactive1': '<coactive1><script type="text/javascript"></script>',
+                                'coactive2': '<coactive2><script type="text/javascript"></script>'}
+                             }
+
+@with_fixtures(WebFixture)
+def test_coactive_widgets_cannot_be_descendants(web_fixture):
+    """The descendant Widgets of a given Widget cannot be its coactive Widgets."""
+
+    @stubclass(Widget)
+    class WidgetWithRemoteMethod(Widget):
+        def __init__(self, view):
+            super(WidgetWithRemoteMethod, self).__init__(view)
+            child = CoactiveWidgetStub(view, 'child', [])
+            result_widget = CoactiveWidgetStub(view, 'parent', [child])
+            result_widget.add_child(child)
+            method_result = WidgetResult(result_widget, as_json_and_result=True)
+            remote_method = RemoteMethod('amethod', lambda: None, default_result=method_result)
+            view.add_resource(remote_method)
+
+    wsgi_app = web_fixture.new_wsgi_app(child_factory=WidgetWithRemoteMethod.factory())
+    browser = Browser(wsgi_app)
+
+    with expected(ProgrammerError, '.+ are coactive widgets of .+ and are also itself or one of its descendants'):
+        browser.post('/_amethod_method', {})
+
+@with_fixtures(WebFixture)
+def test_coactive_widgets_cannot_be_parents(web_fixture):
+    """The ancestor Widgets of a given Widget cannot be its coactive Widgets."""
+
+    @stubclass(Widget)
+    class WidgetWithRemoteMethod(Widget):
+        def __init__(self, view):
+            super(WidgetWithRemoteMethod, self).__init__(view)
+            result_widget = CoactiveWidgetStub(view, 'parent', [])
+            grandparent = self.add_child(Div(view, css_id='grandparent'))
+            result_widget.add_child(CoactiveWidgetStub(view, 'child', [grandparent]))
+            grandparent.add_child(result_widget)
+            method_result = WidgetResult(result_widget, as_json_and_result=True)
+            remote_method = RemoteMethod('amethod', lambda: None, default_result=method_result)
+            view.add_resource(remote_method)
+
+    wsgi_app = web_fixture.new_wsgi_app(child_factory=WidgetWithRemoteMethod.factory())
+    browser = Browser(wsgi_app)
+
+    with expected(ProgrammerError, '.+ is a coactive widget of .+ and is also one of its ancestors'):
+        browser.post('/_amethod_method', {})

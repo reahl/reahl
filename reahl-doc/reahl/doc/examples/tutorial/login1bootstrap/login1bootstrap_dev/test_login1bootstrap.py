@@ -46,14 +46,14 @@ def test_logging_in(web_fixture, login_fixture):
     login_fixture.new_account()
 
     browser.open('/')
-    browser.click(XPath.link_with_text('Log in'))
+    browser.click(XPath.link().with_text('Log in'))
 
     browser.type(XPath.input_labelled('Email'), 'johndoe@some.org')
     browser.type(XPath.input_labelled('Password'), 'topsecret')
     browser.click(XPath.button_labelled('Log in'))
 
-    browser.click(XPath.link_with_text('Home'))
-    assert browser.is_element_present(XPath.paragraph_containing('Welcome johndoe@some.org'))
+    browser.click(XPath.link().with_text('Home'))
+    assert browser.is_element_present(XPath.paragraph().including_text('Welcome johndoe@some.org'))
 
 
 @with_fixtures(WebFixture, LoginFixture)
@@ -64,10 +64,10 @@ def test_domain_exception(web_fixture, login_fixture):
     login_fixture.new_account()
 
     browser.open('/')
-    browser.click(XPath.link_with_text('Log in'))
+    browser.click(XPath.link().with_text('Log in'))
 
     browser.type(XPath.input_labelled('Email'), 'johndoe@some.org')
     browser.type(XPath.input_labelled('Password'), 'wrong password')
     browser.click(XPath.button_labelled('Log in'))
 
-    assert browser.is_element_present(XPath.div_containing('Invalid login credentials'))
+    assert browser.is_element_present(XPath.div().including_text('Invalid login credentials'))

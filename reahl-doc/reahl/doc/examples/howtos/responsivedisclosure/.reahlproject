@@ -1,0 +1,26 @@
+<project type="egg">
+  <deps purpose="run">
+    <egg name="reahl-web"/>
+    <egg name="reahl-component"/>
+    <egg name="reahl-web-declarative"/>
+  </deps>
+
+  <deps purpose="build">
+    <thirdpartyegg name="pytest-runner"/>
+  </deps>
+
+  <deps purpose="test">
+    <thirdpartyegg name="pytest" minversion="3.0"/>
+    <egg name="reahl-tofu"/>
+    <egg name="reahl-stubble"/>
+    <egg name="reahl-dev"/>
+    <egg name="reahl-webdev"/>
+  </deps>
+
+  <persisted>
+    <class locator="reahl.doc.examples.howtos.responsivedisclosure.responsivedisclosure:InvestmentOrder"/>
+    <class locator="reahl.doc.examples.howtos.responsivedisclosure.responsivedisclosure:Allocation"/>
+    <class locator="reahl.doc.examples.howtos.responsivedisclosure.responsivedisclosure:IDDocument"/>
+  </persisted>
+
+</project>

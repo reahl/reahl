@@ -185,23 +185,33 @@ class SessionData(Base):
     web_session_id = Column(Integer, ForeignKey('usersession.id', ondelete='CASCADE'), index=True)
     web_session = relationship(UserSession)
 
+    view_path = Column(UnicodeText, nullable=False)
     ui_name = Column(UnicodeText, nullable=False)
-    channel_name = Column(UnicodeText, nullable=False)
+    channel_name = Column(UnicodeText, nullable=True)
 
     @classmethod
     def clear_for_form(cls, form):
-        for stale in cls.for_form(form).all():
+        for stale in cls.find_for(form.view, form=form).all():
             Session.delete(stale)
 
     @classmethod
-    def for_form(cls, form):
-        web_session = ExecutionContext.get_context().session
-        return Session.query(cls).filter_by(web_session=web_session, ui_name=form.user_interface.name, channel_name=form.channel_name)
-    
+    def clear_for_view(cls, view):
+        for stale in cls.find_for(view, form=None).all():
+            Session.delete(stale)
+
     @classmethod
-    def new_for_form(cls, form, **kwargs):
+    def find_for(cls, view, form=None):
+        assert (not form) or (form.view is view)
         web_session = ExecutionContext.get_context().session
-        instance = cls(web_session=web_session, ui_name=form.user_interface.name, channel_name=form.channel_name, **kwargs)
+        channel_name = form.channel_name if form else None
+        return Session.query(cls).filter_by(web_session=web_session, view_path=view.full_path, ui_name=view.user_interface.name, channel_name=channel_name)
+
+    @classmethod
+    def save_for(cls, view, form=None, **kwargs):
+        assert (not form) or (form.view is view)
+        channel_name = form.channel_name if form else None
+        web_session = ExecutionContext.get_context().session
+        instance = cls(web_session=web_session, view_path=view.full_path, ui_name=view.user_interface.name, channel_name=channel_name, **kwargs)
         Session.add(instance)
         return instance
 
@@ -217,7 +227,7 @@ class SessionData(Base):
 
 class UserInput(SessionData, UserInputProtocol):
     """An implementation of :class:`reahl.web.interfaces.UserInputProtocol`. It represents
-       an value that was input by a user."""
+       a value that was input by a user."""
     __tablename__ = 'userinput'
     __mapper_args__ = {'polymorphic_identity': 'userinput'}
     id = Column(Integer, ForeignKey('sessiondata.id', ondelete='CASCADE'), primary_key=True)
@@ -233,37 +243,60 @@ class UserInput(SessionData, UserInputProtocol):
 
     @classmethod
     def get_previously_entered_for_form(cls, form, input_name, entered_input_type):
-        query = cls.for_form(form).filter_by(key=input_name)
+        return cls.get_previously_saved_for(form.view, form, input_name, entered_input_type)
+
+    @classmethod
+    def get_previously_saved_for(cls, view, form, key, value_type):
+        query = cls.find_for(view, form=form).filter_by(key=key)
         if query.count() == 0:
             return None
 
         values = [i.value for i in query.all()]
 
-        if entered_input_type is six.text_type:
-            assert len(values) == 1
+        if value_type is six.text_type:
+            assert len(values) == 1, 'There are %s saved values for "%s", but there should only be one' % (len(values), key)
             return values[0]
-        elif entered_input_type is list:
+        elif value_type is list:
             if len(values) == 1 and values[0] is None:
                 return []
             return values
         else:
-            assert None, 'Cannot persist values of type: %s' % entered_input_type
-
+            assert None, 'Cannot persist values of type: %s' % value_type
 
     @classmethod
     def save_input_value_for_form(cls, form, input_name, value, entered_input_type):
-        if entered_input_type is six.text_type:
+        cls.save_value_for(form.view, form, input_name, value, entered_input_type)
+
+    @classmethod
+    def save_value_for(cls, view, form, key, value, value_type):
+        for i in cls.find_for(view, form=form).filter_by(key=key):
+            Session.delete(i)
+
+        if value_type is six.text_type:
             assert isinstance(value, six.text_type), 'Cannot handle the value: ' + six.text_type(value)
-            cls.new_for_form(form, key=input_name, value=value)
-        elif entered_input_type is list:
+            cls.save_for(view, form=form, key=key, value=value)
+        elif value_type is list:
             assert all([isinstance(i, six.text_type) for i in value]), 'Cannot handle the value: ' + six.text_type(value)
             if value:
                 for i in value:
-                    cls.new_for_form(form, key=input_name, value=i)
+                    cls.save_for(view, form=form, key=key, value=i)
             else:
-                cls.new_for_form(form, key=input_name, value=None)
+                cls.save_for(view, form=form, key=key, value=None)
         else:
-            assert None, 'Cannot persist values of type: %s' % entered_input_type
+            assert None, 'Cannot persist values of type: %s' % value_type
+
+    @classmethod
+    def get_persisted_for_view(cls, view, key, value_type):
+        return cls.get_previously_saved_for(view, None, key, value_type)
+
+    @classmethod
+    def add_persisted_for_view(cls, view, key, value, value_type):
+        cls.save_value_for(view, None, key, value, value_type)
+
+    @classmethod
+    def remove_persisted_for_view(cls, view, key):
+        for previous in cls.find_for(view, form=None).filter_by(key=key):
+            Session.delete(previous)
 
 
 class PersistedException(SessionData, PersistedExceptionProtocol):
@@ -281,21 +314,26 @@ class PersistedException(SessionData, PersistedExceptionProtocol):
                self.exception == other.exception
 
     @classmethod
-    def for_form(cls, form):
-        return cls.for_input(form, None)
+    def save_exception_for_form(cls, form, **kwargs):
+        return cls.save_for(form.view, form=form, **kwargs)
 
     @classmethod
     def for_input(cls, form, input_name):
-        return super(PersistedException, cls).for_form(form).filter_by(input_name=input_name)
+        return super(PersistedException, cls).find_for(form.view, form=form).filter_by(input_name=input_name)
+
+    @classmethod
+    def clear_for_form_except_inputs(cls, form):
+        for stale in cls.for_input(form, None).all():
+            Session.delete(stale)
 
     @classmethod
     def clear_for_all_inputs(cls, form):
-        for e in super(PersistedException, cls).for_form(form).filter(cls.input_name != None):
+        for e in super(PersistedException, cls).find_for(form.view, form=form).filter(cls.input_name != None):
             Session.delete(e)
 
     @classmethod
     def get_exception_for_form(cls, form):
-        persisted = cls.for_form(form)
+        persisted = cls.for_input(form, None)
         if persisted.count() == 1:
             return persisted.one().exception
         return None
@@ -343,7 +381,7 @@ class PersistedFile(SessionData, PersistedFileProtocol):
 
     @classmethod
     def get_persisted_for_form(cls, form, input_name):
-        query = cls.for_form(form).filter_by(input_name=input_name)
+        query = cls.find_for(form.view, form=form).filter_by(input_name=input_name)
         return query.all()
 
     @classmethod
@@ -352,17 +390,17 @@ class PersistedFile(SessionData, PersistedFileProtocol):
         file_data = uploaded_file.contents
         mime_type = uploaded_file.mime_type
         size = uploaded_file.size
-        return cls.new_for_form(form, input_name=input_name, filename=filename, file_data=file_data, mime_type=mime_type, size=size)
+        return cls.save_for(form.view, form=form, input_name=input_name, filename=filename, file_data=file_data, mime_type=mime_type, size=size)
 
     @classmethod
     def remove_persisted_for_form(cls, form, input_name, filename):
-        persisted = cls.for_form(form).filter_by(input_name=input_name).filter_by(filename=filename)
+        persisted = cls.find_for(form.view, form=form).filter_by(input_name=input_name).filter_by(filename=filename)
         for persisted_file in persisted.all():
             Session.delete(persisted_file)
 
     @classmethod
     def is_uploaded_for_form(cls, form, input_name, filename):
-        return PersistedFile.for_form(form).filter_by(input_name=input_name).filter_by(filename=filename).count() == 1
+        return PersistedFile.find_for(form.view, form=form).filter_by(input_name=input_name).filter_by(filename=filename).count() == 1
     
 
 class WebDeclarativeConfig(Configuration):

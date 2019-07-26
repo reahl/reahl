@@ -112,7 +112,7 @@ $.widget('reahl.bootstrapfileuploadli', {
                     this_.element.remove();
                     fileInput.trigger('focusout').trigger('focus'); /* to revalidate the input after removal */
                 } else {
-                    this_.replaceNestedFormContents(data.widget);
+                    this_.replaceContents(data.widgets);
                 }
             },
             error: function(jqXHR, textStatus, errorThrown){
@@ -120,11 +120,13 @@ $.widget('reahl.bootstrapfileuploadli', {
             }
         });
     },
-    replaceNestedFormContents: function(newContents) {
-        var this_ = this;
-        var nestedForm = $('#'+this_.getNestedFormId());
-        nestedForm.empty();
-        nestedForm.append(newContents);
+    replaceContents: function(widgetContents) {
+        for (var cssId in widgetContents) {
+            var html = widgetContents[cssId];
+            var widget = $('#'+cssId);
+            widget.empty();
+            widget.append(html);
+        }
     },
     cancelUpload: function() {
 	var this_ = this;
@@ -161,7 +163,7 @@ $.widget('reahl.bootstrapfileuploadli', {
                     if (data.success) {
                         this_.changeToUploaded();
                     } else {
-                        this_.replaceNestedFormContents(data.widget);
+                        this_.replaceContents(data.widgets);
                     }
                     this_.getFileInputPanel().uploadFinished();
                 },

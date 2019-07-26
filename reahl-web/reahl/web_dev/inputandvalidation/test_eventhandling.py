@@ -20,6 +20,7 @@ import six
 import json
 
 from webob import Request
+from sqlalchemy import Column, Integer
 
 from reahl.tofu import Fixture, scenario, NoException, expected, uses
 from reahl.tofu.pytestsupport import with_fixtures
@@ -32,7 +33,8 @@ from reahl.component.modelinterface import IntegerField, EmailField, DateField, 
     exposed, Field, Event, Action, MultiChoiceField, Choice, AllowedValuesConstraint
 from reahl.webdeclarative.webdeclarative import PersistedException, UserInput
 
-from reahl.sqlalchemysupport import Session
+from reahl.sqlalchemysupport import Base, Session
+from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
 from reahl.web.fw import Url, UserInterface, ValidationException
 from reahl.web.ui import HTML5Page, Div, Form, TextInput, ButtonInput, NestedForm, SelectInput
 
@@ -83,6 +85,63 @@ def test_basic_event_linkup(web_fixture):
 
     # browser has been transitioned to target view
     assert fixture.driver_browser.current_url.path == '/page2'
+
+
+@with_fixtures(WebFixture)
+def test_button_submits_only_once(web_fixture):
+    """ButtonInputs and associated forms are blocked upon successful submit to prevent a user from double-clicking a button."""
+
+    fixture = web_fixture
+    fixture.click_count = 0
+    class MyForm(Form):
+        def __init__(self, view):
+            super(MyForm, self).__init__(view, 'myform')
+            self.set_attribute('target', '_blank')  # We want to make sure the initial page is not refreshed so we can check the button status
+            self.define_event_handler(self.events.an_event)
+            self.add_child(TextInput(self, self.fields.field_name))
+            self.add_child(ButtonInput(self, self.events.an_event))
+
+        def clicked(self):
+            fixture.click_count += 1
+
+        @exposed
+        def events(self, events):
+            events.an_event = Event(label='click me', action=Action(self.clicked))
+
+        @exposed
+        def fields(self, fields):
+            fields.field_name = IntegerField()
+
+    wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=MyForm.factory())
+    web_fixture.reahl_server.set_app(wsgi_app)
+    browser = web_fixture.driver_browser
+    browser.open('/')
+
+    button_xpath = "//input[@value='click me']"
+
+    assert fixture.click_count == 0
+    assert browser.is_on_top(button_xpath)
+    assert not browser.does_element_have_attribute(button_xpath, 'readonly')
+
+    # case : if there is a validation error, don't block
+    fixture.driver_browser.type("//input[@type='text']", 'not a number', trigger_blur=False, wait_for_ajax=False)
+    browser.press_tab() #trigger validation exception
+    with browser.no_page_load_expected():
+        browser.click(button_xpath)
+
+    assert fixture.click_count == 0
+    assert browser.is_on_top(button_xpath)
+    assert not browser.does_element_have_attribute(button_xpath, 'readonly')
+
+    # case : if the form is valid, do block
+    fixture.driver_browser.type("//input[@type='text']", '1', trigger_blur=False, wait_for_ajax=False)
+    browser.press_tab() #trigger validation
+    with browser.new_tab_closed():
+        browser.click(button_xpath)
+
+    assert fixture.click_count == 1                   # The Event was submitted
+    assert not browser.is_on_top(button_xpath)        # The Button cannot be clicked again
+    assert browser.does_element_have_attribute(button_xpath, 'readonly')
 
 
 @with_fixtures(WebFixture)
@@ -209,7 +268,7 @@ def test_basic_field_linkup(web_fixture):
 @with_fixtures(WebFixture)
 def test_distinguishing_identical_field_names(web_fixture):
     """A programmer can add different Inputs on the same Form even if their respective Fields are bound
-       to identically named attributes of different objects."""
+       to identically named attributes of different objects by overriding the name of the second input."""
 
     fixture = web_fixture
 
@@ -232,7 +291,7 @@ def test_distinguishing_identical_field_names(web_fixture):
             self.add_child(ButtonInput(self, self.events.an_event))
 
             self.add_child(TextInput(self, model_object1.fields.field_name))
-            self.add_child(TextInput(self, model_object2.fields.field_name))
+            self.add_child(TextInput(self, model_object2.fields.field_name, name='field_name_2'))
 
     wsgi_app = fixture.new_wsgi_app(child_factory=MyForm.factory('form'))
     fixture.reahl_server.set_app(wsgi_app)
@@ -288,8 +347,8 @@ def test_define_event_handler_not_called(web_fixture):
         browser.open('/')
 
 
-@with_fixtures(ReahlSystemFixture, WebFixture)
-def test_exception_handling(reahl_system_fixture, web_fixture):
+@with_fixtures(ReahlSystemFixture, WebFixture, SqlAlchemyFixture)
+def test_exception_handling(reahl_system_fixture, web_fixture, sql_alchemy_fixture):
     """When a DomainException happens during the handling of an Event:
 
        The database is rolled back.
@@ -299,7 +358,10 @@ def test_exception_handling(reahl_system_fixture, web_fixture):
 
     fixture = web_fixture
 
-    class ModelObject(object):
+    class ModelObject(Base):
+        __tablename__ = 'test_event_handling_exception_handling'
+        id = Column(Integer, primary_key=True)
+        field_name = Column(Integer)
         def handle_event(self):
             self.field_name = 1
             raise DomainException()
@@ -310,42 +372,45 @@ def test_exception_handling(reahl_system_fixture, web_fixture):
         def fields(self, fields):
             fields.field_name = IntegerField(default=3)
 
-    model_object = ModelObject()
+    with sql_alchemy_fixture.persistent_test_classes(ModelObject):
+        model_object = ModelObject()
+        Session.add(model_object)
 
-    class MyForm(Form):
-        def __init__(self, view, name, other_view):
-            super(MyForm, self).__init__(view, name)
-            self.define_event_handler(model_object.events.an_event, target=other_view)
-            self.add_child(ButtonInput(self, model_object.events.an_event))
-            self.add_child(TextInput(self, model_object.fields.field_name))
+        class MyForm(Form):
+            def __init__(self, view, name, other_view):
+                super(MyForm, self).__init__(view, name)
+                self.define_event_handler(model_object.events.an_event, target=other_view)
+                self.add_child(ButtonInput(self, model_object.events.an_event))
+                self.add_child(TextInput(self, model_object.fields.field_name))
 
-    class MainUI(UserInterface):
-        def assemble(self):
-            self.define_page(HTML5Page).use_layout(BasicPageLayout())
-            home = self.define_view('/', title='Home page')
-            other_view = self.define_view('/page2', title='Page 2')
-            home.set_slot('main', MyForm.factory('myform', other_view))
+        class MainUI(UserInterface):
+            def assemble(self):
+                self.define_page(HTML5Page).use_layout(BasicPageLayout())
+                home = self.define_view('/', title='Home page')
+                other_view = self.define_view('/page2', title='Page 2')
+                home.set_slot('main', MyForm.factory('myform', other_view))
 
-    wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
-    fixture.reahl_server.set_app(wsgi_app)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
 
-    fixture.driver_browser.open('/')
+        browser = Browser(wsgi_app)  # Dont use a real browser, because it will also hit many other URLs for js and css which confuse the issue
+        browser.open('/')
 
-    assert not hasattr(model_object, 'field_name')
-    fixture.driver_browser.type("//input[@type='text']", '5')
+        assert not model_object.field_name
+        browser.type("//input[@type='text']", '5')
 
-    # any database stuff that happened when the form was submitted was rolled back
-    with CallMonitor(reahl_system_fixture.system_control.orm_control.rollback) as monitor:
-        fixture.driver_browser.click(XPath.button_labelled('click me'))
-    assert monitor.times_called == 1
+        # any database stuff that happened when the form was submitted was rolled back
+#        with CallMonitor(reahl_system_fixture.system_control.orm_control.rollback) as monitor:
+#            browser.click(XPath.button_labelled('click me'))
+#        assert monitor.times_called == 1
+        browser.click(XPath.button_labelled('click me'))
 
-    # the value input by the user is still displayed on the form, NOT the actual value on the model object
-    assert model_object.field_name == 1
-    retained_value = fixture.driver_browser.get_value("//input[@type='text']")
-    assert retained_value == '5'
+        # the value input by the user is still displayed on the form, NOT the actual value on the model object
+        assert not model_object.field_name
+        retained_value = browser.get_value("//input[@type='text']")
+        assert retained_value == '5'
 
-    # the browser is still on the page with the form which triggered the exception
-    assert fixture.driver_browser.current_url.path == '/'
+        # the browser is still on the page with the form which triggered the exception
+        assert browser.current_url.path == '/'
 
 
 @with_fixtures(WebFixture)
@@ -386,8 +451,8 @@ def test_form_preserves_user_input_after_validation_exceptions_multichoice(web_f
 
     browser.open('/')
 
-    no_validation_exception_input = '//select[@name="no_validation_exception_field"]'
-    validation_exception_input = '//select[@name="validation_exception_field"]'
+    no_validation_exception_input = '//select[@name="no_validation_exception_field[]"]'
+    validation_exception_input = '//select[@name="validation_exception_field[]"]'
 
     browser.select_many(no_validation_exception_input, ['One', 'Two'])
     browser.select_none(validation_exception_input) # select none to trigger the RequiredConstraint
@@ -454,42 +519,6 @@ def test_duplicate_forms(web_fixture):
 
 
 @with_fixtures(WebFixture)
-def test_check_input_placement(web_fixture):
-    """When a web request is handled, the framework throws an exception if an input might be seperated conceptually from the form they are bound to."""
-
-    fixture = web_fixture
-
-    class ModelObject(object):
-        @exposed
-        def fields(self, fields):
-            fields.name = Field()
-
-    class MainUI(UserInterface):
-        def assemble(self):
-            page = self.define_page(HTML5Page).use_layout(BasicPageLayout())
-            home = self.define_view('/', title='Home page')
-            home.set_slot('main', MyForm.factory())
-
-    class MyForm(Form):
-        def __init__(self, view):
-            super(MyForm, self).__init__(view, 'my_form')
-            self.add_child(RerenderableInputPanel(view, self))
-
-    class RerenderableInputPanel(Div):
-        def __init__(self, view, form):
-            super(RerenderableInputPanel, self).__init__(view, css_id='my_refresh_id')
-            self.enable_refresh()
-            model_object = ModelObject()
-            self.add_child(TextInput(form, model_object.fields.name))
-
-    wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
-    browser = Browser(wsgi_app)
-
-    with expected(ProgrammerError, test='.*Inputs are not allowed where they can be refreshed separately from their forms\..*'):
-        browser.open('/')
-
-
-@with_fixtures(WebFixture)
 def test_check_missing_form(web_fixture):
     """All forms referred to by inputs on a page have to be present on that page."""
 
@@ -511,7 +540,7 @@ def test_check_missing_form(web_fixture):
     browser = Browser(wsgi_app)
 
     expected_message = 'Could not find form for <TextInput name=name>. '\
-                       'Its form, <Form form id=myform> is not present on the current page'
+                       'Its form, <Form form id="myform".*> is not present on the current page'
 
     with expected(ProgrammerError, test=expected_message):
         browser.open('/')
@@ -620,7 +649,7 @@ def test_form_input_validation(web_fixture):
     fixture.reahl_server.set_app(wsgi_app)
     fixture.driver_browser.open('/')
     fixture.driver_browser.wait_for_element_not_visible(error_xpath)
-    fixture.driver_browser.type('//input[@type="text"]', 'not@notvalid')
+    fixture.driver_browser.type('//input[@type="text"]', 'not@notvalid', trigger_blur=False, wait_for_ajax=False)
     fixture.driver_browser.press_tab()
     fixture.driver_browser.wait_for_element_visible(error_xpath)
 
@@ -658,7 +687,7 @@ def test_form_input_validation(web_fixture):
     assert Session.query(UserInput).filter_by(key='field_name').count() == 0  # The invalid input was removed
     assert Session.query(PersistedException).count() == 0  # The exception was removed
 
-    assert browser.location_path == '/page2'
+    assert browser.current_url.path == '/page2'
 
     # Case: form validation passes (js)
     #  - no ValidationException
@@ -748,7 +777,7 @@ def test_propagation_of_querystring(web_fixture, query_string_scenarios):
             other_view = self.define_view('/page2', title='Page 2')
             home.set_slot('main', MyForm.factory('myform', other_view))
 
-    wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
+    wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI, enable_js=True)
     web_fixture.reahl_server.set_app(wsgi_app)
     web_fixture.driver_browser.open('/?%s' % fixture.initial_qs)
 
@@ -838,8 +867,8 @@ def test_alternative_event_trigerring(web_fixture):
     browser.post('/__myform_method', {'event.an_event?': '', '_noredirect': ''})
     browser.follow_response()  # Needed to make the test break should a HTTPTemporaryRedirect response be sent
     assert model_object.handled_event
-    assert browser.location_path != '/page2'
-    assert browser.location_path == '/__myform_method'
+    assert browser.current_url.path != '/page2'
+    assert browser.current_url.path == '/__myform_method'
 
     # the response is a json object reporting the success of the event and a new rendition of the form
     json_dict = json.loads(browser.raw_html)
@@ -847,7 +876,7 @@ def test_alternative_event_trigerring(web_fixture):
 
     browser.open('/')
     expected_html = browser.get_inner_html_for('//form[1]')
-    assert json_dict['widget'].startswith(expected_html+'<script')
+    assert json_dict['widgets']['myform'].startswith(expected_html+'<script')
 
 
 @with_fixtures(WebFixture)
@@ -906,3 +935,5 @@ def test_remote_field_formatting(web_fixture):
 
     browser.open('/_myform_format_method?a_field=invaliddate')
     assert browser.raw_html == ''
+
+

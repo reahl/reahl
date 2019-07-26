@@ -197,16 +197,16 @@ def test_paging_through_data(web_fixture, data_table_fixture):
     browser.open('/')
 
     #click to last page
-    browser.click(XPath.link_starting_with_text('→'))
-    browser.click(XPath.link_with_text('9'))
+    browser.click(XPath.link().with_text_starting('→'))
+    browser.click(XPath.link().with_text('9'))
 
     assert data_table_fixture.table_number_rows() == 2
     assert data_table_fixture.get_table_row(1) == ['25' ,'D']
     assert data_table_fixture.get_table_row(2) == ['26' ,'G']
 
     #click to page 4
-    browser.click(XPath.link_starting_with_text('←'))
-    browser.click(XPath.link_with_text('4'))
+    browser.click(XPath.link().with_text_starting('←'))
+    browser.click(XPath.link().with_text('4'))
 
     assert data_table_fixture.table_number_rows() == 3
     assert data_table_fixture.get_table_row(1) == ['10' ,'R']
@@ -254,7 +254,7 @@ def test_sorting(web_fixture, data_table_fixture):
     assert data_table_fixture.get_table_row(3) == ['15' ,'X']
 
     #----- sort order stays changed when paging
-    browser.click(XPath.link_with_text('4'))
+    browser.click(XPath.link().with_text('4'))
 
     assert data_table_fixture.get_table_row(1) == ['4' ,'Q']
     assert data_table_fixture.get_table_row(2) == ['18' ,'P']

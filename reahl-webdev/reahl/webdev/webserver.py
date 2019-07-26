@@ -67,7 +67,10 @@ class WrappedApp(object):
         try:
             to_return = b''
             for i in app(environ, start_response):
-                to_return += i 
+                try:
+                  to_return += i 
+                except:
+                    import pdb; pdb.set_trace()
         except:
             to_return = b''
             (_, self.exception, self.traceback) = sys.exc_info()
@@ -100,9 +103,9 @@ class NoopApp(object):
     def stop(self): pass
     def __call__(self, environ, start_response):
         status = '200 OK'
-        response_headers = [('Content-type','text/plain')]
+        response_headers = [('Content-type', 'text/plain')]
         start_response(status, response_headers)
-        return ['']
+        return [''.encode('utf-8')]
     def report_exception(self, *args, **kwargs):
         pass
     def clear_exception(self):
@@ -297,7 +300,7 @@ class WebDriverHandler(object):
             command_thread.start()
             started.wait()
 
-            self.reahl_server.serve_until(lambda: not command_thread.is_alive())
+            self.reahl_server.serve_until(lambda: not command_thread.is_alive() and not self.reahl_server.connection_is_pending(0.01))
             if exceptions:
                 raise Exception(exceptions[0])
             command_thread.join(5)
@@ -519,7 +522,6 @@ class ReahlWebServer(object):
 
         if self.in_separate_thread:
             self.start_thread()
-
 
     def stop(self):
         """Stops the webserver and web application from running."""

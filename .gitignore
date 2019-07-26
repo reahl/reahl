@@ -19,6 +19,7 @@ chromedriver.log
 .eggs
 .pytest_cache
 .vs
+*.db
 
 debian/python-reahl-doc/
 debian/python-reahl-sqlalchemysupport/
@@ -55,6 +56,7 @@ reahl-web-declarative/reahl_web_declarative.egg-info/
 reahl-webdev/reahl_webdev.egg-info/
 reahl-workstation/reahl_workstation.egg-info/
 
+*.egg-info/
 reahl.egg-info/
 reahl-doc/reahl/doc/examples/tutorial/hellonginx/hellonginx.egg-info
 .idea

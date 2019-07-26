@@ -39,7 +39,7 @@ from reahl.web_dev.fixtures import WebFixture
 class FileInputButtonFixture(Fixture):
 
     def upload_button_indicates_focus(self):
-        element = self.web_fixture.driver_browser.find_element(XPath.label_with_text('Choose file(s)'))
+        element = self.web_fixture.driver_browser.find_element(XPath.label().with_text('Choose file(s)'))
         return 'focus' in element.get_attribute('class')
 
     def new_domain_object(self):
@@ -71,7 +71,6 @@ def test_file_upload_button(web_fixture, file_input_button_fixture):
     """A FileInputButton lets you upload files using the browser's file choosing mechanism."""
 
     fixture = file_input_button_fixture
-
 
     wsgi_app = web_fixture.new_wsgi_app(child_factory=file_input_button_fixture.FileUploadForm.factory(), enable_js=True)
     web_fixture.reahl_server.set_app(wsgi_app)
@@ -578,12 +577,12 @@ def test_async_in_progress(web_fixture, large_file_upload_input_fixture):
     assert not fixture.uploaded_file_is_listed( fixture.file_to_upload1.name ) 
 
     with web_fixture.reahl_server.in_background(wait_till_done_serving=False):
-        browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload1.name) # Upload will block, see fixture
+        browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload1.name, wait_for_ajax=False) # Upload will block, see fixture
 
     assert browser.is_element_present('//ul/li/progress') 
     progress = browser.get_attribute('//ul/li/progress', 'value')
     assert progress == '100' 
-    browser.click(XPath.button_labelled('Cancel'))
+    browser.click(XPath.button_labelled('Cancel'), wait_for_ajax=False)
 
     assert not fixture.uploaded_file_is_listed( fixture.file_to_upload1.name ) 
     assert not fixture.file_was_uploaded( fixture.file_to_upload1.name ) 
@@ -609,13 +608,13 @@ def test_cancelling_queued_upload(web_fixture, large_file_upload_input_fixture):
     assert not fixture.uploaded_file_is_listed( fixture.file_to_upload2.name ) 
 
     with web_fixture.reahl_server.in_background(wait_till_done_serving=False):
-        browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload1.name) # Upload will block, see fixture
-        browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload2.name) # Upload will block, see fixture
+        browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload1.name, wait_for_ajax=False) # Upload will block, see fixture
+        browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload2.name, wait_for_ajax=False) # Upload will block, see fixture
 
     browser.wait_for(fixture.upload_file_is_queued, fixture.file_to_upload1.name)
     browser.wait_for(fixture.upload_file_is_queued, fixture.file_to_upload2.name)
 
-    browser.click(XPath.button_labelled('Cancel', filename=fixture.file_to_upload2_name))
+    browser.click(XPath.button_labelled('Cancel', filename=fixture.file_to_upload2_name), wait_for_ajax=False)
 
     browser.wait_for_not(fixture.upload_file_is_queued, fixture.file_to_upload2.name)
     fixture.simulate_large_file_upload_done()
@@ -638,7 +637,7 @@ def test_prevent_duplicate_upload_js(web_fixture, file_upload_input_fixture):
     web_fixture.reahl_server.set_app(fixture.new_wsgi_app(enable_js=True))
     browser = web_fixture.driver_browser
 
-    error_locator = XPath.span_containing('uploaded files should all have different names')
+    error_locator = XPath.span().including_text('uploaded files should all have different names')
     def error_is_visible():
         return browser.is_visible(error_locator)
 
@@ -672,10 +671,10 @@ def test_prevent_form_submit(web_fixture, large_file_upload_input_fixture):
     browser.open('/')
 
     with web_fixture.reahl_server.in_background(wait_till_done_serving=False):
-        browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload1.name) # Upload will block, see fixture
+        browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload1.name, wait_for_ajax=False) # Upload will block, see fixture
 
     with browser.no_page_load_expected():
-        browser.click( XPath.button_labelled('Submit'), wait=False )
+        browser.click( XPath.button_labelled('Submit'), wait=False, wait_for_ajax=False)
         alert = fixture.web_driver.switch_to.alert
         assert alert.text == 'Please try again when all files have finished uploading.' 
         alert.accept()
@@ -686,7 +685,6 @@ def test_async_remove(web_fixture, file_upload_input_fixture):
     """With javascript enabled, removing of uploaded files take place via ajax."""
 
     fixture = file_upload_input_fixture
-
 
     web_fixture.reahl_server.set_app(fixture.new_wsgi_app(enable_js=True))
     browser = web_fixture.driver_browser
@@ -728,12 +726,12 @@ def test_async_upload_error(web_fixture, broken_file_upload_input_fixture):
     browser = web_fixture.driver_browser
     browser.open('/')
 
-    assert not browser.is_element_present(XPath.label_with_text('an error ocurred, please try again later.')) 
+    assert not browser.is_element_present(XPath.label().with_text('an error ocurred, please try again later.')) 
 
     with expected(Exception):
         browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload1.name)
 
-    assert browser.wait_for_element_present(XPath.span_containing('an error occurred, please try again later.')) 
+    assert browser.wait_for_element_present(XPath.span().including_text('an error occurred, please try again later.')) 
     assert not browser.is_element_enabled(XPath.button_labelled('Cancel')) 
 
 
@@ -754,17 +752,17 @@ def test_async_upload_domain_exception(web_fixture, toggle_validation_fixture):
     fixture.make_validation_fail = True
     fixture.mark_nested_form()
     with browser.no_page_load_expected():
-        browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload2.name)
+        browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload2.name, trigger_blur=False)
     assert fixture.nested_form_was_reloaded()
 
     # JS Stuff on re-rendered form still work
 
     # 1: Server-rendered validation message has been cleared
-    assert browser.is_visible(XPath.span_containing('test validation message')) 
+    assert browser.is_visible(XPath.span().including_text('test validation message')) 
     fixture.make_validation_fail = False
     with browser.no_page_load_expected():
         browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload2.name)
-    browser.wait_for_not(browser.is_visible, XPath.span_containing('test validation message'))
+    browser.wait_for_not(browser.is_visible, XPath.span().including_text('test validation message'))
 
     # 2: The remove button still happens via ajax
     with browser.no_page_load_expected():
@@ -789,8 +787,8 @@ def test_queueing_async_uploads(web_fixture, large_file_upload_input_fixture):
     assert not fixture.uploaded_file_is_listed(fixture.file_to_upload1.name) 
 
     with web_fixture.reahl_server.in_background(wait_till_done_serving=False):
-        browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload1.name) # Upload will block, see fixture
-        browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload2.name) # Upload will block, see fixture
+        browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload1.name, wait_for_ajax=False) # Upload will block, see fixture
+        browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload2.name, wait_for_ajax=False) # Upload will block, see fixture
 
     progress1 = browser.get_attribute('//ul/li[1]/progress', 'value')
     assert progress1 == '100'
@@ -825,7 +823,7 @@ def test_async_validation(web_fixture, per_file_constrained_file_upload_input_fi
 
     browser.type(XPath.input_labelled('Choose file(s)'), fixture.invalid_file.name)
     assert not fixture.uploaded_file_is_listed( fixture.invalid_file.name ) 
-    assert browser.is_element_present(XPath.span_containing(fixture.validation_error_message)) 
+    assert browser.is_element_present(XPath.span().including_text(fixture.validation_error_message)) 
 
     browser.type(XPath.input_labelled('Choose file(s)'), fixture.valid_file.name)
     assert fixture.uploaded_file_is_listed( fixture.valid_file.name ) 
@@ -851,12 +849,12 @@ def test_async_number_files_validation(web_fixture, max_number_of_files_file_upl
     browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload1.name)
     assert fixture.uploaded_file_is_listed( fixture.file_to_upload1.name ) 
     # Corner case: max are uploaded, but you've not asked to add to them yet:
-    assert browser.wait_for_not(browser.is_visible, XPath.span_containing('a maximum of 1 files may be uploaded')) 
+    assert browser.wait_for_not(browser.is_visible, XPath.span().including_text('a maximum of 1 files may be uploaded')) 
 
     # Normal case: max are uploaded, and you're asking to upload another:
     browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload2.name)
     assert not fixture.uploaded_file_is_listed( fixture.file_to_upload2.name ) 
-    assert browser.wait_for(browser.is_visible, XPath.span_containing('a maximum of 1 files may be uploaded')) 
+    assert browser.wait_for(browser.is_visible, XPath.span().including_text('a maximum of 1 files may be uploaded')) 
 
     browser.click(XPath.button_labelled('Remove', filename=fixture.file_to_upload1_name))
-    assert browser.wait_for_not(browser.is_visible, XPath.span_containing('a maximum of 1 files may be uploaded')) 
+    assert browser.wait_for_not(browser.is_visible, XPath.span().including_text('a maximum of 1 files may be uploaded')) 

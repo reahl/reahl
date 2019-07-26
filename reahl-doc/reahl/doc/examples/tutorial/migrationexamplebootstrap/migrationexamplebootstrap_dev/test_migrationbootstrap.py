@@ -29,7 +29,7 @@ class MigrateFixture(Fixture):
         return Browser(self.wsgi_app)
 
     def address_is_listed_as(self, name, email_address):
-        return self.browser.is_element_present(XPath.paragraph_containing('%s: %s' % (name, email_address)))
+        return self.browser.is_element_present(XPath.paragraph().including_text('%s: %s' % (name, email_address)))
 
 
 @with_fixtures(WebFixture, MigrateFixture)

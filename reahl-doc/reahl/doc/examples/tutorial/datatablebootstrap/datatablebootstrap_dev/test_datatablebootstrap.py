@@ -25,7 +25,7 @@ class DataTableExampleFixture(Fixture):
         return self.browser.title == 'Edit %s' % address_name
 
     def address_is_listed_as(self, name):
-        return self.browser.is_element_present(XPath.table_cell_with_text(name))
+        return self.browser.is_element_present(XPath.table_cell().with_text(name))
 
     def number_of_rows_in_table(self):
         return len(self.browser.xpath('//table/tbody/tr'))
@@ -56,7 +56,7 @@ def test_editing_an_address(web_fixture, data_table_example_fixture):
     original_address_name = 'friend 7'   #choose the seventh address to edit
 
     browser.open('/')
-    browser.click(XPath.link_with_text('Edit', nth=7))
+    browser.click(XPath.link().with_text('Edit').inside_of(XPath.table_row()[7]))
 
     assert fixture.is_on_edit_page_for(original_address_name)
     browser.type(XPath.input_labelled('Name'), 'John Doe-changed')
@@ -84,7 +84,7 @@ def test_pageable_table(web_fixture, data_table_example_fixture):
     assert fixture.address_is_listed_as('friend 1')
     assert not fixture.address_is_listed_as('friend 11')
 
-    browser.click(XPath.link_with_text('2'))
+    browser.click(XPath.link().with_text('2'))
 
     assert fixture.number_of_rows_in_table() == 10
     assert fixture.address_is_listed_as('friend 11')

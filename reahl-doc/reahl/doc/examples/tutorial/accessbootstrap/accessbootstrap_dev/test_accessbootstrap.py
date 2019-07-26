@@ -190,8 +190,8 @@ def test_logging_in(web_fixture, access_domain_fixture, access_ui_fixture):
     browser.type(XPath.input_labelled('Password'), access_domain_fixture.password)
     browser.click(XPath.button_labelled('Log in'))
 
-    assert browser.is_element_present(XPath.link_with_text('Address book of johndoe@some.org'))
-    assert browser.is_element_present(XPath.link_with_text('Address book of other@some.org'))
+    assert browser.is_element_present(XPath.link().with_text('Address book of johndoe@some.org'))
+    assert browser.is_element_present(XPath.link().with_text('Address book of other@some.org'))
 
 
 @with_fixtures(WebFixture, AccessDomainFixture, AccessUIFixture)
@@ -207,15 +207,15 @@ def test_edit_and_add_own(web_fixture, access_domain_fixture, access_ui_fixture)
     web_fixture.log_in(browser=browser, system_account=account)
     browser.open('/')
 
-    browser.click(XPath.link_with_text('Address book of johndoe@some.org'))
+    browser.click(XPath.link().with_text('Address book of johndoe@some.org'))
 
     # add
-    browser.click(XPath.link_with_text('Add address'))
+    browser.click(XPath.link().with_text('Add address'))
     browser.type(XPath.input_labelled('Name'), 'Someone')
     browser.type(XPath.input_labelled('Email'), 'someone@some.org')
     browser.click(XPath.button_labelled('Save'))
 
-    assert browser.is_element_present(XPath.paragraph_containing('Someone: someone@some.org'))
+    assert browser.is_element_present(XPath.paragraph().including_text('Someone: someone@some.org'))
 
     # edit
     browser.click(XPath.button_labelled('Edit'))
@@ -223,7 +223,7 @@ def test_edit_and_add_own(web_fixture, access_domain_fixture, access_ui_fixture)
     browser.type(XPath.input_labelled('Email'), 'else@some.org')
     browser.click(XPath.button_labelled('Update'))
 
-    assert browser.is_element_present(XPath.paragraph_containing('Else: else@some.org'))
+    assert browser.is_element_present(XPath.paragraph().including_text('Else: else@some.org'))
 
 
 # ------- Tests added for access control
@@ -245,24 +245,24 @@ def test_see_other(web_fixture, access_domain_fixture, access_ui_fixture):
     web_fixture.log_in(browser=browser, system_account=account)
     browser.open('/')
 
-    browser.click(XPath.link_with_text('Address book of other@some.org'))
+    browser.click(XPath.link().with_text('Address book of other@some.org'))
 
-    assert browser.is_element_present(XPath.paragraph_containing('Friend: friend@some.org'))
+    assert browser.is_element_present(XPath.paragraph().including_text('Friend: friend@some.org'))
 
     # Case: can only see
-    assert not browser.is_element_enabled(XPath.link_with_text('Add address'))
+    assert not browser.is_element_enabled(XPath.link().with_text('Add address'))
     assert not browser.is_element_enabled(XPath.button_labelled('Edit'))
 
     # Case: can edit only
     other_address_book.allow(account, can_edit_addresses=True, can_add_addresses=False)
     browser.refresh()
-    assert not browser.is_element_enabled(XPath.link_with_text('Add address'))
+    assert not browser.is_element_enabled(XPath.link().with_text('Add address'))
     assert browser.is_element_enabled(XPath.button_labelled('Edit'))
 
     # Case: can add, and therefor also edit
     other_address_book.allow(account, can_add_addresses=True)
     browser.refresh()
-    assert browser.is_element_enabled(XPath.link_with_text('Add address'))
+    assert browser.is_element_enabled(XPath.link().with_text('Add address'))
     assert browser.is_element_enabled(XPath.button_labelled('Edit'))
 
     browser.click(XPath.button_labelled('Edit'))
@@ -270,7 +270,7 @@ def test_see_other(web_fixture, access_domain_fixture, access_ui_fixture):
     browser.type(XPath.input_labelled('Email'), 'else@some.org')
     browser.click(XPath.button_labelled('Update'))
 
-    assert browser.is_element_present(XPath.paragraph_containing('Else: else@some.org'))
+    assert browser.is_element_present(XPath.paragraph().including_text('Else: else@some.org'))
 
 
 @with_fixtures(WebFixture, AccessDomainFixture, AccessUIFixture)
@@ -289,7 +289,7 @@ def test_edit_other(web_fixture, access_domain_fixture, access_ui_fixture):
     web_fixture.log_in(browser=browser, system_account=account)
     browser.open('/')
 
-    browser.click(XPath.link_with_text('Address book of other@some.org'))
+    browser.click(XPath.link().with_text('Address book of other@some.org'))
     browser.click(XPath.button_labelled('Edit'))
 
     # Case: may edit name
@@ -305,7 +305,7 @@ def test_edit_other(web_fixture, access_domain_fixture, access_ui_fixture):
     browser.type(XPath.input_labelled('Email'), 'else@some.org')
     browser.click(XPath.button_labelled('Update'))
 
-    assert browser.is_element_present(XPath.paragraph_containing('Friend: else@some.org'))
+    assert browser.is_element_present(XPath.paragraph().including_text('Friend: else@some.org'))
 
 
 @with_fixtures(WebFixture, AccessDomainFixture, AccessUIFixture)
@@ -326,8 +326,8 @@ def test_add_collaborator(web_fixture, access_domain_fixture, access_ui_fixture)
     assert not address_book.can_be_edited_by(other_account)
     assert not address_book.can_be_added_to_by(other_account)
 
-    browser.click(XPath.link_with_text('Address book of johndoe@some.org'))
-    browser.click(XPath.link_with_text('Add collaborator'))
+    browser.click(XPath.link().with_text('Address book of johndoe@some.org'))
+    browser.click(XPath.link().with_text('Add collaborator'))
 
     browser.select(XPath.select_labelled('Choose collaborator'), 'other@some.org')
     browser.click(XPath.input_labelled('May add new addresses'))

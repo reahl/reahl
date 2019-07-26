@@ -42,6 +42,7 @@
         $(element).closest('.form-control').removeClass('is-invalid').addClass('is-valid');
       },
       errorPlacement: function (error, element) {
+        element.closest('.form-group').find('.invalid-feedback').remove();
         element.closest('.form-group').append(error);
       }
     }),

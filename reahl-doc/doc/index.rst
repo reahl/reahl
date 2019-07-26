@@ -18,6 +18,7 @@ Contents:
    overview
    whatchanged
    tutorial/index
+   howto/index
    component/index
    web/index
    domain/index

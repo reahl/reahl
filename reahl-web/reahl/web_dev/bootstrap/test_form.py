@@ -360,7 +360,7 @@ def test_input_validation_cues_javascript_interaction(web_fixture, javascript_va
     [error] = fixture.get_form_group_errors(browser, index=0)
     assert error.text == 'Some input is required'
 
-    browser.type(XPath.input_labelled('Some input'), 'valid value')
+    browser.type(XPath.input_labelled('Some input'), 'valid value', trigger_blur=False, wait_for_ajax=False)
     browser.press_tab()
 
     def form_group_is_marked_success(index):
@@ -405,19 +405,19 @@ def test_checkbox_basics_with_boolean_field(web_fixture, checkbox_fixture):
     browser.open('/')
 
     checkbox = XPath.input_labelled('Subscribe to newsletter?')
-    assert not browser.is_checked(checkbox)
-    assert browser.is_element_present(XPath.label_with_text('Subscribe to newsletter?'))
-    assert browser.is_element_present('//div/input/following-sibling::label')
+    assert not browser.is_selected(checkbox)
+    assert browser.is_element_present(XPath.label().with_text('Subscribe to newsletter?'))
+    assert browser.is_element_present('//div[@class="reahl-checkbox-input reahl-primitiveinput"]/div/input/following-sibling::label')
     assert browser.get_attribute('//label', 'class') == 'custom-control-label'
     checkbox_classes = browser.get_attribute('//div/input[@type="checkbox"]/..', 'class').split(' ')
     assert 'custom-control' in checkbox_classes
     assert 'custom-checkbox' in checkbox_classes
     assert browser.get_attribute('//div/input[@type="checkbox"]', 'class') == 'custom-control-input'
 
-    browser.check(checkbox)
+    browser.set_selected(checkbox)
     browser.click(XPath.button_labelled('Submit'))
 
-    assert browser.is_checked(checkbox)
+    assert browser.is_selected(checkbox)
 
 
 @with_fixtures(WebFixture, CheckboxFixture)
@@ -429,9 +429,9 @@ def test_click_checkbox_label_with_boolean_field(web_fixture, checkbox_fixture):
     browser.open('/')
 
     checkbox = XPath.input_labelled('Subscribe to newsletter?')
-    assert not browser.is_checked(checkbox)
-    browser.click(XPath.label_with_text('Subscribe to newsletter?'))
-    assert browser.is_checked(checkbox)
+    assert not browser.is_selected(checkbox)
+    browser.click(XPath.label().with_text('Subscribe to newsletter?'))
+    assert browser.is_selected(checkbox)
 
 
 @with_fixtures(WebFixture, CheckboxFixture)
@@ -449,28 +449,28 @@ def test_checkbox_basics_with_multichoice_field(web_fixture, checkbox_fixture):
     browser = web_fixture.driver_browser
     browser.open('/')
 
-    assert browser.is_element_present(XPath.label_with_text('Make your choice'))
+    assert browser.is_element_present(XPath.label().with_text('Make your choice'))
 
-    assert browser.get_xpath_count('//input[@class="custom-control-input"]/following-sibling::label[@class="custom-control-label"]') == 4
+    assert browser.get_xpath_count('//div[@class="reahl-checkbox-input reahl-primitiveinput"]/div/input[@class="custom-control-input"]/following-sibling::label[@class="custom-control-label"]') == 4
 
     checkbox_one = XPath.input_labelled('One')
     checkbox_two = XPath.input_labelled('Two')
     checkbox_three = XPath.input_labelled('Three')
     checkbox_four = XPath.input_labelled('Four')
 
-    assert browser.is_checked(checkbox_one)
-    assert not browser.is_checked(checkbox_two)
+    assert browser.is_selected(checkbox_one)
+    assert not browser.is_selected(checkbox_two)
     assert not browser.is_element_enabled(checkbox_two)
     # assert browser.is_visible(checkbox_two) #cannot do this as the way bootsrap renders, the actual html input has opacity=0
-    assert not browser.is_checked(checkbox_three)
-    assert not browser.is_checked(checkbox_four)
-    browser.uncheck(checkbox_one)
-    browser.check(checkbox_three)
-    browser.check(checkbox_four)
+    assert not browser.is_selected(checkbox_three)
+    assert not browser.is_selected(checkbox_four)
+    browser.set_deselected(checkbox_one)
+    browser.set_selected(checkbox_three)
+    browser.set_selected(checkbox_four)
     browser.click(XPath.button_labelled('Submit'))
-    assert not browser.is_checked(checkbox_one)
-    assert browser.is_checked(checkbox_three)
-    assert browser.is_checked(checkbox_four)
+    assert not browser.is_selected(checkbox_one)
+    assert browser.is_selected(checkbox_three)
+    assert browser.is_selected(checkbox_four)
 
 
 @uses(web_fixture=WebFixture)
@@ -632,14 +632,16 @@ def test_button_layouts(web_fixture):
 
     tester = WidgetTester(button)
     [button] = tester.xpath(XPath.button_labelled('click me'))
-    assert button.attrib['class'] == 'btn'
+    assert button.attrib['class'] == 'btn reahl-primitiveinput'
 
     # Case: possible effects
+    form = Form(web_fixture.view, 'test')
+    form.define_event_handler(event)
     button = Button(form, event).use_layout(ButtonLayout(style='secondary', size='sm', active=True, wide=True))
 
     tester = WidgetTester(button)
     [button] = tester.xpath(XPath.button_labelled('click me'))
-    assert button.attrib['class'] == 'active btn btn-block btn-secondary btn-sm'
+    assert button.attrib['class'] == 'active btn btn-block btn-secondary btn-sm reahl-primitiveinput'
 
 
 @with_fixtures(WebFixture)
@@ -648,7 +650,7 @@ def test_button_layouts_on_anchors(web_fixture):
 
     anchor = A(web_fixture.view, href=Url('/an/href'), description='link text').use_layout(ButtonLayout())
     tester = WidgetTester(anchor)
-    [rendered_anchor] = tester.xpath(XPath.link_with_text('link text'))
+    [rendered_anchor] = tester.xpath(XPath.link().with_text('link text'))
     assert rendered_anchor.attrib['class'] == 'btn'
 
 
@@ -663,6 +665,6 @@ def test_button_layouts_on_disabled_anchors(web_fixture):
     anchor.use_layout(ButtonLayout())
 
     tester = WidgetTester(anchor)
-    [rendered_anchor] = tester.xpath(XPath.link_with_text('link text'))
+    [rendered_anchor] = tester.xpath(XPath.link().with_text('link text'))
     assert rendered_anchor.attrib['class'] == 'btn disabled'
 

@@ -20,7 +20,10 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 import six
 import warnings
 import contextlib
+import platform
 from six.moves import zip_longest
+
+import pkg_resources
 
 from reahl.stubble import EmptyStub
 from reahl.tofu import Fixture, scenario
@@ -101,8 +104,9 @@ def test_deprecating_a_class_docstring():
             """another"""
             pass
 
-    assert six.PY2 or (ClassWithDocstring.__doc__ == 'A docstring.\n\n.. deprecated:: 1.2\n   this is deprecated') 
-    assert six.PY2 or (ClassWithDocstring().do_something.__doc__ == 'another\n\n.. deprecated:: 0.0\n   this also') 
+    high_python_version = pkg_resources.parse_version(platform.python_version()) > pkg_resources.parse_version('3.6')
+    assert not high_python_version or (ClassWithDocstring.__doc__ == 'A docstring.\n\n.. deprecated:: 1.2\n   this is deprecated') 
+    assert not high_python_version or (ClassWithDocstring().do_something.__doc__ == 'another\n\n.. deprecated:: 0.0\n   this also') 
 
     @deprecated('this is deprecated', '1.2')
     class ClassWithoutDocstring(object):

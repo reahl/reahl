@@ -173,19 +173,19 @@ class InputScenarios(SimpleInputFixture):
     @scenario
     def text_input(self):
         self.widget = TextInput(self.form, self.field)
-        self.expected_html = '<input name="an_attribute" form="test" type="text" value="field value" class="reahl-textinput">'
+        self.expected_html = '<input name="an_attribute" form="test" type="text" value="field value" class="reahl-primitiveinput reahl-textinput">'
         self.field_controls_visibility = True
 
     @scenario
     def text_input_placeholder_default(self):
         self.widget = TextInput(self.form, self.field, placeholder=True)
-        self.expected_html = '<input name="an_attribute" aria-label="the label" form="test" placeholder="the label" type="text" value="field value" class="reahl-textinput">'
+        self.expected_html = '<input name="an_attribute" aria-label="the label" form="test" placeholder="the label" type="text" value="field value" class="reahl-primitiveinput reahl-textinput">'
         self.field_controls_visibility = True
 
     @scenario
     def text_input_placeholder_specified(self):
         self.widget = TextInput(self.form, self.field, placeholder="some text")
-        self.expected_html = '<input name="an_attribute" aria-label="some text" form="test" placeholder="some text" type="text" value="field value" class="reahl-textinput">'
+        self.expected_html = '<input name="an_attribute" aria-label="some text" form="test" placeholder="some text" type="text" value="field value" class="reahl-primitiveinput reahl-textinput">'
         self.field_controls_visibility = True
 
     @scenario
@@ -205,13 +205,13 @@ class InputScenarios(SimpleInputFixture):
     @scenario
     def button_input(self):
         self.widget = self.form.add_child(ButtonInput(self.form, self.event))
-        self.expected_html = '<input name="event.aname?" form="test" type="submit" value="click me">'
+        self.expected_html = '<input name="event.aname?" form="test" type="submit" value="click me" class="reahl-primitiveinput">'
         self.field_controls_visibility = False
 
     @scenario
     def password(self):
         self.widget = self.form.add_child(PasswordInput(self.form, self.field))
-        self.expected_html = '<input name="an_attribute" form="test" type="password">'
+        self.expected_html = '<input name="an_attribute" form="test" type="password" class="reahl-primitiveinput">'
         self.field_controls_visibility = True
 
     def setup_checkbox_scenario(self, boolean_value):
@@ -228,17 +228,17 @@ class InputScenarios(SimpleInputFixture):
         """A checkbox needs a 'checked' an_attribute if its field is True. It also renders ONLY the
             validation message for its required validation_constraint, not for all constraints"""
         self.setup_checkbox_scenario(True)
-        self.expected_html = '<input name="an_attribute" checked="checked" data-msg-required="my text is needed here" form="test" required="*" type="checkbox">'
+        self.expected_html = '<input name="an_attribute" checked="checked" data-false-boolean-value="off" data-is-boolean="" data-msg-required="my text is needed here" data-true-boolean-value="on" form="test" required="*" type="checkbox" class="reahl-primitiveinput">'
 
     @scenario
     def checkbox_false(self):
         self.setup_checkbox_scenario(False)
-        self.expected_html = '<input name="an_attribute" data-msg-required="my text is needed here" form="test" required="*" type="checkbox">'
+        self.expected_html = '<input name="an_attribute" data-false-boolean-value="off" data-is-boolean="" data-msg-required="my text is needed here" data-true-boolean-value="on" form="test" required="*" type="checkbox" class="reahl-primitiveinput">'
 
     @scenario
     def text_area_input(self):
         self.widget = self.form.add_child(TextArea(self.form, self.field, rows=30, columns=20))
-        self.expected_html = '<textarea name="an_attribute" cols="20" rows="30">field value</textarea>'
+        self.expected_html = '<textarea name="an_attribute" cols="20" rows="30" class="reahl-primitiveinput">field value</textarea>'
         self.field_controls_visibility = True
 
     @scenario
@@ -256,7 +256,7 @@ class InputScenarios(SimpleInputFixture):
         self.widget = self.form.add_child(SelectInput(self.form, self.field))
         group = '<optgroup label="grouped"><option value="1">One</option><option selected="selected" value="2">Two</option></optgroup>'
         option = '<option value="off">None</option>'
-        self.expected_html = r'<select name="an_attribute" form="test">%s%s</select>' % (option, group)
+        self.expected_html = r'<select name="an_attribute" form="test" class="reahl-primitiveinput">%s%s</select>' % (option, group)
         self.field_controls_visibility = True
 
     @scenario
@@ -270,7 +270,7 @@ class InputScenarios(SimpleInputFixture):
 
         self.widget = self.form.add_child(SelectInput(self.form, self.field))
         options = '<option value="1">One</option><option selected="selected" value="2">Two</option>'
-        self.expected_html = '<select name="an_attribute" form="test" multiple="multiple">%s</select>' % (options)
+        self.expected_html = '<select name="an_attribute[]" form="test" multiple="multiple" class="reahl-primitiveinput">%s</select>' % (options)
         self.field_controls_visibility = True
 
     @scenario
@@ -286,11 +286,11 @@ class InputScenarios(SimpleInputFixture):
         self.field.bind('an_attribute', self.model_object)
 
         self.widget = self.form.add_child(CheckboxSelectInput(self.form, self.field))
-        not_checked_option = r'<label><input name="an_attribute" form="test" type="checkbox" value="1">One</label>'
-        checked_options = r'<label><input name="an_attribute" checked="checked" form="test" type="checkbox" value="2">Two</label>'
-        checked_options += r'<label><input name="an_attribute" checked="checked" form="test" type="checkbox" value="3">Three</label>'
+        not_checked_option = r'<label><input name="an_attribute[]" form="test" type="checkbox" value="1">One</label>'
+        checked_options = r'<label><input name="an_attribute[]" checked="checked" form="test" type="checkbox" value="2">Two</label>'
+        checked_options += r'<label><input name="an_attribute[]" checked="checked" form="test" type="checkbox" value="3">Three</label>'
         options = not_checked_option + checked_options
-        self.expected_html = r'<div class="reahl-checkbox-input">%s</div>' % (options)
+        self.expected_html = r'<div class="reahl-checkbox-input reahl-primitiveinput">%s</div>' % (options)
         self.field_controls_visibility = True
 
     @scenario
@@ -313,7 +313,7 @@ class InputScenarios(SimpleInputFixture):
                               'type="radio" value="%s">%s'\
                        '</label>'
 
-        outer_div = '<div class="reahl-radio-button-input">%s</div>'
+        outer_div = '<div class="reahl-primitiveinput reahl-radio-button-input">%s</div>'
         buttons = (radio_button % ('', '', '1', 'One')) +\
                   (radio_button % (' checked="checked"', '', '2', 'Two'))
         self.expected_html = outer_div % buttons
@@ -363,7 +363,7 @@ def test_input_wrapped_widgets(field_fixture, simple_input_fixture):
     tester = WidgetTester(test_input)
 
     rendered = tester.render_html()
-    assert rendered == '<x>'
+    assert rendered == '<x class="reahl-primitiveinput">'
 
     test_input.set_id('myid')
     test_input.set_title('mytitle')
@@ -371,7 +371,7 @@ def test_input_wrapped_widgets(field_fixture, simple_input_fixture):
     test_input.set_attribute('an-attribute', 'a value')
 
     rendered = tester.render_html()
-    assert rendered == '<x id="myid" an-attribute="a value" list-attribute="one two" title="mytitle">'
+    assert rendered == '<x id="myid" an-attribute="a value" list-attribute="one two" title="mytitle" class="reahl-primitiveinput">'
 
 
 @with_fixtures(SimpleInputFixture)
@@ -401,14 +401,14 @@ def test_marshalling_of_checkbox_input(web_fixture, checkbox_fixture):
     web_fixture.driver_browser.open('/')
 
     # Case: checkbox is submitted with form (ie checked)
-    web_fixture.driver_browser.check("//input[@type='checkbox']")
+    web_fixture.driver_browser.set_selected("//input[@type='checkbox']")
     web_fixture.driver_browser.click("//input[@value='click me']")
 
     assert model_object.an_attribute
     assert fixture.checkbox.value == 'on'
 
     # Case: checkbox is not submitted with form (ie unchecked)
-    web_fixture.driver_browser.uncheck("//input[@type='checkbox']")
+    web_fixture.driver_browser.set_deselected("//input[@type='checkbox']")
     web_fixture.driver_browser.click("//input[@value='click me']")
 
     assert not model_object.an_attribute
@@ -431,21 +431,41 @@ def test_marshalling_of_checkbox_select_input(web_fixture, checkbox_fixture):
     web_fixture.reahl_server.set_app(wsgi_app)
     web_fixture.driver_browser.open('/')
 
-    assert web_fixture.driver_browser.is_checked(XPath.input_labelled('One'))
-    assert not web_fixture.driver_browser.is_checked(XPath.input_labelled('Two'))
-    assert not web_fixture.driver_browser.is_checked(XPath.input_labelled('Three'))
+    assert web_fixture.driver_browser.is_selected(XPath.input_labelled('One'))
+    assert not web_fixture.driver_browser.is_selected(XPath.input_labelled('Two'))
+    assert not web_fixture.driver_browser.is_selected(XPath.input_labelled('Three'))
 
     # Case: checkbox is submitted with form (ie checked)
-    web_fixture.driver_browser.uncheck(XPath.input_labelled('One'))
-    web_fixture.driver_browser.check(XPath.input_labelled('Two'))
-    web_fixture.driver_browser.check(XPath.input_labelled('Three'))
+    web_fixture.driver_browser.set_deselected(XPath.input_labelled('One'))
+    web_fixture.driver_browser.set_selected(XPath.input_labelled('Two'))
+    web_fixture.driver_browser.set_selected(XPath.input_labelled('Three'))
     web_fixture.driver_browser.click(XPath.button_labelled('click me'))
 
     assert model_object.an_attribute == [2, 3]
-    assert fixture.checkbox.value == ['2', '3']
-    assert not web_fixture.driver_browser.is_checked(XPath.input_labelled('One'))
-    assert web_fixture.driver_browser.is_checked(XPath.input_labelled('Two'))
-    assert web_fixture.driver_browser.is_checked(XPath.input_labelled('Three'))
+    assert fixture.checkbox.value == '2,3'
+    assert not web_fixture.driver_browser.is_selected(XPath.input_labelled('One'))
+    assert web_fixture.driver_browser.is_selected(XPath.input_labelled('Two'))
+    assert web_fixture.driver_browser.is_selected(XPath.input_labelled('Three'))
+
+
+@with_fixtures(WebFixture)
+def test_checkbox_select_input_allowed_fields(web_fixture):
+    """A CheckboxSelectInput can only be used with a MultiChoiceField."""
+
+    model_object = web_fixture
+    form = Form(web_fixture.view, 'test')
+
+    choice_field = ChoiceField([])
+    choice_field.bind('an_attribute', model_object)
+
+    with expected(ProgrammerError, test='<class \'reahl.component.modelinterface.ChoiceField\'> is not allowed to be used with <class \'reahl.web.ui.CheckboxSelectInput\'>'):
+        CheckboxSelectInput(form, choice_field)
+
+    multi_choice_field = MultiChoiceField([])
+    multi_choice_field.bind('another_attribute', model_object)
+
+    with expected(NoException):
+        CheckboxSelectInput(form, multi_choice_field)
 
 
 class RadioButtonInputFieldScenarios(Fixture):
@@ -481,12 +501,12 @@ def test_marshalling_of_radio_button_select_input(web_fixture, input_fixture, fi
     radio_one = XPath.input_labelled('One')
     radio_two = XPath.input_labelled('Two')
     # One is pre selected
-    assert web_fixture.driver_browser.is_checked(radio_one)
-    assert not web_fixture.driver_browser.is_checked(radio_two)
+    assert web_fixture.driver_browser.is_selected(radio_one)
+    assert not web_fixture.driver_browser.is_selected(radio_two)
 
     # click on Two
     web_fixture.driver_browser.click(radio_two)
-    assert not web_fixture.driver_browser.is_checked(radio_one)
+    assert not web_fixture.driver_browser.is_selected(radio_one)
 
     web_fixture.driver_browser.click(XPath.button_labelled('click me'))
 
@@ -519,10 +539,10 @@ class ManyChoicesScenarios(Fixture):
         self.input_type = CheckboxSelectInput
         self.xpath_function_to_choice = XPath.input_labelled
 
-    #@scenario
+    @scenario
     def select_input(self):
         self.input_type = SelectInput
-        self.xpath_function_to_choice = XPath.option_with_text
+        self.xpath_function_to_choice = XPath.option().with_text
 
 
 @with_fixtures(WebFixture, SimpleInputFixture2, ManyChoicesScenarios)
@@ -572,4 +592,5 @@ def test_fuzzy(web_fixture, fuzzy_text_input_fixture):
     browser.type(XPath.input_named('an_attribute'), '20 November 2012')
     browser.press_tab()
     browser.wait_for(browser.is_element_value, XPath.input_named('an_attribute'), '20 Nov 2012')
+
 

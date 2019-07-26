@@ -190,6 +190,8 @@ def test_getting_modified_copy(fixture):
     other_constraint.name = 'other'
     field = Field()
     field.add_validation_constraint(other_constraint)
+    model_object = EmptyStub()
+    field.bind('field_name', model_object)
 
     # Getting a copy
     new_field = field.copy()

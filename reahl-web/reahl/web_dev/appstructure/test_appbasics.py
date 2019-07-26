@@ -30,7 +30,7 @@ from reahl.stubble import EmptyStub
 from reahl.webdev.tools import Browser
 
 from reahl.component.exceptions import ProgrammerError, IncorrectArgumentError, IsSubclass
-from reahl.web.fw import UserInterface
+from reahl.web.fw import UserInterface, UrlBoundView
 from reahl.web.ui import HTML5Page, P
 
 from reahl.web_dev.fixtures import WebFixture, BasicPageLayout
@@ -42,7 +42,7 @@ class BasicScenarios(Fixture):
     def get_file_content(self, filename):
         with(io.open('%s/%s' % (os.path.dirname(__file__), filename))) as f:
             file_content = ''.join(f.readlines())
-        return file_content
+        return file_content[:-1]
 
     @property
     def view(self):
@@ -122,7 +122,7 @@ def test_basic_assembly(web_fixture, basic_scenarios):
 
     # The headers are set correctly
     response = browser.last_response
-    assert response.text == fixture.expected_content
+    assert response.content_length == len(fixture.expected_content)
     assert response.content_type == 'text/html'
     assert response.charset == 'utf-8'
 

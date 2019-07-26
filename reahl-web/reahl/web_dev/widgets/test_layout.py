@@ -87,18 +87,18 @@ class WidgetCreationScenarios(Fixture):
     def view(self):
         return self.web_fixture.view
 
-    def new_layout(self):
+    def new_MyLayout(self):
         class MyLayout(Layout):
             def customise_widget(self):
                 self.widget.add_child(P(self.view, text='This widget is using Mylayout'))
-        return MyLayout()
+        return MyLayout
 
     @scenario
     def use_layout_with_factory_class_method(self):
         fixture = self
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_view('/', title='Hello', page=HTML5Page.factory().use_layout(fixture.layout))
+                self.define_view('/', title='Hello', page=HTML5Page.factory().use_layout(fixture.MyLayout()))
         self.MainUI = MainUI
         
     @scenario
@@ -106,7 +106,7 @@ class WidgetCreationScenarios(Fixture):
         fixture = self
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_page(HTML5Page).use_layout(fixture.layout)
+                self.define_page(HTML5Page).use_layout(fixture.MyLayout())
                 self.define_view('/', title='Hello')
         self.MainUI = MainUI
 
@@ -145,7 +145,7 @@ def test_page_layout_basics(web_fixture):
     layout = PageLayout()
     widget = HTML5Page(fixture.view).use_layout(layout)
 
-    assert [layout.document] == widget.body.children[:-1]
+    assert [layout.document] == widget.body.children[1:-1]
     header, contents_div, footer = layout.document.children
 
     assert isinstance(header, Header)

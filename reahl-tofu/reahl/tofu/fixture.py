@@ -263,7 +263,9 @@ class Fixture(object):
             six.reraise(AttributeErrorInFactoryMethod, AttributeErrorInFactoryMethod(ex), sys.exc_info()[2])
         
     def __getattr__(self, name):
-        if name.startswith(self.factory_method_prefix):
+        try:
+            getattr(self.__class__, '%s_%s' % (self.factory_method_prefix, name))
+        except AttributeError:
             raise AttributeError(name)
 
         factory = self.get_factory_method_for(name)

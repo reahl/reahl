@@ -1,3 +1,23 @@
+python-reahl (4.1) unstable; urgency=low
+
+ * Added the ability for onchange events to cause Widgets to be refreshed via ajax (responsive-disclosure #132).
+ * Added the ability for refreshed Widgets to be able to recalculate their domain before rendering again.
+ * Fixed Widget query_arguments mechanism to work correctly with list-like values.
+ * Added fragment getter/setter on DriverBrowser.
+ * Added UNDERSCORE.JS
+ * Added current_url to Browser and deprecated older methods for compatibility with DriverBrowser. 
+ * Changed nested_transaction to yield a TransactionVeto object.
+ * Changed Inputs to NOT automatically fix name clashes.
+ * Changed XPath to be composable from other XPath instances and morphable with special methods.
+ * Removed old XPath methods that can now be composed (like _with_text methods).
+ * Changed DriverBrowser element getter methods and condition methods to never wait.
+ * Changed DriverBrowser interacting methods (like click, type) to iconsistently trigger onchange and wait for ajax by default. 
+ * Renamed is_checked, check, and uncheck methods on DriverBrowser to work for radio buttons too.
+ * Changed Table and Column to allow for table footer content in Columns.
+
+ -- Iwan Vosloo <iwan@reahl.org>  Thu, 13 Dec 2018 15:15:00 +0200
+
+
 python-reahl (4.0.5) unstable; urgency=low
 
  * Fixed forgotten import #230.

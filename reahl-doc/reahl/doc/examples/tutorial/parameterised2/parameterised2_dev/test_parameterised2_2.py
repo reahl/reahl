@@ -28,7 +28,7 @@ class AddressAppFixture(Fixture):
         return self.browser.title == 'Edit %s' % address.name
 
     def address_is_listed_as(self, name, email_address):
-        return self.browser.is_element_present(XPath.paragraph_containing('%s: %s' % (name, email_address)))
+        return self.browser.is_element_present(XPath.paragraph().including_text('%s: %s' % (name, email_address)))
 
 
 @with_fixtures(WebFixture, AddressAppFixture)
@@ -40,7 +40,7 @@ def test_adding_an_address(web_fixture, address_app_fixture):
     browser = address_app_fixture.browser
 
     browser.open('/')
-    browser.click(XPath.link_with_text('Add'))
+    browser.click(XPath.link().with_text('Add'))
 
     assert address_app_fixture.is_on_add_page()
     browser.type(XPath.input_labelled('Name'), 'John Doe')

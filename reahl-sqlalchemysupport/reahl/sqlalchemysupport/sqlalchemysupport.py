@@ -177,7 +177,7 @@ def session_scoped(cls):
           current UserSession is assumed.
     """
     cls.user_session_id = Column(Integer, ForeignKey('usersession.id', ondelete='CASCADE'), index=True)
-    cls.user_session = relationship('UserSession', cascade='all, delete')
+    cls.user_session = relationship('UserSession')
 
     @classmethod
     def for_current_session(cls, **kwargs):
@@ -198,27 +198,42 @@ def session_scoped(cls):
     return cls
 
 
+class TransactionVeto(object):
+    should_commit = None
+    @property
+    def has_voted(self):
+        return self.should_commit is not None
+
+
 class SqlAlchemyControl(ORMControl):
     """An ORMControl for dealing with SQLAlchemy."""
     def __init__(self, echo=False):
         self.echo = echo
         self.engine = None
-        
+
     @contextmanager
     def nested_transaction(self):
-        """A context manager for code that needs to run in a nested transaction."""
+        """A context manager for code that needs to run in a nested transaction.
+        
+        .. versionchanged:: 4.1
+           Changed to yield a TransactionVeto which can be used to override when the transaction will be committed or not.
+        """
         transaction = Session.begin_nested()
+        transaction_veto = TransactionVeto()
         try:
-            yield transaction
+            yield transaction_veto
         except Exception as ex:
             commit = getattr(ex, 'commit', False)
+            raise
+        else:
+            commit = True
+        finally:
+            if transaction_veto.has_voted:
+                commit = transaction_veto.should_commit
             if commit:
                 self.commit()
             else:
                 self.rollback()
-            raise
-        else:
-            self.commit()
 
     @contextmanager
     def managed_transaction(self):

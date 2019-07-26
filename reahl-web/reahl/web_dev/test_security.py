@@ -143,7 +143,7 @@ class InputRenderingScenarios(Fixture):
         self.writable = Allowed(True)
         self.input_widget = TextInput(self.form, self.field)
 
-        self.expected_html = '<input name="field_name" form="some_form" type="text" value="3" class="reahl-textinput">'
+        self.expected_html = '<input name="field_name" form="some_form" type="text" value="3" class="reahl-primitiveinput reahl-textinput">'
 
     @scenario
     def disabled_rendering(self):
@@ -151,7 +151,7 @@ class InputRenderingScenarios(Fixture):
         self.writable = Allowed(False)
         self.input_widget = TextInput(self.form, self.field)
 
-        self.expected_html = '<input name="field_name" disabled="disabled" form="some_form" type="text" value="3" class="reahl-textinput">'
+        self.expected_html = '<input name="field_name" disabled="disabled" form="some_form" type="text" value="3" class="reahl-primitiveinput reahl-textinput">'
 
     @scenario
     def valueless_rendering(self):
@@ -159,7 +159,7 @@ class InputRenderingScenarios(Fixture):
         self.writable = Allowed(True)
         self.input_widget = TextInput(self.form, self.field)
 
-        self.expected_html = '<input name="field_name" form="some_form" type="text" value="" class="reahl-textinput">'
+        self.expected_html = '<input name="field_name" form="some_form" type="text" value="" class="reahl-primitiveinput reahl-textinput">'
 
     @scenario
     def empty_rendering(self):
@@ -175,7 +175,7 @@ class InputRenderingScenarios(Fixture):
         self.writable = Allowed(True)
         self.input_widget = ButtonInput(self.form, self.event)
 
-        self.expected_html = '<input name="event.event_name?" form="some_form" type="submit" value="event_name">'
+        self.expected_html = '<input name="event.event_name?" form="some_form" type="submit" value="event_name" class="reahl-primitiveinput">'
 
     @scenario
     def greyed_button_rendering(self):
@@ -183,7 +183,7 @@ class InputRenderingScenarios(Fixture):
         self.writable = Allowed(False)
         self.input_widget = ButtonInput(self.form, self.event)
 
-        self.expected_html = '<input name="event.event_name?" disabled="disabled" form="some_form" type="submit" value="event_name">'
+        self.expected_html = '<input name="event.event_name?" disabled="disabled" form="some_form" type="submit" value="event_name" class="reahl-primitiveinput">'
 
     @scenario
     def buttons_must_be_readable_to_be_present(self):
@@ -313,8 +313,8 @@ def test_non_writable_events_are_dealt_with_like_invalid_input(web_fixture):
 
     browser.post(fixture.form.event_channel.get_url().path, {'event.an_event?':''})
     browser.follow_response()
-    input_id = browser.get_id_of('//input[@name="event.an_event?"]')
     error_label = browser.get_html_for('//label')
+    input_id = browser.get_id_of('//input[@name="event.an_event?"]')
     assert error_label == '<label for="%s" class="error">you cannot do this</label>' % input_id
 
 

@@ -23,6 +23,7 @@ import six
 import copy
 import re
 import fnmatch
+import functools
 import sre_constants
 from six.moves.urllib import parse as urllib_parse
 from string import Template
@@ -94,20 +95,16 @@ class FieldIndex(object):
     def items(self):
         return self.fields.items()
 
-    def add_bound_field(self, field):
-        setattr(self, field.name, field)
-        return field
-
     def as_kwargs(self):
         return dict([(name, field.get_model_value()) for name, field in self.items()])
 
     def as_input_kwargs(self):
         return dict([(name, field.as_input()) for name, field in self.items()])
 
-    def accept_input(self, input_dict):
+    def accept_input(self, input_dict, ignore_validation=False):
         for name, field in self.items():
-            field.from_input(input_dict.get(field.name, field.as_input()))
-
+            field.from_disambiguated_input(input_dict, ignore_validation=ignore_validation)
+            
     def update(self, other):
         for name, value in other.items():
             setattr(self, name, value)
@@ -159,6 +156,7 @@ class ExposedDecorator(object):
             self.func = None
         else:
             self.func = args[0]
+            functools.update_wrapper(self, self.func)
 
     def add_fake_events(self, event_names):
         events = []
@@ -171,6 +169,7 @@ class ExposedDecorator(object):
 
     def __call__(self, func):
         self.func = func
+        functools.update_wrapper(self, self.func)
         return self
         
     def __get__(self, instance, owner):
@@ -659,6 +658,10 @@ class MaxValueConstraint(ValidationConstraint):
 class InputParseException(Exception):
     pass
 
+class ExpectedInputNotFound(Exception):
+    def __init__(self, input_name, searched_inputs):
+        super(ExpectedInputNotFound, self).__init__('Expected to find %s in %s' % (input_name, str(searched_inputs)))
+    
        
 class Field(object):
     """A Field represents something which can be input by a User.
@@ -678,10 +681,10 @@ class Field(object):
        :param required_message: See `error_message` of :class:`RequiredConstraint`.
        :param label: A text label by which to identify this Field to a user.
        :param readable: A callable that takes one argument (this Field). It is executed to determine whether
-                        the current user is allowed to see this Field. Returns True is the user is allowed, 
+                        the current user is allowed to see this Field. Returns True if the user is allowed,
                         else False.
        :param writable: A callable that takes one argument (this Field). It is executed to determine whether
-                        the current user is allowed supply input for this Field. Returns True is the user is 
+                        the current user is allowed supply input for this Field. Returns True if the user is
                         allowed, else False.
        :param disallowed_message: An error message to be displayed when a user attempts to supply input
                         to this Field when it is not writable for that user. (See `error_message` of
@@ -697,7 +700,8 @@ class Field(object):
     def __init__(self, default=None, required=False, required_message=None, label=None,
                  readable=None, writable=None, disallowed_message=None,
                  min_length=None, max_length=None):
-        self.name = None
+        self._name = None
+        self._overridden_unqualified_name_in_input = None
         self.storage_object = None
         self.default = default
         self.label = label or ''
@@ -713,10 +717,19 @@ class Field(object):
 
         self.clear_user_input()
 
+    def override_unqualified_name_in_input(self, name):
+        self._overridden_unqualified_name_in_input = name
+
     def validate_default(self):
         unparsed_input = self.as_input()
         self.validate_input(unparsed_input, ignore=AccessRightsConstraint)
         self.validate_parsed(self.parse_input(unparsed_input), ignore=AccessRightsConstraint)
+
+    def __str__(self):
+        name_part = '(not bound)'
+        if self.is_bound:
+            name_part = 'name=%s' % self.name
+        return '<%s %s>' % (self.__class__.__name__, name_part)
 
     @property
     def can_read(self):
@@ -802,11 +815,14 @@ class Field(object):
         self.user_input = None
         self.parsed_input = self.default
     
+    def is_input_empty(self, input_value):
+        return input_value == ''
+
     def set_user_input(self, input_value, ignore_validation=False):
         self.clear_user_input()
         self.user_input = input_value
 
-        if not self.required and (input_value == self.entered_input_type()):
+        if not self.required and self.is_input_empty(input_value):
             self.input_status = 'validly_entered'
         else:
             try:
@@ -821,7 +837,7 @@ class Field(object):
                     raise
 
     def bind(self, name, storage_object):
-        self.name = name
+        self._name = name
         if not self.label:
             self.label = name
         self.storage_object = storage_object
@@ -848,11 +864,22 @@ class Field(object):
         return self.validation_constraints.has_constraint_named(RequiredConstraint.name)
      
     @property
-    def variable_name(self):
-        if not self.name:
+    def name(self):
+        if not self._name:
             raise AssertionError('field %s with label "%s" is not yet bound' % (self, self.label))
+        return self._name
+
+    @property
+    def variable_name(self):
         return self.name
-        
+
+    def qualify_name(self, name):
+        return name
+
+    @property
+    def name_in_input(self):
+        return self.qualify_name(self._overridden_unqualified_name_in_input if self._overridden_unqualified_name_in_input else self.name)
+
     def get_model_value(self):
         return getattr(self.storage_object, self.variable_name, self.default)
         
@@ -865,9 +892,26 @@ class Field(object):
     def format_input(self, unparsed_input):
         return self.unparse_input(self.parse_input(unparsed_input))
     
+    def input_as_string(self, unparsed_input):
+        return unparsed_input
+
     def validate_parsed(self, parsed_value, ignore=None):
         self.validation_constraints.validate_parsed(parsed_value, ignore=ignore)
-        
+
+    def update_valid_value_in_disambiguated_input(self, input_dict):
+        input_dict[self.name_in_input] = self.as_user_input_value(for_input_status='defaulted')
+
+    def extract_unparsed_input_from_dict_of_lists(self, input_dict):
+        list_of_input = input_dict.get(self.name_in_input, [])
+        if list_of_input:
+            return list_of_input[0]
+        else:
+            return self.as_input()
+
+    def from_disambiguated_input(self, input_dict, ignore_validation=False):
+        input_value = self.extract_unparsed_input_from_dict_of_lists(input_dict)
+        self.from_input(input_value, ignore_validation=ignore_validation)
+
     def parse_input(self, unparsed_input):
         """Override this method on a subclass to specify how that subclass transforms the `unparsed_input`
            (a string) into a representative Python object."""
@@ -878,12 +922,25 @@ class Field(object):
            object (`parsed_value`) to a string that represents it to a user."""
         return six.text_type(parsed_value if parsed_value is not None else '')
 
-    def from_input(self, unparsed_input):
+    def from_input(self, unparsed_input, ignore_validation=False):
         """Sets the value of this Field from the given `unparsed_input`."""
         if self.can_write():
-            self.set_user_input(unparsed_input)
+            self.from_input_regardless_access(unparsed_input, ignore_validation=ignore_validation)
+
+    def from_input_regardless_access(self, unparsed_input, ignore_validation=False):
+        self.set_user_input(unparsed_input, ignore_validation=ignore_validation)
+        if self.input_status == 'validly_entered':
             self.set_model_value()
-        
+
+    def as_user_input_value(self, for_input_status=None):
+        return self.input_as_string(self.as_list_unaware_user_input_value(for_input_status=for_input_status))
+
+    def as_list_unaware_user_input_value(self, for_input_status=None):
+        if (for_input_status or self.input_status) == 'defaulted' or (not self.can_read()):
+            return self.as_input()
+        else:
+            return self.user_input
+
     def as_input(self):
         """Returns the value of this Field as a string."""
         if self.can_read():
@@ -1013,12 +1070,11 @@ class Event(Field):
         argument_string = (', %s' % six.text_type(self.arguments)) if hasattr(self, 'arguments') else ''
         return 'Event(%s%s)' % (self.name, argument_string)
 
-    def from_input(self, unparsed_input):
+    def from_input(self, unparsed_input, ignore_validation=False):
         # Note: this needs to happen for Events whether you are allowed to write the Event or not,
         #       because during validation, an AccessRightsConstraint is raised
         #       (In the case of other Fields, input to non-writable Fields is silently ignored)
-        self.set_user_input(unparsed_input)
-        self.set_model_value()
+        self.from_input_regardless_access(unparsed_input, ignore_validation=ignore_validation)
 
     @property
     def occurred(self):
@@ -1029,8 +1085,8 @@ class Event(Field):
     def can_write(self):
         return self.can_read() and super(Event, self).can_write()
 
-    def fire(self):
-        if not self.occurred:
+    def fire(self, force=False):
+        if not force and not self.occurred:
             raise ProgrammerError('attempted to fire Event that has not occurred: %s' % self)
         return self.action(self)
 
@@ -1055,17 +1111,19 @@ class Event(Field):
 
     @property
     def variable_name(self):
-        return 'arguments'
+        return u'arguments'
    
     def parse_input(self, unparsed_input):
         if unparsed_input:
             arguments_query_string = unparsed_input[1:]
-            raw_input_values = dict([(k,v[0]) for k, v in urllib_parse.parse_qs(arguments_query_string).items()])
+            raw_input_values = dict([(k,v) for k, v in urllib_parse.parse_qs(arguments_query_string).items()])
             fields = StandaloneFieldIndex()
             fields.update_copies(self.event_argument_fields)
             fields.accept_input(raw_input_values)
             
-            arguments = raw_input_values.copy()
+            view_arguments = dict([(k,v[0]) for k, v in urllib_parse.parse_qs(arguments_query_string).items()
+                                   if not k in fields.items()])
+            arguments = view_arguments.copy()
             arguments.update(fields.as_kwargs())
             return arguments
         return None
@@ -1078,7 +1136,10 @@ class Event(Field):
             
             arguments.update(fields.as_input_kwargs())
             input_string='?%s' % urllib_parse.urlencode(arguments)
-            return six.text_type(input_string)
+            if six.PY2:
+                return input_string.decode('utf-8')
+            else:
+                return input_string
         else:
             return '?'
     
@@ -1402,7 +1463,7 @@ class ChoiceField(Field):
 
     @property
     def allows_multiple_selections(self):
-        return self.entered_input_type is list
+        return False
 
     def are_choices_unique(self, flattened_choices):
         return len(flattened_choices) == len(set([choice.value for choice in flattened_choices]))
@@ -1467,8 +1528,52 @@ class MultiChoiceField(ChoiceField):
     """A Field that allows a selection of values from the given :class:`Choice` instances as input."""
     entered_input_type = list
 
+    def qualify_name(self, name):
+        return '%s[]' % super(MultiChoiceField, self).qualify_name(name)
+
+    def is_input_empty(self, input_value):
+        return input_value is None
+
+    @property
+    def allows_multiple_selections(self):
+        return True
+
     def init_validation_constraints(self):
         self.add_validation_constraint(MultiChoiceConstraint(self.flattened_choices))
+
+    def get_empty_sentinel_name(self, base_name):
+        return '%s-' % base_name
+
+    def update_valid_value_in_disambiguated_input(self, input_dict):
+        try:
+            del input_dict[self.get_empty_sentinel_name(self.name_in_input)]
+        except KeyError:
+            pass
+
+        try:
+            del input_dict[self.name_in_input]
+        except KeyError:
+            pass
+
+        list_value = self.as_list_unaware_user_input_value(for_input_status='defaulted')
+        if list_value == []:
+            input_dict[self.get_empty_sentinel_name(self.name_in_input)] = ''
+        elif list_value:
+            input_dict[self.name_in_input] = list_value
+
+    def extract_unparsed_input_from_dict_of_lists(self, input_dict):
+        submitted_as_empty = len(input_dict.get(self.get_empty_sentinel_name(self.name_in_input), [])) > 0
+        if submitted_as_empty:
+            return []
+        else:
+            list_value = input_dict.get(self.name_in_input, [])
+            if not list_value:
+                return None
+            else:
+                return list_value
+
+    def input_as_string(self, unparsed_input):
+        return ','.join(unparsed_input)
 
     def parse_input(self, unparsed_inputs):
         selected = []
@@ -1480,10 +1585,11 @@ class MultiChoiceField(ChoiceField):
 
     def unparse_input(self, parsed_values):
         inputs = []
-        for choice in self.flattened_choices:
-            for value in parsed_values:
-                if choice.value == value:
-                    inputs.append(choice.as_input())
+        if parsed_values:
+            for choice in self.flattened_choices:
+                for value in parsed_values:
+                    if choice.value == value:
+                        inputs.append(choice.as_input())
         return inputs
 
 

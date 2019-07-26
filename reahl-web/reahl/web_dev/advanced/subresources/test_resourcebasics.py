@@ -254,3 +254,11 @@ def test_computation_of_url(web_fixture, url_scenarios):
     web_fixture.request.environ['PATH_INFO'] = url_scenarios.expected_path
     actual = sub_resource.get_url()
     assert actual.path == url_scenarios.expected_path
+
+    # Calculating the sub_resource's URL from the context of another SubResource
+    other_resource_path = url_scenarios.expected_path.replace('uniquename', 'another_name')
+    web_fixture.request.environ['PATH_INFO'] = other_resource_path
+    actual = sub_resource.get_url()
+    assert actual.path == url_scenarios.expected_path
+
+

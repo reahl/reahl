@@ -222,7 +222,7 @@ def test_session_data_disappears_when_session_does(web_fixture):
     ui_name = 'user_interface'
     channel_name = 'channel'
 
-    session_data = SessionData(web_session=user_session, ui_name=ui_name, channel_name=channel_name)
+    session_data = SessionData(web_session=user_session, view_path='/', ui_name=ui_name, channel_name=channel_name)
     Session.add(session_data)
     Session.flush()
 
@@ -242,7 +242,7 @@ def test_session_keeps_living(web_fixture):
     ui_name = 'user_interface'
     channel_name = 'channel'
 
-    session_data = SessionData(web_session=user_session, ui_name=ui_name, channel_name=channel_name)
+    session_data = SessionData(web_session=user_session, view_path='/', ui_name=ui_name, channel_name=channel_name)
     Session.add(session_data)
     Session.flush()
 
@@ -266,13 +266,14 @@ class InputScenarios(Fixture):
         self.empty_entered_input = []
 
 
-@with_fixtures(PartyAccountFixture, InputScenarios)
-def test_persisting_input(party_account_fixture, input_scenarios):
+@with_fixtures(WebFixture, PartyAccountFixture, InputScenarios)
+def test_persisting_input(web_fixture, party_account_fixture, input_scenarios):
     """UserInput can persist and find user input entered as a string or a list of strings (useful for things
        like multiple select boxes or multiple checkboxes with the same name).
     """
     @stubclass(Form)
     class FormStub(object):
+        view = web_fixture.view
         user_interface = EmptyStub(name='myui')
         channel_name = 'myform'
 

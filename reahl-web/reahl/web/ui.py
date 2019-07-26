@@ -22,6 +22,8 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 
 import time
 from string import Template
+import json
+import collections
 import copy
 import re
 import six
@@ -38,8 +40,8 @@ from reahl.component.exceptions import ProgrammerError
 from reahl.component.exceptions import arg_checks
 from reahl.component.i18n import Catalogue
 from reahl.component.context import ExecutionContext
-from reahl.component.modelinterface import ValidationConstraintList, ValidationConstraint, \
-    Field, BooleanField, Choice, UploadedFile, InputParseException, StandaloneFieldIndex, MultiChoiceField, ChoiceField
+from reahl.component.modelinterface import ValidationConstraintList, ValidationConstraint, ExpectedInputNotFound,\
+    Field, Event, BooleanField, Choice, UploadedFile, InputParseException, StandaloneFieldIndex, MultiChoiceField, ChoiceField
 from reahl.component.py3compat import html_escape
 from reahl.web.fw import EventChannel, RemoteMethod, JsonResult, Widget, \
     ValidationException, WidgetResult, WidgetFactory, Url
@@ -174,6 +176,44 @@ class HTMLAttributeDict(dict):
         del self[name]
 
 
+class AjaxMethod(RemoteMethod):
+    def __init__(self, widget):
+        method_name = 'refresh_%s' % widget.css_id
+        super(AjaxMethod, self).__init__(method_name, self.fire_ajax_event, WidgetResult(widget, as_json_and_result=True), immutable=True, method='post')
+        self.view = widget.view
+        self.widget = widget
+        
+    def cleanup_after_exception(self, input_values, ex):
+        self.view.save_last_construction_state()
+        self.persist_invalid_input()
+        
+    def cleanup_after_success(self):
+        self.view.save_last_construction_state()
+        self.persist_invalid_input()
+
+    @property
+    def contained_forms(self):
+        return set([widget for widget in self.view.page.contained_widgets() if widget.is_Form])
+
+    def persist_invalid_input(self):
+        for form in self.contained_forms:
+            form.clear_all_saved_data()
+            form.persist_invalid_input()
+
+    def fire_ajax_event(self, *args, **kwargs):
+        state = self.view.current_POSTed_state_as_dict_of_lists
+
+        for widget in self.view.page.contained_widgets():
+            widget.accept_disambiguated_input(state)
+
+        self.widget.fire_on_refresh()
+
+        construction_state =  {}
+        for widget in self.view.page.contained_widgets():
+            widget.update_construction_state(construction_state)
+        self.view.set_construction_state_from_state_dict(construction_state)
+
+
 # Uses: reahl/web/reahl.hashchange.js
 class HashChangeHandler(object):
     def __init__(self, widget, for_fields):
@@ -181,18 +221,15 @@ class HashChangeHandler(object):
         self.timeout_message = _('The server took too long to respond. Please try again later.')
         self.widget = widget
         self.for_fields = for_fields
-        result = WidgetResult(widget)
-        method_name = 'refresh_%s' % widget.css_id
-        callable_object = lambda *args, **kwargs: None
-        self.remote_method = RemoteMethod(method_name, callable_object, result, immutable=True)
+        self.remote_method = AjaxMethod(widget)
         widget.view.add_resource(self.remote_method)
 
     @property
     def argument_defaults(self):
         i = StandaloneFieldIndex()
-        i.update(dict([(field.name, field) for field in self.for_fields]))
-        field_defaults = i.as_kwargs()
-        argument_defaults = ['%s: "%s"' % (name, default_value or '') \
+        i.update(dict([(field.name_in_input, field) for field in self.for_fields]))
+        field_defaults = i.as_input_kwargs() # TODO: should this not sometimes be i.user_input????
+        argument_defaults = ['"%s": "%s"' % (name, default_value or '') \
                              for name, default_value in field_defaults.items()]
         return '{%s}' % ','.join(argument_defaults)
 
@@ -223,34 +260,49 @@ class HTMLElement(Widget):
         self.tag_name = tag_name
         self.constant_attributes = HTMLAttributeDict()
         self.ajax_handler = None
+        self.on_refresh = Event()
         if css_id:
             self.set_id(css_id)
 
     def __str__(self):
-        css_id_part = '(not set)'
-        if self.css_id_is_set:
-            css_id_part = self.css_id
-        return '<%s %s %s>' % (self.__class__.__name__, self.tag_name, 'id=%s' % css_id_part)
+        return '<%s %s%s>' % (self.__class__.__name__, self.tag_name, self.attributes.as_html_snippet())
 
-    def enable_refresh(self, *for_fields):
-        """Sets this HTMLElement up so that it will refresh itself without reloading its page when it senses that
-           one of the given `query_fields` have changed. If no Fields are specified here, the HTMLElement
-           is refreshed when any of its `query_fields` change.
+    def enable_refresh(self, *for_fields, **kwargs):
+        """Sets this HTMLElement up so that it can be refreshed without reloading the whole page.
 
-           :arg for_fields: A selection of the `.query_fields` defined on this HTMLElement.
+           **enable_refresh(self, *for_fields, on_refresh=None)**
+        
+           A refresh is triggered when:
+            - one of the `query_fields` given in `for_fields` change'; or
+            - if no `for_fields` are given, when any of its `query_fields` change; or
+            - if a :class:`PrimitiveInput` refers to this HTMLElement via its `refresh_widget`.
+
+           :keyword on_refresh: An :class:`~reahl.component.modelinterface.Event` that will be triggered upon refresh, before rerendering.
+           :arg for_fields: A selection of the :meth:`~reahl.web.fw.Widget.query_fields` defined on this HTMLElement.
 
            .. versionchanged:: 3.2
               The `for_fields` arguments were added to allow control over which of an
               HTMLElement's `query_fields` trigger a refresh.
+
+           .. versionchanged:: 4.1
+              Added `on_refresh`.   
         """
+        on_refresh = kwargs.get('on_refresh', None)
+
         if not self.css_id_is_set:
             raise ProgrammerError('%s does not have a css_id set. A fixed css_id is mandatory when a Widget self-refreshes' % self)
         assert all([(field in self.query_fields.values()) for field in for_fields])
 
         self.add_hash_change_handler(for_fields if for_fields else self.query_fields.values())
+        if on_refresh:
+            self.on_refresh = on_refresh
+            on_refresh.fire(force=True)
 
     def is_refresh_enabled(self):
         return self.ajax_handler is not None
+
+    def fire_on_refresh(self):
+        self.on_refresh.fire(force=True)
 
     def add_child(self, child):
         assert self.children_allowed, 'You cannot add children to a %s' % type(self)
@@ -319,7 +371,7 @@ class HTMLElement(Widget):
 
     def generate_random_css_id(self):
         if not self.css_id_is_set:
-            self.set_css_id('tmpid-%s-%s' % (id(self), time.time()))
+            self.set_css_id('tmpid-%s-%s' % (id(self), six.text_type(time.time()).replace('.','-')))
         else:
             raise ProgrammerError('%s already has a css_id set, will not overwrite it!' % self)
         return self.css_id
@@ -509,6 +561,7 @@ class Body(HTMLElement):
     """
     def __init__(self, view, css_id=None):
         super(Body, self).__init__(view, 'body', children_allowed=True, css_id=css_id)
+        self.out_of_bound_forms = self.add_child(Div(self.view, css_id='_reahl_out_of_bound_forms'))
         self.add_child(Slot(self.view, name='reahl_footer'))
 
     def footer_already_added(self):
@@ -527,7 +580,10 @@ class Body(HTMLElement):
         return child
 
     def attach_out_of_bound_forms(self, forms):
-        self.add_children(forms)
+        self.out_of_bound_forms.add_children(forms)
+
+    def get_out_of_bounds_forms_widget(self):
+        return self.out_of_bound_forms
 
 
 class HTML5Page(HTMLElement):
@@ -555,17 +611,18 @@ class HTML5Page(HTMLElement):
               var r=d.querySelectorAll("html")[0];
               r.className=r.className.replace(new RegExp("\\\\b" + fromStyle + "\\\\b", "g"),toStyle)
           };
-          (function(e){switchJSStyle(e, "no-js", "js")})(document);
-        '''))
+          (function(d) { switchJSStyle(d, "no-js", "js"); })(document);
+        ''', html_escape=False))
 
+        self.set_attribute('data-reahl-rendered-state', self.view.current_POSTed_client_side_state) # needed by reahl.hashchange.js
         self.head = self.add_child(Head(view, title))  #: The Head HTMLElement of this page
         self.body = self.add_child(Body(view))         #: The Body HTMLElement of this page
-
 
     def render(self):
         return '<!DOCTYPE html>' + super(HTML5Page, self).render()
 
 
+    
 # Uses: reahl/web/reahl.ajaxlink.js
 class A(HTMLElement):
     """A hyper link.
@@ -926,14 +983,13 @@ class Form(HTMLElement):
        :param view: (See :class:`reahl.web.fw.Widget`)
        :param unique_name: A name for this form, unique in the UserInterface where it is used.
 
-       .. versionchanged: 4.0
+       .. versionchanged:: 4.0
           Added create_error_label.
     """
     is_Form = True
     def __init__(self, view, unique_name, rendered_form=None):
         self.view = view
         self.inputs = OrderedDict()
-        self.registered_input_names = {}
         self.set_up_event_channel(unique_name)
         self.set_up_field_validator('%s_validate' % unique_name)
         self.set_up_input_formatter('%s_format' % unique_name)
@@ -955,7 +1011,8 @@ class Form(HTMLElement):
                                           immutable=True)
         self.view.add_resource(self.field_validator)
 
-    def validate_single_input(self, **input_values):
+    def validate_single_input(self, **input_names_and_value):
+        input_values = {k: [v] for k,v in input_names_and_value.items()}
         try:
             name = list(input_values.keys())[0]
             self.inputs[name].validate_input(input_values)
@@ -972,7 +1029,8 @@ class Form(HTMLElement):
                                             immutable=True)
         self.view.add_resource(self.input_formatter)
 
-    def format_single_input(self, **input_values):
+    def format_single_input(self, **input_names_and_value):
+        input_values = {k: [v] for k,v in input_names_and_value.items()}
         try:
             name = list(input_values.keys())[0]
             return self.inputs[name].format_input(input_values)
@@ -1011,15 +1069,9 @@ class Form(HTMLElement):
         return six.text_type(action)
 
     def register_input(self, input_widget):
-        assert input_widget not in self.inputs.values(), 'Cannot register the same input twice to this form' #xxx
-        proposed_name = input_widget.make_name('')
-        name = proposed_name
-        clashing_names_count = self.registered_input_names.setdefault(proposed_name, 0)
-        if clashing_names_count > 0:
-            name = input_widget.make_name(six.text_type(clashing_names_count))
-        self.registered_input_names[proposed_name] += 1
-        self.inputs[name] = input_widget
-        return name
+        assert input_widget not in self.inputs.values(), 'Cannot register the same input twice to this form' 
+        assert input_widget.name not in self.inputs, 'Cannot add an input with same name as another'
+        self.inputs[input_widget.name] = input_widget
 
     @property
     def channel_name(self):
@@ -1051,15 +1103,23 @@ class Form(HTMLElement):
 
     def persist_exception(self, exception):
         self.clear_exception()
-        self.persisted_exception_class.new_for_form(self, exception=exception)
+        self.persisted_exception_class.save_exception_for_form(self, exception=exception)
 
     def clear_exception(self):
-        self.persisted_exception_class.clear_for_form(self)
+        self.persisted_exception_class.clear_for_form_except_inputs(self)
 
     def persist_input(self, input_values):
         self.clear_saved_inputs()
         for input_widget in self.inputs.values():
-            input_widget.persist_input(input_values)
+            if input_widget.can_write():
+                input_widget.persist_input(input_values)
+
+    def persist_invalid_input(self):
+        self.clear_saved_inputs()
+        for input in self.inputs.values():
+            field = input.bound_field
+            if field.input_status == 'invalidly_entered':
+                input.enter_value(field.as_user_input_value())
 
     def clear_saved_inputs(self):
         self.persisted_userinput_class.clear_for_form(self)
@@ -1073,6 +1133,9 @@ class Form(HTMLElement):
         self.persist_exception(ex)
 
     def cleanup_after_success(self):
+        self.clear_all_saved_data()
+
+    def clear_all_saved_data(self):
         self.clear_saved_inputs()
         self.clear_exception()
         self.clear_uploaded_files()
@@ -1130,6 +1193,10 @@ class NestedForm(Div):
         view.add_out_of_bound_form(self.out_of_bound_form)
 
     @property
+    def coactive_widgets(self):
+        return super(NestedForm, self).coactive_widgets + [self.view.page.get_out_of_bounds_forms_widget()]
+
+    @property
     def form(self):
         return self.out_of_bound_form
 
@@ -1148,10 +1215,10 @@ class FieldSet(HTMLElement):
        :keyword legend_text: If given, the FieldSet will have a Legend containing this text.
        :keyword css_id: (See :class:`reahl.web.ui.HTMLElement`)
 
-       .. versionchanged: 3.2
+       .. versionchanged:: 3.2
           Deprecated label_text and instead added legend_text: FieldSets should have Legends, not Labels.
 
-       .. versionchanged: 4.0
+       .. versionchanged:: 4.0
           Removed label_text that was deprecated.
     """
     def __init__(self, view, legend_text=None, css_id=None):
@@ -1164,7 +1231,7 @@ class FieldSet(HTMLElement):
 class Legend(HTMLElement):
     """A caption for an :class:`reahl.web.ui.HTMLElement`.
 
-    .. versionadded: 3.2
+    .. versionadded:: 3.2
 
     .. admonition:: Styling
 
@@ -1317,9 +1384,7 @@ class Input(HTMLWidget):
 
     @property
     def value(self):
-        if self.get_input_status() == 'defaulted' or self.disabled:
-            return self.bound_field.as_input()
-        return self.bound_field.user_input
+        return self.bound_field.as_user_input_value(self.get_input_status())
 
     def get_input_status(self):
         return self.bound_field.input_status
@@ -1354,19 +1419,52 @@ class WrappedInput(Input):
 
 
 class PrimitiveInput(Input):
-    is_for_file = False
+    """A simple HTML control.
 
-    def __init__(self, form, bound_field, name=None, registers_with_form=True):
+       :param form: (See :class:`~reahl.web.ui.Input`)
+       :param bound_field: (See :class:`~reahl.web.ui.Input`)
+       :keyword name: An optional name for this input (overrides the default).
+       :keyword registers_with_form: (for internal use)
+       :keyword refresh_widget: An :class:`HTMLElement` that will be refreshed when the value of this input changes.
+
+    """
+    is_for_file = False
+    is_contained = False
+
+    def __init__(self, form, bound_field, name=None, registers_with_form=True, refresh_widget=None):
         super(PrimitiveInput, self).__init__(form, bound_field)
-        self.name = name
+        if name:
+            bound_field.override_unqualified_name_in_input(name)
+        if refresh_widget:
+            if not refresh_widget.is_refresh_enabled:
+                raise ProgrammerError('%s is not set to refresh. You can only refresh widgets on which enable_refresh() was called.' % refresh_widget)
+        self.refresh_widget = refresh_widget
+
         self.registers_with_form = registers_with_form
         if self.registers_with_form:
-            self.name = form.register_input(self) # bound_field must be set for this registration to work
+            form.register_input(self) # bound_field must be set for this registration to work
             self.prepare_input()
+
         self.set_html_representation(self.add_child(self.create_html_widget()))
 
+        if not self.is_contained:
+            self.add_to_attribute('class', ['reahl-primitiveinput'])
+            self.add_input_data_attributes()
+        if self.refresh_widget:
+            self.set_attribute('data-refresh-widget-id', self.refresh_widget.css_id)
+
+    def add_input_data_attributes(self):
+        if isinstance(self.bound_field, BooleanField):
+            self.set_attribute('data-is-boolean', '')
+            self.set_attribute('data-true-boolean-value', self.bound_field.true_value)
+            self.set_attribute('data-false-boolean-value', self.bound_field.false_value)
+        
     def __str__(self):
         return '<%s name=%s>' % (self.__class__.__name__, self.name)
+
+    @property
+    def name(self):
+        return self.bound_field.name_in_input
 
     @property
     def html_control(self):
@@ -1374,12 +1472,10 @@ class PrimitiveInput(Input):
 
     def create_html_widget(self):
         """Override this in subclasses to create the HTMLElement that represents this Input in HTML to the user.
-           .. versionadded: 3.2
+
+           .. versionadded:: 3.2
         """
         self.not_implemented()
-
-    def make_name(self, discriminator):
-        return '%s%s' % (self.bound_field.variable_name, discriminator)
 
     @property
     def channel_name(self):
@@ -1387,7 +1483,11 @@ class PrimitiveInput(Input):
 
     @property
     def jquery_selector(self):
-        return '''$('input[name=%s][form="%s"]')''' % (self.name, self.form.css_id)
+        return '''$('input[name="%s"][form="%s"]')''' % (self.name, self.form.css_id)
+
+    def get_js(self, context=None):
+        js = ['$(%s).primitiveinput();' % self.html_representation.contextualise_selector('".reahl-primitiveinput"', context)]
+        return super(PrimitiveInput, self).get_js(context=context) + js
 
     @property
     def validation_constraints(self):
@@ -1408,6 +1508,17 @@ class PrimitiveInput(Input):
         value = self.get_value_from_input(input_values)
         self.bound_field.from_input(value)
 
+    def accept_disambiguated_input(self, disambiguated_input):
+        super(PrimitiveInput, self).accept_disambiguated_input(disambiguated_input)
+        if self.registers_with_form:
+            self.bound_field.from_disambiguated_input(disambiguated_input, ignore_validation=True)
+
+    def update_construction_state(self, disambiguated_input):
+        super(PrimitiveInput, self).update_construction_state(disambiguated_input)
+        if self.registers_with_form:
+            self.bound_field.update_valid_value_in_disambiguated_input(disambiguated_input)
+
+
     def get_ocurred_event(self):
         return None
 
@@ -1417,18 +1528,22 @@ class PrimitiveInput(Input):
            Override this method if your Input needs special handling to obtain its value.
         """
         try:
-            return input_values[self.name]
+            return input_values[self.name][0]
         except KeyError:
             if self.disabled:
                 return ''
-            raise ProgrammerError('Could not find a value for expected input %s (named %s) on form %s' % \
-                                  (self, self.name, self.form))
+            raise ExpectedInputNotFound(self.name, input_values)
 
     @property
     def persisted_userinput_class(self):
         return self.form.persisted_userinput_class
 
     def prepare_input(self):
+        previously_entered_value = None
+        construction_state = self.view.get_construction_state()
+        if construction_state:
+            self.bound_field.from_disambiguated_input(construction_state, ignore_validation=True)
+
         previously_entered_value = self.persisted_userinput_class.get_previously_entered_for_form(self.form, self.name, self.bound_field.entered_input_type)
 
         if previously_entered_value is not None:
@@ -1439,6 +1554,10 @@ class PrimitiveInput(Input):
     def persist_input(self, input_values):
         input_value = self.get_value_from_input(input_values)
         self.enter_value(input_value)
+
+    def clear_entered_value(self):
+        if self.registers_with_form:
+            self.persisted_userinput_class.clear_saved_input_value_for_form(self.form, self.name)
 
     def enter_value(self, input_value):
         if self.registers_with_form:
@@ -1501,13 +1620,18 @@ class TextArea(PrimitiveInput):
 
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
+       :keyword name: An optional name for this input (overrides the default).
        :param rows: The number of rows that this Input should have.
        :param columns: The number of columns that this Input should have.
+       :param refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
+
+       .. versionchanged:: 4.1
+          Added `name` and `refresh_widget`.      
     """
-    def __init__(self, form, bound_field, rows=None, columns=None):
+    def __init__(self, form, bound_field, name=None, rows=None, columns=None, refresh_widget=None):
         self.rows = rows
         self.columns = columns
-        super(TextArea, self).__init__(form, bound_field)
+        super(TextArea, self).__init__(form, bound_field, name=name, refresh_widget=refresh_widget)
 
     def create_html_widget(self):
         html_text_area = HTMLElement(self.view, 'textarea', children_allowed=True)
@@ -1530,12 +1654,13 @@ class TextArea(PrimitiveInput):
 
 
 class ContainedInput(PrimitiveInput):
-    def __init__(self, containing_input, choice, name=None):
+    is_contained = True
+    def __init__(self, containing_input, choice, name=None, refresh_widget=None):
         self.choice = choice
         self.containing_input = containing_input
         super(ContainedInput, self).__init__(containing_input.form, choice.field,
                                              name=name,
-                                             registers_with_form=False)
+                                             registers_with_form=False, refresh_widget=refresh_widget)
 
     def get_input_status(self):
         return 'defaulted'
@@ -1616,6 +1741,10 @@ class SelectInput(PrimitiveInput):
 
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
+       :keyword name: An optional name for this input (overrides the default).
+
+       .. versionchanged:: 4.1
+          Added `name`       
     """
     def create_html_widget(self):
         html_select = HTMLElement(self.view, 'select', children_allowed=True)
@@ -1644,7 +1773,7 @@ class SelectInput(PrimitiveInput):
 
     def get_value_from_input(self, input_values):
         if self.bound_field.allows_multiple_selections:
-            return input_values.getall(self.name)
+            return input_values.get(self.name, [])
         else:
             return super(SelectInput, self).get_value_from_input(input_values)
 
@@ -1693,16 +1822,21 @@ class RadioButtonSelectInput(PrimitiveInput):
 
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
+       :keyword name: An optional name for this input (overrides the default).
+       :param refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
 
        .. versionchanged:: 4.0
           Renamed from RadioButtonInput
+
+       .. versionchanged:: 4.1
+          Added `name` and `refresh_widget`
     """
 
     choice_type = 'radio'
 
     @arg_checks(bound_field=IsInstance(ChoiceField))
-    def __init__(self, form, bound_field):
-        super(RadioButtonSelectInput, self).__init__(form, bound_field)
+    def __init__(self, form, bound_field, name=None, refresh_widget=None):
+        super(RadioButtonSelectInput, self).__init__(form, bound_field, name=name, refresh_widget=refresh_widget)
 
     def is_choice_selected(self, value):
         if self.bound_field.allows_multiple_selections:
@@ -1721,7 +1855,7 @@ class RadioButtonSelectInput(PrimitiveInput):
         return None
 
     def get_value_from_input(self, input_values):
-        return input_values.get(self.name, '')
+        return input_values.get(self.name, [''])[0]
 
     def create_main_element(self):
         return Div(self.view)
@@ -1741,6 +1875,7 @@ class TextInput(PrimitiveInput):
 
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
+       :keyword name: An optional name for this input (overrides the default).
        :keyword fuzzy: If True, the typed input will be dealt with as "fuzzy input". Fuzzy input is
                      when a user is allowed to type almost free-form input for structured types of input,
                      such as a date. The assumption is that the `bound_field` used should be able to parse
@@ -1750,12 +1885,16 @@ class TextInput(PrimitiveInput):
        :keyword placeholder: If given a string, placeholder is displayed in the TextInput if the TextInput
                      is empty in order to provide a hint to the user of what may be entered into the TextInput.
                      If given True instead of a string, the label of the TextInput is used.
+       :param refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
 
        .. versionchanged:: 3.2
           Added `placeholder`.
+
+       .. versionchanged:: 4.1
+          Added `name` and `refresh_widget`
     """
-    def __init__(self, form, bound_field, fuzzy=False, placeholder=False):
-        super(TextInput, self).__init__(form, bound_field)
+    def __init__(self, form, bound_field, name=None, fuzzy=False, placeholder=False, refresh_widget=None):
+        super(TextInput, self).__init__(form, bound_field, name=name, refresh_widget=refresh_widget)
         self.append_class('reahl-textinput')
         if placeholder:
             placeholder_text = self.label if placeholder is True else placeholder
@@ -1782,12 +1921,25 @@ class PasswordInput(PrimitiveInput):
 
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
+       :keyword name: An optional name for this input (overrides the default).
+       :param refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
+
+       .. versionchanged:: 4.1
+          Added `name` and `refresh_widget`
     """
-    def __init__(self, form, bound_field):
-        super(PasswordInput, self).__init__(form, bound_field)
+    def __init__(self, form, bound_field, name=None, refresh_widget=None):
+        super(PasswordInput, self).__init__(form, bound_field, name=name, refresh_widget=refresh_widget)
 
     def create_html_widget(self):
         return HTMLInputElement(self, 'password', render_value_attribute=False)
+
+
+class HiddenInput(PrimitiveInput):
+    def __init__(self, form, bound_field, name=None):
+        super(HiddenInput, self).__init__(form, bound_field, name=name)
+
+    def create_html_widget(self):
+        return HTMLInputElement(self, 'hidden')
 
 
 class CheckboxInput(PrimitiveInput):
@@ -1799,12 +1951,17 @@ class CheckboxInput(PrimitiveInput):
 
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
+       :keyword name: An optional name for this input (overrides the default).
+       :keyword refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
+
+       .. versionchanged:: 4.1
+          Added `name` and `refresh_widget`
     """
     choice_type = 'checkbox'
 
     @arg_checks(bound_field=IsInstance(BooleanField))
-    def __init__(self, form, bound_field):
-        super(CheckboxInput, self).__init__(form, bound_field)
+    def __init__(self, form, bound_field, name=None, refresh_widget=None):
+        super(CheckboxInput, self).__init__(form, bound_field, name=name, refresh_widget=refresh_widget)
 
     @property
     def checked(self):
@@ -1835,20 +1992,32 @@ class CheckboxSelectInput(PrimitiveInput):
     """An Input that lets the user select more than one :class:`reahl.component.modelinterface.Choice` from a
        list of valid ones shown as checkboxes.
 
-        :param form: (See :class:`~reahl.web.ui.Input`)
-        :param bound_field: (See :class:`~reahl.web.ui.Input`)
+       :param form: (See :class:`~reahl.web.ui.Input`)
+       :param bound_field: (See :class:`~reahl.web.ui.Input`)
+       :keyword name: An optional name for this input (overrides the default).
+       :keyword refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
 
-        .. versionadded:: 4.0
+       .. versionadded:: 4.0
+
+       .. versionchanged:: 4.1
+          Added `name` and `refresh_widget`
     """
     choice_type = 'checkbox'
-
-    @arg_checks(bound_field=IsInstance(ChoiceField))
-    def __init__(self, form, bound_field):
+    allowed_field_types = [MultiChoiceField]
+    def __init__(self, form, bound_field, name=None, refresh_widget=None):
+        if not isinstance(bound_field, *self.allowed_field_types):
+            raise ProgrammerError('%s is not allowed to be used with %s' % (bound_field.__class__, self.__class__))
         self.added_choices = []
-        super(CheckboxSelectInput, self).__init__(form, bound_field)
+        super(CheckboxSelectInput, self).__init__(form, bound_field, name=name, refresh_widget=refresh_widget)
+
 
     @property
     def html_control(self):
+        # Note: seems like the html_control is only used ever to target this thing via css_id
+        #       when you do <label for=> and for use in jquery selectors that target this input.
+        #       Feels wrong in this case to use added_choices[0], should rather be the enclosing
+        #       Div, which is not an html control. Naming issue? Also a single test breaks if
+        #       we do change this: reahl/web_dev/bootstrap/test_popup.py
         return self.added_choices[0] if not self.bound_field.allows_multiple_selections else None
 
     @property
@@ -1866,13 +2035,15 @@ class CheckboxSelectInput(PrimitiveInput):
         return main_element
 
     def is_choice_selected(self, value):
+        if self.value is None:
+            return False
         return value in self.value
 
     def get_value_from_input(self, input_values):
         if self.bound_field.allows_multiple_selections:
-            return input_values.getall(self.name)
+            return input_values.get(self.name, [])
         else:
-            return input_values.get(self.name, '')
+            return input_values.get(self.name, [''])[0]
 
     def create_main_element(self):
         main_element = Div(self.view)
@@ -1884,8 +2055,8 @@ class CheckboxSelectInput(PrimitiveInput):
 
 
 class ButtonInput(PrimitiveInput):
-    def __init__(self, form, event):
-        super(ButtonInput, self).__init__(form, event)
+    def __init__(self, form, event, name=None):
+        super(ButtonInput, self).__init__(form, event, name=name)
         if not self.controller.has_event_named(event.name):
             raise ProgrammerError('no Event/Transition available for name %s' % event.name)
         try:
@@ -1894,6 +2065,10 @@ class ButtonInput(PrimitiveInput):
             message = 'Arguments for %s are not valid: %s' % (event, ex)
             message += '\n(did you forget to call .with_arguments() on an Event sent to a ButtonInput?)'
             raise ProgrammerError(message)
+
+    @property
+    def name(self):
+        return 'event.%s%s' % (super(ButtonInput, self).name, self.query_encoded_arguments)
 
     @property
     def validation_constraints(self):
@@ -1923,9 +2098,6 @@ class ButtonInput(PrimitiveInput):
     def query_encoded_arguments(self):
         return self.bound_field.as_input() or '?'
 
-    def make_name(self, discriminator):
-        return 'event.%s%s%s' % (self.bound_field.name, discriminator, self.query_encoded_arguments)
-
     @property
     def label(self):
         return self.bound_field.label
@@ -1942,6 +2114,9 @@ class ButtonInput(PrimitiveInput):
     def create_html_widget(self):
         return HTMLInputElement(self, 'submit')
 
+    def prepare_input(self):
+        pass # We don't save what is submitted via buttons and don't have to fill in saved details
+    
 
 class Label(HTMLElement):
     """A label for an Input.
@@ -2011,11 +2186,16 @@ class SimpleFileInput(PrimitiveInput):
 
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`, must be of type :class:`reahl.component.modelinterface.FileField`
+       :keyword name: (See :class:`~reahl.web.ui.PrimitiveInput`)
+       :keyword refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
+
+       .. versionchanged:: 4.1
+          Added `name` and `refresh_widget`
     """
     is_for_file = True
 
-    def __init__(self, form, bound_field):
-        super(SimpleFileInput, self).__init__(form, bound_field)
+    def __init__(self, form, bound_field, name=None, refresh_widget=None):
+        super(SimpleFileInput, self).__init__(form, bound_field, name=name, refresh_widget=refresh_widget)
 
     def create_html_widget(self):
         file_input = HTMLInputElement(self, 'file')
@@ -2024,7 +2204,7 @@ class SimpleFileInput(PrimitiveInput):
         return file_input
 
     def get_value_from_input(self, input_values):
-        field_storages = input_values.getall(self.name)
+        field_storages = input_values.get(self.name, [])
 
         return [UploadedFile(six.text_type(field_storage.filename), field_storage.file.read(), six.text_type(field_storage.type))
                  for field_storage in field_storages
@@ -2050,7 +2230,7 @@ class SimpleFileInput(PrimitiveInput):
 
     def persist_input(self, input_values):
         if self.get_input_status() == 'invalidly_entered':
-            self.persisted_exception_class.new_for_form(self.form, input_name=self.name, exception=self.bound_field.validation_error)
+            self.persisted_exception_class.save_exception_for_form(self.form, input_name=self.name, exception=self.bound_field.validation_error)
 
 
 class UniqueFilesConstraint(ValidationConstraint):
@@ -2171,9 +2351,9 @@ class Cell(HTMLElement):
     def __init__(self, view, html_tag_name, rowspan=None, colspan=None, css_id=None):
         super(Cell, self).__init__(view, html_tag_name, children_allowed=True, css_id=css_id)
         if rowspan:
-            self.set_attribute('rowspan', rowspan)
+            self.set_attribute('rowspan', six.text_type(rowspan))
         if colspan:
-            self.set_attribute('colspan', colspan)
+            self.set_attribute('colspan', six.text_type(colspan))
 
 
 class Th(Cell):
@@ -2213,9 +2393,15 @@ class DynamicColumn(object):
        :param make_widget: A callable that takes two arguments: the current view, and an item \
               of data of the current table row. It will be called to compute a Widget \
               to be displayed in the current column for the given data item.
+       :keyword make_footer_widget: A callable that takes two arguments: the current view, and \
+              an item representing a row of footer data. It will be called to compute \
+              a Widget to be displayed in the footer column representing the footer item. \
        :keyword sort_key: If specified, this value will be passed to sort() for sortable tables.
+
+       .. versionchanged:: 4.1
+            Added `make_footer_widget`.
     """
-    def __init__(self, make_heading_or_string, make_widget, sort_key=None):
+    def __init__(self, make_heading_or_string, make_widget, make_footer_widget=None, sort_key=None):
         if isinstance(make_heading_or_string, six.string_types):
             def make_span(view):
                 return Span(view, text=make_heading_or_string)
@@ -2224,6 +2410,7 @@ class DynamicColumn(object):
             self.make_heading_widget = make_heading_or_string
 
         self.make_widget = make_widget
+        self.make_footer_widget = make_footer_widget
         self.sort_key = sort_key
 
     def heading_as_widget(self, view):
@@ -2231,6 +2418,16 @@ class DynamicColumn(object):
 
     def as_widget(self, view, item):
         return self.make_widget(view, item)
+
+    @property
+    def has_footer(self):
+        return self.make_footer_widget is not None
+
+    def footer_as_widget(self, view, item):
+        if self.make_footer_widget:
+            return self.make_footer_widget(view, item)
+        else:
+            return Widget(view)
 
     def with_overridden_heading_widget(self, make_heading_widget):
         new_column = copy.copy(self)
@@ -2241,21 +2438,31 @@ class DynamicColumn(object):
 class StaticColumn(DynamicColumn):
     """StaticColumn defines a column whose heading and contents are derived from the given field.
 
-       :param field: The :class:`Field` that defines the heading for this column, and which \
+        :param field: The :class:`Field` that defines the heading for this column, and which \
               will also be used to get the data to be displayed for each row in this column.
-       :param attribute_name: The name of the attribute to which `field` should be bound to \
+        :param attribute_name: The name of the attribute to which `field` should be bound to \
               on each data item when rendering this column.
-       :keyword sort_key: If specified, this value will be passed to sort() for sortable tables.
+        :keyword footer_label: If specified, this text will be put in a footer row for each footer \
+              item in this column.              
+        :keyword sort_key: If specified, this value will be passed to sort() for sortable tables.
+
+        .. versionchanged:: 4.1
+            Added `footer_label`.
     """
-    def __init__(self, field, attribute_name, sort_key=None):
-        super(StaticColumn, self).__init__(field.label, self.make_text_node, sort_key=sort_key)
+    def __init__(self, field, attribute_name, footer_label=None, sort_key=None):
+        make_footer_widget = self.make_footer if footer_label else None
+        super(StaticColumn, self).__init__(field.label, self.make_text_node, make_footer_widget=make_footer_widget, sort_key=sort_key)
         self.field = field
         self.attribute_name = attribute_name
+        self.footer_label = footer_label
 
     def make_text_node(self, view, item):
         field = self.field.copy()
         field.bind(self.attribute_name, item)
         return TextNode(view, field.as_input())
+
+    def make_footer(self, view, item):
+        return TextNode(view, self.footer_label)
 
 
 class Table(HTMLElement):
@@ -2276,18 +2483,24 @@ class Table(HTMLElement):
         if summary:
             self.set_attribute('summary', '%s' % summary)
 
-    def with_data(self, columns, items):
+    def with_data(self, columns, items, footer_items=None):
         """Populate the table with the given data. Data is arranged into columns as
            defined by the list of :class:`DynamicColumn` or :class:`StaticColumn` instances passed in.
 
            :param columns: The :class:`DynamicColumn` instances that define the contents of the table.
            :param items: A list containing objects represented in each row of the table.
+           :keyword footer_items: If given a footer is added. A list containing objects represented in each footer row of the table.
+
+           .. versionchanged:: 4.1
+              Added `footer_items`.
         """
         if self.has_data:
             raise ProgrammerError('This table has already been populated.')
         self.has_data = True
         self.create_header_columns(columns)
-        self.create_rows(columns, items)
+        self.create_body_rows(columns, items)
+        if footer_items is not None:
+            self.create_footer_rows(columns, footer_items)
         return self
 
     def create_header_columns(self, columns):
@@ -2307,10 +2520,25 @@ class Table(HTMLElement):
                 return child
         return None
 
-    def create_rows(self, columns, items):
+    def create_body_rows(self, columns, items):
         body = self.add_child(Tbody(self.view))
         for item in items:
             row = body.add_child(Tr(self.view))
             for column in columns:
                 row_td = row.add_child(Td(self.view))
                 row_td.add_child(column.as_widget(self.view, item))
+
+    def create_footer_rows(self, columns, items):
+        footer = self.add_child(Tfoot(self.view))
+        for item in items:
+            row = footer.add_child(Tr(self.view))
+            footer_columns = [(columns.index(column), column) for column in columns if column.has_footer]
+            next_index = 0
+            for index, column in footer_columns:
+                if index > next_index:
+                    row.add_child(Td(self.view, colspan=index-next_index))
+                next_index = index + 1
+                row_td = row.add_child(Td(self.view))
+                row_td.add_child(column.footer_as_widget(self.view, item))
+                
+ 

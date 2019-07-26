@@ -149,7 +149,7 @@ class ContentJustification(ResponsiveOption):
     :keyword lg: Alignment to use if the device is large.
     :keyword xl: Alignment to use if the device is extra large.
 
-    .. versionadded: 4.0
+    .. versionadded:: 4.0
     """
     def __init__(self, **kwargs):
         super(ContentJustification, self).__init__(['start', 'center', 'end', 'between', 'around'], prefix='justify-content', **kwargs)
@@ -171,7 +171,7 @@ class Alignment(ResponsiveOption):
     :keyword lg: Alignment to use if the device is large.
     :keyword xl: Alignment to use if the device is extra large.
 
-    .. versionadded: 4.0
+    .. versionadded:: 4.0
     """
     def __init__(self, **kwargs):
         super(Alignment, self).__init__(['start', 'end', 'center', 'baseline', 'stretch'], **kwargs)
@@ -244,7 +244,7 @@ class ColumnOptions(object):
     :keyword offsets: A :class:`ResponsiveSize` representing extra space before the column.
     :keyword vertical_align: An :class:`Alignment` stating how this column should be aligned vertically in its container.
 
-    .. versionadded: 4.0
+    .. versionadded:: 4.0
 
     """
     @arg_checks(size=IsInstance(ResponsiveSize, allow_none=True),
@@ -379,7 +379,7 @@ class ColumnLayout(Layout):
         :keyword vertical_align: (See :class:`ColumnOptions`)
         :keyword column_widget: If given, this Widget is added as the column instead of a Div (the default).
 
-        .. versionchanged: 4.0
+        .. versionchanged:: 4.0
            Changed to create a named column with all possible options.
         """
         column_options = ColumnOptions(name, size=size, offsets=offsets, vertical_align=vertical_align)

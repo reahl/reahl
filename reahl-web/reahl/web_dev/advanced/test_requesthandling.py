@@ -39,7 +39,7 @@ class WSGIFixture(Fixture):
     status = None
     headers = None
     def result_is_valid(self, result):
-        return result.startswith('<!DOCTYPE html><html class="no-js">') and result.endswith('</html>')
+        return result.startswith('<!DOCTYPE html><html ') and result.endswith('</html>')
     def some_headers_are_set(self, headers):
         return dict(headers)['Content-Type'] == 'text/html; charset=utf-8'
 
@@ -120,10 +120,13 @@ def test_web_session_handling(reahl_system_fixture, web_fixture):
     with CallMonitor(reahl_system_fixture.system_control.orm_control.commit) as monitor:
         @stubclass(Resource)
         class ResourceStub(object):
+            should_commit = True
+            def cleanup_after_transaction(self):
+                assert monitor.times_called == 2  # The database has been committed after user code started executed, before cleanup
             def handle_request(self, request):
                 context = ExecutionContext.get_context()
                 assert context.session is UserSessionStub.session  # By the time user code executes, the session is set
-                assert monitor.times_called == 1  # The database has been committed
+                assert monitor.times_called == 1  # The database has been committed before user code started executing
                 assert not context.session.last_activity_time_set
                 assert not UserSessionStub.session.key_is_set
                 return Response()
@@ -140,7 +143,7 @@ def test_web_session_handling(reahl_system_fixture, web_fixture):
         assert monitor.times_called == 0  # ... and the database is not yet committed
         browser.open('/')
 
-        assert monitor.times_called == 1  # The database is committed after user code executed
+        assert monitor.times_called == 2  # The database is committed to save session changes before user code and again after user code executed
         assert UserSessionStub.session  # The session was set
         assert UserSessionStub.session.key_is_set  # The set_session_key was called
         assert UserSessionStub.session.saved_response.status_int is 200  # The correct response was passed to set_session_key
@@ -174,6 +177,8 @@ def test_internal_redirects(web_fixture):
 
     @stubclass(Resource)
     class ResourceStub(object):
+        should_commit = True
+        def cleanup_after_transaction(self): pass
         def handle_request(self, request):
             fixture.requests_handled.append(request)
             fixture.handling_resources.append(self)

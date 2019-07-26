@@ -23,7 +23,7 @@ class PagingFixture(Fixture):
         return self.web_fixture.new_wsgi_app(site_root=AddressBookUI, enable_js=True)
 
     def is_email_listed(self, email):
-        return self.browser.is_element_present(XPath.paragraph_containing(email))
+        return self.browser.is_element_present(XPath.paragraph().including_text(email))
 
 
 @with_fixtures(WebFixture, PagingFixture)
@@ -39,7 +39,7 @@ def test_paging(web_fixture, paging_fixture):
     assert not paging_fixture.is_email_listed('friend9@some.org')
 
     with browser.no_page_load_expected():
-        browser.click(XPath.link_with_text('2'))
+        browser.click(XPath.link().with_text('2'))
 
     assert not paging_fixture.is_email_listed('friend0@some.org')
     assert paging_fixture.is_email_listed('friend9@some.org')

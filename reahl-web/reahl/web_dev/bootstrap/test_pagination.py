@@ -81,8 +81,8 @@ class PageMenuFixture(Fixture):
     def page_range_links_match(self, link_labels):
         return self.web_fixture.driver_browser.execute_script('return window.jQuery(".pagination a").slice(2,-2).map(function(){return window.jQuery(this).html();}).toArray() == "%s"' % link_labels)
 
-    def is_marked_active(self, link_label, nth=1):
-        [li] = self.web_fixture.driver_browser.xpath('%s/..' % (XPath.link_with_text(link_label, nth=nth)))
+    def is_marked_active(self, link_label, nth=1):        
+        [li] = self.web_fixture.driver_browser.xpath('%s/..' % (XPath.link().with_text(link_label).inside_of(XPath.ul().including_class('reahl-menu')[nth])))
         return 'active' in li.attrib.get('class', '')
 
     def new_wsgi_app(self):
@@ -99,7 +99,7 @@ def test_selecting_a_page(web_fixture, page_menu_fixture):
     browser.open('/')
 
     browser.wait_for(page_menu_fixture.container_contents_is, 'contents of page 1')
-    browser.click(XPath.link_with_text('p2'))
+    browser.click(XPath.link().with_text('p2'))
     browser.wait_for(page_menu_fixture.container_contents_is, 'contents of page 2')
 
 
@@ -116,21 +116,21 @@ def test_navigating_the_page_numbers(web_fixture, page_menu_fixture):
     browser.open('/')
 
     # Case: next link
-    browser.click(XPath.link_starting_with_text('»'))
+    browser.click(XPath.link().with_text_starting('»'))
     assert browser.wait_for(fixture.page_range_links_match, 'p6,p7,p8,p9,p10')
-    browser.click(XPath.link_starting_with_text('»'))
+    browser.click(XPath.link().with_text_starting('»'))
     assert browser.wait_for(fixture.page_range_links_match, 'p11,p12,p13,p14,p15')
 
     # Case: prev link
-    browser.click(XPath.link_starting_with_text('«'))
+    browser.click(XPath.link().with_text_starting('«'))
     assert browser.wait_for(fixture.page_range_links_match, 'p6,p7,p8,p9,p10')
 
     # Case: last link
-    browser.click(XPath.link_starting_with_text('→'))
+    browser.click(XPath.link().with_text_starting('→'))
     assert browser.wait_for(fixture.page_range_links_match, 'p26,p27,p28,p29,p30')
 
     # Case: first link
-    browser.click(XPath.link_starting_with_text('←'))
+    browser.click(XPath.link().with_text_starting('←'))
     assert browser.wait_for(fixture.page_range_links_match, 'p1,p2,p3,p4,p5')
 
 
@@ -144,9 +144,9 @@ def test_contents_when_navigating_the_page_numbers(web_fixture, page_menu_fixtur
     browser = web_fixture.driver_browser
     browser.open('/')
 
-    browser.click(XPath.link_with_text('p2'))
+    browser.click(XPath.link().with_text('p2'))
     browser.wait_for(page_menu_fixture.container_contents_is, 'contents of page 2')
-    browser.click(XPath.link_starting_with_text('»'))
+    browser.click(XPath.link().with_text_starting('»'))
     browser.wait_for(page_menu_fixture.container_contents_is, 'contents of page 2')
 
 
@@ -163,7 +163,7 @@ def test_active_state_of_page_links(web_fixture, page_menu_fixture):
 
     with web_fixture.driver_browser.no_load_expected_for('.pagination>*'):
         assert not fixture.is_marked_active('p2')
-        web_fixture.driver_browser.click(XPath.link_with_text('p2'))
+        web_fixture.driver_browser.click(XPath.link().with_text('p2'))
         web_fixture.driver_browser.wait_for(fixture.is_marked_active, 'p2')
 
 
@@ -188,7 +188,7 @@ def test_active_state_on_multiple_menus(web_fixture, page_menu_fixture):
 
     assert not fixture.is_marked_active('p2', nth=1)
     assert not fixture.is_marked_active('p2', nth=2)
-    browser.click(XPath.link_with_text('p2'))
+    browser.click(XPath.link().with_text('p2'))
     browser.wait_for(fixture.is_marked_active, 'p2', 1)
     browser.wait_for(fixture.is_marked_active, 'p2', 2)
 
@@ -206,26 +206,26 @@ def test_active_state_of_next_prev_links(web_fixture, page_menu_fixture):
     browser.open('/')
 
     # Case: when you are on the left of the page range
-    assert not browser.is_active(XPath.link_starting_with_text('←'))
-    assert not browser.is_active(XPath.link_starting_with_text('«'))
-    assert browser.is_active(XPath.link_starting_with_text('»'))
-    assert browser.is_active(XPath.link_starting_with_text('→'))
+    assert not browser.is_active(XPath.link().with_text_starting('←'))
+    assert not browser.is_active(XPath.link().with_text_starting('«'))
+    assert browser.is_active(XPath.link().with_text_starting('»'))
+    assert browser.is_active(XPath.link().with_text_starting('→'))
 
     # Case: when you are in the middle of the page range
-    browser.click(XPath.link_starting_with_text('»'))
-    browser.wait_for_element_present(XPath.link_with_text('p6'))
-    assert browser.is_active(XPath.link_starting_with_text('←'))
-    assert browser.is_active(XPath.link_starting_with_text('«'))
-    assert browser.is_active(XPath.link_starting_with_text('»'))
-    assert browser.is_active(XPath.link_starting_with_text('→'))
+    browser.click(XPath.link().with_text_starting('»'))
+    browser.wait_for_element_present(XPath.link().with_text('p6'))
+    assert browser.is_active(XPath.link().with_text_starting('←'))
+    assert browser.is_active(XPath.link().with_text_starting('«'))
+    assert browser.is_active(XPath.link().with_text_starting('»'))
+    assert browser.is_active(XPath.link().with_text_starting('→'))
 
     # Case: when you are at the end of the page range
-    browser.click(XPath.link_starting_with_text('»'))
-    browser.wait_for_element_present(XPath.link_with_text('p11'))
-    assert browser.is_active(XPath.link_starting_with_text('←'))
-    assert browser.is_active(XPath.link_starting_with_text('«'))
-    assert not browser.is_active(XPath.link_starting_with_text('»'))
-    assert not browser.is_active(XPath.link_starting_with_text('→'))
+    browser.click(XPath.link().with_text_starting('»'))
+    browser.wait_for_element_present(XPath.link().with_text('p11'))
+    assert browser.is_active(XPath.link().with_text_starting('←'))
+    assert browser.is_active(XPath.link().with_text_starting('«'))
+    assert not browser.is_active(XPath.link().with_text_starting('»'))
+    assert not browser.is_active(XPath.link().with_text_starting('→'))
 
 
 class LinkScenarios(PageMenuFixture):
@@ -282,7 +282,7 @@ def test_which_links_display(web_fixture, link_scenarios):
     assert browser.wait_for(fixture.page_range_links_match, fixture.visible_page_descriptions)
 
     if fixture.goto_last_range:
-        browser.click(XPath.link_starting_with_text('→'))
+        browser.click(XPath.link().with_text_starting('→'))
 
     assert browser.wait_for(fixture.page_range_links_match, fixture.visible_last_page_descriptions)
 

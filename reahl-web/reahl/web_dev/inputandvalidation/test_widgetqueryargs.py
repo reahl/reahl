@@ -17,6 +17,8 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 
+import six
+
 from reahl.tofu import Fixture, expected, scenario, uses
 from reahl.tofu.pytestsupport import with_fixtures
 
@@ -24,78 +26,86 @@ from reahl.component.exceptions import ProgrammerError
 
 from reahl.webdev.tools import Browser, XPath
 
-from reahl.component.modelinterface import Field, exposed, IntegerField
+from reahl.component.modelinterface import Field, exposed, IntegerField, MultiChoiceField, Choice, Action, Event
 from reahl.web.fw import Bookmark, Widget
-from reahl.web.ui import A, P, Form, TextInput, Div
+from reahl.web.ui import A, P, Form, TextInput, Div, CheckboxSelectInput, SelectInput, Label, NestedForm, ButtonInput
 
 from reahl.web_dev.fixtures import WebFixture
+from reahl.dev.fixtures import ReahlSystemFixture
 
 
-@uses(web_fixture=WebFixture)
-class QueryStringFixture(Fixture):
+@uses(reahl_system_fixture=ReahlSystemFixture)
+class ValueScenarios(Fixture):
+    @scenario
+    def single_value(self):
+        self.field = IntegerField(required=False, default=1)
+        self.field_on_query_string = '{field_name}=123'
+        self.field_value_marshalled = 123
+        self.field_value_as_string = '123'
 
-    def is_state_labelled_now(self, label, state):
-        return self.web_fixture.driver_browser.is_element_present(XPath.paragraph_containing('%s is now %s' % (label, state)))
+    @scenario
+    def multi_value(self):
+        self.field = MultiChoiceField([Choice(1, IntegerField(label='One')),
+                                       Choice(2, IntegerField(label='Two')),
+                                       Choice(3, IntegerField(label='Three'))],
+                                       default=[])
+        self.field_on_query_string = '{field_name}[]=1&{field_name}[]=3'
+        self.field_value_marshalled = [1, 3]
+        self.field_value_as_string = '1,3'
 
-    def is_state_now(self, state):
-        return self.is_state_labelled_now('My state', state)
+    @scenario
+    def multi_value_not_submitted(self):
+        self.field = MultiChoiceField([Choice(1, IntegerField(label='One')),
+                                       Choice(2, IntegerField(label='Two')),
+                                       Choice(3, IntegerField(label='Three'))],
+                                       default=[2])
+        self.field_on_query_string = ''
+        self.field_value_marshalled = [2]
+        self.field_value_as_string = '2'
 
-    def change_fragment(self, fragment):
-        self.web_fixture.driver_browser.execute_script('return (window.location.hash="%s")' % fragment)
-
-    def new_FancyWidget(self):
-        fixture = self
-        class MyFancyWidget(Div):
-            def __init__(self, view):
-                super(MyFancyWidget, self).__init__(view, css_id='sedrick')
-                self.enable_refresh()
-                self.add_child(P(self.view, text='My state is now %s' % self.fancy_state))
-                fixture.widget = self
-
-            @exposed
-            def query_fields(self, fields):
-                fields.fancy_state = IntegerField(required=False, default=1)
-
-
-        return MyFancyWidget
-
-    def new_wsgi_app(self, widget_factory=None):
-        # xxxxx
-        widget_factory = widget_factory or self.FancyWidget.factory()
-        return self.web_fixture.new_wsgi_app(enable_js=True, child_factory=widget_factory)
+    @scenario
+    def multi_value_empty_the_list(self):
+        self.field = MultiChoiceField([Choice(1, IntegerField(label='One')),
+                                       Choice(2, IntegerField(label='Two')),
+                                       Choice(3, IntegerField(label='Three'))],
+                                       default=[2])
+        self.field_on_query_string = '{field_name}[]-'
+        self.field_value_marshalled = []
+        self.field_value_as_string = ''
 
 
-@with_fixtures(WebFixture, QueryStringFixture)
-def test_query_string_widget_arguments(web_fixture, query_string_fixture):
+@with_fixtures(WebFixture, ValueScenarios)
+def test_query_string_widget_arguments(web_fixture, value_scenarios):
     """Widgets can have arguments that are read from a query string"""
 
-    fixture = query_string_fixture
+    fixture = value_scenarios
 
     class WidgetWithQueryArguments(Widget):
         def __init__(self, view):
             super(WidgetWithQueryArguments, self).__init__(view)
-            self.add_child(P(view, text=self.arg_directly_on_widget))
+            self.add_child(P(view, text=six.text_type(self.arg_directly_on_widget)))
 
         @exposed
         def query_fields(self, fields):
-            fields.arg_directly_on_widget = Field()
+            fields.arg_directly_on_widget = fixture.field.unbound_copy() # We use a copy, because the Field on the fixture is only constructed once, but we get here more than once during a GET
 
     wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=WidgetWithQueryArguments.factory())
     browser = Browser(wsgi_app)
 
-    browser.open('/?arg_directly_on_widget=supercalafragalisticxpelidocious')
-    assert browser.lxml_html.xpath('//p')[0].text == 'supercalafragalisticxpelidocious'
+    browser.open('/?%s' % fixture.field_on_query_string.format(field_name='arg_directly_on_widget'))
+    assert browser.lxml_html.xpath('//p')[0].text == six.text_type(fixture.field_value_marshalled)
 
 
-@with_fixtures(WebFixture)
-def test_query_string_prepopulates_form(web_fixture):
+@with_fixtures(WebFixture, ValueScenarios)
+def test_query_string_prepopulates_form(web_fixture, value_scenarios):
     """Widget query string arguments can be used on forms to pre-populate inputs based on the query string."""
 
+    fixture = value_scenarios
 
     class ModelObject(object):
         @exposed
         def fields(self, fields):
-            fields.arg_on_other_object = Field()
+            fields.arg_on_other_object = fixture.field
 
     class FormWithQueryArguments(Form):
         def __init__(self, view):
@@ -110,12 +120,21 @@ def test_query_string_prepopulates_form(web_fixture):
     wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=FormWithQueryArguments.factory())
     browser = Browser(wsgi_app)
 
-    browser.open('/?arg_on_other_object=metoo')
-    assert browser.lxml_html.xpath('//input')[0].value == 'metoo'
+    browser.open('/?%s' % fixture.field_on_query_string.format(field_name='arg_on_other_object'))
+    assert browser.lxml_html.xpath('//input')[0].value == fixture.field_value_as_string
 
 
-@with_fixtures(WebFixture, QueryStringFixture)
-def test_widgets_with_bookmarkable_state(web_fixture, query_string_fixture):
+@uses(web_fixture=WebFixture)
+class QueryStringFixture(Fixture):    
+    def is_state_now(self, state):
+        return self.is_state_labelled_now('My state', state)
+
+    def is_state_labelled_now(self, label, state):
+        return self.web_fixture.driver_browser.is_element_present(XPath.paragraph().including_text('%s is now %s' % (label, state)))
+
+
+@with_fixtures(WebFixture, QueryStringFixture, ValueScenarios)
+def test_widgets_with_bookmarkable_state(web_fixture, query_string_fixture, value_scenarios):
     """If a widget has query_fields, call `.enable_refresh()` on it to let it change
        its contents without reloading the whole page,
        depending on a variable in the fragment of the current URL. This makes
@@ -123,23 +142,34 @@ def test_widgets_with_bookmarkable_state(web_fixture, query_string_fixture):
 
     fixture = query_string_fixture
 
-    wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=fixture.FancyWidget.factory())
+    class MyFancyWidget(Div):
+        def __init__(self, view):
+            super(MyFancyWidget, self).__init__(view, css_id='sedrick')
+            self.enable_refresh()
+            self.add_child(P(self.view, text='My state is now %s' % self.fancy_state))
+            fixture.widget = self
+
+        @exposed
+        def query_fields(self, fields):
+            fields.fancy_state = value_scenarios.field.unbound_copy()
+
+    wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=MyFancyWidget.factory())
     web_fixture.reahl_server.set_app(wsgi_app)
     web_fixture.driver_browser.open('/')
 
     # Case: the default
-    assert web_fixture.driver_browser.wait_for(fixture.is_state_now, 1)
-    assert fixture.widget.fancy_state == 1
+    assert web_fixture.driver_browser.wait_for(fixture.is_state_now, six.text_type(value_scenarios.field.default))
+    assert fixture.widget.fancy_state == value_scenarios.field.default
 
     # Case: change without page load
-    fixture.change_fragment('#fancy_state=2')
-    assert web_fixture.driver_browser.wait_for(fixture.is_state_now, 2)
-    assert fixture.widget.fancy_state == 2
+    web_fixture.driver_browser.set_fragment('#%s' % value_scenarios.field_on_query_string.format(field_name='fancy_state'))
+    assert web_fixture.driver_browser.wait_for(fixture.is_state_now, value_scenarios.field_value_marshalled)
+    assert fixture.widget.fancy_state == value_scenarios.field_value_marshalled
 
     # Case: unrelated fragment changes do not trigger a reload of the widget
     previous_widget = fixture.widget
-    fixture.change_fragment('#fancy_state=2&other_var=other_value')
-    assert web_fixture.driver_browser.wait_for(fixture.is_state_now, 2)
+    web_fixture.driver_browser.set_fragment('#%s&other_var=other_value' % value_scenarios.field_on_query_string.format(field_name='fancy_state'))
+    assert web_fixture.driver_browser.wait_for(fixture.is_state_now, value_scenarios.field_value_marshalled)
     assert fixture.widget is previous_widget
 
 
@@ -156,35 +186,29 @@ def test_css_id_is_mandatory(web_fixture):
         MyFancyWidget(web_fixture.view)
 
 
-class PartialRefreshFixture(QueryStringFixture):
-    def new_FancyWidget(self):
-        fixture = self
-        class MyFancyWidget(Div):
-            def __init__(self, view):
-                super(MyFancyWidget, self).__init__(view, css_id='sedrick')
-                self.enable_refresh(self.query_fields.refreshing_state)
-                self.add_child(P(self.view, text='My refreshing state is now %s' % self.refreshing_state))
-                self.add_child(P(self.view, text='My non-refreshing state is now %s' % self.non_refreshing_state))
-                fixture.widget = self
-
-            @exposed
-            def query_fields(self, fields):
-                fields.refreshing_state = IntegerField(required=False, default=1)
-                fields.non_refreshing_state = IntegerField(required=False, default=2)
-
-        return MyFancyWidget
-
-
-@with_fixtures(WebFixture, PartialRefreshFixture)
-def test_refreshing_only_for_specific_args(web_fixture, partial_refresh_fixture):
+@with_fixtures(WebFixture, QueryStringFixture)
+def test_refreshing_only_for_specific_args(web_fixture, query_string_fixture):
     """Calling `.enable_refresh()` only with specific query_fields has the effect that
        the Widget is only refreshed automatically for the particular fields passed, not
        for any of its query_fields.
     """
 
-    fixture = partial_refresh_fixture
+    fixture = query_string_fixture
 
-    wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=fixture.FancyWidget.factory())
+    class MyFancyWidget(Div):
+        def __init__(self, view):
+            super(MyFancyWidget, self).__init__(view, css_id='sedrick')
+            self.enable_refresh(self.query_fields.refreshing_state)
+            self.add_child(P(self.view, text='My refreshing state is now %s' % self.refreshing_state))
+            self.add_child(P(self.view, text='My non-refreshing state is now %s' % self.non_refreshing_state))
+            fixture.widget = self
+
+        @exposed
+        def query_fields(self, fields):
+            fields.refreshing_state = IntegerField(required=False, default=1)
+            fields.non_refreshing_state = IntegerField(required=False, default=2)
+
+    wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=MyFancyWidget.factory())
     web_fixture.reahl_server.set_app(wsgi_app)
     web_fixture.driver_browser.open('/')
 
@@ -193,14 +217,58 @@ def test_refreshing_only_for_specific_args(web_fixture, partial_refresh_fixture)
     assert web_fixture.driver_browser.wait_for(fixture.is_state_labelled_now, 'My non-refreshing state', 2)
 
     # Case: changing the specified field only
-    fixture.change_fragment('#refreshing_state=3')
+    web_fixture.driver_browser.set_fragment('#refreshing_state=3')
     assert web_fixture.driver_browser.wait_for(fixture.is_state_labelled_now, 'My refreshing state', 3)
     assert web_fixture.driver_browser.wait_for(fixture.is_state_labelled_now, 'My non-refreshing state', 2)
 
     # Case: changing the other field only
-    fixture.change_fragment('#non_refreshing_state=4')
+    web_fixture.driver_browser.set_fragment('#non_refreshing_state=4')
     assert web_fixture.driver_browser.wait_for(fixture.is_state_labelled_now, 'My refreshing state', 3)
     assert web_fixture.driver_browser.wait_for(fixture.is_state_labelled_now, 'My non-refreshing state', 2)
+
+
+@with_fixtures(WebFixture, QueryStringFixture)
+def test_refresh_nested_forms(web_fixture, query_string_fixture):
+    """NestedForms work correctly when they appear as children of a refreshed widget."""
+
+    fixture = query_string_fixture
+    fixture.submitted = False
+
+    class MyFancyWidget(Div):
+        def __init__(self, view):
+            super(MyFancyWidget, self).__init__(view, css_id='sedrick')
+            self.enable_refresh()
+            self.add_child(P(self.view, text='My state is now %s' % self.fancy_state))
+            if self.fancy_state == 2:
+                form = self.add_child(NestedForm(view, 'nestedform'))
+                form.define_event_handler(self.events.submit)
+                form.add_child(ButtonInput(form.form, self.events.submit))
+            fixture.widget = self
+
+        def submit(self):
+            fixture.submitted = True
+
+        @exposed
+        def query_fields(self, fields):
+            fields.fancy_state = IntegerField(required=False, default=1)
+
+        @exposed
+        def events(self, events):
+            events.submit = Event(action=Action(self.submit))
+
+    wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=MyFancyWidget.factory())
+    web_fixture.reahl_server.set_app(wsgi_app)
+    web_fixture.driver_browser.open('/')
+
+    assert web_fixture.driver_browser.wait_for(fixture.is_state_now, '1')
+
+    web_fixture.driver_browser.set_fragment('#fancy_state=%s' % '2')
+    assert web_fixture.driver_browser.wait_for(fixture.is_state_now, '2')
+
+    assert not fixture.submitted
+    web_fixture.driver_browser.click(XPath.button_labelled('submit'))
+    assert fixture.submitted
+
 
 
 @with_fixtures(WebFixture)

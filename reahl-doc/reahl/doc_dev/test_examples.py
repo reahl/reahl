@@ -19,6 +19,8 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 import os
 import os.path
 
+import pytest
+
 from reahl.tofu import Fixture, scenario, expected, temp_file_with, uses
 from reahl.tofu.pytestsupport import with_fixtures
 from reahl.stubble import SystemOutStub
@@ -52,6 +54,9 @@ from reahl.doc.examples.tutorial.addressbook2bootstrap import addressbook2bootst
 from reahl.doc.examples.tutorial.bootstrapgrids import bootstrapgrids
 from reahl.doc.examples.tutorial.pageflow1 import pageflow1
 from reahl.doc.examples.tutorial.parameterised1 import parameterised1
+
+from reahl.doc.examples.howtos.responsivedisclosure import responsivedisclosure
+from reahl.doc.examples.howtos.dynamiccontent import dynamiccontent
 
 from reahl.web_dev.fixtures import WebFixture
 
@@ -182,6 +187,14 @@ class ExampleFixture(Fixture):
     def bootstrapgrids(self):
         self.wsgi_app = self.web_fixture.new_wsgi_app(site_root=bootstrapgrids.BootstrapGridsUI, enable_js=True)
 
+    @scenario
+    def dynamiccontent(self):
+        self.wsgi_app = self.web_fixture.new_wsgi_app(site_root=dynamiccontent.DynamicUI, enable_js=True)
+
+    @scenario
+    def responsivedisclosure(self):
+        self.wsgi_app = self.web_fixture.new_wsgi_app(site_root=responsivedisclosure.ResponsiveUI, enable_js=True)
+
 
 @with_fixtures(WebFixture, ExampleFixture)
 def test_hit_home_page(web_fixture, example_fixture):
@@ -249,7 +262,7 @@ def test_slots(web_fixture, slots_scenario):
     
     web_fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path('slots1.png'))
 
-    web_fixture.driver_browser.click(XPath.link_with_text('Page 2'))
+    web_fixture.driver_browser.click(XPath.link().with_text('Page 2'))
     expected_main_contents = 'This could, for example, be where a photo gallery shows a large photo.'
     expected_secondary_contents = 'Thumbnails will then sit on the side of the big photo.'
     main_contents = fixture.get_main_slot_contents()
@@ -274,11 +287,10 @@ def test_widgets_using_factories(web_fixture, tabbed_panel_scenario):
     assert web_fixture.driver_browser.wait_for(fixture.tab_contents_equals, 'A paragraph to give content to the first tab.')
     web_fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path('tabbedpanel1.png'))
 
-    web_fixture.driver_browser.click(XPath.link_with_text('Tab 2'))
+    web_fixture.driver_browser.click(XPath.link().with_text('Tab 2'))
     assert web_fixture.driver_browser.wait_for(fixture.tab_is_active, 'Tab 2')
     assert web_fixture.driver_browser.wait_for(fixture.tab_contents_equals, 'And another ...  to give content to the second tab.')
     web_fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path('tabbedpanel2.png'))
-
 
 @with_fixtures(WebFixture, ExampleFixture.carousel_panel)
 def test_widgets(web_fixture, carousel_panel_scenario):
@@ -286,7 +298,7 @@ def test_widgets(web_fixture, carousel_panel_scenario):
     fixture.start_example_app()
     web_fixture.driver_browser.open('/')
     assert web_fixture.driver_browser.wait_for(fixture.carousel_caption_equals, 'a paragraph with text')
-    web_fixture.driver_browser.click(XPath.link_with_text('Next'))
+    web_fixture.driver_browser.click(XPath.link().with_text('Next'))
     assert web_fixture.driver_browser.wait_for(fixture.carousel_caption_equals, 'a different paragraph')
 
 
@@ -301,18 +313,17 @@ def test_validation(web_fixture, validation_scenario):
     web_fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path('validation1.png'))
     
     web_fixture.driver_browser.type('//input', 'johndoe')
-    web_fixture.driver_browser.press_tab()
     assert web_fixture.driver_browser.wait_for(fixture.error_is_visible)
     assert fixture.is_error_text('Email address should be a valid email address') 
     web_fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path('validation2.png'))
 
     web_fixture.driver_browser.type('//input', '')
-    web_fixture.driver_browser.press_tab()
     assert web_fixture.driver_browser.wait_for(fixture.error_is_visible) 
     assert fixture.is_error_text('Email address is required') 
     web_fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path('validation3.png'))
 
     web_fixture.driver_browser.type('//input', 'johndoe@some.org')
+
 @with_fixtures(WebFixture, ExampleFixture.layout)
 def test_layout(web_fixture, layout_scenario):
     fixture = layout_scenario
@@ -320,7 +331,6 @@ def test_layout(web_fixture, layout_scenario):
     fixture.start_example_app()
     web_fixture.driver_browser.open('/')
     web_fixture.driver_browser.type(XPath.input_labelled('Email address'), 'johndoe')
-    web_fixture.driver_browser.press_tab()
     assert web_fixture.driver_browser.wait_for(fixture.error_is_visible) 
     web_fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path('layout.png'))
 
@@ -349,6 +359,7 @@ def test_pageflow(web_fixture, pageflow_scenario):
         assert output.captured_output == 'johndoe@some.org submitted a comment:\nsome comment text\n' 
         assert web_fixture.driver_browser.current_url.path == '/thanks' 
         output.capture_console_screenshot(fixture.new_screenshot_path('pageflow2.txt'))
+
 @with_fixtures(WebFixture, ExampleFixture.persistence)
 def test_persistence(web_fixture, persistence_scenario):
     fixture = persistence_scenario
@@ -399,16 +410,15 @@ def test_i18n(web_fixture, i18n_scenario):
     assert web_fixture.driver_browser.title == 'Translated example' 
     web_fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path('i18n1.png'))
 
-    web_fixture.driver_browser.click(XPath.link_with_text('Afrikaans'))
+    web_fixture.driver_browser.click(XPath.link().with_text('Afrikaans'))
     assert fixture.get_text_in_p() == 'Hierdie is \'n vertaalde boodskap. Die huidige URL is "/af/some_page".' 
     assert web_fixture.driver_browser.title == 'Vertaalde voorbeeld' 
     web_fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path('i18n2.png'))
 
 def test_model_examples():
     # These examples are built to run outside of our infrastructure, hence have to be run like this:
-    for example in ['test_model1.py', 'test_model2.py', 'test_model3.py']:
-        Executable('pytest').check_call(['reahl/doc/examples/tutorial/%s' % example ])
-
+    for example in ['test_model1', 'test_model2', 'test_model3']:
+        pytest.main(['reahl.doc.examples.tutorial.%s' % example])
 
 @with_fixtures(WebFixture, ExampleFixture.addressbook1)
 def test_addressbook1(web_fixture, addressbook1_scenario):
@@ -419,7 +429,7 @@ def test_addressbook1(web_fixture, addressbook1_scenario):
     browser = Browser(addressbook1_scenario.wsgi_app)
     browser.open('/')
 
-    assert browser.is_element_present(XPath.paragraph_containing('John: johndoe@some.org')) 
+    assert browser.is_element_present(XPath.paragraph().including_text('John: johndoe@some.org')) 
 
 
 @with_fixtures(WebFixture, ExampleFixture.addressbook2)
@@ -432,7 +442,7 @@ def test_addressbook2(web_fixture, addressbook2_scenario):
     browser.type(XPath.input_labelled('Email'), 'johndoe@some.org')
     browser.click(XPath.button_labelled('Save'))
 
-    assert browser.is_element_present(XPath.paragraph_containing('John: johndoe@some.org')) 
+    assert browser.is_element_present(XPath.paragraph().including_text('John: johndoe@some.org')) 
 
 
 @with_fixtures(WebFixture, ExampleFixture.addressbook2bootstrap)
@@ -463,7 +473,7 @@ def test_pageflow1(web_fixture, pageflow1_scenario):
 
     assert browser.is_element_present('//ul[contains(@class,"nav")]') 
 
-    browser.click(XPath.link_with_text('Add'))
+    browser.click(XPath.link().with_text('Add'))
     assert browser.location_path == '/add' 
 
     browser.type(XPath.input_labelled('Name'), 'John') 
@@ -471,7 +481,7 @@ def test_pageflow1(web_fixture, pageflow1_scenario):
     browser.click(XPath.button_labelled('Save'))
 
     assert browser.location_path == '/'
-    assert browser.is_element_present(XPath.paragraph_containing('John: johndoe@some.org'))
+    assert browser.is_element_present(XPath.paragraph().including_text('John: johndoe@some.org'))
 
 
 @with_fixtures(WebFixture, ExampleFixture.parameterised1)
@@ -480,13 +490,13 @@ def test_parameterised1(web_fixture, parameterised1_scenario):
     browser = Browser(parameterised1_scenario.wsgi_app)
     browser.open('/')
 
-    browser.click(XPath.link_with_text('Add'))
+    browser.click(XPath.link().with_text('Add'))
     browser.type(XPath.input_labelled('Name'), 'John') 
     browser.type(XPath.input_labelled('Email'), 'johndoe@some.org')
     browser.click(XPath.button_labelled('Save'))
 
     assert browser.location_path == '/' 
-    browser.click(XPath.link_with_text('edit'))
+    browser.click(XPath.link().with_text('edit'))
 
     john = Session.query(parameterised1.Address).one()
     assert browser.location_path == '/edit/%s' % john.id 
@@ -495,4 +505,38 @@ def test_parameterised1(web_fixture, parameterised1_scenario):
     browser.click(XPath.button_labelled('Update'))
 
     assert browser.location_path == '/' 
-    assert browser.is_element_present(XPath.paragraph_containing('Johnny: johnny@walker.org')) 
+    assert browser.is_element_present(XPath.paragraph().including_text('Johnny: johnny@walker.org')) 
+
+
+@with_fixtures(WebFixture, ExampleFixture.dynamiccontent)
+def test_dynamiccontent(web_fixture, dynamiccontent_scenario):
+    fixture = dynamiccontent_scenario
+    browser = web_fixture.driver_browser
+
+    fixture.start_example_app()
+    browser.open('/')
+    browser.capture_cropped_screenshot(fixture.new_screenshot_path('dynamiccontent_1.png'))
+
+    browser.type(XPath.input_labelled('Total amount'), '3000')
+    percentage_input = XPath.input().inside_of(XPath.table_cell_aligned_to('Percentage', 'Fund', 'Fund A'))
+    browser.type(percentage_input, '80')
+    browser.capture_cropped_screenshot(fixture.new_screenshot_path('dynamiccontent_2.png'))
+
+    browser.set_selected(XPath.input_labelled('Amount'))
+    browser.capture_cropped_screenshot(fixture.new_screenshot_path('dynamiccontent_3.png'))
+
+
+@with_fixtures(WebFixture, ExampleFixture.responsivedisclosure)
+def test_responsivedisclosure(web_fixture, responsivedisclosure_scenario):
+    fixture = responsivedisclosure_scenario
+    browser = web_fixture.driver_browser
+
+    fixture.start_example_app()
+    browser.open('/')
+    browser.capture_cropped_screenshot(fixture.new_screenshot_path('responsivedisclosure_1.png'))
+
+    browser.set_selected(XPath.input_labelled('Existing'))
+    browser.capture_cropped_screenshot(fixture.new_screenshot_path('responsivedisclosure_2.png'))
+
+    browser.set_selected(XPath.input_labelled('New'))
+    browser.capture_cropped_screenshot(fixture.new_screenshot_path('responsivedisclosure_3.png'))

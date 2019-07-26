@@ -42,6 +42,7 @@
     <class locator="reahl.webdeclarative.migrations:MergeWebUserSessionToUserSession"/>
     <class locator="reahl.webdeclarative.migrations:RenameContentType"/>
     <class locator="reahl.webdeclarative.migrations:AllowNullUserInputValue"/>
+    <class locator="reahl.webdeclarative.migrations:AddViewPathToSessionData"/>
   </migrations>
 
   

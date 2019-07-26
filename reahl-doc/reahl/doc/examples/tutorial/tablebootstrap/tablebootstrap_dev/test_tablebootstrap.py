@@ -31,7 +31,7 @@ class TableExampleFixture(Fixture):
         return self.browser.title == 'Addresses'
 
     def address_is_listed_as(self, name):
-        return self.browser.is_element_present(XPath.table_cell_with_text(name))
+        return self.browser.is_element_present(XPath.table_cell().with_text(name))
 
 
 @with_fixtures(SqlAlchemyFixture, TableExampleFixture)
@@ -53,7 +53,7 @@ def test_editing_an_address(web_fixture, fixture):
     original_address_name = 'friend 7'   #choose the seventh address to edit
 
     fixture.browser.open('/')
-    fixture.browser.click(XPath.link_with_text('Edit', nth=7))
+    fixture.browser.click(XPath.link().with_text('Edit').inside_of(XPath.table_row()[7]))
 
     assert fixture.is_on_edit_page_for(original_address_name)
     fixture.browser.type(XPath.input_labelled('Name'), 'John Doe-changed')
@@ -74,6 +74,10 @@ def test_deleting_several_address(web_fixture, fixture):
 
     fixture.create_addresses()    #create some data to play with
 
+
+    web_fixture.reahl_server.set_app(web_fixture.new_wsgi_app(site_root=AddressBookUI))
+
+    fixture.browser = web_fixture.driver_browser
     fixture.browser.open('/')
 
     name_of_address_1 = 'friend 1'
@@ -83,10 +87,10 @@ def test_deleting_several_address(web_fixture, fixture):
     assert fixture.address_is_listed_as(name_of_address_1)
     assert fixture.address_is_listed_as(name_of_address_13)
     assert fixture.address_is_listed_as(name_of_address_20)
-
-    fixture.browser.click(XPath.checkbox_in_table_row(1))
-    fixture.browser.click(XPath.checkbox_in_table_row(13))
-    fixture.browser.click(XPath.checkbox_in_table_row(20))
+   
+    fixture.browser.click(XPath.checkbox().inside_of(XPath.table_row()[1].inside_of(XPath.table_body())))
+    fixture.browser.click(XPath.checkbox().inside_of(XPath.table_row()[13].inside_of(XPath.table_body())))
+    fixture.browser.click(XPath.checkbox().inside_of(XPath.table_row()[20].inside_of(XPath.table_body())))
     fixture.browser.click(XPath.button_labelled('Delete Selected'))
 
     assert fixture.is_on_home_page()

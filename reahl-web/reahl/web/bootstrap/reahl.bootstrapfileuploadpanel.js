@@ -69,7 +69,7 @@ $.widget('reahl.bootstrapfileuploadpanel', {
         this.queuedUploads = [];
         this.uploadInputName = this.getUploadInput().attr('name');
         this.fileInputName = this.getFileInput().attr('name');
-        this.duplicateValidationError = $('<span for="'+this.fileInputName+'" class="invalid-feedback">'+this.options.duplicateValidationErrorMessage+'</span>');
+        this.duplicateValidationError = $('<span data-generated-for="'+this.fileInputName+'" class="invalid-feedback">'+this.options.duplicateValidationErrorMessage+'</span>');
         this.uploadCounter = 0;
 
         $(this.element).on('click', 'input[name="'+this_.uploadInputName+'"]', function(e){

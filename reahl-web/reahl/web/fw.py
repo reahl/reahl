@@ -27,10 +27,12 @@ import json
 import logging
 import mimetypes
 import string
+import time
 import sys
 import threading
 from contextlib import contextmanager
 from datetime import datetime
+import itertools
 
 import cssmin
 import functools
@@ -56,6 +58,7 @@ from webob.exc import HTTPMethodNotAllowed
 from webob.exc import HTTPNotFound
 from webob.exc import HTTPSeeOther
 from webob.request import DisconnectionError
+from webob.multidict import MultiDict
 
 from reahl.component.config import StoredConfiguration
 from reahl.component.context import ExecutionContext
@@ -517,7 +520,7 @@ class UserInterface(object):
              user is allowed to perform any actions linked to this :class:`View` or not.
            :param assemble_args: keyword arguments that will be passed to the `assemble` of this :class:`View` upon creation
 
-           ..versionchanged: 4.0
+           ..versionchanged:: 4.0
              Removed slot_definitions keyword argument, rather use :meth:`ViewFactory.set_slot`.
         """
         title = title or _('Untitled')
@@ -735,7 +738,7 @@ class Bookmark(object):
        :param read_check: A no-args callable, usually the read_check of the target View. If it returns True, the current user will be allowed to see (but not click) links representing this Bookmark.
        :param write_check: A no-args callable, usually the write_check of the target View. If it returns True, the current user will be allowed to click links representing this Bookmark.
 
-       .. versionchanged: 3.2
+       .. versionchanged:: 3.2
           Added the locale kwarg.
 
     """
@@ -792,7 +795,7 @@ class Bookmark(object):
     def on_view(self, view):
         """For page-internal Bookmarks, answers a new Bookmark which is to the current Bookmark, but on the given View.
         
-        .. versionadded: 3.2
+        .. versionadded:: 3.2
         """
         if view is view.user_interface.current_view:
             request = ExecutionContext.get_context().request
@@ -944,12 +947,11 @@ class Widget(object):
         self.default_slot_definitions = {}
         self.slot_contents = {}
         self.marked_as_security_sensitive = False
-        self.set_arguments_from_query_string()
+        self.set_arguments()
         self.read_check = read_check         #:
         self.write_check = write_check       #:
         self.created_by = None               #: The factory that was used to create this Widget
         self.layout = None                   #: The Layout used for visual layout of this Widget
-
         
     def use_layout(self, layout):
         """Attaches the given Layout to this Widget. The Layout is also given a chance to customise the Widget.
@@ -970,20 +972,44 @@ class Widget(object):
 
     def is_refresh_enabled(self):
         return False
-    
+
+    def fire_on_refresh(self):
+        pass
+
     @exposed
     def query_fields(self, fields):
-        """query_fields(self, fields)
+        """Accessed as a property, but is a method:: 
 
-           Override this method to parameterise this this Widget. The Widget will find its arguments from the current
-           query string, using the names and validation details as given by the Field instances assigned to `fields`.
+              @exposed
+              query_fields(self, fields)
+
+           Override this method to parameterise this Widget. 
            
-           The `@exposed query_fields` of a Widget is exactly like the `@exposed fields` used for input to a model object.
+           When accessed as a property for the first time, this method is called, and passed an empty 
+           :class:`~reahl.component.modelinterface.FieldIndex` as `fields`. 
+           
+           Inside the method you can declare each argument of the Widget by assigning a
+           :class:`~reahl.component.modelinterface.Field` to an attribute of `fields`.
+
+           When constructed, the Widget uses the names and validation details of each Field to 
+           parse values for its arguments from the current query string. The resultant
+           argument values set as attributes on this Widget (with names matching the argument names).
         """
-        
-    def set_arguments_from_query_string(self):
-        request = ExecutionContext.get_context().request
-        self.query_fields.accept_input(request.GET)
+    
+    @property
+    def coactive_widgets(self):
+        return [widget for child in self.children for widget in child.coactive_widgets]
+
+    def accept_disambiguated_input(self, disambiguated_input):
+        self.query_fields.accept_input(disambiguated_input, ignore_validation=True)
+
+    def update_construction_state(self, disambiguated_input):
+        for field in self.query_fields.values():
+            field.update_valid_value_in_disambiguated_input(disambiguated_input)
+
+    def set_arguments(self):
+        widget_arguments = self.view.get_construction_state()
+        self.query_fields.accept_input(widget_arguments, ignore_validation=True)
 
     def add_default_slot(self, slot_name, widget_factory):
         """If this Widget contains a :class:`Slot` named `slot_name`, and no contents are available to be plugged into
@@ -1069,7 +1095,14 @@ class Widget(object):
 
     def get_contents_js(self, context=None):
         return self.children.get_js(context=context)
-        
+
+    def render_contents_js(self):
+        js = set(self.get_contents_js(context='#%s' % self.css_id))
+        result = '<script type="text/javascript">' 
+        result += ''.join(sorted(js))
+        result += '</script>'
+        return result
+
     def get_js(self, context=None):
         """Override this method if your Widget needs JavaScript to be activated on the browser side."""
         return self.get_contents_js(context=context)
@@ -1127,17 +1160,16 @@ class Widget(object):
     is_Input = False
     def check_form_related_programmer_errors(self):
         inputs = []
-        forms = {}
+        forms = []
 
-        for widget, parents_set in self.parent_widget_pairs(set([])):
+        for widget in itertools.chain([self], self.contained_widgets()):
             if widget.is_Form:
-                forms[widget] = set([parent for parent in parents_set if parent.is_refresh_enabled()])
+                forms.append(widget)
             elif widget.is_Input:
-                inputs.append((widget, set([parent for parent in parents_set if parent.is_refresh_enabled()])))
+                inputs.append(widget)
 
-        self.check_forms_unique(forms.keys())
-        self.check_all_inputs_forms_exist(forms.keys(), [i for i, refresh_set in inputs])
-        self.check_input_placement(forms, inputs)
+        self.check_forms_unique(forms)
+        self.check_all_inputs_forms_exist(forms, inputs)
 
     def check_all_inputs_forms_exist(self, forms_found_on_page, inputs_on_page):
         for i in inputs_on_page:
@@ -1145,18 +1177,6 @@ class Widget(object):
                 message = 'Could not find form for %s. Its form, %s is not present on the current page' \
                           % (six.text_type(i), six.text_type(i.form))
                 raise ProgrammerError(message)
-        
-    def check_input_placement(self, forms_with_refresh_sets, inputs_with_refresh_sets):
-        inputs_in_error = []
-        for i, i_refresh_set in inputs_with_refresh_sets:
-            if not (i_refresh_set.issubset(forms_with_refresh_sets[i.form])):
-                inputs_in_error.append((i, i_refresh_set - forms_with_refresh_sets[i.form]))
-        if inputs_in_error:
-            message = 'Inputs are not allowed where they can be refreshed separately from their forms. '
-            message += 'Some inputs were incorrectly placed:\n'
-            for i, refresh_set in inputs_in_error:
-                message += '\t%s(in %s) is refreshed by %s\n' % (six.text_type(i), six.text_type(i.form), ','.join([six.text_type(r) for r in refresh_set]))
-            raise ProgrammerError(message)
 
     def check_forms_unique(self, forms):
         checked_forms = {}
@@ -1198,6 +1218,14 @@ class Widget(object):
     def attach_out_of_bound_forms(self, forms):
         for child in self.children:
             child.attach_out_of_bound_forms(forms)
+
+    def get_out_of_bounds_forms_widget(self):
+        widgets = [widget for widget in [child.get_out_of_bounds_forms_widget() for child in self.children]
+                          if widget]
+        if not widgets:
+            return None
+        assert len(widgets) == 1
+        return widgets[0]
 
 
 class ViewPreCondition(object):
@@ -1311,10 +1339,11 @@ class RegexPath(object):
         assert isinstance(relative_path, six.text_type) # Scaffolding for Py3 port
         matched_arguments = self.match(relative_path).match.groupdict()
         fields = self.get_temp_url_argument_field_index(for_fields)
-        raw_input_values = dict(
-            [(self.convert_str_to_identifier(key), urllib_parse.unquote(value or ''))
-             for key, value in matched_arguments.items()])
-        fields.accept_input(raw_input_values)
+
+        raw_input_values = MultiDict()
+        raw_input_values.update([(self.convert_str_to_identifier(key), urllib_parse.unquote(value or ''))
+                                 for key, value in matched_arguments.items()])
+        fields.accept_input(raw_input_values.dict_of_lists())
         return fields.as_kwargs()
 
     def get_arguments_as_input(self, arguments):
@@ -1677,9 +1706,6 @@ class View(object):
     def check_rights(self, request_method):
         pass
 
-    def plug_into(self, page):
-        pass
-    
     def as_resource(self, page):
         raise HTTPNotFound()
 
@@ -1742,6 +1768,7 @@ class UrlBoundView(View):
         self.write_check = write_check or self.allowed  #: The UrlBoundView will only be allowed to receive user input if this no-arg callable returns True.
         self.cacheable = cacheable
         self.page_factory = page_factory
+        self.page = None
         self.assemble(**view_arguments)
 
     def allowed(self):
@@ -1766,8 +1793,13 @@ class UrlBoundView(View):
     def __str__(self):
         return '<UrlBoundView "%s" on "%s">' % (self.title, self.relative_path)
 
-    def plug_into(self, page):
-        page.plug_in(self)  # Will create all Widgets specified by the View, and thus their SubResources if any
+    def create_page(self, for_path, default_page_factory):
+        page_factory = self.page_factory or default_page_factory
+        if not page_factory:
+            raise ProgrammerError('there is no page defined for %s' % for_path)
+        self.page = page_factory.create(self)
+        self.page.plug_in(self)
+        return self.page
 
     def set_slot(self, name, contents):
         """Supplies a Factory (`contents`) for the framework to use to create the contents of the Slot named `name`."""
@@ -1815,7 +1847,7 @@ class UrlBoundView(View):
            :param ajax: (not for general use)
            :param locale: (See :class:`Bookmark`.)
 
-        .. versionchanged: 3.2
+        .. versionchanged:: 3.2
            Added locale kwarg.
 
         """
@@ -1828,6 +1860,69 @@ class UrlBoundView(View):
     def add_out_of_bound_form(self, out_of_bound_form):
         self.out_of_bound_forms.append(out_of_bound_form)
         return out_of_bound_form
+
+    @property
+    def full_path(self):
+        return self.as_bookmark().href.path
+
+    @property
+    def persisted_userinput_class(self):
+        config = ExecutionContext.get_context().config
+        return config.web.persisted_userinput_class
+
+    def set_construction_state_from_state_dict(self, construction_state_dict):
+        url_encoded_state = urllib_parse.urlencode(construction_state_dict, doseq=True)
+        if six.PY2:
+            url_encoded_state = url_encoded_state.decode('utf-8')
+        self._construction_client_side_state = url_encoded_state
+
+    @property
+    def construction_client_side_state(self):
+        if not hasattr(self, '_construction_client_side_state'):
+            state = self.persisted_userinput_class.get_persisted_for_view(self, '__reahl_last_construction_client_side_state__', six.text_type)
+            self._construction_client_side_state = state
+        else:
+            state = self._construction_client_side_state
+
+        return state or ''
+
+    @property
+    def current_POSTed_client_side_state(self):
+        if not hasattr(self, '_current_POSTed_client_side_state'):
+            request = ExecutionContext.get_context().request
+            client_state_string = request.POST.dict_of_lists().get('__reahl_client_side_state__', [''])[0]
+            client_state = urllib_parse.parse_qs(client_state_string, keep_blank_values=True)
+            client_state.update(request.POST) # TODO: issue: request.POST is not in disambigiated format....
+            client_state_string = urllib_parse.urlencode(client_state, doseq=True)
+            if six.PY2:
+                client_state_string = client_state_string.decode('utf-8')
+            self._current_POSTed_client_side_state = client_state_string
+        else:
+            client_state_string = self._current_POSTed_client_side_state
+        return client_state_string
+
+    @property
+    def construction_client_side_state_as_dict_of_lists(self):
+        return urllib_parse.parse_qs(self.construction_client_side_state, keep_blank_values=True)
+
+    @property
+    def current_POSTed_state_as_dict_of_lists(self):
+        return urllib_parse.parse_qs(self.current_POSTed_client_side_state, keep_blank_values=True)
+
+    def save_last_construction_state(self):
+        self.clear_last_construction_state()
+        self.persisted_userinput_class.add_persisted_for_view(self.view, '__reahl_last_construction_client_side_state__', self.construction_client_side_state, six.text_type)
+
+    def clear_last_construction_state(self):
+        self.persisted_userinput_class.remove_persisted_for_view(self.view, '__reahl_last_construction_client_side_state__')
+
+    def get_construction_state(self):
+        # This is the stuff a View needs to know before we can construct it properly (arguments and input values applicable for this view)
+        request = ExecutionContext.get_context().request
+        widget_arguments = request.GET.dict_of_lists()
+        # TODO: deal with lists and list sentinels and so on
+        widget_arguments.update(self.construction_client_side_state_as_dict_of_lists)
+        return widget_arguments
 
 
 class RedirectView(UrlBoundView):
@@ -1878,6 +1973,10 @@ class FooterContent(Widget):
 
 class Resource(object):
     @property
+    def should_commit(self):
+        return True
+
+    @property
     def http_methods(self):
         regex = re.compile(r'handle_(?!(request)$)([a-z]+)?')
         methods = []
@@ -1894,6 +1993,8 @@ class Resource(object):
         method_handler = getattr(self, 'handle_%s' % request.method.lower())
         return method_handler(request)
 
+    def cleanup_after_transaction(self):
+        pass
 
 
 class SubResource(Resource):
@@ -1950,7 +2051,10 @@ class SubResource(Resource):
         sub_path = cls.get_path_template(unique_name) % kwargs
         context = ExecutionContext.get_context()
         url = Url.get_current_url()
-        url.path = cls.get_full_path_for(url.path, sub_path)
+        view_path = url.path
+        if SubResource.is_for_sub_resource(url.path):
+            view_path = SubResource.get_view_path_for(url.path)
+        url.path = cls.get_full_path_for(view_path, sub_path)
         url.make_network_relative()
         return url
 
@@ -2004,11 +2108,10 @@ class MethodResult(object):
        :keyword replay_request: If True, first recreate everything (including this MethodResult) before generating \
             the final response in order to take possible changes made by the execution of the RemoteMethod into account.
             
-       .. versionchanged: 3.2
+       .. versionchanged:: 3.2
           Added the replay_request functionality.
           Set the default for catch_exception to DomainException
     """
-    redirects_internally = False
     def __init__(self, catch_exception=DomainException, mime_type='text/html', encoding='utf-8', replay_request=False):
         self.catch_exception = catch_exception
         self.mime_type = mime_type
@@ -2043,7 +2146,7 @@ class MethodResult(object):
         return six.text_type(exception)
 
     def get_response(self, return_value, is_internal_redirect):
-        if self.redirects_internally and not is_internal_redirect:
+        if self.replay_request and not is_internal_redirect:
             raise RegenerateMethodResult(return_value, None)
         response = self.create_response(return_value)
         response.content_type = ascii_as_bytes_or_str(self.mime_type)
@@ -2051,7 +2154,7 @@ class MethodResult(object):
         return response
 
     def get_exception_response(self, exception, is_internal_redirect):
-        if self.redirects_internally and not is_internal_redirect:
+        if self.replay_request and not is_internal_redirect:
             raise RegenerateMethodResult(None, exception)
         response = self.create_exception_response(exception)
         response.content_type = ascii_as_bytes_or_str(self.mime_type)
@@ -2068,7 +2171,7 @@ class RedirectAfterPost(MethodResult):
        :param encoding: (See :class:`MethodResult`.)
 
 
-       .. versionchanged: 4.0
+       .. versionchanged:: 4.0
           Renamed content_type to mime_type and charset to encoding in line with MethodResult args.
     """
     def __init__(self, mime_type='text/html', encoding='utf-8'):
@@ -2093,7 +2196,7 @@ class JsonResult(MethodResult):
     """
     redirects_internally = True
     def __init__(self, result_field, **kwargs):
-        super(JsonResult, self).__init__(mime_type='application/json', encoding='utf-8', **kwargs)
+        super(JsonResult, self).__init__(mime_type='application/json', encoding='utf-8', replay_request=True, **kwargs)
         self.fields = FieldIndex(self)
         self.fields.result = result_field
 
@@ -2124,7 +2227,6 @@ class WidgetResult(MethodResult):
        A JavaScript `<script>` tag is rendered also, containing the JavaScript activating code for the 
        new contents of this refreshed Widget.
     """
-    redirects_internally = True
 
     def __init__(self, result_widget, as_json_and_result=False):
         mime_type = 'application/json' if as_json_and_result else 'text/html'
@@ -2132,23 +2234,38 @@ class WidgetResult(MethodResult):
         self.result_widget = result_widget
         self.as_json_and_result = as_json_and_result
 
-    def render_html(self):
-        result = self.result_widget.render_contents()
-        js = set(self.result_widget.get_contents_js(context='#%s' % self.result_widget.css_id))
-        result += '<script type="text/javascript">' 
-        result += ''.join(sorted(js))
-        result += '</script>'
-        return result
-
     def render_as_json(self, exception):
-        rendered_widget = self.render_html()
+        widgets_to_render = set(self.get_coactive_widgets_recursively(self.result_widget))
+        widgets_to_render.add(self.result_widget)
+        rendered_widgets = {widget.css_id: widget.render_contents() + widget.render_contents_js() 
+                            for widget in widgets_to_render}
         success = exception is None
-        return json.dumps({ 'success': success, 'widget': rendered_widget })
+        return json.dumps({ 'success': success, 'widgets': rendered_widgets })
+
+    def get_coactive_widgets_recursively(self, widget):
+        all_coactive_widgets = []
+        for direct_coactive_widget in widget.coactive_widgets:
+            all_coactive_widgets.append(direct_coactive_widget)
+            for indirect_coactive_widget in direct_coactive_widget.coactive_widgets:
+                all_coactive_widgets.append(indirect_coactive_widget)
+
+        descendant_widgets = set(itertools.chain([widget], widget.contained_widgets()))
+        descendant_coactive_widgets = descendant_widgets & set(all_coactive_widgets)
+        if descendant_coactive_widgets:
+            raise ProgrammerError('%s are coactive widgets of %s and are also itself or one of its descendants' % (descendant_coactive_widgets, widget))
+
+        for coactive_widget in all_coactive_widgets:
+            descendant_widgets = set(itertools.chain([coactive_widget], coactive_widget.contained_widgets()))
+            if widget in descendant_widgets:
+                raise ProgrammerError('%s is a coactive widget of %s and is also one of its ancestors' % (coactive_widget, widget))
+
+        return all_coactive_widgets
+
 
     def render(self, return_value):
         if self.as_json_and_result:
             return self.render_as_json(None)
-        return self.render_html()
+        return self.result_widget.render_contents() + self.result_widget.render_contents_js()
 
     def render_exception(self, exception):
         if self.as_json_and_result:
@@ -2160,22 +2277,36 @@ class RemoteMethod(SubResource):
     """A server-side method that can be invoked from a browser via an URL. The method will return its result
        back to the browser in different ways, depending on which type of `default_result` it is constructed 
        with.
-
+           
        :param name: A unique name from which the URL of this RemoteMethod will be constructed.
        :param callable_object: A callable object which will receive either the raw query arguments (if immutable),
                                or the raw POST data (if not immutable) as keyword arguments.
-       :param immutable: Whether this method will yield the same side-effects and results when called more than 
-                         once, or not. Immutable methods are accessible via GET method, non-immutable methods
-                         via POST.
+       :param idempotent: Whether this method will yield the same side-effects and results when called more than 
+                         once, or not. Idempotent methods are accessible via GET method. Methods that are not idempotent
+                         are accessible by POST http method.
+       :param immutable: Pass True to guarantee that this method will not make changes in the database (the database 
+                         is rolled back to ensure this). Immutable methods are idempotent.
+
+        .. versionchanged:: 4.1
+           idempotent and immutable kwargs split up into two and better defined.
+                         
     """
     sub_regex = 'method'
     sub_path_template = 'method'
 
-    def __init__(self, name, callable_object, default_result, immutable=False):
+    def __init__(self, name, callable_object, default_result, idempotent=False, immutable=False, method=None):
         super(RemoteMethod, self).__init__(name)
+        self.idempotent = idempotent or immutable
         self.immutable = immutable
         self.callable_object = callable_object
         self.default_result = default_result
+        self.caught_exception = None
+        self.input_values = None
+        self.method = method
+
+    @property
+    def should_commit(self):
+        return ((self.caught_exception is None) or getattr(self.caught_exception, 'commit', False)) and (not self.immutable)
 
     @property
     def name(self):
@@ -2183,12 +2314,14 @@ class RemoteMethod(SubResource):
     
     @property
     def http_methods(self):
-        if self.immutable:
+        if self.method:
+            return [self.method]
+        if self.immutable or self.idempotent:
             return ['get']
         return ['post']
 
     def parse_arguments(self, input_values):
-        return dict(input_values)
+        return {k: v[0] for k, v in input_values.items()}
 
     def cleanup_after_exception(self, input_values, ex):
         """Override this method in a subclass to trigger custom behaviour after the method
@@ -2203,15 +2336,18 @@ class RemoteMethod(SubResource):
         caught_exception = None
         return_value = None
         try:
-            with context.system_control.nested_transaction():
-                return_value = self.callable_object(**self.parse_arguments(input_values))
+            return_value = self.callable_object(**self.parse_arguments(input_values))
         except catch_exception as ex:
-            context.config.web.session_class.initialise_web_session_on(context) # Because the rollback above nuked it
-            self.cleanup_after_exception(input_values, ex)
-            caught_exception = ex
+            self.caught_exception = caught_exception = ex
+            self.input_values = input_values
+        return (return_value, caught_exception)
+
+    def cleanup_after_transaction(self):
+        super(RemoteMethod, self).cleanup_after_transaction()
+        if self.caught_exception:
+            self.cleanup_after_exception(self.input_values, self.caught_exception)
         else:
             self.cleanup_after_success()
-        return (return_value, caught_exception)
 
     def make_result(self, input_values):
         """Override this method to be able to determine (at run time) what MethodResult to use
@@ -2239,10 +2375,10 @@ class RemoteMethod(SubResource):
         return response
 
     def handle_post(self, request):
-        return self.handle_get_or_post(request, request.POST)
+        return self.handle_get_or_post(request, request.POST.dict_of_lists())
 
     def handle_get(self, request):
-        return self.handle_get_or_post(request, request.GET)
+        return self.handle_get_or_post(request, request.GET.dict_of_lists())
 
 
 class CheckedRemoteMethod(RemoteMethod): 
@@ -2251,11 +2387,15 @@ class CheckedRemoteMethod(RemoteMethod):
        :param name: (See :class:`RemoteMethod`.)
        :param callable_object: (See :class:`RemoteMethod`.) Should expect a keyword argument for each key in `parameters`.
        :param result: (See :class:`RemoteMethod`.)
+       :param idempotent: (See :class:`RemoteMethod`.)
        :param immutable: (See :class:`RemoteMethod`.)
        :param parameters: A dictionary containing a Field for each argument name expected.
+
+       .. versionchanged:: 4.1
+          Split immutable into immutable and idempotent kwargs.
     """
-    def __init__(self, name, callable_object, result, immutable=False, **parameters):
-        super(CheckedRemoteMethod, self).__init__(name, callable_object, result, immutable=immutable)
+    def __init__(self, name, callable_object, result, idempotent=False, immutable=False, **parameters):
+        super(CheckedRemoteMethod, self).__init__(name, callable_object, result, idempotent=idempotent, immutable=immutable)
         self.parameters = FieldIndex(self)
         for name, field in parameters.items():
             self.parameters.set(name, field)
@@ -2264,7 +2404,7 @@ class CheckedRemoteMethod(RemoteMethod):
         exception = None
         for name, field in self.parameters.items():
             try:
-                field.from_input(input_values.get(name, ''))
+                field.from_input(input_values.get(name, [''])[0])
             except ValidationConstraint as ex:
                 exception = ex
         if exception:
@@ -2278,7 +2418,7 @@ class EventChannel(RemoteMethod):
        Programmers should not need to work with an EventChannel directly.
     """
     def __init__(self, form, controller, name):
-        super(EventChannel, self).__init__(name, self.delegate_event, None, immutable=False)
+        super(EventChannel, self).__init__(name, self.delegate_event, None, idempotent=False, immutable=False)
         self.controller = controller
         self.form = form
 
@@ -2299,10 +2439,14 @@ class EventChannel(RemoteMethod):
         return {'event': event}
 
     def cleanup_after_exception(self, input_values, ex):
+        self.form.persisted_userinput_class.clear_for_view(self.form.view)
         self.form.cleanup_after_exception(input_values, ex)
-
+        self.form.view.save_last_construction_state()
+        
     def cleanup_after_success(self):
         self.form.cleanup_after_success()
+        self.form.persisted_userinput_class.clear_for_view(self.form.view)
+        self.form.view.clear_last_construction_state()
 
 
 class ComposedPage(Resource):
@@ -2310,9 +2454,18 @@ class ComposedPage(Resource):
         super(ComposedPage, self).__init__()
         self.view = view
         self.page = page
+
+    @property
+    def should_commit(self):
+        return False
         
     def handle_get(self, request):
-        return self.render()
+        internal_redirect = getattr(request, 'internal_redirect', None)
+        if internal_redirect:
+            return self.render()
+        else:
+            # so that we can re-render on values that were updated in the domain
+            raise InternalRedirect()
 
     def render(self):
         return Response(
@@ -2661,11 +2814,7 @@ class ReahlWSGIApplication(object):
         current_view.check_precondition()
         current_view.check_rights(request.method)
         if current_view.is_dynamic:
-            page_factory = current_view.page_factory or page_factory
-            if not page_factory:
-                raise ProgrammerError('there is no page defined for %s' % url.path)
-            page = page_factory.create(current_view)
-            current_view.plug_into(page)
+            page = current_view.create_page(url.path, page_factory)
             self.check_scheme(page.is_security_sensitive)
         else:
             page = None
@@ -2714,13 +2863,25 @@ class ReahlWSGIApplication(object):
                 self.config.web.session_class.initialise_web_session_on(context)
             try:
                 try:
-                    try:
-                        resource = self.resource_for(request)
-                        response = resource.handle_request(request) 
-                    except InternalRedirect as e:
-                        request.internal_redirect = e
-                        resource = self.resource_for(request)
-                        response = resource.handle_request(request)
+                    with self.system_control.nested_transaction() as veto:
+                        veto.should_commit = False
+                        resource = None
+                        try:
+                            resource = self.resource_for(request)
+                            response = resource.handle_request(request) 
+                            veto.should_commit = resource.should_commit
+                        except InternalRedirect as e:
+                            if resource:
+                                resource.cleanup_after_transaction()
+                            resource = None
+                            request.internal_redirect = e
+                            resource = self.resource_for(request)
+                            response = resource.handle_request(request) 
+                            veto.should_commit = resource.should_commit
+                    if not veto.should_commit:
+                        context.config.web.session_class.initialise_web_session_on(context) # Because the rollback above nuked it
+                    if resource:
+                        resource.cleanup_after_transaction()
                 except HTTPException as e:
                     response = e
                 except DisconnectionError as e:
@@ -2733,6 +2894,3 @@ class ReahlWSGIApplication(object):
             finally:
                 self.system_control.finalise_session()
 
-
-
-        
