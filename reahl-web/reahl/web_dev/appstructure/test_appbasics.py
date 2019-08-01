@@ -30,7 +30,7 @@ from reahl.stubble import EmptyStub
 from reahl.webdev.tools import Browser
 
 from reahl.component.exceptions import ProgrammerError, IncorrectArgumentError, IsSubclass
-from reahl.web.fw import UserInterface, UrlBoundView
+from reahl.web.fw import UserInterface
 from reahl.web.ui import HTML5Page, P
 
 from reahl.web_dev.fixtures import WebFixture, BasicPageLayout

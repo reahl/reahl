@@ -4,7 +4,7 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 
 from passlib.hash import pbkdf2_sha256
 
-from sqlalchemy import Column, ForeignKey, Integer, Unicode, UnicodeText, String
+from sqlalchemy import Column, ForeignKey, Integer, Unicode, UnicodeText
 from sqlalchemy.orm import relationship
 
 from reahl.sqlalchemysupport import Session, Base, session_scoped

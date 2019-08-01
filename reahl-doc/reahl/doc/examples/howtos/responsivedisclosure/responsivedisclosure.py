@@ -17,15 +17,14 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 
-from reahl.component.modelinterface import exposed, EmailField, Field, Event, Action, FileField, Choice, ChoiceField, IntegerField, BooleanField
+from reahl.component.modelinterface import exposed, Field, Event, Action, Choice, ChoiceField, IntegerField, BooleanField
 from reahl.component.exceptions import DomainException
 from reahl.web.fw import UserInterface
 from reahl.web.ui import StaticColumn, DynamicColumn
 from reahl.web.layout import PageLayout
-from reahl.web.bootstrap.ui import FieldSet, HTML5Page, Div, P, HTMLWidget, Alert
-from reahl.web.bootstrap.files import FileUploadInput
+from reahl.web.bootstrap.ui import FieldSet, HTML5Page, Div, P, Alert
 from reahl.web.bootstrap.grid import Container, ColumnLayout, ColumnOptions, ResponsiveSize
-from reahl.web.bootstrap.forms import Form, FormLayout, ButtonInput, ButtonLayout, TextInput, SelectInput, RadioButtonSelectInput, CheckboxInput, Button
+from reahl.web.bootstrap.forms import Form, FormLayout, TextInput, SelectInput, RadioButtonSelectInput, CheckboxInput, Button
 from reahl.web.bootstrap.tables import Table
 
 from sqlalchemy import Column, Integer, UnicodeText, Boolean, ForeignKey
