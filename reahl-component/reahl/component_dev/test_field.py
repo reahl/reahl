@@ -641,7 +641,7 @@ def test_required_constraint(fixture):
     with expected(RequiredConstraint):
         required_constraint.validate_input(None)
     #just spaces
-    space=' '
+    space = ' '
     with expected(RequiredConstraint):
         required_constraint.validate_input(space)
     with expected(RequiredConstraint):
