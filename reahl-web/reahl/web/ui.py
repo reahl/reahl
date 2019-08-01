@@ -50,8 +50,6 @@ from reahl.mailutil.rst import RestructuredText
 _ = Catalogue('reahl-web')
 
 
-
-
 class LiteralHTML(Widget):
     """The LiteralHTML Widget renders a chunk of HTML as given in
     `contents`. If a single-argument callable is given as `transform`,
