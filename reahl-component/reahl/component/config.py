@@ -32,7 +32,6 @@ import six
 import os.path
 import logging
 import locale
-import tempfile
 import inspect
 import warnings
 from logging import config
@@ -47,6 +46,7 @@ from reahl.component.context import ExecutionContext
 class ConfigurationException(Exception):
     pass
 
+
 class ExplicitSettingRequired(object):
     pass
 
@@ -55,12 +55,13 @@ class ConfigSetting(object):
     """Used to define one configuration setting on a :class:`Configuration`.
     
     
-       :param default: The default value to be used if not specified in a config file.
-       :param description: A user readable description explaining what this ConfigSetting is for.
-       :param dangerous: Set this to True, if a warning should be emitted when used with the supplied default value.
-       :param automatic: Set this to True for a ConfigSetting which is meant to be used for dependency injection.
+       :keyword default: The default value to be used if not specified in a config file.
+       :keyword description: A user readable description explaining what this ConfigSetting is for.
+       :keyword dangerous: Set this to True, if a warning should be emitted when used with the supplied default value.
+       :keyword automatic: Set this to True for a ConfigSetting which is meant to be used for dependency injection.
     """
     _name = None
+
     def __init__(self, default=ExplicitSettingRequired, description='No description supplied', dangerous=False, automatic=False):
         self.description = description
         self.default = default
@@ -68,7 +69,7 @@ class ConfigSetting(object):
         self.automatic = automatic
 
     def __str__(self):
-        return 'for homans'
+        return 'for humans'
 
     @property
     def defaulted(self):
@@ -151,7 +152,7 @@ class EntryPointClassList(ConfigSetting):
        or other importable Python objects) is read from the entry point named `name`.
 
        :param name: The name of the entry point to read.
-       :param description: (See :class:`ConfigSetting`)
+       :keyword description: (See :class:`ConfigSetting`)
     """
     def __init__(self, name, description='Description not supplied'):
         super(EntryPointClassList, self).__init__(default=[], description=description)
@@ -273,6 +274,7 @@ class ReahlSystemConfig(Configuration):
 
 class ConfigAsDict(dict):
     def __init__(self, config):
+        super(ConfigAsDict, self).__init__()
         self.config = config
         self['config'] = config
 

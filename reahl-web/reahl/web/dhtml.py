@@ -79,7 +79,7 @@ class DhtmlUI(UserInterface):
        with id equal to `static_div_name` is read into the `main_slot` of a View. The
        title of the current View is also taken from the <title> of the static page.
        
-       :param static_div_name: The id of the <div> to insert as `main_slot` of this UserInterface.
+       :keyword static_div_name: The id of the <div> to insert as `main_slot` of this UserInterface.
     """
     def assemble(self, static_div_name=None):
         self.static_div_name = static_div_name

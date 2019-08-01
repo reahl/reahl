@@ -235,8 +235,13 @@ class FileUploadInput(reahl.web.ui.Input):
     :param form: (See :class:`~reahl.web.ui.Input`)
     :param bound_field: (See :class:`~reahl.web.ui.Input`, must be of 
               type :class:`reahl.component.modelinterface.FileField`)
+
+    .. versionchanged:: 4.1
+       Subclass of :class:`~reahl.web.ui.Input` and not :class:`~reahl.web.ui.PrimitiveInput`
+
     """
     is_for_file = False
+
     def __init__(self, form, bound_field, name=None):
         super(FileUploadInput, self).__init__(form, bound_field)
         if name:

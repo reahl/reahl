@@ -182,7 +182,6 @@ class PersistedExceptionProtocol(SessionDataProtocol):
         """Removes all saved Exceptions associated with the given :class:`reahl.web.ui.Form`."""
 
 
-
 @six.add_metaclass(ABCMeta)
 class PersistedFileProtocol(object):
     """When a file is uploaded, file is persisted using this class, for the current user's session 

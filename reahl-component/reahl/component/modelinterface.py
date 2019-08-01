@@ -274,7 +274,7 @@ class ValidationConstraint(Exception):
        first checks a string sent as user input, but can afterwards also validate the resultant Python object
        which was created based on such string input.
        
-       :param error_message: The error message shat should be shown to a user if input failed this ValidationConstraint.
+       :keyword error_message: The error message shat should be shown to a user if input failed this ValidationConstraint.
                              This error_message is a string containing a `PEP-292 <http://www.python.org/dev/peps/pep-0292/>`_
                              template. Attributes of the ValidationConstraint can be referred to by name in variable 
                              references of this template string.
@@ -356,7 +356,7 @@ class RemoteConstraint(ValidationConstraint):
     """A ValidationConstraint which can only be executed on the server. Create a subclass of this class 
        and override `validate_input` and `validate_parsed_value`.
     
-       :param error_message: (See :class:`ValidationConstraint`)
+       :keyword error_message: (See :class:`ValidationConstraint`)
     """
     is_remote = True
     name = 'remote'
@@ -419,10 +419,11 @@ class ValidationConstraintList(list):
 class RequiredConstraint(ValidationConstraint):
     """The presence of this ValidationConstraint on a Field indicates that the Field is required.
     
-       :param error_message: (See :class:`ValidationConstraint`)
+       :keyword error_message: (See :class:`ValidationConstraint`)
     """
     name = 'required'
     empty_regex = re.compile('^ +$')
+
     def __init__(self, selector_expression='*', error_message=None):
         error_message = error_message or _('$label is required')
         super(RequiredConstraint, self).__init__(error_message)
@@ -472,9 +473,10 @@ class EqualToConstraint(ComparingConstraint):
     """A ValidationConstraint that requires the value of its Field to be equal to the value input into `other_field`.
 
        :param other_field: The Field whose value must be equal to the Field to which this ValidationConstraint is attached.
-       :param error_message: (See :class:`ValidationConstraint`)
+       :keyword error_message: (See :class:`ValidationConstraint`)
     """
     name = 'equalTo2'
+
     def __init__(self, other_field, error_message=None):
         def equal_to(one, other): return one == other
         equals = Comparison(equal_to, error_message or _('$label should be equal to $other_label'))
@@ -485,7 +487,7 @@ class GreaterThanConstraint(ComparingConstraint):
     """A ValidationConstraint that requires the value of its Field to be greater than the value input into `other_field` (the > operator is used for the comparison).
 
        :param other_field: The Field whose value is compared.
-       :param error_message: (See :class:`ValidationConstraint`)
+       :keyword error_message: (See :class:`ValidationConstraint`)
     """
     name = 'greaterThan'
 
@@ -500,7 +502,7 @@ class SmallerThanConstraint(ComparingConstraint):
        into `other_field` (the < operator is used for the comparison).
     
        :param other_field: The Field whose value is compared.
-       :param error_message: (See :class:`ValidationConstraint`)
+       :keyword error_message: (See :class:`ValidationConstraint`)
     """
     name = 'smallerThan'
 
@@ -514,9 +516,10 @@ class MinLengthConstraint(ValidationConstraint):
     """A ValidationConstraint that requires length of what the user typed to be at least `min_length` characters long.
        
        :param min_length: The minimum allowed length of the input.
-       :param error_message: (See :class:`ValidationConstraint`)
+       :keyword error_message: (See :class:`ValidationConstraint`)
     """
     name = 'minlength'
+
     def __init__(self, min_length, error_message=None):
         error_message = error_message or _('$label should be $min_length characters or longer')
         super(MinLengthConstraint, self).__init__(error_message)
@@ -536,9 +539,10 @@ class MaxLengthConstraint(ValidationConstraint):
        characters long.
        
        :param max_length: The maximum allowed length of the input.
-       :param error_message: (See :class:`ValidationConstraint`)
+       :keyword error_message: (See :class:`ValidationConstraint`)
     """
     name = 'maxlength'
+
     def __init__(self, max_length, error_message=None):
         error_message = error_message or _('$label should not be longer than $max_length characters')
         super(MaxLengthConstraint, self).__init__(error_message)
@@ -557,9 +561,10 @@ class PatternConstraint(ValidationConstraint):
     """A ValidationConstraint that requires unparsed input to match the supplied regex.
        
        :param pattern: The regex to match input against.
-       :param error_message: (See :class:`ValidationConstraint`)
+       :keyword error_message: (See :class:`ValidationConstraint`)
     """
     name = 'pattern'
+
     def __init__(self, pattern, error_message=None):
         error_message = error_message or _('$label is invalid')
         super(PatternConstraint, self).__init__(error_message)
@@ -585,7 +590,7 @@ class AllowedValuesConstraint(PatternConstraint):
     """A PatternConstraint that only allows unparsed input equal to one of a list of `allowed_values`.
        
        :param allowed_values: A list containing the strings values to be allowed.
-       :param error_message: (See :class:`ValidationConstraint`)
+       :keyword error_message: (See :class:`ValidationConstraint`)
     """
     def new_for_copy(self):
         return self.__class__(self.allowed_values, error_message=self.error_message)
@@ -604,7 +609,7 @@ class AllowedValuesConstraint(PatternConstraint):
 class IntegerConstraint(PatternConstraint):
     """A PatternConstraint that only allows input that represent a valid integer.
        
-       :param error_message: (See :class:`ValidationConstraint`)
+       :keyword error_message: (See :class:`ValidationConstraint`)
     """
     def __init__(self, error_message=None):
         error_message = error_message or _('$label should be an integer number')
@@ -624,9 +629,10 @@ class MinValueConstraint(ValidationConstraint):
        (To do the comparison, the >= operator is used on the parsed value.)
        
        :param min_value: The minimum value allowed.
-       :param error_message: (See :class:`ValidationConstraint`)
+       :keyword error_message: (See :class:`ValidationConstraint`)
     """
     name = 'minvalue'
+
     def __init__(self, min_value, error_message=None):
         error_message = error_message or _('$label should be $min_value or greater')
         super(MinValueConstraint, self).__init__(error_message=error_message)
@@ -642,9 +648,10 @@ class MaxValueConstraint(ValidationConstraint):
        (To do the comparison, the <= operator is used on the parsed value.)
        
        :param max_value: The maximum value allowed.
-       :param error_message: (See :class:`ValidationConstraint`)
+       :keyword error_message: (See :class:`ValidationConstraint`)
     """
     name = 'maxvalue'
+
     def __init__(self, max_value, error_message=None):
         error_message = error_message or _('$label should be no greater than $max_value')
         super(MaxValueConstraint, self).__init__(error_message=error_message)
@@ -676,21 +683,21 @@ class Field(object):
        
        The final parsed value of a Field is set as an attribute on a Python object to which the Field is bound.
 
-       :param default: The default (parsed) value if no user input is given.
-       :param required: If True, indicates that input is always required for this Field.
-       :param required_message: See `error_message` of :class:`RequiredConstraint`.
-       :param label: A text label by which to identify this Field to a user.
-       :param readable: A callable that takes one argument (this Field). It is executed to determine whether
+       :keyword default: The default (parsed) value if no user input is given.
+       :keyword required: If True, indicates that input is always required for this Field.
+       :keyword required_message: See `error_message` of :class:`RequiredConstraint`.
+       :keyword label: A text label by which to identify this Field to a user.
+       :keyword readable: A callable that takes one argument (this Field). It is executed to determine whether
                         the current user is allowed to see this Field. Returns True if the user is allowed,
                         else False.
-       :param writable: A callable that takes one argument (this Field). It is executed to determine whether
+       :keyword writable: A callable that takes one argument (this Field). It is executed to determine whether
                         the current user is allowed supply input for this Field. Returns True if the user is
                         allowed, else False.
-       :param disallowed_message: An error message to be displayed when a user attempts to supply input
+       :keyword disallowed_message: An error message to be displayed when a user attempts to supply input
                         to this Field when it is not writable for that user. (See `error_message` of
                         :class:`ValidationConstraint`.)
-       :param min_length: The minimum number of characters allowed in the user supplied input.
-       :param max_length: The maximum number of characters allowed in the user supplied input.
+       :keyword min_length: The minimum number of characters allowed in the user supplied input.
+       :keyword max_length: The maximum number of characters allowed in the user supplied input.
 
        .. versionchanged:: 4.0
           Added min_length and max_length kwargs.
@@ -996,7 +1003,7 @@ class Action(AdaptedMethod):
        :param declared_method: The method to be called when executing this Action.
        :param arg_names: A list of the names of Event arguments to send to `declared_method` as positional arguments
                          (in the order listed).
-       :param kwarg_name_map: A dictionary specifying which keyword arguments to send to `declared_method` when called.
+       :keyword kwarg_name_map: A dictionary specifying which keyword arguments to send to `declared_method` when called.
                          The dictionary maps each name of an Event argument that needs to be sent 
                          to the name of the keyword argument as which it should be sent.
     """
@@ -1043,12 +1050,12 @@ class Event(Field):
     """An Event can be triggered by a user. When an Event occurs, the `action` of the Event is executed.
        
 
-       :param label: (See :class:`Field`)
-       :param action: The :class:`Action` to execute when this Event occurs.
-       :param readable: (See :class:`Field`)
-       :param writable: (See :class:`Field`)
-       :param disallowed_message: (See :class:`Field`)
-       :param event_argument_fields: Keyword arguments given in order to specify the names of the arguments 
+       :keyword label: (See :class:`Field`)
+       :keyword action: The :class:`Action` to execute when this Event occurs.
+       :keyword readable: (See :class:`Field`)
+       :keyword writable: (See :class:`Field`)
+       :keyword disallowed_message: (See :class:`Field`)
+       :keyword event_argument_fields: Keyword arguments given in order to specify the names of the arguments 
                         this Event should have. The value to each keyword argument is a Field
                         governing input to that Event argument.
     """
@@ -1217,12 +1224,12 @@ class SecuredDeclaration(object):
        When such a @secured method is used as the `declared_method` of an :class:`Action`, the :class:`Action`
        derives its access constraints directly from the @secured method.
        
-       :param read_check: A callable with signature matching that of the @secured method. It should
+       :keyword read_check: A callable with signature matching that of the @secured method. It should
                           return True to indicate that the current user may be aware of the method, else False.
                           User interface machinery could use this info to determine what to show to a user,
                           what to grey out, or what to hide completely, depending on who the current user is.
        
-       :param write_check: A callable with signature matching that of the @secured method. It should
+       :keyword write_check: A callable with signature matching that of the @secured method. It should
                            return True to indicate that the current user may execute the method, else False.
        
     """
@@ -1275,8 +1282,8 @@ class PasswordField(Field):
 class IntegerField(Field):
     """A Field that yields an integer.
     
-       :param min_value: The minimum value allowed as valid input.
-       :param max_value: The maximum value allowed as valid input.
+       :keyword min_value: The minimum value allowed as valid input.
+       :keyword max_value: The maximum value allowed as valid input.
        
        (For other arguments, see :class:`Field`.)
     """
@@ -1309,8 +1316,8 @@ class DateField(Field):
        conform to strict format -- a DateField does its best to parse what is given. The names of
        months, days, etc that may be typed by a user are parsed according to the current language in use.
 
-       :param min_value: The earliest value allowed as valid input.
-       :param max_value: The latest value allowed as valid input.
+       :keyword min_value: The earliest value allowed as valid input.
+       :keyword max_value: The latest value allowed as valid input.
        
        (For other arguments, see :class:`Field`.)
     """

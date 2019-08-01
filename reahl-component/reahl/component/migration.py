@@ -124,7 +124,7 @@ class Migration(object):
            :param phase: The name of the phase to schedule this call.
            :param to_call: The method or function to call.
            :param args: The positional arguments to be passed in the call.
-           :param kwargs: The keyword arguments to be passed in the call.
+           :keyword kwargs: The keyword arguments to be passed in the call.
         """
         self.changes.schedule(phase, to_call, *args, **kwargs)
 

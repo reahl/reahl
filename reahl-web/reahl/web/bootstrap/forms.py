@@ -59,7 +59,6 @@ class NestedForm(reahl.web.ui.NestedForm):
 
        :param view: (See :class:`reahl.web.fw.Widget`)
        :param unique_name: (See :class:`Form`)
-       :keyword css_id: (See :class:`HTMLElement`)
 
     """
     def create_out_of_bound_form(self, view, unique_name):
@@ -113,8 +112,8 @@ class TextArea(reahl.web.ui.TextArea):
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
        :keyword name: (See :class:`~reahl.web.ui.TextArea`)
-       :param rows: The number of rows that this Input should have.
-       :param columns: The number of columns that this Input should have.
+       :keyword rows: The number of rows that this Input should have.
+       :keyword columns: The number of columns that this Input should have.
        :keyword refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
 
        .. versionchanged:: 4.1
@@ -171,6 +170,7 @@ class CheckboxInput(reahl.web.ui.CheckboxSelectInput):
           Added `name` and `refresh_widget`
     """
     allowed_field_types = [ChoiceField]
+
     def __init__(self, form, bound_field, name=None, contents_layout=None, refresh_widget=None):
         self.contents_layout = contents_layout
         self.checkbox_input = None
@@ -208,7 +208,8 @@ class RadioButtonSelectInput(reahl.web.ui.RadioButtonSelectInput):
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
        :keyword name: (See :class:`~reahl.web.ui.RadioButtonSelectInput`)
-       :param contents_layout: An optional :class:`ChoicesLayout` used to lay out the many choices in this input.
+       :keyword contents_layout: An optional :class:`ChoicesLayout` used to lay out the many choices in this input.
+       :keyword refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
 
        .. versionchanged:: 4.1
           Added `name` and `refresh_widget`
@@ -232,7 +233,6 @@ class ButtonInput(reahl.web.ui.ButtonInput):
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param event: The :class:`~reahl.web.component.modelinterface.Event` that will fire when the user clicks on this ButtonInput.
        :keyword name: (See :class:`~reahl.web.ui.ButtonInput`)
-       :keyword css_id: (See :class:`HTMLElement`)
 
        .. versionchanged:: 4.1
           Added `name`
@@ -240,6 +240,7 @@ class ButtonInput(reahl.web.ui.ButtonInput):
     def __init__(self, form, event, name=None):
         super(ButtonInput, self).__init__(form, event, name=name)
         self.append_class('btn')
+
 
 Button = ButtonInput
 

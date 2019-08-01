@@ -32,9 +32,9 @@ class RestructuredText(object):
     def as_HTML_fragment(self, header_start=1, report_level=6, halt_level=4):
         """Returns this RestructuredText formatted as an HTML fragment.
         
-           :param header_start: The n of the top-level <hn> for top-level heading in this text.
-           :param report_level: Reports ReST error messages at or higher than this level.
-           :param halt_level:   Error messages above this level result in exceptions.
+           :keyword header_start: The n of the top-level <hn> for top-level heading in this text.
+           :keyword report_level: Reports ReST error messages at or higher than this level.
+           :keyword halt_level:   Error messages above this level result in exceptions.
 
            .. versionadded:: 4.0
         """

@@ -115,9 +115,9 @@ class PageIndex(PageIndexProtocol):
        shorter list is referred to as a page. Different ways of breaking long lists into smaller lists
        are provided by subclasses.
 
-       :param current_page_number: The initial page shown to users.
-       :param start_page_number: The first page that should be listed in the current :class:`PageMenu`.
-       :param max_page_links: The number of pages to be shown in the current :class:`PageMenu`.
+       :keyword current_page_number: The initial page shown to users.
+       :keyword start_page_number: The first page that should be listed in the current :class:`PageMenu`.
+       :keyword max_page_links: The number of pages to be shown in the current :class:`PageMenu`.
     """
     def __init__(self, current_page_number=1, start_page_number=1, max_page_links=5):
         super(PageIndex, self).__init__()
@@ -242,9 +242,9 @@ class AnnualPageIndex(PageIndex):
 
        :param annual_item_organiser: An object that implements :class:`AnnualItemOrganiserProtocol`. Its methods
                                      will be called to find the relevent items, or determine what years are applicable.
-       :param current_page_number: (See :class:`PageIndex`)
-       :param start_page_number: (See :class:`PageIndex`)
-       :param max_page_links: (See :class:`PageIndex`)
+       :keyword current_page_number: (See :class:`PageIndex`)
+       :keyword start_page_number: (See :class:`PageIndex`)
+       :keyword max_page_links: (See :class:`PageIndex`)
     """
     def __init__(self, annual_item_organiser, current_page_number=1, start_page_number=1, max_page_links=4):
         super(AnnualPageIndex, self).__init__(current_page_number=current_page_number,

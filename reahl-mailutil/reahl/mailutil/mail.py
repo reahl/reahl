@@ -44,7 +44,7 @@ class MailMessage(object):
        :param to_addresses: A list of "to" email addresses
        :param subject: The subject line
        :param rst_message: A message, expressed as a string containing ReStructured Text
-       :param charset: The charset of `rst_message`
+       :keyword charset: The charset of `rst_message`
     """
     EMAIL_RE = re.compile("^[^\s]+@[^\s]+\.[^\s]{2,4}$")
     def __init__(self, from_address, to_addresses, subject, rst_message, charset='utf-8'):
@@ -84,14 +84,14 @@ class MailMessage(object):
 class Mailer(object):
     """A proxy for a remote SMTP server.
     
-       :param smtp_host: The host to connect to.
-       :param smtp_port: The port to connect to.
-       :param smtp_user: The username to use (if specified) for authentication.
-       :param smtp_password: The password to authenticate with the smtp host.
-       :param smtp_use_initial_encrypted_connection: If True, connect to the server using a secure connection (use with smtps)
-       :param smtp_upgrade_initial_connection_to_encrypted: If True, connects to the server unencrypted, but then upgrade to a secure connection using STARTTLS (use with submission or smtp)
-       :param smtp_keyfile: Keyfile to use for identifying the local end of the connection.
-       :param smtp_certfile: Certfile to use for identifying the local end of the connection.
+       :keyword smtp_host: The host to connect to.
+       :keyword smtp_port: The port to connect to.
+       :keyword smtp_user: The username to use (if specified) for authentication.
+       :keyword smtp_password: The password to authenticate with the smtp host.
+       :keyword smtp_use_initial_encrypted_connection: If True, connect to the server using a secure connection (use with smtps)
+       :keyword smtp_upgrade_initial_connection_to_encrypted: If True, connects to the server unencrypted, but then upgrade to a secure connection using STARTTLS (use with submission or smtp)
+       :keyword smtp_keyfile: Keyfile to use for identifying the local end of the connection.
+       :keyword smtp_certfile: Certfile to use for identifying the local end of the connection.
     """
     @classmethod
     def from_context(cls):

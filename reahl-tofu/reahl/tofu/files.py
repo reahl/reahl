@@ -46,8 +46,8 @@ def file_with(name, contents, mode='w+'):
        automatically when it is garbage collected. The file is opened after creation, ready to be read.
        
        :param name: The full path name of the file to be created.
-       :param mode: The mode to open the file in, as per open() builtin.
        :param contents: The contents of the file. Must text unless binary mode was specified, in which case bytes should be used.
+       :keyword mode: The mode to open the file in, as per open() builtin.
 
     """
     return AutomaticallyDeletedFile(name, contents, mode)
@@ -149,9 +149,9 @@ def temp_file_with(contents, name=None, mode='w+'):
     """Returns an opened, named temp file with contents as supplied. If `name` is supplied, the file
        is created inside a temporary directory.
 
-       :param mode: The mode to open the file in, as per open() builtin.
        :param contents: The contents of the file. Must text unless binary mode was specified, in which case bytes should be used.
        :keyword name: If given, the the name of the file (not including the file system path to it).
+       :keyword mode: The mode to open the file in, as per open() builtin.
 
     """
     if name:
