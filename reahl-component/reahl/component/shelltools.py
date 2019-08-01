@@ -55,7 +55,10 @@ class Executable(object):
         #on windows os, some entrypoints installed in the virtualenv
         #need their full path(with extension) to be able to be used as a spawn command.
         #Python 3 now offers shutil.which() - see also http://stackoverflow.com/questions/377017/test-if-executable-exists-in-python
-        executable = distutils.spawn.find_executable(program)
+        if six.PY2:
+            executable = distutils.spawn.find_executable(program)
+        else:
+            executable = shutil.which(program)
         if executable:
             return executable
         raise ExecutableNotInstalledException(program)
