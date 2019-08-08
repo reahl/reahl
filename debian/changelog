@@ -2,6 +2,10 @@ python-reahl (4.1) unstable; urgency=low
 
  * Added the ability for onchange events to cause Widgets to be refreshed via ajax (responsive-disclosure #132).
  * Added the ability for refreshed Widgets to be able to recalculate their domain before rendering again.
+ * Changed the reahl.web.interfaces protocols to support saving and clearing key/value pairs in View scope.
+ * Changed reahl.web.bootstrap.files.FileUploadInput to inherit from reahl.web.ui.Input instead of PrimitiveInput.
+ * Added a strict_checking kwarg for ReahlWSGIApplication.from_directory (issue #174).
+ * Renamed RequiredConstraint.__init__'s selector_expression to dependency_expression.
  * Fixed Widget query_arguments mechanism to work correctly with list-like values.
  * Added fragment getter/setter on DriverBrowser.
  * Added UNDERSCORE.JS
@@ -11,7 +15,7 @@ python-reahl (4.1) unstable; urgency=low
  * Changed XPath to be composable from other XPath instances and morphable with special methods.
  * Removed old XPath methods that can now be composed (like _with_text methods).
  * Changed DriverBrowser element getter methods and condition methods to never wait.
- * Changed DriverBrowser interacting methods (like click, type) to iconsistently trigger onchange and wait for ajax by default. 
+ * Changed DriverBrowser interacting methods (like click, type) to consistently trigger onchange and wait for ajax by default. 
  * Renamed is_checked, check, and uncheck methods on DriverBrowser to work for radio buttons too.
  * Changed Table and Column to allow for table footer content in Columns.
 

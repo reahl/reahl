@@ -160,7 +160,9 @@ def find_missing_dependencies(workspace):
 
 
 def print_final_message(success=True):
-    debs_needed_to_compile_python = ['python-virtualenv', 'python-dev', 'gcc', 'cython', 'libxml2-dev', 'libxslt-dev', 'libsqlite3-0', 'sqlite3', 'postgresql-server-dev-all', 'zlib1g-dev', 'libjpeg62-dev', 'libfreetype6-dev', 'liblcms1-dev', 'mysql-client', 'libmysqlclient-dev']
+    debs_needed_to_compile_python = ['python-virtualenv', 'python-dev', 'python3-dev', 'gcc', 'cython', 'libxml2-dev', 'libxslt-dev', 'libsqlite3-0', 
+                                    'sqlite3', 'postgresql-server-dev-all', 'zlib1g-dev', 'libjpeg62-dev', 'libfreetype6-dev', 'liblcms2-dev', 
+                                    'mysql-client', 'libmysqlclient-dev']
     general_debs_needed = ['openssh-client', 'dpkg-dev', 'chromium-browser', 'chromium-chromedriver']
 
     print('')

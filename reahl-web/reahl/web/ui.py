@@ -1526,6 +1526,9 @@ class PrimitiveInput(Input):
         """Obtains the value received for this Input from the browser, given a :class:`cgi.FieldStorage`
            containing name, value pairs of user input as sent by the browser.
            Override this method if your Input needs special handling to obtain its value.
+
+           .. versionchanged:: 4.2
+              Raises ExpectedInputNotFound instead of ProgrammerError
         """
         try:
             return input_values[self.name][0]

@@ -2281,15 +2281,19 @@ class RemoteMethod(SubResource):
        :param name: A unique name from which the URL of this RemoteMethod will be constructed.
        :param callable_object: A callable object which will receive either the raw query arguments (if immutable),
                                or the raw POST data (if not immutable) as keyword arguments.
-       :param default_result:
+       :param default_result: The :class:`MethodResult` returned by :meth:`RemoteMethod.make_result`.
        :keyword idempotent: Whether this method will yield the same side-effects and results when called more than
                             once, or not. Idempotent methods are accessible via GET method. Methods that are not idempotent
                             are accessible by POST http method.
        :keyword immutable: Pass True to guarantee that this method will not make changes in the database (the database
                            is rolled back to ensure this). Immutable methods are idempotent.
-       :keyword method:
+       :keyword method: The http method supported by this RemoteMethod is derived from whether it is idempotent or not. By default 
+                        a RemoteMethod is accessible via http 'get' if it is idempotent, else by 'post'. This behaviour can be 
+                        overridden by specifying an http method explicitly using the `method` keyword argument.
+
         .. versionchanged:: 4.1
            idempotent and immutable kwargs split up into two and better defined.
+           method keyword argument added to explicitly state http method.
 
     """
     sub_regex = 'method'
@@ -2741,10 +2745,10 @@ class ReahlWSGIApplication(object):
     """
 
     @classmethod
-    def from_directory(cls, directory, strict_checking=False):
+    def from_directory(cls, directory, strict_checking=True):
         """Create a ReahlWSGIApplication given the `directory` where its configuration is stored.
 
-        :keyword strict_checking: If True, an exception will be raised when dangerous defaulted config is present.
+        :keyword strict_checking: If False, exceptions will not be raised when dangerous defaulted config is present.
 
         .. versionchanged:: 4.1
            Added strict_checking kwarg.

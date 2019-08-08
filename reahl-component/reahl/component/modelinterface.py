@@ -419,19 +419,25 @@ class ValidationConstraintList(list):
 class RequiredConstraint(ValidationConstraint):
     """The presence of this ValidationConstraint on a Field indicates that the Field is required.
     
+       :keyword dependency_expression: RequiredConstraint is conditional upon this jquery selector expression matching more 
+                                     than 0 elements. By default this matches all elements, making the RequiredConstraint 
+                                     non-conditional.
        :keyword error_message: (See :class:`ValidationConstraint`)
+
+       .. versionchanged:: 4.1
+          Renamed selector_expression to dependency_expression.
     """
     name = 'required'
     empty_regex = re.compile('^ +$')
 
-    def __init__(self, selector_expression='*', error_message=None):
+    def __init__(self, dependency_expression='*', error_message=None):
         error_message = error_message or _('$label is required')
         super(RequiredConstraint, self).__init__(error_message)
-        self.selector_expression = selector_expression
+        self.dependency_expression = dependency_expression
 
     @property
     def parameters(self):
-        return self.selector_expression
+        return self.dependency_expression
 
     def validate_input(self, unparsed_input):
         if isinstance(unparsed_input, six.string_types) and self.empty_regex.match(unparsed_input):
