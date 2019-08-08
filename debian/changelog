@@ -1,4 +1,4 @@
-python-reahl (4.1) unstable; urgency=low
+python-reahl (5.0) unstable; urgency=low
 
  * Added the ability for onchange events to cause Widgets to be refreshed via ajax (responsive-disclosure #132).
  * Added the ability for refreshed Widgets to be able to recalculate their domain before rendering again.
@@ -17,6 +17,7 @@ python-reahl (4.1) unstable; urgency=low
  * Changed DriverBrowser element getter methods and condition methods to never wait.
  * Changed DriverBrowser interacting methods (like click, type) to consistently trigger onchange and wait for ajax by default. 
  * Renamed is_checked, check, and uncheck methods on DriverBrowser to work for radio buttons too.
+ * Removed Browser.location_path, location_scheme, location_query_string in favour of .current_url.
  * Changed Table and Column to allow for table footer content in Columns.
 
  -- Iwan Vosloo <iwan@reahl.org>  Thu, 13 Dec 2018 15:15:00 +0200

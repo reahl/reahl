@@ -82,7 +82,7 @@ class TextInput(reahl.web.ui.TextInput):
                      If given True instead of a string, the label of the TextInput is used.
        :keyword refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
 
-       .. versionchanged:: 4.1
+       .. versionchanged:: 5.0
           Added `name` and `refresh_widget`
     """
     def __init__(self, form, bound_field, name=None, fuzzy=False, placeholder=False, refresh_widget=None):
@@ -98,7 +98,7 @@ class PasswordInput(reahl.web.ui.PasswordInput):
        :keyword name: (See :class:`~reahl.web.ui.PasswordInput`)
        :keyword refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
 
-       .. versionchanged:: 4.1
+       .. versionchanged:: 5.0
           Added `name` and `refresh_widget`
     """
     def __init__(self, form, bound_field, name=None, refresh_widget=None):
@@ -116,7 +116,7 @@ class TextArea(reahl.web.ui.TextArea):
        :keyword columns: The number of columns that this Input should have.
        :keyword refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
 
-       .. versionchanged:: 4.1
+       .. versionchanged:: 5.0
           Added `name` and `refresh_widget`
     """
     def __init__(self, form, bound_field, name=None, rows=None, columns=None, refresh_widget=None):
@@ -133,7 +133,7 @@ class SelectInput(reahl.web.ui.SelectInput):
        :keyword name: (See :class:`~reahl.web.ui.SelectInput`)
        :keyword refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
 
-       .. versionchanged:: 4.1
+       .. versionchanged:: 5.0
           Added `name` and `refresh_widget`
     """
     def __init__(self, form, bound_field, name=None, refresh_widget=None):
@@ -166,7 +166,7 @@ class CheckboxInput(reahl.web.ui.CheckboxSelectInput):
        :keyword contents_layout: An optional :class:`ChoicesLayout` used to lay out the checkboxes in this input.
        :keyword refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
 
-       .. versionchanged:: 4.1
+       .. versionchanged:: 5.0
           Added `name` and `refresh_widget`
     """
     allowed_field_types = [ChoiceField]
@@ -211,7 +211,7 @@ class RadioButtonSelectInput(reahl.web.ui.RadioButtonSelectInput):
        :keyword contents_layout: An optional :class:`ChoicesLayout` used to lay out the many choices in this input.
        :keyword refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
 
-       .. versionchanged:: 4.1
+       .. versionchanged:: 5.0
           Added `name` and `refresh_widget`
     """
     def __init__(self, form, bound_field, name=None, contents_layout=None, refresh_widget=None):
@@ -234,7 +234,7 @@ class ButtonInput(reahl.web.ui.ButtonInput):
        :param event: The :class:`~reahl.web.component.modelinterface.Event` that will fire when the user clicks on this ButtonInput.
        :keyword name: (See :class:`~reahl.web.ui.ButtonInput`)
 
-       .. versionchanged:: 4.1
+       .. versionchanged:: 5.0
           Added `name`
     """
     def __init__(self, form, event, name=None):

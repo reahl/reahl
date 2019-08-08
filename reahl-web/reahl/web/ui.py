@@ -282,7 +282,7 @@ class HTMLElement(Widget):
               The `for_fields` arguments were added to allow control over which of an
               HTMLElement's `query_fields` trigger a refresh.
 
-           .. versionchanged:: 4.1
+           .. versionchanged:: 5.0
               Added `on_refresh`.   
         """
         on_refresh = kwargs.get('on_refresh', None)
@@ -1424,7 +1424,7 @@ class PrimitiveInput(Input):
        :keyword registers_with_form: (for internal use)
        :keyword refresh_widget: An :class:`HTMLElement` that will be refreshed when the value of this input changes.
 
-       .. versionchanged:: 4.1
+       .. versionchanged:: 5.0
           Added `refresh_widget`
 
     """
@@ -1627,7 +1627,7 @@ class TextArea(PrimitiveInput):
        :keyword columns: The number of columns that this Input should have.
        :keyword refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
 
-       .. versionchanged:: 4.1
+       .. versionchanged:: 5.0
           Added `name` and `refresh_widget`.      
     """
     def __init__(self, form, bound_field, name=None, rows=None, columns=None, refresh_widget=None):
@@ -1745,7 +1745,7 @@ class SelectInput(PrimitiveInput):
        :keyword name: An optional name for this input (overrides the default).
        :keyword refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
 
-       .. versionchanged:: 4.1
+       .. versionchanged:: 5.0
           Added `name` and `refresh_widget`
     """
     def create_html_widget(self):
@@ -1830,7 +1830,7 @@ class RadioButtonSelectInput(PrimitiveInput):
        .. versionchanged:: 4.0
           Renamed from RadioButtonInput
 
-       .. versionchanged:: 4.1
+       .. versionchanged:: 5.0
           Added `name` and `refresh_widget`
     """
 
@@ -1891,7 +1891,7 @@ class TextInput(PrimitiveInput):
        .. versionchanged:: 3.2
           Added `placeholder`.
 
-       .. versionchanged:: 4.1
+       .. versionchanged:: 5.0
           Added `name` and `refresh_widget`
     """
     def __init__(self, form, bound_field, name=None, fuzzy=False, placeholder=False, refresh_widget=None):
@@ -1925,7 +1925,7 @@ class PasswordInput(PrimitiveInput):
        :keyword name: An optional name for this input (overrides the default).
        :keyword refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
 
-       .. versionchanged:: 4.1
+       .. versionchanged:: 5.0
           Added `name` and `refresh_widget`
     """
     def __init__(self, form, bound_field, name=None, refresh_widget=None):
@@ -1955,7 +1955,7 @@ class CheckboxInput(PrimitiveInput):
        :keyword name: An optional name for this input (overrides the default).
        :keyword refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
 
-       .. versionchanged:: 4.1
+       .. versionchanged:: 5.0
           Added `name` and `refresh_widget`
     """
     choice_type = 'checkbox'
@@ -2000,7 +2000,7 @@ class CheckboxSelectInput(PrimitiveInput):
 
        .. versionadded:: 4.0
 
-       .. versionchanged:: 4.1
+       .. versionchanged:: 5.0
           Added `name` and `refresh_widget`
     """
     choice_type = 'checkbox'
@@ -2191,7 +2191,7 @@ class SimpleFileInput(PrimitiveInput):
        :keyword name: (See :class:`~reahl.web.ui.PrimitiveInput`)
        :keyword refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
 
-       .. versionchanged:: 4.1
+       .. versionchanged:: 5.0
           Added `name` and `refresh_widget`
     """
     is_for_file = True
@@ -2400,7 +2400,7 @@ class DynamicColumn(object):
               a Widget to be displayed in the footer column representing the footer item. \
        :keyword sort_key: If specified, this value will be passed to sort() for sortable tables.
 
-       .. versionchanged:: 4.1
+       .. versionchanged:: 5.0
             Added `make_footer_widget`.
     """
     def __init__(self, make_heading_or_string, make_widget, make_footer_widget=None, sort_key=None):
@@ -2448,7 +2448,7 @@ class StaticColumn(DynamicColumn):
               item in this column.              
         :keyword sort_key: If specified, this value will be passed to sort() for sortable tables.
 
-        .. versionchanged:: 4.1
+        .. versionchanged:: 5.0
             Added `footer_label`.
     """
     def __init__(self, field, attribute_name, footer_label=None, sort_key=None):
@@ -2493,7 +2493,7 @@ class Table(HTMLElement):
            :param items: A list containing objects represented in each row of the table.
            :keyword footer_items: If given a footer is added. A list containing objects represented in each footer row of the table.
 
-           .. versionchanged:: 4.1
+           .. versionchanged:: 5.0
               Added `footer_items`.
         """
         if self.has_data:

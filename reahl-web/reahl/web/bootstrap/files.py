@@ -236,7 +236,7 @@ class FileUploadInput(reahl.web.ui.Input):
     :param bound_field: (See :class:`~reahl.web.ui.Input`, must be of 
               type :class:`reahl.component.modelinterface.FileField`)
 
-    .. versionchanged:: 4.1
+    .. versionchanged:: 5.0
        Subclass of :class:`~reahl.web.ui.Input` and not :class:`~reahl.web.ui.PrimitiveInput`
 
     """

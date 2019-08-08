@@ -2291,7 +2291,7 @@ class RemoteMethod(SubResource):
                         a RemoteMethod is accessible via http 'get' if it is idempotent, else by 'post'. This behaviour can be 
                         overridden by specifying an http method explicitly using the `method` keyword argument.
 
-        .. versionchanged:: 4.1
+        .. versionchanged:: 5.0
            idempotent and immutable kwargs split up into two and better defined.
            method keyword argument added to explicitly state http method.
 
@@ -2396,7 +2396,7 @@ class CheckedRemoteMethod(RemoteMethod):
        :keyword immutable: (See :class:`RemoteMethod`.)
        :keyword parameters: A dictionary containing a Field for each argument name expected.
 
-       .. versionchanged:: 4.1
+       .. versionchanged:: 5.0
           Split immutable into immutable and idempotent kwargs.
     """
     def __init__(self, name, callable_object, result, idempotent=False, immutable=False, **parameters):
@@ -2750,7 +2750,7 @@ class ReahlWSGIApplication(object):
 
         :keyword strict_checking: If False, exceptions will not be raised when dangerous defaulted config is present.
 
-        .. versionchanged:: 4.1
+        .. versionchanged:: 5.0
            Added strict_checking kwarg.
 
         """

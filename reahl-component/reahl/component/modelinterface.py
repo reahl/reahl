@@ -424,7 +424,7 @@ class RequiredConstraint(ValidationConstraint):
                                      non-conditional.
        :keyword error_message: (See :class:`ValidationConstraint`)
 
-       .. versionchanged:: 4.1
+       .. versionchanged:: 5.0
           Renamed selector_expression to dependency_expression.
     """
     name = 'required'
@@ -816,7 +816,7 @@ class Field(object):
         """Returns a new Field which is exactly like this one, except that its label is set to 
            the given text.
 
-        .. versionadded:: 4.1
+        .. versionadded:: 5.0
         """
         new_version = self.copy()
         new_version.label = label

@@ -91,7 +91,7 @@ class SessionDataProtocol(object):
     def clear_for_view(cls, view):
         """Removes all data saved in the scope of the given :class:`reahl.web.ui.UrlBoundView`.
 
-        .. versionadded:: 4.1        
+        .. versionadded:: 5.0        
         """
     
     __hash__ = None
@@ -135,7 +135,7 @@ class UserInputProtocol(SessionDataProtocol):
         """Returns the value associated with the given :class:`reahl.web.ui.UrlBoundView`, as previously saved using
            `key`.
 
-           .. versionadded:: 4.1
+           .. versionadded:: 5.0
         """
 
     @classmethod
@@ -144,7 +144,7 @@ class UserInputProtocol(SessionDataProtocol):
         """Persists `value` associated with the given :class:`reahl.web.ui.UrlBoundView`,
            to be retrieved using `key`.
 
-           .. versionadded:: 4.1
+           .. versionadded:: 5.0
         """
 
     @classmethod
@@ -153,7 +153,7 @@ class UserInputProtocol(SessionDataProtocol):
         """Removes previously persisted value with the given :class:`reahl.web.ui.UrlBoundView`, as previously saved using
            `key`
 
-           .. versionadded:: 4.1
+           .. versionadded:: 5.0
     """
 
 
@@ -167,7 +167,7 @@ class PersistedExceptionProtocol(SessionDataProtocol):
     def clear_for_form_except_inputs(cls, form):
         """Clears the exception associated with this form, while leaving exeptions for invididual inputs intact.
         
-        .. versionadded:: 4.1
+        .. versionadded:: 5.0
         """
 
     @classmethod
@@ -175,7 +175,7 @@ class PersistedExceptionProtocol(SessionDataProtocol):
     def save_exception_for_form(cls, form, **kwargs):
         """Saves a an exception for the given :class:`reahl.web.ui.Form`.
         
-        .. versionadded:: 4.1
+        .. versionadded:: 5.0
         """
 
     @classmethod
