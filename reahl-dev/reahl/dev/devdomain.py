@@ -721,7 +721,7 @@ class ThirdpartyDependency(Dependency):
 class XMLDependencyList(list):
     "Purely for reading related dependencies from XML."""
     def __init__(self, project, purpose):
-        super().__init__()
+        super(XMLDependencyList, self).__init__()
         self.workspace = project.workspace
         self.project = project
         self.purpose = purpose
@@ -742,7 +742,7 @@ class XMLDependencyList(list):
 class ExtrasList(list):
     "Purely for reading extras dependencies from XML."""
     def __init__(self, project, name):
-        super().__init__()
+        super(ExtrasList, self).__init__()
         self.workspace = project.workspace
         self.project = project
         self.name = name
@@ -2216,7 +2216,7 @@ class Workspace(object):
 
 class SubstvarsFile(list):
     def __init__(self, filename):
-        super().__init__()
+        super(SubstvarsFile, self).__init__()
         self.filename = filename
 
     def read(self):
