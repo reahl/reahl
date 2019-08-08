@@ -359,7 +359,7 @@ class Browser(BasicBrowser):
         return form.fields[inputs[0].name][0].value
 
     def get_full_path(self, relative_path):
-        return urllib_parse.urljoin(self.location_path, relative_path)
+        return urllib_parse.urljoin(self.current_url.path, relative_path)
 
     def is_image_shown(self, locator):
         """Answers whether the located image is available from the server (ie, whether the src attribute 

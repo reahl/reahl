@@ -106,11 +106,11 @@ def test_detour_to_login(web_fixture, party_account_fixture, workflow_web_fixtur
     browser = Browser(fixture.wsgi_app)
 
     browser.open('/inbox/')
-    assert browser.location_path == '/accounts/login'
+    assert browser.current_url.path == '/accounts/login'
     browser.type('//input[@name="email"]', party_account_fixture.system_account.email)
     browser.type('//input[@name="password"]', party_account_fixture.system_account.password)
     browser.click('//input[@value="Log in"]')
-    assert browser.location_path == '/inbox/'
+    assert browser.current_url.path == '/inbox/'
 
 
 @with_fixtures(WebFixture, TaskQueueFixture2, WorkflowWebFixture)
@@ -129,16 +129,16 @@ def test_take_and_release_task(web_fixture, task_queue_fixture, workflow_web_fix
     browser.open('/inbox/')
 
     browser.click(take_task_button)
-    assert browser.location_path == '/inbox/task/%s' % task.id
+    assert browser.current_url.path == '/inbox/task/%s' % task.id
 
     browser.click(defer_task_button)
-    assert browser.location_path == '/inbox/'
+    assert browser.current_url.path == '/inbox/'
 
     browser.click(go_to_task_button)
-    assert browser.location_path == '/inbox/task/%s' % task.id
+    assert browser.current_url.path == '/inbox/task/%s' % task.id
 
     browser.click(release_task_button)
-    assert browser.location_path == '/inbox/'
+    assert browser.current_url.path == '/inbox/'
 
 
 @with_fixtures(WebFixture, SqlAlchemyFixture, TaskQueueFixture2, WorkflowWebFixture)
