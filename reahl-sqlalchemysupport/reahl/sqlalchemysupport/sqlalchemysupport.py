@@ -215,7 +215,7 @@ class SqlAlchemyControl(ORMControl):
     def nested_transaction(self):
         """A context manager for code that needs to run in a nested transaction.
         
-        .. versionchanged:: 4.1
+        .. versionchanged:: 5.0
            Changed to yield a TransactionVeto which can be used to override when the transaction will be committed or not.
         """
         transaction = Session.begin_nested()

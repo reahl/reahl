@@ -125,7 +125,7 @@ def test_query_string_prepopulates_form(web_fixture, value_scenarios):
 
 
 @uses(web_fixture=WebFixture)
-class QueryStringFixture(Fixture):    
+class QueryStringFixture(Fixture):
     def is_state_now(self, state):
         return self.is_state_labelled_now('My state', state)
 

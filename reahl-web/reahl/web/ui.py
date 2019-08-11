@@ -50,8 +50,6 @@ from reahl.mailutil.rst import RestructuredText
 _ = Catalogue('reahl-web')
 
 
-
-
 class LiteralHTML(Widget):
     """The LiteralHTML Widget renders a chunk of HTML as given in
     `contents`. If a single-argument callable is given as `transform`,
@@ -208,7 +206,7 @@ class AjaxMethod(RemoteMethod):
 
         self.widget.fire_on_refresh()
 
-        construction_state =  {}
+        construction_state = {}
         for widget in self.view.page.contained_widgets():
             widget.update_construction_state(construction_state)
         self.view.set_construction_state_from_state_dict(construction_state)
@@ -284,7 +282,7 @@ class HTMLElement(Widget):
               The `for_fields` arguments were added to allow control over which of an
               HTMLElement's `query_fields` trigger a refresh.
 
-           .. versionchanged:: 4.1
+           .. versionchanged:: 5.0
               Added `on_refresh`.   
         """
         on_refresh = kwargs.get('on_refresh', None)
@@ -371,7 +369,7 @@ class HTMLElement(Widget):
 
     def generate_random_css_id(self):
         if not self.css_id_is_set:
-            self.set_css_id('tmpid-%s-%s' % (id(self), six.text_type(time.time()).replace('.','-')))
+            self.set_css_id('tmpid-%s-%s' % (id(self), six.text_type(time.time()).replace('.', '-')))
         else:
             raise ProgrammerError('%s already has a css_id set, will not overwrite it!' % self)
         return self.css_id
@@ -422,7 +420,7 @@ class TextNode(Widget):
                                to delay the computation of what the text of the TextNode should be to the time of
                                rendering the TextNode. The callable will be called right before the TextNode is rendered,
                                and should return the text that should be used in the TextNode.
-       :param html_escape: If True (default), the given `value` will first be HTML-escaped before rendered to the browser.
+       :keyword html_escape: If True (default), the given `value` will first be HTML-escaped before rendered to the browser.
     """
     def __init__(self, view, value_or_getter, html_escape=True):
         super(TextNode, self).__init__(view)
@@ -537,7 +535,7 @@ class Head(HTMLElement):
 
        :param view: (See :class:`reahl.web.fw.Widget`)
        :param title: Text for a template to be used as document Title (See also :class:`Title`).
-       :param css_id: (See :class:`reahl.web.ui.HTMLElement`)
+       :keyword css_id: (See :class:`reahl.web.ui.HTMLElement`)
     """
     def __init__(self, view, title, css_id=None):
         super(Head, self).__init__(view, 'head', children_allowed=True, css_id=css_id)
@@ -622,7 +620,6 @@ class HTML5Page(HTMLElement):
         return '<!DOCTYPE html>' + super(HTML5Page, self).render()
 
 
-    
 # Uses: reahl/web/reahl.ajaxlink.js
 class A(HTMLElement):
     """A hyper link.
@@ -770,7 +767,7 @@ class P(HTMLElement):
            :meth:`string.format`, except that Widgets can be passed in to be substituted into the original P.
 
            :param args: Positional arguments for substituting into the "template P"
-           :param kwargs: Named arguments for substituting into the "template P"
+           :keyword kwargs: Named arguments for substituting into the "template P"
         """
         filled_p = self.__class__(self.view)
         for child in self.parse_children(self.text):
@@ -936,7 +933,7 @@ class Img(HTMLElement):
 
 
        :param view: (See :class:`reahl.web.fw.Widget`)
-       :param src: The URL from where the embedded image file should be fetched.
+       :keyword src: The URL from where the embedded image file should be fetched.
        :keyword alt: Alternative text describing the image.
        :keyword css_id: (See :class:`reahl.web.ui.HTMLElement`)
 
@@ -968,7 +965,6 @@ class Span(HTMLElement):
             self.add_child(TextNode(view, text, html_escape=html_escape))
 
 
-
 # Uses: reahl/web/reahl.form.js
 class Form(HTMLElement):
     """A Form is a container for Inputs. Any Input has to belong to a Form. When a user clicks on
@@ -987,6 +983,7 @@ class Form(HTMLElement):
           Added create_error_label.
     """
     is_Form = True
+
     def __init__(self, view, unique_name, rendered_form=None):
         self.view = view
         self.inputs = OrderedDict()
@@ -1012,7 +1009,7 @@ class Form(HTMLElement):
         self.view.add_resource(self.field_validator)
 
     def validate_single_input(self, **input_names_and_value):
-        input_values = {k: [v] for k,v in input_names_and_value.items()}
+        input_values = {k: [v] for k, v in input_names_and_value.items()}
         try:
             name = list(input_values.keys())[0]
             self.inputs[name].validate_input(input_values)
@@ -1030,7 +1027,7 @@ class Form(HTMLElement):
         self.view.add_resource(self.input_formatter)
 
     def format_single_input(self, **input_names_and_value):
-        input_values = {k: [v] for k,v in input_names_and_value.items()}
+        input_values = {k: [v] for k, v in input_names_and_value.items()}
         try:
             name = list(input_values.keys())[0]
             return self.inputs[name].format_input(input_values)
@@ -1356,8 +1353,8 @@ class HTMLWidget(Widget):
 class Input(HTMLWidget):
     """A Widget that proxies data between a user and the web application.
 
-       :param form: The :class:`Form` with which this Input is associated.
-       :param bound_field: The :class:`reahl.component.modelinterface.Field` which validates and marshalls user
+       :keyword form: The :class:`Form` with which this Input is associated.
+       :keyword bound_field: The :class:`reahl.component.modelinterface.Field` which validates and marshalls user
                      input given via this Input.
 
        .. versionchanged:: 4.0
@@ -1426,6 +1423,9 @@ class PrimitiveInput(Input):
        :keyword name: An optional name for this input (overrides the default).
        :keyword registers_with_form: (for internal use)
        :keyword refresh_widget: An :class:`HTMLElement` that will be refreshed when the value of this input changes.
+
+       .. versionchanged:: 5.0
+          Added `refresh_widget`
 
     """
     is_for_file = False
@@ -1526,6 +1526,9 @@ class PrimitiveInput(Input):
         """Obtains the value received for this Input from the browser, given a :class:`cgi.FieldStorage`
            containing name, value pairs of user input as sent by the browser.
            Override this method if your Input needs special handling to obtain its value.
+
+           .. versionchanged:: 4.2
+              Raises ExpectedInputNotFound instead of ProgrammerError
         """
         try:
             return input_values[self.name][0]
@@ -1539,7 +1542,6 @@ class PrimitiveInput(Input):
         return self.form.persisted_userinput_class
 
     def prepare_input(self):
-        previously_entered_value = None
         construction_state = self.view.get_construction_state()
         if construction_state:
             self.bound_field.from_disambiguated_input(construction_state, ignore_validation=True)
@@ -1621,11 +1623,11 @@ class TextArea(PrimitiveInput):
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
        :keyword name: An optional name for this input (overrides the default).
-       :param rows: The number of rows that this Input should have.
-       :param columns: The number of columns that this Input should have.
-       :param refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
+       :keyword rows: The number of rows that this Input should have.
+       :keyword columns: The number of columns that this Input should have.
+       :keyword refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
 
-       .. versionchanged:: 4.1
+       .. versionchanged:: 5.0
           Added `name` and `refresh_widget`.      
     """
     def __init__(self, form, bound_field, name=None, rows=None, columns=None, refresh_widget=None):
@@ -1722,7 +1724,6 @@ class Option(ContainedInput):
         return option
 
 
-
 class OptGroup(HTMLElement):
     def __init__(self, view, label, options, css_id=None):
         super(OptGroup, self).__init__(view, 'optgroup', children_allowed=True, css_id=css_id)
@@ -1742,9 +1743,10 @@ class SelectInput(PrimitiveInput):
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
        :keyword name: An optional name for this input (overrides the default).
+       :keyword refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
 
-       .. versionchanged:: 4.1
-          Added `name`       
+       .. versionchanged:: 5.0
+          Added `name` and `refresh_widget`
     """
     def create_html_widget(self):
         html_select = HTMLElement(self.view, 'select', children_allowed=True)
@@ -1823,12 +1825,12 @@ class RadioButtonSelectInput(PrimitiveInput):
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
        :keyword name: An optional name for this input (overrides the default).
-       :param refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
+       :keyword refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
 
        .. versionchanged:: 4.0
           Renamed from RadioButtonInput
 
-       .. versionchanged:: 4.1
+       .. versionchanged:: 5.0
           Added `name` and `refresh_widget`
     """
 
@@ -1864,7 +1866,6 @@ class RadioButtonSelectInput(PrimitiveInput):
         return widget.add_child(SingleChoice(self, choice))
 
 
-
 # Uses: reahl/web/reahl.textinput.js
 class TextInput(PrimitiveInput):
     """A single line Input for typing plain text.
@@ -1885,12 +1886,12 @@ class TextInput(PrimitiveInput):
        :keyword placeholder: If given a string, placeholder is displayed in the TextInput if the TextInput
                      is empty in order to provide a hint to the user of what may be entered into the TextInput.
                      If given True instead of a string, the label of the TextInput is used.
-       :param refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
+       :keyword refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
 
        .. versionchanged:: 3.2
           Added `placeholder`.
 
-       .. versionchanged:: 4.1
+       .. versionchanged:: 5.0
           Added `name` and `refresh_widget`
     """
     def __init__(self, form, bound_field, name=None, fuzzy=False, placeholder=False, refresh_widget=None):
@@ -1922,9 +1923,9 @@ class PasswordInput(PrimitiveInput):
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
        :keyword name: An optional name for this input (overrides the default).
-       :param refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
+       :keyword refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
 
-       .. versionchanged:: 4.1
+       .. versionchanged:: 5.0
           Added `name` and `refresh_widget`
     """
     def __init__(self, form, bound_field, name=None, refresh_widget=None):
@@ -1954,7 +1955,7 @@ class CheckboxInput(PrimitiveInput):
        :keyword name: An optional name for this input (overrides the default).
        :keyword refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
 
-       .. versionchanged:: 4.1
+       .. versionchanged:: 5.0
           Added `name` and `refresh_widget`
     """
     choice_type = 'checkbox'
@@ -1999,11 +2000,12 @@ class CheckboxSelectInput(PrimitiveInput):
 
        .. versionadded:: 4.0
 
-       .. versionchanged:: 4.1
+       .. versionchanged:: 5.0
           Added `name` and `refresh_widget`
     """
     choice_type = 'checkbox'
     allowed_field_types = [MultiChoiceField]
+
     def __init__(self, form, bound_field, name=None, refresh_widget=None):
         if not isinstance(bound_field, *self.allowed_field_types):
             raise ProgrammerError('%s is not allowed to be used with %s' % (bound_field.__class__, self.__class__))
@@ -2115,7 +2117,7 @@ class ButtonInput(PrimitiveInput):
         return HTMLInputElement(self, 'submit')
 
     def prepare_input(self):
-        pass # We don't save what is submitted via buttons and don't have to fill in saved details
+        pass  # We don't save what is submitted via buttons and don't have to fill in saved details
     
 
 class Label(HTMLElement):
@@ -2189,7 +2191,7 @@ class SimpleFileInput(PrimitiveInput):
        :keyword name: (See :class:`~reahl.web.ui.PrimitiveInput`)
        :keyword refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
 
-       .. versionchanged:: 4.1
+       .. versionchanged:: 5.0
           Added `name` and `refresh_widget`
     """
     is_for_file = True
@@ -2398,7 +2400,7 @@ class DynamicColumn(object):
               a Widget to be displayed in the footer column representing the footer item. \
        :keyword sort_key: If specified, this value will be passed to sort() for sortable tables.
 
-       .. versionchanged:: 4.1
+       .. versionchanged:: 5.0
             Added `make_footer_widget`.
     """
     def __init__(self, make_heading_or_string, make_widget, make_footer_widget=None, sort_key=None):
@@ -2446,7 +2448,7 @@ class StaticColumn(DynamicColumn):
               item in this column.              
         :keyword sort_key: If specified, this value will be passed to sort() for sortable tables.
 
-        .. versionchanged:: 4.1
+        .. versionchanged:: 5.0
             Added `footer_label`.
     """
     def __init__(self, field, attribute_name, footer_label=None, sort_key=None):
@@ -2491,7 +2493,7 @@ class Table(HTMLElement):
            :param items: A list containing objects represented in each row of the table.
            :keyword footer_items: If given a footer is added. A list containing objects represented in each footer row of the table.
 
-           .. versionchanged:: 4.1
+           .. versionchanged:: 5.0
               Added `footer_items`.
         """
         if self.has_data:

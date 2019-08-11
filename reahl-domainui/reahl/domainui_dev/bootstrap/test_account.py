@@ -76,8 +76,8 @@ def test_login_with_detour(web_fixture, party_account_fixture, accounts_web_fixt
     account = party_account_fixture.system_account
 
     fixture.browser.open('/a_ui/register?a=b&name=kitty')
-    assert fixture.browser.location_path == '/a_ui/register'
-    assert fixture.browser.location_query_string == 'a=b&name=kitty'
+    assert fixture.browser.current_url.path == '/a_ui/register'
+    assert fixture.browser.current_url.query == 'a=b&name=kitty'
 
     fixture.browser.open(six.text_type(fixture.new_login_bookmark(request=fixture.browser.last_request).href))
     fixture.browser.click('//a[text()="Forgot your password?"]')
@@ -86,8 +86,8 @@ def test_login_with_detour(web_fixture, party_account_fixture, accounts_web_fixt
     fixture.browser.type('//input[@name="password"]', account.password)
     fixture.browser.click('//input[@value="Log in"]')
 
-    assert fixture.browser.location_path == '/a_ui/register'
-    assert fixture.browser.location_query_string == 'a=b&name=kitty'
+    assert fixture.browser.current_url.path == '/a_ui/register'
+    assert fixture.browser.current_url.query == 'a=b&name=kitty'
 
 
 @with_fixtures(WebFixture, AccountsWebFixture)
@@ -117,10 +117,10 @@ def test_register_help_duplicate(web_fixture, party_account_fixture, accounts_we
     fixture.browser.type('//input[@name="email"]', party_account_fixture.system_account.email)
     fixture.browser.click('//input[@value="Investigate"]')
 
-    assert fixture.browser.location_path == '/a_ui/registerHelp/duplicate'
+    assert fixture.browser.current_url.path == '/a_ui/registerHelp/duplicate'
     fixture.browser.click('//a[text()=" password reset procedure"]')
 
-    assert fixture.browser.location_path == '/a_ui/resetPassword'
+    assert fixture.browser.current_url.path == '/a_ui/resetPassword'
 
 
 @with_fixtures(WebFixture, PartyAccountFixture, AccountsWebFixture)
@@ -132,10 +132,10 @@ def test_register_help_not_found(web_fixture, party_account_fixture, accounts_we
     fixture.browser.type('//input[@name="email"]', 'another_%s' % party_account_fixture.system_account.email)
     fixture.browser.click('//input[@value="Investigate"]')
 
-    assert fixture.browser.location_path == '/a_ui/registerHelp/reregister'
+    assert fixture.browser.current_url.path == '/a_ui/registerHelp/reregister'
     fixture.browser.click('//a[text()="register again"]')
 
-    assert fixture.browser.location_path == '/a_ui/register'
+    assert fixture.browser.current_url.path == '/a_ui/register'
 
 
 @with_fixtures(WebFixture, PartyAccountFixture, AccountsWebFixture)
@@ -155,14 +155,14 @@ def test_register_help_pending(web_fixture, party_account_fixture, accounts_web_
     fixture.browser.type('//input[@name="email"]', unactivated_account.email)
     fixture.browser.click('//input[@value="Investigate"]')
 
-    assert fixture.browser.location_path == '/a_ui/registerHelp/pending'
+    assert fixture.browser.current_url.path == '/a_ui/registerHelp/pending'
     assert verification_requests.count() == 1
     party_account_fixture.mailer.reset()
     fixture.browser.click('//input[@value="Send"]')
 
     assert verification_requests.count() == 1
     assert party_account_fixture.mailer.mail_sent
-    assert fixture.browser.location_path == '/a_ui/registerHelp/pending/sent'
+    assert fixture.browser.current_url.path == '/a_ui/registerHelp/pending/sent'
 
 
 @with_fixtures(WebFixture, PartyAccountFixture, AccountsWebFixture)
@@ -186,7 +186,7 @@ def test_verify_from_menu(web_fixture, party_account_fixture, accounts_web_fixtu
     fixture.browser.type('//form[@id="verify"]//*[@name="password"]', account.password)
     fixture.browser.click('//form[@id="verify"]//*[@value="Verify"]')
 
-    assert fixture.browser.location_path == '/a_ui/thanks'
+    assert fixture.browser.current_url.path == '/a_ui/thanks'
     assert account.status.is_active()
 
     # Case needed for when you supply invalid stuff???
@@ -200,7 +200,7 @@ def test_reset_password(web_fixture, party_account_fixture, accounts_web_fixture
     fixture.browser.open('/a_ui/resetPassword')
     fixture.browser.type('//input[@name="email"]', account.email)
     fixture.browser.click('//input[@value="Reset password"]')
-    assert fixture.browser.location_path == '/a_ui/choosePassword'
+    assert fixture.browser.current_url.path == '/a_ui/choosePassword'
 
     reset_request = Session.query(NewPasswordRequest).filter_by(system_account=party_account_fixture.system_account).one()
     fixture.browser.open('/a_ui/choosePassword')
@@ -211,7 +211,7 @@ def test_reset_password(web_fixture, party_account_fixture, accounts_web_fixture
     fixture.browser.type('//input[@name="repeat_password"]', new_password )
     fixture.browser.click('//input[@value="Set new password"]')
 
-    assert fixture.browser.location_path == '/a_ui/passwordChanged'
+    assert fixture.browser.current_url.path == '/a_ui/passwordChanged'
 
 
 @with_fixtures(WebFixture, PartyAccountFixture, AccountsWebFixture)
@@ -228,5 +228,5 @@ def test_reset_password_from_url(web_fixture, party_account_fixture, accounts_we
     fixture.browser.type('//input[@name="repeat_password"]', new_password )
     fixture.browser.click('//input[@value="Set new password"]')
 
-    assert fixture.browser.location_path == '/a_ui/passwordChanged'
+    assert fixture.browser.current_url.path == '/a_ui/passwordChanged'
 

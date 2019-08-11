@@ -71,7 +71,12 @@ class UserSessionProtocol(object):
     @classmethod
     @abstractmethod
     def initialise_web_session_on(cls, context):
-        """TODO"""
+        """Fetch/create a new UserSession or do any initialisation or reinitialisation needed on it and set it 
+           on the given context as its .session attribute. 
+           
+           Called at the beginning of a request or after an abort during the request (which may require reinitialisation
+           of the session so it may still be used after the abort).
+        """
         
 
 @six.add_metaclass(ABCMeta)
@@ -84,7 +89,10 @@ class SessionDataProtocol(object):
     @classmethod
     @abstractmethod
     def clear_for_view(cls, view):
-        """Removes all data saved in the scope of the given :class:`reahl.web.ui.UrlBoundView`."""
+        """Removes all data saved in the scope of the given :class:`reahl.web.ui.UrlBoundView`.
+
+        .. versionadded:: 5.0        
+        """
     
     __hash__ = None
     @abstractmethod
@@ -127,7 +135,7 @@ class UserInputProtocol(SessionDataProtocol):
         """Returns the value associated with the given :class:`reahl.web.ui.UrlBoundView`, as previously saved using
            `key`.
 
-           .. versionadded:: 4.1
+           .. versionadded:: 5.0
         """
 
     @classmethod
@@ -136,7 +144,7 @@ class UserInputProtocol(SessionDataProtocol):
         """Persists `value` associated with the given :class:`reahl.web.ui.UrlBoundView`,
            to be retrieved using `key`.
 
-           .. versionadded:: 4.1
+           .. versionadded:: 5.0
         """
 
     @classmethod
@@ -145,7 +153,7 @@ class UserInputProtocol(SessionDataProtocol):
         """Removes previously persisted value with the given :class:`reahl.web.ui.UrlBoundView`, as previously saved using
            `key`
 
-           .. versionadded:: 4.1
+           .. versionadded:: 5.0
     """
 
 
@@ -157,12 +165,18 @@ class PersistedExceptionProtocol(SessionDataProtocol):
     @classmethod
     @abstractmethod
     def clear_for_form_except_inputs(cls, form):
-        """Clears the exception associated with this form, while leaving exeptions for invididual inputs intact."""
+        """Clears the exception associated with this form, while leaving exeptions for invididual inputs intact.
+        
+        .. versionadded:: 5.0
+        """
 
     @classmethod
     @abstractmethod
     def save_exception_for_form(cls, form, **kwargs):
-        """Saves a an exception for the given :class:`reahl.web.ui.Form`."""
+        """Saves a an exception for the given :class:`reahl.web.ui.Form`.
+        
+        .. versionadded:: 5.0
+        """
 
     @classmethod
     @abstractmethod
@@ -180,7 +194,6 @@ class PersistedExceptionProtocol(SessionDataProtocol):
     @abstractmethod
     def clear_for_all_inputs(cls, form): 
         """Removes all saved Exceptions associated with the given :class:`reahl.web.ui.Form`."""
-
 
 
 @six.add_metaclass(ABCMeta)

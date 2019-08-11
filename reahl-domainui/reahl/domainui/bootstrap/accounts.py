@@ -396,7 +396,7 @@ class AccountUI(UserInterface):
     def assemble(self, bookmarks=None):
         """Assemble this AccountUI.
         
-          :param bookmarks: An object with the following attributes, each of which is a Bookmark instance to a View\
+          :keyword bookmarks: An object with the following attributes, each of which is a Bookmark instance to a View\
               explaining the listed legal document:
               
                 - terms_bookmark: the terms of service

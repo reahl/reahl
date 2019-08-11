@@ -168,7 +168,7 @@ class ResponsiveWidgetScenarios(ResponsiveDisclosureFixture):
         class ModelObject(object):
             def __init__(self):
                 self.choice = [1]
-                
+
             @exposed
             def fields(self, fields):
                 fields.choice = MultiChoiceField([Choice(1, IntegerField(label='One'))],
@@ -277,9 +277,9 @@ def test_overridden_names(web_fixture, query_string_fixture, responsive_disclosu
             another_input = CheckboxSelectInput(self, another_model_object.fields.choice)
             self.add_child(Label(view, for_input=another_input))
             self.add_child(another_input)
-            
+
     fixture.MyForm = MyForm
-    
+
     wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=fixture.MainWidget.factory())
     web_fixture.reahl_server.set_app(wsgi_app)
     browser = web_fixture.driver_browser
@@ -514,7 +514,6 @@ def test_inputs_cleared_after_domain_exception_resubmit(web_fixture, disclosed_i
 
     fixture = disclosed_input_fixture
 
-
     wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=fixture.MyForm.factory())
     web_fixture.reahl_server.set_app(wsgi_app)
     browser = web_fixture.driver_browser
@@ -523,7 +522,7 @@ def test_inputs_cleared_after_domain_exception_resubmit(web_fixture, disclosed_i
     fixture.raise_domain_exception_on_submit = True
     fixture.default_trigger_field_value = False
     browser.open('/')
- 
+
     browser.click(XPath.input_labelled('Trigger field'))
     browser.type(XPath.input_labelled('Email'), 'expectme@example.org')
     browser.click(XPath.button_labelled('click me'))
@@ -633,7 +632,7 @@ class NestedResponsiveDisclosureFixture(Fixture):
                 super(MyForm, self).__init__(view, 'myform')
                 self.enable_refresh()
                 model_object = fixture.ModelObject()
-                
+
                 checkbox_input = CheckboxInput(self, model_object.fields.trigger_field, refresh_widget=self)
                 self.add_child(Label(self.view, for_input=checkbox_input))
                 self.add_child(checkbox_input)
@@ -654,7 +653,7 @@ class NestedResponsiveDisclosureFixture(Fixture):
 @with_fixtures(WebFixture, QueryStringFixture, NestedResponsiveDisclosureFixture)
 def test_inputs_and_widgets_work_when_nested(web_fixture, query_string_fixture, nested_responsive_disclosure_fixture):
     """Refreshable widgets can be nested inside a target widget."""
-    
+
     fixture = nested_responsive_disclosure_fixture
     wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=fixture.MyForm.factory())
 
@@ -668,7 +667,7 @@ def test_inputs_and_widgets_work_when_nested(web_fixture, query_string_fixture, 
     browser.click(XPath.input_labelled('Trigger field'))
     assert browser.wait_for(query_string_fixture.is_state_now, 'showing outer responsive content')
     assert browser.wait_for_not(query_string_fixture.is_state_now, 'showing nested responsive content')
-    
+
     browser.click(XPath.input_labelled('Nested trigger field'))
     assert browser.wait_for(query_string_fixture.is_state_now, 'showing outer responsive content')
     assert browser.wait_for(query_string_fixture.is_state_now, 'showing nested responsive content')
@@ -816,7 +815,7 @@ class RecalculatedWidgetScenarios(Fixture):
                 super(MainWidgetWithPersistentModelObject, self).__init__(view)
                 an_object = fixture.model_object
                 self.add_child(MyForm(view, an_object))
-                
+
         return MainWidgetWithPersistentModelObject
 
     @scenario
@@ -1057,4 +1056,4 @@ def test_invalid_non_trigger_input_corner_case(web_fixture, query_string_fixture
         browser.click(XPath.button_labelled('submit'))
         assert browser.is_element_present(XPath.paragraph().including_text('An exception happened on submit'))
         assert browser.is_element_value(XPath.input_labelled('Choice3'), '8')
-        
+

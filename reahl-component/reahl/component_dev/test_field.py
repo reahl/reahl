@@ -630,7 +630,7 @@ def test_security_of_receiving_events(field_fixture, allowed_scenarios):
 @with_fixtures(FieldFixture)
 def test_required_constraint(fixture):
     selector = 'find me'
-    required_constraint = RequiredConstraint(selector_expression=selector)
+    required_constraint = RequiredConstraint(dependency_expression=selector)
 
     #selector is returned as parameter
     assert required_constraint.parameters == selector
@@ -641,7 +641,7 @@ def test_required_constraint(fixture):
     with expected(RequiredConstraint):
         required_constraint.validate_input(None)
     #just spaces
-    space=' '
+    space = ' '
     with expected(RequiredConstraint):
         required_constraint.validate_input(space)
     with expected(RequiredConstraint):

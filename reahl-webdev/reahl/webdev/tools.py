@@ -64,7 +64,7 @@ class BasicBrowser(object):
     def view_source(self):
         for line in html.tostring(self.lxml_html, pretty_print=True, encoding='unicode').split('\n'): 
             print(line)
-            
+
     def save_source(self, filename):
         with io.open(filename, 'w') as html_file:
             html_file.write(self.raw_html)
@@ -92,7 +92,7 @@ class BasicBrowser(object):
 
     def get_html_for(self, locator):
         """Returns the HTML of the element (including its own tags) targeted by the given `locator`
-        
+
            :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
         """
         xpath = six.text_type(locator)
@@ -102,7 +102,7 @@ class BasicBrowser(object):
     def get_inner_html_for(self, locator):
         """Returns the HTML of the children of the element targeted by the given `locator` (excluding the 
            element's own tags).
-        
+
            :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
         """
         xpath = six.text_type(locator)
@@ -113,16 +113,16 @@ class BasicBrowser(object):
         xpath = six.text_type(locator)
         element = self.xpath(xpath)[0]
         return element.attrib['id']
-        
+
 
 class WidgetTester(BasicBrowser):
     """A WidgetTester is used to render the contents of a :class:`reahl.web.fw.Widget` instance.
-    
+
        :param widget: The Widget instance to be tested.
     """
     def __init__(self, widget):
         self.widget = widget
-        
+
     @property
     def raw_html(self):
         """The HTML rendered by the Widget."""
@@ -131,20 +131,20 @@ class WidgetTester(BasicBrowser):
     def render_html(self):
         """Returns the HTML rendered by the Widget."""
         return self.widget.render()
-    
+
     def render_html_tree(self):
         """Returns an `lxml tree <http://lxml.de/>`_ of HTML elements rendered by the Widget."""
         return html.fromstring(self.render_html())
-        
+
     def render_js(self):
         """Returns the JavaScript that would be rendered for the Widget in the page header."""
         return ' '.join(self.widget.get_js())
 
-    
+
 class Browser(BasicBrowser):
     """A Browser that can be used to test a WSGI application in the current thread, without the need for a separate
        web server. This class implements methods matching the actions a user would perform using a browser.
-       
+
        :param wsgi_app: The application instance under test.
     """
     def __init__(self, wsgi_app):
@@ -154,12 +154,12 @@ class Browser(BasicBrowser):
 
     def open(self, url_string, follow_redirects=True, **kwargs):
         """GETs the URL in `url_string`.
-    
+
            :param url_string: A string containing the URL to be opened.
            :keyword follow_redirects: If False, this method acts as a simple GET request. If True (the default),
                                       the method behaves like a browser would, by opening redirect responses.
            :keyword relative: Set to True to indicate that `url_string` contains a path relative to the current location.
-       
+
            Other keyword arguments are passed directly on to 
            `WebTest.get <http://webtest.readthedocs.org/en/latest/api.html#webtest.app.TestApp.get>`_.
         """
@@ -196,7 +196,7 @@ class Browser(BasicBrowser):
 
     def post(self, url_string, form_values, **kwargs):
         """POSTs the given form values to the url given.
-        
+
            :param url_string: A string containing the URL to be posted to.
            :param form_values: A dictionary containing form data in its key/value pairs.
 
@@ -208,7 +208,7 @@ class Browser(BasicBrowser):
     def relative(self, url_string):
         url_bits = urllib_parse.urlparse(url_string)
         return urllib_parse.urlunparse(('', '', url_bits.path, url_bits.params, url_bits.query, url_bits.fragment))
-            
+
     @property
     def raw_html(self):
         """Returns the HTML for the current location unchanged."""
@@ -230,32 +230,14 @@ class Browser(BasicBrowser):
     def last_request(self):
         """Returns the last request."""
         return self.last_response.request
-    
+
     @property
     def current_url(self):
         """Returns the :class:`reahl.web.fw.Url` of the current location.
-        
-        .. versionadded:: 4.1
+
+        .. versionadded:: 5.0
         """
         return Url(self.last_response.request.url)
-
-    @deprecated('Please use .current_url.path instead', '4.1')
-    @property
-    def location_path(self):
-        """Returns the current location url path."""
-        return self.last_response.request.path
-
-    @deprecated('Please use .current_url.scheme instead', '4.1')
-    @property
-    def location_scheme(self):
-        """Returns the the last request scheme(HTTP/HTTPS)."""
-        return self.last_response.request.scheme
-
-    @deprecated('Please use .current_url.query instead', '4.1')
-    @property
-    def location_query_string(self):
-        """Returns the current query string."""
-        return self.last_response.request.query_string
 
     def get_form_for(self, locator):
         """Return the form for the given `locator`.
@@ -270,7 +252,7 @@ class Browser(BasicBrowser):
 
     def type(self, locator, text):
         """Types the text in `text` into the input found by the `locator`.
-        
+
            :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
            :param text: The text to be typed.
         """
@@ -284,7 +266,7 @@ class Browser(BasicBrowser):
         """Clicks on the element found by `locator`.
 
            :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
-           
+
            Other keyword arguments are passed directly on to 
            `Form.submit <http://webtest.readthedocs.org/en/latest/api.html#webtest.forms.Form.submit>`_.
         """
@@ -320,7 +302,7 @@ class Browser(BasicBrowser):
         assert select.tag == 'select', 'Expected %s to find a select tag' % locator
 
         form = self.get_form_for(xpath)
-        
+
         for option in select.findall('option'):
             if option.text == label_to_choose:
                 form[select.attrib['name']] = list(option.values())[0]
@@ -348,7 +330,8 @@ class Browser(BasicBrowser):
         form[select.attrib['name']] = [option.values()[0] for option in options_to_select]
 
         if len(options_to_select) != len(options_to_select):
-            raise AssertionError('Could only select options labelled[] not all of []' % (','.join([option.text for option in options_to_select]), ','.join(labels_to_choose) ))
+            raise AssertionError('Could only select options labelled[%s] not all of [%s]' %
+                                 (','.join([option.text for option in options_to_select]), ','.join(labels_to_choose)))
 
     def select_none(self, locator):
         """Finds the select element indicated by `locator` and ensure nothing is selected.
@@ -374,9 +357,9 @@ class Browser(BasicBrowser):
         assert len(inputs) == 1
         form = self.get_form_for(xpath)
         return form.fields[inputs[0].name][0].value
-         
+
     def get_full_path(self, relative_path):
-        return urllib_parse.urljoin(self.location_path, relative_path)
+        return urllib_parse.urljoin(self.current_url.path, relative_path)
 
     def is_image_shown(self, locator):
         """Answers whether the located image is available from the server (ie, whether the src attribute 
@@ -435,7 +418,7 @@ class XPath(object):
 
        An XPath expression in a string is returned when an XPath object is cast to six.text_type.
 
-       .. versionchanged:: 4.1
+       .. versionchanged:: 5.0
           Removed .checkbox_in_table_row() method.
           Made XPath instances composable (added .inside_of).
           Added __getitem__ so that something like .table()[5] gives you the 5th table in its parent.
@@ -454,7 +437,7 @@ class XPath(object):
     """
     def __init__(self, *xpaths):
         self.xpaths = xpaths
-        
+
     def __str__(self):
         return self.xpath
 
@@ -462,10 +445,10 @@ class XPath(object):
         """Returns an XPath for the nth positioned element matching the current element.
            Can also be used to construct an XPath with an xpath condition (as a string) in the [].
 
-           .. versionadded:: 4.1
+           .. versionadded:: 5.0
         """
         return self.__class__(*['%s[%s]' % (xpath, n) for xpath in self.xpaths])
-        
+
     @property
     def xpath(self):
         return '|'.join(self.xpaths)
@@ -473,21 +456,21 @@ class XPath(object):
     def inside_of(self, another):
         """Returns an XPath that is positioned inside of another.
 
-           .. versionadded:: 4.1
+           .. versionadded:: 5.0
         """
         return self.__class__(*['%s/.%s' % (b,a) for a, b in itertools.product(self.xpaths, another.xpaths)])
 
     def __or__(self, other):
         """Returns an XPath that matches one of self or other.
 
-           .. versionadded:: 4.1
+           .. versionadded:: 5.0
         """
         return self.__class__(*(self.xpaths + other.xpaths))
 
     def including_class(self, css_class):
         """Returns an XPath that additionally has a given css_class.
 
-           .. versionadded:: 4.1
+           .. versionadded:: 5.0
         """
         return self.__class__(*['%s[contains(concat(" ", @class, " "), " %s ")]' % (xpath, css_class) for xpath in self.xpaths])
 
@@ -502,36 +485,36 @@ class XPath(object):
     def with_text(self, text):
         """Returns an XPath that additionally matches the given text exactly.
 
-           .. versionadded:: 4.1
+           .. versionadded:: 5.0
         """
         return self.__class__(*['%s[normalize-space()=normalize-space(%s)]' % (xpath, self.delimit_text(text)) for xpath in self.xpaths])
 
     def including_text(self, text):
         """Returns an XPath that additionally includes text matching the given text.
 
-           .. versionadded:: 4.1
+           .. versionadded:: 5.0
         """
         return self.__class__(*['%s[contains(normalize-space(), normalize-space(%s))]' % (xpath, self.delimit_text(text)) for xpath in self.xpaths])
 
     def with_text_starting(self, text):
         """Returns an XPath that additionally has text that starts with the given text.
 
-           .. versionadded:: 4.1
+           .. versionadded:: 5.0
         """
         return self.__class__(*['%s[starts-with(normalize-space(), normalize-space(%s))]' % (xpath, self.delimit_text(text)) for xpath in self.xpaths])
 
     def containing(self, another):
         """Returns an XPath that additionally contains another XPath.
 
-           .. versionadded:: 4.1
+           .. versionadded:: 5.0
         """
         return self.__class__(*[final_xpath for xpath in another.xpaths for final_xpath in self[re.sub(r'^//','',xpath)].xpaths])
 
     @classmethod
     def any(cls, tag_name):
         """Returns an XPath to find an HTML tag with name=tag_name.
-        
-           .. versionadded:: 4.1
+
+           .. versionadded:: 5.0
         """
         return cls('//%s' % tag_name)
 
@@ -557,24 +540,24 @@ class XPath(object):
     @classmethod
     def caption(cls):
         """Returns an XPath to find an HTML <caption>.
-        
-           ..versionadded:: 4.1
+
+           ..versionadded:: 5.0
         """
         return cls.any('caption')
 
     @classmethod
     def checkbox(cls):
         """Returns a XPath to a checkbox input.
-        
-           .. versionadded:: 4.1
+
+           .. versionadded:: 5.0
         """
         return cls.any('input')['@type="checkbox"']
 
     @classmethod
     def div(cls):
         """Returns an XPath to find an HTML <div>.
-        
-           .. versionadded:: 4.1
+
+           .. versionadded:: 5.0
         """
         return cls.any('div')
 
@@ -590,8 +573,8 @@ class XPath(object):
     @classmethod
     def heading(cls, level):
         """Returns an XPath to find an HTML <h?> of level `level`.
-        
-           .. versionadded:: 4.1
+
+           .. versionadded:: 5.0
         """
         return cls.any('h%s' % level)
 
@@ -621,39 +604,39 @@ class XPath(object):
     def label(cls):
         """Returns an XPath to find an HTML <label>.
 
-           .. versionadded:: 4.1
+           .. versionadded:: 5.0
         """
         return cls.any('label')
 
     @classmethod
     def legend(cls):
         """Returns an XPath to find an HTML <legend>.
-        
-           .. versionadded:: 4.1
+
+           .. versionadded:: 5.0
         """
         return cls.any('legend')
- 
+
     @classmethod
     def link(cls):
         """Returns an XPath to find an HTML <a>.
-                
-           .. versionadded:: 4.1
+
+           .. versionadded:: 5.0
         """
         return cls.any('a')
 
     @classmethod
     def option(cls):
         """Returns an XPath to find an HTML <option>.
-        
-           .. versionadded:: 4.1
+
+           .. versionadded:: 5.0
         """
         return cls.any('option')
 
     @classmethod
     def paragraph(cls):
         """Returns an XPath to find an HTML <p>.
-        
-           .. versionadded:: 4.1
+
+           .. versionadded:: 5.0
         """
         return cls.any('p')
 
@@ -666,16 +649,16 @@ class XPath(object):
     @classmethod
     def span(cls):
         """Returns an XPath to find a Span.
-        
-           .. versionadded:: 4.1
+
+           .. versionadded:: 5.0
         """
         return cls.any('span')
 
     @classmethod
     def table(cls):
         """Returns a XPath to a table.
-        
-           .. versionadded:: 4.1
+
+           .. versionadded:: 5.0
         """
         return cls.any('table')
 
@@ -687,40 +670,40 @@ class XPath(object):
     @classmethod
     def table_header(cls):
         """Returns a XPath to a table header.
-        
-           .. versionadded:: 4.1
+
+           .. versionadded:: 5.0
         """
         return cls.any('thead')
 
     @classmethod
     def table_body(cls):
         """Returns a XPath to a table body.
-        
-           .. versionadded:: 4.1
+
+           .. versionadded:: 5.0
         """
         return cls.any('tbody')
 
     @classmethod
     def table_row(cls):
         """Returns a XPath to a table row.
-        
-           .. versionadded:: 4.1
+
+           .. versionadded:: 5.0
         """
         return cls.any('tr')
 
     @classmethod
     def table_footer(cls):
         """Returns a XPath to a table footer.
-        
-           .. versionadded:: 4.1
+
+           .. versionadded:: 5.0
         """
         return cls.any('tfoot')
 
     @classmethod
     def table_cell(cls):
         """Returns a XPath to a table cell.
-        
-           .. versionadded:: 4.1
+
+           .. versionadded:: 5.0
         """
         return cls.any('*')['self::td or self::th']
 
@@ -729,7 +712,7 @@ class XPath(object):
         """Find a cell (td or th) in the column with column_heading_text which is in the same row as 
            where a cell in search_column_heading matches search_cell_text.
 
-            ..versionadded:: 4.1
+            ..versionadded:: 5.0
         """
 
         target_column_index = 'count(%s/preceding-sibling::th)+1' % cls.table_cell().with_text(column_heading_text).inside_of(cls.table_header())
@@ -779,7 +762,7 @@ class DriverBrowser(BasicBrowser):
         assert size in sizes.keys(), 'size should be one of: %s' % (', '.join(sizes.keys()))
         self.web_driver.set_window_size(*sizes[size]) # Setting it once requires some sort of delay before it actually happens, twice does that trick.
         self.web_driver.set_window_size(*sizes[size]) 
-        
+
     @property
     def raw_html(self):
         """Returns the HTML for the current location unchanged."""
@@ -796,7 +779,7 @@ class DriverBrowser(BasicBrowser):
         if wait:
             return WebDriverWait(self.web_driver, 2).until(lambda d: d.find_element_by_xpath(xpath), 'waited for %s' % xpath)
         else:
-            return self.web_driver.find_element_by_xpath(xpath)        
+            return self.web_driver.find_element_by_xpath(xpath)
 
     def is_element_enabled(self, locator):
         """Answers whether the element found by `locator` is responsive to user activity or not.
@@ -807,7 +790,7 @@ class DriverBrowser(BasicBrowser):
         if el and el.is_enabled():
             return el
         return False
-    
+
     def wait_for_element_enabled(self, locator):
         """Waits until the the element found by `locator` is present and becomes responsive to user activity.
 
@@ -870,7 +853,7 @@ class DriverBrowser(BasicBrowser):
             if (value is None) or (el.get_attribute(attribute) == value):  # attribute has specified value if specified
                return el
         return False
-    
+
     def wait_for(self, condition, *args, **kwargs):
         """Waits until `condition` is satisfied. If `condition` is not satisfied after a timeout period of 2 seconds,
            an exception is raised.
@@ -878,7 +861,7 @@ class DriverBrowser(BasicBrowser):
            :param condition: A function, method or other callable which will be called periodically to check\
                              whether a certain condition holds. It should return True if the condition holds,\
                              False otherwise.
-           
+
            Extra positional and keyword arguments to this method are passed on as-is in the calls
            to `condition`.
         """
@@ -904,7 +887,7 @@ class DriverBrowser(BasicBrowser):
 
     def is_ajax_finished(self):
         return self.web_driver.execute_script('return (("undefined" !== typeof jQuery) && (jQuery.active == 0)) || ("undefined" == typeof jQuery);')
-                         
+
     def wait_for_element_visible(self, locator):
         """Waits for the element found by `locator` to become visible.
 
@@ -982,7 +965,7 @@ class DriverBrowser(BasicBrowser):
 
     def open(self, url_string):
         """GETs the URL in `url_string`.
-    
+
            :param url_string: A string containing the URL to be opened.
         """
         url = Url(url_string)
@@ -1000,7 +983,7 @@ class DriverBrowser(BasicBrowser):
            :keyword wait: If False, don't wait_for_page_to_load after having clicked the input.
            :keyword wait_for_ajax: If False, don't wait for ajax to finish before continuing (default is to wait).
 
-           .. versionchanged:: 4.1
+           .. versionchanged:: 5.0
               Added keyword wait_for_ajax
         """
         self.wait_for_element_interactable(locator)
@@ -1012,13 +995,13 @@ class DriverBrowser(BasicBrowser):
 
     def type(self, locator, text, trigger_blur=True, wait_for_ajax=True):
         """Types the text in `value` into the input found by the `locator`.
-        
+
            :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
            :param text: The text to be typed.
            :keyword trigger_blur: If False, don't trigger the blur event on the input after typing (by default blur is triggered).
            :keyword wait_for_ajax: If False, don't wait for ajax to finish before continuing (default is to wait).
- 
-           .. versionchanged:: 4.1
+
+           .. versionchanged:: 5.0
               Removed wait kwarg, since we don't ever need to wait_for_page_to_load after typing into an input
               Added trigger_blur to trigger possible onchange events automatically after typing.
               Added keyword wait_for_ajax
@@ -1040,7 +1023,7 @@ class DriverBrowser(BasicBrowser):
            :param label_to_choose: The label of the option that should be selected.
            :keyword wait_for_ajax: If False, don't wait for ajax to finish before continuing (default is to wait).
 
-            .. versionchanged:: 4.1
+            .. versionchanged:: 5.0
                Added keyword wait_for_ajax
         """
         self.select_many(locator, [label_to_choose], wait_for_ajax=wait_for_ajax)
@@ -1052,7 +1035,7 @@ class DriverBrowser(BasicBrowser):
            :param labels_to_choose: A list of the labels of the options that should be selected.
            :keyword wait_for_ajax: If False, don't wait for ajax to finish before continuing (default is to wait).
 
-           .. versionchanged:: 4.1
+           .. versionchanged:: 5.0
               Added keyword wait_for_ajax
         """
         self.wait_for_element_interactable(locator)
@@ -1070,7 +1053,7 @@ class DriverBrowser(BasicBrowser):
            :param label_to_choose: The label of the option that should be selected.
            :keyword wait_for_ajax: If False, don't wait for ajax to finish before continuing (default is to wait).
 
-           .. versionchanged:: 4.1
+           .. versionchanged:: 5.0
               Added keyword wait_for_ajax
         """
         self.wait_for_element_interactable(locator)
@@ -1097,7 +1080,7 @@ class DriverBrowser(BasicBrowser):
 
            :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
 
-           ..versionadded:: 4.1
+           ..versionadded:: 5.0
 
         """
         el = self.find_element(locator, wait=False)
@@ -1127,7 +1110,7 @@ class DriverBrowser(BasicBrowser):
 
            :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
 
-           ..versionadded:: 4.1
+           ..versionadded:: 5.0
 
         """
         el = self.find_element(locator, wait=False)
@@ -1153,15 +1136,15 @@ class DriverBrowser(BasicBrowser):
 
     def get_fragment(self):
         """Returns the fragment part (the bit after the #) on the current URL.
-        
-        .. versionadded:: 4.1
+
+        .. versionadded:: 5.0
         """
         return self.execute_script('return window.location.hash')
 
     def set_fragment(self, fragment):
         """Changes only the fragment part (the bit after the #) on the current URL.
-        
-        .. versionadded:: 4.1
+
+        .. versionadded:: 5.0
         """
         self.execute_script('return (window.location.hash="%s")' % fragment)
 
@@ -1228,7 +1211,7 @@ class DriverBrowser(BasicBrowser):
         self.open(six.text_type(location))
         self.go_back()
         return True
-        
+
     def is_editable(self, locator):
         """Answers whether the element found by `locator` can be edited by a user.
 
@@ -1242,13 +1225,13 @@ class DriverBrowser(BasicBrowser):
            :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
         """
         return self.get_attribute(locator, 'href') is not None
-    
+
     def is_selected(self, locator):
         """Answers whether the CheckBoxInput or RadionButton element found by `locator` is currently checked.
 
            :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
 
-           .. versionchanged:: 4.1
+           .. versionchanged:: 5.0
               Renamed from is_checked() to is_selected()
         """
         return self.get_attribute(locator, 'checked') is not None
@@ -1259,7 +1242,7 @@ class DriverBrowser(BasicBrowser):
            :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
            :keyword wait_for_ajax: If False, don't wait for ajax to finish before continuing (default is to wait).
 
-           .. versionchanged:: 4.1
+           .. versionchanged:: 5.0
               Changed to break is locator is already checked.
               Added keyword wait_for_ajax.
               Renamed from check() to set_selected()
@@ -1274,7 +1257,7 @@ class DriverBrowser(BasicBrowser):
            :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
            :keyword wait_for_ajax: If False, don't wait for ajax to finish before continuing (default is to wait).
 
-           .. versionchanged:: 4.1
+           .. versionchanged:: 5.0
               Changed to break is locator is already unchecked.
               Added keyword wait_for_ajax
               Renamed from check() to set_deselected()
@@ -1304,23 +1287,23 @@ class DriverBrowser(BasicBrowser):
         """
         self.web_driver.delete_cookie(cookie_dict['name'])
         self.web_driver.add_cookie(cookie_dict)
-    
+
     def delete_all_cookies(self):
         """Removes all cookies fomr the browser."""
         self.web_driver.delete_all_cookies()
 
     def get_html_for(self, locator):
         """Returns the HTML of the element (including its own tags) targeted by the given `locator`
-        
+
            :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
         """
         el = self.find_element(locator, wait=False)
         return self.web_driver.execute_script('return arguments[0].outerHTML', el)
-        
+
     def get_inner_html_for(self, locator):
         """Returns the HTML of the children of the element targeted by the given `locator` (excluding the 
            element's own tags).
-        
+
            :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
         """
         el = self.find_element(locator, wait=False)

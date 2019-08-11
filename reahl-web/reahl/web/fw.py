@@ -508,17 +508,17 @@ class UserInterface(object):
         """Called from `assemble` to specify how a :class:`View` will be created when the given URL (`relative_path`)
            is requested from this UserInterface.
         
-           :param title: The title to be used for the :class:`View`.
-           :param page: A :class:`WidgetFactory` that will be used as the page to be rendered for this :class:`View` (if specified).
-           :param detour: If True, marks this :class:`View` as the start of a detour (A series of
+           :keyword title: The title to be used for the :class:`View`.
+           :keyword page: A :class:`WidgetFactory` that will be used as the page to be rendered for this :class:`View` (if specified).
+           :keyword detour: If True, marks this :class:`View` as the start of a detour (A series of
              :class:`View`\s which can return the user to where the detour was first entered from). 
-           :param view_class: The class of :class:`View` to be constructed (in the case of parameterised :class:`View` s).
-           :param read_check: A no-arg function returning a boolean value. It will be called to determine whether the current 
+           :keyword view_class: The class of :class:`View` to be constructed (in the case of parameterised :class:`View` s).
+           :keyword read_check: A no-arg function returning a boolean value. It will be called to determine whether the current 
              user is allowed to see this :class:`View` or not.
-           :param write_check: A no-arg function returning a boolean value. It will be called to determine whether the current 
-           :param cacheable: Whether this View can be cached.
+           :keyword write_check: A no-arg function returning a boolean value. It will be called to determine whether the current 
+           :keyword cacheable: Whether this View can be cached.
              user is allowed to perform any actions linked to this :class:`View` or not.
-           :param assemble_args: keyword arguments that will be passed to the `assemble` of this :class:`View` upon creation
+           :keyword assemble_args: keyword arguments that will be passed to the `assemble` of this :class:`View` upon creation
 
            ..versionchanged:: 4.0
              Removed slot_definitions keyword argument, rather use :meth:`ViewFactory.set_slot`.
@@ -547,14 +547,14 @@ class UserInterface(object):
              of this parameterised :class:`View`. This string will be used to construct a :class:`string.Template`,
              and should contain references to variables named for each argument expexted by the `assemble` method
              of the parameterised :class:`View`.
-           :param view_class: The class of :class:`View` which is to be constructed.
-           :param factory_method: Pass a method that will be called to create a :class:`View` instead of passing `view_class` 
+           :keyword view_class: The class of :class:`View` which is to be constructed.
+           :keyword factory_method: Pass a method that will be called to create a :class:`View` instead of passing `view_class` 
              if you'd like.
-           :param read_check:
+           :keyword read_check:
              Same as with `define_view`.
-           :param write_check:
+           :keyword write_check:
              Same as with `define_view`. 
-           :param assemble_args:
+           :keyword assemble_args:
              Same as with `define_view`.
         """
         path_argument_fields, passed_kwargs = self.split_fields_and_hardcoded_kwargs(assemble_args)
@@ -611,8 +611,8 @@ class UserInterface(object):
              which is effectively grafted onto the current :class:`UserInterface`, also defined :class:`Slots` using its own names.
              This dictionary states how the names used in the grafted :class:`UserInterface` map to the names used by the 
              current :class:`UserInterface`.
-           :param name: A name for the :class:`UserInterface` that is grafted on. The name should be unique in an application.
-           :param assemble_args: Keyword arguments that will be passed to the `assemble` method of the grafted :class:`UserInterface`
+           :keyword name: A name for the :class:`UserInterface` that is grafted on. The name should be unique in an application.
+           :keyword assemble_args: Keyword arguments that will be passed to the `assemble` method of the grafted :class:`UserInterface`
              after construction.
         """
         path_argument_fields, passed_kwargs = self.split_fields_and_hardcoded_kwargs(assemble_args)
@@ -629,7 +629,7 @@ class UserInterface(object):
            Arguments are similar to that of `define_regex_view`, except for:
            
            :param slot_map: (See `define_user_interface`.)
-           :param name: (See `define_user_interface`.)
+           :keyword name: (See `define_user_interface`.)
         """
         path_argument_fields, passed_kwargs = self.split_fields_and_hardcoded_kwargs(assemble_args)
         ArgumentCheckedCallable(ui_class.assemble, explanation='.define_regex_user_interface() was called with incorrect arguments for %s' % ui_class.assemble).checkargs(NotYetAvailable('self'), **assemble_args)
@@ -681,11 +681,11 @@ class UserInterface(object):
     def get_bookmark(self, description=None, relative_path=None, query_arguments=None, ajax=False):
         """Returns a :class:`Bookmark` for the :class:`View` present on `relative_path`.
         
-           :param description: By default the :class:`Bookmark` will use the title of the target :class:`View` as 
+           :keyword description: By default the :class:`Bookmark` will use the title of the target :class:`View` as 
              its description, unless overridden by passing `description`.
-           :param query_arguments: A dictionary containing arguments that should be put onto the query string of the
+           :keyword query_arguments: A dictionary containing arguments that should be put onto the query string of the
              Url of the Bookmark.
-           :param ajax: Links to Bookmarks for which ajax=True are changed browser-side to enable
+           :keyword ajax: Links to Bookmarks for which ajax=True are changed browser-side to enable
              ajax-related functionality. This is used by the framework and is not meant
              to be set by a programmer.
         """
@@ -730,13 +730,13 @@ class Bookmark(object):
        :param base_path: The entire path of the UserInterface to which the target View belongs.
        :param relative_path: The path of the target View, relative to its UserInterface.
        :param description: The textual description to be used by links to the target View.
-       :param query_arguments: A dictionary containing name, value mappings to be put onto the query string of the href of this Bookmark.
-       :param ajax: (not for general use).
-       :param detour: Set this to True, to indicate that the target View is marked as being a detour (See :class:`UrlBoundView`).
-       :param exact: (not for general use).
-       :param locale: Force the Bookmark to be for a page in the given locale, instead of using the current locale (default). 
-       :param read_check: A no-args callable, usually the read_check of the target View. If it returns True, the current user will be allowed to see (but not click) links representing this Bookmark.
-       :param write_check: A no-args callable, usually the write_check of the target View. If it returns True, the current user will be allowed to click links representing this Bookmark.
+       :keyword query_arguments: A dictionary containing name, value mappings to be put onto the query string of the href of this Bookmark.
+       :keyword ajax: (not for general use).
+       :keyword detour: Set this to True, to indicate that the target View is marked as being a detour (See :class:`UrlBoundView`).
+       :keyword exact: (not for general use).
+       :keyword locale: Force the Bookmark to be for a page in the given locale, instead of using the current locale (default).
+       :keyword read_check: A no-args callable, usually the read_check of the target View. If it returns True, the current user will be allowed to see (but not click) links representing this Bookmark.
+       :keyword write_check: A no-args callable, usually the write_check of the target View. If it returns True, the current user will be allowed to click links representing this Bookmark.
 
        .. versionchanged:: 3.2
           Added the locale kwarg.
@@ -747,9 +747,9 @@ class Bookmark(object):
         """Creates a "page-internal" Bookmark for a Widget with the arguments as specified.
         
            :param description: The textual description that will be used in links created for this Bookmark.
-           :param query_arguments: A dictionary containing the arguments the target Widget should have when a user
+           :keyword query_arguments: A dictionary containing the arguments the target Widget should have when a user
                                    follows a link.
-           :param bookmark_kwargs: Keyword arguments sent as-is to the constructor of Bookmark.
+           :keyword bookmark_kwargs: Keyword arguments sent as-is to the constructor of Bookmark.
         """
         return Bookmark('', '', description, query_arguments=query_arguments, ajax=True, **bookmark_kwargs)
 
@@ -1235,7 +1235,7 @@ class ViewPreCondition(object):
        
        :param condition_callable: A no-arg callable indicating whether this condition is satisfied (returns True) 
                                   or not (returns False).
-       :param exception: An exception to be raised if this condition is not satisfied.
+       :keyword exception: An exception to be raised if this condition is not satisfied.
     """
     def __init__(self, condition_callable, exception=Exception()):
         self.condition_callable = condition_callable
@@ -1577,11 +1577,11 @@ class ViewFactory(FactoryFromUrlRegex):
         """Returns a :class:`Bookmark` to the View this Factory represents.
 
            :param user_interface: The user_interface where this ViewFactory is defined.
-           :param description: A textual description which will be used on links that represent the Bookmark on the user interface.
-           :param query_arguments: A dictionary with (name, value) pairs to put on the query string of the Bookmark.
-           :param ajax: (not for general use)
-           :param locale: (See :class:`Bookmark`.)
-           :param url_arguments: Values for the arguments of the parameterised View to which the Bookmark should lead. (Just
+           :keyword description: A textual description which will be used on links that represent the Bookmark on the user interface.
+           :keyword query_arguments: A dictionary with (name, value) pairs to put on the query string of the Bookmark.
+           :keyword ajax: (not for general use)
+           :keyword locale: (See :class:`Bookmark`.)
+           :keyword url_arguments: Values for the arguments of the parameterised View to which the Bookmark should lead. (Just
                                  omit these if the target View is not parameterised.)
         """
         relative_path = self.get_relative_path(**url_arguments)
@@ -1604,7 +1604,7 @@ class WidgetFactory(Factory):
 
        :param widget_class: The kind of Widget to be constructed.
        :param widget_args:  All the arguments needed by `widget_class` except the first argument of Widgets: `view`
-       :param widget_kwargs: All the keyword arguments of `widget_class`.
+       :keyword widget_kwargs: All the keyword arguments of `widget_class`.
     """
     def __init__(self, widget_class, *widget_args, **widget_kwargs):
         ArgumentCheckedCallable(widget_class, explanation='An attempt was made to create a WidgetFactory for %s with arguments that do not match what is expected for %s' % (widget_class, widget_class)).checkargs(NotYetAvailable('view'), *widget_args, **widget_kwargs)
@@ -1842,10 +1842,10 @@ class UrlBoundView(View):
     def as_bookmark(self, description=None, query_arguments=None, ajax=False, locale=None):
         """Returns a Bookmark for this UrlBoundView.
 
-           :param description: A textual description to be used by links representing this View to a user.
-           :param query_arguments: A dictionary mapping names to values to be used for query string arguments.
-           :param ajax: (not for general use)
-           :param locale: (See :class:`Bookmark`.)
+           :keyword description: A textual description to be used by links representing this View to a user.
+           :keyword query_arguments: A dictionary mapping names to values to be used for query string arguments.
+           :keyword ajax: (not for general use)
+           :keyword locale: (See :class:`Bookmark`.)
 
         .. versionchanged:: 3.2
            Added locale kwarg.
@@ -1892,7 +1892,7 @@ class UrlBoundView(View):
             request = ExecutionContext.get_context().request
             client_state_string = request.POST.dict_of_lists().get('__reahl_client_side_state__', [''])[0]
             client_state = urllib_parse.parse_qs(client_state_string, keep_blank_values=True)
-            client_state.update(request.POST) # TODO: issue: request.POST is not in disambigiated format....
+            client_state.update(request.POST)  # TODO: issue: request.POST is not in disambiguated format....
             client_state_string = urllib_parse.urlencode(client_state, doseq=True)
             if six.PY2:
                 client_state_string = client_state_string.decode('utf-8')
@@ -2020,7 +2020,7 @@ class SubResource(Resource):
            :param path_argument_fields: A dictionary mapping the names of arguments to the SubResource to Fields that
                                         can be used to input or output values for these arguments.
            :param args:  Extra arguments to be passed directly to the __init__ of the SubResource when created.
-           :param kwargs: Extra keyword arguments to be passed directly to the __init__ of the SubResource when created.
+           :keyword kwargs: Extra keyword arguments to be passed directly to the __init__ of the SubResource when created.
         """
         regex_path = RegexPath(cls.get_regex(unique_name), 
                                cls.get_path_template(unique_name),
@@ -2097,7 +2097,7 @@ class SubResource(Resource):
 
 
 class MethodResult(object):
-    """A :class:`RemoteMethod` can be constructed to yield its results back to a browser in different 
+    """A :class:`RemoteMethod` can be constructed to yield its results back to a browser in different
        ways. MethodResult is the superclass of all such different kinds of results.
 
        :keyword catch_exception: The class of Exeption for which this MethodResult will generate an exceptional Response\
@@ -2122,8 +2122,8 @@ class MethodResult(object):
         """Override this in your subclass to create a :class:`webob.Response` for the given `return_value` which
            was returned when calling the RemoteMethod."""
         return Response(body=self.render(return_value), 
-                        charset = ascii_as_bytes_or_str(self.encoding),
-                        content_type = ascii_as_bytes_or_str(self.mime_type))
+                        charset=ascii_as_bytes_or_str(self.encoding),
+                        content_type=ascii_as_bytes_or_str(self.mime_type))
     
     def create_exception_response(self, exception):
         """Override this in your subclass to create a :class:`webob.Response` for the given `exception` instance
@@ -2132,8 +2132,8 @@ class MethodResult(object):
            was created.
         """
         return Response(body=self.render_exception(exception),
-                        charset = ascii_as_bytes_or_str(self.encoding),
-                        content_type = ascii_as_bytes_or_str(self.mime_type))
+                        charset=ascii_as_bytes_or_str(self.encoding),
+                        content_type=ascii_as_bytes_or_str(self.mime_type))
 
     def render(self, return_value):
         """Instead of overriding `.create_response` to customise how `return_value` will be reported, 
@@ -2167,8 +2167,8 @@ class RedirectAfterPost(MethodResult):
        RemoteMethod instead of actually returning the result for display. A RedirectAfterPost is meant to be
        used by the EventChannel only.
 
-       :param mime_type: (See :class:`MethodResult`.)
-       :param encoding: (See :class:`MethodResult`.)
+       :keyword mime_type: (See :class:`MethodResult`.)
+       :keyword encoding: (See :class:`MethodResult`.)
 
 
        .. versionchanged:: 4.0
@@ -2192,7 +2192,7 @@ class JsonResult(MethodResult):
 
        :param result_field: A :class:`reahl.component.modelinterface.Field` instance to be used
                             for outputting the return value of the RemoteMethod as a string.
-       :param kwargs: Other keyword arguments are sent to MethodResult, see :class:`MethodResult`.
+       :keyword kwargs: Other keyword arguments are sent to MethodResult, see :class:`MethodResult`.
     """
     redirects_internally = True
     def __init__(self, result_field, **kwargs):
@@ -2277,19 +2277,24 @@ class RemoteMethod(SubResource):
     """A server-side method that can be invoked from a browser via an URL. The method will return its result
        back to the browser in different ways, depending on which type of `default_result` it is constructed 
        with.
-           
+
        :param name: A unique name from which the URL of this RemoteMethod will be constructed.
        :param callable_object: A callable object which will receive either the raw query arguments (if immutable),
                                or the raw POST data (if not immutable) as keyword arguments.
-       :param idempotent: Whether this method will yield the same side-effects and results when called more than 
-                         once, or not. Idempotent methods are accessible via GET method. Methods that are not idempotent
-                         are accessible by POST http method.
-       :param immutable: Pass True to guarantee that this method will not make changes in the database (the database 
-                         is rolled back to ensure this). Immutable methods are idempotent.
+       :param default_result: The :class:`MethodResult` returned by :meth:`RemoteMethod.make_result`.
+       :keyword idempotent: Whether this method will yield the same side-effects and results when called more than
+                            once, or not. Idempotent methods are accessible via GET method. Methods that are not idempotent
+                            are accessible by POST http method.
+       :keyword immutable: Pass True to guarantee that this method will not make changes in the database (the database
+                           is rolled back to ensure this). Immutable methods are idempotent.
+       :keyword method: The http method supported by this RemoteMethod is derived from whether it is idempotent or not. By default 
+                        a RemoteMethod is accessible via http 'get' if it is idempotent, else by 'post'. This behaviour can be 
+                        overridden by specifying an http method explicitly using the `method` keyword argument.
 
-        .. versionchanged:: 4.1
+        .. versionchanged:: 5.0
            idempotent and immutable kwargs split up into two and better defined.
-                         
+           method keyword argument added to explicitly state http method.
+
     """
     sub_regex = 'method'
     sub_path_template = 'method'
@@ -2387,11 +2392,11 @@ class CheckedRemoteMethod(RemoteMethod):
        :param name: (See :class:`RemoteMethod`.)
        :param callable_object: (See :class:`RemoteMethod`.) Should expect a keyword argument for each key in `parameters`.
        :param result: (See :class:`RemoteMethod`.)
-       :param idempotent: (See :class:`RemoteMethod`.)
-       :param immutable: (See :class:`RemoteMethod`.)
-       :param parameters: A dictionary containing a Field for each argument name expected.
+       :keyword idempotent: (See :class:`RemoteMethod`.)
+       :keyword immutable: (See :class:`RemoteMethod`.)
+       :keyword parameters: A dictionary containing a Field for each argument name expected.
 
-       .. versionchanged:: 4.1
+       .. versionchanged:: 5.0
           Split immutable into immutable and idempotent kwargs.
     """
     def __init__(self, name, callable_object, result, idempotent=False, immutable=False, **parameters):
@@ -2740,16 +2745,16 @@ class ReahlWSGIApplication(object):
     """
 
     @classmethod
-    def from_directory(cls, directory, strict_checking=False):
+    def from_directory(cls, directory, strict_checking=True):
         """Create a ReahlWSGIApplication given the `directory` where its configuration is stored.
 
-        :keyword strict_checking: If True, an exception will be raised when dangerous defaulted config is present.
+        :keyword strict_checking: If False, exceptions will not be raised when dangerous defaulted config is present.
 
-        .. versionchanged:: 4.1
+        .. versionchanged:: 5.0
            Added strict_checking kwarg.
 
         """
-        config = StoredConfiguration(directory, strict_checking=True)
+        config = StoredConfiguration(directory, strict_checking=strict_checking)
         config.configure()
         return cls(config)
 
@@ -2873,7 +2878,6 @@ class ReahlWSGIApplication(object):
                         except InternalRedirect as e:
                             if resource:
                                 resource.cleanup_after_transaction()
-                            resource = None
                             request.internal_redirect = e
                             resource = self.resource_for(request)
                             response = resource.handle_request(request) 

@@ -115,7 +115,7 @@ class Carousel(Widget):
         Adds a Slide for the given :class:`~reahl.web.fw.Widget`.
 
         :param widget: A :class:`~reahl.web.fw.Widget` to display in this slide. (See also :class:`~reahl.web.holder.holder.PlaceholderImage`)
-        :param caption_widget: The :class:`~reahl.web.fw.Widget` to use as caption for the slide.
+        :keyword caption_widget: The :class:`~reahl.web.fw.Widget` to use as caption for the slide.
 
         """
         slide = self.inner.add_child(Slide(self.view, widget, caption_widget, len(self.slides)))

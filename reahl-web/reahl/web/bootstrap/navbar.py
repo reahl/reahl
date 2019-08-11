@@ -86,11 +86,11 @@ class BackgroundScheme(HTMLAttributeValueOption):
 class NavbarLayout(Layout):
     """Used to populate a Navbar.
 
-    :param fixed_to: May be one of 'top','bottom' or 'stickytop'.
+    :keyword fixed_to: May be one of 'top','bottom' or 'stickytop'.
                     The Navbar will stick to the top or bottom of the viewport.
-    :param center_contents: If True, all the contents of the Navbar is centered within the Navbar itself.
-    :param colour_theme: Use 'light' for use with light background colors, or 'dark' with dark background colors.
-    :param bg_scheme: Whether the Navbar should use 'primary' colors, a 'dark' (light on dark) scheme
+    :keyword center_contents: If True, all the contents of the Navbar is centered within the Navbar itself.
+    :keyword colour_theme: Use 'light' for use with light background colors, or 'dark' with dark background colors.
+    :keyword bg_scheme: Whether the Navbar should use 'primary' colors, a 'dark' (light on dark) scheme
                         or a 'light' background.
     """
     def __init__(self, fixed_to=None, center_contents=False, colour_theme=None, bg_scheme=None):
@@ -192,15 +192,15 @@ class ResponsiveLayout(NavbarLayout):
 
     :param collapse_below_device_class: Which device class should trigger responsive collapsing.
                                         Valid values: xs, sm, md, lg, xl
-    :param fixed_to: May be one of 'fixed-top','fixed-bottom' or 'sticky-top'.
+    :keyword center_contents: If True, all the contents of the Navbar is centered within the Navbar itself.
+    :keyword fixed_to: May be one of 'fixed-top','fixed-bottom' or 'sticky-top'.
                     The Navbar will stick to the top or bottom of the viewport.
-    :param center_contents: If True, all the contents of the Navbar is centered within the Navbar itself.
-    :param align_toggle_left: If True align the toggle on the left (the default is to align it right).
-    :param collapse_brand_with_content: When set to True, the brand should collapse with the content.
-    :param colour_theme: Use 'light' for use with light background colors, or 'dark' with dark background colors.
-    :param bg_scheme: Whether the Navbar should use 'primary' colors, a 'dark' (light on dark) scheme
+    :keyword align_toggle_left: If True align the toggle on the left (the default is to align it right).
+    :keyword collapse_brand_with_content: When set to True, the brand should collapse with the content.
+    :keyword colour_theme: Use 'light' for use with light background colors, or 'dark' with dark background colors.
+    :keyword bg_scheme: Whether the Navbar should use 'primary' colors, a 'dark' (light on dark) scheme
                         or a 'light' background.
-    :param text: Text to be used on the toggle link. If None, the boostrap navbar-toggler-icon is used.
+    :keyword text: Text to be used on the toggle link. If None, the boostrap navbar-toggler-icon is used.
 
     """
     def __init__(self, collapse_below_device_class, center_contents=False, fixed_to=None, align_toggle_left=False,
@@ -260,7 +260,7 @@ class Navbar(HTMLWidget):
     are present and how they are composed themselves.
 
     :param view: (See :class:`reahl.web.fw.Widget`)
-    :param css_id: (See :class:`reahl.web.fw.Widget`)
+    :keyword css_id: (See :class:`reahl.web.fw.Widget`)
     """
     def __init__(self, view, css_id=None):
         super(Navbar, self).__init__(view)

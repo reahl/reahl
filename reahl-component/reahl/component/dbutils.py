@@ -197,7 +197,7 @@ class SystemControl(object):
         return self.db_control.backup_all_databases(directory, super_user_name=super_user_name)
     
     def restore_database(self, filename, super_user_name=None):
-        """Restores a databases from thexs given backup."""
+        """Restores a databases from the given backup."""
         return self.db_control.restore_database(filename, super_user_name=super_user_name)
     
     def restore_all_databases(self, filename, super_user_name=None):

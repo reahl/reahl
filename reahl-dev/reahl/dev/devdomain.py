@@ -721,6 +721,7 @@ class ThirdpartyDependency(Dependency):
 class XMLDependencyList(list):
     "Purely for reading related dependencies from XML."""
     def __init__(self, project, purpose):
+        super(XMLDependencyList, self).__init__()
         self.workspace = project.workspace
         self.project = project
         self.purpose = purpose
@@ -741,6 +742,7 @@ class XMLDependencyList(list):
 class ExtrasList(list):
     "Purely for reading extras dependencies from XML."""
     def __init__(self, project, name):
+        super(ExtrasList, self).__init__()
         self.workspace = project.workspace
         self.project = project
         self.name = name
@@ -2204,7 +2206,7 @@ class Workspace(object):
     def dh_make_directory(self):
         dirname = os.path.join(self.reahl_directory, 'dh_make')
         if not os.path.isdir(dirname):
-            None
+            return None
         return dirname
 
     def get_saved_selections(self):
@@ -2214,6 +2216,7 @@ class Workspace(object):
 
 class SubstvarsFile(list):
     def __init__(self, filename):
+        super(SubstvarsFile, self).__init__()
         self.filename = filename
 
     def read(self):
