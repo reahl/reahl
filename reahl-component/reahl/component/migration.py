@@ -21,6 +21,7 @@ from pkg_resources import parse_version
 import logging
 import warnings
 import inspect
+import traceback
 
 from reahl.component.exceptions import ProgrammerError
 
@@ -72,17 +73,29 @@ class MigrationSchedule(object):
         self.phases_in_order = phases
         self.phases = dict([(i, []) for i in phases])
 
-    def schedule(self, phase, to_call, *args, **kwargs):
+    def schedule(self, phase, scheduling_context, to_call, *args, **kwargs):
         try:
-            self.phases[phase].append((to_call, args, kwargs))
+            self.phases[phase].append((to_call, scheduling_context, args, kwargs))
         except KeyError as e:
             raise ProgrammerError('A phase with name<%s> does not exist.' % phase)
 
     def execute(self, phase):
         logging.getLogger(__name__).info('Executing schema change phase %s' % phase)
-        for to_call, args, kwargs in self.phases[phase]:
+        for to_call, scheduling_context, args, kwargs in self.phases[phase]:
             logging.getLogger(__name__).debug(' change: %s(%s, %s)' % (to_call.__name__, args, kwargs))
-            to_call(*args, **kwargs)
+            try:
+                to_call(*args, **kwargs)
+            except Exception as e:
+                class ExceptionDuringMigration(Exception):
+                    def __init__(self, scheduling_context):
+                        super(ExceptionDuringMigration, self).__init__()
+                        self.scheduling_context = scheduling_context
+                    def __str__(self):
+                        message = super(ExceptionDuringMigration, self).__str__()
+                        formatted_context = traceback.format_list([(frame_info.filename, frame_info.lineno, frame_info.function, frame_info.code_context[frame_info.index])
+                                                                   for frame_info in self.scheduling_context])
+                        return '%s\n\n%s\n\n%s' % (message, 'The above Exception happened for the migration that was scheduled here:', ''.join(formatted_context))
+                raise ExceptionDuringMigration(scheduling_context)
 
     def execute_all(self):
         for phase in self.phases_in_order:
@@ -126,7 +139,18 @@ class Migration(object):
            :param args: The positional arguments to be passed in the call.
            :keyword kwargs: The keyword arguments to be passed in the call.
         """
-        self.changes.schedule(phase, to_call, *args, **kwargs)
+        def get_scheduling_context():
+            relevant_frames = []
+            found_framework_code = False
+            frames = iter(inspect.stack()[2:]) #remove this function from the stack
+            while not found_framework_code:
+                frame = next(frames)
+                found_framework_code = frame.filename.endswith(__file__)
+                if not found_framework_code:
+                    relevant_frames.append(frame)
+
+            return reversed(relevant_frames)
+        self.changes.schedule(phase, get_scheduling_context(), to_call, *args, **kwargs)
 
     def schedule_upgrades(self):
         """Override this method in a subclass in order to supply custom logic for changing the database schema. This
