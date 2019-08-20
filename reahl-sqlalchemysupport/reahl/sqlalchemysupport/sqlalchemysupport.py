@@ -26,6 +26,7 @@ import six
 import weakref
 from contextlib import contextmanager
 import logging
+import pprint
 
 from sqlalchemy import *
 from sqlalchemy.orm import sessionmaker, scoped_session, relationship
@@ -34,7 +35,7 @@ from sqlalchemy.exc import InvalidRequestError
 from sqlalchemy import Column, Integer, ForeignKey
 from alembic.migration import MigrationContext
 from alembic.operations import Operations
-from alembic.autogenerate import compare_metadata
+from alembic.autogenerate import compare_metadata, produce_migrations, render_python_code
 
 from reahl.component.i18n import Catalogue
 from reahl.component.eggs import ReahlEgg
@@ -344,13 +345,27 @@ class SqlAlchemyControl(ORMControl):
     def execute_one(self, sql):
         return Session.execute(sql).fetchone()
 
-    def migrate_db(self, eggs_in_order, dry_run=False):
-        with Operations.context(MigrationContext.configure(Session.connection())) as op:
+    def migrate_db(self, eggs_in_order, dry_run=False, output_sql=False):
+        opts = {'as_sql': output_sql, 'target_metadata': metadata}
+        with Operations.context(MigrationContext.configure(connection=Session.connection(), opts=opts)) as op:
             self.op = op
-            return super(SqlAlchemyControl, self).migrate_db(eggs_in_order, dry_run=dry_run)
+            return super(SqlAlchemyControl, self).migrate_db(eggs_in_order, dry_run=dry_run, output_sql=output_sql)
 
-    def diff_db(self):
-        return compare_metadata(MigrationContext.configure(Session.connection()), metadata)
+    def diff_db(self, output_sql=False):
+        if output_sql:
+            migrations = produce_migrations(MigrationContext.configure(connection=Session.connection()), metadata)
+            commented_source_code = render_python_code(migrations.upgrade_ops, alembic_module_prefix='op2.', sqlalchemy_module_prefix="sqlalchemy.")
+            uncommented_source_code = [i.strip() for i in commented_source_code.split('\n') if not i.strip().startswith('#')]
+            source_code = '\n'.join(['import sqlalchemy']+uncommented_source_code)
+            opts = {'as_sql': output_sql, 'target_metadata': metadata}
+            with Operations.context(MigrationContext.configure(connection=Session.connection(), opts=opts)) as op2:
+                exec(source_code, globals(), locals())
+            return uncommented_source_code
+        else:
+            migrations_required = compare_metadata(MigrationContext.configure(connection=Session.connection()), metadata)
+            if migrations_required:
+                pprint.pprint(migrations_required, indent=2, width=20)
+            return migrations_required
 
     def initialise_schema_version_for(self, egg=None, egg_name=None, egg_version=None):
         assert egg or (egg_name and egg_version)

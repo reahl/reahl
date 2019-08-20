@@ -158,15 +158,15 @@ class SystemControl(object):
         finally:
             self.disconnect()
 
-    def migrate_db(self, dry_run=False):
+    def migrate_db(self, dry_run=False, output_sql=False):
         """Runs the database migrations relevant to the current system."""
         eggs_in_order = ReahlEgg.get_all_relevant_interfaces(self.config.reahlsystem.root_egg)
-        self.orm_control.migrate_db(eggs_in_order, dry_run=dry_run)
+        self.orm_control.migrate_db(eggs_in_order, dry_run=dry_run, output_sql=output_sql)
         return 0
 
-    def diff_db(self):
+    def diff_db(self, output_sql=False):
         """Computes the changes in schema iwetween the current database and what the current system expects."""
-        return self.orm_control.diff_db()
+        return self.orm_control.diff_db(output_sql=output_sql)
 
     def do_daily_maintenance(self):
         """Runs the all the scheduled jobs relevant to the current system."""
@@ -283,7 +283,7 @@ class ORMControl(object):
     appropriate.
 
     """
-    def migrate_db(self, eggs_in_order, dry_run=False):
+    def migrate_db(self, eggs_in_order, dry_run=False, output_sql=False):
         try:
             with self.managed_transaction():
                 migration_run = MigrationRun(self, eggs_in_order)

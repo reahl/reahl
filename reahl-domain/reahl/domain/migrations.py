@@ -135,7 +135,7 @@ class ElixirToDeclarativeDomainChanges(MigrateElixirToDeclarative):
 
 
 class AddLoginSession(Migration):
-    version='3.1'    
+    version = '3.1'
     def schedule_upgrades(self):
         self.schedule('alter', op.create_table, 'loginsession', 
                       Column('id', Integer(), primary_key=True, nullable=False),

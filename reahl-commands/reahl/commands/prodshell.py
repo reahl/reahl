@@ -22,10 +22,8 @@ import os.path
 import os
 import shutil
 
-import pprint
 import six
 import inspect
-import textwrap
 
 from pkg_resources import DistributionNotFound, get_distribution
 
@@ -305,22 +303,31 @@ class MigrateDB(ProductionCommand):
         super(MigrateDB, self).assemble()
         self.parser.add_argument('-d', '--dryrun', action='store_true', dest='dry_run',
                                  help='apply the migration, but do not commit(rollback changes)')
+        self.parser.add_argument('-s', '--output-sql', action='store_true', dest='output_sql',
+                                 help='don\'t migrate, only output the sql that would be executed when migrating')
 
     def execute(self, args):
         super(MigrateDB, self).execute(args)
         self.context.install()
         with self.sys_control.auto_connected():
-            return self.sys_control.migrate_db(dry_run=args.dry_run)
+            return self.sys_control.migrate_db(dry_run=args.dry_run, output_sql=args.output_sql)
 
 
 class DiffDB(ProductionCommand):
-    """Prints out a diff between the current database schema and what is expected by the current code."""
+    """Prints out a diff(required alembic operations) between the current database schema and what is expected by the current code."""
     keyword = 'diffdb'
+    def assemble(self):
+        super(DiffDB, self).assemble()
+        self.parser.add_argument('-s', '--output_sql', action='store_true', dest='output_sql',
+                                 help='show differences as sql')
+
     def execute(self, args):
         super(DiffDB, self).execute(args)
         self.context.install()
         with self.sys_control.auto_connected():
-            pprint.pprint(self.sys_control.diff_db(), indent=2, width=20)
+            changes = self.sys_control.diff_db(output_sql=args.output_sql)
+            if not changes:
+                print('No difference detected')
 
 
 class ListDependencies(ProductionCommand):
