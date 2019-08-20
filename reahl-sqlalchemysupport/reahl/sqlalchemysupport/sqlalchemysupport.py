@@ -344,10 +344,10 @@ class SqlAlchemyControl(ORMControl):
     def execute_one(self, sql):
         return Session.execute(sql).fetchone()
 
-    def migrate_db(self, eggs_in_order):
+    def migrate_db(self, eggs_in_order, dry_run=False):
         with Operations.context(MigrationContext.configure(Session.connection())) as op:
             self.op = op
-            return super(SqlAlchemyControl, self).migrate_db(eggs_in_order)
+            return super(SqlAlchemyControl, self).migrate_db(eggs_in_order, dry_run=dry_run)
 
     def diff_db(self):
         return compare_metadata(MigrationContext.configure(Session.connection()), metadata)
@@ -417,7 +417,7 @@ class PersistedField(Field):
 class SchemaVersion(Base):
     __tablename__ = 'reahl_schema_version'
     id = Column(Integer, primary_key=True)
-    version =  Column(String(50))
+    version = Column(String(50))
     egg_name = Column(String(80))
 
 

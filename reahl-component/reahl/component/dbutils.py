@@ -25,6 +25,7 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 import re
 from contextlib import contextmanager
 from six.moves.urllib import parse as urllib_parse
+import logging
 
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.eggs import ReahlEgg
@@ -157,10 +158,10 @@ class SystemControl(object):
         finally:
             self.disconnect()
 
-    def migrate_db(self):
+    def migrate_db(self, dry_run=False):
         """Runs the database migrations relevant to the current system."""
         eggs_in_order = ReahlEgg.get_all_relevant_interfaces(self.config.reahlsystem.root_egg)
-        self.orm_control.migrate_db(eggs_in_order)
+        self.orm_control.migrate_db(eggs_in_order, dry_run=dry_run)
         return 0
 
     def diff_db(self):
@@ -262,6 +263,10 @@ class NullDatabaseControl(DatabaseControl):
         return self.donothing
 
 
+class DryRunException(Exception):
+    pass
+
+
 class ORMControl(object):
     """An interface to higher-level database operations that may be dependent on the ORM technology used.
 
@@ -278,12 +283,16 @@ class ORMControl(object):
     appropriate.
 
     """
-    def migrate_db(self, eggs_in_order):
-        with self.managed_transaction():
-            migration_run = MigrationRun(self, eggs_in_order)
-            migration_run.schedule_migrations()
-            migration_run.execute_migrations()
-
+    def migrate_db(self, eggs_in_order, dry_run=False):
+        try:
+            with self.managed_transaction():
+                migration_run = MigrationRun(self, eggs_in_order)
+                migration_run.schedule_migrations()
+                migration_run.execute_migrations()
+                if dry_run:
+                    raise DryRunException()
+        except DryRunException:
+            logging.getLogger(__name__).info('Migration: only a dry run, rolling changes back')
 
 
 

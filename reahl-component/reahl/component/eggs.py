@@ -109,7 +109,6 @@ class DependencyGraph(object):
         return reversed(self.topological_order)
 
 
-
 class ReahlEgg(object):
     interface_cache = {}
 

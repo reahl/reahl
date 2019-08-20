@@ -644,7 +644,6 @@ class LoginSession(Base):
 
     def log_out(self):
         self.account = None
-                    
 
 
 class SystemAccountStatus(object):

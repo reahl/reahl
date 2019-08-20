@@ -301,11 +301,16 @@ class DropDBTables(ProductionCommand):
 class MigrateDB(ProductionCommand):
     """Runs all necessary database migrations."""
     keyword = 'migratedb'
+    def assemble(self):
+        super(MigrateDB, self).assemble()
+        self.parser.add_argument('-d', '--dryrun', action='store_true', dest='dry_run',
+                                 help='apply the migration, but do not commit(rollback changes)')
+
     def execute(self, args):
         super(MigrateDB, self).execute(args)
         self.context.install()
         with self.sys_control.auto_connected():
-            return self.sys_control.migrate_db()
+            return self.sys_control.migrate_db(dry_run=args.dry_run)
 
 
 class DiffDB(ProductionCommand):
