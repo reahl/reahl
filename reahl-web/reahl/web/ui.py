@@ -1435,6 +1435,9 @@ class PrimitiveInput(Input):
         super(PrimitiveInput, self).__init__(form, bound_field)
         if name:
             bound_field.override_unqualified_name_in_input(name)
+        else:
+            bound_field.override_unqualified_name_in_input(self.page_unique_name)
+            
         if refresh_widget:
             if not refresh_widget.is_refresh_enabled:
                 raise ProgrammerError('%s is not set to refresh. You can only refresh widgets on which enable_refresh() was called.' % refresh_widget)
@@ -1465,6 +1468,10 @@ class PrimitiveInput(Input):
     @property
     def name(self):
         return self.bound_field.name_in_input
+
+    @property
+    def page_unique_name(self):
+        return '%s.%s' % (self.channel_name, self.bound_field.name)
 
     @property
     def html_control(self):

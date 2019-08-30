@@ -71,11 +71,11 @@ $.widget('reahl.bootstrapfileuploadli', {
         }
     },
     createRemoveButton: function() {
-        var removeName = 'event.remove_file?filename='+encodeURIComponent(this.getFilename());
+        var removeName = this.getFileInputPanel().getRemoveFileButtonName()+'?filename='+encodeURIComponent(this.getFilename());
         return $(renderButton(removeName, this.getRemoveLabel(), this.getFormId()));
     },
     getRemoveButton: function() {
-        return $(this.element).find('input[name^="event.remove_file"]');
+        return $(this.element).find('input[name^="'+this.getFileInputPanel().getRemoveFileButtonName()+'"]' );
     },
     createFileNameSpan: function() {
         return $('<span>'+this.getFilename()+'</span>');

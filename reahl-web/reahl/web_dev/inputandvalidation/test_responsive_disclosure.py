@@ -960,7 +960,7 @@ def test_invalid_trigger_inputs(web_fixture, query_string_fixture, sql_alchemy_f
         assert browser.wait_for(query_string_fixture.is_state_labelled_now, 'My calculated state', '5')
 
         # Case: Entering an invalid value does not trigger a refresh of the input doing the triggering
-        with web_fixture.driver_browser.no_load_expected_for('input[name=choice]'):
+        with web_fixture.driver_browser.no_load_expected_for('input[name="myform.choice"]'):
             browser.type(XPath.input_labelled('Choice'), 'invalid value')
 
         # Case: Entering an valid value in a different trigger, triggers a refresh, but last valid value of choice is used

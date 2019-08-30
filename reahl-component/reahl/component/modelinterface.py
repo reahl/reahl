@@ -468,7 +468,7 @@ class ComparingConstraint(ValidationConstraint):
     
     @property
     def parameters(self):
-        return self.other_field.variable_name
+        return self.other_field.name_in_input
 
     def validate_parsed_value(self, parsed_value):
         if not self.comparison.compare(parsed_value, self.other_field.parsed_input):

@@ -23,6 +23,7 @@ import re
 import contextlib
 import itertools
 import time
+import json
 from six.moves.urllib import parse as urllib_parse
 import logging
 from six.moves.http_cookiejar import Cookie
@@ -35,7 +36,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.common.exceptions import StaleElementReferenceException
 
-from reahl.component.py3compat import ascii_as_bytes_or_str
+from reahl.component.py3compat import ascii_as_bytes_or_str, html_escape
 from reahl.component.decorators import deprecated
 from reahl.web.fw import Url
 
@@ -359,7 +360,7 @@ class Browser(BasicBrowser):
         return form.fields[inputs[0].name][0].value
 
     def get_full_path(self, relative_path):
-        return urllib_parse.urljoin(self.location_path, relative_path)
+        return urllib_parse.urljoin(self.current_url.path, relative_path)
 
     def is_image_shown(self, locator):
         """Answers whether the located image is available from the server (ie, whether the src attribute 
@@ -1378,12 +1379,13 @@ class DriverBrowser(BasicBrowser):
            by the given jquery selector be reloaded/replaced during execution of its context.
            Useful for testing JavaScript code that should change an element without replacing it.
         """
-        self.web_driver.execute_script('$("%s").addClass("load_flag")' % jquery_selector)
+        escaped_jquery_selector = json.dumps(jquery_selector)[1:-1]
+        self.web_driver.execute_script('$("%s").addClass("load_flag")' % escaped_jquery_selector)
         try:
             yield
         finally:
             self.wait_for_page_to_load()
-            new_element_loaded = not self.web_driver.execute_script('return $("%s").hasClass("load_flag")' % jquery_selector) 
+            new_element_loaded = not self.web_driver.execute_script('return $("%s").hasClass("load_flag")' % escaped_jquery_selector) 
             if new_element_loaded:
                 raise UnexpectedLoadOf(jquery_selector)
 
