@@ -1436,8 +1436,9 @@ class PrimitiveInput(Input):
         if name:
             bound_field.override_unqualified_name_in_input(name)
         else:
-            bound_field.override_unqualified_name_in_input(self.page_unique_name)
-            
+            page_wide_unique_name = '%s.%s' % (self.channel_name, self.bound_field.name)
+            bound_field.override_unqualified_name_in_input(page_wide_unique_name)
+        
         if refresh_widget:
             if not refresh_widget.is_refresh_enabled:
                 raise ProgrammerError('%s is not set to refresh. You can only refresh widgets on which enable_refresh() was called.' % refresh_widget)
@@ -1449,6 +1450,8 @@ class PrimitiveInput(Input):
             self.prepare_input()
 
         self.set_html_representation(self.add_child(self.create_html_widget()))
+        if self.html_control:
+            self.set_html_control_css_id()
 
         if not self.is_contained:
             self.add_to_attribute('class', ['reahl-primitiveinput'])
@@ -1456,6 +1459,10 @@ class PrimitiveInput(Input):
         if self.refresh_widget:
             self.set_attribute('data-refresh-widget-id', self.refresh_widget.css_id)
 
+    def set_html_control_css_id(self):
+        css_id = 'id.%s' % self.name
+        self.html_control.set_id(css_id) 
+            
     def add_input_data_attributes(self):
         if isinstance(self.bound_field, BooleanField):
             self.set_attribute('data-is-boolean', '')
@@ -1468,10 +1475,6 @@ class PrimitiveInput(Input):
     @property
     def name(self):
         return self.bound_field.name_in_input
-
-    @property
-    def page_unique_name(self):
-        return '%s.%s' % (self.channel_name, self.bound_field.name)
 
     @property
     def html_control(self):
@@ -1670,6 +1673,10 @@ class ContainedInput(PrimitiveInput):
         super(ContainedInput, self).__init__(containing_input.form, choice.field,
                                              name=name,
                                              registers_with_form=False, refresh_widget=refresh_widget)
+
+    def set_html_control_css_id(self):
+        css_id = 'id.%s.%s' % (self.containing_input.name, self.value)
+        self.html_control.set_id(css_id)
 
     def get_input_status(self):
         return 'defaulted'
@@ -2147,8 +2154,6 @@ class Label(HTMLElement):
     def __init__(self, view, text=None, for_input=None, css_id=None):
         super(Label, self).__init__(view, 'label', children_allowed=True, css_id=css_id)
         self.for_input = for_input
-        if self.for_input and self.for_input.html_control and not self.for_input.html_control.css_id_is_set:
-            self.for_input.html_control.generate_random_css_id()
         if text or for_input:
             self.text_node = self.add_child(TextNode(view, text or for_input.label))
 

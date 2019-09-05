@@ -143,7 +143,7 @@ class InputRenderingScenarios(Fixture):
         self.writable = Allowed(True)
         self.input_widget = TextInput(self.form, self.field)
 
-        self.expected_html = '<input name="some_form.field_name" form="some_form" type="text" value="3" class="reahl-primitiveinput reahl-textinput">'
+        self.expected_html = '<input name="some_form.field_name" id="id.some_form.field_name" form="some_form" type="text" value="3" class="reahl-primitiveinput reahl-textinput">'
 
     @scenario
     def disabled_rendering(self):
@@ -151,7 +151,7 @@ class InputRenderingScenarios(Fixture):
         self.writable = Allowed(False)
         self.input_widget = TextInput(self.form, self.field)
 
-        self.expected_html = '<input name="some_form.field_name" disabled="disabled" form="some_form" type="text" value="3" class="reahl-primitiveinput reahl-textinput">'
+        self.expected_html = '<input name="some_form.field_name" id="id.some_form.field_name" disabled="disabled" form="some_form" type="text" value="3" class="reahl-primitiveinput reahl-textinput">'
 
     @scenario
     def valueless_rendering(self):
@@ -159,7 +159,7 @@ class InputRenderingScenarios(Fixture):
         self.writable = Allowed(True)
         self.input_widget = TextInput(self.form, self.field)
 
-        self.expected_html = '<input name="some_form.field_name" form="some_form" type="text" value="" class="reahl-primitiveinput reahl-textinput">'
+        self.expected_html = '<input name="some_form.field_name" id="id.some_form.field_name" form="some_form" type="text" value="" class="reahl-primitiveinput reahl-textinput">'
 
     @scenario
     def empty_rendering(self):
@@ -175,7 +175,7 @@ class InputRenderingScenarios(Fixture):
         self.writable = Allowed(True)
         self.input_widget = ButtonInput(self.form, self.event)
 
-        self.expected_html = '<input name="event.some_form.event_name?" form="some_form" type="submit" value="event_name" class="reahl-primitiveinput">'
+        self.expected_html = '<input name="event.some_form.event_name?" id="id.event.some_form.event_name?" form="some_form" type="submit" value="event_name" class="reahl-primitiveinput">'
 
     @scenario
     def greyed_button_rendering(self):
@@ -183,7 +183,7 @@ class InputRenderingScenarios(Fixture):
         self.writable = Allowed(False)
         self.input_widget = ButtonInput(self.form, self.event)
 
-        self.expected_html = '<input name="event.some_form.event_name?" disabled="disabled" form="some_form" type="submit" value="event_name" class="reahl-primitiveinput">'
+        self.expected_html = '<input name="event.some_form.event_name?" id="id.event.some_form.event_name?" disabled="disabled" form="some_form" type="submit" value="event_name" class="reahl-primitiveinput">'
 
     @scenario
     def buttons_must_be_readable_to_be_present(self):

@@ -306,7 +306,7 @@ class Browser(BasicBrowser):
 
         for option in select.findall('option'):
             if option.text == label_to_choose:
-                form[select.attrib['name']] = list(option.values())[0]
+                form[select.attrib['name']] = option.attrib['value']
                 return
         raise AssertionError('Option %s not found' % label_to_choose)
 
@@ -328,7 +328,8 @@ class Browser(BasicBrowser):
         for option in select.findall('option'):
             if option.text in labels_to_choose:
                 options_to_select.append(option)
-        form[select.attrib['name']] = [option.values()[0] for option in options_to_select]
+
+        form[select.attrib['name']] = [option.attrib['value'] for option in options_to_select]
 
         if len(options_to_select) != len(options_to_select):
             raise AssertionError('Could only select options labelled[%s] not all of [%s]' %
