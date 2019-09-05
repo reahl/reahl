@@ -31,7 +31,9 @@
   </persisted>
 
   <migrations>
+    <class locator="reahl.sqlalchemysupport.migrations:GenesisMigration"/>
     <class locator="reahl.sqlalchemysupport.elixirmigration:ElixirToDeclarativeSqlAlchemySupportChanges"/>
+    <class locator="reahl.sqlalchemysupport.migrations:ChangesToBeMySqlCompatible"/>
   </migrations>
 
 

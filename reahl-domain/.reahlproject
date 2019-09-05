@@ -50,6 +50,7 @@
   <schedule locator="reahl.workflowmodel:DeferredAction.check_deadline"/>
 
   <migrations>
+      <class locator="reahl.domain.migrations:GenesisMigration"/>
       <class locator="reahl.domain.migrations:ElixirToDeclarativeDomainChanges"/>
       <class locator="reahl.domain.migrations:AddLoginSession"/>
       <class locator="reahl.domain.migrations:ChangeSchemaToBeMySqlCompatible"/>

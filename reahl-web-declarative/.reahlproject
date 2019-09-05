@@ -37,6 +37,7 @@
   <schedule locator="reahl.webdeclarative.webdeclarative:UserSession.remove_dead_sessions"/>
 
   <migrations>
+    <class locator="reahl.webdeclarative.migrations:GenesisMigration"/>
     <class locator="reahl.webdeclarative.migrations:RenameRegionToUi"/>
     <class locator="reahl.webdeclarative.migrations:ElixirToDeclarativeWebDeclarativeChanges"/>
     <class locator="reahl.webdeclarative.migrations:MergeWebUserSessionToUserSession"/>

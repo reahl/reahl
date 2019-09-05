@@ -18,7 +18,8 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
 
 
-from sqlalchemy import Column, String, UnicodeText
+from sqlalchemy import Column, String, UnicodeText, Integer, Text, PrimaryKeyConstraint, DateTime, Boolean, \
+    ForeignKeyConstraint, UniqueConstraint, LargeBinary, BigInteger
 from alembic import op
 
 from reahl.sqlalchemysupport.elixirmigration import MigrateElixirToDeclarative
@@ -26,6 +27,89 @@ from reahl.sqlalchemysupport import fk_name, ix_name
 
 from reahl.component.migration import Migration
 from reahl.component.context import ExecutionContext
+
+
+class GenesisMigration(Migration):
+    version = '2.0'
+
+    def schedule_upgrades(self):
+
+        # systemaccount belongs in reahl-domain
+        self.schedule('alter', op.create_table, 'systemaccount',
+                      Column('id', Integer(), nullable=False),
+                      Column('registration_date', DateTime(), nullable=True),
+                      Column('account_enabled', Boolean(), nullable=False),
+                      Column('failed_logins', Integer(), nullable=False),
+                      Column('row_type', String(length=40), nullable=True),
+                      PrimaryKeyConstraint('id', name='systemaccount_pkey')
+                      )
+        # self.schedule('indexes', op.create_index, 'systemaccount_id_seq', 'systemaccount', ['id'])
+
+        self.schedule('alter', op.create_table, 'usersession',
+                      Column('id', Integer(), nullable=False),
+                      Column('account_id', Integer(), nullable=True),
+                      Column('idle_lifetime', Integer(), nullable=False),
+                      Column('last_activity', DateTime(), nullable=False),
+                      Column('row_type', String(length=40), nullable=True),
+                      ForeignKeyConstraint(['account_id'], ['systemaccount.id'], name='usersession_account_id_fk'),
+                      PrimaryKeyConstraint('id', name='usersession_pkey')
+                      )
+        # self.schedule('indexes', op.create_index, 'usersession_id_seq', 'usersession', ['id'])
+        self.schedule('indexes', op.create_index, 'ix_usersession_account_id', 'usersession', ['account_id'], unique=False)
+
+        self.schedule('alter', op.create_table, 'sessiondata',
+                      Column('id', Integer(), nullable=False),
+                      Column('web_session_id', Integer(), nullable=True),
+                      Column('region_name', Text(), nullable=False),
+                      Column('channel_name', Text(), nullable=False),
+                      Column('row_type', String(length=40), nullable=True),
+                      ForeignKeyConstraint(['web_session_id'], ['usersession.id'],
+                                           name='sessiondata_web_session_id_fk',
+                                           ondelete='CASCADE'),
+                      PrimaryKeyConstraint('id', name='sessiondata_pkey')
+                      )
+        # self.schedule('indexes', op.create_index, 'sessiondata_id_seq', 'sessiondata', ['id'])
+        self.schedule('indexes', op.create_index, 'ix_sessiondata_web_session_id', 'sessiondata', ['web_session_id'], unique=False)
+
+        self.schedule('alter', op.create_table, 'webusersession',
+                      Column('usersession_id', Integer(), nullable=False),
+                      Column('salt', String(length=40), nullable=False),
+                      Column('secure_salt', String(length=40), nullable=False),
+                      ForeignKeyConstraint(['usersession_id'], ['usersession.id'],
+                                           name='webusersession_usersession_id_fkey',
+                                           ondelete='CASCADE'),
+                      PrimaryKeyConstraint('usersession_id', name='webusersession_pkey')
+                      )
+        self.schedule('alter', op.create_table, 'persistedexception',
+                      Column('sessiondata_id', Integer(), nullable=False),
+                      Column('exception', LargeBinary(), nullable=False),
+                      Column('input_name', Text(), nullable=True),
+                      ForeignKeyConstraint(['sessiondata_id'], ['sessiondata.id'],
+                                           name='persistedexception_sessiondata_id_fkey',
+                                           ondelete='CASCADE'),
+                      PrimaryKeyConstraint('sessiondata_id', name='persistedexception_pkey')
+                      )
+        self.schedule('alter', op.create_table, 'persistedfile',
+                      Column('sessiondata_id', Integer(), nullable=False),
+                      Column('input_name', Text(), nullable=False),
+                      Column('filename', Text(), nullable=False),
+                      Column('file_data', LargeBinary(), nullable=False),
+                      Column('content_type', Text(), nullable=False),
+                      Column('size', BigInteger(), nullable=False),
+                      ForeignKeyConstraint(['sessiondata_id'], ['sessiondata.id'],
+                                           name='persistedfile_sessiondata_id_fkey',
+                                           ondelete='CASCADE'),
+                      PrimaryKeyConstraint('sessiondata_id', name='persistedfile_pkey')
+                      )
+        self.schedule('alter', op.create_table, 'userinput',
+                      Column('sessiondata_id', Integer(), nullable=False),
+                      Column('key', Text(), nullable=False),
+                      Column('value', Text(), nullable=False),
+                      ForeignKeyConstraint(['sessiondata_id'], ['sessiondata.id'],
+                                           name='userinput_sessiondata_id_fkey',
+                                           ondelete='CASCADE'),
+                      PrimaryKeyConstraint('sessiondata_id', name='userinput_pkey')
+                      )
 
 
 class RenameRegionToUi(Migration):
