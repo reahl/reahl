@@ -14,6 +14,7 @@
     <egg name="reahl-sqlalchemysupport"/>
     <egg name="reahl-web"/>
     <egg name="reahl-component"/>
+    <egg name="reahl-domain"/>
   </deps>
 
   <deps purpose="test">

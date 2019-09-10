@@ -18,7 +18,6 @@
     <egg name="reahl-component"/>
     <egg name="reahl-mailutil"/>
     <egg name="reahl-sqlalchemysupport"/>
-    <egg name="reahl-web-declarative"/>
   </deps>
 
   <deps purpose="test">
