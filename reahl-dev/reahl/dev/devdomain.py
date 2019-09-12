@@ -617,6 +617,8 @@ class Version(object):
 
 
 class Dependency(object):
+    egg_type = 'egg'
+
     def __init__(self, project, name, version=None, ignore_version=False):
         self.project = project
         self.name = name
@@ -625,7 +627,7 @@ class Dependency(object):
 
     @classmethod
     def get_xml_registration_info(cls):
-        return ('egg', cls, None)
+        return (cls.egg_type, cls, None)
 
     def inflate_attributes(self, reader, attributes, parent):
         assert 'name' in attributes, 'No name specified'
@@ -688,6 +690,8 @@ class Dependency(object):
 
 
 class ThirdpartyDependency(Dependency):
+    egg_type = 'thirdpartyegg'
+
     def __init__(self, project, name, min_version=None, max_version=None):
         super(ThirdpartyDependency, self).__init__(project, name, version=min_version)
         self.max_version = Version(max_version) if max_version else None
@@ -700,10 +704,6 @@ class ThirdpartyDependency(Dependency):
     @property
     def min_version(self):
         return self.version
-
-    @classmethod
-    def get_xml_registration_info(cls):
-        return ('thirdpartyegg', cls, None)
 
     def as_string_for_deb(self):
         return ''
@@ -732,11 +732,57 @@ class XMLDependencyList(list):
 
     def inflate_attributes(self, reader, attributes, parent):
         assert 'purpose' in attributes, 'No purpose specified'
-        self.__init__(parent, attributes['purpose'])
+        if isinstance(parent, VersionEntry):
+            version_entry = parent
+            project = version_entry.project
+        else:
+            project = parent
+        self.__init__(project, attributes['purpose'])
 
     def inflate_child(self, reader, child, tag, parent):
         assert isinstance(child, Dependency), 'Got %s, expected a dependency' % child
         self.append(child)
+
+
+class VersionDependencyEntryPointEntry(EntryPointExport):
+    def __init__(self, version, dependency):
+        encoded_max_version = ''
+        try:
+            encoded_max_version = ' [%s]' % dependency.max_version
+        except AttributeError:
+            pass
+
+        locator = '%s:%s%s' % (dependency.egg_type, dependency.version if dependency.version else '_', encoded_max_version )
+        super(VersionDependencyEntryPointEntry, self).__init__('reahl.versiondeps.%s' % version, dependency.name, locator)
+
+
+class VersionEntry(object):
+    "Dependencies and migrations for a version of a project."""
+    def __init__(self, project, version):
+        super(VersionEntry, self).__init__()
+        self.project = project
+        self.version = Version(version)
+        self.run_dependencies = []
+        self.migrations = []
+
+    def as_entry_points(self):
+        return [EntryPointExport('reahl.versions', str(self.version), str(self.version))] + \
+               [VersionDependencyEntryPointEntry(self.version, d) for d in self.run_dependencies]
+
+    @classmethod
+    def get_xml_registration_info(cls):
+        return ('version', cls, None)
+
+    def inflate_attributes(self, reader, attributes, parent):
+        assert 'version' in attributes, 'No version specified'
+        self.__init__(parent, attributes['version'])
+
+    def inflate_child(self, reader, child, tag, parent):
+        assert isinstance(child, XMLDependencyList) or isinstance(child, MigrationList), 'Got %s, expected deps or migrations' % child
+        if isinstance(child, XMLDependencyList) and child.purpose == 'run':
+            self.run_dependencies = child
+        if isinstance(child, MigrationList):
+            self.migrations = child
 
 
 class ExtrasList(list):
@@ -1590,6 +1636,7 @@ class EggProject(Project):
 
         self.persist_list = []
         self.migration_list = []
+        self.version_history = []
         self.scheduled_jobs = []
 
         self.static_files = []
@@ -1601,6 +1648,9 @@ class EggProject(Project):
         added_entry_points = [ReahlEggExport('reahl.component.eggs:ReahlEgg')]
         return self.migration_list + \
                self.persist_list + \
+               [entry_point 
+                  for version_entry in self.version_history 
+                  for entry_point in version_entry.as_entry_points()] + \
                self.static_files + \
                self.js_attach_list + \
                self.css_attach_list + \
@@ -1665,6 +1715,8 @@ class EggProject(Project):
             self.persist_list = child
         elif isinstance(child, MigrationList):
             self.migration_list = child
+        elif isinstance(child, VersionEntry):
+            self.version_history.append(child)
         elif isinstance(child, ExcludedPackage):
             self.excluded_packages.append(child)
         elif isinstance(child, ScheduledJobSpec):
@@ -1799,7 +1851,7 @@ class EggProject(Project):
         return ascii_as_bytes_or_str(six.text_type(self.version.as_upstream()))
 
     def run_deps_for_setup(self):
-        return [ascii_as_bytes_or_str(dep.as_string_for_egg()) for dep in self.run_deps]
+        return [ascii_as_bytes_or_str(dep.as_string_for_egg()) for dep in self.run_deps] #xxx - need to get latest version's deps'
 
     def build_deps_for_setup(self):
         return [ascii_as_bytes_or_str(dep.as_string_for_egg()) for dep in self.build_deps]
@@ -2255,4 +2307,4 @@ all_xml_classes = [MetaInfo, HardcodedMetadata, DebianPackageMetadata, GitSource
                    PythonWheelPackage, PackageIndex, Dependency, ThirdpartyDependency, XMLDependencyList, \
                    ExtrasList, EntryPointExport, ScriptExport, NamespaceList, NamespaceEntry, PersistedClassesList, \
                    OrderedPersistedClass, MigrationList, ConfigurationSpec, ScheduledJobSpec, \
-                   ExcludedPackage, TranslationPackage, ExtraPath, ProjectTag]
+                   ExcludedPackage, TranslationPackage, ExtraPath, ProjectTag, VersionEntry]

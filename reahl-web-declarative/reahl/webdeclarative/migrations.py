@@ -34,29 +34,6 @@ class GenesisMigration(Migration):
 
     def schedule_upgrades(self):
 
-        # systemaccount belongs in reahl-domain
-        self.schedule('alter', op.create_table, 'systemaccount',
-                      Column('id', Integer(), nullable=False),
-                      Column('registration_date', DateTime(), nullable=True),
-                      Column('account_enabled', Boolean(), nullable=False),
-                      Column('failed_logins', Integer(), nullable=False),
-                      Column('row_type', String(length=40), nullable=True),
-                      PrimaryKeyConstraint('id', name='systemaccount_pkey')
-                      )
-        # self.schedule('indexes', op.create_index, 'systemaccount_id_seq', 'systemaccount', ['id'])
-
-        self.schedule('alter', op.create_table, 'usersession',
-                      Column('id', Integer(), nullable=False),
-                      Column('account_id', Integer(), nullable=True),
-                      Column('idle_lifetime', Integer(), nullable=False),
-                      Column('last_activity', DateTime(), nullable=False),
-                      Column('row_type', String(length=40), nullable=True),
-                      ForeignKeyConstraint(['account_id'], ['systemaccount.id'], name='usersession_account_id_fk'),
-                      PrimaryKeyConstraint('id', name='usersession_pkey')
-                      )
-        # self.schedule('indexes', op.create_index, 'usersession_id_seq', 'usersession', ['id'])
-        self.schedule('indexes', op.create_index, 'ix_usersession_account_id', 'usersession', ['account_id'], unique=False)
-
         self.schedule('alter', op.create_table, 'sessiondata',
                       Column('id', Integer(), nullable=False),
                       Column('web_session_id', Integer(), nullable=True),

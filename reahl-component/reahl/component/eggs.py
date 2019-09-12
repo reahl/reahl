@@ -48,7 +48,6 @@ class CircularDependencyDetected(Exception):
         return ' -> '.join([str(i) for i in self.cycle])
 
 
-    
 class DependencyGraph(object):
     @classmethod
     def from_vertices(cls, vertices, find_dependencies):

@@ -22,57 +22,8 @@ from alembic import op
 
 from reahl.component.migration import Migration, MigrationUnit
 from sqlalchemy import UnicodeText, Unicode, Column, Integer, String, PrimaryKeyConstraint
-from sqlalchemy.engine import reflection
-from reahl.component.context import ExecutionContext
 
 
-class SafelyRenameKey(MigrationUnit):
-    def __init__(self, migration, create_key_op):
-        super().__init__(migration)
-        self.drop_broke = False
-        self.create_key_op = create_key_op
-
-    def call(self, to_call, args, kwargs):
-        if self.drop_broke and to_call is self.create_key_op:
-            pass #TODO: are the current specs for the constraint the same as the new one ?
-        else:
-            if self.exists_constraint_named(args[0], args[1]):
-                super().call(to_call, args, kwargs)
-            else:
-                if to_call is op.drop_constraint:
-                    self.drop_broke = True
-                else:
-                    raise
-
-    def exists_constraint_named(self, contraint_name, table_name):
-        context = ExecutionContext.get_context()
-        orm_control = context.system_control.orm_control
-        import pdb;pdb.set_trace()
-        with orm_control.managed_transaction() as transaction:
-            inspector = reflection.inspection.Inspector.from_engine(transaction)
-            table_foreign_keys = inspector.get_foregin_keys(table_name)
-            return contraint_name in table_foreign_keys
-
-
-class SafelyRenameForeignKey(SafelyRenameKey):
-    def __init__(self, migration):
-        super().__init__(migration, op.create_foreign_key)
-
-
-class SafelyRenamePrimaryKey(SafelyRenameKey):
-    def __init__(self, migration):
-        super().__init__(migration, op.create_primary_key)
-
-
-# class SafelyIgnore(MigrationUnit):
-#     def __init__(self, migration):
-#         super().__init__(migration)
-#
-#     def call(self, to_call, args, kwargs):
-#         try:
-#             super().call(to_call, args, kwargs)
-#         except:
-#             logging.getLogger(__name__).info(' ignoring change: %s(%s, %s)' % (to_call.__name__, args, kwargs))
 
 
 class GenesisMigration(Migration):
