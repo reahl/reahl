@@ -12,18 +12,6 @@
     <thirdpartyegg name="pytest-runner"/>
   </deps>
 
-  <deps purpose="run">
-    <egg name="reahl-web"/>
-    <egg name="reahl-component"/>
-    <egg name="reahl-sqlalchemysupport"/>
-    <egg name="reahl-web-declarative"/>
-    <egg name="reahl-domain"/>
-    <egg name="reahl-domainui"/>
-    <egg name="reahl-commands"/>
-    <thirdpartyegg name="pytest" minversion="3.0"/>
-    <thirdpartyegg name="setuptools" minversion="32.3.1"/>
-  </deps>
-
   <extras name="pillow">
     <egg name="pillow"/>
   </extras>
@@ -40,7 +28,7 @@
     <egg name="reahl-mysqlsupport"/>
   </deps>
 
-    <persisted>
+  <persisted>
         <class locator="reahl.doc.examples.features.persistence.persistence:Comment"/>
         <class locator="reahl.doc.examples.web.fileupload.fileupload:Comment"/>
         <class locator="reahl.doc.examples.web.fileupload.fileupload:AttachedFile"/>
@@ -73,6 +61,37 @@
   <export entrypoint="reahl.component.commands" name="GetExample" locator="reahl.doc.commands:GetExample"/>
   <export entrypoint="reahl.component.commands" name="ListExamples" locator="reahl.doc.commands:ListExamples"/>
 
+  <version version='5.0.0'>
+    <deps purpose="run">
+      <egg name="reahl-web" versionlocked="True"/>
+      <egg name="reahl-component" versionlocked="True"/>
+      <egg name="reahl-sqlalchemysupport" versionlocked="True"/>
+      <egg name="reahl-web-declarative" versionlocked="True"/>
+      <egg name="reahl-domain" versionlocked="True"/>
+      <egg name="reahl-domainui" versionlocked="True"/>
+      <egg name="reahl-commands" versionlocked="True"/>
+      <thirdpartyegg name="pytest" minversion="3.0"/>
+      <thirdpartyegg name="setuptools" minversion="32.3.1"/>
+    </deps>
+  </version>
+  
+  <version version='4.0.5'>
+  </version>
+
+  <version version='3.2.0'>
+  </version>
+
+  <version version='3.1.1'>
+  </version>
+
+  <version version='3.0.0'>
+  </version>
+
+  <version version='2.1.2'>
+  </version>
+
+  <version version='2.0.2'>
+  </version>
 
   <distpackage type="wheel">
     <packageindex repository="pypi"/>

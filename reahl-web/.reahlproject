@@ -13,19 +13,6 @@
     <thirdpartyegg name="pytest-runner"/>
   </deps>
 
-  <deps purpose="run">
-    <egg name="reahl-component"/>
-    <egg name="reahl-mailutil"/>
-    <thirdpartyegg name="ply" minversion="3.8" maxversion="3.8.999"/>
-    <thirdpartyegg name="slimit" minversion="0.8" maxversion="0.8.999"/>
-    <thirdpartyegg name="cssmin" minversion="0.2" maxversion="0.2.999"/>
-    <thirdpartyegg name="BeautifulSoup4" minversion="4.6" maxversion="4.6.999"/>
-    <thirdpartyegg name="webob" minversion="1.4" maxversion="1.4.999"/> 
-    <thirdpartyegg name="Babel" minversion="2.1" maxversion="2.1.999"/> 
-    <thirdpartyegg name="setuptools" minversion="32.3.1"/>
-    <thirdpartyegg name="lxml" minversion="4.2" maxversion="4.2.999"/>
-  </deps>
-
   <deps purpose="test">
     <thirdpartyegg name="pytest" minversion="3.0"/>
     <egg name="reahl-tofu"/>
@@ -38,8 +25,38 @@
     <egg name="reahl-dev"/>
   </deps>
 
-  <persisted>
-  </persisted>
+  <version version='5.0.0'>
+      <deps purpose="run">
+        <egg name="reahl-component" versionlocked="True"/>
+        <egg name="reahl-mailutil" versionlocked="True"/>
+        <thirdpartyegg name="ply" minversion="3.8" maxversion="3.8.999"/>
+        <thirdpartyegg name="slimit" minversion="0.8" maxversion="0.8.999"/>
+        <thirdpartyegg name="cssmin" minversion="0.2" maxversion="0.2.999"/>
+        <thirdpartyegg name="BeautifulSoup4" minversion="4.6" maxversion="4.6.999"/>
+        <thirdpartyegg name="webob" minversion="1.4" maxversion="1.4.999"/>
+        <thirdpartyegg name="Babel" minversion="2.1" maxversion="2.1.999"/>
+        <thirdpartyegg name="setuptools" minversion="32.3.1"/>
+        <thirdpartyegg name="lxml" minversion="4.2" maxversion="4.2.999"/>
+      </deps>
+  </version>
+
+  <version version='4.0.5'>
+  </version>
+
+  <version version='3.2.0'>
+  </version>
+
+  <version version='3.1.1'>
+  </version>
+
+  <version version='3.0.0'>
+  </version>
+
+  <version version='2.1.2'>
+  </version>
+
+  <version version='2.0.2'>
+  </version>
 
 
   <distpackage type="wheel">

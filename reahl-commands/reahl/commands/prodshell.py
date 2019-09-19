@@ -349,6 +349,45 @@ class ListDependencies(ProductionCommand):
         return 0
 
 
+class ListVersions(ProductionCommand):
+    """List all declared versions."""
+    keyword = 'listversions'
+    def assemble(self):
+        super(ListVersions, self).assemble()
+
+    def execute(self, args):
+        super(ListVersions, self).execute(args)
+        self.context.install()
+        versions = ReahlEgg(get_distribution(self.config.reahlsystem.root_egg)).get_versions()
+        for version in versions:
+            print(f'{version}')
+        return 0
+
+
+class ListVersionDependencies(ProductionCommand):
+    """List dependencies."""
+    keyword = 'listversiondeps'
+    def assemble(self):
+        super(ListVersionDependencies, self).assemble()
+
+    def execute(self, args):
+        super(ListVersionDependencies, self).execute(args)
+        self.context.install()
+        egg = ReahlEgg(get_distribution(self.config.reahlsystem.root_egg))
+        versions = egg.get_versions()
+        for version in versions:
+            print(f'[{version}]')
+            deps = egg.get_dependencies(version)
+            for ep in deps:
+                dep_name = ep.name
+                dep_type = ep.module_name
+                min_version = '.'.join(ep.attrs) if ep.attrs else ''
+                max_version = ep.extras[0] if ep.extras and len(ep.extras) > 0 else ''
+                print(f'{dep_type}, {dep_name}, {min_version}, {max_version}')
+
+        return 0
+
+
 class RunJobs(ProductionCommand):
     """Runs all registered scripts."""
     keyword = 'runjobs'

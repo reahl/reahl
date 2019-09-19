@@ -8,11 +8,6 @@
     <thirdpartyegg name="pytest-runner"/>
   </deps>
 
-  <deps purpose="run">
-    <thirdpartyegg name="six"/> 
-    <egg name="reahl-component"/>
-  </deps>
-
   <deps purpose="test">
     <thirdpartyegg name="pytest" minversion="3.0"/>
     <egg name="reahl-tofu"/>
@@ -23,6 +18,15 @@
   <export entrypoint="reahl.component.commands" name="Xpra" locator="reahl.workstation.xprasupport:ControlXpra"/>
   <export entrypoint="reahl.component.commands" name="Ngrok" locator="reahl.workstation.ngroksupport:Ngrok"/>
 
+  <version version='5.0.0'>
+      <deps purpose="run">
+        <thirdpartyegg name="six"/>
+        <egg name="reahl-component" versionlocked="True"/>
+      </deps>
+  </version>
+
+  <version version='4.0.5'>
+  </version>
 
   <distpackage type="wheel">
     <packageindex repository="pypi"/>

@@ -141,6 +141,14 @@ class ReahlEgg(object):
             return config.list_required(self.configuration_spec)
         return []
 
+    def get_versions(self):
+        entry_point_dict = self.distribution.get_entry_map().get('reahl.versions', {})
+        return entry_point_dict.keys()
+
+    def get_dependencies(self, version):
+        entry_point_dict = self.distribution.get_entry_map().get(f'reahl.versiondeps.{version}', {})
+        return entry_point_dict.values()
+
     def get_persisted_classes_in_order(self):
         return self.get_ordered_classes_exported_on('reahl.persistlist')
 

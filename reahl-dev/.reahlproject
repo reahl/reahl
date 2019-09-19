@@ -8,23 +8,9 @@
     <thirdpartyegg name="pytest-runner"/>
   </deps>
 
-  <deps purpose="run">
-    <egg name="reahl-component"/>
-    <egg name="reahl-tofu"/> 
-    <egg name="reahl-stubble"/> 
-    <thirdpartyegg name="six"/>
-    <thirdpartyegg name="Babel" minversion="2.1" maxversion="2.1.999"/>
-    <thirdpartyegg name="twine" minversion="1.11.0" maxversion="1.11.9999"/>
-    <thirdpartyegg name="wheel" minversion="0.29.0" maxversion="0.29.9999"/> 
-    <thirdpartyegg name="tzlocal" minversion="1.2.0" maxversion="1.2.9999"/> 
-    <thirdpartyegg name="setuptools" minversion="32.3.1"/> 
-    <thirdpartyegg name="pip" minversion="10.0.0"/> 
-  </deps>
-
   <deps purpose="test">
     <thirdpartyegg name="pytest" minversion="3.0"/>
   </deps>
-
 
   <export entrypoint="reahl.component.commands" name="Refresh" locator="reahl.dev.devshell:Refresh"/>
   <export entrypoint="reahl.component.commands" name="ExplainLegend" locator="reahl.dev.devshell:ExplainLegend"/>
@@ -55,6 +41,39 @@
   <export entrypoint="reahl.component.commands" name="ServeSMTP" locator="reahl.dev.mailtest:ServeSMTP"/>
 
   <export entrypoint="reahl.component.commands" name="UpdateCopyright" locator="reahl.dev.devshell:UpdateCopyright"/>
+
+  <version version='5.0.0'>
+    <deps purpose="run">
+      <egg name="reahl-component" versionlocked="True"/>
+      <egg name="reahl-tofu" versionlocked="True"/>
+      <egg name="reahl-stubble" versionlocked="True"/>
+      <thirdpartyegg name="six"/>
+      <thirdpartyegg name="Babel" minversion="2.1" maxversion="2.1.999"/>
+      <thirdpartyegg name="twine" minversion="1.11.0" maxversion="1.11.9999"/>
+      <thirdpartyegg name="wheel" minversion="0.29.0" maxversion="0.29.9999"/> 
+      <thirdpartyegg name="tzlocal" minversion="1.2.0" maxversion="1.2.9999"/> 
+      <thirdpartyegg name="setuptools" minversion="32.3.1"/> 
+      <thirdpartyegg name="pip" minversion="10.0.0"/> 
+    </deps>
+  </version>
+  
+  <version version='4.0.5'>
+  </version>
+
+  <version version='3.2.0'>
+  </version>
+
+  <version version='3.1.1'>
+  </version>
+
+  <version version='3.0.0'>
+  </version>
+
+  <version version='2.1.2'>
+  </version>
+
+  <version version='2.0.2'>
+  </version>
 
   <distpackage type="wheel">
     <packageindex repository="pypi"/>

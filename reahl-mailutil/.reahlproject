@@ -9,18 +9,38 @@
     <thirdpartyegg name="pytest-runner"/>
   </deps>
 
-  <deps purpose="run">
-    <egg name="reahl-component"/>
-    <thirdpartyegg name="docutils" minversion="0.14" maxversion="0.14.999"/>
-    <thirdpartyegg name="Pygments" minversion="2.1.0" maxversion="2.1.999"/>
-  </deps>
-
   <deps purpose="test">
     <thirdpartyegg name="pytest" minversion="3.0"/>
     <egg name="reahl-tofu"/>
     <egg name="reahl-dev"/>
     <egg name="reahl-stubble"/>
   </deps>
+
+  <version version='5.0.0'>
+      <deps purpose="run">
+        <egg name="reahl-component" versionlocked="True"/>
+        <thirdpartyegg name="docutils" minversion="0.14" maxversion="0.14.999"/>
+        <thirdpartyegg name="Pygments" minversion="2.1.0" maxversion="2.1.999"/>
+      </deps>
+  </version>
+
+  <version version='4.0.5'>
+  </version>
+
+  <version version='3.2.0'>
+  </version>
+
+  <version version='3.1.1'>
+  </version>
+
+  <version version='3.0.0'>
+  </version>
+
+  <version version='2.1.2'>
+  </version>
+
+  <version version='2.0.2'>
+  </version>
 
 
   <distpackage type="wheel">

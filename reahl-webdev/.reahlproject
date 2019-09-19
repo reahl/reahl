@@ -8,21 +8,6 @@
     <thirdpartyegg name="pytest-runner"/>
   </deps>
 
-  <deps purpose="run">
-    <egg name="reahl-web"/>
-    <egg name="reahl-dev"/>
-    <egg name="reahl-component"/>
-    <egg name="reahl-tofu"/>
-    <egg name="reahl-domain"/>
-    
-    <thirdpartyegg name="lxml" minversion="4.2" maxversion="4.2.999"/>
-    <thirdpartyegg name="WebTest" minversion="2.0" maxversion="2.0.999"/>
-    <thirdpartyegg name="selenium" minversion="2.42" maxversion="2.9999"/>
-    <thirdpartyegg name="watchdog" minversion="0.8.3" maxversion="0.8.3.999"/>
-    <thirdpartyegg name="setuptools" minversion="32.3.1"/>
-    <thirdpartyegg name="webob" minversion="1.4" maxversion="1.4.999"/> 
-  </deps>
-
   <deps purpose="test">
     <thirdpartyegg name="pytest" minversion="3.0"/>
     <egg name="reahl-tofu"/>
@@ -36,6 +21,42 @@
 
   <export entrypoint="reahl.component.commands" name="ServeCurrentProject" locator="reahl.webdev.commands:ServeCurrentProject"/>
   <export entrypoint="reahl.component.commands" name="SyncFiles" locator="reahl.webdev.commands:SyncFiles"/>
+
+  <version version='5.0.0'>
+      <deps purpose="run" versionlocked="True">
+        <egg name="reahl-web" versionlocked="True"/>
+        <egg name="reahl-dev" versionlocked="True"/>
+        <egg name="reahl-component" versionlocked="True"/>
+        <egg name="reahl-tofu" versionlocked="True"/>
+        <egg name="reahl-domain" versionlocked="True"/>
+
+        <thirdpartyegg name="lxml" minversion="4.2" maxversion="4.2.999"/>
+        <thirdpartyegg name="WebTest" minversion="2.0" maxversion="2.0.999"/>
+        <thirdpartyegg name="selenium" minversion="2.42" maxversion="2.9999"/>
+        <thirdpartyegg name="watchdog" minversion="0.8.3" maxversion="0.8.3.999"/>
+        <thirdpartyegg name="setuptools" minversion="32.3.1"/>
+        <thirdpartyegg name="webob" minversion="1.4" maxversion="1.4.999"/>
+      </deps>
+  </version>
+
+  <version version='4.0.5'>
+  </version>
+
+  <version version='3.2.0'>
+  </version>
+
+  <version version='3.1.1'>
+  </version>
+
+  <version version='3.0.0'>
+  </version>
+
+  <version version='2.1.2'>
+  </version>
+
+  <version version='2.0.2'>
+  </version>
+
 
 
   <distpackage type="wheel">

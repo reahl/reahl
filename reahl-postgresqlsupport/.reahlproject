@@ -8,17 +8,38 @@
     <thirdpartyegg name="pytest-runner"/>
   </deps>
 
-  <deps purpose="run">
-    <egg name="reahl-component"/>
-    <egg name="reahl-commands"/>
-    <thirdpartyegg name="psycopg2-binary" minversion="2.7" maxversion="2.7.9999"/>
-  </deps>
 
   <deps purpose="test">
     <thirdpartyegg name="pytest" minversion="3.0"/>
   </deps>
 
   <export entrypoint="reahl.component.databasecontrols" name="PostgresqlControl" locator="reahl.postgresqlsupport:PostgresqlControl"/>
+
+  <version version='5.0.0'>
+      <deps purpose="run">
+        <egg name="reahl-component" versionlocked="True"/>
+        <egg name="reahl-commands" versionlocked="True"/>
+        <thirdpartyegg name="psycopg2-binary" minversion="2.7" maxversion="2.7.9999"/>
+      </deps>
+  </version>
+
+  <version version='4.0.5'>
+  </version>
+
+  <version version='3.2.0'>
+  </version>
+
+  <version version='3.1.1'>
+  </version>
+
+  <version version='3.0.0'>
+  </version>
+
+  <version version='2.1.2'>
+  </version>
+
+  <version version='2.0.2'>
+  </version>
 
 
   <distpackage type="wheel">

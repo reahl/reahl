@@ -13,13 +13,6 @@
     <thirdpartyegg name="pytest-runner"/>
   </deps>
 
-  <deps purpose="run">
-    <thirdpartyegg name="passlib" minversion="1.7.1" maxversion="1.7.9999"/>
-    <egg name="reahl-component"/>
-    <egg name="reahl-mailutil"/>
-    <egg name="reahl-sqlalchemysupport"/>
-  </deps>
-
   <deps purpose="test">
     <thirdpartyegg name="pytest" minversion="3.0"/>
     <egg name="reahl-tofu"/>
@@ -48,14 +41,42 @@
 
   <schedule locator="reahl.workflowmodel:DeferredAction.check_deadline"/>
 
-  <migrations>
-      <class locator="reahl.domain.migrations:GenesisMigration"/>
-      <class locator="reahl.domain.migrations:ElixirToDeclarativeDomainChanges"/>
-      <class locator="reahl.domain.migrations:AddLoginSession"/>
-      <class locator="reahl.domain.migrations:ChangeSchemaToBeMySqlCompatible"/>
-      <class locator="reahl.domain.migrations:ChangePasswordHash"/>
-      <class locator="reahl.domain.migrations:RemoveDeadApacheDigestColumn"/>
-  </migrations>
+
+  <version version='5.0.0'>
+    <deps purpose="run">
+      <thirdpartyegg name="passlib" minversion="1.7.1" maxversion="1.7.9999"/>
+      <egg name="reahl-component" versionlocked="True"/>
+      <egg name="reahl-mailutil" versionlocked="True"/>
+      <egg name="reahl-sqlalchemysupport" versionlocked="True"/>
+    </deps>
+
+    <migrations>
+        <class locator="reahl.domain.migrations:GenesisMigration"/>
+        <class locator="reahl.domain.migrations:ElixirToDeclarativeDomainChanges"/>
+        <class locator="reahl.domain.migrations:AddLoginSession"/>
+        <class locator="reahl.domain.migrations:ChangeSchemaToBeMySqlCompatible"/>
+        <class locator="reahl.domain.migrations:ChangePasswordHash"/>
+        <class locator="reahl.domain.migrations:RemoveDeadApacheDigestColumn"/>
+    </migrations>
+  </version>
+  
+  <version version='4.0.5'>
+  </version>
+
+  <version version='3.2.0'>
+  </version>
+
+  <version version='3.1.1'>
+  </version>
+
+  <version version='3.0.0'>
+  </version>
+
+  <version version='2.1.2'>
+  </version>
+
+  <version version='2.0.2'>
+  </version>
 
 
   <distpackage type="wheel">

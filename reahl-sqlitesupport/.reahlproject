@@ -8,16 +8,37 @@
     <thirdpartyegg name="pytest-runner"/>
   </deps>
 
-  <deps purpose="run">
-    <egg name="reahl-component"/>
-    <egg name="reahl-commands"/>
-  </deps>
-
   <deps purpose="test">
     <thirdpartyegg name="pytest" minversion="3.0"/>
   </deps>
 
   <export entrypoint="reahl.component.databasecontrols" name="SQLiteControl" locator="reahl.sqlitesupport:SQLiteControl"/>
+
+  <version version='5.0.0'>
+      <deps purpose="run">
+        <egg name="reahl-component" versionlocked="True"/>
+        <egg name="reahl-commands" versionlocked="True"/>
+      </deps>
+  </version>
+
+  <version version='4.0.5'>
+  </version>
+
+  <version version='3.2.0'>
+  </version>
+
+  <version version='3.1.1'>
+  </version>
+
+  <version version='3.0.0'>
+  </version>
+
+  <version version='2.1.2'>
+  </version>
+
+  <version version='2.0.2'>
+  </version>
+
 
 
   <distpackage type="wheel">

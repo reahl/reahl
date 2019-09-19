@@ -10,13 +10,6 @@
     <thirdpartyegg name="pytest-runner"/>
   </deps>
 
-  <deps purpose="run">
-    <egg name="reahl-component"/>
-    <egg name="reahl-commands"/>
-    <thirdpartyegg name="sqlalchemy" minversion="1.2.0" maxversion="1.2.999"/>
-    <thirdpartyegg name="alembic" minversion="0.9.6" maxversion="0.9.999"/>
-  </deps>
-
   <deps purpose="test">
     <thirdpartyegg name="pytest" minversion="3.0"/>
     <egg name="reahl-tofu"/>
@@ -30,12 +23,38 @@
     <class locator="reahl.sqlalchemysupport:SchemaVersion"/>
   </persisted>
 
-  <migrations>
-    <class locator="reahl.sqlalchemysupport.migrations:GenesisMigration"/>
-    <class locator="reahl.sqlalchemysupport.elixirmigration:ElixirToDeclarativeSqlAlchemySupportChanges"/>
-    <class locator="reahl.sqlalchemysupport.migrations:ChangesToBeMySqlCompatible"/>
-  </migrations>
+  <version version='5.0.0'>
+    <deps purpose="run">
+      <egg name="reahl-component" versionlocked="True"/>
+      <egg name="reahl-commands" versionlocked="True"/>
+      <thirdpartyegg name="sqlalchemy" minversion="1.2.0" maxversion="1.2.999"/>
+      <thirdpartyegg name="alembic" minversion="0.9.6" maxversion="0.9.999"/>
+    </deps>
 
+    <migrations>
+      <class locator="reahl.sqlalchemysupport.migrations:GenesisMigration"/>
+      <class locator="reahl.sqlalchemysupport.elixirmigration:ElixirToDeclarativeSqlAlchemySupportChanges"/>
+      <class locator="reahl.sqlalchemysupport.migrations:ChangesToBeMySqlCompatible"/>
+    </migrations>
+  </version>
+
+  <version version='4.0.5'>
+  </version>
+
+  <version version='3.2.0'>
+  </version>
+
+  <version version='3.1.1'>
+  </version>
+
+  <version version='3.0.0'>
+  </version>
+
+  <version version='2.1.2'>
+  </version>
+
+  <version version='2.0.2'>
+  </version>
 
   <distpackage type="wheel">
     <packageindex repository="pypi"/>

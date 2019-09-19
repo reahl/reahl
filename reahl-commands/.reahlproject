@@ -8,19 +8,32 @@
     <thirdpartyegg name="pytest-runner"/>
   </deps>
 
-  <deps purpose="run">
-    <thirdpartyegg name="six"/> 
-  </deps>
-
   <deps purpose="test">
     <thirdpartyegg name="pytest" minversion="3.0"/>
     <egg name="reahl-tofu"/>
     <egg name="reahl-stubble"/>
   </deps>
 
-  <migrations>
-      <class locator="reahl.commands.migrations:ReahlCommandsReahlSchemaInitialise"/>
-  </migrations>
+  <version version='5.0.0'>
+    <deps purpose="run">
+      <thirdpartyegg name="six"/> 
+    </deps>
+  </version>
+
+  <version version='4.0.5'>
+    <deps purpose="run">
+      <thirdpartyegg name="six"/> 
+    </deps>
+  </version>
+
+  <version version='4.0.0'>
+    <deps purpose="run">
+      <thirdpartyegg name="six"/> 
+    </deps>
+    <migrations>
+        <class locator="reahl.commands.migrations:ReahlCommandsReahlSchemaInitialise"/>
+    </migrations>
+  </version>
 
   <export entrypoint="reahl.component.commands" name="CreateDBUser" locator="reahl.commands.prodshell:CreateDBUser"/>
   <export entrypoint="reahl.component.commands" name="DropDBUser" locator="reahl.commands.prodshell:DropDBUser"/>
@@ -39,6 +52,8 @@
   <export entrypoint="reahl.component.commands" name="ListConfig" locator="reahl.commands.prodshell:ListConfig"/>
   <export entrypoint="reahl.component.commands" name="CheckConfig" locator="reahl.commands.prodshell:CheckConfig"/>
   <export entrypoint="reahl.component.commands" name="ListDependencies" locator="reahl.commands.prodshell:ListDependencies"/>
+  <export entrypoint="reahl.component.commands" name="ListVersions" locator="reahl.commands.prodshell:ListVersions"/>
+  <export entrypoint="reahl.component.commands" name="ListVersionDependencies" locator="reahl.commands.prodshell:ListVersionDependencies"/>
   <export entrypoint="reahl.component.commands" name="ExportStaticFiles" locator="reahl.commands.prodshell:ExportStaticFiles"/>
   <export entrypoint="reahl.component.commands" name="ComponentInfo" locator="reahl.commands.prodshell:ComponentInfo"/>
 
