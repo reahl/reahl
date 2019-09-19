@@ -18,14 +18,14 @@
   <export entrypoint="reahl.component.commands" name="Xpra" locator="reahl.workstation.xprasupport:ControlXpra"/>
   <export entrypoint="reahl.component.commands" name="Ngrok" locator="reahl.workstation.ngroksupport:Ngrok"/>
 
-  <version version='5.0.0'>
+  <version number='5.0.0'>
       <deps purpose="run">
         <thirdpartyegg name="six"/>
         <egg name="reahl-component" versionlocked="True"/>
       </deps>
   </version>
 
-  <version version='4.0.5'>
+  <version number='4.0.5'>
   </version>
 
   <distpackage type="wheel">

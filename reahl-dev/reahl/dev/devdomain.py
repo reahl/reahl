@@ -574,7 +574,7 @@ class ExcludedPackage(object):
         self.__init__(attributes['name'])
 
 
-class Version(object):
+class VersionNumber(object):
     def __init__(self, version_string):
         match = re.match('^(?P<major>\d+)\.(?P<minor>\d+)(\.(?P<patch>[0-9a-zA-Z]+)((?P<other>[^-]+)?)(-(?P<debian_rev>.*))?)?$', version_string)
         self.major = match.group('major')
@@ -594,7 +594,7 @@ class Version(object):
         return '.'.join([self.major, (self.minor+(self.other or ''))] + tail)
 
     def truncated(self):
-        return Version('.'.join([self.major, self.minor]))
+        return VersionNumber('.'.join([self.major, self.minor]))
 
     def is_alpha_version(self):
         if not self.patch:
@@ -602,7 +602,7 @@ class Version(object):
         return not re.match('^\d+$', self.patch)
 
     def upper_version(self):
-        return Version('.'.join([self.major, six.text_type(int(self.minor)+1)]))
+        return VersionNumber('.'.join([self.major, six.text_type(int(self.minor)+1)]))
 
     def lower_deb_version(self):
         return self.truncated()
@@ -613,10 +613,10 @@ class Version(object):
         return self.truncated()
 
     def as_upstream(self):
-        return Version('.'.join([self.major, self.minor]+([self.patch] if self.patch else [])))
+        return VersionNumber('.'.join([self.major, self.minor]+([self.patch] if self.patch else [])))
 
     def as_major_minor(self):
-        return Version('.'.join([self.major, self.minor]))
+        return VersionNumber('.'.join([self.major, self.minor]))
 
 
 class Dependency(object):
@@ -630,7 +630,7 @@ class Dependency(object):
         self.override_version(version)
 
     def override_version(self, version_string):
-        self.version = Version(version_string) if version_string else None
+        self.version = VersionNumber(version_string) if version_string else None
 
     @classmethod
     def get_xml_registration_info(cls):
@@ -708,7 +708,7 @@ class ThirdpartyDependency(Dependency):
 
     def __init__(self, project, name, min_version=None, max_version=None):
         super(ThirdpartyDependency, self).__init__(project, name, version=min_version)
-        self.max_version = Version(max_version) if max_version else None
+        self.max_version = VersionNumber(max_version) if max_version else None
 
     def inflate_attributes(self, reader, attributes, parent):
         assert 'name' in attributes, 'No name specified'
@@ -780,7 +780,7 @@ class VersionEntry(object):
     def __init__(self, project, version):
         super(VersionEntry, self).__init__()
         self.project = project
-        self.version = Version(version)
+        self.version = VersionNumber(version)
         self.run_dependencies = []
         self.migrations = []
 
@@ -794,8 +794,8 @@ class VersionEntry(object):
         return ('version', cls, None)
 
     def inflate_attributes(self, reader, attributes, parent):
-        assert 'version' in attributes, 'No version specified'
-        self.__init__(parent, attributes['version'])
+        assert 'number' in attributes, 'No version number specified'
+        self.__init__(parent, attributes['number'])
 
     def inflate_child(self, reader, child, tag, parent):
         assert isinstance(child, XMLDependencyList) or isinstance(child, MigrationList), 'Got %s, expected deps or migrations' % child
@@ -1005,7 +1005,7 @@ class ProjectMetadata(object):
     def version(self):
         if self.project.chicken_project:
             return self.project.chicken_project.version
-        return Version('0.0')
+        return VersionNumber('0.0')
 
     def info_readable(self):
         if self.project.chicken_project:
@@ -1083,7 +1083,7 @@ class HardcodedMetadata(ProjectMetadata):
 
     @property
     def version(self):
-        return Version(self.info['version'].contents)
+        return VersionNumber(self.info['version'].contents)
 
     @property
     def project_name(self):
@@ -1157,7 +1157,7 @@ class DebianPackageMetadata(ProjectMetadata):
 
     @property
     def version(self):
-        return Version(six.text_type(self.changelog.version))
+        return VersionNumber(six.text_type(self.changelog.version))
 
     def get_long_description_for(self, project):
         return self.debian_control.get_long_description_for('python-%s' % project.project_name).replace(' . ', '\n\n')

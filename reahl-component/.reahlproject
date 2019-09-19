@@ -27,7 +27,7 @@
   <export entrypoint="reahl.component.commands" name="RemoveAlias" locator="reahl.component.shelltools:RemoveAlias"/>
   <export entrypoint="reahl.component.databasecontrols" name="NullDatabaseControl" locator="reahl.component.dbutils:NullDatabaseControl"/>
 
-  <version version='5.0.0'>
+  <version number='5.0.0'>
     <deps purpose="run">
       <thirdpartyegg name="six"/> 
       <thirdpartyegg name="Babel" minversion="2.1" maxversion="2.1.999"/> 
@@ -38,22 +38,22 @@
     </deps>
   </version>
   
-  <version version='4.0.5'>
+  <version number='4.0.5'>
   </version>
 
-  <version version='3.2.0'>
+  <version number='3.2.0'>
   </version>
 
-  <version version='3.1.1'>
+  <version number='3.1.1'>
   </version>
 
-  <version version='3.0.0'>
+  <version number='3.0.0'>
   </version>
 
-  <version version='2.1.2'>
+  <version number='2.1.2'>
   </version>
 
-  <version version='2.0.2'>
+  <version number='2.0.2'>
   </version>
 
   <distpackage type="wheel">

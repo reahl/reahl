@@ -15,7 +15,7 @@
 
   <export entrypoint="reahl.component.databasecontrols" name="PostgresqlControl" locator="reahl.postgresqlsupport:PostgresqlControl"/>
 
-  <version version='5.0.0'>
+  <version number='5.0.0'>
       <deps purpose="run">
         <egg name="reahl-component" versionlocked="True"/>
         <egg name="reahl-commands" versionlocked="True"/>
@@ -23,22 +23,22 @@
       </deps>
   </version>
 
-  <version version='4.0.5'>
+  <version number='4.0.5'>
   </version>
 
-  <version version='3.2.0'>
+  <version number='3.2.0'>
   </version>
 
-  <version version='3.1.1'>
+  <version number='3.1.1'>
   </version>
 
-  <version version='3.0.0'>
+  <version number='3.0.0'>
   </version>
 
-  <version version='2.1.2'>
+  <version number='2.1.2'>
   </version>
 
-  <version version='2.0.2'>
+  <version number='2.0.2'>
   </version>
 
 

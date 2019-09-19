@@ -14,21 +14,24 @@
     <egg name="reahl-stubble"/>
   </deps>
 
-  <version version='5.0.0'>
+  <version number='5.0.0'>
     <deps purpose="run">
       <thirdpartyegg name="six"/> 
+      <egg name="reahl-component" versionlocked="True"/>
     </deps>
   </version>
 
-  <version version='4.0.5'>
+  <version number='4.0.5'>
     <deps purpose="run">
       <thirdpartyegg name="six"/> 
+      <egg name="reahl-component" versionlocked="True"/>
     </deps>
   </version>
 
-  <version version='4.0.0'>
+  <version number='4.0.0'>
     <deps purpose="run">
       <thirdpartyegg name="six"/> 
+      <egg name="reahl-component" versionlocked="True"/>
     </deps>
     <migrations>
         <class locator="reahl.commands.migrations:ReahlCommandsReahlSchemaInitialise"/>

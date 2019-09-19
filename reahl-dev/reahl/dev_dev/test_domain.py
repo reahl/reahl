@@ -348,7 +348,7 @@ def test_setup_project_file_queries():
 
     @stubclass(Project)
     class ProjectStub(object):
-        version = Version('1.2.5')
+        version = VersionNumber('1.2.5')
 
     @stubclass(Workspace)
     class WorkspaceStub(object):
@@ -420,7 +420,7 @@ def test_setup_project_file_queries():
     class MetadataStub(object):
         @property
         def version(self):
-            return Version('3.1.2a1-ubuntu1')
+            return VersionNumber('3.1.2a1-ubuntu1')
         @property
         def project_name(self):
             return 'test-proj'
@@ -556,7 +556,7 @@ def test_types_of_dependencies():
     class ProjectStub(object):
         def __init__(self, name, version, in_same_chicken=False, also_in_workspace=False):
             self.project_name = name
-            self.version = Version(version)
+            self.version = VersionNumber(version)
             self.in_same_chicken = in_same_chicken
             self.workspace = WorkspaceStub(also_in_workspace)
         @property
