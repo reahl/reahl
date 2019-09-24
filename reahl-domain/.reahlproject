@@ -44,15 +44,22 @@
 
   <version number='5.0.0'>
     <deps purpose="run">
-      <thirdpartyegg name="passlib" minversion="1.7.1" maxversion="1.7.9999"/>
       <egg name="reahl-component" versionlocked="True"/>
       <egg name="reahl-mailutil" versionlocked="True"/>
       <egg name="reahl-sqlalchemysupport" versionlocked="True"/>
+      <thirdpartyegg name="passlib" minversion="1.7.1" maxversion="1.7.9999"/>
     </deps>
 
   </version>
   
   <version number='4.0.5'>
+    <deps purpose="run">
+      <egg name="reahl-component" versionlocked="True"/>
+      <egg name="reahl-mailutil" versionlocked="True"/>
+      <egg name="reahl-sqlalchemysupport" versionlocked="True"/>
+      <egg name="reahl-web-declarative" versionlocked="True"/>
+      <thirdpartyegg name="passlib" minversion="1.7.1" maxversion="1.7.9999"/>
+    </deps>
     <migrations>
       <class locator="reahl.domain.migrations:ChangeSchemaToBeMySqlCompatible"/>
       <class locator="reahl.domain.migrations:ChangePasswordHash"/>
@@ -61,24 +68,56 @@
   </version>
 
   <version number='3.2.0'>
+    <deps purpose="run">
+      <egg name="reahl-component" versionlocked="True"/>
+      <egg name="reahl-mailutil" versionlocked="True"/>
+      <egg name="reahl-sqlalchemysupport" versionlocked="True"/>
+      <egg name="reahl-web-declarative" versionlocked="True"/>
+    </deps>
   </version>
 
   <version number='3.1.1'>
+    <deps purpose="run">
+      <egg name="reahl-component" versionlocked="True"/>
+      <egg name="reahl-mailutil" versionlocked="True"/>
+      <egg name="reahl-sqlalchemysupport" versionlocked="True"/>
+      <egg name="reahl-web-declarative" versionlocked="True"/>
+    </deps>
     <migrations>
       <class locator="reahl.domain.migrations:AddLoginSession"/>
     </migrations>
   </version>
 
   <version number='3.0.0'>
+    <deps purpose="run">
+      <egg name="reahl-component" versionlocked="True"/>
+      <egg name="reahl-mailutil" versionlocked="True"/>
+      <egg name="reahl-interfaces" versionlocked="True"/>
+      <egg name="reahl-sqlalchemysupport" versionlocked="True"/>
+    </deps>
     <migrations>
       <class locator="reahl.domain.migrations:ElixirToDeclarativeDomainChanges"/>
     </migrations>
   </version>
 
   <version number='2.1.2'>
+    <deps purpose="run">
+      <egg name="reahl-component" versionlocked="True"/>
+      <egg name="reahl-mailutil" versionlocked="True"/>
+      <egg name="reahl-interfaces" versionlocked="True"/>
+      <egg name="reahl-sqlalchemysupport" versionlocked="True"/>
+      <thirdpartyegg name="elixir" minversion="0.7" maxversion="0.8"/>
+    </deps>
   </version>
 
   <version number='2.0.2'>
+    <deps purpose="run">
+      <egg name="reahl-component" versionlocked="True"/>
+      <egg name="reahl-mailutil" versionlocked="True"/>
+      <egg name="reahl-interfaces" versionlocked="True"/>
+      <egg name="reahl-sqlalchemysupport" versionlocked="True"/>
+      <thirdpartyegg name="elixir" minversion="0.7" maxversion="0.8"/>
+    </deps>
     <migrations>
         <class locator="reahl.domain.migrations:GenesisMigration"/>
     </migration>

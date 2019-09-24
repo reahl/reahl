@@ -14,19 +14,29 @@
   </deps>
 
   <version number='5.0.0'>
-      <deps purpose="run">
-        <thirdpartyegg name="six"/>
-        <thirdpartyegg name="setuptools" minversion="32.3.1"/>
-      </deps>
+    <deps purpose="run">
+      <thirdpartyegg name="six"/>
+      <thirdpartyegg name="setuptools" minversion="32.3.1"/>
+    </deps>
   </version>
 
   <version number='4.0.5'>
+    <deps purpose="run">
+      <thirdpartyegg name="six"/>
+      <thirdpartyegg name="setuptools" minversion="32.3.1"/>
+    </deps>
   </version>
 
   <version number='3.2.0'>
+    <deps purpose="run">
+    <thirdpartyegg name="six"/>
+    </deps>
   </version>
 
   <version number='3.1.1'>
+    <deps purpose="run">
+      <thirdpartyegg name="six"/>
+    </deps>
   </version>
 
   <version number='3.0.0'>

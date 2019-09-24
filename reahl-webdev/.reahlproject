@@ -29,7 +29,6 @@
         <egg name="reahl-component" versionlocked="True"/>
         <egg name="reahl-tofu" versionlocked="True"/>
         <egg name="reahl-domain" versionlocked="True"/>
-
         <thirdpartyegg name="lxml" minversion="4.2" maxversion="4.2.999"/>
         <thirdpartyegg name="WebTest" minversion="2.0" maxversion="2.0.999"/>
         <thirdpartyegg name="selenium" minversion="2.42" maxversion="2.9999"/>
@@ -40,21 +39,80 @@
   </version>
 
   <version number='4.0.5'>
+    <deps purpose="run">
+      <egg name="reahl-web" versionlocked="True"/>
+      <egg name="reahl-dev" versionlocked="True"/>
+      <egg name="reahl-component" versionlocked="True"/>
+      <egg name="reahl-tofu" versionlocked="True"/>
+      <egg name="reahl-domain" versionlocked="True"/>
+      <thirdpartyegg name="lxml" minversion="4.2" maxversion="4.2.999"/>
+      <thirdpartyegg name="WebTest" minversion="2.0" maxversion="2.0.999"/>
+      <thirdpartyegg name="selenium" minversion="2.42" maxversion="2.9999"/>
+      <thirdpartyegg name="watchdog" minversion="0.8.3" maxversion="0.8.3.999"/>
+      <thirdpartyegg name="setuptools" minversion="32.3.1"/>
+      <thirdpartyegg name="webob" minversion="1.4" maxversion="1.4.999"/>
+    </deps>
   </version>
 
   <version number='3.2.0'>
+    <deps purpose="run">
+      <egg name="reahl-web" versionlocked="True"/>
+      <egg name="reahl-dev" versionlocked="True"/>
+      <egg name="reahl-component" versionlocked="True"/>
+      <egg name="reahl-tofu" versionlocked="True"/>
+      <egg name="reahl-domain" versionlocked="True"/>
+      <thirdpartyegg name="lxml" minversion="3.3" maxversion="3.3.999"/>
+      <thirdpartyegg name="WebTest" minversion="2.0" maxversion="2.0.999"/>
+      <thirdpartyegg name="selenium" minversion="2.42" maxversion="2.9999"/>
+      <thirdpartyegg name="watchdog" minversion="0.8.3" maxversion="0.8.3.999"/>
+    </deps>
   </version>
 
   <version number='3.1.1'>
+    <deps purpose="run">
+      <egg name="reahl-web" versionlocked="True"/>
+      <egg name="reahl-dev" versionlocked="True"/>
+      <egg name="reahl-component" versionlocked="True"/>
+      <egg name="reahl-tofu" versionlocked="True"/>
+      <egg name="reahl-domain" versionlocked="True"/>
+      <thirdpartyegg name="lxml" minversion="3.3" maxversion="3.3.999"/>
+      <thirdpartyegg name="WebTest" minversion="2.0" maxversion="2.0.999"/>
+      <thirdpartyegg name="selenium" minversion="2.42" maxversion="2.42.999"/>
+    </deps>
   </version>
 
   <version number='3.0.0'>
+    <deps purpose="run">
+      <egg name="reahl-web" versionlocked="True"/>
+      <egg name="reahl-dev" versionlocked="True"/>
+      <egg name="reahl-component" versionlocked="True"/>
+      <egg name="reahl-tofu" versionlocked="True"/>
+      <thirdpartyegg name="lxml" minversion="3.3" maxversion="3.3.999"/>
+      <thirdpartyegg name="WebTest" minversion="2.0" maxversion="2.0.999"/>
+      <thirdpartyegg name="selenium" minversion="2.42" maxversion="2.42.999"/>
+    </deps>
   </version>
 
   <version number='2.1.2'>
+    <egg name="reahl-web" versionlocked="True"/>
+    <egg name="reahl-dev" versionlocked="True"/>
+    <egg name="reahl-component" versionlocked="True"/>
+    <egg name="reahl-tofu" versionlocked="True"/>
+    <thirdpartyegg name="lxml" minversion="3.2"/>
+    <thirdpartyegg name="WebTest" minversion="1.4" maxversion="1.5"/>
+    <thirdpartyegg name="selenium" minversion="2.25" maxversion="2.27"/>
   </version>
 
   <version number='2.0.2'>
+    <deps purpose="run">
+      <egg name="reahl-web" versionlocked="True"/>
+      <egg name="reahl-dev" versionlocked="True"/>
+      <egg name="reahl-component" versionlocked="True"/>
+      <egg name="reahl-tofu" versionlocked="True"/>
+      <thirdpartyegg name="lxml" minversion="3.2"/>
+      <thirdpartyegg name="WebTest" minversion="1.4" maxversion="1.5"/>
+      <thirdpartyegg name="selenium" minversion="2.25" maxversion="2.27"/>
+    </deps>
   </version>
 
 

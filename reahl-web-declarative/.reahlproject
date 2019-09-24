@@ -39,22 +39,36 @@
       <egg name="reahl-component" versionlocked="True"/>
       <egg name="reahl-domain" versionlocked="True"/>
     </deps>
-
     <migrations>
       <class locator="reahl.webdeclarative.migrations:AddViewPathToSessionData"/>
     </migrations>
   </version>
 
   <version number='4.0.5'>
+    <deps purpose="run">
+      <egg name="reahl-sqlalchemysupport" versionlocked="True"/>
+      <egg name="reahl-web" versionlocked="True"/>
+      <egg name="reahl-component" versionlocked="True"/>
+    </deps>
     <migrations>
       <class locator="reahl.webdeclarative.migrations:AllowNullUserInputValue"/>
     </migrations>
   </version>
 
   <version number='3.2.0'>
+    <deps purpose="run">
+      <egg name="reahl-sqlalchemysupport" versionlocked="True"/>
+      <egg name="reahl-web" versionlocked="True"/>
+      <egg name="reahl-component" versionlocked="True"/>
+    </deps>
   </version>
 
   <version number='3.1.1'>
+    <deps purpose="run">
+      <egg name="reahl-sqlalchemysupport" versionlocked="True"/>
+      <egg name="reahl-web" versionlocked="True"/>
+      <egg name="reahl-component" versionlocked="True"/>
+    </deps>
     <migrations>
       <class locator="reahl.webdeclarative.migrations:MergeWebUserSessionToUserSession"/>
       <class locator="reahl.webdeclarative.migrations:RenameContentType"/>
@@ -62,23 +76,30 @@
   </version>
 
   <version number='3.0.0'>
+    <deps purpose="run">
+      <egg name="reahl-interfaces" versionlocked="True"/>
+      <egg name="reahl-sqlalchemysupport" versionlocked="True"/>
+      <egg name="reahl-web" versionlocked="True"/>
+      <egg name="reahl-component" versionlocked="True"/>
+      <egg name="reahl-domain" versionlocked="True"/>
+    </deps>
     <migrations>
       <class locator="reahl.webdeclarative.migrations:ElixirToDeclarativeWebDeclarativeChanges"/>
     </migrations>
   </version>
 
-<version replacementfor='reahl-web-elixirimpl' number='2.1.2'>
-  <migrations>
-    <class locator="reahl.webdeclarative.migrations:RenameRegionToUi"/>
-  </migrations>
-</version>
+  <version replacementfor='reahl-web-elixirimpl' number='2.1.2'>
+    <migrations>
+      <class locator="reahl.webdeclarative.migrations:RenameRegionToUi"/>
+    </migrations>
+  </version>
 
 
-<version replacementfor='reahl-web-elixirimpl' number='2.0.2'>
-  <migrations>
-    <class locator="reahl.webdeclarative.migrations:GenesisMigration"/>
-  </migrations>
-</version>
+  <version replacementfor='reahl-web-elixirimpl' number='2.0.2'>
+    <migrations>
+      <class locator="reahl.webdeclarative.migrations:GenesisMigration"/>
+    </migrations>
+  </version>
 
 
   <distpackage type="wheel">

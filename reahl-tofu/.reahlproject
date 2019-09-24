@@ -13,29 +13,52 @@
   </deps>
 
     <version number='5.0.0'>
-        <deps purpose="run">
-            <thirdpartyegg name="six"/>
-            <thirdpartyegg name="wrapt" minversion="1.10.2" maxversion="1.10.999"/>
-            <egg name="reahl-component" versionlocked="True"/>
-        </deps>
+      <deps purpose="run">
+        <egg name="reahl-component" versionlocked="True"/>
+        <thirdpartyegg name="six"/>
+        <thirdpartyegg name="wrapt" minversion="1.10.2" maxversion="1.10.999"/>
+      </deps>
     </version>
 
     <version number='4.0.5'>
+      <deps purpose="run">
+        <egg name="reahl-component" versionlocked="True"/>
+        <thirdpartyegg name="six"/>
+        <thirdpartyegg name="wrapt" minversion="1.10.2" maxversion="1.10.999"/>
+      </deps>
     </version>
 
     <version number='3.2.0'>
+      <deps purpose="run">
+        <thirdpartyegg name="six"/>
+      </deps>
     </version>
 
     <version number='3.1.1'>
+      <deps purpose="run">
+        <thirdpartyegg name="six"/>
+      </deps>
     </version>
 
     <version number='3.0.0'>
+        <deps purpose="run">
+            <egg name="reahl-component" versionlocked="True"/>
+            <thirdpartyegg name="nose"/>
+        </deps>
     </version>
 
     <version number='2.1.2'>
+        <deps purpose="run">
+            <egg name="reahl-component" versionlocked="True"/>
+            <thirdpartyegg name="nose"/>
+        </deps>
     </version>
 
     <version number='2.0.2'>
+        <deps purpose="run">
+            <egg name="reahl-component" versionlocked="True"/>
+            <thirdpartyegg name="nose"/>
+        </deps>
     </version>
 
 
