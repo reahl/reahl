@@ -31,14 +31,12 @@
       <thirdpartyegg name="alembic" minversion="0.9.6" maxversion="0.9.999"/>
     </deps>
 
-    <migrations>
-      <class locator="reahl.sqlalchemysupport.migrations:GenesisMigration"/>
-      <class locator="reahl.sqlalchemysupport.elixirmigration:ElixirToDeclarativeSqlAlchemySupportChanges"/>
-      <class locator="reahl.sqlalchemysupport.migrations:ChangesToBeMySqlCompatible"/>
-    </migrations>
   </version>
 
   <version number='4.0.5'>
+    <migrations>
+      <class locator="reahl.sqlalchemysupport.migrations:ChangesToBeMySqlCompatible"/>
+    </migrations>
   </version>
 
   <version number='3.2.0'>
@@ -48,12 +46,18 @@
   </version>
 
   <version number='3.0.0'>
+    <migrations>
+      <class locator="reahl.sqlalchemysupport.elixirmigration:ElixirToDeclarativeSqlAlchemySupportChanges"/>
+     </migrations>
   </version>
 
   <version number='2.1.2'>
   </version>
 
   <version number='2.0.2'>
+    <migrations>
+      <class locator="reahl.sqlalchemysupport.migrations:GenesisMigration"/>
+    </migrations>
   </version>
 
   <distpackage type="wheel">

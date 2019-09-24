@@ -50,32 +50,38 @@
       <egg name="reahl-sqlalchemysupport" versionlocked="True"/>
     </deps>
 
-    <migrations>
-        <class locator="reahl.domain.migrations:GenesisMigration"/>
-        <class locator="reahl.domain.migrations:ElixirToDeclarativeDomainChanges"/>
-        <class locator="reahl.domain.migrations:AddLoginSession"/>
-        <class locator="reahl.domain.migrations:ChangeSchemaToBeMySqlCompatible"/>
-        <class locator="reahl.domain.migrations:ChangePasswordHash"/>
-        <class locator="reahl.domain.migrations:RemoveDeadApacheDigestColumn"/>
-    </migrations>
   </version>
   
   <version number='4.0.5'>
+    <migrations>
+      <class locator="reahl.domain.migrations:ChangeSchemaToBeMySqlCompatible"/>
+      <class locator="reahl.domain.migrations:ChangePasswordHash"/>
+      <class locator="reahl.domain.migrations:RemoveDeadApacheDigestColumn"/>
+    </migrations>
   </version>
 
   <version number='3.2.0'>
   </version>
 
   <version number='3.1.1'>
+    <migrations>
+      <class locator="reahl.domain.migrations:AddLoginSession"/>
+    </migrations>
   </version>
 
   <version number='3.0.0'>
+    <migrations>
+      <class locator="reahl.domain.migrations:ElixirToDeclarativeDomainChanges"/>
+    </migrations>
   </version>
 
   <version number='2.1.2'>
   </version>
 
   <version number='2.0.2'>
+    <migrations>
+        <class locator="reahl.domain.migrations:GenesisMigration"/>
+    </migration>
   </version>
 
 

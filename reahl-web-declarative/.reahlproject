@@ -11,7 +11,7 @@
   </deps>
 
   <deps purpose="test">
-    <thirdpartyegg name="webob" minversion="1.4" maxversion="1.4.999"/> 
+    <thirdpartyegg name="webob" minversion="1.4" maxversion="1.4.999"/>
     <thirdpartyegg name="pytest" minversion="3.0"/>
     <egg name="reahl-tofu"/>
     <egg name="reahl-stubble"/>
@@ -33,35 +33,52 @@
 
 
   <version number='5.0.0'>
-      <deps purpose="run">
-        <egg name="reahl-sqlalchemysupport" versionlocked="True"/>
-        <egg name="reahl-web" versionlocked="True"/>
-        <egg name="reahl-component" versionlocked="True"/>
-        <egg name="reahl-domain" versionlocked="True"/>
-      </deps>
+    <deps purpose="run">
+      <egg name="reahl-sqlalchemysupport" versionlocked="True"/>
+      <egg name="reahl-web" versionlocked="True"/>
+      <egg name="reahl-component" versionlocked="True"/>
+      <egg name="reahl-domain" versionlocked="True"/>
+    </deps>
 
-      <migrations>
-        <class locator="reahl.webdeclarative.migrations:GenesisMigration"/>
-        <class locator="reahl.webdeclarative.migrations:RenameRegionToUi"/>
-        <class locator="reahl.webdeclarative.migrations:ElixirToDeclarativeWebDeclarativeChanges"/>
-        <class locator="reahl.webdeclarative.migrations:MergeWebUserSessionToUserSession"/>
-        <class locator="reahl.webdeclarative.migrations:RenameContentType"/>
-        <class locator="reahl.webdeclarative.migrations:AllowNullUserInputValue"/>
-        <class locator="reahl.webdeclarative.migrations:AddViewPathToSessionData"/>
-      </migrations>
+    <migrations>
+      <class locator="reahl.webdeclarative.migrations:AddViewPathToSessionData"/>
+    </migrations>
   </version>
 
   <version number='4.0.5'>
+    <migrations>
+      <class locator="reahl.webdeclarative.migrations:AllowNullUserInputValue"/>
+    </migrations>
   </version>
 
   <version number='3.2.0'>
   </version>
 
   <version number='3.1.1'>
+    <migrations>
+      <class locator="reahl.webdeclarative.migrations:MergeWebUserSessionToUserSession"/>
+      <class locator="reahl.webdeclarative.migrations:RenameContentType"/>
+    </migrations>
   </version>
 
   <version number='3.0.0'>
+    <migrations>
+      <class locator="reahl.webdeclarative.migrations:ElixirToDeclarativeWebDeclarativeChanges"/>
+    </migrations>
   </version>
+
+<version replacementfor='reahl-web-elixirimpl' number='2.1.2'>
+  <migrations>
+    <class locator="reahl.webdeclarative.migrations:RenameRegionToUi"/>
+  </migrations>
+</version>
+
+
+<version replacementfor='reahl-web-elixirimpl' number='2.0.2'>
+  <migrations>
+    <class locator="reahl.webdeclarative.migrations:GenesisMigration"/>
+  </migrations>
+</version>
 
 
   <distpackage type="wheel">
@@ -70,5 +87,5 @@
   <distpackage type="sdist">
     <packageindex repository="pypi"/>
   </distpackage>
-  
+
 </project>
