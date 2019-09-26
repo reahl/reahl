@@ -216,10 +216,11 @@ class ExecutableStub(Executable):
         executable = self
         saved_which = Executable.which
         def stub_which(self, program):
-            if executable.name == program:
+            full_path_to_executable = saved_which(self, program)
+            if program in [full_path_to_executable, executable.name]
                 return program
             else:
-                return saved_which(self, program)
+                return full_path_to_executable
 
         saved_execute = Executable.execute
         def stub_execute(self, method, commandline_arguments, *args, **kwargs):

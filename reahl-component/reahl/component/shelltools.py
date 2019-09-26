@@ -77,6 +77,8 @@ class Executable(object):
     def check_output(self, commandline_arguments, *args, **kwargs):
         return self.execute(subprocess.check_output, commandline_arguments, *args, **kwargs)
 
+    def run(self, commandline_arguments, *args, **kwargs):
+        return self.execute(subprocess.run, commandline_arguments, *args, **kwargs)
 
 class CommandNotFound(Exception):
     pass
