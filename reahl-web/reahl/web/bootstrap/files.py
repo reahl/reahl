@@ -235,17 +235,22 @@ class FileUploadInput(reahl.web.ui.Input):
     :param form: (See :class:`~reahl.web.ui.Input`)
     :param bound_field: (See :class:`~reahl.web.ui.Input`, must be of 
               type :class:`reahl.component.modelinterface.FileField`)
+    :keyword name: An optional name for this input (overrides the default)
+    :keyword name_discriminator: A string added to the computed name to prevent name clashes.
 
     .. versionchanged:: 5.0
        Subclass of :class:`~reahl.web.ui.Input` and not :class:`~reahl.web.ui.PrimitiveInput`
+       Added `name`
+       Added `name_discriminator`
 
     """
     is_for_file = False
 
-    def __init__(self, form, bound_field, name=None):
+    def __init__(self, form, bound_field, name=None, name_discriminator=None):
         super(FileUploadInput, self).__init__(form, bound_field)
-        if name:
-            bound_field.override_unqualified_name_in_input(name)
+        name_to_use = name or ('%s-%s%s' % (form.channel_name, self.bound_field.name, name_discriminator or ''))
+        bound_field.override_unqualified_name_in_input(name_to_use)
+
         form.register_input(self) # bound_field must be set for this registration to work
 
         self.set_html_representation(self.add_child(self.create_html_widget()))

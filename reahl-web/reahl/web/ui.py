@@ -236,6 +236,28 @@ class HashChangeHandler(object):
                (self.remote_method.get_url(), self.error_message, self.timeout_message, self.argument_defaults)
 
 
+class CssId(object):
+    invalid_char_re = re.compile(r'([^a-zA-Z0-9_-])')
+    @classmethod
+    def from_dirty_string(cls, dirty_string):
+        return cls(cls.invalid_char_re.sub(lambda m: '-%s-' % ord(m.group(1)), dirty_string))
+
+    def __init__(self, id_string):
+        invalid_characters = set(self.invalid_char_re.findall(id_string))
+        if invalid_characters:
+            raise ProgrammerError('"%s" contains characters that are not valid in a css id: %s' % (id_string, invalid_characters))
+        self.id_string = id_string
+
+    def __str__(self):
+        return self.id_string
+
+    def __eq__(self, other):
+        return self.id_string == other.id_string
+
+    def __hash__(self):
+        return hash(self.id_string)
+
+
 class HTMLElement(Widget):
     """A Widget that is represented by an HTML element.
 
@@ -361,10 +383,10 @@ class HTMLElement(Widget):
     def get_css_id(self):
         if not self.css_id_is_set:
             raise ProgrammerError('%s needs a css_id to be set!' % self)
-        return self._css_id
+        return str(self._css_id)
     def set_css_id(self, value):
-        self._css_id = value
-        self.set_attribute('id', value)
+        self._css_id = CssId(value)
+        self.set_attribute('id', self.css_id)
     css_id = property(get_css_id, set_css_id)
 
     def generate_random_css_id(self):
@@ -1420,24 +1442,24 @@ class PrimitiveInput(Input):
 
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
-       :keyword name: An optional name for this input (overrides the default).
+       :keyword name: An optional name for this input (overrides the default)
+       :keyword name_discriminator: A string added to the computed name to prevent name clashes.
        :keyword registers_with_form: (for internal use)
        :keyword refresh_widget: An :class:`HTMLElement` that will be refreshed when the value of this input changes.
 
        .. versionchanged:: 5.0
           Added `refresh_widget`
+          Added `name_discriminator`
 
     """
     is_for_file = False
     is_contained = False
 
-    def __init__(self, form, bound_field, name=None, registers_with_form=True, refresh_widget=None):
+    def __init__(self, form, bound_field, name=None, name_discriminator=None, registers_with_form=True, refresh_widget=None):
         super(PrimitiveInput, self).__init__(form, bound_field)
-        if name:
-            bound_field.override_unqualified_name_in_input(name)
-        else:
-            page_wide_unique_name = '%s.%s' % (self.channel_name, self.bound_field.name)
-            bound_field.override_unqualified_name_in_input(page_wide_unique_name)
+
+        name_to_use = name or ('%s-%s%s' % (self.channel_name, self.bound_field.name, name_discriminator or ''))
+        bound_field.override_unqualified_name_in_input(name_to_use)
         
         if refresh_widget:
             if not refresh_widget.is_refresh_enabled:
@@ -1460,8 +1482,8 @@ class PrimitiveInput(Input):
             self.set_attribute('data-refresh-widget-id', self.refresh_widget.css_id)
 
     def set_html_control_css_id(self):
-        css_id = 'id.%s' % self.name
-        self.html_control.set_id(css_id) 
+        css_id = 'id-%s' % self.name
+        self.html_control.set_id(str(CssId.from_dirty_string(css_id))) 
             
     def add_input_data_attributes(self):
         if isinstance(self.bound_field, BooleanField):
@@ -1633,17 +1655,19 @@ class TextArea(PrimitiveInput):
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
        :keyword name: An optional name for this input (overrides the default).
+       :keyword name_discriminator: (See :class:`~reahl.web.ui.PrimitiveInput`).
        :keyword rows: The number of rows that this Input should have.
        :keyword columns: The number of columns that this Input should have.
        :keyword refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
 
        .. versionchanged:: 5.0
-          Added `name` and `refresh_widget`.      
+          Added `name` and `refresh_widget`.
+          Added `name_discriminator`
     """
-    def __init__(self, form, bound_field, name=None, rows=None, columns=None, refresh_widget=None):
+    def __init__(self, form, bound_field, name=None, name_discriminator=None, rows=None, columns=None, refresh_widget=None):
         self.rows = rows
         self.columns = columns
-        super(TextArea, self).__init__(form, bound_field, name=name, refresh_widget=refresh_widget)
+        super(TextArea, self).__init__(form, bound_field, name=name, name_discriminator=name_discriminator, refresh_widget=refresh_widget)
 
     def create_html_widget(self):
         html_text_area = HTMLElement(self.view, 'textarea', children_allowed=True)
@@ -1675,8 +1699,8 @@ class ContainedInput(PrimitiveInput):
                                              registers_with_form=False, refresh_widget=refresh_widget)
 
     def set_html_control_css_id(self):
-        css_id = 'id.%s.%s' % (self.containing_input.name, self.value)
-        self.html_control.set_id(css_id)
+        css_id = 'id-%s-%s' % (self.containing_input.name, self.value)
+        self.html_control.set_id(str(CssId.from_dirty_string(css_id)))
 
     def get_input_status(self):
         return 'defaulted'
@@ -1839,6 +1863,7 @@ class RadioButtonSelectInput(PrimitiveInput):
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
        :keyword name: An optional name for this input (overrides the default).
+       :keyword name_discriminator: (See :class:`~reahl.web.ui.PrimitiveInput`).
        :keyword refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
 
        .. versionchanged:: 4.0
@@ -1846,13 +1871,15 @@ class RadioButtonSelectInput(PrimitiveInput):
 
        .. versionchanged:: 5.0
           Added `name` and `refresh_widget`
+          Added `name_discriminator`
+
     """
 
     choice_type = 'radio'
 
     @arg_checks(bound_field=IsInstance(ChoiceField))
-    def __init__(self, form, bound_field, name=None, refresh_widget=None):
-        super(RadioButtonSelectInput, self).__init__(form, bound_field, name=name, refresh_widget=refresh_widget)
+    def __init__(self, form, bound_field, name=None, name_discriminator=None, refresh_widget=None):
+        super(RadioButtonSelectInput, self).__init__(form, bound_field, name=name, name_discriminator=name_discriminator, refresh_widget=refresh_widget)
 
     def is_choice_selected(self, value):
         if self.bound_field.allows_multiple_selections:
@@ -1891,6 +1918,7 @@ class TextInput(PrimitiveInput):
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
        :keyword name: An optional name for this input (overrides the default).
+       :keyword name_discriminator: (See :class:`~reahl.web.ui.PrimitiveInput`).
        :keyword fuzzy: If True, the typed input will be dealt with as "fuzzy input". Fuzzy input is
                      when a user is allowed to type almost free-form input for structured types of input,
                      such as a date. The assumption is that the `bound_field` used should be able to parse
@@ -1907,9 +1935,11 @@ class TextInput(PrimitiveInput):
 
        .. versionchanged:: 5.0
           Added `name` and `refresh_widget`
+          Added `name_discriminator`
+
     """
-    def __init__(self, form, bound_field, name=None, fuzzy=False, placeholder=False, refresh_widget=None):
-        super(TextInput, self).__init__(form, bound_field, name=name, refresh_widget=refresh_widget)
+    def __init__(self, form, bound_field, name=None, name_discriminator=None, fuzzy=False, placeholder=False, refresh_widget=None):
+        super(TextInput, self).__init__(form, bound_field, name=name, name_discriminator=name_discriminator, refresh_widget=refresh_widget)
         self.append_class('reahl-textinput')
         if placeholder:
             placeholder_text = self.label if placeholder is True else placeholder
@@ -1937,21 +1967,23 @@ class PasswordInput(PrimitiveInput):
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
        :keyword name: An optional name for this input (overrides the default).
+       :keyword name_discriminator: (See :class:`~reahl.web.ui.PrimitiveInput`).
        :keyword refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
 
        .. versionchanged:: 5.0
           Added `name` and `refresh_widget`
+          Added `name_discriminator`
     """
-    def __init__(self, form, bound_field, name=None, refresh_widget=None):
-        super(PasswordInput, self).__init__(form, bound_field, name=name, refresh_widget=refresh_widget)
+    def __init__(self, form, bound_field, name=None, name_discriminator=None, refresh_widget=None):
+        super(PasswordInput, self).__init__(form, bound_field, name=name, name_discriminator=name_discriminator, refresh_widget=refresh_widget)
 
     def create_html_widget(self):
         return HTMLInputElement(self, 'password', render_value_attribute=False)
 
 
 class HiddenInput(PrimitiveInput):
-    def __init__(self, form, bound_field, name=None):
-        super(HiddenInput, self).__init__(form, bound_field, name=name)
+    def __init__(self, form, bound_field, name=None, name_discriminator=None):
+        super(HiddenInput, self).__init__(form, bound_field, name=name, name_discriminator=name_discriminator)
 
     def create_html_widget(self):
         return HTMLInputElement(self, 'hidden')
@@ -1966,17 +1998,19 @@ class CheckboxInput(PrimitiveInput):
 
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
-       :keyword name: An optional name for this input (overrides the default).
+       :keyword name: An optional name for this input (overrides the default)
+       :keyword name_discriminator: (See :class:`~reahl.web.ui.PrimitiveInput`)
        :keyword refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
 
        .. versionchanged:: 5.0
           Added `name` and `refresh_widget`
+          Added `name_discriminator`
     """
     choice_type = 'checkbox'
 
     @arg_checks(bound_field=IsInstance(BooleanField))
-    def __init__(self, form, bound_field, name=None, refresh_widget=None):
-        super(CheckboxInput, self).__init__(form, bound_field, name=name, refresh_widget=refresh_widget)
+    def __init__(self, form, bound_field, name=None, name_discriminator=None, refresh_widget=None):
+        super(CheckboxInput, self).__init__(form, bound_field, name=name, name_discriminator=name_discriminator, refresh_widget=refresh_widget)
 
     @property
     def checked(self):
@@ -2010,22 +2044,23 @@ class CheckboxSelectInput(PrimitiveInput):
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
        :keyword name: An optional name for this input (overrides the default).
+       :keyword name_discriminator: (See :class:`~reahl.web.ui.PrimitiveInput`).
        :keyword refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
 
        .. versionadded:: 4.0
 
        .. versionchanged:: 5.0
           Added `name` and `refresh_widget`
+          Added `name_discriminator`
     """
     choice_type = 'checkbox'
     allowed_field_types = [MultiChoiceField]
 
-    def __init__(self, form, bound_field, name=None, refresh_widget=None):
+    def __init__(self, form, bound_field, name=None, name_discriminator=None, refresh_widget=None):
         if not isinstance(bound_field, *self.allowed_field_types):
             raise ProgrammerError('%s is not allowed to be used with %s' % (bound_field.__class__, self.__class__))
         self.added_choices = []
-        super(CheckboxSelectInput, self).__init__(form, bound_field, name=name, refresh_widget=refresh_widget)
-
+        super(CheckboxSelectInput, self).__init__(form, bound_field, name=name, name_discriminator=name_discriminator, refresh_widget=refresh_widget)
 
     @property
     def html_control(self):
@@ -2071,8 +2106,8 @@ class CheckboxSelectInput(PrimitiveInput):
 
 
 class ButtonInput(PrimitiveInput):
-    def __init__(self, form, event, name=None):
-        super(ButtonInput, self).__init__(form, event, name=name)
+    def __init__(self, form, event, name=None, name_discriminator=None,):
+        super(ButtonInput, self).__init__(form, event, name=name, name_discriminator=name_discriminator)
         if not self.controller.has_event_named(event.name):
             raise ProgrammerError('no Event/Transition available for name %s' % event.name)
         try:
@@ -2201,15 +2236,17 @@ class SimpleFileInput(PrimitiveInput):
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`, must be of type :class:`reahl.component.modelinterface.FileField`
        :keyword name: (See :class:`~reahl.web.ui.PrimitiveInput`)
+       :keyword name_discriminator: (See :class:`~reahl.web.ui.PrimitiveInput`)
        :keyword refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
 
        .. versionchanged:: 5.0
           Added `name` and `refresh_widget`
+          Added `name_discriminator`
     """
     is_for_file = True
 
-    def __init__(self, form, bound_field, name=None, refresh_widget=None):
-        super(SimpleFileInput, self).__init__(form, bound_field, name=name, refresh_widget=refresh_widget)
+    def __init__(self, form, bound_field, name=None, name_discriminator=None, refresh_widget=None):
+        super(SimpleFileInput, self).__init__(form, bound_field, name=name, name_discriminator=name_discriminator, refresh_widget=refresh_widget)
 
     def create_html_widget(self):
         file_input = HTMLInputElement(self, 'file')

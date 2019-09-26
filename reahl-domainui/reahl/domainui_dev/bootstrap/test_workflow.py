@@ -107,8 +107,8 @@ def test_detour_to_login(web_fixture, party_account_fixture, workflow_web_fixtur
 
     browser.open('/inbox/')
     assert browser.current_url.path == '/accounts/login'
-    browser.type('//input[@name="login_form.email"]', party_account_fixture.system_account.email)
-    browser.type('//input[@name="login_form.password"]', party_account_fixture.system_account.password)
+    browser.type('//input[@name="login_form-email"]', party_account_fixture.system_account.email)
+    browser.type('//input[@name="login_form-password"]', party_account_fixture.system_account.password)
     browser.click('//input[@value="Log in"]')
     assert browser.current_url.path == '/inbox/'
 

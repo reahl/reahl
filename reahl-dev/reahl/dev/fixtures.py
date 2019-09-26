@@ -217,7 +217,7 @@ class ExecutableStub(Executable):
         saved_which = Executable.which
         def stub_which(self, program):
             full_path_to_executable = saved_which(self, program)
-            if program in [full_path_to_executable, executable.name]
+            if program in [full_path_to_executable, executable.name]:
                 return program
             else:
                 return full_path_to_executable

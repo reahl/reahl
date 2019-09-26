@@ -32,10 +32,10 @@
 
             if (this.getRefreshWidgetId()) {
                 this.element.on('change', function(e) {
-                    var currentInput = $(_this.getAllRelatedFormInputs()[0]);
-                    var inputName = currentInput.attr('name');
-                    var formId = _this.getForm().attr('id');
-                    var selectorForFocus = '#'+formId+' [name="'+inputName+'"]';
+//                    var currentInput = $(_this.getAllRelatedFormInputs()[0]);
+                    var currentInput = $(e.target);
+                    var inputId = currentInput.attr('id');
+                    var selectorForFocus = '#'+inputId;
 
                     if (_this.isValid()) { 
                         $(currentInput).focus();

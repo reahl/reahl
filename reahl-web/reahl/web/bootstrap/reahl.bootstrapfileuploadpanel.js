@@ -52,10 +52,10 @@ $.widget('reahl.bootstrapfileuploadpanel', {
         return this.options.errorMessage;
     },
     getUploadInput: function() {
-        return $(this.element).find('input[name^="event.'+this.getFormId()+'.upload_file"]');
+        return $(this.element).find('input[name^="event.'+this.getFormId()+'-upload_file"]');
     },
     getRemoveFileButtonName: function() {
-        return 'event.'+this.getFormId()+'.remove_file';
+        return 'event.'+this.getFormId()+'-remove_file';
     },
     getFileInput: function() {
         return $(this.element).find('input[type="file"]');
