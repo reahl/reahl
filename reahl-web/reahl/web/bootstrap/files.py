@@ -148,7 +148,7 @@ class FileUploadPanel(Div):
 
     @property
     def name(self):
-        return self.bound_field.variable_name
+        return self.bound_field.name_in_input
 
     def add_uploaded_list(self):
         ul = self.upload_form.add_child(Ul(self.view))
