@@ -76,10 +76,10 @@
     <deps purpose="run">
       <egg name="reahl-component" versionlocked="True"/>
       <egg name="reahl-tofu" versionlocked="True"/>
+      <egg name="reahl-bzrsupport" versionlocked="True"/>
       <thirdpartyegg name="Babel" minversion="2.1" maxversion="2.1.999"/>
       <thirdpartyegg name="twine" minversion="1.4.0" maxversion="1.4.9999"/>
       <thirdpartyegg name="wheel" minversion="0.24.0" maxversion="0.24.9999"/>
-      <egg name="reahl-bzrsupport"/>
     </deps>
   </version>
 
@@ -87,10 +87,10 @@
     <deps purpose="run">
       <egg name="reahl-component" versionlocked="True"/>
       <egg name="reahl-tofu" versionlocked="True"/>
+      <egg name="reahl-bzrsupport" versionlocked="True"/>
       <thirdpartyegg name="Babel" minversion="2.1" maxversion="2.1.999"/>
       <thirdpartyegg name="twine" minversion="1.4.0" maxversion="1.4.9999"/>
       <thirdpartyegg name="wheel" minversion="0.24.0" maxversion="0.24.9999"/>
-      <egg name="reahl-bzrsupport"/>
     </deps>
   </version>
 
