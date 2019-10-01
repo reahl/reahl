@@ -23,7 +23,7 @@
   <export entrypoint="reahl.component.commands" name="SyncFiles" locator="reahl.webdev.commands:SyncFiles"/>
 
   <version number='5.0.0'>
-      <deps purpose="run" versionlocked="True">
+      <deps purpose="run">
         <egg name="reahl-web" versionlocked="True"/>
         <egg name="reahl-dev" versionlocked="True"/>
         <egg name="reahl-component" versionlocked="True"/>
@@ -94,13 +94,15 @@
   </version>
 
   <version number='2.1.2'>
-    <egg name="reahl-web" versionlocked="True"/>
-    <egg name="reahl-dev" versionlocked="True"/>
-    <egg name="reahl-component" versionlocked="True"/>
-    <egg name="reahl-tofu" versionlocked="True"/>
-    <thirdpartyegg name="lxml" minversion="3.2"/>
-    <thirdpartyegg name="WebTest" minversion="1.4" maxversion="1.5"/>
-    <thirdpartyegg name="selenium" minversion="2.25" maxversion="2.27"/>
+    <deps purpose="run">
+        <egg name="reahl-web" versionlocked="True"/>
+        <egg name="reahl-dev" versionlocked="True"/>
+        <egg name="reahl-component" versionlocked="True"/>
+        <egg name="reahl-tofu" versionlocked="True"/>
+        <thirdpartyegg name="lxml" minversion="3.2"/>
+        <thirdpartyegg name="WebTest" minversion="1.4" maxversion="1.5"/>
+        <thirdpartyegg name="selenium" minversion="2.25" maxversion="2.27"/>
+    </deps>
   </version>
 
   <version number='2.0.2'>

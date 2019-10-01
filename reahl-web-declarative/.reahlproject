@@ -89,18 +89,30 @@
   </version>
 
   <version replacementfor='reahl-web-elixirimpl' number='2.1.2'>
+    <deps purpose="run">
+      <egg name="reahl-interfaces" versionlocked="True"/>
+      <egg name="reahl-sqlalchemysupport" versionlocked="True"/>
+      <egg name="reahl-web" versionlocked="True"/>
+      <egg name="reahl-component" versionlocked="True"/>
+      <egg name="reahl-domain" versionlocked="True"/>
+    </deps>
     <migrations>
       <class locator="reahl.webdeclarative.migrations:RenameRegionToUi"/>
     </migrations>
   </version>
 
-
   <version replacementfor='reahl-web-elixirimpl' number='2.0.2'>
+    <deps purpose="run">
+      <egg name="reahl-interfaces" versionlocked="True"/>
+      <egg name="reahl-sqlalchemysupport" versionlocked="True"/>
+      <egg name="reahl-web" versionlocked="True"/>
+      <egg name="reahl-component" versionlocked="True"/>
+      <egg name="reahl-domain" versionlocked="True"/>
+    </deps>
     <migrations>
       <class locator="reahl.webdeclarative.migrations:GenesisMigration"/>
     </migrations>
   </version>
-
 
   <distpackage type="wheel">
     <packageindex repository="pypi"/>
