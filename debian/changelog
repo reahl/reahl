@@ -19,6 +19,9 @@ python-reahl (5.0) unstable; urgency=low
  * Renamed is_checked, check, and uncheck methods on DriverBrowser to work for radio buttons too.
  * Removed Browser.location_path, location_scheme, location_query_string in favour of .current_url.
  * Changed Table and Column to allow for table footer content in Columns.
+ * Changed the names of Inputs to include their form names so they can be unique in JS state (#154).
+ * Added unique IDs to all HTML input controls (#154).
+ * Added name_discriminator kwarg to PrimitiveInputs for distinguishing same-named inputs.
 
  -- Iwan Vosloo <iwan@reahl.org>  Thu, 13 Dec 2018 15:15:00 +0200
 

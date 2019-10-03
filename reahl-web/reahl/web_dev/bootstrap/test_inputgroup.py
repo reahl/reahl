@@ -76,7 +76,7 @@ def test_input_group(web_fixture, input_group_fixture):
     children = outer_div.getchildren()
     the_input = children[1] if fixture.expects_before_html else children[0]
     assert the_input.tag == 'input'
-    assert the_input.name == 'an_attribute'
+    assert the_input.name == 'test-an_attribute'
 
     if fixture.expects_after_html:
         rendered_html = tester.get_html_for('//div/input/following-sibling::span')

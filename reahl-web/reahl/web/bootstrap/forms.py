@@ -71,6 +71,7 @@ class TextInput(reahl.web.ui.TextInput):
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
        :keyword name: (See :class:`~reahl.web.ui.TextInput`)
+       :keyword name_discriminator: (See :class:`~reahl.web.ui.PrimitiveInput`).
        :keyword fuzzy: If True, the typed input will be dealt with as "fuzzy input". Fuzzy input is
                      when a user is allowed to type almost free-form input for structured types of input,
                      such as a date. The assumption is that the `bound_field` used should be able to parse
@@ -84,9 +85,10 @@ class TextInput(reahl.web.ui.TextInput):
 
        .. versionchanged:: 5.0
           Added `name` and `refresh_widget`
+          Added `name_discriminator`
     """
-    def __init__(self, form, bound_field, name=None, fuzzy=False, placeholder=False, refresh_widget=None):
-        super(TextInput, self).__init__(form, bound_field, name=name, fuzzy=fuzzy, placeholder=placeholder, refresh_widget=refresh_widget)
+    def __init__(self, form, bound_field, name=None, name_discriminator=None, fuzzy=False, placeholder=False, refresh_widget=None):
+        super(TextInput, self).__init__(form, bound_field, name=name, name_discriminator=name_discriminator, fuzzy=fuzzy, placeholder=placeholder, refresh_widget=refresh_widget)
         self.append_class('form-control')
 
 
@@ -96,13 +98,15 @@ class PasswordInput(reahl.web.ui.PasswordInput):
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
        :keyword name: (See :class:`~reahl.web.ui.PasswordInput`)
+       :keyword name_discriminator: (See :class:`~reahl.web.ui.PrimitiveInput`)
        :keyword refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
 
        .. versionchanged:: 5.0
           Added `name` and `refresh_widget`
+          Added `name_discriminator`
     """
-    def __init__(self, form, bound_field, name=None, refresh_widget=None):
-        super(PasswordInput, self).__init__(form, bound_field, name=name, refresh_widget=refresh_widget)
+    def __init__(self, form, bound_field, name=None, name_discriminator=None, refresh_widget=None):
+        super(PasswordInput, self).__init__(form, bound_field, name=name, name_discriminator=name_discriminator, refresh_widget=refresh_widget)
         self.append_class('form-control')
 
 
@@ -112,15 +116,17 @@ class TextArea(reahl.web.ui.TextArea):
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
        :keyword name: (See :class:`~reahl.web.ui.TextArea`)
+       :keyword name_discriminator: (See :class:`~reahl.web.ui.PrimitiveInput`)
        :keyword rows: The number of rows that this Input should have.
        :keyword columns: The number of columns that this Input should have.
        :keyword refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
 
        .. versionchanged:: 5.0
           Added `name` and `refresh_widget`
+          Added `name_discriminator`
     """
-    def __init__(self, form, bound_field, name=None, rows=None, columns=None, refresh_widget=None):
-        super(TextArea, self).__init__(form, bound_field, name=name, rows=rows, columns=columns, refresh_widget=refresh_widget)
+    def __init__(self, form, bound_field, name=None, name_discriminator=None, rows=None, columns=None, refresh_widget=None):
+        super(TextArea, self).__init__(form, bound_field, name=name, name_discriminator=name_discriminator, rows=rows, columns=columns, refresh_widget=refresh_widget)
         self.append_class('form-control')
 
 
@@ -131,13 +137,15 @@ class SelectInput(reahl.web.ui.SelectInput):
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
        :keyword name: (See :class:`~reahl.web.ui.SelectInput`)
+       :keyword name_discriminator: (See :class:`~reahl.web.ui.PrimitiveInput`)
        :keyword refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
 
        .. versionchanged:: 5.0
           Added `name` and `refresh_widget`
+          Added `name_discriminator`
     """
-    def __init__(self, form, bound_field, name=None, refresh_widget=None):
-        super(SelectInput, self).__init__(form, bound_field, name=name, refresh_widget=refresh_widget)
+    def __init__(self, form, bound_field, name=None, name_discriminator=None, refresh_widget=None):
+        super(SelectInput, self).__init__(form, bound_field, name=name, name_discriminator=name_discriminator, refresh_widget=refresh_widget)
         self.append_class('custom-select')
 
 
@@ -163,18 +171,20 @@ class CheckboxInput(reahl.web.ui.CheckboxSelectInput):
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
        :keyword name: (See :class:`~reahl.web.ui.CheckboxSelectInput`)
+       :keyword name_discriminator: (See :class:`~reahl.web.ui.PrimitiveInput`)
        :keyword contents_layout: An optional :class:`ChoicesLayout` used to lay out the checkboxes in this input.
        :keyword refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
 
        .. versionchanged:: 5.0
           Added `name` and `refresh_widget`
+          Added `name_discriminator`
     """
     allowed_field_types = [ChoiceField]
 
-    def __init__(self, form, bound_field, name=None, contents_layout=None, refresh_widget=None):
+    def __init__(self, form, bound_field, name=None, name_discriminator=None, contents_layout=None, refresh_widget=None):
         self.contents_layout = contents_layout
         self.checkbox_input = None
-        super(CheckboxInput, self).__init__(form, bound_field, name=name, refresh_widget=refresh_widget)
+        super(CheckboxInput, self).__init__(form, bound_field, name=name, name_discriminator=name_discriminator, refresh_widget=refresh_widget)
 
     def create_html_widget(self):
         if isinstance(self.bound_field, BooleanField):
@@ -208,16 +218,18 @@ class RadioButtonSelectInput(reahl.web.ui.RadioButtonSelectInput):
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
        :keyword name: (See :class:`~reahl.web.ui.RadioButtonSelectInput`)
+       :keyword name_discriminator: (See :class:`~reahl.web.ui.PrimitiveInput`).
        :keyword contents_layout: An optional :class:`ChoicesLayout` used to lay out the many choices in this input.
        :keyword refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
 
        .. versionchanged:: 5.0
           Added `name` and `refresh_widget`
+          Added `name_discriminator`
     """
-    def __init__(self, form, bound_field, name=None, contents_layout=None, refresh_widget=None):
+    def __init__(self, form, bound_field, name=None, name_discriminator=None, contents_layout=None, refresh_widget=None):
         assert contents_layout is None or isinstance(contents_layout, ChoicesLayout), 'contents_layout should be an instance of ChoicesLayout but isn\'t' #TODO: this should be in @argchecks(...)
         self.contents_layout = contents_layout or ChoicesLayout(inline=False)
-        super(RadioButtonSelectInput, self).__init__(form, bound_field, name=name, refresh_widget=refresh_widget)
+        super(RadioButtonSelectInput, self).__init__(form, bound_field, name=name, name_discriminator=name_discriminator, refresh_widget=refresh_widget)
 
     def create_main_element(self):
         main_element = super(RadioButtonSelectInput, self).create_main_element().use_layout(self.contents_layout)
@@ -233,12 +245,14 @@ class ButtonInput(reahl.web.ui.ButtonInput):
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param event: The :class:`~reahl.web.component.modelinterface.Event` that will fire when the user clicks on this ButtonInput.
        :keyword name: (See :class:`~reahl.web.ui.ButtonInput`)
+       :keyword name_discriminator: (See :class:`~reahl.web.ui.PrimitiveInput`)
 
        .. versionchanged:: 5.0
           Added `name`
+          Added `name_discriminator`
     """
-    def __init__(self, form, event, name=None):
-        super(ButtonInput, self).__init__(form, event, name=name)
+    def __init__(self, form, event, name=None, name_discriminator=None):
+        super(ButtonInput, self).__init__(form, event, name=name, name_discriminator=name_discriminator)
         self.append_class('btn')
 
 

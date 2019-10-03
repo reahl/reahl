@@ -52,7 +52,10 @@ $.widget('reahl.bootstrapfileuploadpanel', {
         return this.options.errorMessage;
     },
     getUploadInput: function() {
-        return $(this.element).find('input[name^="event.upload_file"]');
+        return $(this.element).find('input[name^="event.'+this.getFormId()+'-upload_file"]');
+    },
+    getRemoveFileButtonName: function() {
+        return 'event.'+this.getFormId()+'-remove_file';
     },
     getFileInput: function() {
         return $(this.element).find('input[type="file"]');
@@ -85,7 +88,7 @@ $.widget('reahl.bootstrapfileuploadpanel', {
             e.preventDefault();
         });
         
-        $(this.element).on('click', 'input[name^="event.remove_file"]', function(e) {
+        $(this.element).on('click', 'input[name^="'+this.getRemoveFileButtonName()+'"]', function(e) {
             var clickedInput = this;
             var fileUpload = $(clickedInput).closest('li').data('reahl-bootstrapfileuploadli');
             fileUpload.removeUploaded();

@@ -120,7 +120,7 @@ def test_query_string_prepopulates_form(web_fixture, value_scenarios):
     wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=FormWithQueryArguments.factory())
     browser = Browser(wsgi_app)
 
-    browser.open('/?%s' % fixture.field_on_query_string.format(field_name='arg_on_other_object'))
+    browser.open('/?%s' % fixture.field_on_query_string.format(field_name='name-arg_on_other_object'))
     assert browser.lxml_html.xpath('//input')[0].value == fixture.field_value_as_string
 
 

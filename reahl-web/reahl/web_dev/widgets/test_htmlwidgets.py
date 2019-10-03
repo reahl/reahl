@@ -71,12 +71,12 @@ def test_handy_methods(web_fixture):
     tester = WidgetTester(widget)
 
     widget.set_title('the title')
-    widget.set_id('the id')
+    widget.set_id('the_id')
     widget.append_class('two')
     widget.append_class('one')
 
     rendered = tester.render_html()
-    assert rendered == '<x id="the id" title="the title" class="one two">'
+    assert rendered == '<x id="the_id" title="the title" class="one two">'
 
 
 @with_fixtures(WebFixture)

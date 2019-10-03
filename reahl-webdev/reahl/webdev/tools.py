@@ -23,6 +23,7 @@ import re
 import contextlib
 import itertools
 import time
+import json
 from six.moves.urllib import parse as urllib_parse
 import logging
 from six.moves.http_cookiejar import Cookie
@@ -35,7 +36,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.common.exceptions import StaleElementReferenceException
 
-from reahl.component.py3compat import ascii_as_bytes_or_str
+from reahl.component.py3compat import ascii_as_bytes_or_str, html_escape
 from reahl.component.decorators import deprecated
 from reahl.web.fw import Url
 
@@ -305,7 +306,7 @@ class Browser(BasicBrowser):
 
         for option in select.findall('option'):
             if option.text == label_to_choose:
-                form[select.attrib['name']] = list(option.values())[0]
+                form[select.attrib['name']] = option.attrib['value']
                 return
         raise AssertionError('Option %s not found' % label_to_choose)
 
@@ -327,7 +328,8 @@ class Browser(BasicBrowser):
         for option in select.findall('option'):
             if option.text in labels_to_choose:
                 options_to_select.append(option)
-        form[select.attrib['name']] = [option.values()[0] for option in options_to_select]
+
+        form[select.attrib['name']] = [option.attrib['value'] for option in options_to_select]
 
         if len(options_to_select) != len(options_to_select):
             raise AssertionError('Could only select options labelled[%s] not all of [%s]' %
@@ -1378,12 +1380,13 @@ class DriverBrowser(BasicBrowser):
            by the given jquery selector be reloaded/replaced during execution of its context.
            Useful for testing JavaScript code that should change an element without replacing it.
         """
-        self.web_driver.execute_script('$("%s").addClass("load_flag")' % jquery_selector)
+        escaped_jquery_selector = json.dumps(jquery_selector)[1:-1]
+        self.web_driver.execute_script('$("%s").addClass("load_flag")' % escaped_jquery_selector)
         try:
             yield
         finally:
             self.wait_for_page_to_load()
-            new_element_loaded = not self.web_driver.execute_script('return $("%s").hasClass("load_flag")' % jquery_selector) 
+            new_element_loaded = not self.web_driver.execute_script('return $("%s").hasClass("load_flag")' % escaped_jquery_selector) 
             if new_element_loaded:
                 raise UnexpectedLoadOf(jquery_selector)
 

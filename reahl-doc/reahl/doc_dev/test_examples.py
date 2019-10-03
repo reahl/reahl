@@ -474,7 +474,7 @@ def test_pageflow1(web_fixture, pageflow1_scenario):
     assert browser.is_element_present('//ul[contains(@class,"nav")]') 
 
     browser.click(XPath.link().with_text('Add'))
-    assert browser.current_url.path == '/add'
+    assert browser.current_url.path == '/add' 
 
     browser.type(XPath.input_labelled('Name'), 'John') 
     browser.type(XPath.input_labelled('Email'), 'johndoe@some.org')
@@ -495,16 +495,16 @@ def test_parameterised1(web_fixture, parameterised1_scenario):
     browser.type(XPath.input_labelled('Email'), 'johndoe@some.org')
     browser.click(XPath.button_labelled('Save'))
 
-    assert browser.current_url.path == '/'
+    assert browser.current_url.path == '/' 
     browser.click(XPath.link().with_text('edit'))
 
     john = Session.query(parameterised1.Address).one()
-    assert browser.current_url.path == '/edit/%s' % john.id
+    assert browser.current_url.path == '/edit/%s' % john.id 
     browser.type(XPath.input_labelled('Name'), 'Johnny') 
     browser.type(XPath.input_labelled('Email'), 'johnny@walker.org')
     browser.click(XPath.button_labelled('Update'))
 
-    assert browser.current_url.path == '/'
+    assert browser.current_url.path == '/' 
     assert browser.is_element_present(XPath.paragraph().including_text('Johnny: johnny@walker.org')) 
 
 
