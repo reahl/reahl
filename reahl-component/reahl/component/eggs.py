@@ -19,14 +19,11 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
 import os
 import os.path
+import re
 import logging
 
-from pkg_resources import Requirement
-from pkg_resources import iter_entry_points
-from pkg_resources import require
-from pkg_resources import resource_isdir
-from pkg_resources import resource_listdir
-from pkg_resources import working_set
+from pkg_resources import Requirement, get_distribution, iter_entry_points, require, resource_isdir, \
+                          resource_listdir, working_set, parse_version, DistributionNotFound
 
 from reahl.component.decorators import memoized
 
@@ -108,6 +105,99 @@ class DependencyGraph(object):
         return reversed(self.topological_order)
 
 
+class VersionTree(object):
+    @classmethod 
+    def from_root_egg(cls, root_egg_name):
+        instance = cls()
+        egg = ReahlEgg(get_distribution(root_egg_name))
+        versions = egg.get_versions()
+        for version in versions:
+            instance.build_tree_for(version)
+        return instance
+
+    def __init__(self):
+        self.dep_dict = {}
+
+    def show(self):
+        for key in self.dep_dict:
+            print('%s depends on: %s' % (key, [str(i) for i in self.dep_dict[key]]))
+
+    def build_tree_for(self, version):
+        if version not in self.dep_dict:
+            self.dep_dict[version] = [dependency.get_best_version() for dependency in version.get_dependencies() 
+                                      if dependency.type == 'egg' and dependency.distribution]
+            dep_versions = [v for dependency in version.get_dependencies()
+                              if dependency.type == 'egg'  and dependency.distribution
+                              for v in dependency.get_versions()]
+            for dep_version in dep_versions:
+                self.build_tree_for(dep_version)
+
+
+class Dependency(object):
+    """
+        entry point : name = module.attrs [extras]
+    """
+    def __init__(self, for_version, entry_point_spec):
+        self.for_version = for_version
+        self.name = entry_point_spec.name
+        self.type = entry_point_spec.module_name
+        self.min_version = None
+        if self.type == 'egg':
+            min_version = '.'.join(entry_point_spec.attrs) if entry_point_spec.attrs else None
+            if min_version != '_':
+                self.min_version = min_version
+        self.max_version = entry_point_spec.extras[0] if entry_point_spec.extras and len(entry_point_spec.extras) > 0 else None
+
+    def get_best_version(self):
+        all_versions = self.get_versions()
+        matching_versions = sorted([v for v in all_versions
+                                    if v.matches_versions(self.min_version, self.max_version)], 
+                                   key=lambda x: x.version_number)
+        return matching_versions[-1]
+
+    def get_versions(self):
+        dep_egg = ReahlEgg(self.distribution)
+        return dep_egg.get_versions()
+
+    @property
+    def distribution(self):
+        try:
+            return get_distribution(self.name)
+        except:
+            return None
+
+
+class Version(object):
+    def __init__(self, egg, version_number_string):
+        self.egg = egg
+        self.version_number_string = version_number_string 
+
+    @property
+    def version_number(self):
+        return parse_version(self.version_number_string)
+
+    def __eq__(self, other):
+        return str(self) == str(other)
+
+    def __hash__(self):
+        return hash(str(self))
+
+    def __str__(self):
+        return '%s[%s]' % (self.egg.name, self.version_number)
+
+    def matches_versions(self, min_version, max_version):
+        if not min_version:
+            return True
+        candidate_version = parse_version(self.version_number_string)
+        [major, minor] = min_version.split('.')[:2]
+        min_version = parse_version(min_version)
+        max_version = parse_version(max_version or '%s.%s.%s' % (major, minor, '9999'))
+        return min_version <= candidate_version < max_version
+
+    def get_dependencies(self):
+        return self.egg.get_dependencies(self.version_number_string)
+
+
 class ReahlEgg(object):
     interface_cache = {}
 
@@ -143,11 +233,14 @@ class ReahlEgg(object):
 
     def get_versions(self):
         entry_point_dict = self.distribution.get_entry_map().get('reahl.versions', {})
-        return entry_point_dict.keys()
+        all_versions = [Version(self, version_string) for version_string in entry_point_dict.keys()]
+
+        return sorted([v for v in all_versions], key=lambda x: x.version_number)
 
     def get_dependencies(self, version):
-        entry_point_dict = self.distribution.get_entry_map().get(f'reahl.versiondeps.{version}', {})
-        return entry_point_dict.values()
+        entry_point_dict = self.distribution.get_entry_map().get('reahl.versiondeps.%s' % version, {})
+        unparsed_dependency_entry_points = entry_point_dict.values()
+        return [Dependency(self, ep) for ep in unparsed_dependency_entry_points]
 
     def get_persisted_classes_in_order(self):
         return self.get_ordered_classes_exported_on('reahl.persistlist')

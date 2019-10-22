@@ -31,7 +31,7 @@ from reahl.component.dbutils import SystemControl
 from reahl.component.shelltools import Command, ReahlCommandline, AliasFile
 from reahl.component.context import ExecutionContext
 from reahl.component.config import EntryPointClassList, Configuration, ConfigSetting, StoredConfiguration, MissingValue
-from reahl.component.eggs import ReahlEgg
+from reahl.component.eggs import ReahlEgg, VersionTree
 from reahl.component.exceptions import DomainException
 
 
@@ -373,18 +373,7 @@ class ListVersionDependencies(ProductionCommand):
     def execute(self, args):
         super(ListVersionDependencies, self).execute(args)
         self.context.install()
-        egg = ReahlEgg(get_distribution(self.config.reahlsystem.root_egg))
-        versions = egg.get_versions()
-        for version in versions:
-            print(f'[{version}]')
-            deps = egg.get_dependencies(version)
-            for ep in deps:
-                dep_name = ep.name
-                dep_type = ep.module_name
-                min_version = '.'.join(ep.attrs) if ep.attrs else ''
-                max_version = ep.extras[0] if ep.extras and len(ep.extras) > 0 else ''
-                print(f'{dep_type}, {dep_name}, {min_version}, {max_version}')
-
+        VersionTree.from_root_egg(self.config.reahlsystem.root_egg).show()
         return 0
 
 

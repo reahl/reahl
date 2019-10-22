@@ -640,7 +640,7 @@ class Dependency(object):
         assert 'name' in attributes, 'No name specified'
         ignore_version = attributes.get('ignoreversion', False) == 'True'
         version_locked = attributes.get('versionlocked', False) == 'True'
-        if version_locked and not parent.purpose=='run':
+        if version_locked and not parent.purpose == 'run':
             raise InvalidXMLException('<%s name="%s"> is versionlocked, but versionlocked is only allowed for purpose="run"' % \
                                       (self.get_xml_registration_info()[0], attributes['name']))
         self.__init__(parent.project, attributes['name'], attributes.get('version', None), ignore_version=ignore_version, version_locked=version_locked)
