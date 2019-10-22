@@ -1,16 +1,15 @@
 <project type="egg">
+ <version number="0.0">
   <deps purpose="run">
-    <egg name="reahl-component"/>
-    <egg name="reahl-web"/>
-    <egg name="reahl-sqlalchemysupport"/>
-    <egg name="reahl-web-declarative"/>
-    <egg name="reahl-sqlitesupport"/>
+   <egg name="reahl-component"/>
+   <egg name="reahl-web"/>
+   <egg name="reahl-sqlalchemysupport"/>
+   <egg name="reahl-web-declarative"/>
+   <egg name="reahl-sqlitesupport"/>
   </deps>
-
-
-  <!-- packaging -->
-  <distpackage type="wheel">
-    <sshdirectory login="myname" host="ssh.pythonanywhere.com" destination="/home/myname/dist"/>
-  </distpackage>
-
+ </version>
+ <!-- packaging -->
+ <distpackage type="wheel">
+  <sshdirectory destination="/home/myname/dist" host="ssh.pythonanywhere.com" login="myname"/>
+ </distpackage>
 </project>

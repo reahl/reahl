@@ -1,29 +1,25 @@
 <project type="egg">
+ <version number="0.0">
   <deps purpose="run">
-    <thirdpartyegg name="passlib" minversion="1.7.1" maxversion="1.7.9999"/>
-    <egg name="reahl-web"/>
-    <egg name="reahl-component"/>
-    <egg name="reahl-sqlalchemysupport"/>
-    <egg name="reahl-web-declarative"/>
+   <thirdpartyegg maxversion="1.7.9999" minversion="1.7.1" name="passlib"/>
+   <egg name="reahl-web"/>
+   <egg name="reahl-component"/>
+   <egg name="reahl-sqlalchemysupport"/>
+   <egg name="reahl-web-declarative"/>
   </deps>
-
-  <deps purpose="build">
-    <thirdpartyegg name="pytest-runner"/>
-  </deps>
-
-  <deps purpose="test">
-    <thirdpartyegg name="pytest" minversion="3.0"/>
-    <egg name="reahl-tofu"/>
-    <egg name="reahl-stubble"/>
-    <egg name="reahl-dev"/>
-    <egg name="reahl-webdev"/>
-  </deps>
-
-  <persisted>
-    <class locator="reahl.doc.examples.tutorial.sessionscopebootstrap.sessionscopebootstrap:User"/>
-    <class locator="reahl.doc.examples.tutorial.sessionscopebootstrap.sessionscopebootstrap:LoginSession"/>
-  </persisted>
-  
-
-  
+ </version>
+ <deps purpose="build">
+  <thirdpartyegg name="pytest-runner"/>
+ </deps>
+ <deps purpose="test">
+  <thirdpartyegg minversion="3.0" name="pytest"/>
+  <egg name="reahl-tofu"/>
+  <egg name="reahl-stubble"/>
+  <egg name="reahl-dev"/>
+  <egg name="reahl-webdev"/>
+ </deps>
+ <persisted>
+  <class locator="reahl.doc.examples.tutorial.sessionscopebootstrap.sessionscopebootstrap:User"/>
+  <class locator="reahl.doc.examples.tutorial.sessionscopebootstrap.sessionscopebootstrap:LoginSession"/>
+ </persisted>
 </project>

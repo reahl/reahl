@@ -1,16 +1,16 @@
 <project type="egg">
+ <version number="0.0">
   <deps purpose="run">
-    <egg name="reahl-web"/>
-    <egg name="reahl-component"/>
-    <egg name="reahl-web-declarative"/>
-    <egg name="reahl-doc"/>
+   <egg name="reahl-web"/>
+   <egg name="reahl-component"/>
+   <egg name="reahl-web-declarative"/>
+   <egg name="reahl-doc"/>
   </deps>
-
-  <deps purpose="test">
-    <egg name="reahl-tofu"/>
-    <egg name="reahl-stubble"/>
-    <egg name="reahl-dev"/>
-    <egg name="reahl-webdev"/>
-  </deps>
-
+ </version>
+ <deps purpose="test">
+  <egg name="reahl-tofu"/>
+  <egg name="reahl-stubble"/>
+  <egg name="reahl-dev"/>
+  <egg name="reahl-webdev"/>
+ </deps>
 </project>
