@@ -226,7 +226,7 @@ class DatabaseControl(object):
         self.connection_uri = url
         uri_parts = urllib_parse.urlparse(url)
         self.user_name = uri_parts.username
-        self.password = uri_parts.password
+        self.password = urllib_parse.unquote(uri_parts.password) if uri_parts.password else None
         self.host = uri_parts.hostname
         self.port = uri_parts.port
         self.database_name = uri_parts.path[1:] if uri_parts.path.startswith('/') else uri_parts.path
@@ -253,7 +253,6 @@ class DatabaseControl(object):
     
 class NullDatabaseControl(DatabaseControl):
     """A stubbed-out :class:`DatabaseControl` for systems that do not have any database at all."""
-    uri_regex_string = r''
 
     def donothing(self, *args, **kwargs):
         pass
