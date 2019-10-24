@@ -294,11 +294,9 @@ class ConfigAsDict(dict):
 
 
 class StoredConfiguration(Configuration):
-    def __init__(self, config_directory_name, strict_checking=False, in_production=None):
-        if in_production is not None:
-            warnings.warn('DEPRECATED: in_production has been renamed to strict_checking', DeprecationWarning, stacklevel=2)            
+    def __init__(self, config_directory_name, strict_checking=False):
         self.config_directory = config_directory_name
-        self.strict_checking = in_production or strict_checking
+        self.strict_checking = strict_checking
 
     def check_for_python_issue_18378(self):
         try:
