@@ -90,24 +90,24 @@ class URIScenarios(Fixture):
 
 
 @with_fixtures(DBControlFixture, URIScenarios)
-def test_database_control_settings(dbcontrol_fixture, uri_fixture):
+def test_database_control_settings(dbcontrol_fixture, uri_scenario):
     """DatabaseControl settings are read from the
        reahlsystem.connection_uri config setting parsed as an RFC1808 URI
     """
     fixture = dbcontrol_fixture
-    fixture.config.reahlsystem.connection_uri = uri_fixture.uri
+    fixture.config.reahlsystem.connection_uri = uri_scenario.uri
     system_control = SystemControl(fixture.config)
 
-    assert system_control.db_control.database_name == uri_fixture.database_name
-    assert system_control.db_control.user_name == uri_fixture.user_name
-    assert system_control.db_control.password == uri_fixture.password
-    assert system_control.db_control.host == uri_fixture.host
-    assert system_control.db_control.port == uri_fixture.port
+    assert system_control.db_control.database_name == uri_scenario.database_name
+    assert system_control.db_control.user_name == uri_scenario.user_name
+    assert system_control.db_control.password == uri_scenario.password
+    assert system_control.db_control.host == uri_scenario.host
+    assert system_control.db_control.port == uri_scenario.port
 
 
 @with_fixtures(DBControlFixture)
-def test_invalid_database_control_settings(dbcontrol_fixture):
-    """The minmum an URI should contain
+def test_minimum_required_database_control_settings(dbcontrol_fixture):
+    """The minimum an uri should contain is a database name.
     """
     fixture = dbcontrol_fixture
     fixture.config.reahlsystem.connection_uri = 'myprefix:///'
@@ -115,32 +115,28 @@ def test_invalid_database_control_settings(dbcontrol_fixture):
         SystemControl(fixture.config)
 
 
-class PasswordScenarios(Fixture):
-    @scenario
-    def simple(self):
-        self.password = 'password'
-        self.expected_password = 'password'
-
-    @scenario
-    def complicated(self):
-        self.expected_password = 'p#=sword'
-        self.password = urllib_parse.quote(self.expected_password)
-
-    @scenario
-    def empty(self):
-        self.password = ''
-        self.expected_password = None
-
-
-@with_fixtures(DBControlFixture, PasswordScenarios)
-def test_database_control_complicated_passwords(dbcontrol_fixture, password_fixture):
-    """Passwords may need to be decoded, if they were embedded as encoded in URI's.
+@with_fixtures(DBControlFixture)
+def test_database_control_url_safe_parts(dbcontrol_fixture):
+    """URL parts may need to be unquoted, as they might have been quoted to be URL safe (ASCII).
     """
     fixture = dbcontrol_fixture
-    fixture.config.reahlsystem.connection_uri = 'myprefix://theuser:%s@thehost/thedb' % password_fixture.password
+    expected_parts \
+        = [expected_user_name, expected_password, expected_host, expected_db] \
+        = ['usêrname', 'p#=sword', 'hõst', 'd~t∀b^s∊']
+
+    def quote(values):
+        return [urllib_parse.quote(i) for i in values]
+
+    fixture.config.reahlsystem.connection_uri = 'myprefix://%s:%s@%s:456/%s' % tuple(quote(expected_parts))
+
     system_control = SystemControl(fixture.config)
 
-    assert system_control.db_control.password == password_fixture.expected_password
+    assert not set(expected_parts).intersection(quote(expected_parts))
+    assert system_control.db_control.user_name == expected_user_name
+    assert system_control.db_control.password == expected_password
+    assert system_control.db_control.host == expected_host
+    assert system_control.db_control.port == 456
+    assert system_control.db_control.database_name == expected_db
 
 
 

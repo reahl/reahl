@@ -225,13 +225,16 @@ class DatabaseControl(object):
         self.config = config
         self.connection_uri = url
         uri_parts = urllib_parse.urlparse(url)
-        self.user_name = uri_parts.username
-        self.password = urllib_parse.unquote(uri_parts.password) if uri_parts.password else None
-        self.host = uri_parts.hostname
+        self.user_name = self.unquote(uri_parts.username)
+        self.password = self.unquote(uri_parts.password)
+        self.host = self.unquote(uri_parts.hostname)
         self.port = uri_parts.port
-        self.database_name = uri_parts.path[1:] if uri_parts.path.startswith('/') else uri_parts.path
+        self.database_name = self.unquote(uri_parts.path[1:] if uri_parts.path.startswith('/') else uri_parts.path)
         if not self.database_name:
             raise ProgrammerError('Please specify a database name in reahlsystem.connection_uri')
+
+    def unquote(self, value):
+        return urllib_parse.unquote(value) if value else None
 
     def get_dbapi_connection_creator(self):
         return None
