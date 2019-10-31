@@ -126,7 +126,7 @@ def test_database_control_url_safe_parts(dbcontrol_fixture):
         = ['usêrname', 'p#=sword', 'hõst', 'd~t∀b^s∊']
 
     def quote(values):
-        return [urllib_parse.quote(i) for i in values]
+        return [urllib_parse.quote(i.encode('utf-8')) for i in values]
 
     fixture.config.reahlsystem.connection_uri = 'myprefix://%s:%s@%s:456/%s' % tuple(quote(expected_parts))
 
