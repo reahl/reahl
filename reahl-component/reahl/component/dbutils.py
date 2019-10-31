@@ -23,6 +23,7 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 import re
+import six
 from contextlib import contextmanager
 from six.moves.urllib import parse as urllib_parse
 
@@ -234,7 +235,10 @@ class DatabaseControl(object):
             raise ProgrammerError('Please specify a database name in reahlsystem.connection_uri')
 
     def unquote(self, value):
-        return urllib_parse.unquote(value).decode('utf-8') if value else None
+        unquote = urllib_parse.unquote(value) if value else None
+        if unquote and six.PY2:
+            unquote = unquote.decode('utf-8')
+        return unquote
 
     def get_dbapi_connection_creator(self):
         return None
