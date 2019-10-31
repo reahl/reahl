@@ -44,18 +44,14 @@ class DomainException(Exception):
                         when a DomainException is raised.
        :keyword message: Optional error message.
     """
-    def __init__(self, commit=False, message=None):
+    def __init__(self, commit=False, message=None, detail_messages=[]):
         super(DomainException, self).__init__(message)
         self.commit = commit
         self.message = message
-
-#    __hash__ = None
-#    def __eq__(self, other):
-#        import pdb; pdb.set_trace()
-#        return isinstance(other, self.__class__) and self.commit == other.commit
+        self.detail_messages = detail_messages
     
     def __reduce__(self):
-        return (self.__class__, (self.commit, self.message))
+        return (self.__class__, (self.commit, self.message, self.detail_messages))
     
     def as_user_message(self):
         return self.message if self.message else _('An error occurred: %s' % self.__class__.__name__)

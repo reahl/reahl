@@ -31,6 +31,7 @@ import six
 
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.i18n import Catalogue
+from reahl.component.modelinterface import exposed
 
 import reahl.web.ui
 from reahl.web.ui import A, Article, Body, Br, Div, Footer, H, Head, Header, Img, \

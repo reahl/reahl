@@ -26,6 +26,7 @@ import json
 import collections
 import copy
 import re
+import hashlib
 import six
 import warnings
 from collections import OrderedDict
@@ -40,8 +41,8 @@ from reahl.component.exceptions import ProgrammerError
 from reahl.component.exceptions import arg_checks
 from reahl.component.i18n import Catalogue
 from reahl.component.context import ExecutionContext
-from reahl.component.modelinterface import ValidationConstraintList, ValidationConstraint, ExpectedInputNotFound,\
-    Field, Event, BooleanField, Choice, UploadedFile, InputParseException, StandaloneFieldIndex, MultiChoiceField, ChoiceField
+from reahl.component.modelinterface import exposed, ValidationConstraintList, ValidationConstraint, ExpectedInputNotFound,\
+    Field, Event, BooleanField, Choice, UploadedFile, InputParseException, StandaloneFieldIndex, MultiChoiceField, ChoiceField, Action
 from reahl.component.py3compat import html_escape
 from reahl.web.fw import EventChannel, RemoteMethod, JsonResult, Widget, \
     ValidationException, WidgetResult, WidgetFactory, Url
@@ -987,6 +988,17 @@ class Span(HTMLElement):
             self.add_child(TextNode(view, text, html_escape=html_escape))
 
 
+class ConcurrentChange(ValidationConstraint):
+    def __init__(self, form):
+        super(ConcurrentChange, self).__init__(error_message=_('Some data changed since you opened this page, please reset input to try again.'))
+        self.form = form
+
+    def validate_input(self, unparsed_input):
+        if unparsed_input != self.form.concurrency_hash_digest:
+            raise self
+
+
+
 # Uses: reahl/web/reahl.form.js
 class Form(HTMLElement):
     """A Form is a container for Inputs. Any Input has to belong to a Form. When a user clicks on
@@ -1017,6 +1029,36 @@ class Form(HTMLElement):
         super(Form, self).__init__(view, 'form', children_allowed=True, css_id=unique_name)
         self.set_attribute('data-formatter', six.text_type(self.input_formatter.get_url()))
 
+        class DelayedConcurrencyDigestValue(DelegatedAttributes):
+            def __init__(self, digest_input):
+                super(DelayedConcurrencyDigestValue, self).__init__()
+                self.digest_input = digest_input
+
+            def set_attributes(self, attributes):
+                super(DelayedConcurrencyDigestValue, self).set_attributes(attributes)
+                digest = self.digest_input.value if self.digest_input.value else self.digest_input.form.concurrency_hash_digest
+                attributes.set_to('value', digest)
+                    
+        class HiddenInput2(HiddenInput):
+            @property
+            def concurrency_hash_strings(self):
+                yield ''
+
+        self.posted_concurrency_hash_digest = None
+        self.digest_input = self.add_child(HiddenInput2(self, self.fields.posted_concurrency_hash_digest, name='_reahl_concurrency_hash'))
+        self.digest_input.add_attribute_source(DelayedConcurrencyDigestValue(self.digest_input))
+       
+    @exposed
+    def fields(self, fields):
+        fields.posted_concurrency_hash_digest = Field().with_validation_constraint(ConcurrentChange(self))
+
+    @exposed
+    def events(self, events):
+        events.reset = Event(label=_('Reset input'), action=Action(self.clear_view_data))
+
+    def clear_view_data(self):
+        self.clear_all_saved_data()
+        
     def set_up_event_channel(self, event_channel_name):
         self.event_channel = EventChannel(self, self.controller, event_channel_name)
         self.view.add_resource(self.event_channel)
@@ -1160,16 +1202,16 @@ class Form(HTMLElement):
         self.clear_uploaded_files()
 
     def handle_form_input(self, input_values):
-        exception = None
+        exceptions = []
         events = set()
         for input_widget in self.inputs.values():
             try:
                 input_widget.accept_input(input_values)
             except ValidationConstraint as ex:
-                exception = ex
+                exceptions.append(ex)
             events.add(input_widget.get_ocurred_event())
-        if exception:
-            raise ValidationException()
+        if exceptions:
+            raise ValidationException.for_failed_validations(exceptions)
         events -= {None}
         input_detail = 'Inputs submitted: %s Events detected: %s' % (list(input_values.keys()), list(events))
         if len(events) == 0:
@@ -1499,6 +1541,10 @@ class PrimitiveInput(Input):
         return self.bound_field.name_in_input
 
     @property
+    def concurrency_hash_strings(self):
+        yield self.value
+
+    @property
     def html_control(self):
         return self.html_representation
 
@@ -1549,7 +1595,6 @@ class PrimitiveInput(Input):
         super(PrimitiveInput, self).update_construction_state(disambiguated_input)
         if self.registers_with_form:
             self.bound_field.update_valid_value_in_disambiguated_input(disambiguated_input)
-
 
     def get_ocurred_event(self):
         return None

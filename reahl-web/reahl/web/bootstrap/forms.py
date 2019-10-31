@@ -30,10 +30,11 @@ import six
 from reahl.component.exceptions import arg_checks, IsInstance
 from reahl.component.i18n import Catalogue
 from reahl.component.modelinterface import BooleanField, MultiChoiceField, Choice, Field, ChoiceField
+from reahl.component.modelinterface import exposed, Event, Action
 
 import reahl.web.ui
-from reahl.web.ui import Label, HTMLAttributeValueOption
-from reahl.web.bootstrap.ui import Div, P, WrappedInput, A, TextNode, Span, Legend, FieldSet
+from reahl.web.ui import Label, HTMLAttributeValueOption, HTMLElement
+from reahl.web.bootstrap.ui import Div, P, WrappedInput, A, TextNode, Span, Legend, FieldSet, Alert, Ul, Li
 from reahl.web.bootstrap.grid import ColumnLayout
 
 
@@ -467,6 +468,19 @@ class FormLayout(reahl.web.fw.Layout):
             self.add_help_text_to(form_group, html_input, help_text)
 
         return html_input
+
+    def add_alert_for_domain_exception(self, exception, severity):
+        alert = self.widget.add_child(Alert(self.widget.view, exception.as_user_message(), severity))
+        if exception.detail_messages:
+            alert.add_child(HTMLElement(self.widget.view, 'hr'))
+            ul = alert.add_child(Ul(self.widget.view))
+            for detail_message in exception.detail_messages:
+                ul.add_child(Li(self.widget.view)).add_child(TextNode(self.widget.view, detail_message))
+
+            reset_form = alert.add_child(NestedForm(self.widget.view, 'reset_%s' % self.widget.channel_name))
+            reset_form.form.define_event_handler(self.widget.events.reset)
+            reset_form.add_child(Button(reset_form.form, self.widget.events.reset))
+            
 
 
 class GridFormLayout(FormLayout):

@@ -25,6 +25,7 @@ import atexit
 import inspect
 import json
 import logging
+import hashlib
 import mimetypes
 import string
 import time
@@ -72,7 +73,7 @@ from reahl.component.exceptions import ProgrammerError
 from reahl.component.exceptions import arg_checks
 from reahl.component.i18n import Catalogue
 from reahl.component.modelinterface import StandaloneFieldIndex, FieldIndex, Field, ValidationConstraint,\
-                                             Allowed, exposed, Event
+                                             Allowed, exposed, Event, Action
 from reahl.component.py3compat import ascii_as_bytes_or_str
 
 _ = Catalogue('reahl-web')
@@ -80,8 +81,18 @@ _ = Catalogue('reahl-web')
 
 class ValidationException(DomainException):
     """Indicates that one or more Fields received invalid data."""
-    def as_user_message(self):
-        return _('Invalid data supplied')
+    @classmethod
+    def for_failed_validations(cls, failed_validation_constraints):
+        detail_messages = [i.message for i in failed_validation_constraints]
+        return cls(message=_.ngettext('An error occurred', 'Some errors occurred', len(detail_messages)), detail_messages=detail_messages)
+
+    @exposed
+    def events(self, events):
+        events.refresh = Event(label='Refresh', action=Action(self.clear_view_data))
+
+    def clear_view_data(self, form=None):
+        form.clear_all_saved_data()
+
 
 
 class NoMatchingFactoryFound(Exception):
@@ -996,6 +1007,32 @@ class Widget(object):
            argument values set as attributes on this Widget (with names matching the argument names).
         """
     
+    @property
+    def concurrency_hash_digest(self):
+        if not self.visible:
+            return ''
+
+        concurrency_hash = hashlib.md5()
+        is_empty = True
+        for value in self.concurrency_hash_strings:
+            is_empty = False
+            concurrency_hash.update(value.encode('utf-8'))
+        if is_empty:
+            return ''
+        else:
+            concurrency_hash.update(str(self.disabled).encode('utf-8'))
+            return concurrency_hash.hexdigest()
+
+    @property
+    def concurrency_hash_strings(self):
+        for child in self.children:
+            if child.concurrency_hash_digest:
+                yield child.concurrency_hash_digest
+
+    @property
+    def has_changed_since_initial_view(self):
+        return False
+
     @property
     def coactive_widgets(self):
         return [widget for child in self.children for widget in child.coactive_widgets]
@@ -2406,14 +2443,14 @@ class CheckedRemoteMethod(RemoteMethod):
             self.parameters.set(name, field)
 
     def parse_arguments(self, input_values):
-        exception = None
+        exceptions = []
         for name, field in self.parameters.items():
             try:
                 field.from_input(input_values.get(name, [''])[0])
             except ValidationConstraint as ex:
-                exception = ex
-        if exception:
-            raise ValidationException()
+                exceptions.append(ex)
+        if exceptions:
+            raise ValidationException.for_failed_validations(exceptions)
         return self.parameters.as_kwargs()
 
 
@@ -2484,7 +2521,7 @@ class ComposedPage(Resource):
             config = ExecutionContext.get_context().config
             return 'max-age=%s' % config.web.cache_max_age
         else:
-            return 'no-cache'
+            return 'no-store'
 
 
 class FileView(View):
