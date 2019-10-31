@@ -234,7 +234,7 @@ class DatabaseControl(object):
             raise ProgrammerError('Please specify a database name in reahlsystem.connection_uri')
 
     def unquote(self, value):
-        return urllib_parse.unquote(value) if value else None
+        return urllib_parse.unquote(value).decode('utf-8') if value else None
 
     def get_dbapi_connection_creator(self):
         return None
