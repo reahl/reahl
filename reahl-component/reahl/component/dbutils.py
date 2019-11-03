@@ -235,10 +235,10 @@ class DatabaseControl(object):
             raise ProgrammerError('Please specify a database name in reahlsystem.connection_uri')
 
     def unquote(self, value):
-        unquote = urllib_parse.unquote(value) if value else None
-        if unquote and six.PY2:
-            unquote = unquote.decode('utf-8')
-        return unquote
+        unquote_value = urllib_parse.unquote(value) if value else None
+        if unquote_value and six.PY2:
+            unquote_value = unquote_value.decode('utf-8')
+        return unquote_value
 
     def get_dbapi_connection_creator(self):
         return None
