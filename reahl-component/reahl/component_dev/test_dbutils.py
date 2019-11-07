@@ -119,7 +119,7 @@ def test_minimum_required_database_control_settings(dbcontrol_fixture):
 
 @with_fixtures(DBControlFixture)
 def test_database_control_url_safe_parts(dbcontrol_fixture):
-    """URL parts may need to be unquoted, as they might have been quoted to be URL safe (ASCII).
+    """URL parts are unquoted, as they may contain URL quoted characters.
     """
     fixture = dbcontrol_fixture
 
