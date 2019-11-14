@@ -139,9 +139,9 @@ class Url(object):
             if self.scheme == config.web.encrypted_http_scheme:
                 self.port = config.web.encrypted_http_port
 
-    def set_query_from(self, value_dict):
+    def set_query_from(self, value_dict, doseq=False):
         """Sets the query string of this Url from a dictionary."""
-        self.query = urllib_parse.urlencode(value_dict)
+        self.query = urllib_parse.urlencode(value_dict, doseq=doseq)
 
     def get_query_dict(self):
         return urllib_parse.parse_qs(self.query)
@@ -491,6 +491,12 @@ class UserInterface(object):
 
         self.page_factory = widget_class.factory(*args, **kwargs)
         return self.page_factory
+
+    def define_error_view(self, page):
+        self.error_view_factory = self.define_view('/error', _('Error'), page=page)
+
+    def get_bookmark_for_error(self, message, error_source_bookmark):
+        return self.error_view_factory.as_bookmark(self) + self.error_view_factory.page_factory.widget_class.get_widget_bookmark_for_error(message, error_source_bookmark)
 
     def page_slot_for(self, view, page, local_slot_name):
         if page.created_by is self.page_factory:
@@ -870,8 +876,9 @@ class Detour(Redirect):
 
     def compute_target_url(self):
         redirect_url = super(Detour, self).compute_target_url()
-        qs = {'returnTo': six.text_type(self.return_to.href.as_network_absolute()) }
-        redirect_url.set_query_from(qs)
+        qs = redirect_url.get_query_dict()
+        qs['returnTo'] = [six.text_type(self.return_to.href.as_network_absolute())]
+        redirect_url.set_query_from(qs, doseq=True)
         return redirect_url
 
 
@@ -1907,6 +1914,11 @@ class UrlBoundView(View):
         config = ExecutionContext.get_context().config
         return config.web.persisted_userinput_class
 
+    @property
+    def persisted_exception_class(self):
+        config = ExecutionContext.get_context().config
+        return config.web.persisted_exception_class
+
     def set_construction_state_from_state_dict(self, construction_state_dict):
         url_encoded_state = urllib_parse.urlencode(construction_state_dict, doseq=True)
         if six.PY2:
@@ -1961,6 +1973,10 @@ class UrlBoundView(View):
         widget_arguments.update(self.construction_client_side_state_as_dict_of_lists)
         return widget_arguments
 
+    def clear_all_view_data(self):
+        self.persisted_exception_class.clear_all_view_data(self)
+        self.persisted_userinput_class.clear_all_view_data(self)
+        
 
 class RedirectView(UrlBoundView):
     def __init__(self, user_interface, relative_path, to_bookmark):
@@ -2767,6 +2783,21 @@ class StaticFileResource(SubResource):
         return FileDownload(self.file)
 
 
+class MissingForm(Resource):
+    def __init__(self, current_view, root_ui, target_ui):
+        super(MissingForm, self).__init__()
+        self.current_view = current_view
+        self.root_ui = root_ui
+        self.target_ui = target_ui
+
+    def handle_post(self, request):
+        return Redirect(self.root_ui.get_bookmark_for_error(_('Something changed on the server while you were busy. You cannot perform this action anymore.'), 
+                                                            self.current_view.as_bookmark(self.target_ui)))
+
+    def cleanup_after_transaction(self):
+        self.current_view.clear_all_view_data()
+
+
 class IdentityDictionary(object):
     """A dictionary which has values equal to whatever key is asked for. An IdentityDictionary is
        sometimes useful when mapping between Slot names, etc."""
@@ -2839,29 +2870,35 @@ class ReahlWSGIApplication(object):
         if self.should_disconnect:
             self.system_control.disconnect()
 
-    def get_target_ui(self, full_path):
-        root_ui = self.root_user_interface_factory.create(full_path)
-        target_ui, page = root_ui.get_user_interface_for_full_path(full_path)
-        return (target_ui, page)
-
     def resource_for(self, request):
         url = Url.get_current_url(request=request)
         logging.getLogger(__name__).debug('Finding Resource for URL: %s' % url.path)
         url.make_locale_relative()
-        target_ui, page_factory = self.get_target_ui(url.path)
+        root_ui = self.root_user_interface_factory.create(url.path)
+        target_ui, page_factory = root_ui.get_user_interface_for_full_path(url.path)
         # TODO: FEATURE ENVY BELOW:
         logging.getLogger(__name__).debug('Found UserInterface %s' % target_ui)
         current_view = target_ui.get_view_for_full_path(url.path)
         logging.getLogger(__name__).debug('Found View %s' % current_view)
         current_view.check_precondition()
         current_view.check_rights(request.method)
+
         if current_view.is_dynamic:
             page = current_view.create_page(url.path, page_factory)
             self.check_scheme(page.is_security_sensitive)
         else:
             page = None
 
-        return current_view.resource_for(url.path, page)
+        try:
+            return current_view.resource_for(url.path, page)
+        except HTTPNotFound as ex:
+            if self.is_form_submit(url.path, request):
+                return MissingForm(current_view, root_ui, target_ui)
+            else:
+                raise
+
+    def is_form_submit(self, full_path, request):
+            return SubResource.is_for_sub_resource(full_path) and request.method == 'POST' and '_reahl_concurrency_hash' in request.POST
 
     def check_scheme(self, security_sensitive):
         scheme_needed = self.config.web.default_http_scheme
@@ -2923,6 +2960,7 @@ class ReahlWSGIApplication(object):
                         context.config.web.session_class.initialise_web_session_on(context) # Because the rollback above nuked it
                     if resource:
                         resource.cleanup_after_transaction()
+                        
                 except HTTPException as e:
                     response = e
                 except DisconnectionError as e:

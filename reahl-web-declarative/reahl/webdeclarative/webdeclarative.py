@@ -200,6 +200,13 @@ class SessionData(Base):
             Session.delete(stale)
 
     @classmethod
+    def clear_all_view_data(cls, view):
+        web_session = ExecutionContext.get_context().session
+        items = Session.query(cls).filter_by(web_session=web_session, view_path=view.full_path, ui_name=view.user_interface.name)
+        for stale in items:
+            Session.delete(stale)
+        
+    @classmethod
     def find_for(cls, view, form=None):
         assert (not form) or (form.view is view)
         web_session = ExecutionContext.get_context().session
