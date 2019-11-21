@@ -45,7 +45,7 @@ from reahl.component.modelinterface import exposed, ValidationConstraintList, Va
     Field, Event, BooleanField, Choice, UploadedFile, InputParseException, StandaloneFieldIndex, MultiChoiceField, ChoiceField, Action
 from reahl.component.py3compat import html_escape
 from reahl.web.fw import EventChannel, RemoteMethod, JsonResult, Widget, \
-    ValidationException, WidgetResult, WidgetFactory, Url
+    ValidationException, WidgetResult, WidgetFactory, Url, ErrorWidget
 from reahl.mailutil.rst import RestructuredText
 
 _ = Catalogue('reahl-web')
@@ -607,6 +607,17 @@ class Body(HTMLElement):
         return self.out_of_bound_forms
 
 
+
+class PlainHTMLErrorPage(ErrorWidget):
+    def __init__(self, view, page_class, *widget_args, **widget_kwargs):
+        super(PlainHTMLErrorPage, self).__init__(view)
+        page = self.add_child(page_class(view, *widget_args, **widget_kwargs))
+        error_div = page.body.insert_child(0, Div(view))
+        error_div.add_child(H(view, 1, text=_('An error occurred:')))
+        error_div.add_child(P(view, text=self.error_message))
+        error_div.add_child(A(view, self.error_source_href, description=_('Ok')))
+
+
 class HTML5Page(HTMLElement):
     """A web page that may be used as the page of a web application. It ensures that everything needed by
        the framework (linked CSS and JavaScript, etc) is available on such a page.
@@ -622,6 +633,10 @@ class HTML5Page(HTMLElement):
        .. versionchanged:: 4.0
           Removed style= keyword
     """
+    @classmethod
+    def get_error_page_factory(cls, *widget_args, **widget_kwargs):
+        return PlainHTMLErrorPage.factory(cls, *widget_args, **widget_kwargs)
+
     @arg_checks(title=IsInstance(six.string_types))
     def __init__(self, view, title='$current_title', css_id=None):
         super(HTML5Page, self).__init__(view, 'html', children_allowed=True, css_id=css_id)

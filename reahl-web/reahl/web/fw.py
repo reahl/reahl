@@ -427,11 +427,14 @@ class UserInterface(object):
         self.name = name                             #: A name which is unique amongst all UserInterfaces in the application
         self.relative_path = ''                     #: The path of the current Url, relative to this UserInterface
         self.page_factory = None
+        self.error_view_factory = None
         if not for_bookmark:
             self.update_relative_path()
         self.sub_uis = FactoryDict(set())
         self.controller = Controller(self)
         self.assemble(**ui_arguments)
+        if not self.error_view_factory:
+            self.define_default_error_view()
         self.sub_resources = FactoryDict(set())
         if not self.name:
             raise ProgrammerError('No .name set for %s. This should be done in the call to .define_user_interface or in %s.assemble().' % \
@@ -494,6 +497,12 @@ class UserInterface(object):
 
     def define_error_view(self, page):
         self.error_view_factory = self.define_view('/error', _('Error'), page=page)
+
+    def define_default_error_view(self):
+        if self.page_factory:
+            self.define_error_view(self.page_factory.get_error_page_factory())
+        else:
+            self.define_error_view(Widget.factory().get_error_page_factory())
 
     def get_bookmark_for_error(self, message, error_source_bookmark):
         return self.error_view_factory.as_bookmark(self) + self.error_view_factory.page_factory.widget_class.get_widget_bookmark_for_error(message, error_source_bookmark)
@@ -954,6 +963,10 @@ class Widget(object):
         """
         return WidgetFactory(cls, *widget_args, **widget_kwargs)
 
+    @classmethod
+    def get_error_page_factory(cls, *widget_args, **widget_kwargs):
+        return PlainErrorPage.factory()
+
     @arg_checks(view=IsInstance('reahl.web.fw:View'))
     def __init__(self, view, read_check=None, write_check=None):
         self.children = WidgetList()         #: All the Widgets that have been added as children of this Widget,
@@ -1270,6 +1283,25 @@ class Widget(object):
             return None
         assert len(widgets) == 1
         return widgets[0]
+
+
+class ErrorWidget(Widget):
+    @exposed
+    def query_fields(self, fields):
+        fields.error_message=Field(default=_('An error occurred'))
+        fields.error_source_href=Field(default=_('#'))
+
+    @classmethod
+    def get_widget_bookmark_for_error(cls, error_message, error_source_bookmark):
+        return Bookmark.for_widget('', query_arguments={'error_message':error_message, 'error_source_href':error_source_bookmark.href})
+
+
+class PlainErrorPage(ErrorWidget):
+    def render_contents(self):
+        return u'''<html><head><title>Error</title></head>
+                         <body><h1>An error occurred:</h1> <p>%s <a href="%s">Ok</a></p></body>
+                   </html>''' % (self.error_message, self.error_source_href)
+
 
 
 class ViewPreCondition(object):
@@ -1683,6 +1715,9 @@ class WidgetFactory(Factory):
         """
         self.default_slot_definitions[name] = widget_factory
         return widget_factory
+
+    def get_error_page_factory(self):
+        return self.widget_class.get_error_page_factory(*self.widget_args, **self.widget_kwargs)
 
     def __str__(self):
         return '<WidgetFactory for %s>' % self.widget_class
@@ -2891,7 +2926,7 @@ class ReahlWSGIApplication(object):
 
         try:
             return current_view.resource_for(url.path, page)
-        except HTTPNotFound as ex:
+        except HTTPNotFound:
             if self.is_form_submit(url.path, request):
                 return MissingForm(current_view, root_ui, target_ui)
             else:

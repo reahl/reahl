@@ -470,6 +470,9 @@ class FormLayout(reahl.web.fw.Layout):
         return html_input
 
     def add_alert_for_domain_exception(self, exception, severity):
+        """TODO
+            .. versionadded:: 5.0
+        """
         alert = self.widget.add_child(Alert(self.widget.view, exception.as_user_message(), severity))
         if exception.detail_messages:
             alert.add_child(HTMLElement(self.widget.view, 'hr'))
@@ -479,7 +482,7 @@ class FormLayout(reahl.web.fw.Layout):
 
             reset_form = alert.add_child(NestedForm(self.widget.view, 'reset_%s' % self.widget.channel_name))
             reset_form.form.define_event_handler(self.widget.events.reset)
-            reset_form.add_child(Button(reset_form.form, self.widget.events.reset))
+            reset_form.add_child(Button(reset_form.form, self.widget.events.reset)).use_layout(ButtonLayout(style='primary'))
             
 
 

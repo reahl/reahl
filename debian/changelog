@@ -23,6 +23,11 @@ python-reahl (5.0) unstable; urgency=low
  * Added unique IDs to all HTML input controls (#154).
  * Added name_discriminator kwarg to PrimitiveInputs for distinguishing same-named inputs.
  * Removed the in_production kwarg for StoredConfiguration (#174). Rather use strict_checking.
+ * Moved reahl.web.bootstrap.ui.HTML5Page to reahl.web.bootstrap.page to resolve depdency issues.
+ * Added a way to render customised error pages.
+ * Added an optimistic concurrency check to form submits (#251).
+ * Deal with forms that are no longer on a page due to concurrent changes in the backend (#251).
+ * Added FormLayout.add_alert_for_domain_exception.
 
  -- Iwan Vosloo <iwan@reahl.org>  Thu, 13 Dec 2018 15:15:00 +0200
 

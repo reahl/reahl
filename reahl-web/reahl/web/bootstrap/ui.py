@@ -34,39 +34,12 @@ from reahl.component.i18n import Catalogue
 from reahl.component.modelinterface import exposed
 
 import reahl.web.ui
+# These are imported here for convenience so they can be imported from reahl.web.bootstrap.ui:
 from reahl.web.ui import A, Article, Body, Br, Div, Footer, H, Head, Header, Img, \
     Li, Link, LiteralHTML, Meta, Nav, Ol, OptGroup, P, Small, RunningOnBadge, Slot, Span, TextNode, \
     Title, Ul, WrappedInput, FieldSet, Legend, HTMLAttributeValueOption, Widget, HTMLElement, HTMLWidget
 
-from reahl.web.bootstrap.grid import Container, ColumnLayout, ResponsiveSize
-
-
 _ = Catalogue('reahl-web')
-
-
-class HTML5Page(reahl.web.ui.HTML5Page):
-    """A web page that may be used as the page of a web application. It ensures that everything needed by
-       the framework (linked CSS and JavaScript, etc) is available on such a page.
-
-       .. admonition:: Styling
-       
-          Renders as an HTML5 page with customised <head> and an empty <body>.
-       
-       :param view: (See :class:`reahl.web.fw.Widget`)
-       :keyword title: (See :class:`reahl.web.ui.HTML5Page`)
-       :keyword css_id: (See :class:`reahl.web.ui.HTMLElement`)
-       
-    """
-    def check_form_related_programmer_errors(self):
-        super(HTML5Page, self).check_form_related_programmer_errors()
-        self.check_grids_nesting()
-        
-    def check_grids_nesting(self):
-        for widget, parents_set in self.parent_widget_pairs(set([])):
-            if isinstance(widget.layout, ColumnLayout):
-                if not any(isinstance(parent.layout, Container) for parent in parents_set):
-                    raise ProgrammerError(('%s does not have a parent with Layout of type %s.' % (widget, Container))+\
-                      ' %s has a ColumnLayout, and thus needs to have an anchestor with a Container Layout.' % widget)
 
 
 class Alert(Div):
@@ -92,7 +65,7 @@ class Alert(Div):
         self.add_child(child_widget)
         self.append_class('alert')
         self.append_class(severity_option.as_html_snippet())
-        self.set_attribute('role', 'alert')
+        self.set_attribute('role', 'alert') 
 
 
 class Badge(Span):
