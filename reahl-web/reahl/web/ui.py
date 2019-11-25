@@ -1009,8 +1009,10 @@ class ConcurrentChange(ValidationConstraint):
         self.form = form
 
     def validate_input(self, unparsed_input):
-        if unparsed_input != self.form.concurrency_hash_digest:
+        original_hash = self.field.as_user_input_value(for_input_status='validly_entered') if self.form.exception else self.form.concurrency_hash_digest
+        if unparsed_input != original_hash:
             raise self
+
 
 
 
@@ -1051,7 +1053,8 @@ class Form(HTMLElement):
 
             def set_attributes(self, attributes):
                 super(DelayedConcurrencyDigestValue, self).set_attributes(attributes)
-                digest = self.digest_input.value if self.digest_input.value else self.digest_input.form.concurrency_hash_digest
+#                digest = self.digest_input.value if self.digest_input.value else self.digest_input.form.concurrency_hash_digest
+                digest = self.digest_input.form.concurrency_hash_digest
                 attributes.set_to('value', digest)
                     
         class HiddenInput2(HiddenInput):
@@ -1061,7 +1064,8 @@ class Form(HTMLElement):
 
         self.posted_concurrency_hash_digest = None
         self.digest_input = self.add_child(HiddenInput2(self, self.fields.posted_concurrency_hash_digest, name='_reahl_concurrency_hash'))
-        self.digest_input.add_attribute_source(DelayedConcurrencyDigestValue(self.digest_input))
+        if not self.digest_input.value:
+            self.digest_input.add_attribute_source(DelayedConcurrencyDigestValue(self.digest_input))
        
     @exposed
     def fields(self, fields):

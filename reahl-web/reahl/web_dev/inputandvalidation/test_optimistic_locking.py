@@ -6,7 +6,6 @@
 
 # (move to a bootstrap-specific test:) if using FormLayout.add_alert_for_domain_exception
 
-
 # Only VISIBLE PrimitiveInput value data is taken into account by default for such optimistic locking, but:
 #  if an input becomes readonly (or not readonly) since last rendered, it is also considered as having changed.
 #  passing ignore_concurrency=True prevents a PrimitiveInput from taking part, despite being visible, and despite its readablity
