@@ -4,6 +4,8 @@
 # When presented with such an error, the user can click on a button to reset all inputs to the now-current values (if using the not-yet-there "ResetForm" in non-bootstrap stuff)
 #   - this also clears all possible form (the current form) exceptions and remembered input values
 
+# Scenario: user B changes something AFTER user A has gotten a DomainException but before user B submits correct data again.
+
 # (move to a bootstrap-specific test:) if using FormLayout.add_alert_for_domain_exception
 
 # Only VISIBLE PrimitiveInput value data is taken into account by default for such optimistic locking, but:

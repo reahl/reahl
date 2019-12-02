@@ -1009,8 +1009,7 @@ class ConcurrentChange(ValidationConstraint):
         self.form = form
 
     def validate_input(self, unparsed_input):
-        original_hash = self.field.as_user_input_value(for_input_status='validly_entered') if self.form.exception else self.form.concurrency_hash_digest
-        if unparsed_input != original_hash:
+        if unparsed_input != self.form.concurrency_hash_digest:
             raise self
 
 
@@ -1466,6 +1465,10 @@ class Input(HTMLWidget):
     def value(self):
         return self.bound_field.as_user_input_value(self.get_input_status())
 
+    @property
+    def original_value(self):
+        return self.bound_field.as_user_input_value('defaulted')
+
     def get_input_status(self):
         return self.bound_field.input_status
 
@@ -1561,7 +1564,7 @@ class PrimitiveInput(Input):
 
     @property
     def concurrency_hash_strings(self):
-        yield self.value
+        yield self.original_value
 
     @property
     def html_control(self):
