@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: reahl-webdev 5.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2019-12-03 11:10+0200\n"
+"POT-Creation-Date: 2019-12-03 12:47+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -73,68 +73,63 @@ msgstr ""
 msgid "Existing config directory name: "
 msgstr ""
 
-#: reahl/webdev/commands.py:259
-#, python-format
-msgid "%s (In development? Did you forget to do a \"reahl setup -- develop -N\"?)"
-msgstr ""
-
-#: reahl/webdev/commands.py:301
+#: reahl/webdev/commands.py:295
 msgid "Sqlite should be in_memory or for file_path"
 msgstr ""
 
-#: reahl/webdev/commands.py:307
+#: reahl/webdev/commands.py:301
 msgid "Enter the file_path for the db"
 msgstr ""
 
-#: reahl/webdev/commands.py:311
+#: reahl/webdev/commands.py:305
 msgid "Sqlite options"
 msgstr ""
 
-#: reahl/webdev/commands.py:312
+#: reahl/webdev/commands.py:306
 msgid "Sqlite - in memory"
 msgstr ""
 
-#: reahl/webdev/commands.py:313
+#: reahl/webdev/commands.py:307
 msgid "Sqlite - file"
 msgstr ""
 
-#: reahl/webdev/commands.py:335
+#: reahl/webdev/commands.py:329
 msgid "username ? "
 msgstr ""
 
-#: reahl/webdev/commands.py:336
+#: reahl/webdev/commands.py:330
 msgid "password ? "
 msgstr ""
 
-#: reahl/webdev/commands.py:337
+#: reahl/webdev/commands.py:331
 msgid "hostname ? "
 msgstr ""
 
-#: reahl/webdev/commands.py:338
+#: reahl/webdev/commands.py:332
 msgid "port ? "
 msgstr ""
 
-#: reahl/webdev/commands.py:339
+#: reahl/webdev/commands.py:333
 msgid "database name ? "
 msgstr ""
 
-#: reahl/webdev/commands.py:355
+#: reahl/webdev/commands.py:349
 msgid "Database type"
 msgstr ""
 
-#: reahl/webdev/commands.py:371
+#: reahl/webdev/commands.py:376
 msgid "This option is not yet available"
 msgstr ""
 
-#: reahl/webdev/commands.py:373
+#: reahl/webdev/commands.py:378
 msgid "Application platform"
 msgstr ""
 
-#: reahl/webdev/commands.py:374
+#: reahl/webdev/commands.py:379
 msgid "local, on this machine"
 msgstr ""
 
-#: reahl/webdev/commands.py:395
+#: reahl/webdev/commands.py:402
 #, python-format
 msgid "Created config in: %s"
 msgstr ""

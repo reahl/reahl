@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: reahl-webdev 5.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2019-12-03 11:10+0200\n"
+"POT-Creation-Date: 2019-12-03 12:47+0200\n"
 "PO-Revision-Date: 2019-12-03 10:44+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: af\n"
@@ -21,7 +21,7 @@ msgstr ""
 
 #: reahl/webdev/commands.py:172
 msgid "Type your selection: "
-msgstr "Tik jou keuse: "
+msgstr "Sleutel jou keuse in: "
 
 #: reahl/webdev/commands.py:176
 msgid "Not a valid selection"
@@ -44,7 +44,7 @@ msgstr "Gids bestaan reeds, kies 'n alternatief"
 
 #: reahl/webdev/commands.py:227
 msgid "New config directory name: "
-msgstr "Nuwe configurasiegids se naam: "
+msgstr "Nuwe konfigurasiegids se naam: "
 
 #: reahl/webdev/commands.py:231
 msgid "Root application module"
@@ -52,7 +52,7 @@ msgstr "Hoof applikasie module naam"
 
 #: reahl/webdev/commands.py:232
 msgid "From existing config ? "
-msgstr "Vanaf bestaande configurasie ? "
+msgstr "Vanaf bestaande konfigurasie ? "
 
 #: reahl/webdev/commands.py:233
 msgid "Provide it yourself ? "
@@ -74,72 +74,67 @@ msgstr "Gids bestaan nie, kies 'n bestaande een"
 msgid "Existing config directory name: "
 msgstr "Besttande gis se naam: "
 
-#: reahl/webdev/commands.py:259
-#, python-format
-msgid "%s (In development? Did you forget to do a \"reahl setup -- develop -N\"?)"
-msgstr ""
-"%s (In ontwikkeling? Het jy dalk vergeet om uit te voer \"reahl setup -- "
-"develop -N\"?)"
-
-#: reahl/webdev/commands.py:301
+#: reahl/webdev/commands.py:295
 msgid "Sqlite should be in_memory or for file_path"
 msgstr "Sqlite moet een van in_memory of file_path wees"
 
-#: reahl/webdev/commands.py:307
+#: reahl/webdev/commands.py:301
 msgid "Enter the file_path for the db"
 msgstr "Sleutel die databasislêernaam in"
 
-#: reahl/webdev/commands.py:311
+#: reahl/webdev/commands.py:305
 msgid "Sqlite options"
 msgstr "Sqlite opsies"
 
-#: reahl/webdev/commands.py:312
+#: reahl/webdev/commands.py:306
 msgid "Sqlite - in memory"
 msgstr "Sqlite - in geheu"
 
-#: reahl/webdev/commands.py:313
+#: reahl/webdev/commands.py:307
 msgid "Sqlite - file"
 msgstr "Sqlite - lêer"
 
-#: reahl/webdev/commands.py:335
+#: reahl/webdev/commands.py:329
 msgid "username ? "
 msgstr "gebruikernaam ? "
 
-#: reahl/webdev/commands.py:336
+#: reahl/webdev/commands.py:330
 msgid "password ? "
 msgstr "wagwoord ? "
 
-#: reahl/webdev/commands.py:337
+#: reahl/webdev/commands.py:331
 msgid "hostname ? "
 msgstr "masjiennaam ? "
 
-#: reahl/webdev/commands.py:338
+#: reahl/webdev/commands.py:332
 msgid "port ? "
 msgstr "poort ? "
 
-#: reahl/webdev/commands.py:339
+#: reahl/webdev/commands.py:333
 msgid "database name ? "
 msgstr "databasis naam ? "
 
-#: reahl/webdev/commands.py:355
+#: reahl/webdev/commands.py:349
 msgid "Database type"
 msgstr "Databasis tipe"
 
-#: reahl/webdev/commands.py:371
+#: reahl/webdev/commands.py:376
 msgid "This option is not yet available"
 msgstr "Hierdie opsie is nognie beskikbaar nie"
 
-#: reahl/webdev/commands.py:373
+#: reahl/webdev/commands.py:378
 msgid "Application platform"
 msgstr "Applikasie platform"
 
-#: reahl/webdev/commands.py:374
+#: reahl/webdev/commands.py:379
 msgid "local, on this machine"
 msgstr "plaaslik, op hierdie masjien"
 
-#: reahl/webdev/commands.py:395
+#: reahl/webdev/commands.py:402
 #, python-format
 msgid "Created config in: %s"
 msgstr ""
 
+#~ msgid ""
+#~ msgstr ""
 

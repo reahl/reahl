@@ -164,7 +164,7 @@ class Menu(object):
     def prompt(self):
         messages = [self.message]
         allowed_words = []
-        self.ensure_exit_menu_item_exists()#TODO: Try harder to not dot this. Perhaps insert(0)...and remove key from MenuItem
+        self.ensure_exit_menu_item_exists()
         for index, mi in enumerate(self.menu_items):
             key = index + 1
             messages.append('%s %s' % (self.indent, mi.as_option(key)))
@@ -353,12 +353,23 @@ class LocalApp(Platform):
         self.database.ask_detail_questions()
 
 
+class LocaleContext(ExecutionContext):
+    def __init__(self, locale='en_gb'):
+        super(LocaleContext, self).__init__()
+        self.locale = locale
+
+    @property
+    def interface_locale(self):
+        return self.locale
+
+
 class CreateConfig(WorkspaceCommand):
     """Interactively create new set of configuration settings."""
     keyword = 'createconfig'
 
     def assemble(self):
         super(CreateConfig, self).assemble()
+        self.parser.add_argument('-l', '--locale', action='store', dest='locale', help='locale identifier, used to translate interactive questions if the translation exists, such as en_gb(default, english), af(afrikaans) etc.')
 
     def ask_platform(self):
         def not_yet_available():
@@ -366,15 +377,15 @@ class CreateConfig(WorkspaceCommand):
 
         menu = Menu(_('Application platform'))
         menu.add_menu_item(_('local, on this machine'), LocalApp)
-        menu.add_menu_item('AWS', not_yet_available)
         menu.add_menu_item('pythonanywhere', not_yet_available)
+        menu.add_menu_item('AWS', not_yet_available)
         # menu.add_menu_item('Docker')
         # menu.add_menu_item('Heroku')
         return menu.show()
 
     def execute(self, args):
         print('\n')
-        ExecutionContext().install()
+        LocaleContext(locale=args.locale).install()
 
         basic_config = BasicConfig()
         basic_config.ask_detail_questions()
