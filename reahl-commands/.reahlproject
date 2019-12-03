@@ -11,6 +11,7 @@
 
   <deps purpose="run">
     <thirdpartyegg name="six"/> 
+    <egg name="reahl-component"/>
   </deps>
 
   <deps purpose="test">
@@ -38,7 +39,6 @@
   <export entrypoint="reahl.component.commands" name="MigrateDB" locator="reahl.commands.prodshell:MigrateDB"/>
   <export entrypoint="reahl.component.commands" name="DiffDB" locator="reahl.commands.prodshell:DiffDB"/>
   <export entrypoint="reahl.component.commands" name="ListConfig" locator="reahl.commands.prodshell:ListConfig"/>
-  <export entrypoint="reahl.component.commands" name="CreateConfig" locator="reahl.commands.prodshell:CreateConfig"/>
   <export entrypoint="reahl.component.commands" name="CheckConfig" locator="reahl.commands.prodshell:CheckConfig"/>
   <export entrypoint="reahl.component.commands" name="ListDependencies" locator="reahl.commands.prodshell:ListDependencies"/>
   <export entrypoint="reahl.component.commands" name="ExportStaticFiles" locator="reahl.commands.prodshell:ExportStaticFiles"/>
