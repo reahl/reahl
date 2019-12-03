@@ -3,6 +3,8 @@
     <package name="reahl"/>
   </namespaces>
 
+  <translations locator="reahl.messages"/>
+
   <deps purpose="build">
     <thirdpartyegg name="setuptools-git" minversion="1.1" maxversion="1.1.999"/>
     <thirdpartyegg name="pytest-runner"/>
@@ -36,6 +38,7 @@
 
   <export entrypoint="reahl.component.commands" name="ServeCurrentProject" locator="reahl.webdev.commands:ServeCurrentProject"/>
   <export entrypoint="reahl.component.commands" name="SyncFiles" locator="reahl.webdev.commands:SyncFiles"/>
+  <export entrypoint="reahl.component.commands" name="CreateConfig" locator="reahl.webdev.commands:CreateConfig"/>
 
 
   <distpackage type="wheel">
