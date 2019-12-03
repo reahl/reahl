@@ -22,7 +22,7 @@ msgstr ""
 #: reahl/webdev/commands.py:172
 #, fuzzy
 msgid "Type your selection"
-msgstr "Sleutel jou keuse in: "
+msgstr "Sleutel jou keuse in"
 
 #: reahl/webdev/commands.py:176
 msgid "Not a valid selection"
@@ -33,7 +33,7 @@ msgstr "Nie 'n geldige keuse nie"
 msgid ""
 "Something is wrong with the option you chose [%s]. Press <enter> and "
 "choose another item."
-msgstr "Daar is iets fout my jou keuse [%s]. Druk <enter> en verander jou keuse. "
+msgstr "Daar is iets fout my jou keuse [%s]. Druk <enter> en verander jou keuse."
 
 #: reahl/webdev/commands.py:194
 msgid "Exit"
@@ -147,5 +147,5 @@ msgstr "plaaslik, op hierdie masjien"
 
 #: reahl/webdev/commands.py:402
 msgid "Created config in"
-msgstr ""
+msgstr "Konfigurasie geskep in"
 
