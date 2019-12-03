@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: reahl-webdev 5.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2019-12-03 12:47+0200\n"
+"POT-Creation-Date: 2019-12-03 13:12+0200\n"
 "PO-Revision-Date: 2019-12-03 10:44+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: af\n"
@@ -20,7 +20,8 @@ msgstr ""
 "Generated-By: Babel 2.1.1\n"
 
 #: reahl/webdev/commands.py:172
-msgid "Type your selection: "
+#, fuzzy
+msgid "Type your selection"
 msgstr "Sleutel jou keuse in: "
 
 #: reahl/webdev/commands.py:176
@@ -28,10 +29,10 @@ msgid "Not a valid selection"
 msgstr "Nie 'n geldige keuse nie"
 
 #: reahl/webdev/commands.py:190
-#, python-format
+#, fuzzy, python-format
 msgid ""
 "Something is wrong with the option you chose [%s]. Press <enter> and "
-"choose another item. "
+"choose another item."
 msgstr "Daar is iets fout my jou keuse [%s]. Druk <enter> en verander jou keuse. "
 
 #: reahl/webdev/commands.py:194
@@ -43,7 +44,8 @@ msgid "Path exists, choose another"
 msgstr "Gids bestaan reeds, kies 'n alternatief"
 
 #: reahl/webdev/commands.py:227
-msgid "New config directory name: "
+#, fuzzy
+msgid "New config directory name"
 msgstr "Nuwe konfigurasiegids se naam: "
 
 #: reahl/webdev/commands.py:231
@@ -51,31 +53,37 @@ msgid "Root application module"
 msgstr "Hoof applikasie module naam"
 
 #: reahl/webdev/commands.py:232
-msgid "From existing config ? "
-msgstr "Vanaf bestaande konfigurasie ? "
+#, fuzzy
+msgid "From existing config"
+msgstr "Vanaf bestaande konfigurasie"
 
 #: reahl/webdev/commands.py:233
-msgid "Provide it yourself ? "
-msgstr "Gee dit self ? "
+#, fuzzy
+msgid "Provide it yourself"
+msgstr "Gee dit self"
 
 #: reahl/webdev/commands.py:237
-msgid "Enter the site root module: "
-msgstr "Sleutel die hoofmodule se naam in: "
+#, fuzzy
+msgid "Enter the site root module"
+msgstr "Sleutel die hoofmodule se naam in"
 
 #: reahl/webdev/commands.py:238
-msgid "Enter the site root class: "
-msgstr "Sleutel die hoofklasnaam in: "
+#, fuzzy
+msgid "Enter the site root class"
+msgstr "Sleutel die hoofklasnaam in"
 
 #: reahl/webdev/commands.py:248
 msgid "Path does not exist, choose existing path"
 msgstr "Gids bestaan nie, kies 'n bestaande een"
 
 #: reahl/webdev/commands.py:250
-msgid "Existing config directory name: "
-msgstr "Besttande gis se naam: "
+#, fuzzy
+msgid "Existing config directory name"
+msgstr "Besttande gis se naam"
 
 #: reahl/webdev/commands.py:295
-msgid "Sqlite should be in_memory or for file_path"
+#, fuzzy
+msgid "should be in_memory or for file_path"
 msgstr "Sqlite moet een van in_memory of file_path wees"
 
 #: reahl/webdev/commands.py:301
@@ -83,36 +91,43 @@ msgid "Enter the file_path for the db"
 msgstr "Sleutel die databasislêernaam in"
 
 #: reahl/webdev/commands.py:305
-msgid "Sqlite options"
+#, fuzzy
+msgid "options"
 msgstr "Sqlite opsies"
 
 #: reahl/webdev/commands.py:306
-msgid "Sqlite - in memory"
+#, fuzzy
+msgid "in memory"
 msgstr "Sqlite - in geheu"
 
 #: reahl/webdev/commands.py:307
-msgid "Sqlite - file"
-msgstr "Sqlite - lêer"
+msgid "file"
+msgstr "leêr"
 
 #: reahl/webdev/commands.py:329
-msgid "username ? "
-msgstr "gebruikernaam ? "
+#, fuzzy
+msgid "username"
+msgstr "gebruikernaam"
 
 #: reahl/webdev/commands.py:330
-msgid "password ? "
-msgstr "wagwoord ? "
+#, fuzzy
+msgid "password"
+msgstr "wagwoord"
 
 #: reahl/webdev/commands.py:331
-msgid "hostname ? "
-msgstr "masjiennaam ? "
+#, fuzzy
+msgid "hostname"
+msgstr "masjiennaam"
 
 #: reahl/webdev/commands.py:332
-msgid "port ? "
-msgstr "poort ? "
+#, fuzzy
+msgid "port"
+msgstr "poort"
 
 #: reahl/webdev/commands.py:333
-msgid "database name ? "
-msgstr "databasis naam ? "
+#, fuzzy
+msgid "database name"
+msgstr "databasis naam"
 
 #: reahl/webdev/commands.py:349
 msgid "Database type"
@@ -131,10 +146,6 @@ msgid "local, on this machine"
 msgstr "plaaslik, op hierdie masjien"
 
 #: reahl/webdev/commands.py:402
-#, python-format
-msgid "Created config in: %s"
+msgid "Created config in"
 msgstr ""
-
-#~ msgid ""
-#~ msgstr ""
 

@@ -169,7 +169,7 @@ class Menu(object):
             key = index + 1
             messages.append('%s %s' % (self.indent, mi.as_option(key)))
             allowed_words.append('%s' % key)
-        messages.append('%s%s' % (self.indent, _('Type your selection: ')))
+        messages.append('%s%s: ' % (self.indent, _('Type your selection')))
 
         prompt_message = '\n'.join(messages)
         allowed_menu_selection_validator = Validator.from_callable(lambda x: x in allowed_words,
@@ -186,7 +186,7 @@ class Menu(object):
         try:
             return selected.call_callable()
         except Exception as e:
-            prompt(_('Something is wrong with the option you chose [%s]. Press <enter> and choose another item. '
+            prompt(_('Something is wrong with the option you chose [%s]. Press <enter> and choose another item.'
                      % str(e)))
             return self.show()
 
@@ -224,18 +224,18 @@ class BasicConfig(object):
         def not_path_exists(x):
             return not os.path.exists(x)
         path_exist_validator = Validator.from_callable(not_path_exists, error_message=_('Path exists, choose another'), move_cursor_to_end=True)
-        self.target_config_directory = prompt(_('New config directory name: '),
+        self.target_config_directory = prompt('%s: ' % _('New config directory name'),
                                               completer=WordCompleter(words=['etc-prod']), validator=path_exist_validator)
 
     def ask_site_root(self):
         menu = Menu(_('Root application module'))
-        menu.add_menu_item(_('From existing config ? '), self.get_site_root_from_existing_config)
-        menu.add_menu_item(_('Provide it yourself ? '), self.get_site_root_from_user)
+        menu.add_menu_item('%s? ' % _('From existing config'), self.get_site_root_from_existing_config)
+        menu.add_menu_item('%s? ' % _('Provide it yourself'), self.get_site_root_from_user)
         self.site_root = menu.show()
 
     def get_site_root_from_user(self):
-        module_name = prompt(_('Enter the site root module: '), default='my.module')
-        class_name = prompt(_('Enter the site root class: '), default='MyApp')
+        module_name = prompt('%s: ' % _('Enter the site root module'), default='my.module')
+        class_name = prompt('%s: ' % _('Enter the site root class'), default='MyApp')
         exec('from %s import %s' % (module_name, class_name))
         return getattr(sys.modules[module_name], class_name)
 
@@ -247,7 +247,7 @@ class BasicConfig(object):
         path_exist_validator = Validator.from_callable(os.path.exists,
                                                        error_message=_('Path does not exist, choose existing path'),
                                                        move_cursor_to_end=True)
-        config_directory = prompt(_('Existing config directory name: '),
+        config_directory = prompt('%s: ' % _('Existing config directory name'),
                                   completer=PathCompleter(only_directories=True, expanduser=True),
                                   validator=path_exist_validator)
         self.existing_config = self.read_existing_config(config_directory)
@@ -292,7 +292,7 @@ class SqliteConfig(DatabaseConfig):
             return url % self.file_path
         elif self.in_memory:
             return url % ':memory:'
-        raise Exception(_('Sqlite should be in_memory or for file_path'))
+        raise Exception('Sqlite ' % _('should be in_memory or for file_path'))
 
     def set_to_in_memory(self):
         self.in_memory = True
@@ -302,9 +302,9 @@ class SqliteConfig(DatabaseConfig):
         self.file_path = file_path
 
     def ask_detail_questions(self):
-        menu = Menu(_('Sqlite options'))
-        menu.add_menu_item(_('Sqlite - in memory'), self.set_to_in_memory)
-        menu.add_menu_item(_('Sqlite - file'), self.set_file_path)
+        menu = Menu('Sqlite %s' % _('options'))
+        menu.add_menu_item('Sqlite - %s' % _('in memory'), self.set_to_in_memory)
+        menu.add_menu_item('Sqlite - %s' % _('file'), self.set_file_path)
         menu.show()
 
 
@@ -326,11 +326,11 @@ class PostgresqlConfig(DatabaseConfig):
         return 'postgresql://%s%s%s%s%s' % (username_part, password_part, hostname_part, port_part, db_part)
 
     def ask_detail_questions(self):
-        self.username = prompt(_('username ? '), default='')
-        self.password = prompt(_('password ? '), default='')
-        self.hostname = prompt(_('hostname ? '), default='')
-        self.port = prompt(_('port ? '), default='')
-        self.database_name = prompt(_('database name ? '), default='reahl')
+        self.username = prompt('%s ? ' % _('username'), default='')
+        self.password = prompt('%s ? ' % _('password'), default='')
+        self.hostname = prompt('%s ? ' % _('hostname'), default='')
+        self.port = prompt('%s ? ' % _('port'), default='')
+        self.database_name = prompt('%s ? ' % _('database name'), default='reahl')
 
 
 class Platform(object):
@@ -399,7 +399,7 @@ class CreateConfig(WorkspaceCommand):
         self.create_web_config_file(basic_config)
 
         print('\n')
-        print(_('Created config in: %s' % basic_config.target_config_directory))
+        print('%s: %s' % (_('Created config in'), basic_config.target_config_directory))
 
     def create_reahl_system_config_file(self, basic_config, platform_):
         reahl_config = ConfigFile(os.path.join(basic_config.target_config_directory, 'reahl.config.py'))

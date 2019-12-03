@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: reahl-webdev 5.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2019-12-03 12:47+0200\n"
+"POT-Creation-Date: 2019-12-03 13:12+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,7 +19,7 @@ msgstr ""
 "Generated-By: Babel 2.1.1\n"
 
 #: reahl/webdev/commands.py:172
-msgid "Type your selection: "
+msgid "Type your selection"
 msgstr ""
 
 #: reahl/webdev/commands.py:176
@@ -30,7 +30,7 @@ msgstr ""
 #, python-format
 msgid ""
 "Something is wrong with the option you chose [%s]. Press <enter> and "
-"choose another item. "
+"choose another item."
 msgstr ""
 
 #: reahl/webdev/commands.py:194
@@ -42,7 +42,7 @@ msgid "Path exists, choose another"
 msgstr ""
 
 #: reahl/webdev/commands.py:227
-msgid "New config directory name: "
+msgid "New config directory name"
 msgstr ""
 
 #: reahl/webdev/commands.py:231
@@ -50,19 +50,19 @@ msgid "Root application module"
 msgstr ""
 
 #: reahl/webdev/commands.py:232
-msgid "From existing config ? "
+msgid "From existing config"
 msgstr ""
 
 #: reahl/webdev/commands.py:233
-msgid "Provide it yourself ? "
+msgid "Provide it yourself"
 msgstr ""
 
 #: reahl/webdev/commands.py:237
-msgid "Enter the site root module: "
+msgid "Enter the site root module"
 msgstr ""
 
 #: reahl/webdev/commands.py:238
-msgid "Enter the site root class: "
+msgid "Enter the site root class"
 msgstr ""
 
 #: reahl/webdev/commands.py:248
@@ -70,11 +70,11 @@ msgid "Path does not exist, choose existing path"
 msgstr ""
 
 #: reahl/webdev/commands.py:250
-msgid "Existing config directory name: "
+msgid "Existing config directory name"
 msgstr ""
 
 #: reahl/webdev/commands.py:295
-msgid "Sqlite should be in_memory or for file_path"
+msgid "should be in_memory or for file_path"
 msgstr ""
 
 #: reahl/webdev/commands.py:301
@@ -82,35 +82,35 @@ msgid "Enter the file_path for the db"
 msgstr ""
 
 #: reahl/webdev/commands.py:305
-msgid "Sqlite options"
+msgid "options"
 msgstr ""
 
 #: reahl/webdev/commands.py:306
-msgid "Sqlite - in memory"
+msgid "in memory"
 msgstr ""
 
 #: reahl/webdev/commands.py:307
-msgid "Sqlite - file"
+msgid "file"
 msgstr ""
 
 #: reahl/webdev/commands.py:329
-msgid "username ? "
+msgid "username"
 msgstr ""
 
 #: reahl/webdev/commands.py:330
-msgid "password ? "
+msgid "password"
 msgstr ""
 
 #: reahl/webdev/commands.py:331
-msgid "hostname ? "
+msgid "hostname"
 msgstr ""
 
 #: reahl/webdev/commands.py:332
-msgid "port ? "
+msgid "port"
 msgstr ""
 
 #: reahl/webdev/commands.py:333
-msgid "database name ? "
+msgid "database name"
 msgstr ""
 
 #: reahl/webdev/commands.py:349
@@ -130,7 +130,6 @@ msgid "local, on this machine"
 msgstr ""
 
 #: reahl/webdev/commands.py:402
-#, python-format
-msgid "Created config in: %s"
+msgid "Created config in"
 msgstr ""
 
