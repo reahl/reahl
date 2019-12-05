@@ -151,6 +151,8 @@ def test_clear_form_inputs_on_optimistic_concurrency(web_fixture, sql_alchemy_fi
     fixture = concurrency_fixture
 
     with sql_alchemy_fixture.persistent_test_classes(fixture.ModelObject):
+        fixture.model_object
+
         wsgi_app = web_fixture.new_wsgi_app(child_factory=fixture.MyForm.factory())
         web_fixture.reahl_server.set_app(wsgi_app)
         browser = web_fixture.driver_browser
@@ -168,7 +170,6 @@ def test_clear_form_inputs_on_optimistic_concurrency(web_fixture, sql_alchemy_fi
         assert fixture.is_concurrency_error_displayed()
 
         # Previous error and inputs are cleared
-        import pdb; pdb.set_trace()
         browser.click(XPath.button_labelled('Reset input'))
 
         assert browser.get_value(XPath.input_labelled('Some field')) == 'changed by someone else'
