@@ -28,6 +28,7 @@ python-reahl (5.0) unstable; urgency=low
  * Added an optimistic concurrency check to form submits (#251).
  * Deal with forms that are no longer on a page due to concurrent changes in the backend (#251).
  * Added FormLayout.add_alert_for_domain_exception.
+ * Added ignore_concurrent_changes kwarg to PrimitiveInputs.
 
  -- Iwan Vosloo <iwan@reahl.org>  Thu, 13 Dec 2018 15:15:00 +0200
 

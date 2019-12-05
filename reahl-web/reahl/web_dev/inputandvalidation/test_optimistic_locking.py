@@ -54,9 +54,7 @@ class OptimisticConcurrencyFixture(Fixture):
         return ModelObject
 
     def new_model_object(self):
-        model_object = self.ModelObject()
-        Session.add(model_object)
-        return model_object
+        return self.ModelObject()
 
     def new_MyForm(self):
         fixture = self
@@ -99,6 +97,7 @@ def test_optimistic_concurrency(web_fixture, sql_alchemy_fixture, concurrency_fi
 
     with sql_alchemy_fixture.persistent_test_classes(fixture.ModelObject):
         model_object = fixture.model_object
+        Session.add(model_object)
 
         wsgi_app = web_fixture.new_wsgi_app(child_factory=fixture.MyForm.factory())
         web_fixture.reahl_server.set_app(wsgi_app)
@@ -151,7 +150,7 @@ def test_clear_form_inputs_on_optimistic_concurrency(web_fixture, sql_alchemy_fi
     fixture = concurrency_fixture
 
     with sql_alchemy_fixture.persistent_test_classes(fixture.ModelObject):
-        fixture.model_object
+        Session.add(fixture.model_object)
 
         wsgi_app = web_fixture.new_wsgi_app(child_factory=fixture.MyForm.factory())
         web_fixture.reahl_server.set_app(wsgi_app)
