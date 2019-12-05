@@ -726,8 +726,19 @@ class XPath(object):
 
     @classmethod
     def ul(cls):
-        """Returns an XPath to find an unordered list."""
+        """Returns an XPath to find an unordered list.
+
+            ..versionadded:: 5.0
+        """
         return cls.any('ul')
+
+    @classmethod
+    def li(cls):
+        """Returns an XPath to find a list item.
+
+            ..versionadded:: 5.0
+        """
+        return cls.any('li')
 
 
 class UnexpectedLoadOf(Exception):
