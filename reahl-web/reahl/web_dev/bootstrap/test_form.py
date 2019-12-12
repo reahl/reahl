@@ -26,6 +26,7 @@ from reahl.webdev.tools import XPath, Browser
 from reahl.webdev.tools import WidgetTester
 from reahl.component.modelinterface import exposed, Field, BooleanField, Event, Choice, ChoiceField,\
     MultiChoiceField, IntegerField, Action
+from reahl.component.exceptions import DomainException
 from reahl.web.fw import Url
 from reahl.web.bootstrap.ui import A, Div, FieldSet
 from reahl.web.bootstrap.forms import Button, FormLayout, InlineFormLayout, GridFormLayout, Form, ChoicesLayout,\
@@ -667,4 +668,59 @@ def test_button_layouts_on_disabled_anchors(web_fixture):
     tester = WidgetTester(anchor)
     [rendered_anchor] = tester.xpath(XPath.link().with_text('link text'))
     assert rendered_anchor.attrib['class'] == 'btn disabled'
+
+
+
+@with_fixtures(WebFixture)
+def test_alert_for_domain_exception(web_fixture):
+    """FormLayout can be used to add an Alert with error messages to a form. This includes a 'Reset input'
+       button which clears the form input.
+    """
+
+    class ModelObject(object):
+        @exposed
+        def fields(self, fields):
+            fields.some_field = Field(label='Some field', default='not changed')
+
+        @exposed
+        def events(self, events):
+            events.submit_break = Event(label='Submit', action=Action(self.always_break))
+
+        def always_break(self):
+            raise DomainException('designed to break')
+
+    class MyForm(Form):
+        def __init__(self, view):
+            super(MyForm, self).__init__(view, 'myform')
+            self.use_layout(FormLayout())
+            model_object = ModelObject()
+
+            if self.exception:
+                self.layout.add_alert_for_domain_exception(self.exception, 'warning')
+
+            self.layout.add_input(TextInput(self, model_object.fields.some_field))
+
+            self.define_event_handler(model_object.events.submit_break)
+            self.add_child(Button(self, model_object.events.submit_break))
+
+
+    wsgi_app = web_fixture.new_wsgi_app(child_factory=MyForm.factory())
+    web_fixture.reahl_server.set_app(wsgi_app)
+    browser = web_fixture.driver_browser
+
+    browser.open('/')
+
+    browser.type(XPath.input_labelled('Some field'), 'some input given')
+    browser.click(XPath.button_labelled('Submit'))
+
+    alert = XPath.div().including_class('alert')
+    
+    assert browser.is_element_present(alert)
+    assert browser.get_text(alert) == 'An error occurred: DomainException'
+
+    assert browser.get_value(XPath.input_labelled('Some field')) == 'some input given'
+    browser.click(XPath.button_labelled('Reset input'))
+
+    assert not browser.is_element_present(alert)
+    assert browser.get_value(XPath.input_labelled('Some field')) == 'not changed'
 

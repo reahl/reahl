@@ -20,11 +20,13 @@ import six
 
 from sqlalchemy import Column, Integer, UnicodeText
 
+from reahl.stubble import stubclass, EmptyStub
 from reahl.tofu import Fixture, scenario
 from reahl.tofu.pytestsupport import with_fixtures, uses
 from reahl.component.modelinterface import exposed, Field, Event, PatternConstraint, Action
 from reahl.component.exceptions import DomainException
-from reahl.web.ui import Form, ButtonInput, TextInput, Label, FormLayout
+from reahl.web.fw import Widget
+from reahl.web.ui import Form, ButtonInput, TextInput, Label, FormLayout, PrimitiveInput, HTMLElement
 from reahl.web_dev.fixtures import WebFixture
 from reahl.webdev.tools import Browser, XPath
 from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
@@ -61,7 +63,6 @@ class OptimisticConcurrencyFixture(Fixture):
         class MyForm(Form):
             def __init__(self, view):
                 super(MyForm, self).__init__(view, 'myform')
-                self.set_attribute('novalidate', 'novalidate')
                 self.use_layout(FormLayout())
 
                 if self.exception:
@@ -175,18 +176,151 @@ def test_clear_form_inputs_on_optimistic_concurrency(web_fixture, sql_alchemy_fi
         assert not fixture.is_any_error_displayed()
 
 
+from reahl.web_dev.inputandvalidation.test_input import SimpleInputFixture
+
+@stubclass(PrimitiveInput)
+class PrimitiveInputStub(PrimitiveInput):
+    def create_html_widget(self):
+        return HTMLElement(self.view, 'input')
+
+
+@uses(web_fixture=WebFixture, input_fixture=SimpleInputFixture)
+class ParticipationScenarios(Fixture):
+    
+    @property
+    def field(self):
+        return self.input_fixture.field
+
+    def new_non_readable_field(self):
+        not_allowed = lambda x: False
+        return self.input_fixture.new_field(readable=not_allowed, writable=not_allowed)
+
+    @property
+    def view(self):
+        return self.web_fixture.view
+    
+    @property
+    def form(self):
+        return self.input_fixture.form
+    
+    @scenario
+    def normal_visible_input(self):
+        """Visible inputs participate by default"""
+        self.widget = PrimitiveInputStub(self.form, self.field)
+        self.expects_participation = True
+
+    @scenario
+    def normal_not_visible_input(self):
+        """Non-Visible inputs are ignored"""
+        self.widget = PrimitiveInputStub(self.form, self.non_readable_field)
+        self.expects_participation = False
+
+    @scenario
+    def visible_input_that_ignores_concurrency(self):
+        """Visible inputs that are explicitly set to ignore_concurrent_change are ignored"""
+        self.widget = PrimitiveInputStub(self.form, self.field, ignore_concurrent_change=True)
+        self.expects_participation = False
+
+    @scenario
+    def normal_non_input_widget(self):
+        """Normal Widgets do not participate by default"""
+        self.widget = Widget(self.view)
+        self.expects_participation = False
+
+    @scenario
+    def custom_non_input_widget(self):
+        """Normal Widgets can be made to particilate by yielding one or more strings denoting their value in concurrency_hash_strings property"""
+        class CustomWidget(Widget):
+            @property
+            def concurrency_hash_strings(self):
+                yield 'a value'
+                yield 'another'
+        self.widget = CustomWidget(self.view)
+        self.expects_participation = True
+    
+    
+@with_fixtures(ParticipationScenarios)
+def test_optimistic_concurrency_participation(scenario):
+    """By default, onlye PrimitiveInputs are included in concurrency checks, but this is customisable in various ways"""
+    assert scenario.expects_participation is bool(scenario.widget.concurrency_hash_digest)
 
 
 
-# (move to a bootstrap-specific test:) if using FormLayout.add_alert_for_domain_exception
+@uses(input_fixture=SimpleInputFixture)
+class ChangeScenarios(Fixture):
+    readable = True
+    def new_input_widget(self):
+        return PrimitiveInputStub(self.input_fixture.form, self.input_fixture.new_field(readable=lambda field: self.readable))
 
-# Only VISIBLE PrimitiveInput value data is taken into account by default for such optimistic locking, but:
-#  if an input becomes readonly (or not readonly) since last rendered, it is also considered as having changed.
-#  passing ignore_concurrency=True prevents a PrimitiveInput from taking part, despite being visible, and despite its readablity
-#  any VISIBLE Widget can take part, if it overrides its concurrency_hash_strings method, and append a string representing its value to the yielded values
+    def set_unreadable(self):
+        self.readable = False
+
+    def change_domain_value(self):
+        self.input_widget.bound_field.bound_to.an_attribute = 'changed'
+        
+    @scenario
+    def change_readability(self):
+        """When the readability of an input changes, that counts as a change"""
+        self.change_something = self.set_unreadable
+
+    @scenario
+    def change_value(self):
+        """A changed ORIGINAL value of an input (ie whats in the domain) counts as a change"""
+        self.change_something = self.change_domain_value
+
+        
+        
+@with_fixtures(WebFixture, SimpleInputFixture, ChangeScenarios)
+def test_optimistic_concurrency_what_constitutes_a_change(web_fixture, input_fixture, scenario):
+    """When an Input is seen as having changed concurrently"""
+    input_widget = scenario.input_widget
+
+    before_hash = input_widget.concurrency_hash_digest
+    scenario.change_something()
+    assert before_hash != input_widget.concurrency_hash_digest
 
 
-# If the user submits to a form that is no longer present on the current view (because of changes data as well), 
-# the user is sent to the general error page and all form input/exceptions for all forms on the view are cleared.
-# When clicking on the OK button on said error page, the user is taken back to the view, but sees it refreshed to new values.
 
+@with_fixtures(WebFixture, SqlAlchemyFixture, OptimisticConcurrencyFixture)
+def test_optimistic_concurrency_forms(web_fixture, sql_alchemy_fixture, concurrency_fixture):
+    """When a form cannot be found anymore while submitting, we also assume it is because of changing data,
+       this time sending the user to an error page after resetting view data.
+    """
+    fixture = concurrency_fixture
+
+    fixture.show_form = True
+    class FormContainer(Widget):
+        def __init__(self, view):
+            super(FormContainer, self).__init__(view)
+            if fixture.show_form:
+                self.add_child(fixture.MyForm(view))
+            
+    with sql_alchemy_fixture.persistent_test_classes(fixture.ModelObject):
+        model_object = fixture.model_object
+        Session.add(model_object)
+
+        model_object.some_field = 'some value'
+
+        wsgi_app = web_fixture.new_wsgi_app(child_factory=FormContainer.factory())
+        web_fixture.reahl_server.set_app(wsgi_app)
+        browser = web_fixture.driver_browser
+        browser.open('/')
+
+        # When submitting a form that is not present on the page anymore, user is ferried to an error page
+        browser.type(XPath.input_labelled('Some field'), 'something else')
+        fixture.show_form = False
+
+        browser.click(XPath.button_labelled('Submit'))
+
+        error_text = XPath.paragraph().with_text('Something changed on the server while you were busy. You cannot perform this action anymore.')
+        assert browser.current_url.path == '/error'
+        assert browser.is_element_present(error_text)
+
+        # When presented with such an error, the user can click on a button to reset all inputs to the now-current values
+        fixture.show_form = True                    # So we can check that form data was nuked
+        browser.click(XPath.link().with_text('Ok'))
+        assert browser.current_url.path == '/'      # Went back
+        assert browser.get_value(XPath.input_labelled('Some field')) == 'some value'  # Form fields were cleared should the form now appear again
+
+
+    

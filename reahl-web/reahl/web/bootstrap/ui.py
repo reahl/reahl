@@ -37,7 +37,8 @@ import reahl.web.ui
 # These are imported here for convenience so they can be imported from reahl.web.bootstrap.ui:
 from reahl.web.ui import A, Article, Body, Br, Div, Footer, H, Head, Header, Img, \
     Li, Link, LiteralHTML, Meta, Nav, Ol, OptGroup, P, Small, RunningOnBadge, Slot, Span, TextNode, \
-    Title, Ul, WrappedInput, FieldSet, Legend, HTMLAttributeValueOption, Widget, HTMLElement, HTMLWidget
+    Title, Ul, WrappedInput, FieldSet, Legend, HTMLAttributeValueOption, Widget, HTMLElement, HTMLWidget, \
+    Br, Hr
 
 _ = Catalogue('reahl-web')
 

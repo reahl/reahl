@@ -615,7 +615,7 @@ class PlainHTMLErrorPage(ErrorWidget):
         error_div = page.body.insert_child(0, Div(view))
         error_div.add_child(H(view, 1, text=_('An error occurred:')))
         error_div.add_child(P(view, text=self.error_message))
-        error_div.add_child(A(view, self.error_source_href, description=_('Ok')))
+        error_div.add_child(A(view, Url(self.error_source_href), description=_('Ok')))
 
 
 class HTML5Page(HTMLElement):
@@ -1622,7 +1622,8 @@ class PrimitiveInput(Input):
 
     @property
     def concurrency_hash_strings(self):
-        yield '' if self.ignore_concurrent_change else self.original_value
+        if not self.ignore_concurrent_change:
+            yield self.original_value
 
     @property
     def html_control(self):

@@ -34,7 +34,7 @@ from reahl.component.modelinterface import exposed, Event, Action
 
 import reahl.web.ui
 from reahl.web.ui import Label, HTMLAttributeValueOption, HTMLElement
-from reahl.web.bootstrap.ui import Div, P, WrappedInput, A, TextNode, Span, Legend, FieldSet, Alert, Ul, Li
+from reahl.web.bootstrap.ui import Div, P, WrappedInput, A, TextNode, Span, Legend, FieldSet, Alert, Ul, Li, Hr
 from reahl.web.bootstrap.grid import ColumnLayout
 
 
@@ -488,15 +488,15 @@ class FormLayout(reahl.web.fw.Layout):
             .. versionadded:: 5.0
         """
         alert = self.widget.add_child(Alert(self.widget.view, exception.as_user_message(), severity))
+        alert.add_child(Hr(self.widget.view))
         if exception.detail_messages:
-            alert.add_child(HTMLElement(self.widget.view, 'hr'))
             ul = alert.add_child(Ul(self.widget.view))
             for detail_message in exception.detail_messages:
                 ul.add_child(Li(self.widget.view)).add_child(TextNode(self.widget.view, detail_message))
 
-            reset_form = alert.add_child(NestedForm(self.widget.view, 'reset_%s' % self.widget.channel_name))
-            reset_form.form.define_event_handler(self.widget.events.reset)
-            reset_form.add_child(Button(reset_form.form, self.widget.events.reset)).use_layout(ButtonLayout(style='primary'))
+        reset_form = alert.add_child(NestedForm(self.widget.view, 'reset_%s' % self.widget.channel_name))
+        reset_form.form.define_event_handler(self.widget.events.reset)
+        reset_form.add_child(Button(reset_form.form, self.widget.events.reset)).use_layout(ButtonLayout(style='primary'))
             
 
 
