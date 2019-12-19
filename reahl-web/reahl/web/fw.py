@@ -1293,7 +1293,7 @@ class ErrorWidget(Widget):
 
     @classmethod
     def get_widget_bookmark_for_error(cls, error_message, error_source_bookmark):
-        return Bookmark.for_widget('', query_arguments={'error_message':error_message, 'error_source_href':error_source_bookmark.href})
+        return Bookmark.for_widget('', query_arguments={'error_message':error_message, 'error_source_href':error_source_bookmark.href if error_source_bookmark else ''})
 
 
 class PlainErrorPage(ErrorWidget):
@@ -2906,29 +2906,36 @@ class ReahlWSGIApplication(object):
             self.system_control.disconnect()
 
     def resource_for(self, request):
-        url = Url.get_current_url(request=request)
+        self.root_ui = self.target_ui = self.current_view = None
+        
+        url = Url.get_current_url(request=request).as_locale_relative()
         logging.getLogger(__name__).debug('Finding Resource for URL: %s' % url.path)
-        url.make_locale_relative()
-        root_ui = self.root_user_interface_factory.create(url.path)
-        target_ui, page_factory = root_ui.get_user_interface_for_full_path(url.path)
-        # TODO: FEATURE ENVY BELOW:
-        logging.getLogger(__name__).debug('Found UserInterface %s' % target_ui)
-        current_view = target_ui.get_view_for_full_path(url.path)
-        logging.getLogger(__name__).debug('Found View %s' % current_view)
-        current_view.check_precondition()
-        current_view.check_rights(request.method)
+        try:
+            self.root_ui = self.root_user_interface_factory.create(url.path)
+        except:
+            self.root_ui = UserInterface(None, '/', {}, False, '__emergency_error_root_ui')
+            if url.path != self.root_ui.get_bookmark_for_error('', None).href.as_locale_relative().path:
+                raise
 
-        if current_view.is_dynamic:
-            page = current_view.create_page(url.path, page_factory)
+        self.target_ui, page_factory = self.root_ui.get_user_interface_for_full_path(url.path)
+        # TODO: FEATURE ENVY BELOW:
+        logging.getLogger(__name__).debug('Found UserInterface %s' % self.target_ui)
+        self.current_view = self.target_ui.get_view_for_full_path(url.path)
+        logging.getLogger(__name__).debug('Found View %s' % self.current_view)
+        self.current_view.check_precondition()
+        self.current_view.check_rights(request.method)
+
+        if self.current_view.is_dynamic:
+            page = self.current_view.create_page(url.path, page_factory)
             self.check_scheme(page.is_security_sensitive)
         else:
             page = None
 
         try:
-            return current_view.resource_for(url.path, page)
+            return self.current_view.resource_for(url.path, page)
         except HTTPNotFound:
             if self.is_form_submit(url.path, request):
-                return MissingForm(current_view, root_ui, target_ui)
+                return MissingForm(self.current_view, self.root_ui, self.target_ui)
             else:
                 raise
 
@@ -3000,6 +3007,12 @@ class ReahlWSGIApplication(object):
                     response = e
                 except DisconnectionError as e:
                     response = HTTPInternalServerError(unicode_body=six.text_type(e))
+                except Exception as e:
+                    if self.config.reahlsystem.debug:
+                        raise
+                    else:
+                        error_source_bookmark = self.current_view.as_bookmark(self.target_ui) if self.current_view else None
+                        response = Redirect(self.root_ui.get_bookmark_for_error(str(e), error_source_bookmark))
 
                 context.session.set_session_key(response)
                 for chunk in response(environ, start_response):
@@ -3007,4 +3020,5 @@ class ReahlWSGIApplication(object):
                 context.session.set_last_activity_time()
             finally:
                 self.system_control.finalise_session()
+
 
