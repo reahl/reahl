@@ -19,10 +19,10 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 from reahl.tofu.pytestsupport import with_fixtures
 from reahl.tofu import Fixture, scenario
 
-from reahl.webdev.tools import Browser
+from reahl.webdev.tools import Browser, XPath
 
-from reahl.web.fw import UserInterface, Widget, FactoryDict, UserInterfaceFactory, RegexPath, UrlBoundView
-from reahl.web.ui import HTML5Page, P, A, Div, Slot
+from reahl.web.fw import UserInterface, Widget, FactoryDict, UserInterfaceFactory, RegexPath, UrlBoundView, ErrorWidget, Url
+from reahl.web.ui import HTML5Page, H, P, A, Div, Slot
 
 from reahl.web_dev.fixtures import WebFixture, BasicPageLayout
 
@@ -83,30 +83,59 @@ def test_error_page_shown_on_error(web_fixture, error_fixture):
     
     browser.open('/a_page')
     assert browser.current_url.path == '/error'
-
     
 
 
 class ErrorDegradeFixture(Fixture):
-    class BreakingWidget(Widget):
-        def __init__(self, view):
-            super(BreakingWidget, self).__init__(view)
-            raise Exception('breaking intentionally during __init__')
-
     @scenario
-    def page_specified_on_view(self):
+    def no_page_specified(self):
+        """If no page is defined for the root UserInterface, fall back to a basic html error page as given by Widget.get_error_page_factory"""
         class MainUI(UserInterface):
-            def assemble(self):
-                self.define_view('/a_page', page=self.BreakingWidget.factory())
+            pass
         self.MainUI = MainUI
+        def check(browser):
+            assert not browser.is_element_present(XPath.heading(1).with_text('An error occurred:').inside_of(XPath.div()))
+            assert browser.is_element_present(XPath.heading(1).with_text('An error occurred:'))
+        self.check_error_page_contents = check
 
     @scenario
     def page_specified_on_user_interface(self):
-        todo
+        """If a page is defined for the UserInterface, use its get_error_page_factory classmethod."""
+        fixture = self
+        class MainUI(UserInterface):
+            def assemble(self):
+                self.define_page(HTML5Page)
+        self.MainUI = MainUI
+        def check(browser):
+            assert browser.is_element_present(XPath.heading(1).with_text('An error occurred:').inside_of(XPath.div()))
+        self.check_error_page_contents = check
 
     @scenario
     def expicit_call_to_define_error_view(self):
-        todo
+        """Force the use of a specific error page by calling UserInterface.define_error_view() explicitly"""
+        class CustomErrorPage(HTML5Page):
+            def __init__(self, view):
+                super(CustomErrorPage, self).__init__(view)
+                error_widget = self.body.insert_child(0, ErrorWidget(view))
+                error_widget.add_child(H(view, 1, text='My custom error page'))
+                error_widget.add_child(P(view, text=error_widget.error_message))
+                error_widget.add_child(A(view, Url(error_widget.error_source_href), description='Ok'))
+
+            @classmethod
+            def get_widget_bookmark_for_error(cls, error_message, error_source_bookmark):
+                return ErrorWidget.get_widget_bookmark_for_error(error_message, error_source_bookmark)
+
+
+        fixture = self
+        class MainUI(UserInterface):
+            def assemble(self):
+                self.define_page(HTML5Page)
+                self.define_error_view(CustomErrorPage.factory())
+        self.MainUI = MainUI
+        def check(browser):
+            assert browser.is_element_present(XPath.heading(1).with_text('My custom error page'))
+        self.check_error_page_contents = check
+
 
         
 @with_fixtures(WebFixture, ErrorDegradeFixture)
@@ -114,12 +143,15 @@ def test_error_page_degrades_gracefully(web_fixture, error_fixture):
     """The error page can be customised, and depending on what was specified for the app, degrades gracefully."""
 
     wsgi_app = web_fixture.new_wsgi_app(site_root=error_fixture.MainUI)
-    browser = Browser(wsgi_app)
+    web_fixture.reahl_server.set_app(wsgi_app)
+#    browser = Browser(wsgi_app)
+    browser = web_fixture.driver_browser
 
-    wsgi_app.config.reahlsystem.debug = False
-    
-    browser.open('/a_page')
+    browser.open('/error?error_message=something+went+wrong&error_source_href=/a_page')
     assert browser.current_url.path == '/error'
+    error_fixture.check_error_page_contents(browser)
+    assert browser.is_element_present(XPath.paragraph().including_text('something went wrong'))
+    assert Url(browser.get_attribute(XPath.link().with_text('Ok'), 'href')).path == '/a_page'
 
 
 # If an uncaught error occurs, the user is sent to an error page that displays the message.
