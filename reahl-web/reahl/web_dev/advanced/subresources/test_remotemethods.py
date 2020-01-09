@@ -66,7 +66,7 @@ def test_remote_methods(web_fixture):
         return 'value returned from method'
 
     encoding = 'koi8_r'  # Deliberate
-    remote_method = RemoteMethod('amethod', callable_object, MethodResult(mime_type='ttext/hhtml', encoding=encoding))
+    remote_method = RemoteMethod(web_fixture.view, 'amethod', callable_object, MethodResult(mime_type='ttext/hhtml', encoding=encoding))
 
     @stubclass(Widget)
     class WidgetWithRemoteMethod(Widget):
@@ -94,7 +94,7 @@ def test_exception_handling(web_fixture, remote_method_fixture):
 
     def fail():
         raise Exception('I failed')
-    remote_method = RemoteMethod('amethod', fail, MethodResult(catch_exception=Exception))
+    remote_method = RemoteMethod(web_fixture.view, 'amethod', fail, MethodResult(catch_exception=Exception))
 
     wsgi_app = remote_method_fixture.new_wsgi_app(remote_method=remote_method)
     browser = Browser(wsgi_app)
@@ -109,7 +109,7 @@ def test_idempotent_remote_methods(web_fixture, remote_method_fixture):
 
     def callable_object():
         return 'value returned from method'
-    remote_method = RemoteMethod('amethod', callable_object, MethodResult(), idempotent=True)
+    remote_method = RemoteMethod(web_fixture.view, 'amethod', callable_object, MethodResult(), idempotent=True)
 
     wsgi_app = remote_method_fixture.new_wsgi_app(remote_method=remote_method)
     browser = Browser(wsgi_app)
@@ -137,7 +137,7 @@ def test_immutable_remote_methods(web_fixture, remote_method_fixture, sql_alchem
             assert Session.query(TestObject).count() == 1
             return 'value returned from method'
         
-        remote_method = RemoteMethod('amethod', callable_object, MethodResult(), immutable=True)
+        remote_method = RemoteMethod(web_fixture.view, 'amethod', callable_object, MethodResult(), immutable=True)
 
         assert remote_method.idempotent  # Immutable methods are idempotent
 
@@ -170,7 +170,7 @@ def test_arguments_to_remote_methods(web_fixture, remote_method_fixture, argumen
         fixture.method_kwargs = kwargs
         return ''
 
-    remote_method = RemoteMethod('amethod', callable_object, MethodResult(), idempotent=fixture.idempotent)
+    remote_method = RemoteMethod(web_fixture.view, 'amethod', callable_object, MethodResult(), idempotent=fixture.idempotent)
 
     wsgi_app = remote_method_fixture.new_wsgi_app(remote_method=remote_method)
     browser = Browser(wsgi_app)
@@ -193,7 +193,7 @@ def test_checked_arguments(web_fixture, remote_method_fixture, argument_scenario
         fixture.method_kwargs = {'anint': anint, 'astring': astring}
         return ''
 
-    remote_method = CheckedRemoteMethod('amethod', callable_object, MethodResult(),
+    remote_method = CheckedRemoteMethod(web_fixture.view, 'amethod', callable_object, MethodResult(),
                                         idempotent=fixture.idempotent,
                                         anint=IntegerField(),
                                         astring=Field())
@@ -257,7 +257,7 @@ def test_different_kinds_of_result(web_fixture, remote_method_fixture, result_sc
 
     def callable_object():
         return fixture.value_to_return
-    remote_method = RemoteMethod('amethod', callable_object, default_result=fixture.method_result)
+    remote_method = RemoteMethod(web_fixture.view, 'amethod', callable_object, default_result=fixture.method_result)
 
     wsgi_app = remote_method_fixture.new_wsgi_app(remote_method=remote_method)
     browser = Browser(wsgi_app)
@@ -276,7 +276,7 @@ def test_exception_handling_for_json(web_fixture, remote_method_fixture, json_re
 
     def fail():
         raise Exception('exception text')
-    remote_method = RemoteMethod('amethod', fail, default_result=fixture.method_result)
+    remote_method = RemoteMethod(web_fixture.view, 'amethod', fail, default_result=fixture.method_result)
 
     wsgi_app = remote_method_fixture.new_wsgi_app(remote_method=remote_method)
     browser = Browser(wsgi_app)
@@ -295,7 +295,7 @@ def test_exception_handling_for_widgets(web_fixture, remote_method_fixture, widg
 
     def fail():
         raise Exception('exception text')
-    remote_method = RemoteMethod('amethod', fail, default_result=fixture.method_result)
+    remote_method = RemoteMethod(web_fixture.view, 'amethod', fail, default_result=fixture.method_result)
 
     wsgi_app = remote_method_fixture.new_wsgi_app(remote_method=remote_method)
     browser = Browser(wsgi_app)
@@ -304,6 +304,7 @@ def test_exception_handling_for_widgets(web_fixture, remote_method_fixture, widg
         browser.post('/_amethod_method', {})
 
 
+@uses(web_fixture=WebFixture)
 class RegenerateMethodResultScenarios(Fixture):
     method_called = 0
     def new_method_result(self):
@@ -323,7 +324,7 @@ class RegenerateMethodResultScenarios(Fixture):
             fixture.method_called += 1
             if fixture.exception:
                 raise DomainException('ex')
-        return RemoteMethod('amethod', callable_to_call, self.method_result, immutable=False)
+        return RemoteMethod(self.web_fixture.view, 'amethod', callable_to_call, self.method_result, immutable=False)
 
     @scenario
     def success(self):
@@ -391,7 +392,7 @@ class WidgetResultScenarios(Fixture):
                     fixture.changes_made = True
                     if fixture.exception:
                         raise DomainException('ex')
-                remote_method = RemoteMethod('amethod', change_something, default_result=method_result,
+                remote_method = RemoteMethod(view, 'amethod', change_something, default_result=method_result,
                                              immutable=False)
                 view.add_resource(remote_method)
         return WidgetWithRemoteMethod
@@ -456,7 +457,7 @@ def test_coactive_widgets(web_fixture):
             result_widget = self.add_child(CoactiveWidgetStub(view, 'main', []))
             result_widget.add_child(CoactiveWidgetStub(view, 'child', coactive_widgets))
             method_result = WidgetResult(result_widget, as_json_and_result=True)
-            remote_method = RemoteMethod('amethod', lambda: None, default_result=method_result)
+            remote_method = RemoteMethod(view, 'amethod', lambda: None, default_result=method_result)
             view.add_resource(remote_method)
 
     wsgi_app = web_fixture.new_wsgi_app(child_factory=WidgetWithRemoteMethod.factory())
@@ -483,7 +484,7 @@ def test_coactive_widgets_cannot_be_descendants(web_fixture):
             result_widget = CoactiveWidgetStub(view, 'parent', [child])
             result_widget.add_child(child)
             method_result = WidgetResult(result_widget, as_json_and_result=True)
-            remote_method = RemoteMethod('amethod', lambda: None, default_result=method_result)
+            remote_method = RemoteMethod(view, 'amethod', lambda: None, default_result=method_result)
             view.add_resource(remote_method)
 
     wsgi_app = web_fixture.new_wsgi_app(child_factory=WidgetWithRemoteMethod.factory())
@@ -505,7 +506,7 @@ def test_coactive_widgets_cannot_be_parents(web_fixture):
             result_widget.add_child(CoactiveWidgetStub(view, 'child', [grandparent]))
             grandparent.add_child(result_widget)
             method_result = WidgetResult(result_widget, as_json_and_result=True)
-            remote_method = RemoteMethod('amethod', lambda: None, default_result=method_result)
+            remote_method = RemoteMethod(view, 'amethod', lambda: None, default_result=method_result)
             view.add_resource(remote_method)
 
     wsgi_app = web_fixture.new_wsgi_app(child_factory=WidgetWithRemoteMethod.factory())

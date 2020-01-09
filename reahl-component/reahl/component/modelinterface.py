@@ -158,6 +158,10 @@ class ExposedDecorator(object):
             self.func = args[0]
             functools.update_wrapper(self, self.func)
 
+    @property
+    def name(self):
+        return self.func.__name__
+
     def add_fake_events(self, event_names):
         events = []
         self.expected_event_names.extend(event_names)
@@ -185,6 +189,9 @@ class ExposedDecorator(object):
             return instance.__exposed__[self]
         except KeyError:
             field_index = FieldIndex(model_object)
+            for _class in reversed(model_object.__class__.mro()):
+                if hasattr(_class, self.name):
+                    getattr(_class, self.name).func(model_object, field_index)
             instance.__exposed__[self] = field_index
 
         self.func(model_object, field_index)

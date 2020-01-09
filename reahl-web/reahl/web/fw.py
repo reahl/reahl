@@ -451,6 +451,13 @@ class UserInterface(object):
            in this UserInterface."""
         return self.make_full_path(self.parent_ui, self.relative_base_path)
 
+    @property
+    def root_ui(self):
+        if self.parent_ui:
+            return self.parent_ui.root_ui 
+        else:
+            return self
+
     @classmethod 
     def make_full_path(cls, parent_ui, relative_path):
         if parent_ui:
@@ -2060,6 +2067,9 @@ class FooterContent(Widget):
 
 
 class Resource(object):
+    def __init__(self, view):
+        self.view = view
+
     @property
     def should_commit(self):
         return True
@@ -2095,12 +2105,12 @@ class SubResource(Resource):
     sub_path_template = 'sub_resource'  """A `PEP-292 <http://www.python.org/dev/peps/pep-0292/>`_ template in a string
                                             used to create an URL for this resource."""
 
-    def __init__(self, unique_name):
-        super(SubResource, self).__init__()
+    def __init__(self, view, unique_name):
+        super(SubResource, self).__init__(view)
         self.unique_name = unique_name
 
     @classmethod
-    def factory(cls, unique_name, path_argument_fields, *args, **kwargs):
+    def factory(cls, view, unique_name, path_argument_fields, *args, **kwargs):
         """Returns a Factory which the framework will use, once needed, in order to create
            this SubResource.
 
@@ -2113,7 +2123,7 @@ class SubResource(Resource):
         regex_path = RegexPath(cls.get_regex(unique_name), 
                                cls.get_path_template(unique_name),
                                path_argument_fields)
-        return SubResourceFactory(regex_path, functools.partial(cls.create_resource, unique_name, *args, **kwargs))
+        return SubResourceFactory(regex_path, functools.partial(cls.create_resource, view, unique_name, *args, **kwargs))
 
     @classmethod
     def is_for_sub_resource(cls, path, for_exact_sub_path='.*'):
@@ -2387,8 +2397,8 @@ class RemoteMethod(SubResource):
     sub_regex = 'method'
     sub_path_template = 'method'
 
-    def __init__(self, name, callable_object, default_result, idempotent=False, immutable=False, method=None):
-        super(RemoteMethod, self).__init__(name)
+    def __init__(self, view, name, callable_object, default_result, idempotent=False, immutable=False, method=None):
+        super(RemoteMethod, self).__init__(view, name)
         self.idempotent = idempotent or immutable
         self.immutable = immutable
         self.callable_object = callable_object
@@ -2487,8 +2497,8 @@ class CheckedRemoteMethod(RemoteMethod):
        .. versionchanged:: 5.0
           Split immutable into immutable and idempotent kwargs.
     """
-    def __init__(self, name, callable_object, result, idempotent=False, immutable=False, **parameters):
-        super(CheckedRemoteMethod, self).__init__(name, callable_object, result, idempotent=idempotent, immutable=immutable)
+    def __init__(self, view, name, callable_object, result, idempotent=False, immutable=False, **parameters):
+        super(CheckedRemoteMethod, self).__init__(view, name, callable_object, result, idempotent=idempotent, immutable=immutable)
         self.parameters = FieldIndex(self)
         for name, field in parameters.items():
             self.parameters.set(name, field)
@@ -2511,7 +2521,7 @@ class EventChannel(RemoteMethod):
        Programmers should not need to work with an EventChannel directly.
     """
     def __init__(self, form, controller, name):
-        super(EventChannel, self).__init__(name, self.delegate_event, None, idempotent=False, immutable=False)
+        super(EventChannel, self).__init__(form.view, name, self.delegate_event, None, idempotent=False, immutable=False)
         self.controller = controller
         self.form = form
 
@@ -2544,8 +2554,7 @@ class EventChannel(RemoteMethod):
 
 class ComposedPage(Resource):
     def __init__(self, view, page):
-        super(ComposedPage, self).__init__()
-        self.view = view
+        super(ComposedPage, self).__init__(view)
         self.page = page
 
     @property
@@ -2581,7 +2590,7 @@ class FileView(View):
         self.viewable_file = viewable_file
 
     def as_resource(self, page):
-        return StaticFileResource('static', self.viewable_file)
+        return StaticFileResource(self, 'static', self.viewable_file)
 
     @property
     def title(self):
@@ -2810,8 +2819,8 @@ class StaticFileResource(SubResource):
     def get_url(self):
         return self.get_url_for(self.unique_name, filename=self.file.name)
 
-    def __init__(self, unique_name, a_file):
-        super(StaticFileResource, self).__init__(unique_name)
+    def __init__(self, view, unique_name, a_file):
+        super(StaticFileResource, self).__init__(view, unique_name)
         self.file = a_file
 
     def handle_get(self, request):
@@ -2819,18 +2828,33 @@ class StaticFileResource(SubResource):
 
 
 class MissingForm(Resource):
-    def __init__(self, current_view, root_ui, target_ui):
-        super(MissingForm, self).__init__()
-        self.current_view = current_view
+    def __init__(self, view, root_ui, target_ui):
+        super(MissingForm, self).__init__(view)
         self.root_ui = root_ui
         self.target_ui = target_ui
 
     def handle_post(self, request):
         return Redirect(self.root_ui.get_bookmark_for_error(_('Something changed on the server while you were busy. You cannot perform this action anymore.'), 
-                                                            self.current_view.as_bookmark(self.target_ui)))
+                                                            self.view.as_bookmark(self.target_ui)))
 
     def cleanup_after_transaction(self):
-        self.current_view.clear_all_view_data()
+        self.view.clear_all_view_data()
+
+
+class CouldNotConstructResource(Exception):
+    def __init__(self, current_view, root_ui, target_ui, exception):
+        super(CouldNotConstructResource, self).__init__()
+        self.current_view = current_view
+        self.root_ui = root_ui
+        self.target_ui = target_ui
+        self.__cause__ = exception
+
+class UncaughtError(Redirect):
+    def __init__(self, view, root_ui, target_ui, exception):
+        error_source_bookmark = view.as_bookmark(target_ui) if view else None
+        target_bookmark=root_ui.get_bookmark_for_error(str(exception), error_source_bookmark)
+        super(UncaughtError, self).__init__(target_bookmark)
+
 
 
 class IdentityDictionary(object):
@@ -2906,38 +2930,43 @@ class ReahlWSGIApplication(object):
             self.system_control.disconnect()
 
     def resource_for(self, request):
-        self.root_ui = self.target_ui = self.current_view = None
+        root_ui = target_ui = current_view = None
         
-        url = Url.get_current_url(request=request).as_locale_relative()
-        logging.getLogger(__name__).debug('Finding Resource for URL: %s' % url.path)
         try:
-            self.root_ui = self.root_user_interface_factory.create(url.path)
-        except:
-            self.root_ui = UserInterface(None, '/', {}, False, '__emergency_error_root_ui')
-            if url.path != self.root_ui.get_bookmark_for_error('', None).href.as_locale_relative().path:
-                raise
+            url = Url.get_current_url(request=request).as_locale_relative()
+            logging.getLogger(__name__).debug('Finding Resource for URL: %s' % url.path)
+            try:
+                root_ui = self.root_user_interface_factory.create(url.path)
+            except:
+                root_ui = UserInterface(None, '/', {}, False, '__emergency_error_root_ui')
+                if url.path != root_ui.get_bookmark_for_error('', None).href.as_locale_relative().path:
+                    raise
 
-        self.target_ui, page_factory = self.root_ui.get_user_interface_for_full_path(url.path)
-        # TODO: FEATURE ENVY BELOW:
-        logging.getLogger(__name__).debug('Found UserInterface %s' % self.target_ui)
-        self.current_view = self.target_ui.get_view_for_full_path(url.path)
-        logging.getLogger(__name__).debug('Found View %s' % self.current_view)
-        self.current_view.check_precondition()
-        self.current_view.check_rights(request.method)
+            target_ui, page_factory = root_ui.get_user_interface_for_full_path(url.path)
+            # TODO: FEATURE ENVY BELOW:
+            logging.getLogger(__name__).debug('Found UserInterface %s' % target_ui)
+            current_view = target_ui.get_view_for_full_path(url.path)
+            logging.getLogger(__name__).debug('Found View %s' % current_view)
+            current_view.check_precondition()
+            current_view.check_rights(request.method)
 
-        if self.current_view.is_dynamic:
-            page = self.current_view.create_page(url.path, page_factory)
-            self.check_scheme(page.is_security_sensitive)
-        else:
-            page = None
-
-        try:
-            return self.current_view.resource_for(url.path, page)
-        except HTTPNotFound:
-            if self.is_form_submit(url.path, request):
-                return MissingForm(self.current_view, self.root_ui, self.target_ui)
+            if current_view.is_dynamic:
+                page = current_view.create_page(url.path, page_factory)
+                self.check_scheme(page.is_security_sensitive)
             else:
-                raise
+                page = None
+
+            try:
+                return current_view.resource_for(url.path, page)
+            except HTTPNotFound:
+                if self.is_form_submit(url.path, request):
+                    return MissingForm(current_view, root_ui, target_ui)
+                else:
+                    raise
+        except HTTPException:
+            raise
+        except Exception as ex:
+            raise CouldNotConstructResource(current_view, root_ui, target_ui, ex)
 
     def is_form_submit(self, full_path, request):
             return SubResource.is_for_sub_resource(full_path) and request.method == 'POST' and '_reahl_concurrency_hash' in request.POST
@@ -3007,12 +3036,17 @@ class ReahlWSGIApplication(object):
                     response = e
                 except DisconnectionError as e:
                     response = HTTPInternalServerError(unicode_body=six.text_type(e))
+                except CouldNotConstructResource as e:
+                    if self.config.reahlsystem.debug:
+                        raise e.__cause__
+                    else:
+                        #TODO: constuct a fake view, and pass that in
+                        response = UncaughtError(e.current_view, e.root_ui, e.target_ui, e.__cause__)
                 except Exception as e:
                     if self.config.reahlsystem.debug:
-                        raise
+                        raise e
                     else:
-                        error_source_bookmark = self.current_view.as_bookmark(self.target_ui) if self.current_view else None
-                        response = Redirect(self.root_ui.get_bookmark_for_error(str(e), error_source_bookmark))
+                        response = UncaughtError(resource.view, resource.view.user_interface.root_ui, resource.view.user_interface, e)
 
                 context.session.set_session_key(response)
                 for chunk in response(environ, start_response):

@@ -178,8 +178,7 @@ class HTMLAttributeDict(dict):
 class AjaxMethod(RemoteMethod):
     def __init__(self, widget):
         method_name = 'refresh_%s' % widget.css_id
-        super(AjaxMethod, self).__init__(method_name, self.fire_ajax_event, WidgetResult(widget, as_json_and_result=True), immutable=True, method='post')
-        self.view = widget.view
+        super(AjaxMethod, self).__init__(widget.view, method_name, self.fire_ajax_event, WidgetResult(widget, as_json_and_result=True), immutable=True, method='post')
         self.widget = widget
         
     def cleanup_after_exception(self, input_values, ex):
@@ -1100,7 +1099,8 @@ class Form(HTMLElement):
     def set_up_field_validator(self, field_validator_name):
         json_result = JsonResult(BooleanField(true_value='true', false_value='false'),
                                  catch_exception=ValidationConstraint)
-        self.field_validator = RemoteMethod(field_validator_name,
+        self.field_validator = RemoteMethod(self.view,
+                                          field_validator_name,
                                           self.validate_single_input,
                                           json_result,
                                           immutable=True)
@@ -1118,7 +1118,8 @@ class Form(HTMLElement):
             raise
 
     def set_up_input_formatter(self, input_formatter_name):
-        self.input_formatter = RemoteMethod(input_formatter_name,
+        self.input_formatter = RemoteMethod(self.view,
+                                            input_formatter_name,
                                             self.format_single_input,
                                             JsonResult(Field()),
                                             immutable=True)
