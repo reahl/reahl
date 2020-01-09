@@ -28,7 +28,7 @@ from reahl.webdev.tools import Browser, XPath
 
 from reahl.component.modelinterface import Field, exposed, IntegerField, MultiChoiceField, Choice, Action, Event
 from reahl.web.fw import Bookmark, Widget
-from reahl.web.ui import A, P, Form, TextInput, Div, CheckboxSelectInput, SelectInput, Label, NestedForm, ButtonInput
+from reahl.web.ui import A, P, Form, TextInput, Div, CheckboxSelectInput, SelectInput, Label, NestedForm, ButtonInput, FormLayout
 
 from reahl.web_dev.fixtures import WebFixture
 from reahl.dev.fixtures import ReahlSystemFixture
@@ -38,7 +38,7 @@ from reahl.dev.fixtures import ReahlSystemFixture
 class ValueScenarios(Fixture):
     @scenario
     def single_value(self):
-        self.field = IntegerField(required=False, default=1)
+        self.field = IntegerField(required=False, default=1, label='field')
         self.field_on_query_string = '{field_name}=123'
         self.field_value_marshalled = 123
         self.field_value_as_string = '123'
@@ -48,7 +48,8 @@ class ValueScenarios(Fixture):
         self.field = MultiChoiceField([Choice(1, IntegerField(label='One')),
                                        Choice(2, IntegerField(label='Two')),
                                        Choice(3, IntegerField(label='Three'))],
-                                       default=[])
+                                       default=[],
+                                       label='field')
         self.field_on_query_string = '{field_name}[]=1&{field_name}[]=3'
         self.field_value_marshalled = [1, 3]
         self.field_value_as_string = '1,3'
@@ -58,7 +59,7 @@ class ValueScenarios(Fixture):
         self.field = MultiChoiceField([Choice(1, IntegerField(label='One')),
                                        Choice(2, IntegerField(label='Two')),
                                        Choice(3, IntegerField(label='Three'))],
-                                       default=[2])
+                                       default=[2], label='field')
         self.field_on_query_string = ''
         self.field_value_marshalled = [2]
         self.field_value_as_string = '2'
@@ -68,7 +69,7 @@ class ValueScenarios(Fixture):
         self.field = MultiChoiceField([Choice(1, IntegerField(label='One')),
                                        Choice(2, IntegerField(label='Two')),
                                        Choice(3, IntegerField(label='Three'))],
-                                       default=[2])
+                                       default=[2], label='field')
         self.field_on_query_string = '{field_name}[]-'
         self.field_value_marshalled = []
         self.field_value_as_string = ''
@@ -111,7 +112,8 @@ def test_query_string_prepopulates_form(web_fixture, value_scenarios):
         def __init__(self, view):
             self.model_object = ModelObject()
             super(FormWithQueryArguments, self).__init__(view, 'name')
-            self.add_child(TextInput(self, self.model_object.fields.arg_on_other_object))
+            self.use_layout(FormLayout())
+            self.layout.add_input(TextInput(self, self.model_object.fields.arg_on_other_object))
 
         @exposed
         def query_fields(self, fields):
@@ -121,7 +123,7 @@ def test_query_string_prepopulates_form(web_fixture, value_scenarios):
     browser = Browser(wsgi_app)
 
     browser.open('/?%s' % fixture.field_on_query_string.format(field_name='name-arg_on_other_object'))
-    assert browser.lxml_html.xpath('//input')[0].value == fixture.field_value_as_string
+    assert browser.get_value(XPath.input_labelled('field')) == fixture.field_value_as_string
 
 
 @uses(web_fixture=WebFixture)
