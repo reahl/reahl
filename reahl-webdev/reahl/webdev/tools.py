@@ -445,6 +445,9 @@ class XPath(object):
     def __str__(self):
         return self.xpath
 
+    def __repr__(self):
+        return '%s(\'%s\')' % (self.__class__.__name__, str(self))
+
     def __getitem__(self, n):
         """Returns an XPath for the nth positioned element matching the current element.
            Can also be used to construct an XPath with an xpath condition (as a string) in the [].
@@ -462,7 +465,7 @@ class XPath(object):
 
            .. versionadded:: 5.0
         """
-        return self.__class__(*['%s/.%s' % (b,a) for a, b in itertools.product(self.xpaths, another.xpaths)])
+        return self.__class__(*['%s/%s%s' % (b,'.' if a.startswith('/') else '', a) for a, b in itertools.product(self.xpaths, another.xpaths)])
 
     def __or__(self, other):
         """Returns an XPath that matches one of self or other.

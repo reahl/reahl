@@ -29,68 +29,54 @@ from reahl.web.layout import PageLayout
 from reahl.web_dev.fixtures import WebFixture, BasicPageLayout
 
 
-@with_fixtures(WebFixture)
-def test_bootstrap_default_error_page(web_fixture):
-    """Bootstrap HTML5Page has a styled error page by default."""
-    class CustomPage(HTML5Page):
-        def __init__(self, view):
-            super(CustomPage, self).__init__(view)
-            self.body.add_child(P(view, 'the first paragraph on the page'))
-            
-    class MainUI(UserInterface):
-        def assemble(self):
-            self.define_page(CustomPage)
 
-    wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
+class ErrorPlacementFixture(Fixture):
+    def new_MainUI(self):
+        fixture = self
+        class MainUI(UserInterface):
+            def assemble(self):
+                self.define_page(fixture.CustomPage)
+        return MainUI
+
+    @scenario
+    def without_layout(self):
+        """The error is inserted as the very first element on the page"""
+        class CustomPage(HTML5Page):
+            def __init__(self, view):
+                super(CustomPage, self).__init__(view)
+                self.body.add_child(P(view, 'the first paragraph on the page'))
+        self.CustomPage = CustomPage
+        self.expected_alert = XPath('div')[1].including_class('alert').inside_of(XPath.any('body'))
+
+    @scenario
+    def with_layout(self):
+        """The error is inserted as the very last element in the header of the page"""
+        class CustomPage(HTML5Page):
+            def __init__(self, view):
+                super(CustomPage, self).__init__(view)
+                self.use_layout(PageLayout())
+                self.layout.header.add_child(P(view, 'this is the header'))
+                self.layout.contents.add_child(P(view, 'the first paragraph on the page'))
+        self.CustomPage = CustomPage
+        self.expected_alert = XPath('div')['last()'].including_class('alert').inside_of(XPath.any('header'))
+
+
+@with_fixtures(WebFixture, ErrorPlacementFixture)
+def test_bootstrap_default_error_page(web_fixture, fixture):
+    """Bootstrap HTML5Page has a styled error page by default, placed depending on the layout"""
+
+    wsgi_app = web_fixture.new_wsgi_app(site_root=fixture.MainUI)
     web_fixture.reahl_server.set_app(wsgi_app)
     browser = web_fixture.driver_browser
 
     browser.open('/error?error_message=something+went+wrong&error_source_href=/a_page')
 
-    error_alert = browser.find_element(XPath.div().including_class('alert'))
-    assert error_alert is browser.find_element(XPath.div()['position() = 1'])
+    assert browser.is_element_present(fixture.expected_alert)
 
-    assert None, 'TODO: the error alert is before anything else in the body'
-    import pdb; pdb.set_trace()
-    XPath.paragraph().containing_text('the first paragraph on the page')
-    XPath.div().including_text('An error occurred:').including_class('alert')
-    XPath.paragraph().containing_text('this is the header')
-    XPath.any('header')
+    error_message = XPath.paragraph().including_text('something went wrong').inside_of(fixture.expected_alert)
+    assert browser.is_element_present(error_message)
 
+    ok_button = XPath.link().including_text('Ok').inside_of(fixture.expected_alert)
+    assert browser.is_element_present(ok_button)
+    assert Url(browser.find_element(ok_button).get_attribute('href')).path == '/a_page'
 
-@with_fixtures(WebFixture)
-def test_bootstrap_default_error_page2(web_fixture):
-    """Bootstrap HTML5Page has a styled error page by default."""
-    class CustomPage(HTML5Page):
-        def __init__(self, view):
-            super(CustomPage, self).__init__(view)
-            self.use_layout(PageLayout())
-            self.layout.header.add_child(P(view, 'this is the header'))
-            self.layout.contents.add_child(P(view, 'the first paragraph on the page'))
-            
-    class MainUI(UserInterface):
-        def assemble(self):
-            self.define_page(CustomPage)
-
-    wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
-    web_fixture.reahl_server.set_app(wsgi_app)
-    browser = web_fixture.driver_browser
-
-    browser.open('/error?error_message=something+went+wrong&error_source_href=/a_page')
-
-    assert None, 'TODO: the error alert is the last thing in the header'
-
-    error_alert = browser.find_element(XPath.div().including_class('alert'))
-    assert error_alert is browser.find_element(XPath.div()['position() = 1'])
-
-
-    XPath.paragraph().containing_text('this is the header')
-    XPath.any('header')
-    import pdb; pdb.set_trace()
-
-
-
-# If you .define_page() using a bootstrap.HTML5Page, a nicer error page is displayed, formatted with bootstrap
-# scenarios:
-#   - the page is layed out with a PageLayout
-#   - the page does not use a PageLayout
