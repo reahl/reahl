@@ -215,10 +215,12 @@ class BasicConfig(object):
         self.target_config_directory = None
         self.site_root = None
         self.existing_config = None
+        self.reahl_debug = True
 
     def ask_detail_questions(self):
         self.ask_target_directory()
         self.ask_site_root()
+        self.ask_reahl_debug()
 
     def ask_target_directory(self):
         def not_path_exists(x):
@@ -226,6 +228,12 @@ class BasicConfig(object):
         path_exist_validator = Validator.from_callable(not_path_exists, error_message=_('Path exists, choose another'), move_cursor_to_end=True)
         self.target_config_directory = prompt('%s: ' % _('New config directory name'),
                                               completer=WordCompleter(words=['etc-prod']), validator=path_exist_validator)
+
+    def ask_reahl_debug(self):
+        menu = Menu(_('Configure the application to run in DEBUG mode'))
+        menu.add_menu_item('%s? ' % _('Yes'), lambda: True)
+        menu.add_menu_item('%s? ' % _('No'), lambda: False)
+        self.reahl_debug = menu.show()
 
     def ask_site_root(self):
         menu = Menu(_('Root application module'))
@@ -272,44 +280,8 @@ class ConfigFile(object):
 
 
 class DatabaseConfig(object):
-    def ask_detail_questions(self):
-        pass
-
-    @property
-    def url(self):
-        return 'database:///'
-
-
-class SqliteConfig(DatabaseConfig):
-    def __init__(self):
-        self.in_memory = False
-        self.file_path = False
-
-    @property
-    def url(self):
-        url = 'sqlite:///%s'
-        if self.file_path:
-            return url % self.file_path
-        elif self.in_memory:
-            return url % ':memory:'
-        raise Exception('Sqlite ' % _('should be in_memory or for file_path'))
-
-    def set_to_in_memory(self):
-        self.in_memory = True
-
-    def set_file_path(self):
-        file_path = prompt(_('Enter the file_path for the db'), default='/tmp/myapp.db')
-        self.file_path = file_path
-
-    def ask_detail_questions(self):
-        menu = Menu('Sqlite %s' % _('options'))
-        menu.add_menu_item('Sqlite - %s' % _('in memory'), self.set_to_in_memory)
-        menu.add_menu_item('Sqlite - %s' % _('file'), self.set_file_path)
-        menu.show()
-
-
-class PostgresqlConfig(DatabaseConfig):
-    def __init__(self):
+    def __init__(self, db_url_scheme):
+        self.db_url_scheme = db_url_scheme
         self.username = None
         self.password = None
         self.hostname = None
@@ -323,14 +295,77 @@ class PostgresqlConfig(DatabaseConfig):
         hostname_part = '@%s' % self.hostname if self.hostname else ''
         port_part = ':%s' % self.port if self.port else ''
         db_part = '/%s' % self.database_name if self.database_name else ''
-        return 'postgresql://%s%s%s%s%s' % (username_part, password_part, hostname_part, port_part, db_part)
+        return '%s://%s%s%s%s%s' % (self.db_url_scheme, username_part, password_part, hostname_part, port_part, db_part)
+
+    @property
+    def hostname_default(self):
+        return ''
+
+    @property
+    def database_name_default(self):
+        return 'reahl'
+
+    @property
+    def port_default(self):
+        return ''
 
     def ask_detail_questions(self):
         self.username = prompt('%s ? ' % _('username'), default='')
         self.password = prompt('%s ? ' % _('password'), default='')
-        self.hostname = prompt('%s ? ' % _('hostname'), default='')
-        self.port = prompt('%s ? ' % _('port'), default='')
-        self.database_name = prompt('%s ? ' % _('database name'), default='reahl')
+        self.hostname = prompt('%s ? ' % _('hostname'), default=self.hostname_default)
+        self.port = prompt('%s ? ' % _('port'), default=self.port_default)
+        self.database_name = prompt('%s ? ' % _('database name'), default=self.database_name_default)
+
+
+class SQLiteConfig(DatabaseConfig):
+    def __init__(self):
+        super(SQLiteConfig, self).__init__('sqlite')
+        self.in_memory = False
+        self.file_path = False
+
+    @property
+    def url(self):
+        url = 'sqlite:///%s'
+        if self.file_path:
+            self.database_name = self.file_path
+        elif self.in_memory:
+            self.database_name = ':memory:'
+        if self.database_name:
+            return super(SQLiteConfig, self).url()
+        raise Exception('SQLite ' % _('should be in_memory or for file_path'))
+
+    def set_to_in_memory(self):
+        self.in_memory = True
+
+    def set_file_path(self):
+        file_path = prompt(_('Enter the file_path for the db'), default='/tmp/myapp.db')
+        self.file_path = file_path
+
+    def ask_detail_questions(self):
+        menu = Menu('SQLite %s' % _('options'))
+        menu.add_menu_item('SQLite - %s' % _('in memory'), self.set_to_in_memory)
+        menu.add_menu_item('SQLite - %s' % _('file'), self.set_file_path)
+        menu.show()
+
+
+class PostgreSQLConfig(DatabaseConfig):
+    def __init__(self):
+        super(PostgreSQLConfig, self).__init__('postgresql')
+
+
+class MySQLConfig(DatabaseConfig):
+    def __init__(self):
+        super(MySQLConfig, self).__init__('mysql')
+
+
+class MySQLConfigPythonAnywhere(MySQLConfig):
+    @property
+    def hostname_default(self):
+        return '%s.mysql.pythonanywhere-services.com' % self.username
+
+    @property
+    def database_name_default(self):
+        return '%s$%s' % (self.username, 'reahl')
 
 
 class Platform(object):
@@ -403,6 +438,8 @@ class CreateConfig(WorkspaceCommand):
 
     def create_reahl_system_config_file(self, basic_config, platform_):
         reahl_config = ConfigFile(os.path.join(basic_config.target_config_directory, 'reahl.config.py'))
+        reahl_config.add_line("reahlsystem.root_egg = %s" % str(basic_config.root_egg))
+        reahl_config.add_line("reahlsystem.debug = %s" % str(basic_config.reahl_debug))
         reahl_config.add_line("reahlsystem.connection_uri = '%s'" % platform_.database.url)
         reahl_config.write()
 
