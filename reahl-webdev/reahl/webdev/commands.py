@@ -37,6 +37,24 @@ from reahl.dev.exceptions import CouldNotConfigureServer
 from reahl.webdev.webserver import ReahlWebServer, ServerSupervisor
 
 
+#flush was introduced in py 3.3
+print_cannot_flush = six.PY2 or sys.version_info[:2] < (3, 3)
+
+#once we remove support for six.PY2, this can be inlined by adding the flush parameter
+# to print_flush, and renaming print_flush back to print:
+# print(..., flush=True)
+def print_flush(*args, **kwargs):
+    original_print = print
+    kwargs.pop('flush', False)
+    if print_cannot_flush:
+        original_print(*args, **kwargs)
+        file = kwargs.get('file', sys.stdout)
+        file.flush()
+    else:
+        kwargs['flush'] = True
+        original_print(*args, **kwargs)
+
+
 class ServeCurrentProject(WorkspaceCommand):
     """Serves the project configured in the given directory (defaults to ./etc)."""
     keyword = 'serve'
@@ -64,20 +82,20 @@ class ServeCurrentProject(WorkspaceCommand):
                                      ['.']+args.monitored_directories).run()
                 else:
                     config_directory = args.config_directory
-                    print('\nUsing config from %s\n' % config_directory)
+                    print_flush('\nUsing config from %s\n' % config_directory)
                     
                     try:
                         reahl_server = ReahlWebServer.fromConfigDirectory(config_directory, args.port)
                     except pkg_resources.DistributionNotFound as ex:
                         terminate_keys = 'Ctrl+Break' if platform.system() == 'Windows' else 'Ctrl+C'
-                        print('\nPress %s to terminate\n\n' % terminate_keys)
+                        print_flush('\nPress %s to terminate\n\n' % terminate_keys)
                         raise CouldNotConfigureServer(ex)
 
                     reahl_server.start(connect=True)
-                    print('\n\nServing http on port %s, https on port %s (config=%s)' % \
+                    print_flush('\n\nServing http on port %s, https on port %s (config=%s)' % \
                                      (args.port, args.port+363, config_directory))
                     terminate_keys = 'Ctrl+Break' if platform.system() == 'Windows' else 'Ctrl+C'
-                    print('\nPress %s to terminate\n\n' % terminate_keys)
+                    print_flush('\nPress %s to terminate\n\n' % terminate_keys)
 
                     notify = Executable('notify-send')
                     try:
@@ -87,9 +105,9 @@ class ServeCurrentProject(WorkspaceCommand):
 
                     reahl_server.wait_for_server_to_complete()
             except KeyboardInterrupt:
-                print('\nShutting down')
+                print_flush('\nShutting down')
             except CouldNotConfigureServer as ex:
-                print(ex)
+                print_flush(ex)
         return 0
 
 
