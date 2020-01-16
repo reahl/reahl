@@ -64,20 +64,20 @@ class ServeCurrentProject(WorkspaceCommand):
                                      ['.']+args.monitored_directories).run()
                 else:
                     config_directory = args.config_directory
-                    print('\nUsing config from %s\n' % config_directory)
+                    six.print_('\nUsing config from %s\n' % config_directory, flush=True)
                     
                     try:
                         reahl_server = ReahlWebServer.fromConfigDirectory(config_directory, args.port)
                     except pkg_resources.DistributionNotFound as ex:
                         terminate_keys = 'Ctrl+Break' if platform.system() == 'Windows' else 'Ctrl+C'
-                        print('\nPress %s to terminate\n\n' % terminate_keys)
+                        six.print_('\nPress %s to terminate\n\n' % terminate_keys, flush=True)
                         raise CouldNotConfigureServer(ex)
 
                     reahl_server.start(connect=True)
-                    print('\n\nServing http on port %s, https on port %s (config=%s)' % \
+                    six.print_('\n\nServing http on port %s, https on port %s (config=%s, flush=True)' % \
                                      (args.port, args.port+363, config_directory))
                     terminate_keys = 'Ctrl+Break' if platform.system() == 'Windows' else 'Ctrl+C'
-                    print('\nPress %s to terminate\n\n' % terminate_keys)
+                    six.print_('\nPress %s to terminate\n\n' % terminate_keys, flush=True)
 
                     notify = Executable('notify-send')
                     try:
@@ -87,9 +87,9 @@ class ServeCurrentProject(WorkspaceCommand):
 
                     reahl_server.wait_for_server_to_complete()
             except KeyboardInterrupt:
-                print('\nShutting down')
+                six.print_('\nShutting down', flush=True)
             except CouldNotConfigureServer as ex:
-                print(ex)
+                six.print_(ex, flush=True)
         return 0
 
 
