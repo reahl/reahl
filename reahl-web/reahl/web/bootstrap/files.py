@@ -151,6 +151,7 @@ class FileUploadPanel(Div):
         return self.bound_field.name_in_input
 
     def add_uploaded_list(self):
+        self.upload_form.use_layout(FormLayout())
         ul = self.upload_form.add_child(Ul(self.view))
         for persisted_file in self.persisted_file_class.get_persisted_for_form(self.input_form, self.name):
             ul.add_child(FileUploadLi(self.upload_form.form, self.events.remove_file, persisted_file))
@@ -159,7 +160,7 @@ class FileUploadPanel(Div):
     def add_upload_controls(self):
         controls_panel = self.upload_form.add_child(Div(self.view)).use_layout(FormLayout())
         file_input = controls_panel.layout.add_input(FileInput(self.upload_form.form, self.fields.uploaded_file), hide_label=True)
-
+        
         button_addon = file_input.html_representation.add_child(Span(self.view))
         button_addon.append_class('input-group-append')
         button_addon.add_child(Button(self.upload_form.form, self.events.upload_file))
@@ -237,17 +238,22 @@ class FileUploadInput(reahl.web.ui.Input):
               type :class:`reahl.component.modelinterface.FileField`)
     :keyword name: An optional name for this input (overrides the default)
     :keyword name_discriminator: A string added to the computed name to prevent name clashes.
+    :keyword ignore_concurrent_change: If True, don't check for possible concurrent changes by others to this input (just override such changes).
+
 
     .. versionchanged:: 5.0
        Subclass of :class:`~reahl.web.ui.Input` and not :class:`~reahl.web.ui.PrimitiveInput`
        Added `name`
        Added `name_discriminator`
+       Added `ignore_concurrency_change`
 
     """
     is_for_file = False
 
-    def __init__(self, form, bound_field, name=None, name_discriminator=None):
+    def __init__(self, form, bound_field, name=None, name_discriminator=None, ignore_concurrency_change=False):
         super(FileUploadInput, self).__init__(form, bound_field)
+        
+        self.ignore_concurrency_change = ignore_concurrency_change
         name_to_use = name or ('%s-%s%s' % (form.channel_name, self.bound_field.name, name_discriminator or ''))
         bound_field.override_unqualified_name_in_input(name_to_use)
 
@@ -255,6 +261,12 @@ class FileUploadInput(reahl.web.ui.Input):
 
         self.set_html_representation(self.add_child(self.create_html_widget()))
 
+
+    @property
+    def concurrency_hash_strings(self):
+        if not self.ignore_concurrency_change:
+            yield self.original_value
+            
     @property
     def name(self):
         return self.bound_field.name_in_input

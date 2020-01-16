@@ -211,7 +211,7 @@ class FileUploadInputFixture(Fixture):
     def new_file_to_upload2(self):
         return temp_file_with(self.file_to_upload2_content, name=self.file_to_upload2_name, mode='w+b')
 
-    def new_domain_object(self):
+    def new_domain_object(self): 
         class DomainObject(object):
             def __init__(self):
                 self.throws_exception = False
@@ -245,6 +245,8 @@ class FileUploadInputFixture(Fixture):
                 super(FileUploadForm, self).__init__(view, 'test')
                 self.set_attribute('novalidate','novalidate')
                 self.use_layout(FormLayout())
+                if self.exception:
+                    self.layout.add_alert_for_domain_exception(self.exception, 'warning')
                 self.layout.add_input(FileUploadInput(self, fixture.domain_object.fields.files))
                 self.define_event_handler(fixture.domain_object.events.submit)
                 self.add_child(Button(self, fixture.domain_object.events.submit))
@@ -447,8 +449,7 @@ def test_file_upload_input_basics(web_fixture, file_upload_input_fixture):
 
 @with_fixtures(WebFixture, FileUploadInputFixture)
 def test_file_upload_input_list_files(web_fixture, file_upload_input_fixture):
-    """The FileUploadInput displays a list of files that were uploaded so far, but is cleared 
-       once the Form is submitted."""
+    """The FileUploadInput displays a list of files that were uploaded so far."""
 
     fixture = file_upload_input_fixture
 
@@ -472,18 +473,42 @@ def test_file_upload_input_list_files(web_fixture, file_upload_input_fixture):
     assert fixture.uploaded_file_is_listed( fixture.file_to_upload1.name ) 
     assert fixture.uploaded_file_is_listed( fixture.file_to_upload2.name ) 
 
-    # Submit the form:
-    # If an exception is raised, the list is NOT cleared
-    fixture.domain_object.throws_exception = True
-    browser.click( XPath.button_labelled('Submit') )
-    assert fixture.uploaded_file_is_listed( fixture.file_to_upload1.name ) 
-    assert fixture.uploaded_file_is_listed( fixture.file_to_upload2.name ) 
 
-    # Upon successful submit, the list IS cleared
-    fixture.domain_object.throws_exception = False
+@uses(file_upload_input_fixture=FileUploadInputFixture)
+class ExceptionScenarios(Fixture):
+    @scenario
+    def no_exception(self):
+        self.file_upload_input_fixture.domain_object.throws_exception = False
+
+    @scenario
+    def exception(self):
+        self.file_upload_input_fixture.domain_object.throws_exception = True
+
+
+@with_fixtures(WebFixture, FileUploadInputFixture, ExceptionScenarios)
+def test_file_upload_input_list_files_clearing(web_fixture, file_upload_input_fixture, exception_scenario):
+    """The list of uploaded files displayed by the FileUploadInput is cleared 
+       once the Form is successfully submitted."""
+
+    fixture = file_upload_input_fixture
+
+    web_fixture.reahl_server.set_app(fixture.wsgi_app)
+
+    browser = web_fixture.driver_browser
+    browser.open('/')
+
+    # Upload one file
+    browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload1.name)
+    browser.click(XPath.button_labelled('Upload'))
+
+    assert fixture.uploaded_file_is_listed( fixture.file_to_upload1.name ) 
+
+    # Submit the form:
     browser.click( XPath.button_labelled('Submit') )
-    assert not fixture.uploaded_file_is_listed( fixture.file_to_upload1.name ) 
-    assert not fixture.uploaded_file_is_listed( fixture.file_to_upload2.name ) 
+    if fixture.domain_object.throws_exception:
+        assert fixture.uploaded_file_is_listed( fixture.file_to_upload1.name ) 
+    else:
+        assert not fixture.uploaded_file_is_listed( fixture.file_to_upload1.name ) 
 
 
 @with_fixtures(WebFixture, FileUploadInputFixture)
@@ -722,7 +747,6 @@ def test_async_upload_error(web_fixture, broken_file_upload_input_fixture):
     fixture = broken_file_upload_input_fixture
 
     web_fixture.reahl_server.set_app(fixture.new_wsgi_app(enable_js=True))
-    web_fixture.config.reahlsystem.debug = False # So that we don't see the exception output while testing
     browser = web_fixture.driver_browser
     browser.open('/')
 
@@ -775,7 +799,6 @@ def test_queueing_async_uploads(web_fixture, large_file_upload_input_fixture):
     """Asynchronous uploads do not happen concurrently, they are queued one after another.
     """
     fixture = large_file_upload_input_fixture
-
 
     fixture.run_hook_after = True
     web_fixture.reahl_server.set_app(fixture.new_wsgi_app(enable_js=True))

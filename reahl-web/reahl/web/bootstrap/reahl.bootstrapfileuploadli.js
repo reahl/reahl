@@ -153,9 +153,6 @@ $.widget('reahl.bootstrapfileuploadli', {
             $('#'+this_.getFormId()).ajaxSubmit({
                 data: data,
                 cache: false,
-                beforeSubmit: function(a, form, options) {
-                    this_.changeFileInputToSingle(a, this_.options.file);
-                },
                 beforeSend: function(jqXHR, settings) {
                     this_.saveJqXhr(jqXHR);
                 },
@@ -177,12 +174,6 @@ $.widget('reahl.bootstrapfileuploadli', {
             });
         };
         this_.getFileInputPanel().uploadStarted(this_.getFilename(), startThisUpload);
-    },
-    changeFileInputToSingle: function(array, file) {
-        if (array.length > 0) {
-            var inputName = array[0].name;
-            array.splice(0, array.length, {name:inputName, value:file});
-        }
     },
     saveJqXhr: function(jqXhr) {
 	this.jqXhr = jqXhr
