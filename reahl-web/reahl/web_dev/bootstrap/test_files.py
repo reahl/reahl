@@ -362,6 +362,9 @@ class StubbedFileUploadInputFixture(FileUploadInputFixture):
         class FileUploadForm(Form):
             def __init__(self, view):
                 super(FileUploadForm, self).__init__(view, 'test')
+                if self.exception:
+                    self.use_layout(FormLayout())
+                    self.layout.add_alert_for_domain_exception(self.exception, 'error')
                 self.add_child(FileUploadInputStub(self, fixture.domain_object.fields.files))
                 self.define_event_handler(fixture.domain_object.events.submit)
                 self.add_child(Button(self, fixture.domain_object.events.submit))

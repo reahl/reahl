@@ -151,7 +151,6 @@ class FileUploadPanel(Div):
         return self.bound_field.name_in_input
 
     def add_uploaded_list(self):
-        self.upload_form.use_layout(FormLayout())
         ul = self.upload_form.add_child(Ul(self.view))
         for persisted_file in self.persisted_file_class.get_persisted_for_form(self.input_form, self.name):
             ul.add_child(FileUploadLi(self.upload_form.form, self.events.remove_file, persisted_file))
@@ -191,7 +190,7 @@ class FileUploadPanel(Div):
         fields.uploaded_file.disallow_multiple()
         fields.uploaded_file.label = _('Add file')
         fields.uploaded_file.make_optional()
-        fields.uploaded_file.add_validation_constraint(UniqueFilesConstraint(self.input_form, self.bound_field.name))
+        fields.uploaded_file.add_validation_constraint(UniqueFilesConstraint(self.input_form, self.bound_field.name_in_input))
 
     def attach_jq_widget(self, selector, widget_name, **options):
         def js_repr(value):

@@ -29,7 +29,7 @@ from reahl.web_dev.fixtures import WebFixture, BasicPageLayout
 from reahl.webdev.tools import XPath, Browser
 from reahl.web.fw import Widget, UserInterface
 from reahl.web.ui import Form, Div, SelectInput, Label, P, RadioButtonSelectInput, CheckboxSelectInput, \
-    CheckboxInput, ButtonInput, TextInput, HTML5Page
+    CheckboxInput, ButtonInput, TextInput, HTML5Page, FormLayout
 from reahl.component.modelinterface import Field, BooleanField, MultiChoiceField, ChoiceField, Choice, exposed, \
     IntegerField, EmailField, Event, Action, Allowed
 from reahl.component.exceptions import ProgrammerError, DomainException
@@ -798,13 +798,13 @@ class RecalculatedWidgetScenarios(Fixture):
         class MyForm(Form):
             def __init__(self, view, an_object):
                 super(MyForm, self).__init__(view, 'myform')
+                self.use_layout(FormLayout())
                 self.an_object = an_object
                 self.enable_refresh(on_refresh=an_object.events.choice_changed)
                 if self.exception:
-                    self.add_child(P(self.view, text=str(self.exception)))
+                    self.layout.add_alert_for_domain_exception(self.exception)
                 self.change_trigger_input = TextInput(self, an_object.fields.choice, refresh_widget=self)
-                self.add_child(Label(view, for_input=self.change_trigger_input))
-                self.add_child(self.change_trigger_input)
+                self.layout.add_input(self.change_trigger_input)
                 self.add_child(P(self.view, text='My state is now %s' % an_object.choice))
                 fixture.add_to_form(self, an_object)
                 self.define_event_handler(an_object.events.submit)
@@ -922,17 +922,16 @@ def test_invalid_trigger_inputs(web_fixture, query_string_fixture, sql_alchemy_f
     class MyForm(Form):
         def __init__(self, view, an_object):
             super(MyForm, self).__init__(view, 'myform')
+            self.use_layout(FormLayout())
             self.an_object = an_object
             self.enable_refresh(on_refresh=an_object.events.choice_changed)
             if self.exception:
-                self.add_child(P(self.view, text=str(self.exception)))
+                self.layout.add_alert_for_domain_exception(self.exception)
             self.change_trigger_input = TextInput(self, an_object.fields.choice, refresh_widget=self)
-            self.add_child(Label(view, for_input=self.change_trigger_input))
-            self.add_child(self.change_trigger_input)
+            self.layout.add_input(self.change_trigger_input)
             self.add_child(P(self.view, text='My choice state is now %s' % an_object.choice))
             self.change2_trigger_input = TextInput(self, an_object.fields.choice2, refresh_widget=self)
-            self.add_child(Label(view, for_input=self.change2_trigger_input))
-            self.add_child(self.change2_trigger_input)
+            self.layout.add_input(self.change2_trigger_input)
             self.add_child(P(self.view, text='My choice2 state is now %s' % an_object.choice2))
             self.add_child(P(self.view, text='My calculated state is now %s' % an_object.calculated_state))
             self.define_event_handler(an_object.events.submit)

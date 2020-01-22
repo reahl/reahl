@@ -17,7 +17,8 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 from reahl.web.fw import UserInterface
-from reahl.web.bootstrap.ui import HTML5Page, Div, P
+from reahl.web.bootstrap.page import HTML5Page
+from reahl.web.bootstrap.ui import Div, P
 from reahl.web.bootstrap.grid import ColumnLayout, ColumnOptions, Container, ResponsiveSize
 from reahl.web.layout import PageLayout
 

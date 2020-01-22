@@ -24,8 +24,8 @@ from reahl.stubble import stubclass
 from reahl.component.modelinterface import Field, ValidationConstraint, RequiredConstraint, MinLengthConstraint, \
                              MaxLengthConstraint, PatternConstraint, AllowedValuesConstraint, \
                              EqualToConstraint, RemoteConstraint, exposed
-from reahl.web.ui import PrimitiveInput, HTMLInputElement, Form, TextInput, ButtonInput
-from reahl.webdev.tools import WidgetTester
+from reahl.web.ui import PrimitiveInput, HTMLInputElement, Form, TextInput, ButtonInput, FormLayout
+from reahl.webdev.tools import WidgetTester, XPath
 
 from reahl.web_dev.inputandvalidation.test_input import SimpleInputFixture2
 from reahl.web_dev.fixtures import WebFixture
@@ -38,7 +38,7 @@ class ConstraintRenderingFixture(SimpleInputFixture2):
         return field
 
     def new_error_xpath(self):
-        return '//form/label[@class="error"]'
+        return '//form//label[@class="error"]'
 
     def is_error_text(self, text):
         return text == self.web_fixture.driver_browser.get_text(self.error_xpath)
@@ -149,19 +149,21 @@ def test_required_constraint_js(web_fixture, constraint_rendering_fixture):
     class MyForm(Form):
         def __init__(self, view, name):
             super(MyForm, self).__init__(view, name)
+            self.use_layout(FormLayout())
             field = fixture.model_object.fields.an_attribute.with_validation_constraint(constraint)
-            self.add_child(TextInput(self, field))
+            self.layout.add_input(TextInput(self, field))
     wsgi_app = web_fixture.new_wsgi_app(child_factory=MyForm.factory('myform'), enable_js=True)
     web_fixture.reahl_server.set_app(wsgi_app)
 
     web_fixture.driver_browser.open('/')
 
-    web_fixture.driver_browser.type('//input[@type="text"]', 'something', trigger_blur=False, wait_for_ajax=False)
+    web_fixture.driver_browser.type(XPath.input_labelled('an attribute'), 'something', trigger_blur=False, wait_for_ajax=False)
     web_fixture.driver_browser.press_tab()
     web_fixture.driver_browser.wait_for_element_not_visible(fixture.error_xpath)
 
-    web_fixture.driver_browser.type('//input[@type="text"]', '')
-    web_fixture.driver_browser.press_backspace('//input')  # To trigger validation on the field
+    web_fixture.driver_browser.type(XPath.input_labelled('an attribute'), '')
+    
+    web_fixture.driver_browser.press_backspace(XPath.input_labelled('an attribute'))  # To trigger validation on the field
 
     web_fixture.driver_browser.wait_for_element_visible(fixture.error_xpath)
 

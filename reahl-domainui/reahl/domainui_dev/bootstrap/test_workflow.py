@@ -34,7 +34,8 @@ from reahl.webdev.tools import Browser
 
 from reahl.web.fw import UserInterface, Url
 from reahl.web.layout import PageLayout
-from reahl.web.bootstrap.ui import HTML5Page, P
+from reahl.web.bootstrap.page import HTML5Page
+from reahl.web.bootstrap.ui import P
 from reahl.web.bootstrap.grid import ResponsiveSize, ColumnLayout, ColumnOptions, Container
 
 from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture

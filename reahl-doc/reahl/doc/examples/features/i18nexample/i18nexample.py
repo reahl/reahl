@@ -2,7 +2,8 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 
 from reahl.component.i18n import Catalogue
 from reahl.web.fw import UserInterface, Url, Widget
-from reahl.web.bootstrap.ui import P, HTML5Page
+from reahl.web.bootstrap.page import HTML5Page
+from reahl.web.bootstrap.ui import P
 from reahl.web.bootstrap.navs import Nav, PillLayout
 
 _ = Catalogue('reahl-doc')

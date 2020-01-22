@@ -64,6 +64,7 @@ class OptimisticConcurrencyFixture(Fixture):
             def __init__(self, view):
                 super(MyForm, self).__init__(view, 'myform')
                 self.use_layout(FormLayout())
+                self.set_attribute('novalidate','novalidate')
 
                 if self.exception:
                     self.layout.add_alert_for_domain_exception(self.exception)

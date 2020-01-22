@@ -309,20 +309,20 @@ def test_validation(web_fixture, validation_scenario):
     fixture.start_example_app()
     web_fixture.driver_browser.open('/')
     assert web_fixture.driver_browser.wait_for_not(fixture.error_is_visible) 
-    assert web_fixture.driver_browser.is_element_present('//input') 
+    assert web_fixture.driver_browser.is_element_present(XPath.input_labelled('Email address')) 
     web_fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path('validation1.png'))
     
-    web_fixture.driver_browser.type('//input', 'johndoe')
+    web_fixture.driver_browser.type(XPath.input_labelled('Email address'), 'johndoe')
     assert web_fixture.driver_browser.wait_for(fixture.error_is_visible)
     assert fixture.is_error_text('Email address should be a valid email address') 
     web_fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path('validation2.png'))
 
-    web_fixture.driver_browser.type('//input', '')
+    web_fixture.driver_browser.type(XPath.input_labelled('Email address'), '')
     assert web_fixture.driver_browser.wait_for(fixture.error_is_visible) 
     assert fixture.is_error_text('Email address is required') 
     web_fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path('validation3.png'))
 
-    web_fixture.driver_browser.type('//input', 'johndoe@some.org')
+    web_fixture.driver_browser.type(XPath.input_labelled('Email address'), 'johndoe@some.org')
 
 @with_fixtures(WebFixture, ExampleFixture.layout)
 def test_layout(web_fixture, layout_scenario):
@@ -418,7 +418,8 @@ def test_i18n(web_fixture, i18n_scenario):
 def test_model_examples():
     # These examples are built to run outside of our infrastructure, hence have to be run like this:
     for example in ['test_model1', 'test_model2', 'test_model3']:
-        pytest.main(['reahl.doc.examples.tutorial.%s' % example])
+        result = pytest.main(['reahl.doc.examples.tutorial.%s' % example])
+        assert result == 0
 
 @with_fixtures(WebFixture, ExampleFixture.addressbook1)
 def test_addressbook1(web_fixture, addressbook1_scenario):

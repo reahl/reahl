@@ -2102,13 +2102,15 @@ class PasswordInput(PrimitiveInput):
        :keyword name: An optional name for this input (overrides the default).
        :keyword name_discriminator: (See :class:`~reahl.web.ui.PrimitiveInput`).
        :keyword refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
+       :keyword ignore_concurrent_change: (See :class:`~reahl.web.ui.PrimitiveInput`)
 
        .. versionchanged:: 5.0
           Added `name` and `refresh_widget`
           Added `name_discriminator`
+          Added `ignore_concurrent_change`
     """
-    def __init__(self, form, bound_field, name=None, name_discriminator=None, refresh_widget=None):
-        super(PasswordInput, self).__init__(form, bound_field, name=name, name_discriminator=name_discriminator, refresh_widget=refresh_widget)
+    def __init__(self, form, bound_field, name=None, name_discriminator=None, refresh_widget=None, ignore_concurrent_change=False):
+        super(PasswordInput, self).__init__(form, bound_field, name=name, name_discriminator=name_discriminator, refresh_widget=refresh_widget, ignore_concurrent_change=ignore_concurrent_change)
 
     def create_html_widget(self):
         return HTMLInputElement(self, 'password', render_value_attribute=False)
