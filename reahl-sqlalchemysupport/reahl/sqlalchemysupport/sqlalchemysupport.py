@@ -230,10 +230,11 @@ class SqlAlchemyControl(ORMControl):
         finally:
             if transaction_veto.has_voted:
                 commit = transaction_veto.should_commit
-            if commit:
-                self.commit()
-            else:
-                self.rollback()
+            if transaction.is_active: # some sqlalchemy exceptions automatically rollback the current transaction
+                if commit:
+                    transaction.commit()
+                else:
+                    transaction.rollback()
 
     @contextmanager
     def managed_transaction(self):
@@ -241,10 +242,11 @@ class SqlAlchemyControl(ORMControl):
         try:
             yield transaction
         except:
-            self.rollback()
+            if transaction.is_active: # some sqlalchemy exceptions automatically rollback the current transaction
+                transaction.rollback()
             raise
         else:
-            self.commit()
+            transaction.commit()
         
     def connect(self):
         """Creates the SQLAlchemy Engine, bind it to the metadata and instrument the persisted classes 
@@ -419,8 +421,5 @@ class SchemaVersion(Base):
     id = Column(Integer, primary_key=True)
     version =  Column(String(50))
     egg_name = Column(String(80))
-
-
-
 
 
