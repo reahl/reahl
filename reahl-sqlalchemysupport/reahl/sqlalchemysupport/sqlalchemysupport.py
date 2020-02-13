@@ -230,7 +230,7 @@ class SqlAlchemyControl(ORMControl):
         finally:
             if transaction_veto.has_voted:
                 commit = transaction_veto.should_commit
-            if transaction.is_active: # some sqlalchemy exceptions automatically rollback the current transaction
+            if transaction.is_active:# some sqlalchemy exceptions automatically rollback the current transaction
                 if commit:
                     transaction.commit()
                 else:
