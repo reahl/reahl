@@ -130,41 +130,40 @@ def test_web_session_handling(reahl_system_fixture, web_fixture):
     def wrapped_nested_transaction():
         return web_fixture.nested_transaction
 
-    with replaced(Session().begin_nested, wrapped_nested_transaction):
-        # Setting the implementation in config
-        web_fixture.config.web.session_class = UserSessionStub
-        with CallMonitor(web_fixture.nested_transaction.commit) as monitor:
-            @stubclass(Resource)
-            class ResourceStub(object):
-                should_commit = True
-                def cleanup_after_transaction(self):
-                    assert monitor.times_called == 2  # The database has been committed after user code started executed, before cleanup
-                def handle_request(self, request):
-                    context = ExecutionContext.get_context()
-                    assert context.session is UserSessionStub.session  # By the time user code executes, the session is set
-                    assert monitor.times_called == 1  # The database has been committed before user code started executing
-                    assert context.session.last_activity_time_set
-                    assert not UserSessionStub.session.key_is_set
-                    return Response()
+    # Setting the implementation in config
+    web_fixture.config.web.session_class = UserSessionStub
+    with replaced(Session().begin_nested, wrapped_nested_transaction), CallMonitor(web_fixture.nested_transaction.commit) as monitor:
+        @stubclass(Resource)
+        class ResourceStub(object):
+            should_commit = True
+            def cleanup_after_transaction(self):
+                assert monitor.times_called == 2  # The database has been committed after user code started executed, before cleanup
+            def handle_request(self, request):
+                context = ExecutionContext.get_context()
+                assert context.session is UserSessionStub.session  # By the time user code executes, the session is set
+                assert monitor.times_called == 1  # The database has been committed before user code started executing
+                assert context.session.last_activity_time_set
+                assert not UserSessionStub.session.key_is_set
+                return Response()
 
-            @stubclass(ReahlWSGIApplication)
-            class ReahlWSGIApplicationStub2(ReahlWSGIApplicationStub):
-                def resource_for(self, request):
-                    return ResourceStub()
+        @stubclass(ReahlWSGIApplication)
+        class ReahlWSGIApplicationStub2(ReahlWSGIApplicationStub):
+            def resource_for(self, request):
+                return ResourceStub()
 
-            browser = Browser(ReahlWSGIApplicationStub2(web_fixture.config))
+        browser = Browser(ReahlWSGIApplicationStub2(web_fixture.config))
 
-            # A session is obtained, and the correct params passed to the hook methods
-            assert not UserSessionStub.session  # Before the request, the session is not yet set
-            assert monitor.times_called == 0  # ... and the database is not yet committed
-            browser.open('/')
+        # A session is obtained, and the correct params passed to the hook methods
+        assert not UserSessionStub.session  # Before the request, the session is not yet set
+        assert monitor.times_called == 0  # ... and the database is not yet committed
+        browser.open('/')
 
-            assert monitor.times_called == 2  # The database is committed to save session changes before user code and again after user code executed
-            assert UserSessionStub.session  # The session was set
-            assert UserSessionStub.session.key_is_set  # The set_session_key was called
-            assert UserSessionStub.session.saved_response.status_int is 200  # The correct response was passed to set_session_key
+        assert monitor.times_called == 2  # The database is committed to save session changes before user code and again after user code executed
+        assert UserSessionStub.session  # The session was set
+        assert UserSessionStub.session.key_is_set  # The set_session_key was called
+        assert UserSessionStub.session.saved_response.status_int is 200  # The correct response was passed to set_session_key
 
-            assert UserSessionStub.session.last_activity_time_set  # set_last_activity_time was called
+        assert UserSessionStub.session.last_activity_time_set  # set_last_activity_time was called
 
 
 @with_fixtures(WebFixture)
