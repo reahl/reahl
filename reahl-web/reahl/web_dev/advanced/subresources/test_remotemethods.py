@@ -21,7 +21,7 @@ from webob import Response
 
 from sqlalchemy import Column, UnicodeText, Integer
 
-from reahl.stubble import stubclass, CallMonitor
+from reahl.stubble import stubclass, CallMonitor, replaced
 from reahl.tofu import scenario, expected, Fixture, uses
 from reahl.tofu.pytestsupport import with_fixtures
 
@@ -351,10 +351,22 @@ def test_regenerating_method_results(reahl_system_fixture, web_fixture,
     wsgi_app = remote_method_fixture.new_wsgi_app(remote_method=regenerate_method_result_scenarios.remote_method)
     browser = Browser(wsgi_app)
 
-    with CallMonitor(reahl_system_fixture.system_control.orm_control.commit) as monitor:
-        browser.post('/_amethod_method', {})
-    assert browser.raw_html == regenerate_method_result_scenarios.expected_response
-    assert monitor.times_called == 2
+    import sqlalchemy.orm 
+    @stubclass(sqlalchemy.orm.Session)
+    class TransactionStub(object):
+        is_active=True
+        def commit(self):pass
+        def rollback(self):pass
+    
+    def wrapped_nested_transaction():
+        return web_fixture.nested_transaction
+    
+    web_fixture.nested_transaction =  TransactionStub()
+    with replaced(Session().begin_nested, wrapped_nested_transaction):
+        with CallMonitor(web_fixture.nested_transaction.commit) as monitor:
+            browser.post('/_amethod_method', {})
+        assert browser.raw_html == regenerate_method_result_scenarios.expected_response
+        assert monitor.times_called == 2
 
 
 class WidgetResultScenarios(Fixture):
