@@ -2566,7 +2566,7 @@ class ComposedPage(Resource):
         if internal_redirect:
             return self.render()
         else:
-            # so that we can re-render on values that were updated in the domain
+            # so that we can re-render on values that were updated in the domain from construction_state
             raise InternalRedirect()
 
     def render(self):
@@ -2969,7 +2969,7 @@ class ReahlWSGIApplication(object):
             raise CouldNotConstructResource(current_view, root_ui, target_ui, ex)
 
     def is_form_submit(self, full_path, request):
-            return SubResource.is_for_sub_resource(full_path) and request.method == 'POST' and '_reahl_concurrency_hash' in request.POST
+            return SubResource.is_for_sub_resource(full_path) and request.method == 'POST' and any(name.endswith('_reahl_concurrency_hash') for name in request.POST.keys())
 
     def check_scheme(self, security_sensitive):
         scheme_needed = self.config.web.default_http_scheme

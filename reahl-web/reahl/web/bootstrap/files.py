@@ -235,25 +235,25 @@ class FileUploadInput(reahl.web.ui.Input):
     :param form: (See :class:`~reahl.web.ui.Input`)
     :param bound_field: (See :class:`~reahl.web.ui.Input`, must be of 
               type :class:`reahl.component.modelinterface.FileField`)
-    :keyword name: An optional name for this input (overrides the default)
+    :keyword base_name: (See :class:`~reahl.web.ui.PrimitiveInput`)
     :keyword name_discriminator: A string added to the computed name to prevent name clashes.
     :keyword ignore_concurrent_change: If True, don't check for possible concurrent changes by others to this input (just override such changes).
 
 
     .. versionchanged:: 5.0
        Subclass of :class:`~reahl.web.ui.Input` and not :class:`~reahl.web.ui.PrimitiveInput`
-       Added `name`
+       Added `base_name`
        Added `name_discriminator`
        Added `ignore_concurrency_change`
 
     """
     is_for_file = False
 
-    def __init__(self, form, bound_field, name=None, name_discriminator=None, ignore_concurrency_change=False):
+    def __init__(self, form, bound_field, base_name=None, name_discriminator=None, ignore_concurrency_change=False):
         super(FileUploadInput, self).__init__(form, bound_field)
         
         self.ignore_concurrency_change = ignore_concurrency_change
-        name_to_use = name or ('%s-%s%s' % (form.channel_name, self.bound_field.name, name_discriminator or ''))
+        name_to_use = '%s-%s%s' % (form.channel_name, base_name or self.bound_field.name, name_discriminator or '')
         bound_field.override_unqualified_name_in_input(name_to_use)
 
         form.register_input(self) # bound_field must be set for this registration to work

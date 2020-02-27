@@ -265,7 +265,7 @@ def test_overridden_names(web_fixture, query_string_fixture, responsive_disclosu
     fixture.ModelObject = ModelObject
 
     def create_trigger_input(form, an_object):
-        the_input = CheckboxSelectInput(form, an_object.fields.choice, name='first_choice', refresh_widget=form)
+        the_input = CheckboxSelectInput(form, an_object.fields.choice, base_name='first_choice', refresh_widget=form)
         the_input.set_id('marvin')
         return the_input
     fixture.create_trigger_input = create_trigger_input
@@ -285,7 +285,7 @@ def test_overridden_names(web_fixture, query_string_fixture, responsive_disclosu
     browser = web_fixture.driver_browser
     browser.open('/')
 
-    browser.click('//input[@name="first_choice[]" and @value="3"]')
+    browser.click('//input[@name="myform-first_choice[]" and @value="3"]')
     assert browser.wait_for(query_string_fixture.is_state_now, [1,3])
 
 
