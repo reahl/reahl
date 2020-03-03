@@ -3,5 +3,4 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 import os
 from reahl.web.fw import ReahlWSGIApplication
 application = ReahlWSGIApplication.from_directory('%s/etc' % os.path.expanduser('~'))
-application.start()
 
