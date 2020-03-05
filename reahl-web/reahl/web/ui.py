@@ -1029,6 +1029,9 @@ class ConcurrentChange(ValidationConstraint):
         self.form = form
 
     def validate_input(self, unparsed_input):
+        # ajax was done iff there IS construction state in the DB
+        # if ajax was done: validate previous ajax state (defaulted values - want dis die waarde nou in die DB - wag mag abort word)
+        # always validate original form state (previous_values)
         if unparsed_input != self.form.concurrency_hash_digest:
             raise self
 
@@ -1703,14 +1706,9 @@ class PrimitiveInput(Input):
         return self.form.persisted_userinput_class
 
     def prepare_input(self):
-#        #split into: state as oriiginally rendered before ajax, state as changed with ajax
-#        #2 checks: check ajax state; check pre-ajax state
-#        # check that "defaulted" (current original) value matches Ajax state;
-#        # check that value as read from domain before it was overridden with disambiguated state matches pre-ajax state
-
         construction_state = self.view.get_construction_state()
         if construction_state:
-            self.bound_field.from_disambiguated_input(construction_state, ignore_validation=True)
+            self.bound_field.from_disambiguated_input(construction_state, ignore_validation=True, ignore_access=True)
 
         previously_entered_value = self.persisted_userinput_class.get_previously_entered_for_form(self.form, self.name, self.bound_field.entered_input_type)
 

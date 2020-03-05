@@ -418,7 +418,7 @@ def test_i18n(web_fixture, i18n_scenario):
 def test_model_examples():
     # These examples are built to run outside of our infrastructure, hence have to be run like this:
     for example in ['test_model1', 'test_model2', 'test_model3']:
-        result = pytest.main(['reahl.doc.examples.tutorial.%s' % example])
+        result = pytest.main(['reahl/doc/examples/tutorial/%s.py' % example])
         assert result == 0
 
 @with_fixtures(WebFixture, ExampleFixture.addressbook1)
