@@ -261,8 +261,7 @@ class FileUploadInput(reahl.web.ui.Input):
         self.set_html_representation(self.add_child(self.create_html_widget()))
 
 
-    @property
-    def concurrency_hash_strings(self):
+    def get_concurrency_hash_strings(self, for_original_model_values=False):
         if not self.ignore_concurrency_change:
             yield self.original_value
             

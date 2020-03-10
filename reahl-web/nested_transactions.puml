@@ -1,0 +1,15 @@
+@startuml
+
+participant "SqlAlchemyControl(ORMControl)" as SAC
+
+group nested_transaction
+ReahlWSGIApplication -> UserSession: initialise_web_session_on(context)
+UserSession -> SAC:  commit()
+end
+
+group handle_request
+ReahlWSGIApplication -> Session : begin_nested()
+
+@managed_transaction -> SAC :  get_or_initiate_transaction()
+end
+@enduml

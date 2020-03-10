@@ -490,6 +490,7 @@ def test_rendering_of_form(web_fixture):
 
     expected = '''<form id="test_channel" action="/a/b/_test_channel_method?x=y" data-formatter="/__test_channel_format_method" method="POST" class="reahl-form">''' \
                '''<input name="test_channel-_reahl_concurrency_hash" id="id-test_channel-_reahl_concurrency_hash" form="test_channel" type="hidden" value="" class="reahl-primitiveinput">''' \
+               '''<input name="test_channel-_reahl_inception_concurrency_hash" id="id-test_channel-_reahl_inception_concurrency_hash" form="test_channel" type="hidden" value="" class="reahl-primitiveinput">''' \
                '''</form>'''
     assert actual == expected
 
@@ -835,7 +836,7 @@ def test_event_names_are_canonicalised(web_fixture):
     browser = Browser(wsgi_app)
 
     # when the Action is executed, the correct arguments are passed
-    browser.post('/__myform_method', {'event.myform-an_event?some_argument=f~nnystuff': '', 'myform-_reahl_concurrency_hash':''})
+    browser.post('/__myform_method', {'event.myform-an_event?some_argument=f~nnystuff': '', 'myform-_reahl_concurrency_hash':'', 'myform-_reahl_inception_concurrency_hash':''})
     assert model_object.received_argument == 'f~nnystuff'
 
 
@@ -876,7 +877,7 @@ def test_alternative_event_trigerring(web_fixture):
     browser = Browser(wsgi_app)
 
     # when POSTing with _noredirect, the Action is executed, but the browser is not redirected to /page2 as usual
-    browser.post('/__myform_method', {'event.myform-an_event?': '', '_noredirect': '', 'myform-_reahl_concurrency_hash':''})
+    browser.post('/__myform_method', {'event.myform-an_event?': '', '_noredirect': '', 'myform-_reahl_concurrency_hash':'', 'myform-_reahl_inception_concurrency_hash':''})
     browser.follow_response()  # Needed to make the test break should a HTTPTemporaryRedirect response be sent
     assert model_object.handled_event
     assert browser.current_url.path != '/page2'

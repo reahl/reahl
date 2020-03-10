@@ -230,21 +230,19 @@ class ParticipationScenarios(Fixture):
 
     @scenario
     def custom_non_input_widget(self):
-        """Normal Widgets can be made to particilate by yielding one or more strings denoting their value in concurrency_hash_strings property"""
+        """Normal Widgets can be made to particilate by yielding one or more strings denoting their value in get_concurrency_hash_strings method return"""
         class CustomWidget(Widget):
-            @property
-            def concurrency_hash_strings(self):
+            def get_concurrency_hash_strings(self, for_original_model_values=False):
                 yield 'a value'
                 yield 'another'
         self.widget = CustomWidget(self.view)
         self.expects_participation = True
-    
-    
+
+
 @with_fixtures(ParticipationScenarios)
 def test_optimistic_concurrency_participation(scenario):
-    """By default, onlye PrimitiveInputs are included in concurrency checks, but this is customisable in various ways"""
-    assert scenario.expects_participation is bool(scenario.widget.concurrency_hash_digest)
-
+    """By default, only PrimitiveInputs are included in concurrency checks, but this is customisable in various ways"""
+    assert scenario.expects_participation is bool(scenario.widget.get_concurrency_hash_digest())
 
 
 @uses(input_fixture=SimpleInputFixture)
@@ -269,16 +267,15 @@ class ChangeScenarios(Fixture):
         """A changed ORIGINAL value of an input (ie whats in the domain) counts as a change"""
         self.change_something = self.change_domain_value
 
-        
-        
+
 @with_fixtures(WebFixture, SimpleInputFixture, ChangeScenarios)
 def test_optimistic_concurrency_what_constitutes_a_change(web_fixture, input_fixture, scenario):
     """When an Input is seen as having changed concurrently"""
     input_widget = scenario.input_widget
 
-    before_hash = input_widget.concurrency_hash_digest
+    before_hash = input_widget.get_concurrency_hash_digest()
     scenario.change_something()
-    assert before_hash != input_widget.concurrency_hash_digest
+    assert before_hash != input_widget.get_concurrency_hash_digest()
 
 
 

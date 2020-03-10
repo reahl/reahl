@@ -734,6 +734,8 @@ class Field(object):
             self.add_validation_constraint(MinLengthConstraint(min_length))
         if max_length:
             self.add_validation_constraint(MaxLengthConstraint(max_length))
+        self.previous_value_as_input = None
+        self.previous_value_set = False
 
         self.clear_user_input()
 
@@ -904,6 +906,9 @@ class Field(object):
         return getattr(self.storage_object, self.variable_name, self.default)
         
     def set_model_value(self):
+        if not self.previous_value_set:
+            self.previous_value_as_input = self.input_as_string(self.unparse_input(self.get_model_value()))
+            self.previous_value_set = True
         setattr(self.storage_object, self.variable_name, self.parsed_input)
 
     def validate_input(self, unparsed_input, ignore=None):

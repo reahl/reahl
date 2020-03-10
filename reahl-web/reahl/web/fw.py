@@ -1034,14 +1034,13 @@ class Widget(object):
            argument values set as attributes on this Widget (with names matching the argument names).
         """
     
-    @property
-    def concurrency_hash_digest(self):
+    def get_concurrency_hash_digest(self, for_original_model_values=False):
         if not self.visible:
             return ''
 
         concurrency_hash = hashlib.md5()
         is_empty = True
-        for value in self.concurrency_hash_strings:
+        for value in self.get_concurrency_hash_strings(for_original_model_values=for_original_model_values):
             is_empty = False
             concurrency_hash.update(value.encode('utf-8'))
         if is_empty:
@@ -1050,11 +1049,10 @@ class Widget(object):
             concurrency_hash.update(str(self.disabled).encode('utf-8'))
             return concurrency_hash.hexdigest()
 
-    @property
-    def concurrency_hash_strings(self):
+    def get_concurrency_hash_strings(self, for_original_model_values=False):
         for child in self.children:
-            if child.concurrency_hash_digest:
-                yield child.concurrency_hash_digest
+            if child.get_concurrency_hash_digest(for_original_model_values=for_original_model_values):
+                yield child.get_concurrency_hash_digest(for_original_model_values=for_original_model_values)
 
     @property
     def has_changed_since_initial_view(self):
@@ -2969,7 +2967,7 @@ class ReahlWSGIApplication(object):
             raise CouldNotConstructResource(current_view, root_ui, target_ui, ex)
 
     def is_form_submit(self, full_path, request):
-            return SubResource.is_for_sub_resource(full_path) and request.method == 'POST' and any(name.endswith('_reahl_concurrency_hash') for name in request.POST.keys())
+        return SubResource.is_for_sub_resource(full_path) and request.method == 'POST' and any(name.endswith('_reahl_concurrency_hash') for name in request.POST.keys())
 
     def check_scheme(self, security_sensitive):
         scheme_needed = self.config.web.default_http_scheme
