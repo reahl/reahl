@@ -78,6 +78,7 @@ class OptimisticConcurrencyFixture(Fixture):
 
     def make_concurrent_change_in_backend(self):
         self.model_object.some_field = 'changed by someone else'
+        delattr(self.model_object, '__exposed__')  # to throw away state from the previous request which in production code won't be there on a subsequent request
 
     def concurrent_change_is_present(self):
         return self.model_object.some_field == 'changed by someone else'
@@ -319,6 +320,63 @@ def test_optimistic_concurrency_forms(web_fixture, sql_alchemy_fixture, concurre
         browser.click(XPath.link().with_text('Ok'))
         assert browser.current_url.path == '/'      # Went back
         assert browser.get_value(XPath.input_labelled('Some field')) == 'some value'  # Form fields were cleared should the form now appear again
+
+
+
+class OptimisticConcurrencyWithAjaxFixture(OptimisticConcurrencyFixture):
+    def new_ModelObject(self):
+        SuperModelObject = super(OptimisticConcurrencyWithAjaxFixture, self).new_ModelObject()
+        class ModelObject(SuperModelObject):
+            some_trigger_field = Column(UnicodeText)
+
+            @exposed
+            def fields(self, fields):
+                fields.some_trigger_field = Field(label='Some trigger field', default='not set')
+
+        return ModelObject
+
+    def new_MyForm(self):
+        fixture = self
+        SuperForm = super(OptimisticConcurrencyWithAjaxFixture, self).new_MyForm()
+        class MyForm(SuperForm):
+            def __init__(self, view):
+                super(MyForm, self).__init__(view)
+                self.enable_refresh()
+                self.layout.add_input(TextInput(self, fixture.model_object.fields.some_trigger_field, refresh_widget=self))
+        return MyForm
+
+
+@with_fixtures(WebFixture, SqlAlchemyFixture, OptimisticConcurrencyWithAjaxFixture)
+def test_optimistic_concurrency_with_ajax(web_fixture, sql_alchemy_fixture, concurrency_fixture):
+    """When a concurrent change happens after an Ajax refresh, it is ignored in subsequent Ajax refreshes, 
+       but upon an eventual submit the user is prompted.
+    """
+    fixture = concurrency_fixture
+            
+    with sql_alchemy_fixture.persistent_test_classes(fixture.ModelObject):
+        model_object = fixture.model_object
+        Session.add(model_object)
+
+        model_object.some_trigger_field = 'some value'
+        model_object.some_field = 'some value'
+
+        wsgi_app = web_fixture.new_wsgi_app(child_factory=fixture.MyForm.factory(), enable_js=True)
+        web_fixture.reahl_server.set_app(wsgi_app)
+        browser = web_fixture.driver_browser
+        browser.open('/')
+
+        # When submitting a form that is not present on the page anymore, user is ferried to an error page
+        browser.type(XPath.input_labelled('Some field'), 'something for the fun of it')
+        browser.type(XPath.input_labelled('Some trigger field'), 'something else')
+
+        fixture.make_concurrent_change_in_backend()
+
+        assert not fixture.is_concurrency_error_displayed()
+        browser.type(XPath.input_labelled('Some trigger field'), 'something else again')
+        assert not fixture.is_concurrency_error_displayed()
+        browser.click(XPath.button_labelled('Submit'))
+        assert fixture.is_concurrency_error_displayed()
+
 
 
     

@@ -1047,7 +1047,8 @@ class Widget(object):
             return ''
         else:
             concurrency_hash.update(str(self.disabled).encode('utf-8'))
-            return concurrency_hash.hexdigest()
+            return '-'.join(list(self.get_concurrency_hash_strings(for_database_values=for_database_values))+[str(self.disabled)])
+            #return concurrency_hash.hexdigest()
 
     def get_concurrency_hash_strings(self, for_database_values=False):
         for child in self.children:
