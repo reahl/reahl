@@ -1077,11 +1077,7 @@ class Form(HTMLElement):
 
             def set_attributes(self, attributes):
                 super(DelayedConcurrencyDigestValue, self).set_attributes(attributes)
-                #                digest = self.digest_input.value if self.digest_input.value else self.digest_input.form.get_concurrency_hash_digest()
-                if not self.for_original_model_values:
-                    digest = self.digest_input.form.get_concurrency_hash_digest()
-                else:
-                    digest = self.digest_input.form.get_concurrency_hash_digest(for_original_model_values=True)
+                digest = self.digest_input.form.get_concurrency_hash_digest(for_original_model_values=self.for_original_model_values)
                 attributes.set_to('value', digest)
 
         self.posted_concurrency_hash_digest = None
