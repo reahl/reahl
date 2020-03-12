@@ -2877,6 +2877,7 @@ class ReahlWSGIApplication(object):
         with self.concurrency_manager:
             with self.system_control.nested_transaction():
                 self.config.web.session_class.initialise_web_session_on(context)
+                context.session.set_last_activity_time()
             try:
                 try:
                     with self.system_control.nested_transaction() as veto:
@@ -2905,7 +2906,6 @@ class ReahlWSGIApplication(object):
                 context.session.set_session_key(response)
                 for chunk in response(environ, start_response):
                     yield chunk
-                context.session.set_last_activity_time()
             finally:
                 self.system_control.finalise_session()
 

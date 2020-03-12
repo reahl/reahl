@@ -35,6 +35,7 @@ from reahl.web.ui import HTML5Page
 from reahl.web_dev.fixtures import ReahlWSGIApplicationStub, BasicPageLayout
 from reahl.webdev.tools import Browser
 
+from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
 from reahl.web_dev.fixtures import WebFixture
 
 
@@ -249,7 +250,6 @@ def test_web_session_handling(reahl_system_fixture, web_fixture):
             return 'en_gb'
 
     # Setting the implementation in config
-
     web_fixture.config.web.session_class = UserSessionStub
     with CallMonitor(reahl_system_fixture.system_control.orm_control.commit) as monitor:
         @stubclass(Resource)
