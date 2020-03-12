@@ -1034,13 +1034,13 @@ class Widget(object):
            argument values set as attributes on this Widget (with names matching the argument names).
         """
     
-    def get_concurrency_hash_digest(self, for_original_model_values=False):
+    def get_concurrency_hash_digest(self, for_database_values=False):
         if not self.visible:
             return ''
 
         concurrency_hash = hashlib.md5()
         is_empty = True
-        for value in self.get_concurrency_hash_strings(for_original_model_values=for_original_model_values):
+        for value in self.get_concurrency_hash_strings(for_database_values=for_database_values):
             is_empty = False
             concurrency_hash.update(value.encode('utf-8'))
         if is_empty:
@@ -1049,10 +1049,10 @@ class Widget(object):
             concurrency_hash.update(str(self.disabled).encode('utf-8'))
             return concurrency_hash.hexdigest()
 
-    def get_concurrency_hash_strings(self, for_original_model_values=False):
+    def get_concurrency_hash_strings(self, for_database_values=False):
         for child in self.children:
-            if child.get_concurrency_hash_digest(for_original_model_values=for_original_model_values):
-                yield child.get_concurrency_hash_digest(for_original_model_values=for_original_model_values)
+            if child.get_concurrency_hash_digest(for_database_values=for_database_values):
+                yield child.get_concurrency_hash_digest(for_database_values=for_database_values)
 
     @property
     def has_changed_since_initial_view(self):
@@ -2967,7 +2967,7 @@ class ReahlWSGIApplication(object):
             raise CouldNotConstructResource(current_view, root_ui, target_ui, ex)
 
     def is_form_submit(self, full_path, request):
-        return SubResource.is_for_sub_resource(full_path) and request.method == 'POST' and any(name.endswith('_reahl_concurrency_hash') for name in request.POST.keys())
+        return SubResource.is_for_sub_resource(full_path) and request.method == 'POST' and any(name.endswith('_reahl_client_concurrency_digest') for name in request.POST.keys())
 
     def check_scheme(self, security_sensitive):
         scheme_needed = self.config.web.default_http_scheme

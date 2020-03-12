@@ -734,8 +734,8 @@ class Field(object):
             self.add_validation_constraint(MinLengthConstraint(min_length))
         if max_length:
             self.add_validation_constraint(MaxLengthConstraint(max_length))
-        self.previous_value_as_input = None
-        self.previous_value_set = False
+        self.initial_value = None
+        self.has_changed_model = False
 
         self.clear_user_input()
 
@@ -906,9 +906,9 @@ class Field(object):
         return getattr(self.storage_object, self.variable_name, self.default)
         
     def set_model_value(self):
-        if not self.previous_value_set:
-            self.previous_value_as_input = self.input_as_string(self.unparse_input(self.get_model_value()))
-            self.previous_value_set = True
+        if not self.has_changed_model:
+            self.initial_value = self.get_model_value()
+            self.has_changed_model = True
         setattr(self.storage_object, self.variable_name, self.parsed_input)
 
     def validate_input(self, unparsed_input, ignore=None):
@@ -959,6 +959,9 @@ class Field(object):
 
     def as_user_input_value(self, for_input_status=None):
         return self.input_as_string(self.as_list_unaware_user_input_value(for_input_status=for_input_status))
+
+    def get_initial_value_as_user_input(self):
+        return self.input_as_string(self.unparse_input(self.initial_value))
 
     def as_list_unaware_user_input_value(self, for_input_status=None):
         if (for_input_status or self.input_status) == 'defaulted' or (not self.can_read()):
