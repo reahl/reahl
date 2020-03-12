@@ -22,7 +22,7 @@ from webob.exc import HTTPNotFound
 
 from reahl.tofu import expected, Fixture
 from reahl.tofu.pytestsupport import with_fixtures
-from reahl.stubble import stubclass, CallMonitor
+from reahl.stubble import stubclass, CallMonitor, replaced
 
 from reahl.component.context import ExecutionContext
 from reahl.web.fw import Resource, ReahlWSGIApplication, InternalRedirect
@@ -62,6 +62,9 @@ def test_wsgi_interface(web_fixture, wsgi_fixture):
     assert fixture.status == '200 OK'
     assert fixture.some_headers_are_set(fixture.headers)
 
+
+from sqlalchemy import event
+from reahl.sqlalchemysupport import Session
 
 @with_fixtures(ReahlSystemFixture, WebFixture)
 def test_web_session_handling(reahl_system_fixture, web_fixture):
@@ -114,10 +117,22 @@ def test_web_session_handling(reahl_system_fixture, web_fixture):
         def get_interface_locale(self):
             return 'en_gb'
 
-    # Setting the implementation in config
 
+    import sqlalchemy.orm 
+    @stubclass(sqlalchemy.orm.Session)
+    class TransactionStub(object):
+        is_active=True
+        def commit(self):pass
+        def rollback(self):pass
+
+    web_fixture.nested_transaction =  TransactionStub()
+
+    def wrapped_nested_transaction():
+        return web_fixture.nested_transaction
+
+    # Setting the implementation in config
     web_fixture.config.web.session_class = UserSessionStub
-    with CallMonitor(reahl_system_fixture.system_control.orm_control.commit) as monitor:
+    with replaced(Session().begin_nested, wrapped_nested_transaction), CallMonitor(web_fixture.nested_transaction.commit) as monitor:
         @stubclass(Resource)
         class ResourceStub(object):
             should_commit = True
@@ -127,7 +142,7 @@ def test_web_session_handling(reahl_system_fixture, web_fixture):
                 context = ExecutionContext.get_context()
                 assert context.session is UserSessionStub.session  # By the time user code executes, the session is set
                 assert monitor.times_called == 1  # The database has been committed before user code started executing
-                assert not context.session.last_activity_time_set
+                assert context.session.last_activity_time_set
                 assert not UserSessionStub.session.key_is_set
                 return Response()
 
