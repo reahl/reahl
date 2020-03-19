@@ -47,9 +47,10 @@ class NewInvestmentForm(Form):
     def __init__(self, view):
         super(NewInvestmentForm, self).__init__(view, 'new_investment_form')
         self.enable_refresh()
+        self.use_layout(FormLayout())
 
         if self.exception:
-            self.add_child(Alert(view, str(self.exception), 'warning'))
+            self.layout.add_alert_for_domain_exception(self.exception)
 
         investment_order = InvestmentOrder.for_current_session()
         type_of_investor = self.add_child(FieldSet(view, legend_text='Introduction'))
@@ -121,7 +122,7 @@ class AllocationDetailSection(Div):
         allocation_controls.use_layout(FormLayout())
 
         if self.form.exception:
-            self.add_child(Alert(self.view, str(self.form.exception), 'warning'))
+            self.layout.add_alert_for_domain_exception(self.form.exception, form=self.form, unique_name='details_section')
         
         total_amount_input = TextInput(self.form, self.investment_order.fields.amount, refresh_widget=self)
         allocation_controls.layout.add_input(total_amount_input)

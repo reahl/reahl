@@ -581,7 +581,7 @@ class Body(HTMLElement):
     """
     def __init__(self, view, css_id=None):
         super(Body, self).__init__(view, 'body', children_allowed=True, css_id=css_id)
-        self.out_of_bound_forms = self.add_child(Div(self.view, css_id='_reahl_out_of_bound_forms'))
+        self.out_of_bound_container = self.add_child(Div(self.view, css_id='_reahl_out_of_bound_container'))
         self.add_child(Slot(self.view, name='reahl_footer'))
 
     def footer_already_added(self):
@@ -599,11 +599,11 @@ class Body(HTMLElement):
             self.children.append(existing_footer)
         return child
 
-    def attach_out_of_bound_forms(self, forms):
-        self.out_of_bound_forms.add_children(forms)
+    def attach_out_of_bound_widgets(self, widgets):
+        self.out_of_bound_container.add_children(widgets)
 
-    def get_out_of_bounds_forms_widget(self):
-        return self.out_of_bound_forms
+    def get_out_of_bound_container(self):
+        return self.out_of_bound_container
 
 
 
@@ -1024,17 +1024,24 @@ class Span(HTMLElement):
 
 
 class ConcurrentChange(ValidationConstraint):
-    def __init__(self, form, for_database_values=False):
+    def __init__(self, form, for_database_values=False, if_other_passed=None):
         super(ConcurrentChange, self).__init__(error_message=_('Some data changed since you opened this page, please reset input to try again.'))
         self.form = form
         self.for_database_values = for_database_values
+        self.failed = False
+        self.if_other_passed = if_other_passed
+
+    @property
+    def passed(self):
+        return not self.failed
 
     def validate_input(self, unparsed_input):
-        # ajax was done iff there IS construction state in the DB
-        # if ajax was done: validate previous ajax state (defaulted values - want dis die waarde nou in die DB - wag mag abort word)
-        # always validate original form state (initial_values)
-        if unparsed_input != self.form.get_concurrency_hash_digest(for_database_values=self.for_database_values):
-            raise self
+        if self.if_other_passed and self.if_other_passed.passed:
+            if unparsed_input != self.form.get_concurrency_hash_digest(for_database_values=self.for_database_values):
+                self.failed = True
+    #            from string import Template
+    #            self.error_message = Template('Failing concurrency check: for_database_values(%s) [%s] != [%s]' % (self.for_database_values, unparsed_input, self.form.get_concurrency_hash_digest(for_database_values=self.for_database_values)))
+                raise self
 
 
 
@@ -1080,21 +1087,31 @@ class Form(HTMLElement):
                 digest = self.digest_input.form.get_concurrency_hash_digest(for_database_values=self.for_database_values)
                 attributes.set_to('value', digest)
 
-        self.posted_client_concurrency_digest = None
-        self.client_digest_input = self.add_child(HiddenInput(self, self.fields.posted_client_concurrency_digest, base_name='_reahl_client_concurrency_digest', ignore_concurrent_change=True))
+        self.hash_inputs = self.add_child(Div(self.view, css_id='%s_hashes' % unique_name))
+
+        self.posted_client_concurrency_digest = None        
+        self.client_digest_input = self.hash_inputs.add_child(HiddenInput(self, self.fields.posted_client_concurrency_digest, base_name='_reahl_client_concurrency_digest', ignore_concurrent_change=True))
         if not self.client_digest_input.value:
             self.client_digest_input.add_attribute_source(DelayedConcurrencyDigestValue(self.client_digest_input))
 
         self.posted_database_concurrency_digest = None
-        self.database_digest_input = self.add_child(HiddenInput(self, self.fields.posted_database_concurrency_digest, base_name='_reahl_database_concurrency_digest', ignore_concurrent_change=True))
+        self.database_digest_input = self.hash_inputs.add_child(HiddenInput(self, self.fields.posted_database_concurrency_digest, base_name='_reahl_database_concurrency_digest', ignore_concurrent_change=True))
         if not self.database_digest_input.value:
             self.database_digest_input.add_attribute_source(DelayedConcurrencyDigestValue(self.database_digest_input, for_database_values=True))
 
+    @property
+    def ancestral_coactive_widgets(self):
+        return super(Form, self).ancestral_coactive_widgets + [self.hash_inputs]
+
+    @property
+    def coactive_widgets(self):
+        return super(Form, self).coactive_widgets + [self.hash_inputs]
 
     @exposed
     def fields(self, fields):
-        fields.posted_client_concurrency_digest = Field().with_validation_constraint(ConcurrentChange(self))
-        fields.posted_database_concurrency_digest = Field().with_validation_constraint(ConcurrentChange(self, for_database_values=True))
+        client_validation = ConcurrentChange(self)
+        fields.posted_client_concurrency_digest = Field().with_validation_constraint(client_validation)
+        fields.posted_database_concurrency_digest = Field().with_validation_constraint(ConcurrentChange(self, for_database_values=True, if_other_passed=client_validation))
 
     @exposed
     def events(self, events):
@@ -1297,11 +1314,11 @@ class NestedForm(Div):
         super(NestedForm, self).__init__(view, css_id='%s_nested' % self.out_of_bound_form.css_id)
         self.add_to_attribute('class', ['reahl-nested-form'])
         self.set_id(self.css_id)
-        view.add_out_of_bound_form(self.out_of_bound_form)
+        view.add_out_of_bound_widget(self.out_of_bound_form)
 
     @property
     def coactive_widgets(self):
-        return super(NestedForm, self).coactive_widgets + [self.view.page.get_out_of_bounds_forms_widget()]
+        return super(NestedForm, self).coactive_widgets + [self.view.page.get_out_of_bound_container()]
 
     @property
     def form(self):
@@ -1332,11 +1349,14 @@ class FormLayout(Layout):
 
         return html_input
 
-    def add_alert_for_domain_exception(self, exception):
+    def add_alert_for_domain_exception(self, exception, form=None, unique_name=''):
         """Adds a formatted error message to the Form.
 
            :param exception: The Exception that should be displayed.
+           :keyword form: The Form to which this exception relates (default is this Layout's .widget).
+           :keyword unique_name: If more than one alert is added to the same Form, unique_name distinguishes between them.
         """
+        form = form or self.widget
         alert = self.widget.add_child(Div(self.widget.view))
         alert.append_class('errors')
         alert.add_child(P(self.view, text=exception.as_user_message()))
@@ -1345,9 +1365,9 @@ class FormLayout(Layout):
             ul = alert.add_child(Ul(self.widget.view))
             for detail_message in exception.detail_messages:
                 ul.add_child(Li(self.widget.view)).add_child(TextNode(self.widget.view, detail_message))
-            reset_form = alert.add_child(NestedForm(self.widget.view, 'reset_%s' % self.widget.channel_name))
-            reset_form.form.define_event_handler(self.widget.events.reset)
-            reset_form.add_child(ButtonInput(reset_form.form, self.widget.events.reset))
+            reset_form = alert.add_child(NestedForm(self.widget.view, 'reset_%s%s' % (form.channel_name, unique_name)))
+            reset_form.form.define_event_handler(form.events.reset)
+            reset_form.add_child(ButtonInput(reset_form.form, form.events.reset))
 
 
 class FieldSet(HTMLElement):

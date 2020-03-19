@@ -504,7 +504,7 @@ def test_body(web_fixture):
     assert reahl_footer_slot.name == 'reahl_footer'
 
     rendered_html = tester.render_html()
-    assert rendered_html == '<body><div id="_reahl_out_of_bound_forms"></div><p></p></body>'
+    assert rendered_html == '<body><div id="_reahl_out_of_bound_container"></div><p></p></body>'
 
 
 @with_fixtures(WebFixture)
@@ -519,7 +519,7 @@ def test_html5_page(web_fixture):
 
     rendered_html = tester.render_html()
     head = '<head><title>It: %s</title></head>' % fixture.view.title
-    expected_regex = '^<!DOCTYPE html><html.*class="no-js"><script>.*</script>%s<body><div id="_reahl_out_of_bound_forms"></div></body></html>$' % head
+    expected_regex = '^<!DOCTYPE html><html.*class="no-js"><script>.*</script>%s<body><div id="_reahl_out_of_bound_container"></div></body></html>$' % head
     assert re.match(expected_regex, rendered_html.replace('\n', ''))
 
     assert list(widget.default_slot_definitions.keys()) == ['slot1']

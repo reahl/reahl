@@ -246,7 +246,7 @@ class FileUploadInputFixture(Fixture):
                 self.set_attribute('novalidate','novalidate')
                 self.use_layout(FormLayout())
                 if self.exception:
-                    self.layout.add_alert_for_domain_exception(self.exception, 'warning')
+                    self.layout.add_alert_for_domain_exception(self.exception)
                 self.layout.add_input(FileUploadInput(self, fixture.domain_object.fields.files))
                 self.define_event_handler(fixture.domain_object.events.submit)
                 self.add_child(Button(self, fixture.domain_object.events.submit))
@@ -364,7 +364,7 @@ class StubbedFileUploadInputFixture(FileUploadInputFixture):
                 super(FileUploadForm, self).__init__(view, 'test')
                 if self.exception:
                     self.use_layout(FormLayout())
-                    self.layout.add_alert_for_domain_exception(self.exception, 'error')
+                    self.layout.add_alert_for_domain_exception(self.exception)
                 self.add_child(FileUploadInputStub(self, fixture.domain_object.fields.files))
                 self.define_event_handler(fixture.domain_object.events.submit)
                 self.add_child(Button(self, fixture.domain_object.events.submit))

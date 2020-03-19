@@ -476,10 +476,17 @@ class FormLayout(reahl.web.fw.Layout):
 
         return html_input
 
-    def add_alert_for_domain_exception(self, exception, severity):
-        """TODO
-            .. versionadded:: 5.0
+    def add_alert_for_domain_exception(self, exception, form=None, unique_name='', severity='danger'):
+        """Adds a formatted error message to the Form.
+
+           :param exception: The Exception that should be displayed.
+           :keyword form: The Form to which this exception relates (default is this Layout's .widget).
+           :keyword unique_name: If more than one alert is added to the same Form, unique_name distinguishes between them.
+           :keyword severity: (See :class:`~reahl.web.bootstrap.ui.Alert`).
+
+           .. versionadded:: 5.0
         """
+        form = form or self.widget
         alert = self.widget.add_child(Alert(self.widget.view, exception.as_user_message(), severity))
         alert.add_child(Hr(self.widget.view))
         if exception.detail_messages:
@@ -487,9 +494,9 @@ class FormLayout(reahl.web.fw.Layout):
             for detail_message in exception.detail_messages:
                 ul.add_child(Li(self.widget.view)).add_child(TextNode(self.widget.view, detail_message))
 
-        reset_form = alert.add_child(NestedForm(self.widget.view, 'reset_%s' % self.widget.channel_name))
-        reset_form.form.define_event_handler(self.widget.events.reset)
-        reset_form.add_child(Button(reset_form.form, self.widget.events.reset)).use_layout(ButtonLayout(style='primary'))
+        reset_form = alert.add_child(NestedForm(self.widget.view, 'reset_%s%s' % (form.channel_name, unique_name)))
+        reset_form.form.define_event_handler(form.events.reset)
+        reset_form.add_child(Button(reset_form.form, form.events.reset)).use_layout(ButtonLayout(style='primary'))
             
 
 

@@ -1047,13 +1047,13 @@ class Widget(object):
             return ''
         else:
             concurrency_hash.update(str(self.disabled).encode('utf-8'))
-            return '-'.join(list(self.get_concurrency_hash_strings(for_database_values=for_database_values))+[str(self.disabled)])
-            #return concurrency_hash.hexdigest()
+            return concurrency_hash.hexdigest()
 
     def get_concurrency_hash_strings(self, for_database_values=False):
         for child in self.children:
-            if child.get_concurrency_hash_digest(for_database_values=for_database_values):
-                yield child.get_concurrency_hash_digest(for_database_values=for_database_values)
+            digest = child.get_concurrency_hash_digest(for_database_values=for_database_values)
+            if digest:
+                yield digest
 
     @property
     def has_changed_since_initial_view(self):
@@ -1062,6 +1062,10 @@ class Widget(object):
     @property
     def coactive_widgets(self):
         return [widget for child in self.children for widget in child.coactive_widgets]
+
+    @property
+    def ancestral_coactive_widgets(self):
+        return []
 
     def accept_disambiguated_input(self, disambiguated_input):
         self.query_fields.accept_input(disambiguated_input, ignore_validation=True)
@@ -1262,7 +1266,7 @@ class Widget(object):
         self.slot_contents['reahl_header'] = HeaderContent(self)
         self.slot_contents['reahl_footer'] = FooterContent(self)
         self.fill_slots(self.slot_contents)
-        self.attach_out_of_bound_forms(view.out_of_bound_forms)
+        self.attach_out_of_bound_widgets(view.out_of_bound_widgets)
         self.check_form_related_programmer_errors()
 
     @property
@@ -1278,17 +1282,17 @@ class Widget(object):
             if widget:
                 slot.fill(widget)
 
-    def attach_out_of_bound_forms(self, forms):
+    def attach_out_of_bound_widgets(self, widgets):
         for child in self.children:
-            child.attach_out_of_bound_forms(forms)
+            child.attach_out_of_bound_widgets(widgets)
 
-    def get_out_of_bounds_forms_widget(self):
-        widgets = [widget for widget in [child.get_out_of_bounds_forms_widget() for child in self.children]
+    def get_out_of_bound_container(self):
+        container = [widget for widget in [child.get_out_of_bound_container() for child in self.children]
                           if widget]
-        if not widgets:
+        if not container:
             return None
-        assert len(widgets) == 1
-        return widgets[0]
+        assert len(container) == 1
+        return container[0]
 
 
 class ErrorWidget(Widget):
@@ -1843,7 +1847,7 @@ class UrlBoundView(View):
         if re.match('/_([^/]*)$', relative_path):
             raise ProgrammerError('you cannot create UrlBoundViews with /_ in them - those are reserved URLs for SubResources')
         super(UrlBoundView, self).__init__(user_interface)
-        self.out_of_bound_forms = []
+        self.out_of_bound_widgets = []
         self.relative_path = relative_path
         self.title = title                          #: The title of this View
         self.preconditions = []       
@@ -1942,9 +1946,9 @@ class UrlBoundView(View):
                         locale=locale,
                         read_check=self.read_check, write_check=self.write_check)
 
-    def add_out_of_bound_form(self, out_of_bound_form):
-        self.out_of_bound_forms.append(out_of_bound_form)
-        return out_of_bound_form
+    def add_out_of_bound_widget(self, out_of_bound_widget):
+        self.out_of_bound_widgets.append(out_of_bound_widget)
+        return out_of_bound_widget
 
     @property
     def full_path(self):
@@ -2340,23 +2344,30 @@ class WidgetResult(MethodResult):
         return json.dumps({ 'success': success, 'widgets': rendered_widgets })
 
     def get_coactive_widgets_recursively(self, widget):
-        all_coactive_widgets = []
+        ancestral_widgets = []
+        for current_widget, current_parents_set in widget.view.page.parent_widget_pairs(set([])):
+            if current_widget is widget:
+                coactive_parents = set(widget.coactive_widgets) & set(current_parents_set)
+                if coactive_parents:
+                    raise ProgrammerError('The coactive Widgets of %s include its ancestor(s): %s' % (widget, ','.join([str(i) for i in coactive_parents])))
+                ancestral_widgets = [ancestral_widget 
+                                        for parent in current_parents_set 
+                                    for ancestral_widget in parent.ancestral_coactive_widgets]
+
+        all_coactive_widgets = ancestral_widgets
         for direct_coactive_widget in widget.coactive_widgets:
             all_coactive_widgets.append(direct_coactive_widget)
             for indirect_coactive_widget in direct_coactive_widget.coactive_widgets:
                 all_coactive_widgets.append(indirect_coactive_widget)
 
-        descendant_widgets = set(itertools.chain([widget], widget.contained_widgets()))
-        descendant_coactive_widgets = descendant_widgets & set(all_coactive_widgets)
-        if descendant_coactive_widgets:
-            raise ProgrammerError('%s are coactive widgets of %s and are also itself or one of its descendants' % (descendant_coactive_widgets, widget))
+        descendant_widgets = set(widget.contained_widgets())
+        coactive_widgets =  set(all_coactive_widgets) - descendant_widgets
 
-        for coactive_widget in all_coactive_widgets:
-            descendant_widgets = set(itertools.chain([coactive_widget], coactive_widget.contained_widgets()))
-            if widget in descendant_widgets:
-                raise ProgrammerError('%s is a coactive widget of %s and is also one of its ancestors' % (coactive_widget, widget))
+        for coactive_widget in coactive_widgets.copy():
+            descendant_widgets = set(coactive_widget.contained_widgets())
+            coactive_widgets = coactive_widgets - descendant_widgets
 
-        return all_coactive_widgets
+        return coactive_widgets
 
 
     def render(self, return_value):

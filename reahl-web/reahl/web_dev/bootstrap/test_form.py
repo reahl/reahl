@@ -713,7 +713,7 @@ def test_alert_for_domain_exception(web_fixture):
             model_object = ModelObject()
 
             if self.exception:
-                self.layout.add_alert_for_domain_exception(self.exception, 'warning')
+                self.layout.add_alert_for_domain_exception(self.exception)
 
             self.layout.add_input(TextInput(self, model_object.fields.some_field))
 

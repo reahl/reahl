@@ -489,8 +489,10 @@ def test_rendering_of_form(web_fixture):
     actual = tester.render_html()
 
     expected = '''<form id="test_channel" action="/a/b/_test_channel_method?x=y" data-formatter="/__test_channel_format_method" method="POST" class="reahl-form">''' \
+               '''<div id="test_channel_hashes">'''\
                '''<input name="test_channel-_reahl_client_concurrency_digest" id="id-test_channel-_reahl_client_concurrency_digest" form="test_channel" type="hidden" value="" class="reahl-primitiveinput">''' \
                '''<input name="test_channel-_reahl_database_concurrency_digest" id="id-test_channel-_reahl_database_concurrency_digest" form="test_channel" type="hidden" value="" class="reahl-primitiveinput">''' \
+               '''</div>''' \
                '''</form>'''
     assert actual == expected
 
@@ -631,9 +633,7 @@ def test_form_input_validation(web_fixture):
     class MyForm(Form):
         def __init__(self, view, name, other_view):
             super(MyForm, self).__init__(view, name)
-#            self.use_layout(FormLayout())
             if self.exception:
-#                self.layout.add_alert_for_domain_exception(self.exception)
                  self.add_child(P(view, ','.join(self.exception.detail_messages)))
             self.define_event_handler(model_object.events.an_event, target=other_view)
             self.add_child(ButtonInput(self, model_object.events.an_event))

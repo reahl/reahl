@@ -239,6 +239,8 @@ class ResultScenarios(Fixture):
     @scenario
     def widget_as_json(self):
         self.method_result = WidgetResult(self.WidgetStub(self.web_fixture.view), as_json_and_result=True)
+        self.web_fixture.view.page = self.method_result.result_widget
+
         self.value_to_return = 'ignored in this case'
         self.expected_response = {'widgets': {"someid": '<the widget contents><script type="text/javascript">javascriptsome</script>'},
                                   'success': True}
@@ -473,27 +475,6 @@ def test_coactive_widgets(web_fixture):
                              }
 
 @with_fixtures(WebFixture)
-def test_coactive_widgets_cannot_be_descendants(web_fixture):
-    """The descendant Widgets of a given Widget cannot be its coactive Widgets."""
-
-    @stubclass(Widget)
-    class WidgetWithRemoteMethod(Widget):
-        def __init__(self, view):
-            super(WidgetWithRemoteMethod, self).__init__(view)
-            child = CoactiveWidgetStub(view, 'child', [])
-            result_widget = CoactiveWidgetStub(view, 'parent', [child])
-            result_widget.add_child(child)
-            method_result = WidgetResult(result_widget, as_json_and_result=True)
-            remote_method = RemoteMethod(view, 'amethod', lambda: None, default_result=method_result)
-            view.add_resource(remote_method)
-
-    wsgi_app = web_fixture.new_wsgi_app(child_factory=WidgetWithRemoteMethod.factory())
-    browser = Browser(wsgi_app)
-
-    with expected(ProgrammerError, '.+ are coactive widgets of .+ and are also itself or one of its descendants'):
-        browser.post('/_amethod_method', {})
-
-@with_fixtures(WebFixture)
 def test_coactive_widgets_cannot_be_parents(web_fixture):
     """The ancestor Widgets of a given Widget cannot be its coactive Widgets."""
 
@@ -512,5 +493,5 @@ def test_coactive_widgets_cannot_be_parents(web_fixture):
     wsgi_app = web_fixture.new_wsgi_app(child_factory=WidgetWithRemoteMethod.factory())
     browser = Browser(wsgi_app)
 
-    with expected(ProgrammerError, '.+ is a coactive widget of .+ and is also one of its ancestors'):
+    with expected(ProgrammerError, 'The coactive Widgets of .+ include its ancestor\(s\): .+'):
         browser.post('/_amethod_method', {})
