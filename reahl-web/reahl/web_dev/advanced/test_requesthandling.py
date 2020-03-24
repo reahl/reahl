@@ -17,21 +17,25 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 
+import threading
+
 from webob import Request, Response
 from webob.exc import HTTPNotFound
 
-from reahl.tofu import expected, Fixture
-from reahl.tofu.pytestsupport import with_fixtures
-from reahl.stubble import stubclass, CallMonitor, replaced
+from reahl.component.dbutils import SystemControl
+from reahl.tofu import expected, Fixture, scenario
+from reahl.tofu.pytestsupport import with_fixtures, uses
+from reahl.stubble import stubclass, CallMonitor, exempt, replaced
 
 from reahl.component.context import ExecutionContext
-from reahl.web.fw import Resource, ReahlWSGIApplication, InternalRedirect
+from reahl.web.fw import Resource, ReahlWSGIApplication, InternalRedirect, UserInterface
 from reahl.web.interfaces import UserSessionProtocol
 from reahl.dev.fixtures import ReahlSystemFixture
-from reahl.web_dev.fixtures import ReahlWSGIApplicationStub
+from reahl.web.ui import HTML5Page
+from reahl.web_dev.fixtures import ReahlWSGIApplicationStub, BasicPageLayout
 from reahl.webdev.tools import Browser
+from reahl.sqlalchemysupport import Session
 
-from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
 from reahl.web_dev.fixtures import WebFixture
 
 
@@ -63,8 +67,136 @@ def test_wsgi_interface(web_fixture, wsgi_fixture):
     assert fixture.some_headers_are_set(fixture.headers)
 
 
-from sqlalchemy import event
-from reahl.sqlalchemysupport import Session
+@uses(web_fixture=WebFixture)
+class WSGIWithAppFixture(WSGIFixture):
+    def new_wsgi_app(self):
+        class MainUI(UserInterface):
+            def assemble(self):
+                self.define_page(HTML5Page).use_layout(BasicPageLayout())
+                self.define_view('/', title='Home page')
+        config = self.web_fixture.config
+        config.web.site_root = MainUI
+
+        return ReahlWSGIApplication(config)
+
+    def call_wsgi_app(self):
+        environ = Request.blank('/', charset='utf8').environ
+        def start_response(status, headers):
+            self.status = status
+            self.headers = headers
+
+        wsgi_iterator = self.wsgi_app(environ, start_response)
+        result = ''.join([i.decode('utf-8') for i in wsgi_iterator]) #so it gets __call_'ed
+
+
+@stubclass(SystemControl)
+class SystemControlStub(SystemControl):
+    @exempt
+    def set_as_connected(self, status):
+        self.connect_status = status
+
+    def connect(self):
+        pass
+
+    def disconnect(self):
+        pass
+
+    @property
+    def connected(self):
+        return self.connect_status
+
+
+@uses(web_fixture=WebFixture)
+class ConnectScenarios(Fixture):
+
+    def new_system_control(self):
+        return SystemControlStub(self.web_fixture.config)
+
+    @scenario
+    def not_connected(self):
+        self.connected = False
+
+    @scenario
+    def connected(self):
+        self.connected = True
+
+
+@with_fixtures(WSGIWithAppFixture, ConnectScenarios)
+def test_wsgi_connect_on_start(wsgi_fixture, connect_scenario):
+    """A ReahlWSGIApplication can make its system_control_connect, if it is not already connected."""
+    wsgi_app = wsgi_fixture.wsgi_app
+    wsgi_app.system_control = connect_scenario.system_control
+
+    connect_scenario.system_control.set_as_connected(connect_scenario.connected)
+
+    with CallMonitor(connect_scenario.system_control.connect) as monitor:
+
+        assert not wsgi_app.started
+        wsgi_fixture.call_wsgi_app()
+        assert wsgi_app.started
+
+    if connect_scenario.connected:
+        assert len(monitor.calls) == 0
+    else:
+        assert len(monitor.calls) == 1
+
+
+@stubclass(SystemControl)
+class SystemControlSlowConnectStub(SystemControl):
+    is_connected = False
+    @exempt
+    def block_connect(self):
+        self.connect_lock = threading.Lock()
+        self.connect_lock.acquire()
+
+    @exempt
+    def unblock_connect(self):
+        self.connect_lock.release()
+
+    def connect(self):
+        if self.connect_lock.acquire(False):
+            raise Exception('Another thread should not be here')
+        self.connect_lock.acquire() #first thread to get here will block
+        self.connect_lock.release()
+        self.is_connected = True
+
+    @property
+    def connected(self):
+        return self.is_connected
+
+    def disconnect(self):
+        pass
+
+
+@with_fixtures(WebFixture, WSGIWithAppFixture)
+def test_wsgi_starts_on_first_call(web_fixture, wsgi_fixture):
+    """Threads"""
+    wsgi_app = wsgi_fixture.wsgi_app
+    wsgi_app.system_control = SystemControlSlowConnectStub(web_fixture.config)
+
+    wsgi_app.system_control.block_connect() #start will be calling this - use it to delay the first start
+
+    assert not wsgi_app.system_control.connected
+    assert not wsgi_app.started
+
+    with CallMonitor(wsgi_app.start) as monitor:
+
+        # simulate multiple requests hitting an app, whoever is first, will cause it to start
+        thread1 = threading.Thread(target=wsgi_fixture.call_wsgi_app)
+        thread1.start()
+
+        thread2 = threading.Thread(target=wsgi_fixture.call_wsgi_app)
+        thread2.start()
+
+        wsgi_app.system_control.unblock_connect()
+        thread1.join()
+        thread2.join()
+
+    assert wsgi_app.system_control.connected
+    assert wsgi_app.started
+    assert len(monitor.calls) == 1
+
+
 
 @with_fixtures(ReahlSystemFixture, WebFixture)
 def test_web_session_handling(reahl_system_fixture, web_fixture):
@@ -118,52 +250,53 @@ def test_web_session_handling(reahl_system_fixture, web_fixture):
             return 'en_gb'
 
 
-    import sqlalchemy.orm 
+    import sqlalchemy.orm
     @stubclass(sqlalchemy.orm.Session)
     class TransactionStub(object):
-        is_active=True
-        def commit(self):pass
-        def rollback(self):pass
+        is_active = True
+        def commit(self): pass
+        def rollback(self): pass
 
-    web_fixture.nested_transaction =  TransactionStub()
+    web_fixture.nested_transaction = TransactionStub()
 
     def wrapped_nested_transaction():
         return web_fixture.nested_transaction
 
-    # Setting the implementation in config
-    web_fixture.config.web.session_class = UserSessionStub
-    with replaced(Session().begin_nested, wrapped_nested_transaction), CallMonitor(web_fixture.nested_transaction.commit) as monitor:
-        @stubclass(Resource)
-        class ResourceStub(object):
-            should_commit = True
-            def cleanup_after_transaction(self):
-                assert monitor.times_called == 2  # The database has been committed after user code started executed, before cleanup
-            def handle_request(self, request):
-                context = ExecutionContext.get_context()
-                assert context.session is UserSessionStub.session  # By the time user code executes, the session is set
-                assert monitor.times_called == 1  # The database has been committed before user code started executing
-                assert context.session.last_activity_time_set
-                assert not UserSessionStub.session.key_is_set
-                return Response()
+    with replaced(Session().begin_nested, wrapped_nested_transaction):
+        # Setting the implementation in config
+        web_fixture.config.web.session_class = UserSessionStub
+        with CallMonitor(web_fixture.nested_transaction.commit) as monitor:
+            @stubclass(Resource)
+            class ResourceStub(object):
+                should_commit = True
+                def cleanup_after_transaction(self):
+                    assert monitor.times_called == 2  # The database has been committed after user code started executed, before cleanup
+                def handle_request(self, request):
+                    context = ExecutionContext.get_context()
+                    assert context.session is UserSessionStub.session  # By the time user code executes, the session is set
+                    assert monitor.times_called == 1  # The database has been committed before user code started executing
+                    assert context.session.last_activity_time_set
+                    assert not UserSessionStub.session.key_is_set
+                    return Response()
 
-        @stubclass(ReahlWSGIApplication)
-        class ReahlWSGIApplicationStub2(ReahlWSGIApplicationStub):
-            def resource_for(self, request):
-                return ResourceStub()
+            @stubclass(ReahlWSGIApplication)
+            class ReahlWSGIApplicationStub2(ReahlWSGIApplicationStub):
+                def resource_for(self, request):
+                    return ResourceStub()
 
-        browser = Browser(ReahlWSGIApplicationStub2(web_fixture.config))
+            browser = Browser(ReahlWSGIApplicationStub2(web_fixture.config))
 
-        # A session is obtained, and the correct params passed to the hook methods
-        assert not UserSessionStub.session  # Before the request, the session is not yet set
-        assert monitor.times_called == 0  # ... and the database is not yet committed
-        browser.open('/')
+            # A session is obtained, and the correct params passed to the hook methods
+            assert not UserSessionStub.session  # Before the request, the session is not yet set
+            assert monitor.times_called == 0  # ... and the database is not yet committed
+            browser.open('/')
 
-        assert monitor.times_called == 2  # The database is committed to save session changes before user code and again after user code executed
-        assert UserSessionStub.session  # The session was set
-        assert UserSessionStub.session.key_is_set  # The set_session_key was called
-        assert UserSessionStub.session.saved_response.status_int is 200  # The correct response was passed to set_session_key
+            assert monitor.times_called == 2  # The database is committed to save session changes before user code and again after user code executed
+            assert UserSessionStub.session  # The session was set
+            assert UserSessionStub.session.key_is_set  # The set_session_key was called
+            assert UserSessionStub.session.saved_response.status_int is 200  # The correct response was passed to set_session_key
 
-        assert UserSessionStub.session.last_activity_time_set  # set_last_activity_time was called
+            assert UserSessionStub.session.last_activity_time_set  # set_last_activity_time was called
 
 
 @with_fixtures(WebFixture)

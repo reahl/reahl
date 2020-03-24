@@ -2763,6 +2763,8 @@ class ReahlWSGIApplication(object):
             reload(sys)  # to enable `setdefaultencoding` again
             sys.setdefaultencoding("UTF-8")
 
+        self.start_lock = threading.Lock()
+        self.started = False
         self.request_lock = threading.Lock()
         self.config = config
         self.system_control = SystemControl(self.config)
@@ -2790,16 +2792,17 @@ class ReahlWSGIApplication(object):
         context = ExecutionContext(name='%s.start()' % self.__class__.__name__).install()
         context.config = self.config
         context.system_control = self.system_control
-        if connect:
+        if connect and not self.system_control.connected:
             self.system_control.connect()
-        
+        self.started = True
+
     def stop(self):
         """Stops the ReahlWSGIApplication by "disconnecting" from the database. What "disconnecting" means may differ
            depending on the persistence mechanism in use."""
         context = ExecutionContext(name='%s.stop()' % self.__class__.__name__).install()
         context.config = self.config
         context.system_control = self.system_control
-        if self.should_disconnect:
+        if self.should_disconnect and self.system_control.connected:
             self.system_control.disconnect()
 
     def get_target_ui(self, full_path):
@@ -2856,7 +2859,14 @@ class ReahlWSGIApplication(object):
             return self.serialise_requests()
         return self.allow_parallel_requests()
 
+    def ensure_started(self):
+        if not self.started: # performance optimisation, instead of using locks
+            with self.start_lock:
+                if not self.started:
+                    self.start()
+
     def __call__(self, environ, start_response):
+        self.ensure_started()
         request = Request(environ, charset='utf8')
         context = self.create_context_for_request()
         context.config = self.config
