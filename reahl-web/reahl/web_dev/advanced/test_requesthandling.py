@@ -25,7 +25,7 @@ from webob.exc import HTTPNotFound
 from reahl.component.dbutils import SystemControl
 from reahl.tofu import expected, Fixture, scenario
 from reahl.tofu.pytestsupport import with_fixtures, uses
-from reahl.stubble import stubclass, CallMonitor, exempt
+from reahl.stubble import stubclass, CallMonitor, exempt, replaced
 
 from reahl.component.context import ExecutionContext
 from reahl.web.fw import Resource, ReahlWSGIApplication, InternalRedirect, UserInterface
@@ -34,8 +34,8 @@ from reahl.dev.fixtures import ReahlSystemFixture
 from reahl.web.ui import HTML5Page
 from reahl.web_dev.fixtures import ReahlWSGIApplicationStub, BasicPageLayout
 from reahl.webdev.tools import Browser
+from reahl.sqlalchemysupport import Session
 
-from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
 from reahl.web_dev.fixtures import WebFixture
 
 
@@ -64,7 +64,7 @@ def test_wsgi_interface(web_fixture, wsgi_fixture):
     result = ''.join([i.decode('utf-8') for i in wsgi_iterator])  # To check that it is iterable and get the value
     assert fixture.result_is_valid(result)
     assert fixture.status == '200 OK'
-    assert fixture.some_headers_are_set(fixture.headers)\
+    assert fixture.some_headers_are_set(fixture.headers)
 
 
 @uses(web_fixture=WebFixture)
@@ -249,40 +249,54 @@ def test_web_session_handling(reahl_system_fixture, web_fixture):
         def get_interface_locale(self):
             return 'en_gb'
 
-    # Setting the implementation in config
-    web_fixture.config.web.session_class = UserSessionStub
-    with CallMonitor(reahl_system_fixture.system_control.orm_control.commit) as monitor:
-        @stubclass(Resource)
-        class ResourceStub(object):
-            should_commit = True
-            def cleanup_after_transaction(self):
-                assert monitor.times_called == 2  # The database has been committed after user code started executed, before cleanup
-            def handle_request(self, request):
-                context = ExecutionContext.get_context()
-                assert context.session is UserSessionStub.session  # By the time user code executes, the session is set
-                assert monitor.times_called == 1  # The database has been committed before user code started executing
-                assert not context.session.last_activity_time_set
-                assert not UserSessionStub.session.key_is_set
-                return Response()
 
-        @stubclass(ReahlWSGIApplication)
-        class ReahlWSGIApplicationStub2(ReahlWSGIApplicationStub):
-            def resource_for(self, request):
-                return ResourceStub()
+    import sqlalchemy.orm
+    @stubclass(sqlalchemy.orm.Session)
+    class TransactionStub(object):
+        is_active = True
+        def commit(self): pass
+        def rollback(self): pass
 
-        browser = Browser(ReahlWSGIApplicationStub2(web_fixture.config))
+    web_fixture.nested_transaction = TransactionStub()
 
-        # A session is obtained, and the correct params passed to the hook methods
-        assert not UserSessionStub.session  # Before the request, the session is not yet set
-        assert monitor.times_called == 0  # ... and the database is not yet committed
-        browser.open('/')
+    def wrapped_nested_transaction():
+        return web_fixture.nested_transaction
 
-        assert monitor.times_called == 2  # The database is committed to save session changes before user code and again after user code executed
-        assert UserSessionStub.session  # The session was set
-        assert UserSessionStub.session.key_is_set  # The set_session_key was called
-        assert UserSessionStub.session.saved_response.status_int is 200  # The correct response was passed to set_session_key
+    with replaced(Session().begin_nested, wrapped_nested_transaction):
+        # Setting the implementation in config
+        web_fixture.config.web.session_class = UserSessionStub
+        with CallMonitor(web_fixture.nested_transaction.commit) as monitor:
+            @stubclass(Resource)
+            class ResourceStub(object):
+                should_commit = True
+                def cleanup_after_transaction(self):
+                    assert monitor.times_called == 2  # The database has been committed after user code started executed, before cleanup
+                def handle_request(self, request):
+                    context = ExecutionContext.get_context()
+                    assert context.session is UserSessionStub.session  # By the time user code executes, the session is set
+                    assert monitor.times_called == 1  # The database has been committed before user code started executing
+                    assert context.session.last_activity_time_set
+                    assert not UserSessionStub.session.key_is_set
+                    return Response()
 
-        assert UserSessionStub.session.last_activity_time_set  # set_last_activity_time was called
+            @stubclass(ReahlWSGIApplication)
+            class ReahlWSGIApplicationStub2(ReahlWSGIApplicationStub):
+                def resource_for(self, request):
+                    return ResourceStub()
+
+            browser = Browser(ReahlWSGIApplicationStub2(web_fixture.config))
+
+            # A session is obtained, and the correct params passed to the hook methods
+            assert not UserSessionStub.session  # Before the request, the session is not yet set
+            assert monitor.times_called == 0  # ... and the database is not yet committed
+            browser.open('/')
+
+            assert monitor.times_called == 2  # The database is committed to save session changes before user code and again after user code executed
+            assert UserSessionStub.session  # The session was set
+            assert UserSessionStub.session.key_is_set  # The set_session_key was called
+            assert UserSessionStub.session.saved_response.status_int is 200  # The correct response was passed to set_session_key
+
+            assert UserSessionStub.session.last_activity_time_set  # set_last_activity_time was called
 
 
 @with_fixtures(WebFixture)

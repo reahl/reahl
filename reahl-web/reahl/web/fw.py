@@ -2788,14 +2788,13 @@ class ReahlWSGIApplication(object):
     def start(self, connect=True):
         """Starts the ReahlWSGIApplication by "connecting" to the database. What "connecting" means may differ
            depending on the persistence mechanism in use. It could include enhancing classes for persistence, etc."""
-        if not self.started:
-            self.should_disconnect = connect
-            context = ExecutionContext(name='%s.start()' % self.__class__.__name__).install()
-            context.config = self.config
-            context.system_control = self.system_control
-            if connect and not self.system_control.connected:
-                self.system_control.connect()
-            self.started = True
+        self.should_disconnect = connect
+        context = ExecutionContext(name='%s.start()' % self.__class__.__name__).install()
+        context.config = self.config
+        context.system_control = self.system_control
+        if connect and not self.system_control.connected:
+            self.system_control.connect()
+        self.started = True
 
     def stop(self):
         """Stops the ReahlWSGIApplication by "disconnecting" from the database. What "disconnecting" means may differ
@@ -2861,7 +2860,7 @@ class ReahlWSGIApplication(object):
         return self.allow_parallel_requests()
 
     def ensure_started(self):
-        if not self.started:
+        if not self.started: # performance optimisation, instead of using locks
             with self.start_lock:
                 if not self.started:
                     self.start()
