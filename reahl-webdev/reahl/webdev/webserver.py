@@ -514,7 +514,6 @@ class ReahlWebServer(object):
         """Starts the webserver and web application.
         
            :keyword in_separate_thread: If False, the server handles requests in the same thread as your tests.
-           :keyword in_seperate_thread: Deprecated: rather use in_separate_thread keyword argument
            :keyword connect: If True, also connects to the database.
         """
         self.reahl_wsgi_app.start(connect=connect)

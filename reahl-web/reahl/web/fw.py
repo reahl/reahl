@@ -2745,24 +2745,27 @@ class ReahlWSGIApplication(object):
     """
 
     @classmethod
-    def from_directory(cls, directory, strict_checking=True):
+    def from_directory(cls, directory, strict_checking=True, start_on_first_request=False):
         """Create a ReahlWSGIApplication given the `directory` where its configuration is stored.
 
         :keyword strict_checking: If False, exceptions will not be raised when dangerous defaulted config is present.
+        :keyword start_on_first_request: If True, the app is started when the first request is served.
 
         .. versionchanged:: 5.0
            Added strict_checking kwarg.
+           Added start_on_first_request.
 
         """
         config = StoredConfiguration(directory, strict_checking=strict_checking)
         config.configure()
-        return cls(config)
+        return cls(config, start_on_first_request=start_on_first_request)
 
-    def __init__(self, config):
+    def __init__(self, config, start_on_first_request=False):
         if six.PY2:
             reload(sys)  # to enable `setdefaultencoding` again
             sys.setdefaultencoding("UTF-8")
 
+        self.start_on_first_request = start_on_first_request
         self.start_lock = threading.Lock()
         self.started = False
         self.request_lock = threading.Lock()
@@ -2792,7 +2795,7 @@ class ReahlWSGIApplication(object):
         context = ExecutionContext(name='%s.start()' % self.__class__.__name__).install()
         context.config = self.config
         context.system_control = self.system_control
-        if connect and not self.system_control.connected:
+        if connect: #and not self.system_control.connected:
             self.system_control.connect()
         self.started = True
 
@@ -2866,7 +2869,8 @@ class ReahlWSGIApplication(object):
                     self.start()
 
     def __call__(self, environ, start_response):
-        self.ensure_started()
+        if self.start_on_first_request:
+            self.ensure_started()
         request = Request(environ, charset='utf8')
         context = self.create_context_for_request()
         context.config = self.config
