@@ -489,6 +489,13 @@ class XPath(object):
         else:
             return '"%s"' % text
 
+    def with_id(self, text):
+        """Returns an XPath that additionally has the id.
+
+           .. versionadded:: 5.0
+        """
+        return self.__class__(*['%s[@id=%s]' % (xpath, self.delimit_text(text)) for xpath in self.xpaths])
+
     def with_text(self, text):
         """Returns an XPath that additionally matches the given text exactly.
 
@@ -1388,13 +1395,23 @@ class DriverBrowser(BasicBrowser):
            JavaScript code that should change a page without refreshing it.
         """
         with self.no_load_expected_for('html'):
-             yield
+            yield
 
     @contextlib.contextmanager
     def no_load_expected_for(self, jquery_selector):
         """Returns a context manager that would raise an exception should the element indicated
            by the given jquery selector be reloaded/replaced during execution of its context.
            Useful for testing JavaScript code that should change an element without replacing it.
+        """
+        with self.load_expected_for(jquery_selector, False):
+            yield
+
+    @contextlib.contextmanager
+    def load_expected_for(self, jquery_selector, refresh_expected):
+        """Returns a context manager that would raise an exception should the element indicated
+           by the given jquery selector be reloaded/replaced or not during execution of its context.
+           Useful for testing JavaScript code that should change an element without replacing it.
+           If refresh_expected is True, the exception is raised when the element is NOT refreshed.
         """
         escaped_jquery_selector = json.dumps(jquery_selector)[1:-1]
         self.web_driver.execute_script('$("%s").addClass("load_flag")' % escaped_jquery_selector)
@@ -1403,8 +1420,32 @@ class DriverBrowser(BasicBrowser):
         finally:
             self.wait_for_page_to_load()
             new_element_loaded = not self.web_driver.execute_script('return $("%s").hasClass("load_flag")' % escaped_jquery_selector) 
-            if new_element_loaded:
+            if bool(new_element_loaded) is not refresh_expected:
                 raise UnexpectedLoadOf(jquery_selector)
+            if not new_element_loaded:
+                self.web_driver.execute_script('$("%s").removeClass("load_flag")' % escaped_jquery_selector)
+
+    @contextlib.contextmanager
+    def refresh_expected_for(self, jquery_selector, refresh_expected):
+        """Returns a context manager that would raise an exception should the element indicated
+           by the given jquery selector be reloaded/replaced or not during execution of its context.
+           Useful for testing JavaScript code that should change an element without replacing it.
+           If refresh_expected is True, the exception is raised when the element is NOT refreshed.
+        """
+        def escaped(javascript):
+            return json.dumps(javascript)[1:-1]
+        escaped_jquery_selector = escaped(jquery_selector)
+        escaped_load_flag_selector = escaped('p[class*="load_flag"]')
+        self.web_driver.execute_script('$("%s").append("%s")' % (escaped_jquery_selector, escaped('<p class="load_flag">temporarily added to check refreshing</p>')))
+        try:
+            yield
+        finally:
+            self.wait_for_page_to_load()
+            new_element_loaded = not self.web_driver.execute_script('''return $('%s').find('%s')''' % (escaped_jquery_selector, escaped_load_flag_selector)) 
+            if bool(new_element_loaded) is not refresh_expected:
+                raise UnexpectedLoadOf(jquery_selector)
+            if not new_element_loaded:
+                self.web_driver.execute_script('''$('%s').find('%s').remove()''' % (escaped_jquery_selector, escaped_load_flag_selector))
 
     @contextlib.contextmanager
     def new_tab_closed(self):

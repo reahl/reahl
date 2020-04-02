@@ -26,8 +26,9 @@ from reahl.tofu.pytestsupport import with_fixtures, uses
 from reahl.component.modelinterface import exposed, Field, Event, PatternConstraint, Action
 from reahl.component.exceptions import DomainException
 from reahl.web.fw import Widget
-from reahl.web.ui import Form, ButtonInput, TextInput, Label, FormLayout, PrimitiveInput, HTMLElement
+from reahl.web.ui import Form, ButtonInput, TextInput, Label, FormLayout, PrimitiveInput, HTMLElement, Div, P
 from reahl.web_dev.fixtures import WebFixture
+from reahl.web_dev.inputandvalidation.test_input import SimpleInputFixture
 from reahl.webdev.tools import Browser, XPath
 from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
 from reahl.sqlalchemysupport import Base, Session
@@ -178,7 +179,6 @@ def test_clear_form_inputs_on_optimistic_concurrency(web_fixture, sql_alchemy_fi
         assert not fixture.is_any_error_displayed()
 
 
-from reahl.web_dev.inputandvalidation.test_input import SimpleInputFixture
 
 @stubclass(PrimitiveInput)
 class PrimitiveInputStub(PrimitiveInput):
@@ -335,15 +335,34 @@ class OptimisticConcurrencyWithAjaxFixture(OptimisticConcurrencyFixture):
 
         return ModelObject
 
-    def new_MyForm(self):
+    @scenario
+    def refresh_entire_form(self):
+        self.refresh_expected_for_form = True
         fixture = self
         SuperForm = super(OptimisticConcurrencyWithAjaxFixture, self).new_MyForm()
         class MyForm(SuperForm):
             def __init__(self, view):
                 super(MyForm, self).__init__(view)
                 self.enable_refresh()
+                self.add_child(Div(view, css_id='inner_div'))
                 self.layout.add_input(TextInput(self, fixture.model_object.fields.some_trigger_field, refresh_widget=self))
-        return MyForm
+        self.MyForm = MyForm
+
+    @scenario
+    def refresh_only_a_part_of_the_form(self):
+        self.refresh_expected_for_form = False
+        fixture = self
+        SuperForm = super(OptimisticConcurrencyWithAjaxFixture, self).new_MyForm()
+        class MyForm(SuperForm):
+            def __init__(self, view):
+                super(MyForm, self).__init__(view)
+                self.refreshing_div = self.add_child(Div(view, css_id='inner_div'))
+                self.refreshing_div.enable_refresh()
+                self.layout.add_input(TextInput(self, fixture.model_object.fields.some_trigger_field, refresh_widget=self.refreshing_div))
+        self.MyForm = MyForm
+
+    def is_refreshing_element_displayed(self):
+        return self.web_fixture.driver_browser.is_element_present(XPath.paragraph().including_text('Hello'))
 
 
 @with_fixtures(WebFixture, SqlAlchemyFixture, OptimisticConcurrencyWithAjaxFixture)
@@ -365,9 +384,11 @@ def test_optimistic_concurrency_with_ajax(web_fixture, sql_alchemy_fixture, conc
         browser = web_fixture.driver_browser
         browser.open('/')
 
-        # When submitting a form that is not present on the page anymore, user is ferried to an error page
+        # Trigger refreshing once so that we create construction_client_side_state which may influence subsequent refreshings
         browser.type(XPath.input_labelled('Some field'), 'something for the fun of it')
-        browser.type(XPath.input_labelled('Some trigger field'), 'something else')
+        with browser.refresh_expected_for('#myform', fixture.refresh_expected_for_form),\
+             browser.refresh_expected_for('#inner_div', True):
+            browser.type(XPath.input_labelled('Some trigger field'), 'something else')
 
         fixture.make_concurrent_change_in_backend()
 
@@ -377,13 +398,3 @@ def test_optimistic_concurrency_with_ajax(web_fixture, sql_alchemy_fixture, conc
         browser.click(XPath.button_labelled('Submit'))
         assert fixture.is_concurrency_error_displayed()
 
-
-def test_TODO():
-    # TODO: need a test that covers the refreshing of the hashes in the case where the hashes (or the form itself) are not part of the widget being refreshed.
-    #       need to solve the case where there's a server-side domain exeption on submit, and then subsequent submits fail due to concurrency when they should pass
-    #       need to explicitly test the generalised idea of "out of bound widgets": that they are rendered in one place in the form and are always refreshed with whatever widget that is refreshed.
-    # Write a test to test coactive and ancestral coactive widgets
-    #  - including which descendent widgets are ignored in the algorithm
-    #       need a test to check that children of coactive widgets that are coactive widgets of their ancenstors are ignored (because they will be refreshed anyway with the ancestor)
-    assert None
-    

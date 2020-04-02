@@ -247,6 +247,7 @@ def test_inputs_can_refresh_parent_widgets(web_fixture, query_string_fixture, re
     fixture.change_value(browser)
     assert browser.wait_for(query_string_fixture.is_state_now, fixture.changed_state)
 
+
 @with_fixtures(WebFixture, QueryStringFixture, ResponsiveDisclosureFixture)
 def test_overridden_names(web_fixture, query_string_fixture, responsive_disclosure_fixture):
     """The overridden names of inputs correctly ensures that that input's state is distinguished from another with the same name."""
@@ -694,7 +695,7 @@ def test_inputs_and_widgets_work_when_nested(web_fixture, query_string_fixture, 
 
 @with_fixtures(WebFixture, DisclosedInputFixture)
 def test_clear_previously_given_user_input(web_fixture, disclosed_input_fixture):
-    """If a an input is refreshed as part of a Widget, and disappears, then reappears after a second refresh, its input is defaulted to the model value."""
+    """If an input is refreshed as part of a Widget, and disappears, then reappears after a second refresh, its input is defaulted to the model value."""
 
     fixture = disclosed_input_fixture
     wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=fixture.MyForm.factory())

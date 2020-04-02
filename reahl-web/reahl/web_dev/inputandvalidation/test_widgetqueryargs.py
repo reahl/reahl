@@ -230,6 +230,62 @@ def test_refreshing_only_for_specific_args(web_fixture, query_string_fixture):
 
 
 @with_fixtures(WebFixture, QueryStringFixture)
+def test_coactive_widgets_are_refreshed_when_their_widgets_are(web_fixture, query_string_fixture):
+    """The coactive Widgets of a Widget are refreshed whenever the Widget itself is refreshed, even though
+       they are not children of the refreshed Widget."""
+
+    fixture = query_string_fixture
+    fixture.submitted = False
+
+    class RefreshingDiv(Div):
+        def __init__(self, view, coactive_div):
+            super(RefreshingDiv, self).__init__(view, css_id='sedrick')
+            self.coactive_div = coactive_div
+            self.enable_refresh()
+            self.add_child(P(self.view, text='My state is now %s' % self.fancy_state))
+
+        @property
+        def coactive_widgets(self):
+            return super(Div, self).coactive_widgets + [self.coactive_div]
+
+        @exposed
+        def query_fields(self, fields):
+            fields.fancy_state = IntegerField(required=False, default=1)
+
+
+    class MyFancyWidget(Widget):
+        def __init__(self, view):
+            super(MyFancyWidget, self).__init__(view)
+            
+            static_div = self.add_child(Div(view))
+            coactive_div = static_div.add_child(Div(view, css_id='coactive_div'))
+
+            refreshing_div = self.add_child(RefreshingDiv(view, coactive_div))
+
+            text_to_show = 'original'
+            if refreshing_div.fancy_state == 2:
+                text_to_show = 'coactive refreshed'
+            coactive_div.add_child(P(view, text=text_to_show))
+
+            fixture.widget = self
+
+
+    wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=MyFancyWidget.factory())
+    web_fixture.reahl_server.set_app(wsgi_app)
+    web_fixture.driver_browser.open('/')
+
+    def coactive_widget_text_is(expected_text):
+        return web_fixture.driver_browser.is_element_present(XPath.paragraph().including_text(expected_text))
+
+    assert web_fixture.driver_browser.wait_for(fixture.is_state_now, '1')
+    assert coactive_widget_text_is('original')
+
+    web_fixture.driver_browser.set_fragment('#fancy_state=%s' % '2')
+    assert web_fixture.driver_browser.wait_for(fixture.is_state_now, '2')
+    assert coactive_widget_text_is('coactive refreshed')
+
+
+@with_fixtures(WebFixture, QueryStringFixture)
 def test_refresh_nested_forms(web_fixture, query_string_fixture):
     """NestedForms work correctly when they appear as children of a refreshed widget."""
 

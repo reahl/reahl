@@ -2369,7 +2369,6 @@ class WidgetResult(MethodResult):
 
         return coactive_widgets
 
-
     def render(self, return_value):
         if self.as_json_and_result:
             return self.render_as_json(None)
@@ -2957,9 +2956,9 @@ class ReahlWSGIApplication(object):
             logging.getLogger(__name__).debug('Found UserInterface %s' % target_ui)
             current_view = target_ui.get_view_for_full_path(url.path)
             logging.getLogger(__name__).debug('Found View %s' % current_view)
+
             current_view.check_precondition()
             current_view.check_rights(request.method)
-
             if current_view.is_dynamic:
                 page = current_view.create_page(url.path, page_factory)
                 self.check_scheme(page.is_security_sensitive)
@@ -3048,7 +3047,10 @@ class ReahlWSGIApplication(object):
                     response = HTTPInternalServerError(unicode_body=six.text_type(e))
                 except CouldNotConstructResource as e:
                     if self.config.reahlsystem.debug:
-                        raise e.__cause__
+                        if six.PY2:
+                            raise e.__cause__(None)
+                        else:
+                            raise e.__cause__ from None
                     else:
                         #TODO: constuct a fake view, and pass that in
                         response = UncaughtError(e.current_view, e.root_ui, e.target_ui, e.__cause__)
@@ -3063,6 +3065,6 @@ class ReahlWSGIApplication(object):
                     yield chunk
                 context.session.set_last_activity_time()
             finally:
-                self.system_control.finalise_session()
+               self.system_control.finalise_session()
 
 

@@ -27,11 +27,11 @@ from reahl.tofu import expected, scenario, Fixture, uses
 from reahl.tofu.pytestsupport import with_fixtures
 from reahl.stubble import EmptyStub
 
-from reahl.webdev.tools import Browser
+from reahl.webdev.tools import Browser, XPath
 
 from reahl.component.exceptions import ProgrammerError, IncorrectArgumentError, IsSubclass
 from reahl.web.fw import UserInterface
-from reahl.web.ui import HTML5Page, P
+from reahl.web.ui import HTML5Page, P, Div
 
 from reahl.web_dev.fixtures import WebFixture, BasicPageLayout
 
@@ -265,3 +265,31 @@ def test_slot_defaults(web_fixture):
     header_contents = browser.xpath('//header/*')
     assert not header_contents
 
+
+@with_fixtures(WebFixture)
+def test_out_of_bound_widgets(web_fixture):
+    """When you need to add a widget to the page, but not as a child/descendant."""
+
+    class MyPanel(Div):
+        def __init__(self, view):
+            super(MyPanel, self).__init__(view, css_id='main_panel')
+            child_widget = self.add_child(P(view, text='Child Widget'))
+            out_of_bound_widget = view.add_out_of_bound_widget(P(view, text='Out Of Bound Widget'))
+
+    class MainUI(UserInterface):
+        def assemble(self):
+            self.define_page(HTML5Page).use_layout(BasicPageLayout())
+            home = self.define_view('/', title='Hello')
+            home.set_slot('main', MyPanel.factory())
+
+    fixture = web_fixture
+
+    wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
+    browser = Browser(wsgi_app)
+
+    browser.open('/')
+
+    main_panel = XPath.div().with_id('main_panel')
+    assert browser.is_element_present(XPath.paragraph().with_text('Out Of Bound Widget'))
+    assert not browser.is_element_present(XPath.paragraph().with_text('Out Of Bound Widget').inside_of(main_panel))
+    assert browser.is_element_present(XPath.paragraph().with_text('Child Widget').inside_of(main_panel))

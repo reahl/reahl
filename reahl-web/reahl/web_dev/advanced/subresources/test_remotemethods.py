@@ -22,7 +22,7 @@ from webob import Response
 from sqlalchemy import Column, UnicodeText, Integer
 
 from reahl.stubble import stubclass, CallMonitor
-from reahl.tofu import scenario, expected, Fixture, uses
+from reahl.tofu import scenario, expected, Fixture, uses, NoException
 from reahl.tofu.pytestsupport import with_fixtures
 
 from reahl.webdev.tools import Browser
@@ -427,8 +427,6 @@ def test_widgets_that_change_during_method_processing(web_fixture, widget_result
     assert json_response == widget_result_scenarios.expected_response
 
 
-
-
 @stubclass(Widget)
 class CoactiveWidgetStub(Widget):
     def __init__(self, view, css_id, coactive_widgets):
@@ -474,24 +472,75 @@ def test_coactive_widgets(web_fixture):
                                 'coactive2': '<coactive2><script type="text/javascript"></script>'}
                              }
 
-@with_fixtures(WebFixture)
-def test_coactive_widgets_cannot_be_parents(web_fixture):
-    """The ancestor Widgets of a given Widget cannot be its coactive Widgets."""
 
-    @stubclass(Widget)
-    class WidgetWithRemoteMethod(Widget):
-        def __init__(self, view):
-            super(WidgetWithRemoteMethod, self).__init__(view)
-            result_widget = CoactiveWidgetStub(view, 'parent', [])
-            grandparent = self.add_child(Div(view, css_id='grandparent'))
-            result_widget.add_child(CoactiveWidgetStub(view, 'child', [grandparent]))
-            grandparent.add_child(result_widget)
-            method_result = WidgetResult(result_widget, as_json_and_result=True)
-            remote_method = RemoteMethod(view, 'amethod', lambda: None, default_result=method_result)
-            view.add_resource(remote_method)
+@uses(web_fixture=WebFixture)
+class CoactiveScenarios(Fixture):
+    expected_exception = NoException
+    expected_exception_regex = None
+    def new_page(self):
+        return Div(self.view)
 
-    wsgi_app = web_fixture.new_wsgi_app(child_factory=WidgetWithRemoteMethod.factory())
-    browser = Browser(wsgi_app)
+    def new_view(self):
+        return self.web_fixture.view
 
-    with expected(ProgrammerError, 'The coactive Widgets of .+ include its ancestor\(s\): .+'):
-        browser.post('/_amethod_method', {})
+    @scenario
+    def descendents_that_are_coactive_are_ignored(self):
+        """Descendents that are also coactive_widgets are ignored in the final coactive_widget list."""
+
+        coactive_descendent = CoactiveWidgetStub(self.view, 'coactive_descendent', [])
+
+        widget = self.page.add_child(CoactiveWidgetStub(self.view, 'main', [coactive_descendent]))
+        child = widget.add_child(CoactiveWidgetStub(self.view, 'child', []))
+        child.add_child(coactive_descendent)
+
+        self.result_widget = widget
+        self.expected_coactive_widgets = []
+        assert self.result_widget.coactive_widgets == [coactive_descendent]
+
+    @scenario
+    def coactive_widgets_include_children_coactive_widgets(self):
+        """The coactive widgets of descendents are included in a widget's coactive widgets."""
+
+        coactive_widget = self.page.add_child(CoactiveWidgetStub(self.view, 'coactive_widget', []))
+        widget = self.page.add_child(CoactiveWidgetStub(self.view, 'main', []))
+        child = widget.add_child(CoactiveWidgetStub(self.view, 'child', [coactive_widget]))
+
+        self.result_widget = widget
+        self.expected_coactive_widgets = [coactive_widget]
+
+    @scenario
+    def coactiveness_is_transitive(self):
+        """The coactive widgets of the coactive widgets of a widget are included in its coactive widgets."""
+
+        coactive_widget_level2 = self.page.add_child(CoactiveWidgetStub(self.view, 'coactive_widget_level2', []))
+        coactive_widget_level1 = self.page.add_child(CoactiveWidgetStub(self.view, 'coactive_widget_level1', [coactive_widget_level2]))
+        widget = self.page.add_child(CoactiveWidgetStub(self.view, 'main', [coactive_widget_level1]))
+
+        self.result_widget = widget
+        self.expected_coactive_widgets = [coactive_widget_level1, coactive_widget_level2]
+
+    @scenario
+    def coactive_widgets_cannot_be_parents(self):
+        """The ancestor Widgets of a given Widget cannot be its coactive Widgets."""
+
+        grandparent = self.page.add_child(Div(self.view, css_id='grandparent'))
+        parent = grandparent.add_child(CoactiveWidgetStub(self.view, 'parent', []))
+        child = parent.add_child(CoactiveWidgetStub(self.view, 'child', [grandparent]))
+
+        self.result_widget = child
+        self.expected_coactive_widgets = None
+        self.expected_exception = ProgrammerError
+        self.expected_exception_regex = 'The coactive Widgets of .+ include its ancestor\(s\): .+'
+
+
+@with_fixtures(WebFixture, CoactiveScenarios)
+def test_what_is_included_in_coactive_widgets(web_fixture, coactive_scenarios):
+
+    fixture = coactive_scenarios
+    fixture.view.page = fixture.page
+
+    with expected(fixture.expected_exception, fixture.expected_exception_regex):
+        coactive_widgets = WidgetResult(fixture.result_widget, as_json_and_result=True).get_coactive_widgets_recursively(fixture.result_widget)
+        assert set(coactive_widgets) == set(fixture.expected_coactive_widgets)
+
+
