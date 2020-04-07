@@ -2,7 +2,7 @@ reahl-component<5.1,>=5.0
 reahl-tofu<5.1,>=5.0
 reahl-stubble<5.1,>=5.0
 six
-Babel<2.1.999,>=2.1
+Babel<2.8.999,>=2.8
 twine<1.11.9999,>=1.11.0
 wheel<0.29.9999,>=0.29.0
 tzlocal<1.2.9999,>=1.2.0
