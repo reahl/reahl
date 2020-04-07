@@ -20,7 +20,7 @@
     <thirdpartyegg name="selenium" minversion="2.42" maxversion="2.9999"/>
     <thirdpartyegg name="watchdog" minversion="0.8.3" maxversion="0.8.3.999"/>
     <thirdpartyegg name="setuptools" minversion="32.3.1"/>
-    <thirdpartyegg name="webob" minversion="1.8" maxversion="1.8.999"/>
+    <thirdpartyegg name="WebOb" minversion="1.8" maxversion="1.8.999"/>
   </deps>
 
   <deps purpose="test">
