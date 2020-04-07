@@ -17,7 +17,7 @@
     
     <thirdpartyegg name="lxml" minversion="4.5" maxversion="4.5.999"/>
     <thirdpartyegg name="WebTest" minversion="2.0" maxversion="2.0.999"/>
-    <thirdpartyegg name="selenium" minversion="2.42" maxversion="2.9999"/>
+    <thirdpartyegg name="selenium" minversion="3.141" maxversion="3.9999"/>
     <thirdpartyegg name="watchdog" minversion="0.10.2" maxversion="0.10.2.999"/>
     <thirdpartyegg name="setuptools" minversion="32.3.1"/>
     <thirdpartyegg name="WebOb" minversion="1.8" maxversion="1.8.999"/>
