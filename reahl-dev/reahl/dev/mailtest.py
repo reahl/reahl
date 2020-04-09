@@ -52,9 +52,9 @@ class EchoSMTPServer(DebuggingServer):
         logging.debug("Parsed Message")
 
         self.current_id = m['Message-Id']
-        self.process_simple_message(m)
+        self.process_simple_message(m, mailfrom, rcpttos)
 
-    def process_simple_message(self, message):
+    def process_simple_message(self, message, mailfrom, rcpttos):
         print((self.message_as_text(message)))
 
     def message_as_text(self, message):
@@ -95,11 +95,11 @@ class FakeSMTPServer(EchoSMTPServer):
     def handle_close(self):
         logging.debug("close called")
 
-    def process_simple_message(self, message):
+    def process_simple_message(self, message, mailfrom, rcpttos):
         logging.debug(self.message_as_text(message))
 
         if self.call_back_function:
-            self.call_back_function(message)
+            self.call_back_function(message, mailfrom, rcpttos)
 
 
 class MailTester(object):
