@@ -22,7 +22,6 @@ import sys
 import functools
 
 import wrapt
-from wrapt.wrappers import PartialCallableObjectProxy
 import inspect
 
 from reahl.component.i18n import Catalogue
@@ -200,9 +199,7 @@ class ArgumentCheckedCallable(object):
         return self.target(*args, **kwargs)
 
     def checkargs(self, *args, **kwargs):
-        if isinstance(self.target, PartialCallableObjectProxy):
-            to_check = self.target.__call__
-        elif inspect.ismethod(self.target):
+        if inspect.ismethod(self.target):
             to_check = self.target
         elif inspect.isfunction(self.target):
             to_check = self.target
