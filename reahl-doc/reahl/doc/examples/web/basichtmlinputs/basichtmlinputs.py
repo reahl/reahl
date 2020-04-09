@@ -20,7 +20,8 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 from reahl.component.modelinterface import exposed, Field, BooleanField, ChoiceField, Choice, ChoiceGroup, \
     IntegerField, Event, MultiChoiceField, DateField
 from reahl.web.fw import UserInterface
-from reahl.web.bootstrap.ui import HTML5Page, P
+from reahl.web.bootstrap.page import HTML5Page
+from reahl.web.bootstrap.ui import P
 from reahl.web.layout import PageLayout
 from reahl.web.bootstrap.grid import ColumnLayout, ColumnOptions, Container, ResponsiveSize
 from reahl.web.bootstrap.forms import Form, FormLayout, ButtonInput, CueInput, TextArea, SelectInput, \

@@ -9,7 +9,8 @@ from reahl.sqlalchemysupport import Session, Base
 
 from reahl.web.fw import CannotCreate, UrlBoundView, UserInterface
 from reahl.web.layout import PageLayout
-from reahl.web.bootstrap.ui import HTML5Page, Div, P, H, A, TextNode
+from reahl.web.bootstrap.page import HTML5Page
+from reahl.web.bootstrap.ui import Div, P, H, A, TextNode
 from reahl.web.bootstrap.forms import Form, TextInput, Button, FieldSet, PrimitiveCheckboxInput, FormLayout, ButtonLayout
 from reahl.web.bootstrap.grid import ColumnLayout, ColumnOptions, ResponsiveSize, Container
 from reahl.web.bootstrap.navs import Nav, TabLayout
@@ -92,7 +93,7 @@ class AddressBookPanel(Div):
             return A.from_bookmark(view, address_book_ui.get_edit_bookmark(row.address, description='Edit'))
 
         def make_checkbox_widget(view, row):
-            return PrimitiveCheckboxInput(form, row.fields.selected_by_user, name='select.%s' % str(row.address.id))
+            return PrimitiveCheckboxInput(form, row.fields.selected_by_user, name_discriminator=str(row.address.id))
 
         def make_delete_selected_button(view):
             return Button(form, self.events.delete_selected)

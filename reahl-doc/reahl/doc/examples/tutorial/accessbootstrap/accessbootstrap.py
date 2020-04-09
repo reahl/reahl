@@ -11,7 +11,8 @@ from reahl.web.fw import UserInterface, UrlBoundView, CannotCreate, Widget, Prog
 from reahl.web.layout import PageLayout
 from reahl.web.bootstrap.navs import Nav, TabLayout
 from reahl.web.bootstrap.grid import ColumnLayout, ColumnOptions, ResponsiveSize, Container
-from reahl.web.bootstrap.ui import HTML5Page, Div, P, H, A, Alert
+from reahl.web.bootstrap.page import HTML5Page
+from reahl.web.bootstrap.ui import Div, P, H, A, Alert
 from reahl.web.bootstrap.forms import Form, TextInput, Button, PasswordInput, SelectInput, CheckboxInput, \
                          FormLayout, ButtonLayout, FieldSet
 from reahl.domain.systemaccountmodel import AccountManagementInterface, EmailAndPasswordSystemAccount, LoginSession

@@ -36,7 +36,7 @@ from reahl.webdeclarative.webdeclarative import PersistedException, UserInput
 from reahl.sqlalchemysupport import Base, Session
 from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
 from reahl.web.fw import Url, UserInterface, ValidationException
-from reahl.web.ui import HTML5Page, Div, Form, TextInput, ButtonInput, NestedForm, SelectInput
+from reahl.web.ui import HTML5Page, Div, Form, TextInput, ButtonInput, NestedForm, SelectInput, FormLayout, P
 
 from reahl.dev.fixtures import ReahlSystemFixture
 from reahl.web_dev.fixtures import WebFixture, BasicPageLayout
@@ -488,7 +488,12 @@ def test_rendering_of_form(web_fixture):
     fixture.context.request = Request.blank('/a/b?x=y', charset='utf8')
     actual = tester.render_html()
 
-    expected = '<form id="test_channel" action="/a/b/_test_channel_method?x=y" data-formatter="/__test_channel_format_method" method="POST" class="reahl-form"></form>'
+    expected = '''<form id="test_channel" action="/a/b/_test_channel_method?x=y" data-formatter="/__test_channel_format_method" method="POST" class="reahl-form">''' \
+               '''<div id="test_channel_hashes">'''\
+               '''<input name="test_channel-_reahl_client_concurrency_digest" id="id-test_channel-_reahl_client_concurrency_digest" form="test_channel" type="hidden" value="" class="reahl-primitiveinput">''' \
+               '''<input name="test_channel-_reahl_database_concurrency_digest" id="id-test_channel-_reahl_database_concurrency_digest" form="test_channel" type="hidden" value="" class="reahl-primitiveinput">''' \
+               '''</div>''' \
+               '''</form>'''
     assert actual == expected
 
     # Case: without querystring
@@ -628,6 +633,8 @@ def test_form_input_validation(web_fixture):
     class MyForm(Form):
         def __init__(self, view, name, other_view):
             super(MyForm, self).__init__(view, name)
+            if self.exception:
+                 self.add_child(P(view, ','.join(self.exception.detail_messages)))
             self.define_event_handler(model_object.events.an_event, target=other_view)
             self.add_child(ButtonInput(self, model_object.events.an_event))
             text_input = self.add_child(TextInput(self, model_object.fields.field_name))
@@ -659,6 +666,10 @@ def test_form_input_validation(web_fixture):
 
     error_text = fixture.driver_browser.get_text(error_xpath)
     assert error_text == 'field_name should be a valid email address'
+
+    # .. but the error is removed again upon valid input
+    fixture.driver_browser.type('//input[@type="text"]', 'valid@home.org')
+    fixture.driver_browser.wait_for_element_not_visible(error_xpath)
 
     # Case: form validation fails on the server (assuming no JS on the client to block submission)
     #  - ValidationException is raised (which is dealt with as any DomainException)
@@ -693,6 +704,7 @@ def test_form_input_validation(web_fixture):
     # Case: form validation passes (js)
     #  - no ValidationException
     #  - all input is translated to python and set as values on the model objects
+    fixture.driver_browser.open('/')
     fixture.driver_browser.type('//input[@type="text"]', 'valid@home.org')
     fixture.driver_browser.wait_for_element_not_visible(error_xpath)
     fixture.driver_browser.click("//input[@value='click me']")
@@ -824,7 +836,7 @@ def test_event_names_are_canonicalised(web_fixture):
     browser = Browser(wsgi_app)
 
     # when the Action is executed, the correct arguments are passed
-    browser.post('/__myform_method', {'event.myform-an_event?some_argument=f~nnystuff': ''})
+    browser.post('/__myform_method', {'event.myform-an_event?some_argument=f~nnystuff': '', 'myform-_reahl_client_concurrency_digest':'', 'myform-_reahl_database_concurrency_digest':''})
     assert model_object.received_argument == 'f~nnystuff'
 
 
@@ -865,7 +877,7 @@ def test_alternative_event_trigerring(web_fixture):
     browser = Browser(wsgi_app)
 
     # when POSTing with _noredirect, the Action is executed, but the browser is not redirected to /page2 as usual
-    browser.post('/__myform_method', {'event.myform-an_event?': '', '_noredirect': ''})
+    browser.post('/__myform_method', {'event.myform-an_event?': '', '_noredirect': '', 'myform-_reahl_client_concurrency_digest':'', 'myform-_reahl_database_concurrency_digest':''})
     browser.follow_response()  # Needed to make the test break should a HTTPTemporaryRedirect response be sent
     assert model_object.handled_event
     assert browser.current_url.path != '/page2'

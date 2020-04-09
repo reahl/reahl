@@ -39,8 +39,8 @@ from reahl.component_dev.test_field import FieldFixture
 @uses(web_fixture=WebFixture, field_fixture=FieldFixture)
 class SimpleInputFixture(Fixture):
 
-    def new_field(self):  # not a delegated property, because some scenarios override this by setting self.field
-        return self.field_fixture.new_field()
+    def new_field(self, **kwargs):  # not a delegated property, because some scenarios override this by setting self.field
+        return self.field_fixture.new_field(**kwargs)
 
     def new_model_object(self): # not a delegated property, because some classes override it
         return self.field_fixture.new_model_object()

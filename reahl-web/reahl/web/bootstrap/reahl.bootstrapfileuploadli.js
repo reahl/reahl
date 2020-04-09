@@ -142,13 +142,14 @@ $.widget('reahl.bootstrapfileuploadli', {
     startUpload: function(submitName, ajaxOptions) {
         var this_ = this;
         $(this.element).append(this.createCancelButton().on('click', function(){
-	    this_.cancelUpload();
-	}));
+            this_.cancelUpload();
+        }));
         $(this.element).append(this.createFileNameSpan());
         $(this.element).append(this.createProgressBar());
         var startThisUpload = function() {
             var data = {'_noredirect':''};
             data[submitName] = '';
+
             this_.state = 'upload started';
             $('#'+this_.getFormId()).ajaxSubmit({
                 data: data,
@@ -178,14 +179,15 @@ $.widget('reahl.bootstrapfileuploadli', {
         };
         this_.getFileInputPanel().uploadStarted(this_.getFilename(), startThisUpload);
     },
-    changeFileInputToSingle: function(array, file) {
-        if (array.length > 0) {
-            var inputName = array[0].name;
-            array.splice(0, array.length, {name:inputName, value:file});
-        }
-    },
     saveJqXhr: function(jqXhr) {
 	this.jqXhr = jqXhr
+    },
+    changeFileInputToSingle: function(array, file) {
+        var inputName = this.getFileInputPanel().getFileInput().attr('name');
+        var cleaned = array.filter(element => element.name != inputName);
+        cleaned.push({name:inputName, value:file});
+        array.splice(0);
+        array.push.apply(array, cleaned);
     },
     changeToUploaded: function(){
         this.getProgressBar().replaceWith('');

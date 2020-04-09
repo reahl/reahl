@@ -51,7 +51,7 @@ def test_resources(web_fixture):
         def handle_anotherthing(self, request):
             pass
 
-    resource = ResourceStub()
+    resource = ResourceStub(web_fixture.view)
 
     # Case where the HTTP method is not supported
     fixture.request.method = 'koos'
@@ -86,7 +86,7 @@ def test_simple_sub_resources(web_fixture):
     class WidgetWithSubResource(Widget):
         def __init__(self, view):
             super(WidgetWithSubResource, self).__init__(view)
-            view.add_resource(ASimpleSubResource('uniquename'))
+            view.add_resource(ASimpleSubResource(view, 'uniquename'))
 
     wsgi_app = fixture.new_wsgi_app(child_factory=WidgetWithSubResource.factory())
     browser = Browser(wsgi_app)
@@ -105,8 +105,8 @@ def test_dynamic_sub_resources(web_fixture):
         sub_regex = 'dynamic_(?P<param>[^/]+)'
         sub_path_template = 'dynamic_%(param)s'
 
-        def __init__(self, unique_name, param):
-            super(ParameterisedSubResource, self).__init__(unique_name)
+        def __init__(self, view, unique_name, param):
+            super(ParameterisedSubResource, self).__init__(view, unique_name)
             self.param = param
 
         @exempt
@@ -115,14 +115,14 @@ def test_dynamic_sub_resources(web_fixture):
 
         @exempt
         @classmethod
-        def create_resource(cls, unique_name, param=None):
-            return cls(unique_name, param)
+        def create_resource(cls, view, unique_name, param=None):
+            return cls(view, unique_name, param)
 
     @stubclass(Widget)
     class WidgetWithSubResource(Widget):
         def __init__(self, view):
             super(WidgetWithSubResource, self).__init__(view)
-            view.add_resource_factory(ParameterisedSubResource.factory('uniquename', {'param': Field(required=True)}))
+            view.add_resource_factory(ParameterisedSubResource.factory(view, 'uniquename', {'param': Field(required=True)}))
 
     wsgi_app = fixture.new_wsgi_app(child_factory=WidgetWithSubResource.factory())
     browser = Browser(wsgi_app)
@@ -141,8 +141,8 @@ def test_dynamic_sub_resources_factory_args(web_fixture):
         sub_regex = 'dynamic_(?P<path_param>[^/]+)'
         sub_path_template = 'dynamic_%(path_param)s'
 
-        def __init__(self, unique_name, factory_arg, factory_kwarg, path_param):
-            super(ParameterisedSubResource, self).__init__(unique_name)
+        def __init__(self, view, unique_name, factory_arg, factory_kwarg, path_param):
+            super(ParameterisedSubResource, self).__init__(view, unique_name)
             self.path_param = path_param
             self.factory_arg = factory_arg
             self.factory_kwarg = factory_kwarg
@@ -154,14 +154,14 @@ def test_dynamic_sub_resources_factory_args(web_fixture):
 
         @exempt
         @classmethod
-        def create_resource(cls, unique_name, factory_arg, factory_kwarg=None, path_param=None):
-            return cls(unique_name, factory_arg, factory_kwarg, path_param)
+        def create_resource(cls, view, unique_name, factory_arg, factory_kwarg=None, path_param=None):
+            return cls(view, unique_name, factory_arg, factory_kwarg, path_param)
 
     @stubclass(Widget)
     class WidgetWithSubResource(Widget):
         def __init__(self, view):
             super(WidgetWithSubResource, self).__init__(view)
-            factory = ParameterisedSubResource.factory('uniquename', {'path_param': Field(required=True)}, 'arg to factory', factory_kwarg='kwarg to factory')
+            factory = ParameterisedSubResource.factory(view, 'uniquename', {'path_param': Field(required=True)}, 'arg to factory', factory_kwarg='kwarg to factory')
             view.add_resource_factory(factory)
 
     fixture = web_fixture
@@ -191,16 +191,16 @@ def test_disambiguating_between_factories(web_fixture):
 
         @exempt
         @classmethod
-        def create_resource(cls, unique_name):
-            return cls(unique_name)
+        def create_resource(cls, view, unique_name):
+            return cls(view, unique_name)
 
     @stubclass(Widget)
     class WidgetWithAmbiguousSubResources(Widget):
         def __init__(self, view):
             super(WidgetWithAmbiguousSubResources, self).__init__(view)
-            factory1 = ParameterisedSubResource.factory('factory1', {})
+            factory1 = ParameterisedSubResource.factory(view, 'factory1', {})
             view.add_resource_factory(factory1)
-            factory2 = ParameterisedSubResource.factory('factory2', {})
+            factory2 = ParameterisedSubResource.factory(view, 'factory2', {})
             view.add_resource_factory(factory2)
 
     fixture = web_fixture
@@ -238,7 +238,7 @@ def test_computation_of_url(web_fixture, url_scenarios):
         sub_path_template = 'sub_path'
 
 
-    sub_resource = ASimpleSubResource('uniquename')
+    sub_resource = ASimpleSubResource(web_fixture.view, 'uniquename')
 
     # Calculating the sub_resource's URL from the context of the View
     web_fixture.request.environ['PATH_INFO'] = url_scenarios.view_path

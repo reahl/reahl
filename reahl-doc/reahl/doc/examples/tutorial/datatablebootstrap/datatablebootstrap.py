@@ -9,7 +9,8 @@ from reahl.sqlalchemysupport import Session, Base, QueryAsSequence
 
 from reahl.web.fw import CannotCreate, UrlBoundView, UserInterface
 from reahl.web.layout import PageLayout
-from reahl.web.bootstrap.ui import HTML5Page, Div, P, H, A
+from reahl.web.bootstrap.page import HTML5Page
+from reahl.web.bootstrap.ui import Div, P, H, A
 from reahl.web.bootstrap.forms import Form, TextInput, Button, FieldSet, FormLayout, ButtonLayout
 from reahl.web.bootstrap.grid import ColumnLayout, ColumnOptions, ResponsiveSize, Container
 from reahl.web.bootstrap.navs import Nav, TabLayout

@@ -2,7 +2,8 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 
 from reahl.web.fw import UserInterface
 from reahl.web.layout import PageLayout
-from reahl.web.bootstrap.ui import HTML5Page, P, Div, LiteralHTML
+from reahl.web.bootstrap.page import HTML5Page
+from reahl.web.bootstrap.ui import P, Div, LiteralHTML
 from reahl.web.bootstrap.forms import Form, TextInput, FormLayout, InlineFormLayout
 from reahl.web.bootstrap.grid import ColumnLayout, ColumnOptions, ResponsiveSize, Container
 from reahl.component.modelinterface import exposed, Field, EmailField

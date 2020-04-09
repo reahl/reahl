@@ -44,7 +44,7 @@ class MailerFixture(Fixture):
         self.mail_tester.start()
         self.mail_checker_started = True
 
-    def mail_checker(self, email_message):
+    def mail_checker(self, email_message, mailfrom, rcpttos):
         self.mail_sender = email_message['From']
         self.mail_recipients = email_message['To'].split(', ')
         self.mail_subject = email_message['Subject']

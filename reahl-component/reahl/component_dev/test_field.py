@@ -49,8 +49,8 @@ class FieldFixture(Fixture):
         obj.an_attribute = 'field value'
         return obj
 
-    def new_field(self, cls=Field, name='an_attribute', label='the label'):
-        field = cls(label=label)
+    def new_field(self, cls=Field, name='an_attribute', label='the label', readable=None, writable=None):
+        field = cls(label=label, readable=readable, writable=writable)
         field.bind(name, self.model_object)
         return field
 
