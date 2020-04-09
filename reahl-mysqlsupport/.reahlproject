@@ -11,7 +11,7 @@
   <deps purpose="run">
     <egg name="reahl-component"/>
     <egg name="reahl-commands"/>
-    <thirdpartyegg name="mysqlclient" minversion="1.3" maxversion="1.3.9999"/>
+    <thirdpartyegg name="mysqlclient" minversion="1.4.6" maxversion="1.4.9999"/>
   </deps>
 
   <deps purpose="test">
