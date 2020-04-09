@@ -3062,10 +3062,7 @@ class ReahlWSGIApplication(object):
                     response = HTTPInternalServerError(unicode_body=six.text_type(e))
                 except CouldNotConstructResource as e:
                     if self.config.reahlsystem.debug:
-                        if six.PY2:
-                            raise e.__cause__(None)
-                        else:
-                            raise e.__cause__ from None
+                        six.raise_from(e.__cause__, None)
                     else:
                         #TODO: constuct a fake view, and pass that in
                         response = UncaughtError(e.current_view, e.root_ui, e.target_ui, e.__cause__)
