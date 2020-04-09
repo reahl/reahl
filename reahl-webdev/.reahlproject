@@ -31,7 +31,7 @@
   </deps>
 
   <extras name="pillow">
-    <thirdpartyegg name="pillow" minversion="2.5" maxversion="2.5.999"/>
+    <thirdpartyegg name="Pillow" minversion="7.1" maxversion="7.1.999"/>
   </extras>
 
   <export entrypoint="reahl.component.commands" name="ServeCurrentProject" locator="reahl.webdev.commands:ServeCurrentProject"/>
