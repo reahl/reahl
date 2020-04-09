@@ -6,7 +6,7 @@
   <configuration locator="reahl.sqlalchemysupport:SqlAlchemyConfig"/>
 
   <deps purpose="build">
-    <thirdpartyegg name="setuptools-git" minversion="1.1" maxversion="1.1.999"/>
+    <thirdpartyegg name="setuptools-git" minversion="1.1"/>
     <thirdpartyegg name="pytest-runner"/>
   </deps>
 
