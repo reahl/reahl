@@ -2881,24 +2881,29 @@ class ReahlWSGIApplication(object):
     """
 
     @classmethod
-    def from_directory(cls, directory, strict_checking=True):
+    def from_directory(cls, directory, strict_checking=True, start_on_first_request=False):
         """Create a ReahlWSGIApplication given the `directory` where its configuration is stored.
 
         :keyword strict_checking: If False, exceptions will not be raised when dangerous defaulted config is present.
+        :keyword start_on_first_request: If True, the app is started when the first request is served.
 
         .. versionchanged:: 5.0
            Added strict_checking kwarg.
+           Added start_on_first_request.
 
         """
         config = StoredConfiguration(directory, strict_checking=strict_checking)
         config.configure()
-        return cls(config)
+        return cls(config, start_on_first_request=start_on_first_request)
 
-    def __init__(self, config):
+    def __init__(self, config, start_on_first_request=False):
         if six.PY2:
             reload(sys)  # to enable `setdefaultencoding` again
             sys.setdefaultencoding("UTF-8")
 
+        self.start_on_first_request = start_on_first_request
+        self.start_lock = threading.Lock()
+        self.started = False
         self.request_lock = threading.Lock()
         self.config = config
         self.system_control = SystemControl(self.config)
@@ -2926,16 +2931,17 @@ class ReahlWSGIApplication(object):
         context = ExecutionContext(name='%s.start()' % self.__class__.__name__).install()
         context.config = self.config
         context.system_control = self.system_control
-        if connect:
+        if connect: #and not self.system_control.connected:
             self.system_control.connect()
-        
+        self.started = True
+
     def stop(self):
         """Stops the ReahlWSGIApplication by "disconnecting" from the database. What "disconnecting" means may differ
            depending on the persistence mechanism in use."""
         context = ExecutionContext(name='%s.stop()' % self.__class__.__name__).install()
         context.config = self.config
         context.system_control = self.system_control
-        if self.should_disconnect:
+        if self.should_disconnect and self.system_control.connected:
             self.system_control.disconnect()
 
     def resource_for(self, request):
@@ -3010,7 +3016,15 @@ class ReahlWSGIApplication(object):
             return self.serialise_requests()
         return self.allow_parallel_requests()
 
+    def ensure_started(self):
+        if not self.started: # performance optimisation, instead of using locks
+            with self.start_lock:
+                if not self.started:
+                    self.start()
+
     def __call__(self, environ, start_response):
+        if self.start_on_first_request:
+            self.ensure_started()
         request = Request(environ, charset='utf8')
         context = self.create_context_for_request()
         context.config = self.config
@@ -3020,6 +3034,7 @@ class ReahlWSGIApplication(object):
         with self.concurrency_manager:
             with self.system_control.nested_transaction():
                 self.config.web.session_class.initialise_web_session_on(context)
+                context.session.set_last_activity_time()
             try:
                 try:
                     with self.system_control.nested_transaction() as veto:
@@ -3063,7 +3078,6 @@ class ReahlWSGIApplication(object):
                 context.session.set_session_key(response)
                 for chunk in response(environ, start_response):
                     yield chunk
-                context.session.set_last_activity_time()
             finally:
                self.system_control.finalise_session()
 

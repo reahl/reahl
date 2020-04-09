@@ -1,6 +1,5 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 from reahl.web.fw import ReahlWSGIApplication
-application = ReahlWSGIApplication.from_directory('/etc/reahl.d/hellonginx')
-application.start()
+application = ReahlWSGIApplication.from_directory('/etc/reahl.d/hellonginx', start_on_first_request=True)
 
