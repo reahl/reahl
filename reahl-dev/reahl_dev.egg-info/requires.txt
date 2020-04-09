@@ -3,7 +3,7 @@ reahl-tofu<5.1,>=5.0
 reahl-stubble<5.1,>=5.0
 six
 Babel<2.8.999,>=2.8
-twine<3.1.9999,>=3.1.1
+twine<1.15.9999,>=1.15.0
 wheel<0.34.9999,>=0.34.0
 tzlocal<2.0.9999,>=2.0.0
 setuptools>=32.3.1
