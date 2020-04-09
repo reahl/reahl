@@ -22,7 +22,7 @@ from webob import Response
 from sqlalchemy import Column, UnicodeText, Integer
 
 from reahl.stubble import stubclass, CallMonitor, replaced
-from reahl.tofu import scenario, expected, Fixture, uses
+from reahl.tofu import scenario, expected, Fixture, uses, NoException
 from reahl.tofu.pytestsupport import with_fixtures
 
 from reahl.webdev.tools import Browser
