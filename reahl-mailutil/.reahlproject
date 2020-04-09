@@ -12,7 +12,7 @@
   <deps purpose="run">
     <egg name="reahl-component"/>
     <thirdpartyegg name="docutils" minversion="0.16" maxversion="0.16.999"/>
-    <thirdpartyegg name="Pygments" minversion="2.6.1" maxversion="2.6.999"/>
+    <thirdpartyegg name="Pygments" minversion="2.5.1" maxversion="2.5.999"/>
   </deps>
 
   <deps purpose="test">
