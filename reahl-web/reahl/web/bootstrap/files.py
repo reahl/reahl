@@ -159,7 +159,7 @@ class FileUploadPanel(Div):
     def add_upload_controls(self):
         controls_panel = self.upload_form.add_child(Div(self.view)).use_layout(FormLayout())
         file_input = controls_panel.layout.add_input(FileInput(self.upload_form.form, self.fields.uploaded_file), hide_label=True)
-
+        
         button_addon = file_input.html_representation.add_child(Span(self.view))
         button_addon.append_class('input-group-append')
         button_addon.add_child(Button(self.upload_form.form, self.events.upload_file))
@@ -190,7 +190,7 @@ class FileUploadPanel(Div):
         fields.uploaded_file.disallow_multiple()
         fields.uploaded_file.label = _('Add file')
         fields.uploaded_file.make_optional()
-        fields.uploaded_file.add_validation_constraint(UniqueFilesConstraint(self.input_form, self.bound_field.name))
+        fields.uploaded_file.add_validation_constraint(UniqueFilesConstraint(self.input_form, self.bound_field.name_in_input))
 
     def attach_jq_widget(self, selector, widget_name, **options):
         def js_repr(value):
@@ -235,26 +235,36 @@ class FileUploadInput(reahl.web.ui.Input):
     :param form: (See :class:`~reahl.web.ui.Input`)
     :param bound_field: (See :class:`~reahl.web.ui.Input`, must be of 
               type :class:`reahl.component.modelinterface.FileField`)
-    :keyword name: An optional name for this input (overrides the default)
+    :keyword base_name: (See :class:`~reahl.web.ui.PrimitiveInput`)
     :keyword name_discriminator: A string added to the computed name to prevent name clashes.
+    :keyword ignore_concurrent_change: If True, don't check for possible concurrent changes by others to this input (just override such changes).
+
 
     .. versionchanged:: 5.0
        Subclass of :class:`~reahl.web.ui.Input` and not :class:`~reahl.web.ui.PrimitiveInput`
-       Added `name`
+       Added `base_name`
        Added `name_discriminator`
+       Added `ignore_concurrency_change`
 
     """
     is_for_file = False
 
-    def __init__(self, form, bound_field, name=None, name_discriminator=None):
+    def __init__(self, form, bound_field, base_name=None, name_discriminator=None, ignore_concurrency_change=False):
         super(FileUploadInput, self).__init__(form, bound_field)
-        name_to_use = name or ('%s-%s%s' % (form.channel_name, self.bound_field.name, name_discriminator or ''))
+        
+        self.ignore_concurrency_change = ignore_concurrency_change
+        name_to_use = '%s-%s%s' % (form.channel_name, base_name or self.bound_field.name, name_discriminator or '')
         bound_field.override_unqualified_name_in_input(name_to_use)
 
         form.register_input(self) # bound_field must be set for this registration to work
 
         self.set_html_representation(self.add_child(self.create_html_widget()))
 
+
+    def get_concurrency_hash_strings(self, for_database_values=False):
+        if not self.ignore_concurrency_change:
+            yield self.original_value
+            
     @property
     def name(self):
         return self.bound_field.name_in_input

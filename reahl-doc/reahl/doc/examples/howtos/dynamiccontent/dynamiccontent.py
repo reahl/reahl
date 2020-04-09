@@ -22,7 +22,8 @@ from reahl.component.exceptions import DomainException
 from reahl.web.fw import UserInterface
 from reahl.web.ui import StaticColumn, DynamicColumn
 from reahl.web.layout import PageLayout
-from reahl.web.bootstrap.ui import FieldSet, HTML5Page, Div, P, Alert
+from reahl.web.bootstrap.page import HTML5Page
+from reahl.web.bootstrap.ui import FieldSet, Div, P, Alert
 from reahl.web.bootstrap.grid import Container, ColumnLayout, ColumnOptions, ResponsiveSize
 from reahl.web.bootstrap.forms import Form, FormLayout, TextInput, RadioButtonSelectInput, Button
 from reahl.web.bootstrap.tables import Table
@@ -70,7 +71,7 @@ class AllocationDetailForm(Form):
 
     def make_allocation_input(self, allocation, field):
         div = Div(self.view).use_layout(FormLayout())
-        div.layout.add_input(TextInput(self, field, name='%s.%s' % (field.name, allocation.fund_code), refresh_widget=self), hide_label=True)
+        div.layout.add_input(TextInput(self, field, name_discriminator=allocation.fund_code, refresh_widget=self), hide_label=True)
         return div
 
     def make_total_widget(self, total_value):

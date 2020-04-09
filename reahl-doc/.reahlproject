@@ -44,6 +44,7 @@
         <class locator="reahl.doc.examples.features.persistence.persistence:Comment"/>
         <class locator="reahl.doc.examples.web.fileupload.fileupload:Comment"/>
         <class locator="reahl.doc.examples.web.fileupload.fileupload:AttachedFile"/>
+        <class locator="reahl.doc.examples.tutorial.test_model2:Address"/>
         <class locator="reahl.doc.examples.tutorial.addressbook2.addressbook2:Address"/>
         <class locator="reahl.doc.examples.tutorial.addressbook2bootstrap.addressbook2bootstrap:Address"/>
         <class locator="reahl.doc.examples.tutorial.addressbook1.addressbook1:Address"/>
@@ -66,7 +67,7 @@
         <class locator="reahl.doc.examples.howtos.responsivedisclosure.responsivedisclosure:IDDocument"/>
         <class locator="reahl.doc.examples.howtos.dynamiccontent.dynamiccontent:InvestmentOrder"/>
         <class locator="reahl.doc.examples.howtos.dynamiccontent.dynamiccontent:Allocation"/>
-  </persisted>
+       </persisted>
 
   <schedule locator="reahl.doc.examples.tutorial.jobsbootstrap.jobsbootstrap:Address.clear_added_flags"/>
 

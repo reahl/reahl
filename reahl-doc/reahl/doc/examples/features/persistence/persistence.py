@@ -6,7 +6,8 @@ from reahl.sqlalchemysupport import Session, Base
 
 from reahl.web.fw import UserInterface, Widget
 from reahl.web.bootstrap.forms import Form, FieldSet, TextInput, FormLayout, ButtonInput
-from reahl.web.bootstrap.ui import HTML5Page, P, Div
+from reahl.web.bootstrap.page import HTML5Page
+from reahl.web.bootstrap.ui import P, Div
 from reahl.component.modelinterface import exposed, EmailField, Field
 from reahl.component.modelinterface import Event, Action
 

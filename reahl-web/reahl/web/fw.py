@@ -25,6 +25,7 @@ import atexit
 import inspect
 import json
 import logging
+import hashlib
 import mimetypes
 import string
 import time
@@ -72,7 +73,7 @@ from reahl.component.exceptions import ProgrammerError
 from reahl.component.exceptions import arg_checks
 from reahl.component.i18n import Catalogue
 from reahl.component.modelinterface import StandaloneFieldIndex, FieldIndex, Field, ValidationConstraint,\
-                                             Allowed, exposed, Event
+                                             Allowed, exposed, Event, Action
 from reahl.component.py3compat import ascii_as_bytes_or_str
 
 _ = Catalogue('reahl-web')
@@ -80,8 +81,18 @@ _ = Catalogue('reahl-web')
 
 class ValidationException(DomainException):
     """Indicates that one or more Fields received invalid data."""
-    def as_user_message(self):
-        return _('Invalid data supplied')
+    @classmethod
+    def for_failed_validations(cls, failed_validation_constraints):
+        detail_messages = [i.message for i in failed_validation_constraints]
+        return cls(message=_.ngettext('An error occurred', 'Some errors occurred', len(detail_messages)), detail_messages=detail_messages)
+
+    @exposed
+    def events(self, events):
+        events.refresh = Event(label='Refresh', action=Action(self.clear_view_data))
+
+    def clear_view_data(self, form=None):
+        form.clear_all_saved_data()
+
 
 
 class NoMatchingFactoryFound(Exception):
@@ -128,9 +139,9 @@ class Url(object):
             if self.scheme == config.web.encrypted_http_scheme:
                 self.port = config.web.encrypted_http_port
 
-    def set_query_from(self, value_dict):
+    def set_query_from(self, value_dict, doseq=False):
         """Sets the query string of this Url from a dictionary."""
-        self.query = urllib_parse.urlencode(value_dict)
+        self.query = urllib_parse.urlencode(value_dict, doseq=doseq)
 
     def get_query_dict(self):
         return urllib_parse.parse_qs(self.query)
@@ -416,11 +427,14 @@ class UserInterface(object):
         self.name = name                             #: A name which is unique amongst all UserInterfaces in the application
         self.relative_path = ''                     #: The path of the current Url, relative to this UserInterface
         self.page_factory = None
+        self.error_view_factory = None
         if not for_bookmark:
             self.update_relative_path()
         self.sub_uis = FactoryDict(set())
         self.controller = Controller(self)
         self.assemble(**ui_arguments)
+        if not self.error_view_factory:
+            self.define_default_error_view()
         self.sub_resources = FactoryDict(set())
         if not self.name:
             raise ProgrammerError('No .name set for %s. This should be done in the call to .define_user_interface or in %s.assemble().' % \
@@ -436,6 +450,13 @@ class UserInterface(object):
         """The path this UserInterface has in the current web application. It is appended to the URLs of all :class:`View` s
            in this UserInterface."""
         return self.make_full_path(self.parent_ui, self.relative_base_path)
+
+    @property
+    def root_ui(self):
+        if self.parent_ui:
+            return self.parent_ui.root_ui 
+        else:
+            return self
 
     @classmethod 
     def make_full_path(cls, parent_ui, relative_path):
@@ -480,6 +501,18 @@ class UserInterface(object):
 
         self.page_factory = widget_class.factory(*args, **kwargs)
         return self.page_factory
+
+    def define_error_view(self, page):
+        self.error_view_factory = self.define_view('/error', _('Error'), page=page)
+
+    def define_default_error_view(self):
+        if self.page_factory:
+            self.define_error_view(self.page_factory.get_error_page_factory())
+        else:
+            self.define_error_view(Widget.factory().get_error_page_factory())
+
+    def get_bookmark_for_error(self, message, error_source_bookmark):
+        return self.error_view_factory.as_bookmark(self) + self.error_view_factory.page_factory.widget_class.get_widget_bookmark_for_error(message, error_source_bookmark)
 
     def page_slot_for(self, view, page, local_slot_name):
         if page.created_by is self.page_factory:
@@ -859,8 +892,9 @@ class Detour(Redirect):
 
     def compute_target_url(self):
         redirect_url = super(Detour, self).compute_target_url()
-        qs = {'returnTo': six.text_type(self.return_to.href.as_network_absolute()) }
-        redirect_url.set_query_from(qs)
+        qs = redirect_url.get_query_dict()
+        qs['returnTo'] = [six.text_type(self.return_to.href.as_network_absolute())]
+        redirect_url.set_query_from(qs, doseq=True)
         return redirect_url
 
 
@@ -936,6 +970,10 @@ class Widget(object):
         """
         return WidgetFactory(cls, *widget_args, **widget_kwargs)
 
+    @classmethod
+    def get_error_page_factory(cls, *widget_args, **widget_kwargs):
+        return PlainErrorPage.factory()
+
     @arg_checks(view=IsInstance('reahl.web.fw:View'))
     def __init__(self, view, read_check=None, write_check=None):
         self.children = WidgetList()         #: All the Widgets that have been added as children of this Widget,
@@ -996,9 +1034,38 @@ class Widget(object):
            argument values set as attributes on this Widget (with names matching the argument names).
         """
     
+    def get_concurrency_hash_digest(self, for_database_values=False):
+        if not self.visible:
+            return ''
+
+        concurrency_hash = hashlib.md5()
+        is_empty = True
+        for value in self.get_concurrency_hash_strings(for_database_values=for_database_values):
+            is_empty = False
+            concurrency_hash.update(value.encode('utf-8'))
+        if is_empty:
+            return ''
+        else:
+            concurrency_hash.update(str(self.disabled).encode('utf-8'))
+            return concurrency_hash.hexdigest()
+
+    def get_concurrency_hash_strings(self, for_database_values=False):
+        for child in self.children:
+            digest = child.get_concurrency_hash_digest(for_database_values=for_database_values)
+            if digest:
+                yield digest
+
+    @property
+    def has_changed_since_initial_view(self):
+        return False
+
     @property
     def coactive_widgets(self):
         return [widget for child in self.children for widget in child.coactive_widgets]
+
+    @property
+    def ancestral_coactive_widgets(self):
+        return []
 
     def accept_disambiguated_input(self, disambiguated_input):
         self.query_fields.accept_input(disambiguated_input, ignore_validation=True)
@@ -1199,7 +1266,7 @@ class Widget(object):
         self.slot_contents['reahl_header'] = HeaderContent(self)
         self.slot_contents['reahl_footer'] = FooterContent(self)
         self.fill_slots(self.slot_contents)
-        self.attach_out_of_bound_forms(view.out_of_bound_forms)
+        self.attach_out_of_bound_widgets(view.out_of_bound_widgets)
         self.check_form_related_programmer_errors()
 
     @property
@@ -1215,17 +1282,36 @@ class Widget(object):
             if widget:
                 slot.fill(widget)
 
-    def attach_out_of_bound_forms(self, forms):
+    def attach_out_of_bound_widgets(self, widgets):
         for child in self.children:
-            child.attach_out_of_bound_forms(forms)
+            child.attach_out_of_bound_widgets(widgets)
 
-    def get_out_of_bounds_forms_widget(self):
-        widgets = [widget for widget in [child.get_out_of_bounds_forms_widget() for child in self.children]
+    def get_out_of_bound_container(self):
+        container = [widget for widget in [child.get_out_of_bound_container() for child in self.children]
                           if widget]
-        if not widgets:
+        if not container:
             return None
-        assert len(widgets) == 1
-        return widgets[0]
+        assert len(container) == 1
+        return container[0]
+
+
+class ErrorWidget(Widget):
+    @exposed
+    def query_fields(self, fields):
+        fields.error_message=Field(default=_('An error occurred'))
+        fields.error_source_href=Field(default=_('#'))
+
+    @classmethod
+    def get_widget_bookmark_for_error(cls, error_message, error_source_bookmark):
+        return Bookmark.for_widget('', query_arguments={'error_message':error_message, 'error_source_href':error_source_bookmark.href if error_source_bookmark else ''})
+
+
+class PlainErrorPage(ErrorWidget):
+    def render_contents(self):
+        return u'''<html><head><title>Error</title></head>
+                         <body><h1>An error occurred:</h1> <p>%s <a href="%s">Ok</a></p></body>
+                   </html>''' % (self.error_message, self.error_source_href)
+
 
 
 class ViewPreCondition(object):
@@ -1640,6 +1726,9 @@ class WidgetFactory(Factory):
         self.default_slot_definitions[name] = widget_factory
         return widget_factory
 
+    def get_error_page_factory(self):
+        return self.widget_class.get_error_page_factory(*self.widget_args, **self.widget_kwargs)
+
     def __str__(self):
         return '<WidgetFactory for %s>' % self.widget_class
 
@@ -1758,7 +1847,7 @@ class UrlBoundView(View):
         if re.match('/_([^/]*)$', relative_path):
             raise ProgrammerError('you cannot create UrlBoundViews with /_ in them - those are reserved URLs for SubResources')
         super(UrlBoundView, self).__init__(user_interface)
-        self.out_of_bound_forms = []
+        self.out_of_bound_widgets = []
         self.relative_path = relative_path
         self.title = title                          #: The title of this View
         self.preconditions = []       
@@ -1857,9 +1946,9 @@ class UrlBoundView(View):
                         locale=locale,
                         read_check=self.read_check, write_check=self.write_check)
 
-    def add_out_of_bound_form(self, out_of_bound_form):
-        self.out_of_bound_forms.append(out_of_bound_form)
-        return out_of_bound_form
+    def add_out_of_bound_widget(self, out_of_bound_widget):
+        self.out_of_bound_widgets.append(out_of_bound_widget)
+        return out_of_bound_widget
 
     @property
     def full_path(self):
@@ -1869,6 +1958,11 @@ class UrlBoundView(View):
     def persisted_userinput_class(self):
         config = ExecutionContext.get_context().config
         return config.web.persisted_userinput_class
+
+    @property
+    def persisted_exception_class(self):
+        config = ExecutionContext.get_context().config
+        return config.web.persisted_exception_class
 
     def set_construction_state_from_state_dict(self, construction_state_dict):
         url_encoded_state = urllib_parse.urlencode(construction_state_dict, doseq=True)
@@ -1924,6 +2018,10 @@ class UrlBoundView(View):
         widget_arguments.update(self.construction_client_side_state_as_dict_of_lists)
         return widget_arguments
 
+    def clear_all_view_data(self):
+        self.persisted_exception_class.clear_all_view_data(self)
+        self.persisted_userinput_class.clear_all_view_data(self)
+        
 
 class RedirectView(UrlBoundView):
     def __init__(self, user_interface, relative_path, to_bookmark):
@@ -1972,6 +2070,9 @@ class FooterContent(Widget):
 
 
 class Resource(object):
+    def __init__(self, view):
+        self.view = view
+
     @property
     def should_commit(self):
         return True
@@ -2007,12 +2108,12 @@ class SubResource(Resource):
     sub_path_template = 'sub_resource'  """A `PEP-292 <http://www.python.org/dev/peps/pep-0292/>`_ template in a string
                                             used to create an URL for this resource."""
 
-    def __init__(self, unique_name):
-        super(SubResource, self).__init__()
+    def __init__(self, view, unique_name):
+        super(SubResource, self).__init__(view)
         self.unique_name = unique_name
 
     @classmethod
-    def factory(cls, unique_name, path_argument_fields, *args, **kwargs):
+    def factory(cls, view, unique_name, path_argument_fields, *args, **kwargs):
         """Returns a Factory which the framework will use, once needed, in order to create
            this SubResource.
 
@@ -2025,7 +2126,7 @@ class SubResource(Resource):
         regex_path = RegexPath(cls.get_regex(unique_name), 
                                cls.get_path_template(unique_name),
                                path_argument_fields)
-        return SubResourceFactory(regex_path, functools.partial(cls.create_resource, unique_name, *args, **kwargs))
+        return SubResourceFactory(regex_path, functools.partial(cls.create_resource, view, unique_name, *args, **kwargs))
 
     @classmethod
     def is_for_sub_resource(cls, path, for_exact_sub_path='.*'):
@@ -2243,24 +2344,30 @@ class WidgetResult(MethodResult):
         return json.dumps({ 'success': success, 'widgets': rendered_widgets })
 
     def get_coactive_widgets_recursively(self, widget):
-        all_coactive_widgets = []
+        ancestral_widgets = []
+        for current_widget, current_parents_set in widget.view.page.parent_widget_pairs(set([])):
+            if current_widget is widget:
+                coactive_parents = set(widget.coactive_widgets) & set(current_parents_set)
+                if coactive_parents:
+                    raise ProgrammerError('The coactive Widgets of %s include its ancestor(s): %s' % (widget, ','.join([str(i) for i in coactive_parents])))
+                ancestral_widgets = [ancestral_widget 
+                                        for parent in current_parents_set 
+                                    for ancestral_widget in parent.ancestral_coactive_widgets]
+
+        all_coactive_widgets = ancestral_widgets
         for direct_coactive_widget in widget.coactive_widgets:
             all_coactive_widgets.append(direct_coactive_widget)
             for indirect_coactive_widget in direct_coactive_widget.coactive_widgets:
                 all_coactive_widgets.append(indirect_coactive_widget)
 
-        descendant_widgets = set(itertools.chain([widget], widget.contained_widgets()))
-        descendant_coactive_widgets = descendant_widgets & set(all_coactive_widgets)
-        if descendant_coactive_widgets:
-            raise ProgrammerError('%s are coactive widgets of %s and are also itself or one of its descendants' % (descendant_coactive_widgets, widget))
+        descendant_widgets = set(widget.contained_widgets())
+        coactive_widgets =  set(all_coactive_widgets) - descendant_widgets
 
-        for coactive_widget in all_coactive_widgets:
-            descendant_widgets = set(itertools.chain([coactive_widget], coactive_widget.contained_widgets()))
-            if widget in descendant_widgets:
-                raise ProgrammerError('%s is a coactive widget of %s and is also one of its ancestors' % (coactive_widget, widget))
+        for coactive_widget in coactive_widgets.copy():
+            descendant_widgets = set(coactive_widget.contained_widgets())
+            coactive_widgets = coactive_widgets - descendant_widgets
 
-        return all_coactive_widgets
-
+        return coactive_widgets
 
     def render(self, return_value):
         if self.as_json_and_result:
@@ -2299,8 +2406,8 @@ class RemoteMethod(SubResource):
     sub_regex = 'method'
     sub_path_template = 'method'
 
-    def __init__(self, name, callable_object, default_result, idempotent=False, immutable=False, method=None):
-        super(RemoteMethod, self).__init__(name)
+    def __init__(self, view, name, callable_object, default_result, idempotent=False, immutable=False, method=None):
+        super(RemoteMethod, self).__init__(view, name)
         self.idempotent = idempotent or immutable
         self.immutable = immutable
         self.callable_object = callable_object
@@ -2399,21 +2506,21 @@ class CheckedRemoteMethod(RemoteMethod):
        .. versionchanged:: 5.0
           Split immutable into immutable and idempotent kwargs.
     """
-    def __init__(self, name, callable_object, result, idempotent=False, immutable=False, **parameters):
-        super(CheckedRemoteMethod, self).__init__(name, callable_object, result, idempotent=idempotent, immutable=immutable)
+    def __init__(self, view, name, callable_object, result, idempotent=False, immutable=False, **parameters):
+        super(CheckedRemoteMethod, self).__init__(view, name, callable_object, result, idempotent=idempotent, immutable=immutable)
         self.parameters = FieldIndex(self)
         for name, field in parameters.items():
             self.parameters.set(name, field)
 
     def parse_arguments(self, input_values):
-        exception = None
+        exceptions = []
         for name, field in self.parameters.items():
             try:
                 field.from_input(input_values.get(name, [''])[0])
             except ValidationConstraint as ex:
-                exception = ex
-        if exception:
-            raise ValidationException()
+                exceptions.append(ex)
+        if exceptions:
+            raise ValidationException.for_failed_validations(exceptions)
         return self.parameters.as_kwargs()
 
 
@@ -2423,7 +2530,7 @@ class EventChannel(RemoteMethod):
        Programmers should not need to work with an EventChannel directly.
     """
     def __init__(self, form, controller, name):
-        super(EventChannel, self).__init__(name, self.delegate_event, None, idempotent=False, immutable=False)
+        super(EventChannel, self).__init__(form.view, name, self.delegate_event, None, idempotent=False, immutable=False)
         self.controller = controller
         self.form = form
 
@@ -2456,8 +2563,7 @@ class EventChannel(RemoteMethod):
 
 class ComposedPage(Resource):
     def __init__(self, view, page):
-        super(ComposedPage, self).__init__()
-        self.view = view
+        super(ComposedPage, self).__init__(view)
         self.page = page
 
     @property
@@ -2469,7 +2575,7 @@ class ComposedPage(Resource):
         if internal_redirect:
             return self.render()
         else:
-            # so that we can re-render on values that were updated in the domain
+            # so that we can re-render on values that were updated in the domain from construction_state
             raise InternalRedirect()
 
     def render(self):
@@ -2484,7 +2590,7 @@ class ComposedPage(Resource):
             config = ExecutionContext.get_context().config
             return 'max-age=%s' % config.web.cache_max_age
         else:
-            return 'no-cache'
+            return 'no-store'
 
 
 class FileView(View):
@@ -2493,7 +2599,7 @@ class FileView(View):
         self.viewable_file = viewable_file
 
     def as_resource(self, page):
-        return StaticFileResource('static', self.viewable_file)
+        return StaticFileResource(self, 'static', self.viewable_file)
 
     @property
     def title(self):
@@ -2707,12 +2813,42 @@ class StaticFileResource(SubResource):
     def get_url(self):
         return self.get_url_for(self.unique_name, filename=self.file.name)
 
-    def __init__(self, unique_name, a_file):
-        super(StaticFileResource, self).__init__(unique_name)
+    def __init__(self, view, unique_name, a_file):
+        super(StaticFileResource, self).__init__(view, unique_name)
         self.file = a_file
 
     def handle_get(self, request):
         return FileDownload(self.file)
+
+
+class MissingForm(Resource):
+    def __init__(self, view, root_ui, target_ui):
+        super(MissingForm, self).__init__(view)
+        self.root_ui = root_ui
+        self.target_ui = target_ui
+
+    def handle_post(self, request):
+        return Redirect(self.root_ui.get_bookmark_for_error(_('Something changed on the server while you were busy. You cannot perform this action anymore.'), 
+                                                            self.view.as_bookmark(self.target_ui)))
+
+    def cleanup_after_transaction(self):
+        self.view.clear_all_view_data()
+
+
+class CouldNotConstructResource(Exception):
+    def __init__(self, current_view, root_ui, target_ui, exception):
+        super(CouldNotConstructResource, self).__init__()
+        self.current_view = current_view
+        self.root_ui = root_ui
+        self.target_ui = target_ui
+        self.__cause__ = exception
+
+class UncaughtError(Redirect):
+    def __init__(self, view, root_ui, target_ui, exception):
+        error_source_bookmark = view.as_bookmark(target_ui) if view else None
+        target_bookmark=root_ui.get_bookmark_for_error(str(exception), error_source_bookmark)
+        super(UncaughtError, self).__init__(target_bookmark)
+
 
 
 class IdentityDictionary(object):
@@ -2793,29 +2929,47 @@ class ReahlWSGIApplication(object):
         if self.should_disconnect and self.system_control.connected:
             self.system_control.disconnect()
 
-    def get_target_ui(self, full_path):
-        root_ui = self.root_user_interface_factory.create(full_path)
-        target_ui, page = root_ui.get_user_interface_for_full_path(full_path)
-        return (target_ui, page)
-
     def resource_for(self, request):
-        url = Url.get_current_url(request=request)
-        logging.getLogger(__name__).debug('Finding Resource for URL: %s' % url.path)
-        url.make_locale_relative()
-        target_ui, page_factory = self.get_target_ui(url.path)
-        # TODO: FEATURE ENVY BELOW:
-        logging.getLogger(__name__).debug('Found UserInterface %s' % target_ui)
-        current_view = target_ui.get_view_for_full_path(url.path)
-        logging.getLogger(__name__).debug('Found View %s' % current_view)
-        current_view.check_precondition()
-        current_view.check_rights(request.method)
-        if current_view.is_dynamic:
-            page = current_view.create_page(url.path, page_factory)
-            self.check_scheme(page.is_security_sensitive)
-        else:
-            page = None
+        root_ui = target_ui = current_view = None
+        
+        try:
+            url = Url.get_current_url(request=request).as_locale_relative()
+            logging.getLogger(__name__).debug('Finding Resource for URL: %s' % url.path)
+            try:
+                root_ui = self.root_user_interface_factory.create(url.path)
+            except:
+                root_ui = UserInterface(None, '/', {}, False, '__emergency_error_root_ui')
+                if url.path != root_ui.get_bookmark_for_error('', None).href.as_locale_relative().path:
+                    raise
 
-        return current_view.resource_for(url.path, page)
+            target_ui, page_factory = root_ui.get_user_interface_for_full_path(url.path)
+            # TODO: FEATURE ENVY BELOW:
+            logging.getLogger(__name__).debug('Found UserInterface %s' % target_ui)
+            current_view = target_ui.get_view_for_full_path(url.path)
+            logging.getLogger(__name__).debug('Found View %s' % current_view)
+
+            current_view.check_precondition()
+            current_view.check_rights(request.method)
+            if current_view.is_dynamic:
+                page = current_view.create_page(url.path, page_factory)
+                self.check_scheme(page.is_security_sensitive)
+            else:
+                page = None
+
+            try:
+                return current_view.resource_for(url.path, page)
+            except HTTPNotFound:
+                if self.is_form_submit(url.path, request):
+                    return MissingForm(current_view, root_ui, target_ui)
+                else:
+                    raise
+        except HTTPException:
+            raise
+        except Exception as ex:
+            raise CouldNotConstructResource(current_view, root_ui, target_ui, ex)
+
+    def is_form_submit(self, full_path, request):
+        return SubResource.is_for_sub_resource(full_path) and request.method == 'POST' and any(name.endswith('_reahl_client_concurrency_digest') for name in request.POST.keys())
 
     def check_scheme(self, security_sensitive):
         scheme_needed = self.config.web.default_http_scheme
@@ -2886,14 +3040,27 @@ class ReahlWSGIApplication(object):
                         context.config.web.session_class.initialise_web_session_on(context) # Because the rollback above nuked it
                     if resource:
                         resource.cleanup_after_transaction()
+                        
                 except HTTPException as e:
                     response = e
                 except DisconnectionError as e:
                     response = HTTPInternalServerError(unicode_body=six.text_type(e))
+                except CouldNotConstructResource as e:
+                    if self.config.reahlsystem.debug:
+                        six.raise_from(e.__cause__, None)
+                    else:
+                        #TODO: constuct a fake view, and pass that in
+                        response = UncaughtError(e.current_view, e.root_ui, e.target_ui, e.__cause__)
+                except Exception as e:
+                    if self.config.reahlsystem.debug:
+                        raise e
+                    else:
+                        response = UncaughtError(resource.view, resource.view.user_interface.root_ui, resource.view.user_interface, e)
 
                 context.session.set_session_key(response)
                 for chunk in response(environ, start_response):
                     yield chunk
             finally:
-                self.system_control.finalise_session()
+               self.system_control.finalise_session()
+
 

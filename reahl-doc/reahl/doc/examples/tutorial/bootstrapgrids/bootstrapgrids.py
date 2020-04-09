@@ -3,7 +3,8 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 import six
 from reahl.web.fw import UserInterface, Layout
 from reahl.web.layout import PageLayout
-from reahl.web.bootstrap.ui import HTML5Page, P, Div, H
+from reahl.web.bootstrap.page import HTML5Page
+from reahl.web.bootstrap.ui import P, Div, H
 from reahl.web.bootstrap.grid import Container, ColumnLayout, ColumnOptions, ResponsiveSize
 from reahl.web.bootstrap.navs import Nav
 

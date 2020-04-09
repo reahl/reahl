@@ -160,7 +160,6 @@ class TablePageIndex(SequentialPageIndex):
 
     @exposed
     def fields(self, fields):
-        fields.update_copies(super(TablePageIndex, self).fields)
         fields.sort_column_number = IntegerField(required=False, default=self.sort_column_number)
         fields.sort_descending = BooleanField(required=False, default=self.sort_descending)
 
@@ -217,7 +216,6 @@ class PagedTable(PagedPanel):
         
     @exposed
     def query_fields(self, fields):
-        fields.update_copies(super(PagedTable, self).query_fields)
         fields.sort_column_number = self.page_index.fields.sort_column_number
         fields.sort_descending = self.page_index.fields.sort_descending
 

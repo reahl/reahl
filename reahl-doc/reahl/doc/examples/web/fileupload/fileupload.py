@@ -23,7 +23,8 @@ from reahl.sqlalchemysupport import Session, Base
 from reahl.component.modelinterface import exposed, EmailField, Field, Event, Action, FileField
 from reahl.web.fw import UserInterface
 from reahl.web.layout import PageLayout
-from reahl.web.bootstrap.ui import FieldSet, HTML5Page, Div, P
+from reahl.web.bootstrap.page import HTML5Page
+from reahl.web.bootstrap.ui import FieldSet, Div, P
 from reahl.web.bootstrap.files import FileUploadInput
 from reahl.web.bootstrap.grid import Container, ColumnLayout, ColumnOptions, ResponsiveSize
 from reahl.web.bootstrap.forms import Form, FormLayout, ButtonInput, ButtonLayout, TextInput

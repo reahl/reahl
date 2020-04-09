@@ -22,7 +22,8 @@ from reahl.component.exceptions import DomainException
 from reahl.web.fw import UserInterface
 from reahl.web.ui import StaticColumn, DynamicColumn
 from reahl.web.layout import PageLayout
-from reahl.web.bootstrap.ui import FieldSet, HTML5Page, Div, P, Alert
+from reahl.web.bootstrap.page import HTML5Page
+from reahl.web.bootstrap.ui import FieldSet, Div, P, Alert
 from reahl.web.bootstrap.grid import Container, ColumnLayout, ColumnOptions, ResponsiveSize
 from reahl.web.bootstrap.forms import Form, FormLayout, TextInput, SelectInput, RadioButtonSelectInput, CheckboxInput, Button
 from reahl.web.bootstrap.tables import Table
@@ -46,9 +47,10 @@ class NewInvestmentForm(Form):
     def __init__(self, view):
         super(NewInvestmentForm, self).__init__(view, 'new_investment_form')
         self.enable_refresh()
+        self.use_layout(FormLayout())
 
         if self.exception:
-            self.add_child(Alert(view, str(self.exception), 'warning'))
+            self.layout.add_alert_for_domain_exception(self.exception)
 
         investment_order = InvestmentOrder.for_current_session()
         type_of_investor = self.add_child(FieldSet(view, legend_text='Introduction'))
@@ -120,7 +122,7 @@ class AllocationDetailSection(Div):
         allocation_controls.use_layout(FormLayout())
 
         if self.form.exception:
-            self.add_child(Alert(self.view, str(self.form.exception), 'warning'))
+            self.layout.add_alert_for_domain_exception(self.form.exception, form=self.form, unique_name='details_section')
         
         total_amount_input = TextInput(self.form, self.investment_order.fields.amount, refresh_widget=self)
         allocation_controls.layout.add_input(total_amount_input)
@@ -130,7 +132,7 @@ class AllocationDetailSection(Div):
 
     def make_allocation_input(self, allocation, field):
         div = Div(self.view).use_layout(FormLayout())
-        div.layout.add_input(TextInput(self.form, field, name='%s.%s' % (field.name, allocation.fund_code), refresh_widget=self), hide_label=True)
+        div.layout.add_input(TextInput(self.form, field, name_discriminator=allocation.fund_code, refresh_widget=self), hide_label=True)
         return div
 
     def make_total_widget(self, total_value):

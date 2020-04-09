@@ -24,7 +24,7 @@ from reahl.sqlalchemysupport import Session
 from reahl.web.fw import Url, UserInterface
 from reahl.web.layout import PageLayout
 from reahl.webdev.tools import Browser
-from reahl.web.bootstrap.ui import HTML5Page
+from reahl.web.bootstrap.page import HTML5Page
 from reahl.web.bootstrap.grid import ResponsiveSize, ColumnLayout, ColumnOptions, Container
 from reahl.domain.systemaccountmodel import VerifyEmailRequest, NewPasswordRequest, ActivateAccount
 from reahl.domainui.bootstrap.accounts import AccountUI

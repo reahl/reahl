@@ -1,7 +1,8 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
 
 from reahl.web.fw import UserInterface, Widget
-from reahl.web.bootstrap.ui import HTML5Page, TextNode, Div, H, P
+from reahl.web.bootstrap.page import HTML5Page
+from reahl.web.bootstrap.ui import TextNode, Div, H, P
 from reahl.web.bootstrap.navbar import Navbar, ResponsiveLayout
 from reahl.web.bootstrap.grid import Container
 from reahl.sqlalchemysupport import Session, Base

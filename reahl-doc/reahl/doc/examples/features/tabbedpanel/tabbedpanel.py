@@ -1,7 +1,8 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
 
 from reahl.web.fw import Widget, UserInterface
-from reahl.web.bootstrap.ui import HTML5Page, P
+from reahl.web.bootstrap.page import HTML5Page
+from reahl.web.bootstrap.ui import P
 from reahl.web.bootstrap.tabbedpanel import TabbedPanel, Tab
 
 

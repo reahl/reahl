@@ -29,7 +29,7 @@ from reahl.web_dev.fixtures import WebFixture, BasicPageLayout
 from reahl.webdev.tools import XPath, Browser
 from reahl.web.fw import Widget, UserInterface
 from reahl.web.ui import Form, Div, SelectInput, Label, P, RadioButtonSelectInput, CheckboxSelectInput, \
-    CheckboxInput, ButtonInput, TextInput, HTML5Page
+    CheckboxInput, ButtonInput, TextInput, HTML5Page, FormLayout
 from reahl.component.modelinterface import Field, BooleanField, MultiChoiceField, ChoiceField, Choice, exposed, \
     IntegerField, EmailField, Event, Action, Allowed
 from reahl.component.exceptions import ProgrammerError, DomainException
@@ -247,6 +247,7 @@ def test_inputs_can_refresh_parent_widgets(web_fixture, query_string_fixture, re
     fixture.change_value(browser)
     assert browser.wait_for(query_string_fixture.is_state_now, fixture.changed_state)
 
+
 @with_fixtures(WebFixture, QueryStringFixture, ResponsiveDisclosureFixture)
 def test_overridden_names(web_fixture, query_string_fixture, responsive_disclosure_fixture):
     """The overridden names of inputs correctly ensures that that input's state is distinguished from another with the same name."""
@@ -265,7 +266,7 @@ def test_overridden_names(web_fixture, query_string_fixture, responsive_disclosu
     fixture.ModelObject = ModelObject
 
     def create_trigger_input(form, an_object):
-        the_input = CheckboxSelectInput(form, an_object.fields.choice, name='first_choice', refresh_widget=form)
+        the_input = CheckboxSelectInput(form, an_object.fields.choice, base_name='first_choice', refresh_widget=form)
         the_input.set_id('marvin')
         return the_input
     fixture.create_trigger_input = create_trigger_input
@@ -285,7 +286,7 @@ def test_overridden_names(web_fixture, query_string_fixture, responsive_disclosu
     browser = web_fixture.driver_browser
     browser.open('/')
 
-    browser.click('//input[@name="first_choice[]" and @value="3"]')
+    browser.click('//input[@name="myform-first_choice[]" and @value="3"]')
     assert browser.wait_for(query_string_fixture.is_state_now, [1,3])
 
 
@@ -694,7 +695,7 @@ def test_inputs_and_widgets_work_when_nested(web_fixture, query_string_fixture, 
 
 @with_fixtures(WebFixture, DisclosedInputFixture)
 def test_clear_previously_given_user_input(web_fixture, disclosed_input_fixture):
-    """If a an input is refreshed as part of a Widget, and disappears, then reappears after a second refresh, its input is defaulted to the model value."""
+    """If an input is refreshed as part of a Widget, and disappears, then reappears after a second refresh, its input is defaulted to the model value."""
 
     fixture = disclosed_input_fixture
     wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=fixture.MyForm.factory())
@@ -798,13 +799,13 @@ class RecalculatedWidgetScenarios(Fixture):
         class MyForm(Form):
             def __init__(self, view, an_object):
                 super(MyForm, self).__init__(view, 'myform')
+                self.use_layout(FormLayout())
                 self.an_object = an_object
                 self.enable_refresh(on_refresh=an_object.events.choice_changed)
                 if self.exception:
-                    self.add_child(P(self.view, text=str(self.exception)))
+                    self.layout.add_alert_for_domain_exception(self.exception)
                 self.change_trigger_input = TextInput(self, an_object.fields.choice, refresh_widget=self)
-                self.add_child(Label(view, for_input=self.change_trigger_input))
-                self.add_child(self.change_trigger_input)
+                self.layout.add_input(self.change_trigger_input)
                 self.add_child(P(self.view, text='My state is now %s' % an_object.choice))
                 fixture.add_to_form(self, an_object)
                 self.define_event_handler(an_object.events.submit)
@@ -922,17 +923,16 @@ def test_invalid_trigger_inputs(web_fixture, query_string_fixture, sql_alchemy_f
     class MyForm(Form):
         def __init__(self, view, an_object):
             super(MyForm, self).__init__(view, 'myform')
+            self.use_layout(FormLayout())
             self.an_object = an_object
             self.enable_refresh(on_refresh=an_object.events.choice_changed)
             if self.exception:
-                self.add_child(P(self.view, text=str(self.exception)))
+                self.layout.add_alert_for_domain_exception(self.exception)
             self.change_trigger_input = TextInput(self, an_object.fields.choice, refresh_widget=self)
-            self.add_child(Label(view, for_input=self.change_trigger_input))
-            self.add_child(self.change_trigger_input)
+            self.layout.add_input(self.change_trigger_input)
             self.add_child(P(self.view, text='My choice state is now %s' % an_object.choice))
             self.change2_trigger_input = TextInput(self, an_object.fields.choice2, refresh_widget=self)
-            self.add_child(Label(view, for_input=self.change2_trigger_input))
-            self.add_child(self.change2_trigger_input)
+            self.layout.add_input(self.change2_trigger_input)
             self.add_child(P(self.view, text='My choice2 state is now %s' % an_object.choice2))
             self.add_child(P(self.view, text='My calculated state is now %s' % an_object.calculated_state))
             self.define_event_handler(an_object.events.submit)
