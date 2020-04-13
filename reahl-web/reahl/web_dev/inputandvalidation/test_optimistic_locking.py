@@ -65,14 +65,15 @@ class OptimisticConcurrencyFixture(Fixture):
             def __init__(self, view):
                 super(MyForm, self).__init__(view, 'myform')
                 self.use_layout(FormLayout())
-                self.set_attribute('novalidate','novalidate')
+                self.set_attribute('novalidate', 'novalidate')
 
                 if self.exception:
                     self.layout.add_alert_for_domain_exception(self.exception)
 
                 self.layout.add_input(TextInput(self, fixture.model_object.fields.some_field))
                 self.define_event_handler(fixture.model_object.events.submit)
-                self.add_child(ButtonInput(self, fixture.model_object.events.submit))
+                submit_button = self.add_child(ButtonInput(self, fixture.model_object.events.submit))
+                submit_button.set_attribute('formnovalidate', 'formnovalidate')
                 self.define_event_handler(fixture.model_object.events.submit_break)
                 self.add_child(ButtonInput(self, fixture.model_object.events.submit_break))
         return MyForm
