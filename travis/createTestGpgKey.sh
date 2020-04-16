@@ -5,23 +5,24 @@ function cleanup_keyfiles {
 }
 trap cleanup_keyfiles EXIT
 
-function whack_passphrase {
+function preset_passphrase {
+  gpg --list-secret-keys --with-keygrip
+  KEYGRIP=$(gpg --status-fd 2 --with-keygrip --list-secret-key $GPG_KEY_ID | grep Keygrip | head -n 1 | awk '{print $3}')
+  echo 'Calling gpg-preset-passphrase'
   set +x
-  gpg --status-fd 1 --command-fd 0 --edit-key $GPG_KEY_ID <<EOF
-password
-$GPG_PASSPHRASE
-
-y
-save
-y
-
-EOF
+  echo $GPG_PASSPHRASE | /usr/lib/gnupg2/gpg-preset-passphrase --preset $KEYGRIP
   set -x
+  echo 'done'
+  echo $KEYGRIP
 }
 
 function import_gpg_keys () {
   from_dir=$1
-  echo $GPG_PASSPHRASE | gpg --status-fd 2 --pinentry=loopback --passphrase-fd 0 --import $from_dir/key.secret.asc
+  echo 'Calling gpg import'
+  set +x
+  echo $GPG_PASSPHRASE | gpg --status-fd 2 --pinentry-mode=loopback --passphrase-fd 0 --import $from_dir/key.secret.asc
+  set -x
+  echo 'done'
   gpg --status-fd 2 --import-ownertrust < $from_dir/trust.asc
 }
 
@@ -36,12 +37,13 @@ if [ "$TRAVIS_SECURE_ENV_VARS" == 'true' ]; then
   openssl aes-256-cbc -K $encrypted_f7a01544e957_key -iv $encrypted_f7a01544e957_iv -in /tmp/keys.tgz.enc -out /tmp/keys.tgz -d
   tar -C /tmp -zxvf /tmp/keys.tgz 
   echo "allow-loopback-pinentry" >> ~/.gnupg/gpg-agent.conf
+  echo "allow-preset-passphrase" >> ~/.gnupg/gpg-agent.conf
   gpgconf --reload gpg-agent
   sleep 2
   import_gpg_keys /tmp/keys
   mkdir -p ~/.gnupg
   echo "default-key $GPG_KEY_ID" >> ~/.gnupg/gpg.conf
-  whack_passphrase
+  preset_passphrase
 else
   echo "SECRETS NOT available, using fake key for signing"
 fi
