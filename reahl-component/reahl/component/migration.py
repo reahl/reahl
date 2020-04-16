@@ -16,7 +16,6 @@
 
 """Support for database schema migration."""
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 from pkg_resources import parse_version
 import logging
 import warnings

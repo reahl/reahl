@@ -17,7 +17,6 @@
 # -*- mode: python; mode: font-lock -*-
 # Copyright 2005 Iwan Vosloo
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 import time
 
 from reahl.stubble import easter_egg, stubclass, EmptyStub

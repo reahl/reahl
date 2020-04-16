@@ -21,7 +21,6 @@
 The very basic Bootstrap components (ones that do not warrant their own module)
 
 """
-from __future__ import print_function, unicode_literals, absolute_import, division
 
 
 

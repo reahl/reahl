@@ -20,7 +20,6 @@
 Copyright (C) 2006 Reahl Software Services (Pty) Ltd.  All rights reserved. (www.reahl.org)
 
 """
-from __future__ import print_function, unicode_literals, absolute_import, division
 
 import asyncore
 import logging

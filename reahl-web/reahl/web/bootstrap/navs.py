@@ -32,7 +32,6 @@ style Bootstrap Navs.
    Removed the .add_item and add_submenu methods in favour of .add_a,.add_bookmark,.add_dropdown methods.
 
 """
-from __future__ import print_function, unicode_literals, absolute_import, division
 
 
 import re

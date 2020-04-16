@@ -23,7 +23,6 @@ Run 'reahl componentinfo reahl-domainui' for configuration information.
 
 """
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.i18n import Catalogue
 from reahl.component.context import ExecutionContext

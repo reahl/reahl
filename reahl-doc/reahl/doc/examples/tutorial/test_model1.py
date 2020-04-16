@@ -1,5 +1,4 @@
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 
 class Address(object):
     def __init__(self, name, email_address):

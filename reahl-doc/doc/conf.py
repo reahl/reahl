@@ -17,7 +17,6 @@
 # -*- coding: utf-8 -*-
 #
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 import sys, os, datetime
 
 # If extensions (or modules to document with autodoc) are in another directory,

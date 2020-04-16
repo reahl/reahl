@@ -20,7 +20,6 @@
    Queues that can be monitored by these users. Via this model a program can also be written
    to schedule a particular task for the system to do some time in the future.
 """
-from __future__ import print_function, unicode_literals, absolute_import, division
 
 import datetime
 

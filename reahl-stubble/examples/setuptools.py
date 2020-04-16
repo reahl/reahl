@@ -19,7 +19,6 @@
 # Please see the README file for more info.
 #
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 import pkg_resources
 
 from reahl.stubble import EasterEgg

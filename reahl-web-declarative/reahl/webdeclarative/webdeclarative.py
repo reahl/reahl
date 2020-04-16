@@ -20,7 +20,6 @@ Run 'reahl componentinfo reahl-web-declarative' for configuration information.
 
 """
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 import random
 import urllib.parse
 from datetime import datetime, timedelta

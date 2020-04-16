@@ -40,7 +40,6 @@ Bootstrap's grid system works on units of 1/12th the size of a given
 parent width. A size for a particular device class is thus an integer
 denoting a size in 1/12ths of its container's width.
 """
-from __future__ import print_function, unicode_literals, absolute_import, division
 
 from collections import OrderedDict
 import copy
