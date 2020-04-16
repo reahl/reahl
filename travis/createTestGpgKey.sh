@@ -21,7 +21,7 @@ EOF
 
 function import_gpg_keys () {
   from_dir=$1
-  gpg --status-fd 2 --import $from_dir/key.secret.asc
+  echo $GPG_PASSPHRASE | gpg --status-fd 2 --pinentry=loopback --passphrase-fd 0 --import $from_dir/key.secret.asc
   gpg --status-fd 2 --import-ownertrust < $from_dir/trust.asc
 }
 
@@ -35,6 +35,9 @@ if [ "$TRAVIS_SECURE_ENV_VARS" == 'true' ]; then
   aws s3 cp s3://$AWS_BUCKET/keys.tgz.enc /tmp/keys.tgz.enc
   openssl aes-256-cbc -K $encrypted_f7a01544e957_key -iv $encrypted_f7a01544e957_iv -in /tmp/keys.tgz.enc -out /tmp/keys.tgz -d
   tar -C /tmp -zxvf /tmp/keys.tgz 
+  echo "allow-loopback-pinentry" >> ~/.gnupg/gpg-agent.conf
+  gpgconf --reload gpg-agent
+  sleep 2
   import_gpg_keys /tmp/keys
   mkdir -p ~/.gnupg
   echo "default-key $GPG_KEY_ID" >> ~/.gnupg/gpg.conf
