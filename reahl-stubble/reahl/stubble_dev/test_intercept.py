@@ -34,13 +34,13 @@ def test_monitor():
             return y
 
     s = SomethingElse()
-    original_method = six.get_method_function(s.foo)
+    original_method = s.foo.__func__
 
     with CallMonitor(s.foo) as monitor:
         assert s.foo(1, y='a') == 'a'
         assert s.foo(2) == None
 
-    assert six.get_method_function(s.foo) is original_method
+    assert s.foo.__func__ is original_method
     assert s.n == 2
     assert monitor.times_called == 2
     assert monitor.calls[0].args == (1,)
@@ -105,13 +105,13 @@ def test_replace():
     s = SomethingElse()
     def replacement(n, y=None):
         return y
-    original_method = six.get_method_function(s.foo)
+    original_method = s.foo.__func__
 
     with replaced(s.foo, replacement):
         assert s.foo(1, y='a') == 'a'
         assert s.foo(2) == None
 
-    assert six.get_method_function(s.foo) is original_method
+    assert s.foo.__func__ is original_method
 
     # Case: unbound method
     """Python 3 does not support the concept of unbound methods, they are
@@ -127,13 +127,13 @@ def test_replace():
     def replacement(self, n, y=None):
         return y
 
-    original_method = six.get_unbound_function(SomethingElse.foo)
+    original_method = SomethingElse.foo
 
     with replaced(SomethingElse.foo, replacement, on=SomethingElse):
         assert s.foo(1, y='a') == 'a'
         assert s.foo(2) == None
 
-    restored_method = six.get_unbound_function(SomethingElse.foo)
+    restored_method = SomethingElse.foo
     assert restored_method is original_method
 
     # Case: unbound method (no on= given)

@@ -118,7 +118,7 @@ class CallMonitor(CallableMonitor):
           assert monitor.calls[0].return_value == 'something'
     """
     def __init__(self, method):
-        super(CallMonitor, self).__init__(six.get_method_self(method), method)
+        super(CallMonitor, self).__init__(method.__self__, method)
 
 
 class InitMonitor(CallableMonitor):
@@ -178,12 +178,13 @@ def replaced(method, replacement, on=None):
 
     if (not inspect.ismethod(method)) and not on:
         raise ValueError('You have to supply a on= when stubbing an unbound method')
-    target = on or six.get_method_self(method)
+    target = on or method.__self__
 
     if inspect.isfunction(method) or inspect.isbuiltin(method):
         method_name = method.__name__
     else:
-        method_name = six.get_method_function(method).__name__
+        method_name = method.__func__.__name__
+
     saved_method = getattr(target, method_name)
     try:
         setattr(target, method_name, replacement)

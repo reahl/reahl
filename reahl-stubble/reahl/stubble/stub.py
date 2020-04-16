@@ -189,7 +189,7 @@ class Exempt(StubbleDescriptor):
             if instance is None:
                 return self
             else:
-                return six.create_bound_method(self.value, instance)
+                return types.MethodType(self.value, instance)
         else:
             return self.value            
 

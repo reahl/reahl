@@ -17,6 +17,8 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 
+import pkg_resources
+
 from reahl.tofu import expected, NoException
 from reahl.stubble import easter_egg, EmptyStub
 
@@ -39,8 +41,10 @@ def test_flattened_tree_of_eggs():
         return component_names_in_order.index(higher) < component_names_in_order.index(lower)
 
     assert component_names_in_order[:2] == [easter_egg.project_name, 'reahl-component']
-    assert is_ordered_before('Babel', 'pytz')
-    assert is_ordered_before('python-dateutil', 'six')
+
+    for package_name in component_names_in_order:
+        dependencies = [i.project_name for i in pkg_resources.require(package_name) if i.project_name != package_name]
+        assert all( [is_ordered_before(package_name, i) for i in dependencies] )
 
 
 def test_interface_with_meta_info():

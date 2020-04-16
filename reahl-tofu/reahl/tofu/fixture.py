@@ -46,7 +46,7 @@ class MarkingDecorator(object):
         if instance is None:
             return self
         else:
-            return six.create_bound_method(self.function, instance)
+            return types.MethodType(self.function, instance)
 
     @property
     def name(self):
