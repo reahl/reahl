@@ -19,7 +19,7 @@ env:
     - TOX_ENV=py38
 
 addons:
-  postgresql: "9.2"
+  postgresql: "10"
   apt:
     packages:
        # Basic apt dependencies
@@ -36,15 +36,19 @@ addons:
         - gcc
         - cython
         - libxml2-dev
+        - libxslt-dev
         - libsqlite3-0
         - sqlite3
-        - postgresql-9.2
-        - postgresql-client-9.2
-        - postgresql-server-dev-9.2
+        - postgresql-server-dev-all 
+#        - postgresql-10.12
+#        - postgresql-client-10.12
+#        - postgresql-server-dev-10.12
         - zlib1g-dev
         - libjpeg62-dev
         - libfreetype6-dev
-        - liblcms1-dev
+#        - liblcms1-dev
+        - liblcms2-dev
+        - libmysqlclient-dev
         # - phantomjs  # for reference... not allowed in apt addon
 
 services:
