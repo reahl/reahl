@@ -173,10 +173,7 @@ class ProcessThatTakesLongToDie(ProcessFake):
     time_to_take_to_die = 1.0
     killed = False
     def wait(self, timeout=0):
-        if six.PY2:
-            time.sleep(self.time_to_take_to_die)
-        else: 
-            raise subprocess.TimeoutExpired('fake', 123)
+        raise subprocess.TimeoutExpired('fake', 123)
     def kill(self):
         self.killed = True
 

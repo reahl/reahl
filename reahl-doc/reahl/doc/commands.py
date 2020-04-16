@@ -114,9 +114,7 @@ class Example(object):
         try:
             return pkg_resources.resource_exists(self.containing_package, self.relative_path.replace(os.sep, '/'))
         except ImportError as ex:
-            if six.PY2 and str(ex).endswith(self.name):
-                return False
-            elif six.PY3 and ex.name == '.'.join([self.containing_package, self.name]):
+            if ex.name == '.'.join([self.containing_package, self.name]):
                 return False
             raise
 

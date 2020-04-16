@@ -23,7 +23,7 @@ Run 'reahl componentinfo reahl-web-declarative' for configuration information.
 from __future__ import print_function, unicode_literals, absolute_import, division
 import six
 import random
-from six.moves.urllib import parse as urllib_parse
+import urllib.parse
 from datetime import datetime, timedelta
 
 
@@ -144,16 +144,16 @@ class UserSession(Base, UserSessionProtocol):
         context = ExecutionContext.get_context()
         try:
             raw_cookie = context.request.cookies[context.config.web.session_key_name]
-            return urllib_parse.unquote(raw_cookie)
+            return urllib.parse.unquote(raw_cookie)
         except KeyError:
             return None
 
     def set_session_key(self, response):
         context = ExecutionContext.get_context()
         session_cookie = self.as_key()
-        response.set_cookie(context.config.web.session_key_name, urllib_parse.quote(session_cookie), path='/')
+        response.set_cookie(context.config.web.session_key_name, urllib.parse.quote(session_cookie), path='/')
         if self.is_secured():
-            response.set_cookie(context.config.web.secure_key_name, urllib_parse.quote(self.secure_salt), secure=True, path='/',
+            response.set_cookie(context.config.web.secure_key_name, urllib.parse.quote(self.secure_salt), secure=True, path='/',
                                 max_age=context.config.web.idle_secure_lifetime)
 
     def generate_salt(self):

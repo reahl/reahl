@@ -55,10 +55,7 @@ class Executable(object):
         #on windows os, some entrypoints installed in the virtualenv
         #need their full path(with extension) to be able to be used as a spawn command.
         #Python 3 now offers shutil.which() - see also http://stackoverflow.com/questions/377017/test-if-executable-exists-in-python
-        if six.PY2:
-            executable = distutils.spawn.find_executable(program)
-        else:
-            executable = shutil.which(program)
+        executable = shutil.which(program)
         if executable:
             return executable
         raise ExecutableNotInstalledException(program)
@@ -218,13 +215,7 @@ class ReahlCommandline(CompositeCommand):
 
     @property
     def aliasses(self):
-        if six.PY2:
-            aliasses = {}
-            aliasses.update(AliasFile.get_file(local=True).aliasses)
-            aliasses.update(AliasFile.get_file(local=False).aliasses)
-            return aliasses
-        else:
-            return dict(collections.ChainMap(AliasFile.get_file(local=True).aliasses, AliasFile.get_file(local=False).aliasses))
+        return dict(collections.ChainMap(AliasFile.get_file(local=True).aliasses, AliasFile.get_file(local=False).aliasses))
         
     def set_log_level(self, log_level):
         log_level = getattr(logging, log_level)

@@ -237,27 +237,7 @@ class SSLCapableWSGIServer(ReahlWSGIServer):
 
     def server_bind(self):
         self.socket = ssl.wrap_socket(self.socket, server_side=True, certfile=self.certfile)
-        if six.PY2:
-            #This method is shamelessly copied from WerkZeug (and changed)
-            class _SSLConnectionFix(object):
-                #This class is shamelessly copied from WerkZeug
-                """Wrapper around SSL connection to provide a working makefile()."""
-
-                def __init__(self, con):
-                    self._con = con
-
-                def makefile(self, mode, bufsize):
-                    return socket._fileobject(self._con, mode, bufsize)
-
-                def __getattr__(self, attrib):
-                    return getattr(self._con, attrib)
-                
-            old_accept = self.socket.accept
-            def patched_accept():
-                con, info = old_accept()
-                return _SSLConnectionFix(con), info
-            self.socket.accept = patched_accept
-        ReahlWSGIServer.server_bind(self)
+        super().server_bind()
 
 
 
@@ -323,21 +303,10 @@ class SlaveProcess(object):
         self.wait_to_die(timeout=timeout)
 
     def wait_to_die(self, timeout):
-        TimeoutExpired = Py2TimeoutExpired if six.PY2 else subprocess.TimeoutExpired
         try:
-            if six.PY2:
-                self.py2_process_wait_within_timeout(timeout)
-            else:
-                self.process.wait(timeout=timeout)
-        except TimeoutExpired:
+            self.process.wait(timeout=timeout)
+        except subprocess.TimeoutExpired:
             self.process.kill()
-
-    def py2_process_wait_within_timeout(self, timeout):
-        thread = Thread(target=self.process.wait)
-        thread.start()
-        thread.join(timeout)
-        if thread.isAlive():
-            raise Py2TimeoutExpired()
 
     def spawn_new_process(self):
         return self.executable.Popen(self.args, env=os.environ.copy())
@@ -356,7 +325,7 @@ class SlaveProcess(object):
             try:
                 possible_orphan_process.kill()
                 logging.getLogger(__name__).debug('Had to kill process(orphan) with PID[%s]' % possible_orphan_process.pid)
-            except (OSError if six.PY2 else ProcessLookupError):
+            except (ProcessLookupError):
                 logging.getLogger(__name__).debug('Process with PID[%s] seems terminated already, no need to kill it' % possible_orphan_process.pid)
         return functools.partial(kill_orphan_on_exit, process)
 

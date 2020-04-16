@@ -19,10 +19,7 @@ import inspect
 import six
 from functools import reduce
 
-if six.PY2:
-    from collections import Callable
-else:
-    from collections.abc import Callable
+from collections.abc import Callable
 
 
 
@@ -83,12 +80,8 @@ class StubClass(object):
 
     @classmethod
     def signatures_match(cls, orig, stubbed, ignore_self=False):
-        if six.PY2:
-            orig_arguments = inspect.getargspec(orig)
-            stub_arguments = inspect.getargspec(stubbed)
-        else:
-            orig_arguments = inspect.getfullargspec(orig)
-            stub_arguments = inspect.getfullargspec(stubbed)
+        orig_arguments = inspect.getfullargspec(orig)
+        stub_arguments = inspect.getfullargspec(stubbed)
 
         if ignore_self:
             if 'self' in orig_arguments.args: orig_arguments.args.remove('self')

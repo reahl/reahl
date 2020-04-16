@@ -233,8 +233,6 @@ class EmailAndPasswordSystemAccount(SystemAccount):
                 self.disable()
             raise InvalidPasswordException(commit=True)
         if new_hash:
-            if six.PY2:
-                new_hash = new_hash.decode('utf-8')
             self.password_hash = new_hash
 
     def send_activation_notification(self):
@@ -258,8 +256,6 @@ class EmailAndPasswordSystemAccount(SystemAccount):
             raise InvalidEmailException()
 
         new_hash = self.crypt_context.hash(password)
-        if six.PY2:
-            new_hash = new_hash.decode('utf-8')
         self.password_hash = new_hash
 
     def request_email_change(self, new_email):

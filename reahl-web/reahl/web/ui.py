@@ -30,10 +30,7 @@ import hashlib
 import six
 import warnings
 from collections import OrderedDict
-if six.PY2:
-    from collections import Callable
-else:
-    from collections.abc import Callable
+from collections.abc import Callable
 
 
 from reahl.component.exceptions import IsInstance

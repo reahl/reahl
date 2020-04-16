@@ -50,7 +50,7 @@ import warnings
 from collections import OrderedDict
 from pkg_resources import Requirement
 from six.moves import cStringIO
-from six.moves.urllib import parse as urllib_parse
+import urllib.parse
 from webob import Request, Response
 from webob.exc import HTTPException
 from webob.exc import HTTPForbidden
@@ -118,7 +118,7 @@ class Url(object):
         return cls(six.text_type(request.url))
     
     def __init__(self, url_string):
-        split_url = urllib_parse.urlsplit(url_string)
+        split_url = urllib.parse.urlsplit(url_string)
         self.scheme = split_url.scheme     #:
         self.username = split_url.username #:
         self.password = split_url.password #:
@@ -141,10 +141,10 @@ class Url(object):
 
     def set_query_from(self, value_dict, doseq=False):
         """Sets the query string of this Url from a dictionary."""
-        self.query = urllib_parse.urlencode(value_dict, doseq=doseq)
+        self.query = urllib.parse.urlencode(value_dict, doseq=doseq)
 
     def get_query_dict(self):
-        return urllib_parse.parse_qs(self.query)
+        return urllib.parse.parse_qs(self.query)
     
     @property
     def netloc(self):
@@ -223,7 +223,7 @@ class Url(object):
         return new_url
         
     def __str__(self):
-        return urllib_parse.urlunsplit((self.scheme, self.netloc, self.path, self.query, self.fragment))
+        return urllib.parse.urlunsplit((self.scheme, self.netloc, self.path, self.query, self.fragment))
 
     def is_active_on(self, current_url, exact_path=False):
         """Answers whether this Url matches the `current_url`. If exact_path=False this Url
@@ -1427,7 +1427,7 @@ class RegexPath(object):
         fields = self.get_temp_url_argument_field_index(for_fields)
 
         raw_input_values = MultiDict()
-        raw_input_values.update([(self.convert_str_to_identifier(key), urllib_parse.unquote(value or ''))
+        raw_input_values.update([(self.convert_str_to_identifier(key), urllib.parse.unquote(value or ''))
                                  for key, value in matched_arguments.items()])
         fields.accept_input(raw_input_values.dict_of_lists())
         return fields.as_kwargs()
@@ -1437,17 +1437,9 @@ class RegexPath(object):
         fields.validate_defaults()
         return fields.as_input_kwargs()
 
-    if six.PY2:
-        @classmethod
-        def convert_str_to_identifier(cls, s):
-            try:
-                return s.encode('ascii')
-            except UnicodeDecodeError:
-                raise ValueError('Python 2 does not support non-ASCII identifier %r' % s)
-    else:
-        @classmethod
-        def convert_str_to_identifier(cls, s):
-            return s
+    @classmethod
+    def convert_str_to_identifier(cls, s):
+        return s
 
 
 class ParameterisedPath(RegexPath):
@@ -1643,7 +1635,7 @@ class ViewFactory(FactoryFromUrlRegex):
         request = ExecutionContext.get_context().request
         return_to = request.GET.get('returnTo')
         if return_to:
-            return urllib_parse.urlencode({'returnTo': return_to})
+            return urllib.parse.urlencode({'returnTo': return_to})
         return ''
 
     def add_precondition(self, precondition):
@@ -1965,9 +1957,7 @@ class UrlBoundView(View):
         return config.web.persisted_exception_class
 
     def set_construction_state_from_state_dict(self, construction_state_dict):
-        url_encoded_state = urllib_parse.urlencode(construction_state_dict, doseq=True)
-        if six.PY2:
-            url_encoded_state = url_encoded_state.decode('utf-8')
+        url_encoded_state = urllib.parse.urlencode(construction_state_dict, doseq=True)
         self._construction_client_side_state = url_encoded_state
 
     @property
@@ -1985,11 +1975,9 @@ class UrlBoundView(View):
         if not hasattr(self, '_current_POSTed_client_side_state'):
             request = ExecutionContext.get_context().request
             client_state_string = request.POST.dict_of_lists().get('__reahl_client_side_state__', [''])[0]
-            client_state = urllib_parse.parse_qs(client_state_string, keep_blank_values=True)
+            client_state = urllib.parse.parse_qs(client_state_string, keep_blank_values=True)
             client_state.update(request.POST)  # TODO: issue: request.POST is not in disambiguated format....
-            client_state_string = urllib_parse.urlencode(client_state, doseq=True)
-            if six.PY2:
-                client_state_string = client_state_string.decode('utf-8')
+            client_state_string = urllib.parse.urlencode(client_state, doseq=True)
             self._current_POSTed_client_side_state = client_state_string
         else:
             client_state_string = self._current_POSTed_client_side_state
@@ -1997,11 +1985,11 @@ class UrlBoundView(View):
 
     @property
     def construction_client_side_state_as_dict_of_lists(self):
-        return urllib_parse.parse_qs(self.construction_client_side_state, keep_blank_values=True)
+        return urllib.parse.parse_qs(self.construction_client_side_state, keep_blank_values=True)
 
     @property
     def current_POSTed_state_as_dict_of_lists(self):
-        return urllib_parse.parse_qs(self.current_POSTed_client_side_state, keep_blank_values=True)
+        return urllib.parse.parse_qs(self.current_POSTed_client_side_state, keep_blank_values=True)
 
     def save_last_construction_state(self):
         self.clear_last_construction_state()
@@ -2897,10 +2885,6 @@ class ReahlWSGIApplication(object):
         return cls(config, start_on_first_request=start_on_first_request)
 
     def __init__(self, config, start_on_first_request=False):
-        if six.PY2:
-            reload(sys)  # to enable `setdefaultencoding` again
-            sys.setdefaultencoding("UTF-8")
-
         self.start_on_first_request = start_on_first_request
         self.start_lock = threading.Lock()
         self.started = False

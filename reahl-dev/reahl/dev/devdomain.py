@@ -77,11 +77,7 @@ class Git(object):
                 Executable('git').check_call('log -r -1 --pretty="%ci"'.split(), cwd=self.directory, stdout=out, stderr=DEVNULL)
                 out.seek(0)
                 [timestamp] = [line.replace('\n','') for line in out]
-        if six.PY2:
-            import dateutil.parser
-            return dateutil.parser.parse(timestamp[1:-1]) 
-        else:
-            return datetime.datetime.strptime(timestamp, '"%Y-%m-%d %H:%M:%S %z"')
+        return datetime.datetime.strptime(timestamp, '"%Y-%m-%d %H:%M:%S %z"')
 
     def is_version_controlled(self):
         return self.uses_git()

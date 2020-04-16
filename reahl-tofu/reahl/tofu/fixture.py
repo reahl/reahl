@@ -244,7 +244,7 @@ class Fixture(object):
             except StopIteration:
                 pass
             else:
-                name = generator.__name__ if six.PY2 else generator.__qualname__ 
+                name = generator.__qualname__ 
                 raise ProgrammerError('%s is yielding more than one element. \'new_\' methods should only yield a single element' % name)
 
     def clear(self):

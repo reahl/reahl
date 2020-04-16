@@ -19,22 +19,12 @@ import six
 
 
 def ascii_as_bytes_or_str(unicode_str):
-    if six.PY2:
-        return unicode_str.encode('ascii')
-    else:
-        return unicode_str
+    return unicode_str
 
 
 def _html_escape_function():
-    if six.PY2:
-        import xml.sax.saxutils
-        def html_escape(s, quote=True):
-            entities = {'"': '&quot;', '\'': '&#x27;'} if quote else {}
-            return xml.sax.saxutils.escape(s, entities=entities)
-        return html_escape
-    else:
-        import html
-        return html.escape
+    import html
+    return html.escape
 
 
 html_escape = _html_escape_function()

@@ -26,10 +26,7 @@ import inspect
 
 from reahl.component.i18n import Catalogue
 
-if six.PY2:
-    from collections import Callable
-else:
-    from collections.abc import Callable
+from collections.abc import Callable
 
 
 _ = Catalogue('reahl-component')
@@ -188,10 +185,7 @@ class IsCallable(ArgumentCheck):
 
 class ArgumentCheckedCallable(object):
     def __init__(self, target, explanation=None):
-        if six.PY2 and isinstance(target, functools.partial):
-           self.target = target.func
-        else:
-           self.target = target
+        self.target = target
         self.explanation = explanation
 
     def __call__(self, *args, **kwargs):
@@ -238,9 +232,6 @@ def arg_checks(**checks):
             f.arg_checks = checks
         @wrapt.decorator
         def check_call(wrapped, instance, args, kwargs):
-            if six.PY2:
-                if isinstance(wrapped, functools.partial) and not wrapped.func.__self__ and instance:
-                    args = (instance,)+args
             return ArgumentCheckedCallable(wrapped)(*args, **kwargs)
         return check_call(f)
     return catch_wrapped

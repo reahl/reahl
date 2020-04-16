@@ -25,7 +25,7 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 import re
 import six
 from contextlib import contextmanager
-from six.moves.urllib import parse as urllib_parse
+import urllib.parse 
 
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.eggs import ReahlEgg
@@ -225,7 +225,7 @@ class DatabaseControl(object):
     def __init__(self, url, config):
         self.config = config
         self.connection_uri = url
-        uri_parts = urllib_parse.urlparse(url)
+        uri_parts = urllib.parse.urlparse(url)
         self.user_name = self.unquote(uri_parts.username)
         self.password = self.unquote(uri_parts.password)
         self.host = self.unquote(uri_parts.hostname)
@@ -235,10 +235,7 @@ class DatabaseControl(object):
             raise ProgrammerError('Please specify a database name in reahlsystem.connection_uri')
 
     def unquote(self, value):
-        unquote_value = urllib_parse.unquote(value) if value else None
-        if unquote_value and six.PY2:
-            unquote_value = unquote_value.decode('utf-8')
-        return unquote_value
+        return urllib.parse.unquote(value) if value else None
 
     def get_dbapi_connection_creator(self):
         return None

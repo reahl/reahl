@@ -26,7 +26,7 @@ import tempfile
 import webbrowser
 import time
 import json
-from six.moves.urllib import parse as urllib_parse
+import urllib.parse
 import logging
 from six.moves.http_cookiejar import Cookie
 from six.moves.http_client import CannotSendRequest
@@ -209,8 +209,8 @@ class Browser(BasicBrowser):
         self.last_response = self.testapp.post((ascii_as_bytes_or_str(url_string)), form_values, **kwargs)
 
     def relative(self, url_string):
-        url_bits = urllib_parse.urlparse(url_string)
-        return urllib_parse.urlunparse(('', '', url_bits.path, url_bits.params, url_bits.query, url_bits.fragment))
+        url_bits = urllib.parse.urlparse(url_string)
+        return urllib.parse.urlunparse(('', '', url_bits.path, url_bits.params, url_bits.query, url_bits.fragment))
 
     @property
     def raw_html(self):
@@ -363,7 +363,7 @@ class Browser(BasicBrowser):
         return form.fields[inputs[0].name][0].value
 
     def get_full_path(self, relative_path):
-        return urllib_parse.urljoin(self.current_url.path, relative_path)
+        return urllib.parse.urljoin(self.current_url.path, relative_path)
 
     def is_image_shown(self, locator):
         """Answers whether the located image is available from the server (ie, whether the src attribute 
@@ -544,7 +544,7 @@ class XPath(object):
         value_selector = 'normalize-space(@value)=normalize-space(%s)'  % cls.delimit_text(label)
         input_button = cls.any('input')[value_selector]
         if arguments:
-            encoded_arguments = '?'+urllib_parse.urlencode(arguments)
+            encoded_arguments = '?'+urllib.parse.urlencode(arguments)
             argument_selector = 'substring(@name, string-length(@name)-string-length("%s")+1) = "%s"' % (encoded_arguments, encoded_arguments)
             input_button = input_button[argument_selector]
 
@@ -1232,7 +1232,7 @@ class DriverBrowser(BasicBrowser):
             return False
         src = self.get_attribute(locator,'src')
         location = self.current_url
-        location.path = urllib_parse.urljoin(location.path, src)
+        location.path = urllib.parse.urljoin(location.path, src)
         self.open(six.text_type(location))
         self.go_back()
         return True

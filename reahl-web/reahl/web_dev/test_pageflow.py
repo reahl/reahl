@@ -17,7 +17,7 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 
-from six.moves.urllib import parse as urllib_parse
+import urllib.parse
 
 from reahl.tofu import expected
 from reahl.tofu.pytestsupport import with_fixtures
@@ -539,7 +539,7 @@ def test_detour_is_non_reentrant(web_fixture):
     browser = Browser(wsgi_app)
 
     def locationIsSetToReturnTo(url_path):
-        return urllib_parse.parse_qs(browser.current_url.query)['returnTo'] == [url_path]
+        return urllib.parse.parse_qs(browser.current_url.query)['returnTo'] == [url_path]
 
     browser.open('/initial')
     browser.click(XPath.link().with_text('Step 1'))

@@ -25,7 +25,7 @@ import re
 import fnmatch
 import functools
 import sre_constants
-from six.moves.urllib import parse as urllib_parse
+import urllib.parse
 from string import Template
 import inspect
 from contextlib import contextmanager
@@ -37,10 +37,7 @@ from wrapt import FunctionWrapper, BoundFunctionWrapper
 
 from reahl.component.i18n import Catalogue
 from reahl.component.exceptions import AccessRestricted, ProgrammerError, arg_checks, IsInstance, IsCallable, NotYetAvailable
-if six.PY2:
-    from collections import Callable
-else:
-    from collections.abc import Callable
+from collections.abc import Callable
 
 
 
@@ -1148,12 +1145,12 @@ class Event(Field):
     def parse_input(self, unparsed_input):
         if unparsed_input:
             arguments_query_string = unparsed_input[1:]
-            raw_input_values = dict([(k,v) for k, v in urllib_parse.parse_qs(arguments_query_string).items()])
+            raw_input_values = dict([(k,v) for k, v in urllib.parse.parse_qs(arguments_query_string).items()])
             fields = StandaloneFieldIndex()
             fields.update_copies(self.event_argument_fields)
             fields.accept_input(raw_input_values)
             
-            view_arguments = dict([(k,v[0]) for k, v in urllib_parse.parse_qs(arguments_query_string).items()
+            view_arguments = dict([(k,v[0]) for k, v in urllib.parse.parse_qs(arguments_query_string).items()
                                    if not k in fields.items()])
             arguments = view_arguments.copy()
             arguments.update(fields.as_kwargs())
@@ -1167,11 +1164,8 @@ class Event(Field):
             fields.update_copies(self.event_argument_fields)
             
             arguments.update(fields.as_input_kwargs())
-            input_string='?%s' % urllib_parse.urlencode(arguments)
-            if six.PY2:
-                return input_string.decode('utf-8')
-            else:
-                return input_string
+            input_string = '?%s' % urllib.parse.urlencode(arguments)
+            return input_string
         else:
             return '?'
     
@@ -1218,12 +1212,8 @@ class SecuredFunction(FunctionWrapper):
             return True
 
     def check_method_signature(self, check_method, original_method):
-        if six.PY2:
-            check_signature = inspect.getargspec(check_method)
-            expected_signature = inspect.getargspec(original_method)
-        else:
-            check_signature = inspect.getfullargspec(check_method)
-            expected_signature = inspect.getfullargspec(original_method)
+        check_signature = inspect.getfullargspec(check_method)
+        expected_signature = inspect.getfullargspec(original_method)
 
         if check_signature != expected_signature:
             messages = [repr(method) + inspect.formatargspec(*signature)
@@ -1233,10 +1223,7 @@ class SecuredFunction(FunctionWrapper):
                                   tuple(messages))
 
     def get_declared_argument_names(self):
-        if six.PY2:
-            arg_spec = inspect.getargspec(self.__wrapped__)
-        else:
-            arg_spec = inspect.getfullargspec(self.__wrapped__)
+        arg_spec = inspect.getfullargspec(self.__wrapped__)
         positional_args_end = len(arg_spec.args)-len(arg_spec.defaults or [])
         return arg_spec.args[:positional_args_end]
 

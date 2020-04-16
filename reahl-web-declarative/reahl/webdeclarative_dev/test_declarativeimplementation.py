@@ -20,7 +20,7 @@ from datetime import datetime, timedelta
 
 import six
 from six.moves import http_cookies
-from six.moves.urllib import parse as urllib_parse
+import urllib.parse
 
 from sqlalchemy import Column, ForeignKey, Integer
 from webob import Response
@@ -135,7 +135,7 @@ def test_setting_cookies_on_response(sql_alchemy_fixture, web_fixture):
         user_session.set_session_key(response)
 
         session_cookie = response.cookies[fixture.config.web.session_key_name]
-        assert session_cookie.value == urllib_parse.quote(user_session.as_key())
+        assert session_cookie.value == urllib.parse.quote(user_session.as_key())
         assert session_cookie['path'] == '/'
         assert not session_cookie['max-age']
         #assert 'httponly' in session_cookie
