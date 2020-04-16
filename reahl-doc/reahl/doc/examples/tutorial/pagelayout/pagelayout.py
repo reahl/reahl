@@ -8,7 +8,7 @@ from reahl.web.bootstrap.grid import Container
 
 class AddressBookPage(HTML5Page):
     def __init__(self, view):
-        super(AddressBookPage, self).__init__(view)
+        super().__init__(view)
         self.body.use_layout(Container())
 
         layout = ResponsiveLayout('md', colour_theme='dark', bg_scheme='primary')

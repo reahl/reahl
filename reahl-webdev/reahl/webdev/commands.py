@@ -40,7 +40,7 @@ class ServeCurrentProject(WorkspaceCommand):
     keyword = 'serve'
 
     def assemble(self):
-        super(ServeCurrentProject, self).assemble()
+        super().assemble()
         self.parser.add_argument('-p', '--port', action='store', type=int, dest='port', default=8000, help='port (optional)')
         self.parser.add_argument('-s', '--seconds-between-restart', action='store', type=int, dest='max_seconds_between_restarts', 
                                  default=3, help='poll only every n seconds for filesystem changes (optional)')
@@ -113,7 +113,7 @@ class SyncFiles(Command):
                                  help='the name of the site as listed in sitecopy.rc')
 
     def execute(self, args):
-        super(SyncFiles, self).execute(args)
+        super().execute(args)
         self.sitecopy = Executable('sitecopy')
 
         try:

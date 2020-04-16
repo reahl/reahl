@@ -87,7 +87,7 @@ class Scenario(MarkingDecorator):
     
 class DefaultScenario(Scenario):
     def __init__(self):
-        super(DefaultScenario, self).__init__(None)
+        super().__init__(None)
     @property
     def name(self):
         return 'default_scenario'

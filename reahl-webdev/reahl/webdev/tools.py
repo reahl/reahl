@@ -752,7 +752,7 @@ class XPath:
 
 class UnexpectedLoadOf(Exception):
     def __init__(self, jquery_selector):
-        super(UnexpectedLoadOf, self).__init__()
+        super().__init__()
         self.jquery_selector = jquery_selector
 
     def __str__(self):

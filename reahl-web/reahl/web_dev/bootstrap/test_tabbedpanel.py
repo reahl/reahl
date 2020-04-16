@@ -37,7 +37,7 @@ class   TabbedPanelAjaxFixture(Fixture):
     def new_PopulatedTabbedPanel(self):
         class PopulatedTabbedPanel(TabbedPanel):
             def __init__(self, view):
-                super(PopulatedTabbedPanel, self).__init__(view)
+                super().__init__(view)
                 multi_tab = MultiTab(view, 'multitab name', 'multi-main')
                 tab1 = Tab(view, 'tab 1 name', 'multi1', P.factory(text='tab 1/1 content'))
                 tab2 = Tab(view, 'tab 2 name', 'multi2', P.factory(text='tab 1/2 content'))

@@ -43,7 +43,7 @@ class SQLiteControl(DatabaseControl):
     control_matching_regex = r'^sqlite:'
 
     def __init__(self, url, config):
-        super(SQLiteControl, self).__init__(url, config)
+        super().__init__(url, config)
         if not config.reahlsystem.serialise_parallel_requests:
             config.reahlsystem.serialise_parallel_requests = True
             logging.getLogger(__name__).info('Overriding config setting[reahlsystem.serialise_parallel_requests] to True for Sqlite.')

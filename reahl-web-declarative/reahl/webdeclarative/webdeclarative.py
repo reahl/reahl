@@ -77,7 +77,7 @@ class UserSession(Base, UserSessionProtocol):
         self.generate_salt()
         self.last_activity = datetime.fromordinal(1)
         self.set_idle_lifetime(False)
-        super(UserSession, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     def is_secured(self):
         context = ExecutionContext.get_context()
@@ -242,7 +242,7 @@ class UserInput(SessionData, UserInputProtocol):
 
     __hash__ = None
     def __eq__(self, other):
-        return super(UserInput, self).__eq__(other) and \
+        return super().__eq__(other) and \
                self.key == other.key and \
                self.value == other.value
 
@@ -315,7 +315,7 @@ class PersistedException(SessionData, PersistedExceptionProtocol):
     input_name = Column(UnicodeText)
 
     def __eq__(self, other):
-        return super(PersistedException, self).__eq__(other) and \
+        return super().__eq__(other) and \
                self.exception == other.exception
 
     @classmethod
@@ -324,7 +324,7 @@ class PersistedException(SessionData, PersistedExceptionProtocol):
 
     @classmethod
     def for_input(cls, form, input_name):
-        return super(PersistedException, cls).find_for(form.view, form=form).filter_by(input_name=input_name)
+        return super().find_for(form.view, form=form).filter_by(input_name=input_name)
 
     @classmethod
     def clear_for_form_except_inputs(cls, form):
@@ -333,7 +333,7 @@ class PersistedException(SessionData, PersistedExceptionProtocol):
 
     @classmethod
     def clear_for_all_inputs(cls, form):
-        for e in super(PersistedException, cls).find_for(form.view, form=form).filter(cls.input_name != None):
+        for e in super().find_for(form.view, form=form).filter(cls.input_name != None):
             Session.delete(e)
 
     @classmethod
@@ -365,7 +365,7 @@ class PersistedFile(SessionData, PersistedFileProtocol):
     size = Column(BigInteger, nullable=False)
 
     def __eq__(self, other):
-        return super(PersistedFile, self).__eq__(other) and \
+        return super().__eq__(other) and \
                self.filename == other.filename and \
                self.input_name == other.input_name
 

@@ -81,7 +81,7 @@ def test_simple_file_input(web_fixture):
 
     class FileUploadForm(Form):
         def __init__(self, view):
-            super(FileUploadForm, self).__init__(view, 'test')
+            super().__init__(view, 'test')
             self.add_child(SimpleFileInput(self, domain_object.fields.file))
             self.define_event_handler(domain_object.events.upload)
             self.add_child(ButtonInput(self, domain_object.events.upload))
@@ -134,7 +134,7 @@ def test_simple_file_input_exceptions(web_fixture):
 
     class FileUploadForm(Form):
         def __init__(self, view):
-            super(FileUploadForm, self).__init__(view, 'test')
+            super().__init__(view, 'test')
             file_input = self.add_child(SimpleFileInput(self, domain_object.fields.file))
             if file_input.validation_error:
                 self.add_child(self.create_error_label(file_input))

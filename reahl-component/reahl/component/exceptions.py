@@ -40,7 +40,7 @@ class DomainException(Exception):
        :keyword message: Optional error message.
     """
     def __init__(self, commit=False, message=None, detail_messages=[]):
-        super(DomainException, self).__init__(message)
+        super().__init__(message)
         self.commit = commit
         self.message = message
         self.detail_messages = detail_messages
@@ -132,7 +132,7 @@ class ArgumentCheck(Exception):
 
 class TypeBasedArgumentCheck(ArgumentCheck):
     def __init__(self, type_or_string, allow_none=False):
-        super(TypeBasedArgumentCheck, self).__init__(allow_none=allow_none)
+        super().__init__(allow_none=allow_none)
         self.type_ = DeferredImport(type_or_string)
 
     def is_marked_with_attribute(self, value):
@@ -155,12 +155,12 @@ class IsSubclass(TypeBasedArgumentCheck):
 
 class IsCallable(ArgumentCheck):
     def __init__(self, args=(), kwargs={}, allow_none=False):
-        super(IsCallable, self).__init__(allow_none=allow_none)
+        super().__init__(allow_none=allow_none)
         self.args = args
         self.kwargs = kwargs
 
     def check(self, func, name, value):
-        super(IsCallable, self).check(func, name, value)
+        super().check(func, name, value)
         if value:
             message = '%s will be called with %s' % (value, self.formatted_message())
             ArgumentCheckedCallable(value, explanation=message).checkargs(*self.args, **self.kwargs)

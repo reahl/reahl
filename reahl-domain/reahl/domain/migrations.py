@@ -24,7 +24,7 @@ from reahl.sqlalchemysupport import fk_name, ix_name
 
 class ElixirToDeclarativeDomainChanges(MigrateElixirToDeclarative):
     def schedule_upgrades(self):
-        super(ElixirToDeclarativeDomainChanges, self).schedule_upgrades()
+        super().schedule_upgrades()
 
         self.change_task()
         self.rename_link_table()

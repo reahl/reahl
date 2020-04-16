@@ -83,7 +83,7 @@ def test_simple_sub_resources(web_fixture):
     @stubclass(Widget)
     class WidgetWithSubResource(Widget):
         def __init__(self, view):
-            super(WidgetWithSubResource, self).__init__(view)
+            super().__init__(view)
             view.add_resource(ASimpleSubResource(view, 'uniquename'))
 
     wsgi_app = fixture.new_wsgi_app(child_factory=WidgetWithSubResource.factory())
@@ -104,7 +104,7 @@ def test_dynamic_sub_resources(web_fixture):
         sub_path_template = 'dynamic_%(param)s'
 
         def __init__(self, view, unique_name, param):
-            super(ParameterisedSubResource, self).__init__(view, unique_name)
+            super().__init__(view, unique_name)
             self.param = param
 
         @exempt
@@ -119,7 +119,7 @@ def test_dynamic_sub_resources(web_fixture):
     @stubclass(Widget)
     class WidgetWithSubResource(Widget):
         def __init__(self, view):
-            super(WidgetWithSubResource, self).__init__(view)
+            super().__init__(view)
             view.add_resource_factory(ParameterisedSubResource.factory(view, 'uniquename', {'param': Field(required=True)}))
 
     wsgi_app = fixture.new_wsgi_app(child_factory=WidgetWithSubResource.factory())
@@ -140,7 +140,7 @@ def test_dynamic_sub_resources_factory_args(web_fixture):
         sub_path_template = 'dynamic_%(path_param)s'
 
         def __init__(self, view, unique_name, factory_arg, factory_kwarg, path_param):
-            super(ParameterisedSubResource, self).__init__(view, unique_name)
+            super().__init__(view, unique_name)
             self.path_param = path_param
             self.factory_arg = factory_arg
             self.factory_kwarg = factory_kwarg
@@ -158,7 +158,7 @@ def test_dynamic_sub_resources_factory_args(web_fixture):
     @stubclass(Widget)
     class WidgetWithSubResource(Widget):
         def __init__(self, view):
-            super(WidgetWithSubResource, self).__init__(view)
+            super().__init__(view)
             factory = ParameterisedSubResource.factory(view, 'uniquename', {'path_param': Field(required=True)}, 'arg to factory', factory_kwarg='kwarg to factory')
             view.add_resource_factory(factory)
 
@@ -195,7 +195,7 @@ def test_disambiguating_between_factories(web_fixture):
     @stubclass(Widget)
     class WidgetWithAmbiguousSubResources(Widget):
         def __init__(self, view):
-            super(WidgetWithAmbiguousSubResources, self).__init__(view)
+            super().__init__(view)
             factory1 = ParameterisedSubResource.factory(view, 'factory1', {})
             view.add_resource_factory(factory1)
             factory2 = ParameterisedSubResource.factory(view, 'factory2', {})

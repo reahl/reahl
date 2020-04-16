@@ -229,7 +229,7 @@ class NavbarToggleFixture(Fixture):
         fixture = self
         class MainWidget(Div):
             def __init__(self, view):
-                super(MainWidget, self).__init__(view)
+                super().__init__(view)
 
                 navbar = Navbar(view)
                 navbar.use_layout(NavbarLayout(colour_theme='dark', bg_scheme='dark'))

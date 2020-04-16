@@ -188,7 +188,7 @@ class GetExample(WorkspaceCommand):
     keyword = 'example'
 
     def assemble(self):
-        super(GetExample, self).assemble()
+        super().assemble()
         self.parser.add_argument('-f', '--force-overwrite', action='store_true', dest='force', default=False,
                                  help='overwrite an existing example if in the way')
         self.parser.add_argument('example_name', help='the name of the wanted example')

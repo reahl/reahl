@@ -43,7 +43,7 @@ class DynamicUI(UserInterface):
 
 class AllocationDetailForm(Form):
     def __init__(self, view):
-        super(AllocationDetailForm, self).__init__(view, 'investment_order_allocation_details_form')
+        super().__init__(view, 'investment_order_allocation_details_form')
         self.use_layout(FormLayout())
 
         self.investment_order = InvestmentOrder.for_current_session()
@@ -119,7 +119,7 @@ class InvestmentOrder(Base):
         events.allocation_changed = Event(action=Action(self.recalculate))
 
     def __init__(self, **kwargs):
-        super(InvestmentOrder, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.amount_or_percentage = 'percentage'
         self.amount = 0
         if not self.allocations:
@@ -180,7 +180,7 @@ class Allocation(Base):
         fields.amount        = IntegerField(label='Amount', required=True, writable=lambda field: self.is_in_amount)
 
     def __init__(self, investment_order, fund_name):
-        super(Allocation, self).__init__(investment_order=investment_order)
+        super().__init__(investment_order=investment_order)
         self.fund = fund_name
         self.amount = 0
         self.percentage = 0

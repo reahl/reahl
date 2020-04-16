@@ -106,7 +106,7 @@ class TextObjectSetup(BasicObjectSetup):
 class CompositeObjectSetup(BasicObjectSetup):
     inner_tag_name = 'inner'
     def new_inner_class(self):
-        return super(CompositeObjectSetup, self).new_test_class()
+        return super().new_test_class()
     
     def new_test_class(self):
         class OuterClass:
@@ -152,12 +152,12 @@ class MultipleClassesForTag(CompositeObjectSetup):
 
 class TimeStampedInflationSetup(CompositeObjectSetup):
     def new_test_class(self):
-        class OuterClass(super(TimeStampedInflationSetup, self).new_test_class()):
+        class OuterClass(super().new_test_class()):
             def inflate_attributes(self, reader, attributes, parent):
-                super(OuterClass, self).inflate_attributes(reader, attributes, parent)
+                super().inflate_attributes(reader, attributes, parent)
                 self.attribute_stamp = time.time()
             def inflate_child(self, reader, child, tag, parent):
-                super(OuterClass, self).inflate_child(reader, child, tag, parent)
+                super().inflate_child(reader, child, tag, parent)
                 self.child_stamp = time.time()
             def inflate_text(self, reader, text, parent):
                 self.child_stamp = time.time()

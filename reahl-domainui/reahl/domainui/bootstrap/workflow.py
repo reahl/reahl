@@ -42,7 +42,7 @@ _ = Catalogue('reahl-domainui')
 
 class TaskBox(Li):
     def __init__(self, view, task):
-        super(TaskBox, self).__init__(view)
+        super().__init__(view)
         self.task = task
         self.add_child(P(view, text=self.task.title))
         form = self.add_child(Form(view, 'task_%s' % task.id))
@@ -55,7 +55,7 @@ class TaskBox(Li):
 
 class InboxWidget(Div):
     def __init__(self, view, inbox):
-        super(InboxWidget, self).__init__(view)
+        super().__init__(view)
         self.add_child(H(view, 1, text=_('Inbox')))
         self.list = self.add_child(Ul(view))
 
@@ -88,7 +88,7 @@ class TaskWidget(HTMLWidget):
         return task.__class__ is Task
 
     def __init__(self, view, task):
-        super(TaskWidget, self).__init__(view)
+        super().__init__(view)
         self.task = task
         self.create_contents()
 

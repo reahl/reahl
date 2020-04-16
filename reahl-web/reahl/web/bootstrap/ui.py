@@ -53,7 +53,7 @@ class Alert(Div):
 
     """
     def __init__(self, view, message_or_widget, severity):
-        super(Alert, self).__init__(view)
+        super().__init__(view)
         severity_option = HTMLAttributeValueOption(severity, severity, prefix='alert', 
                                                    constrain_value_to=['primary', 'secondary',
                                                                        'success', 'info', 'warning', 'danger',
@@ -79,7 +79,7 @@ class Badge(Span):
     :keyword pill: Defaults to False. If set to True the badge will look like a pill.
     """
     def __init__(self, view, message, level, pill=False):
-        super(Badge, self).__init__(view)
+        super().__init__(view)
         severity_option = HTMLAttributeValueOption(level, level, prefix='badge',
                                                    constrain_value_to=['primary', 'secondary',
                                                                        'success', 'info', 'warning', 'danger',

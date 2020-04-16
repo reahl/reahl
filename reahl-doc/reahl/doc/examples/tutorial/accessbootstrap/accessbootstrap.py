@@ -170,7 +170,7 @@ class Collaborator(Base):
 
 class AddressAppPage(HTML5Page):
     def __init__(self, view, home_bookmark):
-        super(AddressAppPage, self).__init__(view)
+        super().__init__(view)
         self.use_layout(PageLayout(document_layout=Container()))
         contents_layout = ColumnLayout(ColumnOptions('main', ResponsiveSize(lg=6))).with_slots()
         self.layout.contents.use_layout(contents_layout)
@@ -187,7 +187,7 @@ class AddressAppPage(HTML5Page):
 
 class LoginForm(Form):
     def __init__(self, view, accounts):
-        super(LoginForm, self).__init__(view, 'login')
+        super().__init__(view, 'login')
         self.use_layout(FormLayout())
 
         if self.exception:
@@ -203,7 +203,7 @@ class LoginForm(Form):
 
 class LogoutForm(Form):
     def __init__(self, view, accounts):
-        super(LogoutForm, self).__init__(view, 'logout')
+        super().__init__(view, 'logout')
         self.define_event_handler(accounts.events.log_out_event)
         btn = self.add_child(Button(self, accounts.events.log_out_event))
         btn.use_layout(ButtonLayout(style='primary'))
@@ -211,7 +211,7 @@ class LogoutForm(Form):
 
 class HomePageWidget(Widget):
     def __init__(self, view, address_book_ui):
-        super(HomePageWidget, self).__init__(view)
+        super().__init__(view)
         accounts = AccountManagementInterface.for_current_session()
         login_session = LoginSession.for_current_session()
         if login_session.is_logged_in():
@@ -223,7 +223,7 @@ class HomePageWidget(Widget):
 
 class AddressBookList(Div):
     def __init__(self, view, address_book_ui):
-        super(AddressBookList, self).__init__(view)
+        super().__init__(view)
 
         current_account = LoginSession.for_current_session().account
         address_books = [book for book in AddressBook.address_books_visible_to(current_account)]
@@ -238,7 +238,7 @@ class AddressBookList(Div):
 class AddressBookPanel(Div):
     def __init__(self, view, address_book, address_book_ui):
         self.address_book = address_book
-        super(AddressBookPanel, self).__init__(view)
+        super().__init__(view)
 
         self.add_child(H(view, 1, text='Addresses in %s' % address_book.display_name))
         self.add_child(Nav(view).use_layout(TabLayout()).with_bookmarks(self.menu_bookmarks(address_book_ui)))
@@ -251,7 +251,7 @@ class AddressBookPanel(Div):
 
 class EditAddressForm(Form):
     def __init__(self, view, address):
-        super(EditAddressForm, self).__init__(view, 'edit_form')
+        super().__init__(view, 'edit_form')
 
         grouped_inputs = self.add_child(FieldSet(view, legend_text='Edit address'))
         grouped_inputs.use_layout(FormLayout())
@@ -265,7 +265,7 @@ class EditAddressForm(Form):
 
 class AddAddressForm(Form):
     def __init__(self, view, address_book):
-        super(AddAddressForm, self).__init__(view, 'add_form')
+        super().__init__(view, 'add_form')
 
         new_address = Address(address_book=address_book)
 
@@ -281,7 +281,7 @@ class AddAddressForm(Form):
 class AddressBox(Form):
     def __init__(self, view, address):
         form_name = 'address_%s' % address.id
-        super(AddressBox, self).__init__(view, form_name)
+        super().__init__(view, form_name)
         self.use_layout(FormLayout())
 
         par = self.add_child(P(view, text='%s: %s ' % (address.name, address.email_address)))
@@ -308,7 +308,7 @@ class AddAddressView(UrlBoundView):
 
 class AddCollaboratorForm(Form):
     def __init__(self, view, address_book):
-        super(AddCollaboratorForm, self).__init__(view, 'add_collaborator_form')
+        super().__init__(view, 'add_collaborator_form')
 
         grouped_inputs = self.add_child(FieldSet(view, legend_text='Add a collaborator'))
         grouped_inputs.use_layout(FormLayout())

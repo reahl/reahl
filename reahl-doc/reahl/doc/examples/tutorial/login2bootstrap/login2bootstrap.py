@@ -14,7 +14,7 @@ from reahl.domainui.bootstrap.accounts import AccountUI
 
 class MenuPage(HTML5Page):
     def __init__(self, view, main_bookmarks):
-        super(MenuPage, self).__init__(view)
+        super().__init__(view)
         self.use_layout(PageLayout(document_layout=Container()))
         contents_layout = ColumnLayout(ColumnOptions('main', size=ResponsiveSize(md=4))).with_slots()
         self.layout.contents.use_layout(contents_layout)
@@ -23,7 +23,7 @@ class MenuPage(HTML5Page):
 
 class LegalNotice(P):
     def __init__(self, view, text, name):
-        super(LegalNotice, self).__init__(view, text=text, css_id=name)
+        super().__init__(view, text=text, css_id=name)
         self.set_as_security_sensitive()
 
 

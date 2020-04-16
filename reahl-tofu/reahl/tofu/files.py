@@ -81,7 +81,7 @@ class AutomaticallyDeletedDirectory(EmptyDirectory):
        :param name: The full path name of the directory.
     """
     def __init__(self, name):
-        super(AutomaticallyDeletedDirectory, self).__init__(name)
+        super().__init__(name)
         self.entries = []
 
     def __del__(self):
@@ -132,7 +132,7 @@ class AutomaticallyDeletedDirectory(EmptyDirectory):
 class AutomaticallyDeletedTempDirectory(AutomaticallyDeletedDirectory):
     def __init__(self, directory=None):
         name = tempfile.mkdtemp(dir=directory)
-        super(AutomaticallyDeletedTempDirectory, self).__init__(name)
+        super().__init__(name)
 
 def temp_dir():
     """Creates an :class:`AutomaticallyDeletedDirectory`."""

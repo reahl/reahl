@@ -247,7 +247,7 @@ def test_language_menu(web_fixture):
 
     class PanelWithMenu(Div):
         def __init__(self, view):
-            super(PanelWithMenu, self).__init__(view)
+            super().__init__(view)
             self.add_child(Menu(view).with_languages())
             self.add_child(P(view, text=_('This is an English sentence.')))
 

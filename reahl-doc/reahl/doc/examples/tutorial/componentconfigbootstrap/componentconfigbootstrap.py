@@ -31,7 +31,7 @@ class AddressBookUI(UserInterface):
 
 class AddressBookPage(HTML5Page):
     def __init__(self, view):
-        super(AddressBookPage, self).__init__(view)
+        super().__init__(view)
         self.use_layout(PageLayout(document_layout=Container()))
         contents_layout = ColumnLayout(ColumnOptions('main', ResponsiveSize(md=4))).with_slots()
         self.layout.contents.use_layout(contents_layout)
@@ -39,7 +39,7 @@ class AddressBookPage(HTML5Page):
 
 class AddressBookPanel(Div):
     def __init__(self, view):
-        super(AddressBookPanel, self).__init__(view)
+        super().__init__(view)
 
         config = ExecutionContext.get_context().config
         if config.componentconfig.showheader:
@@ -53,7 +53,7 @@ class AddressBookPanel(Div):
 
 class AddAddressForm(Form):
     def __init__(self, view):
-        super(AddAddressForm, self).__init__(view, 'add_form')
+        super().__init__(view, 'add_form')
 
         new_address = Address()
 
@@ -69,7 +69,7 @@ class AddAddressForm(Form):
 
 class AddressBox(Widget):
     def __init__(self, view, address):
-        super(AddressBox, self).__init__(view)
+        super().__init__(view)
         self.add_child(P(view, text='%s: %s' % (address.name, address.email_address)))
 
 

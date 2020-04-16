@@ -48,7 +48,7 @@ def test_default_behaviour(web_fixture, popup_a_fixture):
 
     class PopupTestPanel(Div):
         def __init__(self, view):
-            super(PopupTestPanel, self).__init__(view)
+            super().__init__(view)
             self.add_child(PopupA(view, view.as_bookmark(), '#contents'))
             popup_contents = self.add_child(P(view, text='this is the content of the popup'))
             popup_contents.set_id('contents')
@@ -79,7 +79,7 @@ def test_customising_dialog_buttons(web_fixture, popup_a_fixture):
 
     class PopupTestPanel(Div):
         def __init__(self, view):
-            super(PopupTestPanel, self).__init__(view)
+            super().__init__(view)
             popup_a = self.add_child(PopupA(view, view.as_bookmark(), '#contents'))
             popup_a.add_js_button('Butt1')
             popup_a.add_js_button('Butt2')
@@ -112,7 +112,7 @@ def test_workings_of_check_checkbox_button(web_fixture, popup_a_fixture):
             fields.field = BooleanField(label='a checkbox')
 
         def __init__(self, view):
-            super(PopupTestPanel, self).__init__(view)
+            super().__init__(view)
             popup_a = self.add_child(PopupA(view, view.as_bookmark(), '#contents'))
             popup_contents = self.add_child(P(view, text='this is the content of the popup'))
             popup_contents.set_id('contents')
@@ -141,7 +141,7 @@ def test_centering_dialog_vertically(web_fixture, popup_a_fixture):
 
     class PopupTestPanel(Div):
         def __init__(self, view):
-            super(PopupTestPanel, self).__init__(view)
+            super().__init__(view)
             self.add_child(PopupA(view, view.as_bookmark(), '#contents', center_vertically=True))
             popup_contents = self.add_child(P(view, text='this is the content of the popup'))
             popup_contents.set_id('contents')

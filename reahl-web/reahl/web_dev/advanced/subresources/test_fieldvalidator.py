@@ -79,7 +79,7 @@ def test_remote_field_validator_handles_GET(web_fixture, validation_scenarios):
 
     class MyForm(Form):
         def __init__(self, view, name):
-            super(MyForm, self).__init__(view, name)
+            super().__init__(view, name)
             self.add_child(TextInput(self, model_object.fields.field_name))
 
     wsgi_app = web_fixture.new_wsgi_app(child_factory=MyForm.factory(name='some_form'))

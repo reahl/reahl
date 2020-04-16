@@ -48,7 +48,7 @@ def test_cue_input_display_basics(web_fixture, cue_input_fixture):
 
     class FormWithCueInput(Form):
             def __init__(self, view):
-                super(FormWithCueInput, self).__init__(view, 'test')
+                super().__init__(view, 'test')
                 self.use_layout(FormLayout())
                 cue_input = CueInput(TextInput(self, fixture.domain_object.fields.field), P(view, 'this is your cue'))
                 self.layout.add_input(cue_input)
@@ -78,7 +78,7 @@ def test_cue_is_visible_when_js_disabled(web_fixture, cue_input_fixture):
 
     class FormWithCueInput(Form):
             def __init__(self, view):
-                super(FormWithCueInput, self).__init__(view, 'test')
+                super().__init__(view, 'test')
                 self.use_layout(FormLayout())
                 cue_input = CueInput(TextInput(self, fixture.domain_object.fields.field), P(view, 'this is your cue'))
                 self.layout.add_input(cue_input)

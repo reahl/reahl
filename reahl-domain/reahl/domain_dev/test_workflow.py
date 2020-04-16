@@ -59,7 +59,7 @@ class DeferredActionFixture(Fixture):
             some_object_key = Column(UnicodeText, nullable=False)
         
             def __init__(self, some_object, **kwargs):
-                super(MyDeferredAction, self).__init__(some_object_key=some_object.name, **kwargs)
+                super().__init__(some_object_key=some_object.name, **kwargs)
             def success_action(self):
                 Session.query(fixture.SomeObject).filter_by(name=self.some_object_key).one().make_done()
             def deadline_action(self):

@@ -10,7 +10,7 @@ from reahl.web.bootstrap.grid import ColumnLayout, ColumnOptions, ResponsiveSize
 
 class MyCustomPage(HTML5Page):
     def __init__(self, view, bookmarks):
-        super(MyCustomPage, self).__init__(view)
+        super().__init__(view)
 
         self.use_layout(PageLayout(document_layout=Container()))
         contents_layout = ColumnLayout(ColumnOptions('secondary', size=ResponsiveSize(md=3)),

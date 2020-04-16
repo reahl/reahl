@@ -56,7 +56,7 @@ class WorkspaceCommand(Command):
         self.workspace = Workspace(work_directory)
         self.workspace.read()
 
-        super(WorkspaceCommand, self).__init__()
+        super().__init__()
 
 
 class Refresh(WorkspaceCommand):
@@ -65,7 +65,7 @@ class Refresh(WorkspaceCommand):
     usage_args = '[directory...]'
 
     def assemble(self):
-        super(Refresh, self).assemble()
+        super().assemble()
         self.parser.add_argument('-A', '--append', action='store_true', dest='append',
                                  help='append to the current working set')
         self.parser.add_argument('directories', nargs='*', help='search for projects specifically in these directories (if not given, search in %s)' % self.workspace.directory)
@@ -86,7 +86,7 @@ class Select(WorkspaceCommand):
     """Selects a subset of projects in the workspace based on their state."""
     keyword = 'select'
     def assemble(self):
-        super(Select, self).assemble()
+        super().assemble()
         self.parser.add_argument('-a', '--all', action='store_true', dest='all',
                                  help='operate on all projects in the workspace')
         self.parser.add_argument('-A', '--append', action='store_true', dest='append',
@@ -122,7 +122,7 @@ class List(WorkspaceCommand):
     """Lists all the projects currently selected (or, optionally, all projects in the workspace)"""
     keyword = 'list'
     def assemble(self):
-        super(List, self).assemble()
+        super().assemble()
         self.parser.add_argument('-s', '--state', action='store_true', dest='with_status',
                                  help='outputs the status too')
         self.parser.add_argument('-a', '--all', action='store_true', dest='all',
@@ -152,7 +152,7 @@ class Save(WorkspaceCommand):
     """Saves the current selection of projects using the given name."""
     keyword = 'save'
     def assemble(self):
-        super(Save, self).assemble()
+        super().assemble()
         self.parser.add_argument('selection_name', help='a name for the saved selection')
         
     def execute(self, args):
@@ -171,7 +171,7 @@ class Read(WorkspaceCommand):
     """Changes the current selection to the named, previously saved selection."""
     keyword = 'read'
     def assemble(self):
-        super(Read, self).assemble()
+        super().assemble()
         self.parser.add_argument('selection_name', help='the name of the selection to read')
 
     def execute(self, args):
@@ -182,7 +182,7 @@ class ForAllWorkspaceCommand(WorkspaceCommand):
     """Some commands are executed in turn for each project in the selection. This superclass encapsulates some
        common implementation details for such commands."""
     def assemble(self):
-        super(ForAllWorkspaceCommand, self).assemble()
+        super().assemble()
         self.parser.add_argument('-s', '--selection', action='store_true', dest='selection', default=False,
                                  help='operate on all projects in the current selection')
         self.parser.add_argument('-a', '--all', action='store_true', dest='all',
@@ -345,7 +345,7 @@ class Shell(ForAllWorkspaceCommand):
     """Executes a shell command in each selected project, from each project's own root directory."""
     keyword = 'shell'
     def assemble(self):
-        super(Shell, self).assemble()
+        super().assemble()
         self.parser.add_argument('-g', '--generate_setup_py', action='store_true', dest='generate_setup_py', default=False,
                                  help='temporarily generate a setup.py for the duration of the shell command (it is removed afterwards)')
         self.parser.add_argument('shell_commandline', nargs=argparse.REMAINDER, 
@@ -382,11 +382,11 @@ class Setup(ForAllWorkspaceCommand):
     """Runs setup.py <command> for each project in the current selection."""
     keyword = 'setup'
     def assemble(self):
-        super(Setup, self).assemble()
+        super().assemble()
         self.parser.add_argument('setup_py_args', nargs=argparse.REMAINDER, help='arguments to setup.py')
 
     def parse_commandline(self, argv):
-        args = super(Setup, self).parse_commandline(argv)
+        args = super().parse_commandline(argv)
         if args.setup_py_args[0] == '--':
             args.setup_py_args[:] = args.setup_py_args[1:]
         return args
@@ -400,7 +400,7 @@ class Build(ForAllWorkspaceCommand):
     """Builds all distributable packages for each project in the current selection."""
     keyword = 'build'
     def assemble(self):
-        super(Build, self).assemble()
+        super().assemble()
         self.parser.add_argument('-ns', '--nosign', action='store_true', dest='nosign', default=False,
                                  help='don\'t sign build artifacts')
 
@@ -414,7 +414,7 @@ class ListMissingDependencies(ForAllWorkspaceCommand):
     """Lists all missing thirdparty dependencies for each project in the current selection."""
     keyword = 'missingdeps'
     def assemble(self):
-        super(ListMissingDependencies, self).assemble()
+        super().assemble()
         self.parser.add_argument('-D', '--development', action='store_true', dest='for_development', default=False,
                                  help='include development dependencies')
 
@@ -442,7 +442,7 @@ class Upload(ForAllWorkspaceCommand):
     """Uploads all built distributable packages for each project in the current selection."""
     keyword = 'upload'
     def assemble(self):
-        super(Upload, self).assemble()
+        super().assemble()
         self.parser.add_argument('-k', '--knock', action='append', dest='knocks', default=[],
                                  help='port to knock on before uploading')
         self.parser.add_argument('-r', '--ignore-release-checks', action='store_true', dest='ignore_release_checks', default=False,
@@ -480,7 +480,7 @@ class UpdateAptRepository(WorkspaceCommand):
     """Updates the index files of the given apt repository."""
     keyword = 'updateapt'
     def assemble(self):
-        super(UpdateAptRepository, self).assemble()
+        super().assemble()
         self.parser.add_argument('root_directory', help='the root directory of the apt repository')
 
     def execute(self, args):
@@ -520,7 +520,7 @@ class AddLocale(ForAllWorkspaceCommand):
     """Adds a new locale catalog."""
     keyword = 'addlocale'
     def assemble(self):
-        super(AddLocale, self).assemble()
+        super().assemble()
         self.parser.add_argument('locale', help='a locale identifier')
         self.parser.add_argument('source_egg', nargs='?', default=None, help='the egg to which this locale applies (its name is used as the domain of the locale)')
 
@@ -535,12 +535,12 @@ class UpdateCopyright(Command):
     keyword = 'update-copyright'
 
     def assemble(self):
-        super(UpdateCopyright, self).assemble()
+        super().assemble()
         self.parser.add_argument('copyright_holder_string', nargs='?', default='.*',
                                  help='requires this copyright holder to be present in a copyright line (by default any comment line with Copyright is matched)')
 
     def execute(self, args):
-        super(UpdateCopyright, self).execute(args)
+        super().execute(args)
         self.git = Executable('git')
         for filename in self.get_all_filenames():
             if os.path.splitext(filename)[1] not in ['.mo', '.png', '.jpg']:

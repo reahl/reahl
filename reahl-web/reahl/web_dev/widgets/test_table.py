@@ -71,7 +71,7 @@ def test_table_basics(web_fixture, table_fixture):
 
     class MainWidget(Div):
         def __init__(self, view):
-            super(MainWidget, self).__init__(view)
+            super().__init__(view)
             table = Table(view, caption_text='All my friends', summary='Summary for screen reader')
             table.with_data(
                             [StaticColumn(Field(label='Row Number'), 'row'),
@@ -125,7 +125,7 @@ def test_table_totals(web_fixture, table_fixture, scenario):
 
     class MainWidget(Div):
         def __init__(self, view):
-            super(MainWidget, self).__init__(view)
+            super().__init__(view)
             table = Table(view)
             table.with_data(
                             [StaticColumn(Field(label='Another Row Number'), 'row_another'),

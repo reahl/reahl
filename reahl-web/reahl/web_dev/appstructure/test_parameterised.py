@@ -59,7 +59,7 @@ class ParameterisedScenarios(Fixture):
         self.url_arguments() # same setup as this except:
         class SimplePage(HTML5Page):
             def __init__(self, view, some_arg):
-                super(SimplePage, self).__init__(view)
+                super().__init__(view)
                 self.body.add_child(P(view, text='content for %s' % some_arg))
 
         class ParameterisedView(UrlBoundView):

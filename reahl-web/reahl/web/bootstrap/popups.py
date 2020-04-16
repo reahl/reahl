@@ -68,7 +68,7 @@ class CheckCheckboxScript(JsFunction):
         selector = self.checkbox.jquery_selector
         body_text = '''$(%s).filter("input").attr("checked", true);$(%s).find("input").attr("checked", true);''' % \
                                (selector, selector)
-        super(CheckCheckboxScript, self).__init__(body_text=body_text)
+        super().__init__(body_text=body_text)
 
 
 
@@ -76,7 +76,7 @@ class CheckCheckboxScript(JsFunction):
 class PopupA(A):
     def __init__(self, view, target_bookmark, show_for_selector, dismiss_label=None, close_button=True,
                  center_vertically=False, css_id=None):
-        super(PopupA, self).__init__(view, target_bookmark.href, target_bookmark.description, css_id=css_id)
+        super().__init__(view, target_bookmark.href, target_bookmark.description, css_id=css_id)
         self.set_title(target_bookmark.description)
         self.title = target_bookmark.description
         self.append_class('reahl-bootstrappopupa')

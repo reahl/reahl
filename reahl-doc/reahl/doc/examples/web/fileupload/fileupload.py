@@ -77,7 +77,7 @@ class AttachedFile(Base):
 
 class CommentPostPanel(Div):
     def __init__(self, view):
-        super(CommentPostPanel, self).__init__(view)
+        super().__init__(view)
 
         self.add_child(CommentForm(view))
 
@@ -87,7 +87,7 @@ class CommentPostPanel(Div):
 
 class CommentForm(Form):
     def __init__(self, view):
-        super(CommentForm, self).__init__(view, 'myform')
+        super().__init__(view, 'myform')
 
         new_comment = Comment()
         grouped_inputs = self.add_child(FieldSet(view, legend_text='Leave a comment'))
@@ -107,7 +107,7 @@ class CommentForm(Form):
 
 class CommentBox(Div):
     def __init__(self, view, comment):
-        super(CommentBox, self).__init__(view)
+        super().__init__(view)
         self.add_child(P(view, text='By %s: %s' % (comment.email_address, comment.text)))
         
 

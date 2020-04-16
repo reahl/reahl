@@ -156,7 +156,7 @@ class DataTableFixture(TableFixture):
         fixture = self
         class MainWidget(Div):
             def __init__(self, view):
-                super(MainWidget, self).__init__(view)
+                super().__init__(view)
 
                 data_table = DataTable(view, fixture.columns, fixture.data,
                                        items_per_page=fixture.items_per_page,

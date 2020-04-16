@@ -21,7 +21,7 @@ class WidgetRefreshUI(UserInterface):
 
 class HomePanel(Div):
     def __init__(self, view):
-        super(HomePanel, self).__init__(view)
+        super().__init__(view)
 
         panel = RefreshedPanel(view, 'my_refreshedpanel')
         bookmarks = [panel.get_bookmark(1),
@@ -35,7 +35,7 @@ class HomePanel(Div):
 
 class RefreshedPanel(Div):
     def __init__(self, view, css_id):
-        super(RefreshedPanel, self).__init__(view, css_id=css_id)
+        super().__init__(view, css_id=css_id)
         self.add_child(P(view, text='You selected link number %s' % self.selected))
         self.enable_refresh()
 

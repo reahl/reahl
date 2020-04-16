@@ -38,7 +38,7 @@ _ = Catalogue('reahl-web')
 
 class _UnstyledHTMLFileInput(reahl.web.ui.SimpleFileInput):
     def __init__(self, form, bound_field):
-        super(_UnstyledHTMLFileInput, self).__init__(form, bound_field)
+        super().__init__(form, bound_field)
         self.append_class('form-control-file')
 
 
@@ -58,7 +58,7 @@ class FileInputButton(reahl.web.ui.WrappedInput):
         self.simple_input = label.add_child(_UnstyledHTMLFileInput(form, bound_field))
         self.simple_input.html_representation.append_class('btn-secondary')
         label.add_child(Span(form.view, text=_('Choose file(s)')))
-        super(FileInputButton, self).__init__(self.simple_input)
+        super().__init__(self.simple_input)
         self.add_child(label)
 
         label.append_class('reahl-bootstrapfileinputbutton')
@@ -72,7 +72,7 @@ class FileInputButton(reahl.web.ui.WrappedInput):
 
     def get_js(self, context=None):
         js = ['$(".reahl-bootstrapfileinputbutton").bootstrapfileinputbutton({});']
-        return super(FileInputButton, self).get_js(context=context) + js
+        return super().get_js(context=context) + js
 
 
 class FileInput(reahl.web.ui.WrappedInput):
@@ -90,7 +90,7 @@ class FileInput(reahl.web.ui.WrappedInput):
     """
     def __init__(self, form, bound_field):
         file_input = FileInputButton(form, bound_field)
-        super(FileInput, self).__init__(file_input)
+        super().__init__(file_input)
 
         self.input_group = self.add_child(Div(self.view))
         self.input_group.append_class('input-group')
@@ -109,14 +109,14 @@ class FileInput(reahl.web.ui.WrappedInput):
     def get_js(self, context=None):
         js = ['$(".reahl-bootstrapfileinput").bootstrapfileinput({nfilesMessage: "%s", nofilesMessage: "%s"});' % \
               (_('files chosen'), _('No files chosen'))]
-        return super(FileInput, self).get_js(context=context) + js
+        return super().get_js(context=context) + js
 
 
 
 # Uses: reahl/web/reahl.files.js
 class FileUploadLi(Li):
     def __init__(self, form, remove_event, persisted_file, css_id=None):
-        super(FileUploadLi, self).__init__(form.view, css_id=css_id)
+        super().__init__(form.view, css_id=css_id)
         self.set_attribute('class', 'reahl-bootstrap-file-upload-li')
         self.add_child(Button(form, remove_event.with_arguments(filename=persisted_file.filename)))
         self.add_child(Span(self.view, persisted_file.filename))
@@ -129,7 +129,7 @@ class FileUploadLi(Li):
 # Uses: reahl/web/reahl.files.js
 class FileUploadPanel(Div):
     def __init__(self, file_upload_input, css_id=None):
-        super(FileUploadPanel, self).__init__(file_upload_input.view, css_id=css_id)
+        super().__init__(file_upload_input.view, css_id=css_id)
         self.set_attribute('class', 'reahl-bootstrap-file-upload-panel')
         self.file_upload_input = file_upload_input
 
@@ -210,7 +210,7 @@ class FileUploadPanel(Div):
                     cancelLabel=_('Cancel'),
                     duplicateValidationErrorMessage=unique_names_constraint.message,
                     waitForUploadsMessage=_('Please try again when all files have finished uploading.'))
-        return super(FileUploadPanel, self).get_js(context=context) + [js]
+        return super().get_js(context=context) + [js]
 
     def remove_file(self, filename):
         self.persisted_file_class.remove_persisted_for_form(self.input_form, self.name, filename)
@@ -248,7 +248,7 @@ class FileUploadInput(reahl.web.ui.Input):
     is_for_file = False
 
     def __init__(self, form, bound_field, base_name=None, name_discriminator=None, ignore_concurrency_change=False):
-        super(FileUploadInput, self).__init__(form, bound_field)
+        super().__init__(form, bound_field)
         
         self.ignore_concurrency_change = ignore_concurrency_change
         name_to_use = '%s-%s%s' % (form.channel_name, base_name or self.bound_field.name, name_discriminator or '')

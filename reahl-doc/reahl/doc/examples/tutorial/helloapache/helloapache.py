@@ -5,7 +5,7 @@ from reahl.web.ui import HTML5Page, P
 
 class HelloPage(HTML5Page):
     def __init__(self, view):
-        super(HelloPage, self).__init__(view)
+        super().__init__(view)
         self.body.add_child(P(view, text='Hello World!'))
 
 

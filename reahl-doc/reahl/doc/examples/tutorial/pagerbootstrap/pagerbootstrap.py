@@ -19,7 +19,7 @@ class AddressBookUI(UserInterface):
 
 class AddressBookPanel(Div):
     def __init__(self, view):
-        super(AddressBookPanel, self).__init__(view)
+        super().__init__(view)
 
         self.add_child(H(view, 1, text='Addresses'))
 
@@ -32,7 +32,7 @@ class AddressBookPanel(Div):
 
 class AddressList(PagedPanel):
     def __init__(self, view, page_index):
-        super(AddressList, self).__init__(view, page_index, 'addresslist')
+        super().__init__(view, page_index, 'addresslist')
         for address in self.current_contents:
             self.add_child(P(view, text='%s: %s' % (address.name, address.email_address)))
 

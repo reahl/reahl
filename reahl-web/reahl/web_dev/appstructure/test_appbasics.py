@@ -51,7 +51,7 @@ class BasicScenarios(Fixture):
     def view_with_page(self):
         class SimplePage(HTML5Page):
             def __init__(self, view):
-                super(SimplePage, self).__init__(view)
+                super().__init__(view)
                 self.body.add_child(P(view, text='Hello world!'))
 
         class MainUI(UserInterface):
@@ -66,7 +66,7 @@ class BasicScenarios(Fixture):
     def view_with_set_page(self):
         class SimplePage(HTML5Page):
             def __init__(self, view):
-                super(SimplePage, self).__init__(view)
+                super().__init__(view)
                 self.body.add_child(P(view, text='Hello world!'))
 
         class MainUI(UserInterface):
@@ -270,7 +270,7 @@ def test_out_of_bound_widgets(web_fixture):
 
     class MyPanel(Div):
         def __init__(self, view):
-            super(MyPanel, self).__init__(view, css_id='main_panel')
+            super().__init__(view, css_id='main_panel')
             child_widget = self.add_child(P(view, text='Child Widget'))
             out_of_bound_widget = view.add_out_of_bound_widget(P(view, text='Out Of Bound Widget'))
 

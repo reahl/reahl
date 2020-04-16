@@ -9,7 +9,7 @@ from reahl.web.bootstrap.carousel import Carousel
 
 class MyPage(HTML5Page):
     def __init__(self, view):
-        super(MyPage, self).__init__(view)
+        super().__init__(view)
         self.body.use_layout(Container())
 
         carousel = Carousel(view, 'my_example_carousel_id', show_indicators=True)

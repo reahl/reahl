@@ -294,20 +294,20 @@ class Transition(EventHandler):
        always the Transition to be used."""
     @arg_checks(source=IsInstance('reahl.web.fw:ViewFactory'), target=IsInstance('reahl.web.fw:ViewFactory'))
     def __init__(self, controller, event, source, target, guard=None):
-        super(Transition, self).__init__(controller.user_interface, event, target)
+        super().__init__(controller.user_interface, event, target)
         self.controller = controller
         self.source = source
         self.guard = guard if guard else Allowed(True)
     
     def should_handle(self, event_occurrence):
         return (self.source.matches_view(self.controller.current_view)) and \
-               super(Transition, self).should_handle(event_occurrence) and \
+               super().should_handle(event_occurrence) and \
                self.guard(event_occurrence)
 
 
 class FactoryDict(set):
     def __init__(self, initial_set, *args):
-        super(FactoryDict, self).__init__(initial_set)
+        super().__init__(initial_set)
         self.args = args
         
     def get_factory_for(self, key):
@@ -856,7 +856,7 @@ class Bookmark:
 class RedirectToScheme(HTTPSeeOther):
     def __init__(self, scheme):
         self.scheme = scheme
-        super(RedirectToScheme, self).__init__(location=str(self.compute_target_url()))
+        super().__init__(location=str(self.compute_target_url()))
 
     def compute_target_url(self):
         context = ExecutionContext.get_context()
@@ -871,7 +871,7 @@ class Redirect(HTTPSeeOther):
     """
     def __init__(self, target):
         self.target = target
-        super(Redirect, self).__init__(location=str(self.compute_target_url()))
+        super().__init__(location=str(self.compute_target_url()))
      
     def compute_target_url(self):
         return self.target.href.as_network_absolute()
@@ -885,10 +885,10 @@ class Detour(Redirect):
     """
     def __init__(self, target, return_to=None):
         self.return_to = return_to or ReturnToCurrent()
-        super(Detour, self).__init__(target)
+        super().__init__(target)
 
     def compute_target_url(self):
-        redirect_url = super(Detour, self).compute_target_url()
+        redirect_url = super().compute_target_url()
         qs = redirect_url.get_query_dict()
         qs['returnTo'] = [str(self.return_to.href.as_network_absolute())]
         redirect_url.set_query_from(qs, doseq=True)
@@ -900,7 +900,7 @@ class Return(Redirect):
        failed a PreCondition that sent the user elsewhere via a :class:`Detour`.
     """
     def __init__(self, default):
-        super(Return, self).__init__(ReturnToCaller(default))
+        super().__init__(ReturnToCaller(default))
 
 
 class WidgetList(list):
@@ -1449,7 +1449,7 @@ class ParameterisedPath(RegexPath):
     def __init__(self, discriminator, argument_fields):
         regex = self.make_regex(discriminator, argument_fields)
         template = self.make_template(discriminator, argument_fields)
-        super(ParameterisedPath, self).__init__(regex, template, argument_fields)
+        super().__init__(regex, template, argument_fields)
 
     def make_regex(self, discriminator, argument_fields):
         arguments_part = ''
@@ -1472,7 +1472,7 @@ class ParameterisedPath(RegexPath):
 
 class Factory:
     def __init__(self, factory_method):
-        super(Factory, self).__init__()
+        super().__init__()
         self.factory_method = factory_method
 
     def create(self, *args, **kwargs):
@@ -1483,13 +1483,13 @@ class FactoryFromUrlRegex(Factory):
     def __init__(self, regex_path, factory_method, factory_kwargs):
         self.regex_path = regex_path
         self.factory_kwargs = factory_kwargs
-        super(FactoryFromUrlRegex, self).__init__(factory_method)
+        super().__init__(factory_method)
 
     def create(self, relative_path, *args, **kwargs):
         try:
             create_kwargs = self.create_kwargs(relative_path, **kwargs)
             create_args = self.create_args(relative_path, *args)
-            return super(FactoryFromUrlRegex, self).create(*create_args, **create_kwargs)
+            return super().create(*create_args, **create_kwargs)
         except TypeError as ex:
             if len(inspect.trace()) == 1:
                 # Note: we modify the args, and then just raise, because we want the original stack trace
@@ -1513,7 +1513,7 @@ class FactoryFromUrlRegex(Factory):
 class UserInterfaceFactory(FactoryFromUrlRegex):
     @arg_checks(regex_path=IsInstance(RegexPath), ui_class=IsSubclass(UserInterface))
     def __init__(self, parent_ui, regex_path, slot_map, ui_class, ui_name, **ui_kwargs):
-        super(UserInterfaceFactory, self).__init__(regex_path, ui_class, ui_kwargs)
+        super().__init__(regex_path, ui_class, ui_kwargs)
         self.slot_map = slot_map
         self.parent_ui = parent_ui
         self.ui_name = ui_name
@@ -1529,7 +1529,7 @@ class UserInterfaceFactory(FactoryFromUrlRegex):
         return self.regex_path.get_relative_part_in(full_path)
 
     def create(self, relative_path, for_bookmark=False, *args):
-        user_interface = super(UserInterfaceFactory, self).create(relative_path, for_bookmark, *args)
+        user_interface = super().create(relative_path, for_bookmark, *args)
         for predefined_ui in self.predefined_uis:
             user_interface.add_user_interface_factory(predefined_ui)
         return user_interface 
@@ -1553,7 +1553,7 @@ class UserInterfaceFactory(FactoryFromUrlRegex):
 
 class SubResourceFactory(FactoryFromUrlRegex):
     def __init__(self, regex_path, factory_method):
-        super(SubResourceFactory, self).__init__(regex_path, factory_method, {})
+        super().__init__(regex_path, factory_method, {})
 
     def create_args(self, relative_path, *args):
         return args
@@ -1581,7 +1581,7 @@ class ViewFactory(FactoryFromUrlRegex):
         self.write_check = write_check
         self.cacheable = cacheable
         self.page_factory = page_factory
-        super(ViewFactory, self).__init__(regex_path, factory_method or self.create_view, view_kwargs or {})
+        super().__init__(regex_path, factory_method or self.create_view, view_kwargs or {})
 
     def create_args(self, relative_path, *args):
         if SubResource.is_for_sub_resource(relative_path):
@@ -1661,7 +1661,7 @@ class ViewFactory(FactoryFromUrlRegex):
 
     def create(self, relative_path, *args, **kwargs):
         try:
-            instance = super(ViewFactory, self).create(relative_path, *args, **kwargs)
+            instance = super().create(relative_path, *args, **kwargs)
         except ValidationConstraint as ex:
             message = 'The arguments contained in URL "%s" are not valid for %s: %s' % (relative_path, self, ex)
             raise ProgrammerError(message)
@@ -1680,7 +1680,7 @@ class WidgetFactory(Factory):
     def __init__(self, widget_class, *widget_args, **widget_kwargs):
         ArgumentCheckedCallable(widget_class, explanation='An attempt was made to create a WidgetFactory for %s with arguments that do not match what is expected for %s' % (widget_class, widget_class)).checkargs(NotYetAvailable('view'), *widget_args, **widget_kwargs)
 
-        super(WidgetFactory, self).__init__(self.create_widget)
+        super().__init__(self.create_widget)
         self.widget_class = widget_class
         self.widget_args = widget_args
         self.widget_kwargs = widget_kwargs
@@ -1720,7 +1720,7 @@ class WidgetFactory(Factory):
 
 class ViewPseudoFactory(ViewFactory):
     def __init__(self, bookmark):
-        super(ViewPseudoFactory, self).__init__(RegexPath('/', '/', {}), '')
+        super().__init__(RegexPath('/', '/', {}), '')
         self.bookmark = bookmark
 
     def matches_view(self, view):
@@ -1763,7 +1763,7 @@ class View:
     is_dynamic = False
 
     def __init__(self, user_interface):
-        super(View, self).__init__()
+        super().__init__()
         self.user_interface = user_interface
 
     @property
@@ -1831,7 +1831,7 @@ class UrlBoundView(View):
     def __init__(self, user_interface, relative_path, title, slot_definitions=None, page_factory=None, detour=False, read_check=None, write_check=None, cacheable=False, **view_arguments):
         if re.match('/_([^/]*)$', relative_path):
             raise ProgrammerError('you cannot create UrlBoundViews with /_ in them - those are reserved URLs for SubResources')
-        super(UrlBoundView, self).__init__(user_interface)
+        super().__init__(user_interface)
         self.out_of_bound_widgets = []
         self.relative_path = relative_path
         self.title = title                          #: The title of this View
@@ -1886,7 +1886,7 @@ class UrlBoundView(View):
     def resource_for(self, full_path, page):
         if SubResource.is_for_sub_resource(full_path):
             return self.user_interface.sub_resource_for(full_path)
-        return super(UrlBoundView, self).resource_for(full_path, page)
+        return super().resource_for(full_path, page)
 
     def as_resource(self, page):
         return ComposedPage(self, page)
@@ -2006,7 +2006,7 @@ class UrlBoundView(View):
 
 class RedirectView(UrlBoundView):
     def __init__(self, user_interface, relative_path, to_bookmark):
-        super(RedirectView, self).__init__(user_interface, relative_path, '')
+        super().__init__(user_interface, relative_path, '')
         self.to_bookmark = to_bookmark
 
     def as_resource(self, page):
@@ -2029,7 +2029,7 @@ class UserInterfaceRootRedirectView(PseudoView):
 
 class HeaderContent(Widget):
     def __init__(self, page):
-        super(HeaderContent, self).__init__(page.view)
+        super().__init__(page.view)
         self.page = page
 
     def render(self):
@@ -2041,7 +2041,7 @@ class HeaderContent(Widget):
 
 class FooterContent(Widget):
     def __init__(self, page):
-        super(FooterContent, self).__init__(page.view)
+        super().__init__(page.view)
         self.page = page
 
     def render(self):
@@ -2090,7 +2090,7 @@ class SubResource(Resource):
                                             used to create an URL for this resource."""
 
     def __init__(self, view, unique_name):
-        super(SubResource, self).__init__(view)
+        super().__init__(view)
         self.unique_name = unique_name
 
     @classmethod
@@ -2257,7 +2257,7 @@ class RedirectAfterPost(MethodResult):
           Renamed content_type to mime_type and charset to encoding in line with MethodResult args.
     """
     def __init__(self, mime_type='text/html', encoding='utf-8'):
-        super(RedirectAfterPost, self).__init__(catch_exception=DomainException, mime_type=mime_type, encoding=encoding)
+        super().__init__(catch_exception=DomainException, mime_type=mime_type, encoding=encoding)
 
     def create_response(self, return_value):
         next_url = return_value
@@ -2278,7 +2278,7 @@ class JsonResult(MethodResult):
     """
     redirects_internally = True
     def __init__(self, result_field, **kwargs):
-        super(JsonResult, self).__init__(mime_type='application/json', encoding='utf-8', replay_request=True, **kwargs)
+        super().__init__(mime_type='application/json', encoding='utf-8', replay_request=True, **kwargs)
         self.fields = FieldIndex(self)
         self.fields.result = result_field
 
@@ -2292,7 +2292,7 @@ class JsonResult(MethodResult):
 
 class RegenerateMethodResult(InternalRedirect):
     def __init__(self, return_value, exception):
-        super(RegenerateMethodResult, self).__init__()
+        super().__init__()
         self.return_value = return_value
         self.exception = exception
 
@@ -2312,7 +2312,7 @@ class WidgetResult(MethodResult):
 
     def __init__(self, result_widget, as_json_and_result=False):
         mime_type = 'application/json' if as_json_and_result else 'text/html'
-        super(WidgetResult, self).__init__(mime_type=mime_type, encoding='utf-8', catch_exception=DomainException, replay_request=True)
+        super().__init__(mime_type=mime_type, encoding='utf-8', catch_exception=DomainException, replay_request=True)
         self.result_widget = result_widget
         self.as_json_and_result = as_json_and_result
 
@@ -2358,7 +2358,7 @@ class WidgetResult(MethodResult):
     def render_exception(self, exception):
         if self.as_json_and_result:
             return self.render_as_json(exception)
-        return super(WidgetResult, self).render_exception(exception)
+        return super().render_exception(exception)
 
 
 class RemoteMethod(SubResource): 
@@ -2388,7 +2388,7 @@ class RemoteMethod(SubResource):
     sub_path_template = 'method'
 
     def __init__(self, view, name, callable_object, default_result, idempotent=False, immutable=False, method=None):
-        super(RemoteMethod, self).__init__(view, name)
+        super().__init__(view, name)
         self.idempotent = idempotent or immutable
         self.immutable = immutable
         self.callable_object = callable_object
@@ -2436,7 +2436,7 @@ class RemoteMethod(SubResource):
         return (return_value, caught_exception)
 
     def cleanup_after_transaction(self):
-        super(RemoteMethod, self).cleanup_after_transaction()
+        super().cleanup_after_transaction()
         if self.caught_exception:
             self.cleanup_after_exception(self.input_values, self.caught_exception)
         else:
@@ -2488,7 +2488,7 @@ class CheckedRemoteMethod(RemoteMethod):
           Split immutable into immutable and idempotent kwargs.
     """
     def __init__(self, view, name, callable_object, result, idempotent=False, immutable=False, **parameters):
-        super(CheckedRemoteMethod, self).__init__(view, name, callable_object, result, idempotent=idempotent, immutable=immutable)
+        super().__init__(view, name, callable_object, result, idempotent=idempotent, immutable=immutable)
         self.parameters = FieldIndex(self)
         for name, field in parameters.items():
             self.parameters.set(name, field)
@@ -2511,7 +2511,7 @@ class EventChannel(RemoteMethod):
        Programmers should not need to work with an EventChannel directly.
     """
     def __init__(self, form, controller, name):
-        super(EventChannel, self).__init__(form.view, name, self.delegate_event, None, idempotent=False, immutable=False)
+        super().__init__(form.view, name, self.delegate_event, None, idempotent=False, immutable=False)
         self.controller = controller
         self.form = form
 
@@ -2544,7 +2544,7 @@ class EventChannel(RemoteMethod):
 
 class ComposedPage(Resource):
     def __init__(self, view, page):
-        super(ComposedPage, self).__init__(view)
+        super().__init__(view)
         self.page = page
 
     @property
@@ -2576,7 +2576,7 @@ class ComposedPage(Resource):
 
 class FileView(View):
     def __init__(self, user_interface, viewable_file):
-        super(FileView, self).__init__(user_interface)
+        super().__init__(user_interface)
         self.viewable_file = viewable_file
 
     def as_resource(self, page):
@@ -2608,7 +2608,7 @@ class FileOnDisk(ViewableFile):
         self.full_path = full_path
         self.relative_name = relative_name
         st = os.stat(full_path)
-        super(FileOnDisk, self).__init__(
+        super().__init__(
             full_path,
             self.mime_type,
             encoding,
@@ -2631,7 +2631,7 @@ class FileFromBlob(ViewableFile):
         if not isinstance(content_bytes, bytes):
             raise ProgrammerError('content_bytes should be bytes')
 
-        super(FileFromBlob, self).__init__(name, mime_type, encoding, size, mtime)
+        super().__init__(name, mime_type, encoding, size, mtime)
         self.content_bytes = content_bytes
         self.relative_name = name
 
@@ -2646,13 +2646,13 @@ class PackagedFile(FileOnDisk):
         self.directory_name = directory_name
         egg_relative_name = '/'.join([directory_name, relative_name])
         full_path = pkg_resources.resource_filename(Requirement.parse(egg_name), egg_relative_name)
-        super(PackagedFile, self).__init__(full_path, relative_name)
+        super().__init__(full_path, relative_name)
 
 
 class ConcatenatedFile(FileOnDisk):
     def __init__(self, relative_name, contents):
         self.temp_file = self.concatenate(relative_name, contents)
-        super(ConcatenatedFile, self).__init__(self.temp_file.name, relative_name)
+        super().__init__(self.temp_file.name, relative_name)
      
     def minifier(self, relative_name):
         class NoOpMinifier:
@@ -2732,7 +2732,7 @@ class FileFactory(Factory):
     
 class FileList(FileFactory):
     def __init__(self, files):
-        super(FileList, self).__init__(self.create_file)
+        super().__init__(self.create_file)
         self.files = files
         
     def create_file(self, relative_path):
@@ -2745,7 +2745,7 @@ class FileList(FileFactory):
 
 class DiskDirectory(FileFactory):
     def __init__(self, root_path):
-        super(DiskDirectory, self).__init__(self.create_file)
+        super().__init__(self.create_file)
         self.root_path = root_path
 
     def create_file(self, relative_path):
@@ -2764,7 +2764,7 @@ class FileDownload(Response):
     chunk_size = 4096
     def __init__(self, a_file):
         self.file = a_file 
-        super(FileDownload, self).__init__(app_iter=self, conditional_response=True)
+        super().__init__(app_iter=self, conditional_response=True)
         self.content_type = self.file.mime_type if self.file.mime_type else None
         self.charset = self.file.encoding if self.file.encoding else None
         self.content_length = str(self.file.size) if (self.file.size is not None) else None
@@ -2810,7 +2810,7 @@ class StaticFileResource(SubResource):
         return self.get_url_for(self.unique_name, filename=self.file.name)
 
     def __init__(self, view, unique_name, a_file):
-        super(StaticFileResource, self).__init__(view, unique_name)
+        super().__init__(view, unique_name)
         self.file = a_file
 
     def handle_get(self, request):
@@ -2819,7 +2819,7 @@ class StaticFileResource(SubResource):
 
 class MissingForm(Resource):
     def __init__(self, view, root_ui, target_ui):
-        super(MissingForm, self).__init__(view)
+        super().__init__(view)
         self.root_ui = root_ui
         self.target_ui = target_ui
 
@@ -2833,7 +2833,7 @@ class MissingForm(Resource):
 
 class CouldNotConstructResource(Exception):
     def __init__(self, current_view, root_ui, target_ui, exception):
-        super(CouldNotConstructResource, self).__init__()
+        super().__init__()
         self.current_view = current_view
         self.root_ui = root_ui
         self.target_ui = target_ui
@@ -2843,7 +2843,7 @@ class UncaughtError(Redirect):
     def __init__(self, view, root_ui, target_ui, exception):
         error_source_bookmark = view.as_bookmark(target_ui) if view else None
         target_bookmark=root_ui.get_bookmark_for_error(str(exception), error_source_bookmark)
-        super(UncaughtError, self).__init__(target_bookmark)
+        super().__init__(target_bookmark)
 
 
 

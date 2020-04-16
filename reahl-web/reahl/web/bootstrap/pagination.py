@@ -79,7 +79,7 @@ class PagedPanel(Div):
     """
     def __init__(self, view, page_index, css_id):
         self.page_index = page_index
-        super(PagedPanel, self).__init__(view, css_id=css_id)
+        super().__init__(view, css_id=css_id)
         self.enable_refresh()
 
     def get_bookmark(self, description=None, page_number=1):
@@ -117,7 +117,7 @@ class PageIndex(PageIndexProtocol):
        :keyword max_page_links: The number of pages to be shown in the current :class:`PageMenu`.
     """
     def __init__(self, current_page_number=1, start_page_number=1, max_page_links=5):
-        super(PageIndex, self).__init__()
+        super().__init__()
         self.current_page_number = current_page_number
         self.start_page_number = start_page_number
         self.max_page_links = max_page_links
@@ -203,7 +203,7 @@ class SequentialPageIndex(PageIndex):
            :keyword max_page_links: (See :class:`PageIndex`)
         """
     def __init__(self, items, items_per_page=5, current_page_number=1, start_page_number=1, max_page_links=4):
-        super(SequentialPageIndex, self).__init__(current_page_number=current_page_number,
+        super().__init__(current_page_number=current_page_number,
                                                   start_page_number=start_page_number,
                                                   max_page_links=max_page_links)
         self.items = items
@@ -243,7 +243,7 @@ class AnnualPageIndex(PageIndex):
        :keyword max_page_links: (See :class:`PageIndex`)
     """
     def __init__(self, annual_item_organiser, current_page_number=1, start_page_number=1, max_page_links=4):
-        super(AnnualPageIndex, self).__init__(current_page_number=current_page_number,
+        super().__init__(current_page_number=current_page_number,
                                               start_page_number=start_page_number,
                                               max_page_links=max_page_links)
         self.annual_item_organiser = annual_item_organiser
@@ -279,7 +279,7 @@ class PageMenu(HTMLWidget):
     def __init__(self, view, css_id, page_index, paged_panel):
         self.page_index = page_index
         self.paged_panel = paged_panel
-        super(PageMenu, self).__init__(view)
+        super().__init__(view)
 
         self.menu = self.add_child(Menu(view))
         self.create_items(self.menu)
@@ -348,4 +348,4 @@ class PageMenu(HTMLWidget):
 
     def get_js(self, context=None):
         js = ['$(%s).bootstrappagemenu({});' % self.jquery_selector]
-        return super(PageMenu, self).get_js(context=context) + js 
+        return super().get_js(context=context) + js 

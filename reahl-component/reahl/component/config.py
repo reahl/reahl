@@ -153,7 +153,7 @@ class EntryPointClassList(ConfigSetting):
        :keyword description: (See :class:`ConfigSetting`)
     """
     def __init__(self, name, description='Description not supplied'):
-        super(EntryPointClassList, self).__init__(default=[], description=description)
+        super().__init__(default=[], description=description)
         self.name = name
         
     def __get__(self, instance, owner):
@@ -272,7 +272,7 @@ class ReahlSystemConfig(Configuration):
 
 class ConfigAsDict(dict):
     def __init__(self, config):
-        super(ConfigAsDict, self).__init__()
+        super().__init__()
         self.config = config
         self['config'] = config
 
@@ -413,7 +413,7 @@ class StoredConfiguration(Configuration):
 
 class CodedConfiguration(StoredConfiguration, dict):
     def __init__(self):
-        super(CodedConfiguration, self).__init__('<in memory>')
+        super().__init__('<in memory>')
 
     def read(self, configuration_class):
         filename = configuration_class.filename

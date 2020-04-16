@@ -101,6 +101,6 @@ class ExecutionContext:
     def __str__(self):
         if self.name:
             return '%s named \'%s\'' % (self.__class__.__name__, self.name)
-        return super(ExecutionContext, self).__str__()
+        return super().__str__()
 
         

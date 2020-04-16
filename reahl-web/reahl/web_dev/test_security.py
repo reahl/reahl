@@ -59,7 +59,7 @@ def test_serving_security_sensitive_widgets(web_fixture):
        else it will only be served on config.web.default_http_scheme."""
     class TestPanel(Div):
         def __init__(self, view):
-            super(TestPanel, self).__init__(view)
+            super().__init__(view)
             widget = self.add_child(Widget(view))
 
             if fixture.security_sensitive:
@@ -266,7 +266,7 @@ def test_non_writable_input_is_dealt_with_like_invalid_input(web_fixture):
 
     class TestPanel(Div):
         def __init__(self, view):
-            super(TestPanel, self).__init__(view)
+            super().__init__(view)
             form = self.add_child(Form(view, 'some_form'))
             form.define_event_handler(model_object.events.an_event)
             form.add_child(ButtonInput(form, model_object.events.an_event))
@@ -297,7 +297,7 @@ def test_non_writable_events_are_dealt_with_like_invalid_input(web_fixture):
     model_object = ModelObject()
     class TestPanel(Div):
         def __init__(self, view):
-            super(TestPanel, self).__init__(view)
+            super().__init__(view)
             form = self.add_child(Form(view, 'some_form'))
             form.define_event_handler(model_object.events.an_event)
             button = form.add_child(ButtonInput(form, model_object.events.an_event))
@@ -342,7 +342,7 @@ def test_posting_to_view(web_fixture):
 
     class MyForm(Form):
         def __init__(self, view):
-            super(MyForm, self).__init__(view, 'myform')
+            super().__init__(view, 'myform')
             self.define_event_handler(self.events.an_event)
             self.add_child(ButtonInput(self, self.events.an_event))
         @exposed

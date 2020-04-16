@@ -127,11 +127,11 @@ class ReahlCommandlineConfig(Configuration):
 
 class CompositeCommand(Command):
     def __init__(self):
-        super(CompositeCommand, self).__init__()
+        super().__init__()
         self.parser.epilog = '"%s help-commands" gives a list of available commands' % self.parser.prog
 
     def assemble(self):
-        super(CompositeCommand, self).assemble()
+        super().assemble()
         self.parser.add_argument('command', help='a command')
         self.parser.add_argument('command_args', nargs=argparse.REMAINDER)
 
@@ -149,7 +149,7 @@ class CompositeCommand(Command):
         raise CommandNotFound(name)
 
     def parse_commandline(self, argv):
-        args = super(CompositeCommand, self).parse_commandline(argv)
+        args = super().parse_commandline(argv)
         if argv[1:] and argv[1] == '--':
             args.command_args.insert(0, '--')
         return args
@@ -188,10 +188,10 @@ class ReahlCommandline(CompositeCommand):
 
     def __init__(self, config=None):
         self.config = config or ReahlCommandlineConfig()
-        super(ReahlCommandline, self).__init__()
+        super().__init__()
 
     def assemble(self):
-        super(ReahlCommandline, self).assemble()
+        super().assemble()
         self.parser.add_argument('-l', '--loglevel', default='WARNING', choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG'], help='set log level to this')
 
     @property
@@ -222,10 +222,10 @@ class ReahlCommandline(CompositeCommand):
         if args.command in self.aliasses:
             return self.do(shlex.split(self.aliasses[args.command]))
         else:
-            return super(ReahlCommandline, self).execute(args)
+            return super().execute(args)
 
     def print_help(self, out_stream):
-        super(ReahlCommandline, self).print_help(out_stream)
+        super().print_help(out_stream)
 
         if self.aliasses:
             max_len = max([len(alias_name) for alias_name in self.aliasses.keys()])
@@ -249,7 +249,7 @@ class AddAlias(Command):
                                  help='the command (and arguments) to remember')
 
     def execute(self, args):
-        super(AddAlias, self).execute(args)
+        super().execute(args)
         alias_file = AliasFile.get_file(local=args.local)
         alias_file.add_alias(args.alias, ' '.join(args.aliassed_command))
         alias_file.write()
@@ -264,7 +264,7 @@ class RemoveAlias(Command):
         self.parser.add_argument('alias', type=str,  help='which alias to remove')
 
     def execute(self, args):
-        super(RemoveAlias, self).execute(args)
+        super().execute(args)
         alias_file = AliasFile.get_file(local=args.local)
         if args.alias in alias_file.aliasses:
             alias_file.remove_alias(args.alias)

@@ -47,7 +47,7 @@ stubclass = FakeStubClass
 @stubclass(ReahlEgg)
 class ReahlEggStub(ReahlEgg):
     def __init__(self, name, version, migrations):
-        super(ReahlEggStub, self).__init__(None)
+        super().__init__(None)
         self._name = name
         self._version = version
         self.migrations = migrations

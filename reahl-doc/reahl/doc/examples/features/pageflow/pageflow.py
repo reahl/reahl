@@ -59,7 +59,7 @@ class Comment:
 
 class CommentForm(Form):
     def __init__(self, view, comment):
-        super(CommentForm, self).__init__(view, 'myform')
+        super().__init__(view, 'myform')
         self.use_layout(FormLayout())
 
         self.layout.add_input(TextInput(self, comment.fields.email_address))

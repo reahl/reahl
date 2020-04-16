@@ -58,7 +58,7 @@ class FileInputButtonFixture(Fixture):
         fixture = self
         class FileUploadForm(Form):
             def __init__(self, view):
-                super(FileUploadForm, self).__init__(view, 'test')
+                super().__init__(view, 'test')
                 self.add_child(FileInputButton(self, fixture.domain_object.fields.files))
                 self.define_event_handler(fixture.domain_object.events.submit)
                 self.add_child(Button(self, fixture.domain_object.events.submit))
@@ -119,7 +119,7 @@ class FileInputFixture(FileInputButtonFixture):
         fixture = self
         class FileUploadForm(Form):
             def __init__(self, view):
-                super(FileUploadForm, self).__init__(view, 'test')
+                super().__init__(view, 'test')
                 self.add_child(FileInput(self, fixture.domain_object.fields.files))
         return FileUploadForm   
 
@@ -241,7 +241,7 @@ class FileUploadInputFixture(Fixture):
         fixture = self
         class FileUploadForm(Form):
             def __init__(self, view):
-                super(FileUploadForm, self).__init__(view, 'test')
+                super().__init__(view, 'test')
                 self.set_attribute('novalidate','novalidate')
                 self.use_layout(FormLayout())
                 if self.exception:
@@ -301,7 +301,7 @@ class MaxNumberOfFilesFileUploadInputFixture(ConstrainedFileUploadInputFixture):
 
 class ToggleableConstraint(ValidationConstraint):
     def __init__(self, fixture=None):
-        super(ToggleableConstraint, self).__init__(error_message='test validation message')
+        super().__init__(error_message='test validation message')
         self.fixture = fixture
         
     def validate_input(self, unparsed_input):
@@ -309,7 +309,7 @@ class ToggleableConstraint(ValidationConstraint):
             raise self
 
     def __reduce__(self):
-        reduced = super(ToggleableConstraint, self).__reduce__()
+        reduced = super().__reduce__()
         pickle_dict = reduced[2]
         del pickle_dict['fixture']
         return reduced
@@ -354,13 +354,13 @@ class StubbedFileUploadInputFixture(FileUploadInputFixture):
             def upload_file(self):
                 if fixture.run_hook_before:
                     fixture.file_upload_hook()
-                super(FileUploadPanelStub, self).upload_file()
+                super().upload_file()
                 if fixture.run_hook_after:
                     fixture.file_upload_hook()
 
         class FileUploadForm(Form):
             def __init__(self, view):
-                super(FileUploadForm, self).__init__(view, 'test')
+                super().__init__(view, 'test')
                 if self.exception:
                     self.use_layout(FormLayout())
                     self.layout.add_alert_for_domain_exception(self.exception)

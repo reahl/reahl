@@ -37,7 +37,7 @@ _ = Catalogue('reahl-web')
 
 class DJHTMLWidget(LiteralHTML):
     def __init__(self, view, html_content):
-        super(DJHTMLWidget, self).__init__(view, html_content)
+        super().__init__(view, html_content)
 
 class DHTMLFile:
     def __init__(self, filename, ids):

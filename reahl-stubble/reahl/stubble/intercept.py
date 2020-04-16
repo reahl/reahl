@@ -116,7 +116,7 @@ class CallMonitor(CallableMonitor):
           assert monitor.calls[0].return_value == 'something'
     """
     def __init__(self, method):
-        super(CallMonitor, self).__init__(method.__self__, method)
+        super().__init__(method.__self__, method)
 
 
 class InitMonitor(CallableMonitor):
@@ -124,7 +124,7 @@ class InitMonitor(CallableMonitor):
        calls to the __init__ of a class. (See :class:`reahl.stubble.intercept.CallMonitor` for attributes.)
     """
     def __init__(self, monitored_class):
-        super(InitMonitor, self).__init__(monitored_class, monitored_class.__init__)
+        super().__init__(monitored_class, monitored_class.__init__)
 
     @property
     def monitored_class(self):
@@ -140,13 +140,13 @@ class InitMonitor(CallableMonitor):
         return self.instance
     
     def __enter__(self):
-        super(InitMonitor, self).__enter__()
+        super().__enter__()
         self.original_new = getattr(self.obj, '__new__')
         setattr(self.obj, '__new__', self.modified_new)
         return self
 
     def __exit__(self, exception_type, value, traceback):
-        super(InitMonitor, self).__exit__(exception_type, value, traceback)
+        super().__exit__(exception_type, value, traceback)
         setattr(self.obj, '__new__', self.original_new)
 
 

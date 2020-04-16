@@ -63,7 +63,7 @@ class Container(Layout):
 
     """
     def __init__(self, fluid=False):
-        super(Container, self).__init__()
+        super().__init__()
         self.fluid = fluid
 
     def customise_widget(self):
@@ -150,7 +150,7 @@ class ContentJustification(ResponsiveOption):
     .. versionadded:: 4.0
     """
     def __init__(self, **kwargs):
-        super(ContentJustification, self).__init__(['start', 'center', 'end', 'between', 'around'], prefix='justify-content', **kwargs)
+        super().__init__(['start', 'center', 'end', 'between', 'around'], prefix='justify-content', **kwargs)
 
 
 class Alignment(ResponsiveOption):
@@ -172,7 +172,7 @@ class Alignment(ResponsiveOption):
     .. versionadded:: 4.0
     """
     def __init__(self, **kwargs):
-        super(Alignment, self).__init__(['start', 'end', 'center', 'baseline', 'stretch'], **kwargs)
+        super().__init__(['start', 'end', 'center', 'baseline', 'stretch'], **kwargs)
 
     def add_css_classes(self, html_widget, prefix=None):
         if isinstance(html_widget.layout, ColumnLayout):
@@ -180,7 +180,7 @@ class Alignment(ResponsiveOption):
         else:
             scope = 'self'
 
-        return super(Alignment, self).add_css_classes(html_widget, prefix=prefix or 'align-%s' % scope)
+        return super().add_css_classes(html_widget, prefix=prefix or 'align-%s' % scope)
 
 
 class ResponsiveSize(ResponsiveOption):
@@ -205,7 +205,7 @@ class ResponsiveSize(ResponsiveOption):
 
     """
     def __init__(self, **sizes):
-        super(ResponsiveSize, self).__init__(range(1, 13), **sizes)
+        super().__init__(range(1, 13), **sizes)
 
     def calculated_size_for(self, device_class):
         classes_that_impact = [device_class]+device_class.all_smaller
@@ -294,7 +294,7 @@ class ColumnLayout(Layout):
 
     """
     def __init__(self, *column_definitions):
-        super(ColumnLayout, self).__init__()
+        super().__init__()
         if not all([isinstance(column_definition, (str, ColumnOptions)) for column_definition in column_definitions]):
             raise ProgrammerError('All column definitions are expected be either a ColumnOptions object of a column name, got %s' % str(column_definitions))
         self.added_column_definitions = []

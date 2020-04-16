@@ -66,7 +66,7 @@ class LoginSession(Base):
 
 class MenuPage(HTML5Page):
     def __init__(self, view, main_bookmarks):
-        super(MenuPage, self).__init__(view)
+        super().__init__(view)
         self.use_layout(PageLayout(document_layout=Container()))
         contents_layout = ColumnLayout(ColumnOptions('main', size=ResponsiveSize())).with_slots()
         self.layout.contents.use_layout(contents_layout)
@@ -81,7 +81,7 @@ class InvalidPassword(DomainException):
 
 class LoginForm(Form):
     def __init__(self, view, login_session):
-        super(LoginForm, self).__init__(view, 'login')
+        super().__init__(view, 'login')
         self.use_layout(FormLayout())
         if self.exception:
             self.add_child(Alert(view, self.exception.as_user_message(), 'warning'))

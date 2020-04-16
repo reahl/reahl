@@ -32,7 +32,7 @@ class SlaveProcessStartCounterStub(SlaveProcess):
     spawned = 0
     terminated = 0
     def __init__(self):
-        super(SlaveProcessStartCounterStub, self).__init__(None, None)
+        super().__init__(None, None)
     def start(self): self.spawned += 1
     def terminate(self, timeout=5): self.terminated += 1
 
@@ -108,7 +108,7 @@ def test_server_supervisor_restarts_slave_when_files_changed(supervisor_fixture)
 class SlaveProcessRegisterOrphanStub(SlaveProcess):
     kill_orphan_callable = None
     def __init__(self):
-        super(SlaveProcessRegisterOrphanStub, self).__init__(None, None)
+        super().__init__(None, None)
 
     def spawn_new_process(self):
         return EmptyStub(pid=123)
@@ -138,7 +138,7 @@ class ProcessFake:
 @stubclass(SlaveProcess)
 class SlaveProcessStub(SlaveProcess):
     def __init__(self):
-        super(SlaveProcessStub, self).__init__(None, None)
+        super().__init__(None, None)
 
     def spawn_new_process(self):
         return ProcessFake()
@@ -162,7 +162,7 @@ def test_slave_process_terminates_then_waits():
 @stubclass(SlaveProcess)
 class SlaveProcessThatDoesNotReallyStart(SlaveProcess):
     def __init__(self):
-        super(SlaveProcessThatDoesNotReallyStart, self).__init__(None, None)
+        super().__init__(None, None)
     def start(self): pass
 
 

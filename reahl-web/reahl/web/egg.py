@@ -77,7 +77,7 @@ class WebConfig(Configuration):
         return '%s_secure' % self.session_key_name
 
     def __init__(self):
-        super(WebConfig, self).__init__()
+        super().__init__()
         # We create it here, so that each instance of a WebConfig will have its own LibraryIndex instance
         self.frontend_libraries = LibraryIndex(JQuery(), JQueryUI(), Underscore(), HTML5Shiv(), IE9(), Reahl(), Holder(),
                                                Popper(),  # must be before Bootstrap in html script includes

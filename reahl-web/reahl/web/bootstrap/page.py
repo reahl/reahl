@@ -40,7 +40,7 @@ _ = Catalogue('reahl-web')
 
 class ErrorMessageBox(ErrorWidget):
     def __init__(self, view):
-        super(ErrorMessageBox, self).__init__(view)
+        super().__init__(view)
         alert = self.add_child(Alert(view, _('An error occurred:'), 'danger'))
         alert.add_child(HTMLElement(view, 'hr'))
         alert.add_child(P(view, text=self.error_message))
@@ -50,7 +50,7 @@ class ErrorMessageBox(ErrorWidget):
 
 class BootstrapHTMLErrorPage(Widget):
     def __init__(self, view, page_class, *widget_args, **widget_kwargs):
-        super(BootstrapHTMLErrorPage, self).__init__(view)
+        super().__init__(view)
         page = self.add_child(page_class(view, *widget_args, **widget_kwargs))
         if isinstance(page.layout, PageLayout):
             error_container = page.layout.header
@@ -82,7 +82,7 @@ class HTML5Page(reahl.web.ui.HTML5Page):
         return BootstrapHTMLErrorPage.factory(cls, *widget_args, **widget_kwargs)
     
     def check_form_related_programmer_errors(self):
-        super(HTML5Page, self).check_form_related_programmer_errors()
+        super().check_form_related_programmer_errors()
         self.check_grids_nesting()
         
     def check_grids_nesting(self):

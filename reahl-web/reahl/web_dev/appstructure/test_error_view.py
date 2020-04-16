@@ -38,7 +38,7 @@ class ErrorLocationFixture(Fixture):
     def broken_during_widget_creation(self):
         class BreakingWidget(Widget):
             def __init__(self, view):
-                super(BreakingWidget, self).__init__(view)
+                super().__init__(view)
                 raise Exception('breaking intentionally during __init__')
         self.BreakingWidget = BreakingWidget
 
@@ -114,7 +114,7 @@ class ErrorDegradeFixture(Fixture):
         """Force the use of a specific error page by calling UserInterface.define_error_view() explicitly"""
         class CustomErrorPage(HTML5Page):
             def __init__(self, view):
-                super(CustomErrorPage, self).__init__(view)
+                super().__init__(view)
                 error_widget = self.body.insert_child(0, ErrorWidget(view))
                 error_widget.add_child(H(view, 1, text='My custom error page'))
                 error_widget.add_child(P(view, text=error_widget.error_message))

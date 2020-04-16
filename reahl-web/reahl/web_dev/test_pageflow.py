@@ -33,7 +33,7 @@ from reahl.web_dev.fixtures import WebFixture, BasicPageLayout
 
 class FormWithButton(Form):
     def __init__(self, view, event):
-        super(FormWithButton, self).__init__(view, 'test_events')
+        super().__init__(view, 'test_events')
         self.add_child(ButtonInput(self, event))
                 
 
@@ -176,7 +176,7 @@ def test_transitions_to_parameterised_views(web_fixture):
 
     class MyForm(Form):
         def __init__(self, view, name):
-            super(MyForm, self).__init__(view, name)
+            super().__init__(view, name)
             event = model_object.events.an_event.with_arguments(event_argument1=1, event_argument2=2, view_argument=3)
             self.add_child(ButtonInput(self, event))
 
@@ -222,7 +222,7 @@ def test_transitions_to_parameterised_views_error(web_fixture):
 
     class FormWithIncorrectButtonToParameterisedView(Form):
         def __init__(self, view):
-            super(FormWithIncorrectButtonToParameterisedView, self).__init__(view, 'test_events')
+            super().__init__(view, 'test_events')
             self.add_child(ButtonInput(self, model_object.events.an_event.with_arguments(arg1='1', arg2='2')))
 
     class ParameterisedView(UrlBoundView):

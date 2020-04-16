@@ -38,7 +38,7 @@ def test_basic_widget(web_fixture):
 
     class MyMessage(Div):
         def __init__(self, view):
-            super(MyMessage, self).__init__(view)
+            super().__init__(view)
             self.add_child(P(view, text='Hello World!'))
             self.add_children([P(view, text='a'), P(view, text='b')])
 
@@ -59,7 +59,7 @@ def test_visibility(web_fixture):
     class MyMessage(Widget):
         is_visible = True
         def __init__(self, view):
-            super(MyMessage, self).__init__(view)
+            super().__init__(view)
             self.add_child(P(view, text='你好世界!'))
 
         @property
@@ -90,7 +90,7 @@ def test_widget_factories_and_args(web_fixture):
 
     class WidgetWithArgs(Widget):
         def __init__(self, view, arg, kwarg=None):
-            super(WidgetWithArgs, self).__init__(view)
+            super().__init__(view)
             self.saved_arg = arg
             self.saved_kwarg = kwarg
 
@@ -109,7 +109,7 @@ def test_widget_factories_error():
 
     class WidgetWithArgs(Widget):
         def __init__(self, view, arg, kwarg=None):
-            super(WidgetWithArgs, self).__init__(view)
+            super().__init__(view)
             self.saved_arg = arg
             self.saved_kwarg = kwarg
 
@@ -146,7 +146,7 @@ def test_basic_working_of_slots(web_fixture):
 
     class MyPage(Widget):
         def __init__(self, view):
-            super(MyPage, self).__init__(view)
+            super().__init__(view)
             self.add_child(Slot(view, 'slot1'))
             self.add_child(Slot(view, 'slot2'))
 
@@ -182,7 +182,7 @@ def test_defaults_for_slots(web_fixture):
 
     class MyPage(Widget):
         def __init__(self, view):
-            super(MyPage, self).__init__(view)
+            super().__init__(view)
             self.add_child(Slot(view, 'slot3'))
             self.add_default_slot('slot3', P.factory(text='default'))
 
@@ -208,7 +208,7 @@ def test_activating_javascript(web_fixture):
     @stubclass(Widget)
     class WidgetWithJavaScript(Widget):
         def __init__(self, view, fake_js):
-            super(WidgetWithJavaScript, self).__init__(view)
+            super().__init__(view)
             self.fake_js = fake_js
 
         def get_js(self, context=None):
@@ -216,7 +216,7 @@ def test_activating_javascript(web_fixture):
 
     class MyPage(Widget):
         def __init__(self, view):
-            super(MyPage, self).__init__(view)
+            super().__init__(view)
             self.add_child(WidgetWithJavaScript(view, 'js1'))
             self.add_child(WidgetWithJavaScript(view, 'js2'))
             self.add_child(WidgetWithJavaScript(view, 'js1'))#intended duplicate

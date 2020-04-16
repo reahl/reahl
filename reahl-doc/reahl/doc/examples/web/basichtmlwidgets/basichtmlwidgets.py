@@ -33,7 +33,7 @@ class BasicHTMLWidgetsUI(UserInterface):
 
 class WidgetPanel(Div):
     def __init__(self, view):
-        super(WidgetPanel, self).__init__(view)
+        super().__init__(view)
         self.add_child(P(view, text='A paragraph'))
 
 

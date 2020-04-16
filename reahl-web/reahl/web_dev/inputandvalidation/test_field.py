@@ -32,7 +32,7 @@ from reahl.web_dev.fixtures import WebFixture
 
 class ConstraintRenderingFixture(SimpleInputFixture2):
     def new_field(self, name='an_attribute', label='an attribute'):
-        field = super(ConstraintRenderingFixture, self).new_field(label=label)
+        field = super().new_field(label=label)
         field.bind(name, self.model_object)
         return field
 
@@ -106,7 +106,7 @@ def test_remote_constraints(web_fixture, constraint_rendering_fixture):
 
     class MyForm(Form):
         def __init__(self, view, name):
-            super(MyForm, self).__init__(view, name)
+            super().__init__(view, name)
             field = model_object.fields.an_attribute
             self.add_child(TextInput(self, model_object.fields.an_attribute))
             self.define_event_handler(model_object.events.an_event)
@@ -147,7 +147,7 @@ def test_required_constraint_js(web_fixture, constraint_rendering_fixture):
 
     class MyForm(Form):
         def __init__(self, view, name):
-            super(MyForm, self).__init__(view, name)
+            super().__init__(view, name)
             self.use_layout(FormLayout())
             field = fixture.model_object.fields.an_attribute.with_validation_constraint(constraint)
             self.layout.add_input(TextInput(self, field))
@@ -175,7 +175,7 @@ def test_min_length_constraint_js(web_fixture, constraint_rendering_fixture):
     constraint = MinLengthConstraint(min_length=min_required_length)
     class MyForm(Form):
         def __init__(self, view, name):
-            super(MyForm, self).__init__(view, name)
+            super().__init__(view, name)
             field = fixture.model_object.fields.an_attribute.with_validation_constraint(constraint)
             self.add_child(TextInput(self, field))
 
@@ -197,7 +197,7 @@ def test_max_length_constraint_js(web_fixture, constraint_rendering_fixture):
     constraint = MaxLengthConstraint(max_length=max_allowed_length)
     class MyForm(Form):
         def __init__(self, view, name):
-            super(MyForm, self).__init__(view, name)
+            super().__init__(view, name)
             field = fixture.model_object.fields.an_attribute.with_validation_constraint(constraint)
             self.add_child(TextInput(self, field))
 
@@ -220,7 +220,7 @@ def test_pattern_constraint_js(web_fixture, constraint_rendering_fixture):
 
     class MyForm(Form):
         def __init__(self, view, name):
-            super(MyForm, self).__init__(view, name)
+            super().__init__(view, name)
             field = fixture.model_object.fields.an_attribute.with_validation_constraint(constraint)
             self.add_child(TextInput(self, field))
 
@@ -247,7 +247,7 @@ def test_allowed_values_constraint_js(web_fixture, constraint_rendering_fixture)
 
     class MyForm(Form):
         def __init__(self, view, name):
-            super(MyForm, self).__init__(view, name)
+            super().__init__(view, name)
             field = fixture.model_object.fields.an_attribute.with_validation_constraint(constraint)
             self.add_child(TextInput(self, field))
 
@@ -276,7 +276,7 @@ def test_equal_to_constraint_js(web_fixture, constraint_rendering_fixture):
 
     class MyForm(Form):
         def __init__(self, view, name):
-            super(MyForm, self).__init__(view, name)
+            super().__init__(view, name)
             field = fixture.model_object.fields.an_attribute.with_validation_constraint(constraint)
             other_input = self.add_child(TextInput(self, model_object.fields.other))
             other_input.set_id('other')

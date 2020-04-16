@@ -15,7 +15,7 @@ class TranslatedUI(UserInterface):
 
 class I18nExample(Widget):
     def __init__(self, view):
-        super(I18nExample, self).__init__(view)
+        super().__init__(view)
 
         menu = Nav(self.view).use_layout(PillLayout()).with_languages()
         self.add_child(menu)
@@ -27,7 +27,7 @@ class I18nExample(Widget):
         
 class HomePage(HTML5Page):
     def __init__(self, view):
-        super(HomePage, self).__init__(view)
+        super().__init__(view)
         self.body.add_child(I18nExample(view))
 
 

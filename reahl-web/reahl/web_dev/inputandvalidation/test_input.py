@@ -74,7 +74,7 @@ class SimpleInputFixture2(SimpleInputFixture):
         input_widget_class = input_widget_class or CheckboxSelectInput
         class MyForm(Form):
             def __init__(self, view, name):
-                super(MyForm, self).__init__(view, name)
+                super().__init__(view, name)
                 checkbox = self.add_child(input_widget_class(self, fixture.model_object.fields.an_attribute))
                 self.define_event_handler(fixture.model_object.events.an_event)
                 self.add_child(ButtonInput(self, fixture.model_object.events.an_event))
@@ -580,7 +580,7 @@ def test_fuzzy(web_fixture, fuzzy_text_input_fixture):
     model_object = fixture.model_object
     class MyForm(Form):
         def __init__(self, view, name):
-            super(MyForm, self).__init__(view, name)
+            super().__init__(view, name)
             self.add_child(TextInput(self, model_object.fields.an_attribute, fuzzy=True))
             self.define_event_handler(model_object.events.an_event)
             self.add_child(ButtonInput(self, model_object.events.an_event))

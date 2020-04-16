@@ -61,7 +61,7 @@ def test_basic_event_linkup(web_fixture):
 
     class MyForm(Form):
         def __init__(self, view, name, other_view):
-            super(MyForm, self).__init__(view, name)
+            super().__init__(view, name)
             self.define_event_handler(model_object.events.an_event, target=other_view)
             self.add_child(ButtonInput(self, model_object.events.an_event))
 
@@ -93,7 +93,7 @@ def test_button_submits_only_once(web_fixture):
     fixture.click_count = 0
     class MyForm(Form):
         def __init__(self, view):
-            super(MyForm, self).__init__(view, 'myform')
+            super().__init__(view, 'myform')
             self.set_attribute('target', '_blank')  # We want to make sure the initial page is not refreshed so we can check the button status
             self.define_event_handler(self.events.an_event)
             self.add_child(TextInput(self, self.fields.field_name))
@@ -165,7 +165,7 @@ def test_arguments_to_actions(web_fixture):
 
     class MyForm(Form):
         def __init__(self, view, name):
-            super(MyForm, self).__init__(view, name)
+            super().__init__(view, name)
             self.add_child(ButtonInput(self, model_object.events.an_event.with_arguments(one_argument=1, another_argument='another')))
 
     class MainUI(UserInterface):
@@ -237,7 +237,7 @@ def test_basic_field_linkup(web_fixture):
 
     class MyForm(Form):
         def __init__(self, view, name):
-            super(MyForm, self).__init__(view, name)
+            super().__init__(view, name)
             self.define_event_handler(model_object.events.an_event)
             self.add_child(ButtonInput(self, model_object.events.an_event))
             self.add_child(TextInput(self, model_object.fields.field_name))
@@ -285,7 +285,7 @@ def test_distinguishing_identical_field_names(web_fixture):
             events.an_event = Event(label='click me')
 
         def __init__(self, view, name):
-            super(MyForm, self).__init__(view, name)
+            super().__init__(view, name)
             self.define_event_handler(self.events.an_event)
             self.add_child(ButtonInput(self, self.events.an_event))
 
@@ -312,7 +312,7 @@ def test_wrong_arguments_to_define_event_handler(web_fixture):
 
     class MyForm(Form):
         def __init__(self, view, name):
-            super(MyForm, self).__init__(view, name)
+            super().__init__(view, name)
             self.define_event_handler(EmptyStub())
 
     wsgi_app = fixture.new_wsgi_app(child_factory=MyForm.factory('form'))
@@ -336,7 +336,7 @@ def test_define_event_handler_not_called(web_fixture):
 
     class MyForm(Form):
         def __init__(self, view, name):
-            super(MyForm, self).__init__(view, name)
+            super().__init__(view, name)
             self.add_child(ButtonInput(self, model_object.events.an_event))
 
     wsgi_app = fixture.new_wsgi_app(child_factory=MyForm.factory('form'))
@@ -377,7 +377,7 @@ def test_exception_handling(reahl_system_fixture, web_fixture, sql_alchemy_fixtu
 
         class MyForm(Form):
             def __init__(self, view, name, other_view):
-                super(MyForm, self).__init__(view, name)
+                super().__init__(view, name)
                 self.define_event_handler(model_object.events.an_event, target=other_view)
                 self.add_child(ButtonInput(self, model_object.events.an_event))
                 self.add_child(TextInput(self, model_object.fields.field_name))
@@ -435,7 +435,7 @@ def test_form_preserves_user_input_after_validation_exceptions_multichoice(web_f
 
     class MyForm(Form):
         def __init__(self, view):
-            super(MyForm, self).__init__(view, 'my_form')
+            super().__init__(view, 'my_form')
             self.define_event_handler(model_object.events.an_event)
             self.add_child(ButtonInput(self, model_object.events.an_event))
             input = self.add_child(SelectInput(self, model_object.fields.no_validation_exception_field))
@@ -535,7 +535,7 @@ def test_check_missing_form(web_fixture):
 
     class MyPanel(Div):
         def __init__(self, view):
-            super(MyPanel, self).__init__(view)
+            super().__init__(view)
             model_object = ModelObject()
             forgotten_form = Form(view, 'myform')
             self.add_child(TextInput(forgotten_form, model_object.fields.name))
@@ -573,7 +573,7 @@ def test_nested_forms(web_fixture):
     nested_model_object = NestedModelObject()
     class MyNestedForm(NestedForm):
         def __init__(self, view, name):
-            super(MyNestedForm, self).__init__(view, name)
+            super().__init__(view, name)
             self.define_event_handler(nested_model_object.events.nested_event)
             self.add_child(ButtonInput(self.form, nested_model_object.events.nested_event))
             self.add_child(TextInput(self.form, nested_model_object.fields.nested_field))
@@ -588,7 +588,7 @@ def test_nested_forms(web_fixture):
     outer_model_object = OuterModelObject()
     class OuterForm(Form):
         def __init__(self, view, name):
-            super(OuterForm, self).__init__(view, name)
+            super().__init__(view, name)
             self.add_child(MyNestedForm(view, 'my_nested_form'))
             self.define_event_handler(outer_model_object.events.outer_event)
             self.add_child(ButtonInput(self, outer_model_object.events.outer_event))
@@ -630,7 +630,7 @@ def test_form_input_validation(web_fixture):
 
     class MyForm(Form):
         def __init__(self, view, name, other_view):
-            super(MyForm, self).__init__(view, name)
+            super().__init__(view, name)
             if self.exception:
                  self.add_child(P(view, ','.join(self.exception.detail_messages)))
             self.define_event_handler(model_object.events.an_event, target=other_view)
@@ -773,7 +773,7 @@ def test_propagation_of_querystring(web_fixture, query_string_scenarios):
 
     class MyForm(Form):
         def __init__(self, view, name, other_view):
-            super(MyForm, self).__init__(view, name)
+            super().__init__(view, name)
             if fixture.target_is_other_view:
                 target = other_view
             else:
@@ -820,7 +820,7 @@ def test_event_names_are_canonicalised(web_fixture):
 
     class MyForm(Form):
         def __init__(self, view, name):
-            super(MyForm, self).__init__(view, name)
+            super().__init__(view, name)
             self.define_event_handler(model_object.events.an_event)
             self.add_child(ButtonInput(self, model_object.events.an_event.with_arguments(some_argument='f~nnystuff')))
 
@@ -860,7 +860,7 @@ def test_alternative_event_trigerring(web_fixture):
 
     class MyForm(Form):
         def __init__(self, view, name, other_view):
-            super(MyForm, self).__init__(view, name)
+            super().__init__(view, name)
             self.define_event_handler(model_object.events.an_event, target=other_view)
             self.add_child(ButtonInput(self, model_object.events.an_event))
 
@@ -906,7 +906,7 @@ def test_remote_field_validation(web_fixture):
 
     class MyForm(Form):
         def __init__(self, view, name):
-            super(MyForm, self).__init__(view, name)
+            super().__init__(view, name)
             self.add_child(TextInput(self, model_object.fields.a_field))
 
     wsgi_app = fixture.new_wsgi_app(child_factory=MyForm.factory('myform'))
@@ -935,7 +935,7 @@ def test_remote_field_formatting(web_fixture):
 
     class MyForm(Form):
         def __init__(self, view, name):
-            super(MyForm, self).__init__(view, name)
+            super().__init__(view, name)
             self.add_child(TextInput(self, model_object.fields.a_field))
 
     wsgi_app = fixture.new_wsgi_app(child_factory=MyForm.factory('myform'))

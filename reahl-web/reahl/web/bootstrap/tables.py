@@ -56,7 +56,7 @@ class Table(reahl.web.ui.HTMLWidget):
 
     """
     def __init__(self, view, caption_text=None, summary=None, css_id=None):
-        super(Table, self).__init__(view)
+        super().__init__(view)
         self.main_div = self.add_child(Div(view, css_id=css_id))
         self.set_html_representation(self.main_div)
         self.table = self.main_div.add_child(reahl.web.ui.Table(view, caption_text=caption_text, summary=summary))
@@ -73,7 +73,7 @@ class Table(reahl.web.ui.HTMLWidget):
 
 class HeadingTheme(HTMLAttributeValueOption):
     def __init__(self, name):
-        super(HeadingTheme, self).__init__(name, name is not None, constrain_value_to=['light', 'dark'])
+        super().__init__(name, name is not None, constrain_value_to=['light', 'dark'])
 
 
 class TableLayout(Layout):
@@ -94,7 +94,7 @@ class TableLayout(Layout):
     """
     def __init__(self, dark=False, border='rows', compact=False, striped=False, highlight_hovered=False,
                  responsive=False, heading_theme=None):
-        super(TableLayout, self).__init__()
+        super().__init__()
 
         if isinstance(responsive, str):
             self.responsive_attribute_option = HTMLAttributeValueOption(responsive, True,
@@ -119,7 +119,7 @@ class TableLayout(Layout):
 
 
     def customise_widget(self):
-        super(TableLayout, self).customise_widget()
+        super().customise_widget()
 
         if self.responsive_attribute_option.is_set:
             self.widget.main_div.append_class(self.responsive_attribute_option.as_html_snippet())
@@ -137,7 +137,7 @@ class TableLayout(Layout):
 
 class TablePageIndex(SequentialPageIndex):
     def __init__(self, columns, items, items_per_page=10, current_page_number=1, start_page_number=1, max_page_links=5):
-        super(TablePageIndex, self).__init__(items, items_per_page=items_per_page,
+        super().__init__(items, items_per_page=items_per_page,
                                              current_page_number=current_page_number,
                                              start_page_number=start_page_number,
                                              max_page_links=max_page_links)
@@ -154,7 +154,7 @@ class TablePageIndex(SequentialPageIndex):
             sorting_key = self.sorting_keys[self.sort_column_number]
             self.items.sort(key=sorting_key, reverse=self.sort_descending)
 
-        return super(TablePageIndex, self).get_contents_for_page(page_number)
+        return super().get_contents_for_page(page_number)
 
     @exposed
     def fields(self, fields):
@@ -164,7 +164,7 @@ class TablePageIndex(SequentialPageIndex):
 
 class PagedTable(PagedPanel):
     def __init__(self, view, page_index, columns, caption_text=None, summary=None, table_layout=None, css_id=None):
-        super(PagedTable, self).__init__(view, page_index, css_id=css_id)
+        super().__init__(view, page_index, css_id=css_id)
 
         def make_heading_with_sort_controls(column_number, column, view):
             heading_widget = Widget(view)
@@ -241,7 +241,7 @@ class DataTable(Div):
 
     """
     def __init__(self, view, columns, items, css_id, items_per_page=10, max_page_links=5, caption_text=None, summary=None, table_layout=None):
-        super(DataTable, self).__init__(view, css_id=css_id)
+        super().__init__(view, css_id=css_id)
 
         self.append_class('reahl-datatable')
 

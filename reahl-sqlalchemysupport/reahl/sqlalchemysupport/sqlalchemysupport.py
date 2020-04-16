@@ -347,7 +347,7 @@ class SqlAlchemyControl(ORMControl):
     def migrate_db(self, eggs_in_order):
         with Operations.context(MigrationContext.configure(Session.connection())) as op:
             self.op = op
-            return super(SqlAlchemyControl, self).migrate_db(eggs_in_order)
+            return super().migrate_db(eggs_in_order)
 
     def diff_db(self):
         return compare_metadata(MigrationContext.configure(Session.connection()), metadata)
@@ -399,7 +399,7 @@ class PersistedField(Field):
     """
     def __init__(self, class_to_query, default=None, required=False, required_message=None, label=None, readable=None, writable=None):
         label = label or _('')
-        super(PersistedField, self).__init__(default=default, required=required, required_message=required_message, label=label, readable=readable, writable=writable)
+        super().__init__(default=default, required=required, required_message=required_message, label=label, readable=readable, writable=writable)
         self.class_to_query = class_to_query
         self.add_validation_constraint(IntegerConstraint())
 

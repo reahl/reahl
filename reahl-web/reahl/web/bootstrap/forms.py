@@ -88,7 +88,7 @@ class TextInput(reahl.web.ui.TextInput):
           Added `ignore_concurrent_change`
     """
     def __init__(self, form, bound_field, base_name=None, name_discriminator=None, fuzzy=False, placeholder=False, refresh_widget=None, ignore_concurrent_change=False):
-        super(TextInput, self).__init__(form, bound_field, base_name=base_name, name_discriminator=name_discriminator, fuzzy=fuzzy, placeholder=placeholder, refresh_widget=refresh_widget, ignore_concurrent_change=ignore_concurrent_change)
+        super().__init__(form, bound_field, base_name=base_name, name_discriminator=name_discriminator, fuzzy=fuzzy, placeholder=placeholder, refresh_widget=refresh_widget, ignore_concurrent_change=ignore_concurrent_change)
         self.append_class('form-control')
 
 
@@ -107,7 +107,7 @@ class PasswordInput(reahl.web.ui.PasswordInput):
           Added `ignore_concurrent_change`
     """
     def __init__(self, form, bound_field, base_name=None, name_discriminator=None, refresh_widget=None, ignore_concurrent_change=False):
-        super(PasswordInput, self).__init__(form, bound_field, base_name=base_name, name_discriminator=name_discriminator, refresh_widget=refresh_widget, ignore_concurrent_change=ignore_concurrent_change)
+        super().__init__(form, bound_field, base_name=base_name, name_discriminator=name_discriminator, refresh_widget=refresh_widget, ignore_concurrent_change=ignore_concurrent_change)
         self.append_class('form-control')
 
 
@@ -128,7 +128,7 @@ class TextArea(reahl.web.ui.TextArea):
           Added `ignore_concurrent_change`
     """
     def __init__(self, form, bound_field, base_name=None, name_discriminator=None, rows=None, columns=None, refresh_widget=None, ignore_concurrent_change=False):
-        super(TextArea, self).__init__(form, bound_field, base_name=base_name, name_discriminator=name_discriminator, rows=rows, columns=columns, refresh_widget=refresh_widget, ignore_concurrent_change=ignore_concurrent_change)
+        super().__init__(form, bound_field, base_name=base_name, name_discriminator=name_discriminator, rows=rows, columns=columns, refresh_widget=refresh_widget, ignore_concurrent_change=ignore_concurrent_change)
         self.append_class('form-control')
 
 
@@ -148,7 +148,7 @@ class SelectInput(reahl.web.ui.SelectInput):
           Added `ignore_concurrent_change`
     """
     def __init__(self, form, bound_field, base_name=None, name_discriminator=None, refresh_widget=None, ignore_concurrent_change=False):
-        super(SelectInput, self).__init__(form, bound_field, base_name=base_name, name_discriminator=name_discriminator, refresh_widget=refresh_widget, ignore_concurrent_change=ignore_concurrent_change)
+        super().__init__(form, bound_field, base_name=base_name, name_discriminator=name_discriminator, refresh_widget=refresh_widget, ignore_concurrent_change=ignore_concurrent_change)
         self.append_class('custom-select')
 
 
@@ -188,14 +188,14 @@ class CheckboxInput(reahl.web.ui.CheckboxSelectInput):
     def __init__(self, form, bound_field, base_name=None, name_discriminator=None, contents_layout=None, refresh_widget=None, ignore_concurrent_change=False):
         self.contents_layout = contents_layout
         self.checkbox_input = None
-        super(CheckboxInput, self).__init__(form, bound_field, base_name=base_name, name_discriminator=name_discriminator, refresh_widget=refresh_widget, ignore_concurrent_change=ignore_concurrent_change)
+        super().__init__(form, bound_field, base_name=base_name, name_discriminator=name_discriminator, refresh_widget=refresh_widget, ignore_concurrent_change=ignore_concurrent_change)
 
     def create_html_widget(self):
         if isinstance(self.bound_field, BooleanField):
             main_element = self.create_main_element()
             self.added_choices.append(self.add_choice_to(main_element, Choice(self.bound_field.true_value, Field(label=self.bound_field.label))))
         else:
-            main_element = super(CheckboxInput, self).create_html_widget()
+            main_element = super().create_html_widget()
         return main_element
 
     @property
@@ -207,7 +207,7 @@ class CheckboxInput(reahl.web.ui.CheckboxSelectInput):
         return '%s.closest("div")' % self.html_control.jquery_selector
 
     def create_main_element(self):
-        return super(CheckboxInput, self).create_main_element().use_layout(self.contents_layout or ChoicesLayout(inline=False))
+        return super().create_main_element().use_layout(self.contents_layout or ChoicesLayout(inline=False))
 
     def add_choice_to(self, widget, choice):
         single_choice = SingleChoice(self, choice)
@@ -234,10 +234,10 @@ class RadioButtonSelectInput(reahl.web.ui.RadioButtonSelectInput):
     def __init__(self, form, bound_field, base_name=None, name_discriminator=None, contents_layout=None, refresh_widget=None, ignore_concurrent_change=False):
         assert contents_layout is None or isinstance(contents_layout, ChoicesLayout), 'contents_layout should be an instance of ChoicesLayout but isn\'t' #TODO: this should be in @argchecks(...)
         self.contents_layout = contents_layout or ChoicesLayout(inline=False)
-        super(RadioButtonSelectInput, self).__init__(form, bound_field, base_name=base_name, name_discriminator=name_discriminator, refresh_widget=refresh_widget, ignore_concurrent_change=ignore_concurrent_change)
+        super().__init__(form, bound_field, base_name=base_name, name_discriminator=name_discriminator, refresh_widget=refresh_widget, ignore_concurrent_change=ignore_concurrent_change)
 
     def create_main_element(self):
-        main_element = super(RadioButtonSelectInput, self).create_main_element().use_layout(self.contents_layout)
+        main_element = super().create_main_element().use_layout(self.contents_layout)
         return main_element
 
     def add_choice_to(self, widget, choice):
@@ -258,7 +258,7 @@ class ButtonInput(reahl.web.ui.ButtonInput):
           Added `ignore_concurrent_change`
     """
     def __init__(self, form, event, base_name=None, name_discriminator=None, ignore_concurrent_change=False):
-        super(ButtonInput, self).__init__(form, event, base_name=base_name, name_discriminator=name_discriminator, ignore_concurrent_change=ignore_concurrent_change)
+        super().__init__(form, event, base_name=base_name, name_discriminator=name_discriminator, ignore_concurrent_change=ignore_concurrent_change)
         self.append_class('btn')
 
 
@@ -276,7 +276,7 @@ class StaticData(reahl.web.ui.Input):
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
     """
     def __init__(self, form, bound_field):
-        super(StaticData, self).__init__(form, bound_field)
+        super().__init__(form, bound_field)
         p = self.add_child(P(self.view, text=self.value))
         p.append_class('form-control-static')
 
@@ -293,7 +293,7 @@ class CueInput(reahl.web.ui.WrappedInput):
        :param cue_widget: An :class:`~reahl.web.fw.Widget` that serves as the cue.
     """
     def __init__(self, html_input, cue_widget):
-        super(CueInput, self).__init__(html_input)
+        super().__init__(html_input)
         div = self.add_child(Div(self.view))
         self.set_html_representation(div)
 
@@ -305,7 +305,7 @@ class CueInput(reahl.web.ui.WrappedInput):
 
     def get_js(self, context=None):
         js = ['$(".reahl-bootstrapcueinput").bootstrapcueinput();']
-        return super(CueInput, self).get_js(context=context) + js
+        return super().get_js(context=context) + js
 
     @property
     def includes_label(self):
@@ -315,14 +315,14 @@ class CueInput(reahl.web.ui.WrappedInput):
 class ButtonStyle(HTMLAttributeValueOption):
     valid_options = ['primary', 'secondary', 'success', 'info', 'warning', 'danger', 'link', 'light', 'dark']
     def __init__(self, name, outline=False):
-        super(ButtonStyle, self).__init__(name, name is not None, prefix='btn' if not outline else 'btn-outline',
+        super().__init__(name, name is not None, prefix='btn' if not outline else 'btn-outline',
                                           constrain_value_to=self.valid_options)
 
 
 class ButtonSize(HTMLAttributeValueOption):
     valid_options = ['lg', 'sm', 'xs']
     def __init__(self, size_string):
-        super(ButtonSize, self).__init__(size_string, size_string is not None, prefix='btn',
+        super().__init__(size_string, size_string is not None, prefix='btn',
                                          constrain_value_to=self.valid_options)
 
 
@@ -341,7 +341,7 @@ class ButtonLayout(reahl.web.fw.Layout):
 
     """
     def __init__(self, style=None, outline=False, size=None, active=False, wide=False):
-        super(ButtonLayout, self).__init__()
+        super().__init__()
         self.style = ButtonStyle(style, outline=outline)
         self.size = ButtonSize(size)
         self.active = HTMLAttributeValueOption('active', active)
@@ -359,7 +359,7 @@ class ButtonLayout(reahl.web.fw.Layout):
 
 class ChoicesLayout(reahl.web.fw.Layout):
     def __init__(self, inline=False):
-        super(ChoicesLayout, self).__init__()
+        super().__init__()
         self.inline = inline
 
     @arg_checks(html_input=IsInstance((PrimitiveCheckboxInput, SingleChoice)))
@@ -507,12 +507,12 @@ class GridFormLayout(FormLayout):
        :param input_column_size: A :class:`~reahl.web.bootstrap.grid.ResponsiveSize` for the width of the Input column.
     """
     def __init__(self, label_column_size, input_column_size):
-        super(GridFormLayout, self).__init__()
+        super().__init__()
         self.label_column_size = label_column_size
         self.input_column_size = input_column_size
 
     def create_form_group(self, html_input):
-        form_group = super(GridFormLayout, self).create_form_group(html_input)
+        form_group = super().create_form_group(html_input)
         form_group.use_layout(ColumnLayout())
         form_group.layout.add_column('label', size=self.label_column_size)
         form_group.layout.add_column('input', size=self.input_column_size)
@@ -520,36 +520,36 @@ class GridFormLayout(FormLayout):
 
     def add_label_to(self, form_group, html_input, hidden):
         column = form_group.layout.columns['label']
-        label = super(GridFormLayout, self).add_label_to(column, html_input, hidden)
+        label = super().add_label_to(column, html_input, hidden)
         label.append_class('col-form-label')
         return label
 
     def add_input_to(self, parent_element, html_input):
         input_column = parent_element.layout.columns['input']
-        return super(GridFormLayout, self).add_input_to(input_column, html_input)
+        return super().add_input_to(input_column, html_input)
 
     def add_help_text_to(self, parent_element, html_input, help_text):
         input_column = parent_element.layout.columns['input']
-        return super(GridFormLayout, self).add_help_text_to(input_column, html_input, help_text)
+        return super().add_help_text_to(input_column, html_input, help_text)
 
 
 class InlineFormLayout(FormLayout):
     """A FormLayout which positions all its Inputs and Labels on one line. The browser
        flows this like any paragraph of text. Each Label precedes its associated Input."""
     def customise_widget(self):
-        super(InlineFormLayout, self).customise_widget()
+        super().customise_widget()
         self.widget.append_class('form-inline')
 
     def create_help_text_widget(self, help_text):
         return Span(self.view, text=help_text)
 
     def add_label_to(self, form_group, html_input, hidden):
-        label = super(InlineFormLayout, self).add_label_to(form_group, html_input, hidden)
+        label = super().add_label_to(form_group, html_input, hidden)
         label.append_class('mr-2')
         return label
 
     def add_help_text_to(self, parent_element, html_input, help_text):
-        help_text = super(InlineFormLayout, self).add_help_text_to(parent_element, html_input, help_text)
+        help_text = super().add_help_text_to(parent_element, html_input, help_text)
         help_text.append_class('ml-2')
         return help_text
 
@@ -562,7 +562,7 @@ class InputGroup(reahl.web.ui.WrappedInput):
     :param append: A :class:`~reahl.web.fw.Widget` or text to append to the :class:`~reahl.web.ui.Input`.
     """
     def __init__(self, prepend, input_widget, append):
-        super(InputGroup, self).__init__(input_widget)
+        super().__init__(input_widget)
         self.div = self.add_child(Div(self.view))
         self.div.append_class('input-group')
         if prepend:

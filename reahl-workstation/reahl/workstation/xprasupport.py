@@ -110,7 +110,7 @@ class ControlXpra(CompositeCommand):
     keyword = 'xpra'
 
     def __init__(self, xpra=None):
-        super(ControlXpra, self).__init__()
+        super().__init__()
         self.xpra = xpra or Xpra()
 
     @property
@@ -125,13 +125,13 @@ class XpraSubcommand(Command):
         self.xpra = xpra
         self.keyword = keyword
         self.description = description
-        super(XpraSubcommand, self).__init__()
+        super().__init__()
 
     def format_description(self):
         return self.description
     
     def assemble(self):
-        super(XpraSubcommand, self).assemble()
+        super().assemble()
         location_group = self.parser.add_mutually_exclusive_group(required=True)
         location_group.add_argument('-l', '--local', action='store_true', dest='local', help='%s the xpra server locally' % self.keyword)
         location_group.add_argument('-V', '--vagrant', nargs='?', const='default', default=False, help='%s the xpra server inside this vagrant machine' % self.keyword)
@@ -158,7 +158,7 @@ class XpraSubcommand(Command):
             return EndPoint(args.display, ssh_to=args.ssh, ssh_arguments=ssh_args+defaulted_ssh_args)
 
     def execute(self, args):
-        super(XpraSubcommand, self).execute(args)
+        super().execute(args)
 
         if self.keyword == 'attach':
             return self.xpra.attach(self.endpoint_from_args(args), args.extra_args)

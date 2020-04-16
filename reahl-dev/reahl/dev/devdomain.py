@@ -389,7 +389,7 @@ class PackageIndex(RemoteRepository):
                       str(attributes['repository']))
 
     def __init__(self, workspace, repository):
-        super(PackageIndex, self).__init__()
+        super().__init__()
         self.workspace = workspace
         self.repository = repository
 
@@ -420,7 +420,7 @@ class SshRepository(RemoteRepository):
                       str(attributes['destination']) or None)
 
     def __init__(self, workspace, host, login, destination):
-        super(SshRepository, self).__init__()
+        super().__init__()
         self.workspace = workspace
         self.host = host
         self.login = login or ''
@@ -519,7 +519,7 @@ class ScriptExport(EntryPointExport):
         return ('script', cls, None)
 
     def __init__(self, name, locator_string):
-        super(ScriptExport, self).__init__('console_scripts', name, locator_string)
+        super().__init__('console_scripts', name, locator_string)
 
     def inflate_attributes(self, reader, attributes, parent):
         assert 'name' in attributes, 'No name specified'
@@ -529,7 +529,7 @@ class ScriptExport(EntryPointExport):
 
 class ReahlEggExport(EntryPointExport):
     def __init__(self, locator_string):
-        super(ReahlEggExport, self).__init__('reahl.eggs', 'Egg', locator_string)
+        super().__init__('reahl.eggs', 'Egg', locator_string)
 
     def inflate_attributes(self, reader, attributes, parent):
         assert 'locator' in attributes, 'No locator specified'
@@ -542,7 +542,7 @@ class TranslationPackage(EntryPointExport):
         return ('translations', cls, None)
 
     def __init__(self, name, locator_string):
-        super(TranslationPackage, self).__init__('reahl.translations', name, locator_string)
+        super().__init__('reahl.translations', name, locator_string)
 
     def inflate_attributes(self, reader, attributes, parent):
         assert 'locator' in attributes, 'No locator specified'
@@ -682,7 +682,7 @@ class Dependency:
 
 class ThirdpartyDependency(Dependency):
     def __init__(self, project, name, min_version=None, max_version=None):
-        super(ThirdpartyDependency, self).__init__(project, name, version=min_version)
+        super().__init__(project, name, version=min_version)
         self.max_version = Version(max_version) if max_version else None
 
     def inflate_attributes(self, reader, attributes, parent):
@@ -714,7 +714,7 @@ class ThirdpartyDependency(Dependency):
 class XMLDependencyList(list):
     "Purely for reading related dependencies from XML."""
     def __init__(self, project, purpose):
-        super(XMLDependencyList, self).__init__()
+        super().__init__()
         self.workspace = project.workspace
         self.project = project
         self.purpose = purpose
@@ -735,7 +735,7 @@ class XMLDependencyList(list):
 class ExtrasList(list):
     "Purely for reading extras dependencies from XML."""
     def __init__(self, project, name):
-        super(ExtrasList, self).__init__()
+        super().__init__()
         self.workspace = project.workspace
         self.project = project
         self.name = name
@@ -755,7 +755,7 @@ class ExtrasList(list):
 
 class ConfigurationSpec(EntryPointExport):
     def __init__(self, locator_string):
-        super(ConfigurationSpec, self).__init__('reahl.configspec', 'config', locator_string)
+        super().__init__('reahl.configspec', 'config', locator_string)
 
     @classmethod
     def get_xml_registration_info(cls):
@@ -768,7 +768,7 @@ class ConfigurationSpec(EntryPointExport):
 
 class ScheduledJobSpec(EntryPointExport):
     def __init__(self, locator_string):
-        super(ScheduledJobSpec, self).__init__('reahl.scheduled_jobs', locator_string, locator_string)
+        super().__init__('reahl.scheduled_jobs', locator_string, locator_string)
 
     @classmethod
     def get_xml_registration_info(cls):
@@ -983,7 +983,7 @@ class MetaInfo:
 
 class HardcodedMetadata(ProjectMetadata):
     def __init__(self, parent):
-        super(HardcodedMetadata, self).__init__(parent)
+        super().__init__(parent)
         self.info = {}
 
     def __str__(self):
@@ -1009,7 +1009,7 @@ class HardcodedMetadata(ProjectMetadata):
         try:
             return self.info['project_name'].contents
         except KeyError:
-            return super(HardcodedMetadata, self).project_name
+            return super().project_name
 
     def get_long_description_for(self, project):
         return self.info['long_description'].contents
@@ -1040,7 +1040,7 @@ class HardcodedMetadata(ProjectMetadata):
 
 class DebianPackageMetadata(ProjectMetadata):
     def __init__(self, parent, url=None):
-        super(DebianPackageMetadata, self).__init__(parent)
+        super().__init__(parent)
         self.url = url
 
     def __str__(self):
@@ -1268,7 +1268,7 @@ class GitSourceControl(SourceControlSystem):
         self.__init__(parent)
 
     def __init__(self, parent):
-        super(GitSourceControl, self).__init__(parent)
+        super().__init__(parent)
         self.git = Git(self.project.directory)
 
     @property
@@ -1501,7 +1501,7 @@ class Project:
 
 class SetupCommandFailed(Exception):
     def __init__(self, command):
-        super(SetupCommandFailed, self).__init__(command)
+        super().__init__(command)
         self.command = command
 
 
@@ -1568,7 +1568,7 @@ class SetupMonitor:
 class EggProject(Project):
     basket_name = None
     def __init__(self, workspace, directory, include_package_data):
-        super(EggProject, self).__init__(workspace, directory)
+        super().__init__(workspace, directory)
         self.namespaces = []
         self.explicitly_specified_entry_points = []
         self.excluded_packages = []
@@ -1606,7 +1606,7 @@ class EggProject(Project):
         extras = ['component']
         if not self.chicken_project:
             extras.append('toplevel')
-        return super(EggProject, self).tags + extras
+        return super().tags + extras
 
     @property
     def chicken_project(self):
@@ -1663,7 +1663,7 @@ class EggProject(Project):
         elif isinstance(child, ScheduledJobSpec):
             self.scheduled_jobs.append(child)
         else:
-            super(EggProject, self).inflate_child(reader, child, tag, parent)
+            super().inflate_child(reader, child, tag, parent)
 
     @property
     def basket(self):
@@ -1954,7 +1954,7 @@ class ChickenProject(EggProject):
 
     @property
     def tags(self):
-        return super(ChickenProject, self).tags + ['toplevel']
+        return super().tags + ['toplevel']
 
 
     def packages_for_setup(self):
@@ -1986,7 +1986,7 @@ class ProjectList(list):
     """A list of Projects, allowing a number of operations on such a list. These include saving the list to disk."""
 
     def __init__(self, workspace):
-        super(ProjectList, self).__init__()
+        super().__init__()
         self.workspace = workspace
         self.name_index = {}  # The dict is used to speed up queries (see project_named)
 
@@ -1994,7 +1994,7 @@ class ProjectList(list):
         assert ignore_duplicates or something.project_name not in self.name_index, 'Attempt to add duplicate project to project list'
         if something.project_name not in self.name_index:
             self.name_index[something.project_name] = something
-            super(ProjectList, self).append(something)
+            super().append(something)
 
     def project_in(self, directory):
         full_path = os.path.normpath(directory)
@@ -2209,7 +2209,7 @@ class Workspace:
 
 class SubstvarsFile(list):
     def __init__(self, filename):
-        super(SubstvarsFile, self).__init__()
+        super().__init__()
         self.filename = filename
 
     def read(self):

@@ -86,7 +86,7 @@ def test_dynamically_determining_attributes(web_fixture):
         state = '1'
         @property
         def attributes(self):
-            attributes = super(WidgetWithDynamicAttributes, self).attributes
+            attributes = super().attributes
             attributes.set_to('dynamic', self.state)
             attributes.add_to('dynamiclist', [self.state])
             attributes.add_to('not-there', ['a value'])

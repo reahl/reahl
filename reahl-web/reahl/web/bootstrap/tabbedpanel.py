@@ -49,7 +49,7 @@ class TabbedPanel(Widget):
                   displayed.
     """
     def __init__(self, view, nav_layout=None):
-        super(TabbedPanel, self).__init__(view)
+        super().__init__(view)
         self.tabs = []
         self.nav = self.add_child(Nav(view).use_layout(nav_layout or TabLayout()))
         self.content_panel = self.add_child(Div(view))
@@ -88,11 +88,11 @@ class TabbedPanel(Widget):
 
 class TabContentAttributes(DelegatedAttributes):
     def __init__(self, tab):
-        super(TabContentAttributes, self).__init__()
+        super().__init__()
         self.tab = tab
 
     def set_attributes(self, attributes):
-        super(TabContentAttributes, self).set_attributes(attributes)
+        super().set_attributes(attributes)
 
         attributes.set_to('data-toggle', self.tab.data_toggle)
         attributes.set_to('data-target', '#%s' % self.tab.css_id)
@@ -193,7 +193,7 @@ class MultiTab(Tab):
     def __init__(self, view, title, tab_key):
         self.tabs = []
         self.menu = DropdownMenu(view)
-        super(MultiTab, self).__init__(view, title, tab_key, None)
+        super().__init__(view, title, tab_key, None)
         
     def add_tab(self, tab):
         tab.add_to_menu(self.menu)
@@ -222,7 +222,7 @@ class MultiTab(Tab):
             self.add_contents_of_tab_to(content_panel, tab)
 
     def set_panel(self, tabbed_panel):
-        super(MultiTab, self).set_panel(tabbed_panel)
+        super().set_panel(tabbed_panel)
         for tab in self.tabs:
             tab.set_panel(tabbed_panel)
 

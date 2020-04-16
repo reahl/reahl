@@ -100,21 +100,21 @@ class Impostor:
         _stubbed_class = object.__getattribute__(self, '_stubbed_class')
         if name == '__class__':
             return _stubbed_class
-        return super(Impostor, self).__getattribute__(name)
+        return super().__getattribute__(name)
                         
 
 
 #------------------------------------------------[ Delegate ]
 class Delegate:
     def __init__(self, real):
-        super(Delegate, self).__setattr__('real', real)
+        super().__setattr__('real', real)
 
     def _bound_delegate_method(self, name, method_name):
-        real = super(Delegate, self).__getattribute__('real')
-        shadowed = super(Delegate, self).__getattribute__('shadowed')
+        real = super().__getattribute__('real')
+        shadowed = super().__getattribute__('shadowed')
 
         if name in shadowed:
-            return getattr(super(Delegate, self), method_name)
+            return getattr(super(), method_name)
         else:
             if method_name == '__getattribute__':
                 method = getattr
@@ -132,15 +132,15 @@ class Delegate:
         if name == '__class__':
             return _stubbed_class
 
-        bound_delegate_method = super(Delegate, self).__getattribute__('_bound_delegate_method')
+        bound_delegate_method = super().__getattribute__('_bound_delegate_method')
         return bound_delegate_method(name, '__getattribute__')(name)
 
     def __setattr__(self, name, value):
-        bound_delegate_method = super(Delegate, self).__getattribute__('_bound_delegate_method')
+        bound_delegate_method = super().__getattribute__('_bound_delegate_method')
         bound_delegate_method(name, '__setattr__')(name, value)
 
     def __delattr__(self, name):
-        bound_delegate_method = super(Delegate, self).__getattribute__('_bound_delegate_method')
+        bound_delegate_method = super().__getattribute__('_bound_delegate_method')
         bound_delegate_method(name, '__delattr__')(name)
 
 

@@ -39,7 +39,7 @@ class Comment:
 
 class CommentForm(Form):
     def __init__(self, view):
-        super(CommentForm, self).__init__(view, 'myform')
+        super().__init__(view, 'myform')
         comment = Comment()
 
         layout = ColumnLayout(ColumnOptions('left', size=ResponsiveSize(lg=6)),

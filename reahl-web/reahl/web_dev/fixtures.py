@@ -55,7 +55,7 @@ class ReahlWSGIApplicationStub(ReahlWSGIApplication):
 
 class BasicPageLayout(Layout):
     def __init__(self, slots=['main', 'footer']):
-        super(BasicPageLayout, self).__init__()
+        super().__init__()
         self.slots = slots
 
     def customise_widget(self):
@@ -70,12 +70,12 @@ class FakeQUnit(Library):
     """
     """
     def __init__(self):
-        super(FakeQUnit, self).__init__('fakequnit')
+        super().__init__('fakequnit')
         self.shipped_in_directory = '/reahl/web/static'
         self.files = []
 
     def footer_only_material(self, rendered_page):
-        result = super(FakeQUnit, self).footer_only_material(rendered_page)
+        result = super().footer_only_material(rendered_page)
         result += '\n<script type="text/javascript">\n'
         result += 'window.QUnit = true;'
         result += '\n</script>\n'

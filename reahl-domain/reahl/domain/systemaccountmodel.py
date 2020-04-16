@@ -139,7 +139,7 @@ class EmailAndPasswordSystemAccount(SystemAccount):
     email = Column(Unicode(254), nullable=False, unique=True, index=True) #: The email address of this account
 
     def __init__(self, **kwargs):
-        super(EmailAndPasswordSystemAccount, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.init_on_load()
 
     @reconstructor
@@ -375,7 +375,7 @@ class AccountManagementInterface(Base):
 class RepeatPasswordField(PasswordField):
     def __init__(self, other_field, default=None, required=False, required_message=None, label=None):
         label = label or _('')
-        super(RepeatPasswordField, self).__init__(default, required, required_message, label)
+        super().__init__(default, required, required_message, label)
         self.add_validation_constraint(EqualToConstraint(other_field))
         
         
@@ -468,7 +468,7 @@ class VerificationRequest(Requirement):
 
     def __init__(self, **kwargs):
         self.generate_salt()
-        super(VerificationRequest, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     def generate_salt(self):
         alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZqwertyuiopasdfghjklzxcvbnm0123456789'
@@ -559,7 +559,7 @@ class ActivateAccount(DeferredAction):
         config = ExecutionContext.get_context().config
         deadline = datetime.now() + timedelta(days=config.accounts.request_verification_timeout)
         self.system_account = system_account
-        super(ActivateAccount, self).__init__(deadline=deadline, **kwargs)
+        super().__init__(deadline=deadline, **kwargs)
 
     def success_action(self):
         self.system_account.activate()
@@ -584,7 +584,7 @@ class ChangeAccountEmail(DeferredAction):
         config = ExecutionContext.get_context().config
         deadline = datetime.now() + timedelta(days=config.accounts.request_verification_timeout)
         self.system_account = system_account
-        super(ChangeAccountEmail, self).__init__(requirements=requirements,
+        super().__init__(requirements=requirements,
                                                  deadline=deadline)
 
     @property

@@ -42,7 +42,7 @@ class ErrorPlacementFixture(Fixture):
         """The error is inserted as the very first element on the page"""
         class CustomPage(HTML5Page):
             def __init__(self, view):
-                super(CustomPage, self).__init__(view)
+                super().__init__(view)
                 self.body.add_child(P(view, 'the first paragraph on the page'))
         self.CustomPage = CustomPage
         self.expected_alert = XPath('div')[1].including_class('alert').inside_of(XPath.any('body'))
@@ -52,7 +52,7 @@ class ErrorPlacementFixture(Fixture):
         """The error is inserted as the very last element in the header of the page"""
         class CustomPage(HTML5Page):
             def __init__(self, view):
-                super(CustomPage, self).__init__(view)
+                super().__init__(view)
                 self.use_layout(PageLayout())
                 self.layout.header.add_child(P(view, 'this is the header'))
                 self.layout.contents.add_child(P(view, 'the first paragraph on the page'))

@@ -174,7 +174,7 @@ class A:
 class B(A):
     __slots__ = ('z',)
     def __init__(self):
-        super(B, self).__init__()
+        super().__init__()
 
 #now, if you used __slots__ thinking that, since 'c' is not in B.__slots__
 #  and that the code above would complain, you're in for a surprise...

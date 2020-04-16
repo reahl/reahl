@@ -49,11 +49,11 @@ class ContextAwareFixture(Fixture):
 
     def __enter__(self):
         self.context.install(lambda f: isinstance(f.f_locals.get('self', None), WithFixtureDecorator))
-        return super(ContextAwareFixture, self).__enter__()
+        return super().__enter__()
 
     def run_tear_down_actions(self):
         self.context.install()
-        return super(ContextAwareFixture, self).run_tear_down_actions()
+        return super().run_tear_down_actions()
 
 
 @scope('session')
@@ -189,7 +189,7 @@ class MonitoredInvocation:
 @stubclass(Executable)
 class ExecutableStub(Executable):
     def __init__(self, name='fake executable', stdout=''):
-        super(ExecutableStub, self).__init__(name)
+        super().__init__(name)
         self.calls = []
         self.stdout = stdout
 

@@ -117,7 +117,7 @@ class TagTypeTuple(tuple):
     """A tuple of (tag,type) with easy accessors for its elements."""
     def __new__(cls, arg):
         assert len(arg) == 2, 'Programming error: you must supply both tag and type'
-        return super(TagTypeTuple, cls).__new__(cls, arg)
+        return super().__new__(cls, arg)
     def tag(self):
         return self[0]
     def type(self):

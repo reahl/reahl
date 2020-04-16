@@ -61,7 +61,7 @@ class EasterEgg(pkg_resources.Distribution):
     """
     def __init__(self, name='test', location=None):
         self.metadata_provider = FileSystemResourceProvider(self)
-        super(EasterEgg, self).__init__(location=location or os.getcwd(),
+        super().__init__(location=location or os.getcwd(),
                                         project_name=name,
                                         version = '1.0',
                                         metadata=self.metadata_provider)
@@ -112,7 +112,7 @@ class EasterEgg(pkg_resources.Distribution):
 
     def activate(self, **kwargs):
         saved_path = sys.path[:]
-        super(EasterEgg, self).activate(**kwargs)
+        super().activate(**kwargs)
         self.added_paths = set(sys.path) - set(saved_path)
 
     def contains(self, module):

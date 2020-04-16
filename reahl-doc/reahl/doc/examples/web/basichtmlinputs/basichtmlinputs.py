@@ -77,7 +77,7 @@ class ModelObject:
 
 class ExampleForm(Form):
     def __init__(self, view, event_channel_name):
-        super(ExampleForm, self).__init__(view, event_channel_name)
+        super().__init__(view, event_channel_name)
         self.use_layout(FormLayout())
         model_object = ModelObject()
         self.layout.add_input(TextInput(self, model_object.fields.text_input_field))

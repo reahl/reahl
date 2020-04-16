@@ -32,7 +32,7 @@ from reahl.component.migration import MigrationRun
 
 class CouldNotFindDatabaseControlException(Exception):
     def __init__(self, url):
-        super(CouldNotFindDatabaseControlException, self).__init__(url)
+        super().__init__(url)
         self.url = url
 
 

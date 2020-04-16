@@ -29,7 +29,7 @@ from reahl.component.config import Configuration, ConfigSetting
 @stubclass(ExecutionContext)
 class LocaleContextStub(ExecutionContext):
     def __init__(self, locale='af'):
-        super(LocaleContextStub, self).__init__()
+        super().__init__()
         self.test_locale = locale
 
     @property
