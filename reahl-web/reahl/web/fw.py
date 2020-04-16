@@ -858,7 +858,7 @@ class Bookmark(object):
 class RedirectToScheme(HTTPSeeOther):
     def __init__(self, scheme):
         self.scheme = scheme
-        super(RedirectToScheme, self).__init__(location=ascii_as_bytes_or_str(str(self.compute_target_url())))
+        super(RedirectToScheme, self).__init__(location=str(self.compute_target_url()))
 
     def compute_target_url(self):
         context = ExecutionContext.get_context()
@@ -873,7 +873,7 @@ class Redirect(HTTPSeeOther):
     """
     def __init__(self, target):
         self.target = target
-        super(Redirect, self).__init__(location=ascii_as_bytes_or_str(str(self.compute_target_url())))
+        super(Redirect, self).__init__(location=str(self.compute_target_url()))
      
     def compute_target_url(self):
         return self.target.href.as_network_absolute()
@@ -2016,7 +2016,7 @@ class RedirectView(UrlBoundView):
         self.to_bookmark = to_bookmark
 
     def as_resource(self, page):
-        raise HTTPSeeOther(location=ascii_as_bytes_or_str(str(self.to_bookmark.href.as_network_absolute())))
+        raise HTTPSeeOther(location=str(self.to_bookmark.href.as_network_absolute()))
 
 
 class PseudoView(View):
@@ -2029,7 +2029,7 @@ class NoView(PseudoView):
 
 class UserInterfaceRootRedirectView(PseudoView):
     def as_resource(self, page):
-        raise HTTPSeeOther(location=ascii_as_bytes_or_str(str(self.user_interface.get_absolute_url_for('/').as_network_absolute())))
+        raise HTTPSeeOther(location=str(self.user_interface.get_absolute_url_for('/').as_network_absolute()))
     
 
 
@@ -2076,7 +2076,7 @@ class Resource(object):
 
     def handle_request(self, request):
         if request.method.lower() not in self.http_methods:
-            return HTTPMethodNotAllowed(headers={ascii_as_bytes_or_str('allow'): ascii_as_bytes_or_str(', '.join(self.http_methods))})
+            return HTTPMethodNotAllowed(headers={'allow': ', '.join(self.http_methods)})
 
         method_handler = getattr(self, 'handle_%s' % request.method.lower())
         return method_handler(request)
@@ -2210,8 +2210,8 @@ class MethodResult(object):
         """Override this in your subclass to create a :class:`webob.Response` for the given `return_value` which
            was returned when calling the RemoteMethod."""
         return Response(body=self.render(return_value), 
-                        charset=ascii_as_bytes_or_str(self.encoding),
-                        content_type=ascii_as_bytes_or_str(self.mime_type))
+                        charset=self.encoding,
+                        content_type=self.mime_type)
     
     def create_exception_response(self, exception):
         """Override this in your subclass to create a :class:`webob.Response` for the given `exception` instance
@@ -2220,8 +2220,8 @@ class MethodResult(object):
            was created.
         """
         return Response(body=self.render_exception(exception),
-                        charset=ascii_as_bytes_or_str(self.encoding),
-                        content_type=ascii_as_bytes_or_str(self.mime_type))
+                        charset=self.encoding,
+                        content_type=self.mime_type)
 
     def render(self, return_value):
         """Instead of overriding `.create_response` to customise how `return_value` will be reported, 
@@ -2237,16 +2237,16 @@ class MethodResult(object):
         if self.replay_request and not is_internal_redirect:
             raise RegenerateMethodResult(return_value, None)
         response = self.create_response(return_value)
-        response.content_type = ascii_as_bytes_or_str(self.mime_type)
-        response.charset = ascii_as_bytes_or_str(self.encoding)
+        response.content_type = self.mime_type
+        response.charset = self.encoding
         return response
 
     def get_exception_response(self, exception, is_internal_redirect):
         if self.replay_request and not is_internal_redirect:
             raise RegenerateMethodResult(None, exception)
         response = self.create_exception_response(exception)
-        response.content_type = ascii_as_bytes_or_str(self.mime_type)
-        response.charset = ascii_as_bytes_or_str(self.encoding)
+        response.content_type = self.mime_type
+        response.charset = self.encoding
         return response
 
 
@@ -2267,11 +2267,11 @@ class RedirectAfterPost(MethodResult):
 
     def create_response(self, return_value):
         next_url = return_value
-        return HTTPSeeOther(location=ascii_as_bytes_or_str(str(next_url)))
+        return HTTPSeeOther(location=str(next_url))
     
     def create_exception_response(self, exception):
         next_url = SubResource.get_parent_url()
-        return HTTPSeeOther(location=ascii_as_bytes_or_str(str(next_url)))
+        return HTTPSeeOther(location=str(next_url))
 
 
 class JsonResult(MethodResult):
@@ -2568,9 +2568,9 @@ class ComposedPage(Resource):
     def render(self):
         return Response(
             body=self.page.render(),
-            content_type=ascii_as_bytes_or_str(self.page.mime_type),
-            charset=ascii_as_bytes_or_str(self.page.encoding),
-            cache_control=ascii_as_bytes_or_str(self._response_cache_control()))
+            content_type=self.page.mime_type,
+            charset=self.page.encoding,
+            cache_control=self._response_cache_control())
 
     def _response_cache_control(self):
         if self.view.cacheable:
@@ -2771,13 +2771,13 @@ class FileDownload(Response):
     def __init__(self, a_file):
         self.file = a_file 
         super(FileDownload, self).__init__(app_iter=self, conditional_response=True)
-        self.content_type = ascii_as_bytes_or_str(self.file.mime_type) if self.file.mime_type else None
-        self.charset = ascii_as_bytes_or_str(self.file.encoding) if self.file.encoding else None
-        self.content_length = ascii_as_bytes_or_str(str(self.file.size)) if (self.file.size is not None) else None
+        self.content_type = self.file.mime_type if self.file.mime_type else None
+        self.charset = self.file.encoding if self.file.encoding else None
+        self.content_length = str(self.file.size) if (self.file.size is not None) else None
         self.last_modified = datetime.fromtimestamp(self.file.mtime)
-        self.etag = ascii_as_bytes_or_str(('%s-%s-%s' % (self.file.mtime,
+        self.etag = ('%s-%s-%s' % (self.file.mtime,
                                                          self.file.size, 
-                                                         abs(hash(self.file.name)))))
+                                                         abs(hash(self.file.name))))
 
     def __iter__(self):
         return self.app_iter_range(start=0)

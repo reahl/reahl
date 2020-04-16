@@ -173,7 +173,7 @@ def test_reading_cookies_on_initialising_a_session(web_fixture):
     user_session.set_last_activity_time()
     Session.add(user_session)
 
-    fixture.request.headers['Cookie'] = ascii_as_bytes_or_str('reahl=%s' % user_session.as_key())
+    fixture.request.headers['Cookie'] = 'reahl=%s' % user_session.as_key()
     UserSession.initialise_web_session_on(fixture.context)
 
     assert fixture.context.session is user_session
@@ -187,8 +187,8 @@ def test_reading_cookies_on_initialising_a_session(web_fixture):
     user_session.set_last_activity_time()
     Session.add(user_session)
 
-    fixture.request.headers['Cookie'] = ascii_as_bytes_or_str('reahl=%s , reahl_secure=%s' % \
-                                        (user_session.as_key(), user_session.secure_salt))
+    fixture.request.headers['Cookie'] = 'reahl=%s , reahl_secure=%s' % \
+                                        (user_session.as_key(), user_session.secure_salt)
     UserSession.initialise_web_session_on(fixture.context)
 
     assert fixture.context.session is user_session
@@ -201,8 +201,8 @@ def test_reading_cookies_on_initialising_a_session(web_fixture):
     user_session = UserSession()
     user_session.set_last_activity_time()
     Session.add(user_session)
-    fixture.request.headers['Cookie'] = ascii_as_bytes_or_str('reahl=%s , reahl_secure=%s' % \
-                                        (user_session.as_key(), user_session.secure_salt))
+    fixture.request.headers['Cookie'] = 'reahl=%s , reahl_secure=%s' % \
+                                        (user_session.as_key(), user_session.secure_salt)
 
     UserSession.initialise_web_session_on(fixture.context)
 

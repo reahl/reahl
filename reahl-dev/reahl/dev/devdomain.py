@@ -1712,7 +1712,7 @@ class EggProject(Project):
             with SetupMonitor() as monitor:
                 distribution = setup(script_name=script_name,
                      script_args=setup_command,
-                     name=ascii_as_bytes_or_str(self.project_name),
+                     name=self.project_name,
                      version=self.version_for_setup(),
                      description=self.get_description_for(self),
                      long_description=self.get_long_description_for(self),
@@ -1791,34 +1791,34 @@ class EggProject(Project):
             setup_file.write(')\n')
 
     def version_for_setup(self):
-        return ascii_as_bytes_or_str(str(self.version.as_upstream()))
+        return str(self.version.as_upstream())
 
     def run_deps_for_setup(self):
-        return [ascii_as_bytes_or_str(dep.as_string_for_egg()) for dep in self.run_deps]
+        return [dep.as_string_for_egg() for dep in self.run_deps]
 
     def build_deps_for_setup(self):
-        return [ascii_as_bytes_or_str(dep.as_string_for_egg()) for dep in self.build_deps]
+        return [dep.as_string_for_egg() for dep in self.build_deps]
 
     def test_deps_for_setup(self):
-        return [ascii_as_bytes_or_str(dep.as_string_for_egg()) for dep in self.test_deps]
+        return [dep.as_string_for_egg() for dep in self.test_deps]
 
     def packages_for_setup(self):
         exclusions = [i.name for i in self.excluded_packages]
         exclusions += ['%s.*' % i.name for i in self.excluded_packages]
         # Adding self.namespace_packages... is to work around https://github.com/pypa/setuptools/issues/97
         ns_packages = self.namespace_packages_for_setup()
-        packages = list(set([ascii_as_bytes_or_str(i) for i in find_packages(where=self.directory, exclude=exclusions)]+ns_packages))
+        packages = list(set([i for i in find_packages(where=self.directory, exclude=exclusions)]+ns_packages))
         packages.sort()
         return packages
 
     def namespace_packages_for_setup(self):
-        return [ascii_as_bytes_or_str(i.name) for i in self.namespaces]  # Note: this has to return non-str strings for setuptools!
+        return [i.name for i in self.namespaces]  # Note: this has to return non-str strings for setuptools!
 
     def py_modules_for_setup(self):
         return list(set([i[1] for i in pkgutil.iter_modules(['.']) if not i[2]])-{'setup'})
 
     def package_data_for_setup(self):
-        return {ascii_as_bytes_or_str(''): [ascii_as_bytes_or_str('*/LC_MESSAGES/*.mo')]}
+        return {'': ['*/LC_MESSAGES/*.mo']}
 
     @property
     def test_suite(self):

@@ -17,10 +17,6 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 
 
 
-def ascii_as_bytes_or_str(unicode_str):
-    return unicode_str
-
-
 def _html_escape_function():
     import html
     return html.escape
