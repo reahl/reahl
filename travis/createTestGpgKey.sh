@@ -21,8 +21,8 @@ EOF
 
 function import_gpg_keys () {
   from_dir=$1
-  gpg --import $from_dir/key.secret.asc --status-fd=2
-  gpg --import-ownertrust < $from_dir/trust.asc --status-fd=2
+  gpg --import $from_dir/key.secret.asc --status-fd 2
+  gpg --import-ownertrust < $from_dir/trust.asc --status-fd 2
 }
 
 rm -f ~/.gnupg/options ~/.gnupg/gpg.conf
