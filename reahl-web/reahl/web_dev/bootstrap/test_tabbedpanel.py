@@ -1,5 +1,4 @@
 # Copyright 2015-2018 Reahl Software Services (Pty) Ltd. All rights reserved.
-#-*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
 #
@@ -15,9 +14,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 
-import six
 
 from reahl.tofu import scenario, Fixture, uses
 from reahl.tofu.pytestsupport import with_fixtures
@@ -39,7 +36,7 @@ class   TabbedPanelAjaxFixture(Fixture):
     def new_PopulatedTabbedPanel(self):
         class PopulatedTabbedPanel(TabbedPanel):
             def __init__(self, view):
-                super(PopulatedTabbedPanel, self).__init__(view)
+                super().__init__(view)
                 multi_tab = MultiTab(view, 'multitab name', 'multi-main')
                 tab1 = Tab(view, 'tab 1 name', 'multi1', P.factory(text='tab 1/1 content'))
                 tab2 = Tab(view, 'tab 2 name', 'multi2', P.factory(text='tab 1/2 content'))

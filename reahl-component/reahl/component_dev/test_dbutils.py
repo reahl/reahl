@@ -1,5 +1,4 @@
 # Copyright 2016, 2017, 2018 Reahl Software Services (Pty) Ltd. All rights reserved.
-#-*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
 #
@@ -16,10 +15,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 
-import six
-from six.moves.urllib import parse as urllib_parse
+import urllib.parse
 
 from reahl.tofu import Fixture, expected, scenario
 from reahl.tofu.pytestsupport import with_fixtures
@@ -124,22 +121,13 @@ def test_database_control_url_safe_parts(dbcontrol_fixture):
     fixture = dbcontrol_fixture
 
     def quote(values):
-        return [urllib_parse.quote(i) for i in values]
+        return [urllib.parse.quote(i) for i in values]
 
-    if six.PY2:
-        expected_parts \
-            = [expected_user_name, expected_password, expected_host, expected_db] \
-            = [u'usêrname', u'p#=sword', u'hõst', u'd~t∀b^s∊']
-        #force the str, else it somehow becomes unicode in some interpreters: string is required for quote/unquote
-        utf_encoded_expected_parts = [i.encode('utf-8') for i in expected_parts]
-        uri = str('myprefix://%s:%s@%s:456/%s' % tuple(quote(utf_encoded_expected_parts)))
-        assert not set(expected_parts).intersection(quote(utf_encoded_expected_parts))
-    else:
-        expected_parts \
-            = [expected_user_name, expected_password, expected_host, expected_db] \
-            = ['usêrname', 'p#=sword', 'hõst', 'd~t∀b^s∊']
-        uri = 'myprefix://%s:%s@%s:456/%s' % tuple(quote(expected_parts))
-        assert not set(expected_parts).intersection(quote(expected_parts))
+    expected_parts \
+        = [expected_user_name, expected_password, expected_host, expected_db] \
+        = ['usêrname', 'p#=sword', 'hõst', 'd~t∀b^s∊']
+    uri = 'myprefix://%s:%s@%s:456/%s' % tuple(quote(expected_parts))
+    assert not set(expected_parts).intersection(quote(expected_parts))
 
     fixture.config.reahlsystem.connection_uri = uri
 

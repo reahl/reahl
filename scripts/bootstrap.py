@@ -14,12 +14,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import print_function, unicode_literals, absolute_import, division
-try:
-    from six.moves import input
-except:
-    if 'raw_input' in dir(__builtins__):
-        input = raw_input
+
 import sys
 import subprocess
 import pkg_resources

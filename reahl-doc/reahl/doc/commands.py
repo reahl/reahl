@@ -15,9 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 
-import six
 
 import os
 import shutil
@@ -28,7 +26,7 @@ import re
 from reahl.dev.devshell import WorkspaceCommand
 
 
-class CheckoutChanges(object):
+class CheckoutChanges:
     def __init__(self, example):
         self.example = example
         self.source_text_replacements = {}
@@ -56,7 +54,7 @@ class CheckoutChanges(object):
         return output_line
 
 
-class Example(object):
+class Example:
     @classmethod
     def get_all(cls):
         parent = pkg_resources.resource_filename('reahl.doc', 'examples')
@@ -114,9 +112,7 @@ class Example(object):
         try:
             return pkg_resources.resource_exists(self.containing_package, self.relative_path.replace(os.sep, '/'))
         except ImportError as ex:
-            if six.PY2 and str(ex).endswith(self.name):
-                return False
-            elif six.PY3 and ex.name == '.'.join([self.containing_package, self.name]):
+            if ex.name == '.'.join([self.containing_package, self.name]):
                 return False
             raise
 
@@ -192,7 +188,7 @@ class GetExample(WorkspaceCommand):
     keyword = 'example'
 
     def assemble(self):
-        super(GetExample, self).assemble()
+        super().assemble()
         self.parser.add_argument('-f', '--force-overwrite', action='store_true', dest='force', default=False,
                                  help='overwrite an existing example if in the way')
         self.parser.add_argument('example_name', help='the name of the wanted example')

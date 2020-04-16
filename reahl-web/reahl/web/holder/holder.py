@@ -1,5 +1,4 @@
 # Copyright 2015-2018 Reahl Software Services (Pty) Ltd. All rights reserved.
-# -*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
 #
@@ -21,7 +20,6 @@ Generate images on the fly.
 
 
 """
-from __future__ import print_function, unicode_literals, absolute_import, division
 
 from collections import OrderedDict
 
@@ -31,7 +29,7 @@ from reahl.web.ui import Img, HTMLAttributeValueOption
 
 class Theme(OrderedDict):
     def __init__(self):
-        super(Theme, self).__init__()
+        super().__init__()
 
 
 class PredefinedTheme(Theme):
@@ -41,7 +39,7 @@ class PredefinedTheme(Theme):
     :param theme_name: One of: 'sky', 'vine', 'lava', 'gray', 'industrial', or 'social'.
     """
     def __init__(self, theme_name):
-        super(PredefinedTheme, self).__init__()
+        super().__init__()
         theme_name_option = HTMLAttributeValueOption(theme_name, theme_name is not None,
                                                      constrain_value_to=['sky', 'vine', 'lava', 'gray', 'industrial', 'social'])
         self['theme'] = theme_name_option.as_html_snippet()
@@ -61,7 +59,7 @@ class CustomTheme(Theme):
     """
     def __init__(self, bg=None, fg=None, text_size=None, text_font=None, text_align=None, line_wrap=None, outline=None):
 
-        super(CustomTheme, self).__init__()
+        super().__init__()
 
         if bg is not None:
             self['bg'] = bg
@@ -93,7 +91,7 @@ class PlaceholderImage(Img):
     """
     def __init__(self, view, x, y, alt=None, text=None, theme=None):
 
-        super(PlaceholderImage, self).__init__(view, alt=alt)
+        super().__init__(view, alt=alt)
         image_url = Url('holder.js/%sx%s' % (x, y))
         options = theme or Theme()
         image_url.set_query_from(options)

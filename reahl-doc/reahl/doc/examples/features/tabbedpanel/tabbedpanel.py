@@ -1,4 +1,3 @@
-from __future__ import print_function, unicode_literals, absolute_import, division
 
 from reahl.web.fw import Widget, UserInterface
 from reahl.web.bootstrap.page import HTML5Page
@@ -8,7 +7,7 @@ from reahl.web.bootstrap.tabbedpanel import TabbedPanel, Tab
 
 class TabbedPanelExample(Widget):
     def __init__(self, view):
-        super(TabbedPanelExample, self).__init__(view)
+        super().__init__(view)
 
         tabbed_panel = self.add_child(TabbedPanel(view))
 
@@ -24,7 +23,7 @@ class TabbedPanelExample(Widget):
 
 class MyPage(HTML5Page):
     def __init__(self, view):
-        super(MyPage, self).__init__(view)
+        super().__init__(view)
         self.body.add_child(TabbedPanelExample(view))
 
 

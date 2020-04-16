@@ -1,6 +1,5 @@
 
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 import datetime
 
 from reahl.web.fw import UserInterface, Widget
@@ -23,7 +22,7 @@ _ = Catalogue('reahl-doc')
 
 class AddressBookPage(HTML5Page):
     def __init__(self, view):
-        super(AddressBookPage, self).__init__(view)
+        super().__init__(view)
         self.body.use_layout(Container())
 
         layout = ResponsiveLayout('md', colour_theme='dark', bg_scheme='primary')
@@ -37,7 +36,7 @@ class AddressBookPage(HTML5Page):
 
 class AddressForm(Form):
     def __init__(self, view):
-        super(AddressForm, self).__init__(view, 'address_form')
+        super().__init__(view, 'address_form')
 
         inputs = self.add_child(FieldSet(view, legend_text=_('Add an address')))
         inputs.use_layout(FormLayout())
@@ -52,7 +51,7 @@ class AddressForm(Form):
 
 class AddressBookPanel(Div):
     def __init__(self, view):
-        super(AddressBookPanel, self).__init__(view)
+        super().__init__(view)
 
         number_of_addresses = Session.query(Address).count()
         self.add_child(H(view, 1, text=_.ngettext('Address', 'Addresses', number_of_addresses)))
@@ -65,7 +64,7 @@ class AddressBookPanel(Div):
 
 class AddressBox(Widget):
     def __init__(self, view, address):
-        super(AddressBox, self).__init__(view)
+        super().__init__(view)
         formatted_date = babel.dates.format_date(address.added_date, locale=_.current_locale)
         self.add_child(P(view, text='%s: %s (%s)' % (address.name, address.email_address, formatted_date)))
 

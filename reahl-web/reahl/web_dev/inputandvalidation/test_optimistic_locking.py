@@ -15,8 +15,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from __future__ import print_function, unicode_literals, absolute_import, division
-import six
 
 from sqlalchemy import Column, Integer, UnicodeText
 
@@ -63,7 +61,7 @@ class OptimisticConcurrencyFixture(Fixture):
         fixture = self
         class MyForm(Form):
             def __init__(self, view):
-                super(MyForm, self).__init__(view, 'myform')
+                super().__init__(view, 'myform')
                 self.use_layout(FormLayout())
                 self.set_attribute('novalidate','novalidate')
 
@@ -72,7 +70,11 @@ class OptimisticConcurrencyFixture(Fixture):
 
                 self.layout.add_input(TextInput(self, fixture.model_object.fields.some_field))
                 self.define_event_handler(fixture.model_object.events.submit)
-                self.add_child(ButtonInput(self, fixture.model_object.events.submit))
+                submit_button = self.add_child(ButtonInput(self, fixture.model_object.events.submit))
+                submit_button.set_attribute('formnovalidate', 'formnovalidate') # TODO: the form's novalidate already does not, but somehow the browser still
+                                                                                #   validates the input and disables the button. May be because the browser
+                                                                                #   has cached javascript against our expectations because of a previous run?
+                                                                                # We need to clear the browser's cached files before each test.
                 self.define_event_handler(fixture.model_object.events.submit_break)
                 self.add_child(ButtonInput(self, fixture.model_object.events.submit_break))
         return MyForm
@@ -290,7 +292,7 @@ def test_optimistic_concurrency_forms(web_fixture, sql_alchemy_fixture, concurre
     fixture.show_form = True
     class FormContainer(Widget):
         def __init__(self, view):
-            super(FormContainer, self).__init__(view)
+            super().__init__(view)
             if fixture.show_form:
                 self.add_child(fixture.MyForm(view))
             
@@ -325,7 +327,7 @@ def test_optimistic_concurrency_forms(web_fixture, sql_alchemy_fixture, concurre
 
 class OptimisticConcurrencyWithAjaxFixture(OptimisticConcurrencyFixture):
     def new_ModelObject(self):
-        SuperModelObject = super(OptimisticConcurrencyWithAjaxFixture, self).new_ModelObject()
+        SuperModelObject = super().new_ModelObject()
         class ModelObject(SuperModelObject):
             some_trigger_field = Column(UnicodeText)
 
@@ -339,10 +341,10 @@ class OptimisticConcurrencyWithAjaxFixture(OptimisticConcurrencyFixture):
     def refresh_entire_form(self):
         self.refresh_expected_for_form = True
         fixture = self
-        SuperForm = super(OptimisticConcurrencyWithAjaxFixture, self).new_MyForm()
+        SuperForm = super().new_MyForm()
         class MyForm(SuperForm):
             def __init__(self, view):
-                super(MyForm, self).__init__(view)
+                super().__init__(view)
                 self.enable_refresh()
                 self.add_child(Div(view, css_id='inner_div'))
                 self.layout.add_input(TextInput(self, fixture.model_object.fields.some_trigger_field, refresh_widget=self))
@@ -352,10 +354,10 @@ class OptimisticConcurrencyWithAjaxFixture(OptimisticConcurrencyFixture):
     def refresh_only_a_part_of_the_form(self):
         self.refresh_expected_for_form = False
         fixture = self
-        SuperForm = super(OptimisticConcurrencyWithAjaxFixture, self).new_MyForm()
+        SuperForm = super().new_MyForm()
         class MyForm(SuperForm):
             def __init__(self, view):
-                super(MyForm, self).__init__(view)
+                super().__init__(view)
                 self.refreshing_div = self.add_child(Div(view, css_id='inner_div'))
                 self.refreshing_div.enable_refresh()
                 self.layout.add_input(TextInput(self, fixture.model_object.fields.some_trigger_field, refresh_widget=self.refreshing_div))

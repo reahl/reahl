@@ -1,5 +1,4 @@
 # Copyright 2016, 2017, 2018 Reahl Software Services (Pty) Ltd. All rights reserved.
-# -*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
 #
@@ -21,10 +20,8 @@ A Bootstrap Navbar is a header for a web application with all manner
 of useful content, including a navigation menu.
 
 """
-from __future__ import print_function, unicode_literals, absolute_import, division
 
 # noinspection PyUnresolvedReferences
-import six
 
 from reahl.component.exceptions import arg_checks, IsInstance, ProgrammerError
 
@@ -41,7 +38,7 @@ _ = Catalogue('reahl-web')
 
 class CollapseToggle(HTMLElement):
     def __init__(self, view, target_widget, text=None):
-        super(CollapseToggle, self).__init__(view, 'button', children_allowed=True)
+        super().__init__(view, 'button', children_allowed=True)
         self.set_attribute('type', 'button')
 
         self.target_widget = target_widget
@@ -61,25 +58,25 @@ class CollapseToggle(HTMLElement):
 
 class NavbarFixed(HTMLAttributeValueOption):
     def __init__(self, fixed_to):
-        super(NavbarFixed, self).__init__(fixed_to, fixed_to is not None, 
+        super().__init__(fixed_to, fixed_to is not None, 
                                           prefix='', constrain_value_to=['fixed-top', 'fixed-bottom', 'sticky-top'])
 
 
 class NavbarTogglerAlignment(HTMLAttributeValueOption):
     def __init__(self, alignment):
-        super(NavbarTogglerAlignment, self).__init__(alignment, alignment is not None,
+        super().__init__(alignment, alignment is not None,
                                                      prefix='navbar-toggler', constrain_value_to=['left', 'right'])
 
 
 class ColourTheme(HTMLAttributeValueOption):
     def __init__(self, name):
-        super(ColourTheme, self).__init__(name, name is not None, 
+        super().__init__(name, name is not None, 
                                           prefix='navbar', constrain_value_to=['light', 'dark'])
 
 
 class BackgroundScheme(HTMLAttributeValueOption):
     def __init__(self, name):
-        super(BackgroundScheme, self).__init__(name, name is not None, 
+        super().__init__(name, name is not None, 
                                                prefix='bg', constrain_value_to=['primary', 'dark', 'light'])
 
 
@@ -94,7 +91,7 @@ class NavbarLayout(Layout):
                         or a 'light' background.
     """
     def __init__(self, fixed_to=None, center_contents=False, colour_theme=None, bg_scheme=None):
-        super(NavbarLayout, self).__init__()
+        super().__init__()
 
         self.fixed = NavbarFixed(fixed_to)
         self.center_contents = center_contents
@@ -109,7 +106,7 @@ class NavbarLayout(Layout):
         return self.widget.html_representation
 
     def customise_widget(self):
-        super(NavbarLayout, self).customise_widget()
+        super().customise_widget()
         if self.center_contents:
             centering_div = self.nav.add_child(Div(self.view).use_layout(Container()))
             self.contents_container = centering_div
@@ -206,7 +203,7 @@ class ResponsiveLayout(NavbarLayout):
     def __init__(self, collapse_below_device_class, center_contents=False, fixed_to=None, align_toggle_left=False,
                  collapse_brand_with_content=False,
                  colour_theme=None, bg_scheme=None, text=None):
-        super(ResponsiveLayout, self).__init__(fixed_to=fixed_to, center_contents=center_contents,
+        super().__init__(fixed_to=fixed_to, center_contents=center_contents,
                                                colour_theme=colour_theme, bg_scheme=bg_scheme)
         self.collapse_below_device_class = DeviceClass(collapse_below_device_class)
         self.collapse_brand_with_content = collapse_brand_with_content
@@ -225,13 +222,13 @@ class ResponsiveLayout(NavbarLayout):
         else:
             # getting in here also means self.contents_container is NOT the centering_div as it would be in the other leg
             if self.align_toggle_left:
-                super(ResponsiveLayout, self).insert_brand_widget(brand_html_element)
+                super().insert_brand_widget(brand_html_element)
             else:
                 self.main_container.insert_child(0, brand_html_element)
 
 
     def customise_widget(self):
-        super(ResponsiveLayout, self).customise_widget()
+        super().customise_widget()
         if not self.widget.css_id_is_set:
             raise ProgrammerError('%s has no css_id set. A %s can only be used with a Widget that has a css_id' %
                                   (self.widget, self.__class__))
@@ -263,7 +260,7 @@ class Navbar(HTMLWidget):
     :keyword css_id: (See :class:`reahl.web.fw.Widget`)
     """
     def __init__(self, view, css_id=None):
-        super(Navbar, self).__init__(view)
+        super().__init__(view)
 
         self.navbar = self.add_child(Nav(view))
         self.navbar.append_class('navbar')

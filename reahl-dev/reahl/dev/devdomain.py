@@ -15,9 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """This module houses the main classes used to understand and manipulate Reahl projects in development."""
-from __future__ import print_function, unicode_literals, absolute_import, division
 
-import six
 import os
 import io
 import sys
@@ -45,7 +43,6 @@ from reahl.component.shelltools import Executable
 from reahl.dev.xmlreader import XMLReader, TagNotRegisteredException
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.eggs import ReahlEgg
-from reahl.component.py3compat import ascii_as_bytes_or_str
 
 from reahl.dev.exceptions import NoException, StatusException, AlreadyUploadedException, NotAValidProjectException, \
     InvalidProjectFileException, NotUploadedException, NotVersionedException, NotCheckedInException, \
@@ -66,7 +63,7 @@ class EggNotFound(Exception):
     pass
 
 
-class Git(object):
+class Git:
     def __init__(self, directory):
         self.directory = directory
 
@@ -77,11 +74,7 @@ class Git(object):
                 Executable('git').check_call('log -r -1 --pretty="%ci"'.split(), cwd=self.directory, stdout=out, stderr=DEVNULL)
                 out.seek(0)
                 [timestamp] = [line.replace('\n','') for line in out]
-        if six.PY2:
-            import dateutil.parser
-            return dateutil.parser.parse(timestamp[1:-1]) 
-        else:
-            return datetime.datetime.strptime(timestamp, '"%Y-%m-%d %H:%M:%S %z"')
+        return datetime.datetime.strptime(timestamp, '"%Y-%m-%d %H:%M:%S %z"')
 
     def is_version_controlled(self):
         return self.uses_git()
@@ -125,7 +118,7 @@ class Git(object):
         return return_code == 0
 
 
-class DistributionPackage(object):
+class DistributionPackage:
     """A DistributionPackage is a package that may be built for distribution."""
     def __init__(self, project):
         self.project = project
@@ -316,7 +309,7 @@ class DebianPackage(DistributionPackage):
         pass
 
 
-class RepositoryLocalState(object):
+class RepositoryLocalState:
     """Used by Repository objects to keep track locally of what packages have been uploaded to the Repository."""
     def __init__(self, repository):
         self.repository = repository
@@ -346,7 +339,7 @@ class RepositoryLocalState(object):
         f.close()
 
 
-class RemoteRepository(object):
+class RemoteRepository:
     """A place where packages can be released to."""
     def __init__(self):
         self.local_storage = RepositoryLocalState(self)
@@ -393,10 +386,10 @@ class PackageIndex(RemoteRepository):
 
     def inflate_attributes(self, reader, attributes, parent):
         self.__init__(parent.project.workspace,
-                      six.text_type(attributes['repository']))
+                      str(attributes['repository']))
 
     def __init__(self, workspace, repository):
-        super(PackageIndex, self).__init__()
+        super().__init__()
         self.workspace = workspace
         self.repository = repository
 
@@ -422,12 +415,12 @@ class SshRepository(RemoteRepository):
 
     def inflate_attributes(self, reader, attributes, parent):
         self.__init__(parent.project.workspace,
-                      six.text_type(attributes['host']),
-                      six.text_type(attributes.get('login', os.environ.get('USER', ''))) or None,
-                      six.text_type(attributes['destination']) or None)
+                      str(attributes['host']),
+                      str(attributes.get('login', os.environ.get('USER', ''))) or None,
+                      str(attributes['destination']) or None)
 
     def __init__(self, workspace, host, login, destination):
-        super(SshRepository, self).__init__()
+        super().__init__()
         self.workspace = workspace
         self.host = host
         self.login = login or ''
@@ -447,7 +440,7 @@ class SshRepository(RemoteRepository):
         return file_unsafe_id.replace(os.sep, '-')
 
 
-class LocalRepository(object):
+class LocalRepository:
     def __init__(self, root_directory):
         self.root_directory = root_directory
         self.ensure_directory(root_directory)
@@ -500,7 +493,7 @@ class LocalAptRepository(LocalRepository):
         Executable('gpg').check_call(['-abs', '--yes', '-o', 'Release.gpg', 'Release'], cwd=self.root_directory)
 
 
-class EntryPointExport(object):
+class EntryPointExport:
     @classmethod
     def get_xml_registration_info(cls):
         return ('export', cls, None)
@@ -526,7 +519,7 @@ class ScriptExport(EntryPointExport):
         return ('script', cls, None)
 
     def __init__(self, name, locator_string):
-        super(ScriptExport, self).__init__('console_scripts', name, locator_string)
+        super().__init__('console_scripts', name, locator_string)
 
     def inflate_attributes(self, reader, attributes, parent):
         assert 'name' in attributes, 'No name specified'
@@ -536,7 +529,7 @@ class ScriptExport(EntryPointExport):
 
 class ReahlEggExport(EntryPointExport):
     def __init__(self, locator_string):
-        super(ReahlEggExport, self).__init__('reahl.eggs', 'Egg', locator_string)
+        super().__init__('reahl.eggs', 'Egg', locator_string)
 
     def inflate_attributes(self, reader, attributes, parent):
         assert 'locator' in attributes, 'No locator specified'
@@ -549,7 +542,7 @@ class TranslationPackage(EntryPointExport):
         return ('translations', cls, None)
 
     def __init__(self, name, locator_string):
-        super(TranslationPackage, self).__init__('reahl.translations', name, locator_string)
+        super().__init__('reahl.translations', name, locator_string)
 
     def inflate_attributes(self, reader, attributes, parent):
         assert 'locator' in attributes, 'No locator specified'
@@ -561,7 +554,7 @@ class TranslationPackage(EntryPointExport):
         return self.locator.package_path
 
 
-class ExcludedPackage(object):
+class ExcludedPackage:
     @classmethod
     def get_xml_registration_info(cls):
         return ('excludepackage', cls, None)
@@ -574,7 +567,7 @@ class ExcludedPackage(object):
         self.__init__(attributes['name'])
 
 
-class Version(object):
+class Version:
     def __init__(self, version_string):
         match = re.match('^(?P<major>\d+)\.(?P<minor>\d+)(\.(?P<patch>[0-9a-zA-Z]+)((?P<other>[^-]+)?)(-(?P<debian_rev>.*))?)?$', version_string)
         self.major = match.group('major')
@@ -602,7 +595,7 @@ class Version(object):
         return not re.match('^\d+$', self.patch)
 
     def upper_version(self):
-        return Version('.'.join([self.major, six.text_type(int(self.minor)+1)]))
+        return Version('.'.join([self.major, str(int(self.minor)+1)]))
 
     def lower_deb_version(self):
         return self.truncated()
@@ -616,7 +609,7 @@ class Version(object):
         return Version('.'.join([self.major, self.minor]+([self.patch] if self.patch else [])))
 
 
-class Dependency(object):
+class Dependency:
     def __init__(self, project, name, version=None, ignore_version=False):
         self.project = project
         self.name = name
@@ -689,7 +682,7 @@ class Dependency(object):
 
 class ThirdpartyDependency(Dependency):
     def __init__(self, project, name, min_version=None, max_version=None):
-        super(ThirdpartyDependency, self).__init__(project, name, version=min_version)
+        super().__init__(project, name, version=min_version)
         self.max_version = Version(max_version) if max_version else None
 
     def inflate_attributes(self, reader, attributes, parent):
@@ -721,7 +714,7 @@ class ThirdpartyDependency(Dependency):
 class XMLDependencyList(list):
     "Purely for reading related dependencies from XML."""
     def __init__(self, project, purpose):
-        super(XMLDependencyList, self).__init__()
+        super().__init__()
         self.workspace = project.workspace
         self.project = project
         self.purpose = purpose
@@ -742,7 +735,7 @@ class XMLDependencyList(list):
 class ExtrasList(list):
     "Purely for reading extras dependencies from XML."""
     def __init__(self, project, name):
-        super(ExtrasList, self).__init__()
+        super().__init__()
         self.workspace = project.workspace
         self.project = project
         self.name = name
@@ -762,7 +755,7 @@ class ExtrasList(list):
 
 class ConfigurationSpec(EntryPointExport):
     def __init__(self, locator_string):
-        super(ConfigurationSpec, self).__init__('reahl.configspec', 'config', locator_string)
+        super().__init__('reahl.configspec', 'config', locator_string)
 
     @classmethod
     def get_xml_registration_info(cls):
@@ -775,7 +768,7 @@ class ConfigurationSpec(EntryPointExport):
 
 class ScheduledJobSpec(EntryPointExport):
     def __init__(self, locator_string):
-        super(ScheduledJobSpec, self).__init__('reahl.scheduled_jobs', locator_string, locator_string)
+        super().__init__('reahl.scheduled_jobs', locator_string, locator_string)
 
     @classmethod
     def get_xml_registration_info(cls):
@@ -786,7 +779,7 @@ class ScheduledJobSpec(EntryPointExport):
         self.__init__(attributes['locator'])
 
 
-class OrderedPersistedClass(object):
+class OrderedPersistedClass:
     def __init__(self, locator_string, order, entry_point):
         self.entry_point = entry_point
         self.locator = EntryPointLocator(locator_string)
@@ -794,7 +787,7 @@ class OrderedPersistedClass(object):
 
     @property
     def name(self):
-        return six.text_type(self.order)
+        return str(self.order)
 
     @classmethod
     def get_xml_registration_info(cls):
@@ -837,7 +830,7 @@ class MigrationList(OrderedClassesList):
         return ('migrations', cls, None)
 
 
-class EntryPointLocator(object):
+class EntryPointLocator:
     def __init__(self, string_spec):
         self.string_spec = string_spec
     @property
@@ -851,7 +844,7 @@ class EntryPointLocator(object):
         return self.string_spec.split(':')[-1]
 
 
-class NamespaceEntry(object):
+class NamespaceEntry:
     def __init__(self, name):
         self.name = name
 
@@ -878,13 +871,13 @@ class NamespaceList(list):
         self.append(child)
 
 
-class NoBasket(object):
+class NoBasket:
     def __init__(self, workspace):
         self.workspace = workspace
         self.project_name = 'NO BASKET'
 
 
-class ExtraPath(object):
+class ExtraPath:
     @classmethod
     def get_xml_registration_info(cls):
         return ('pythonpath', cls, None)
@@ -898,7 +891,7 @@ class ExtraPath(object):
 
 
 
-class ProjectTag(object):
+class ProjectTag:
     @classmethod
     def get_xml_registration_info(cls):
         return ('tag', cls, None)
@@ -912,7 +905,7 @@ class ProjectTag(object):
 
 
 
-class ProjectMetadata(object):
+class ProjectMetadata:
     def __str__(self):
         return 'Default project metadata provider'
 
@@ -972,7 +965,7 @@ class ProjectMetadata(object):
 
 
 
-class MetaInfo(object):
+class MetaInfo:
     @classmethod
     def get_xml_registration_info(cls):
         return ('info', cls, None)
@@ -990,7 +983,7 @@ class MetaInfo(object):
 
 class HardcodedMetadata(ProjectMetadata):
     def __init__(self, parent):
-        super(HardcodedMetadata, self).__init__(parent)
+        super().__init__(parent)
         self.info = {}
 
     def __str__(self):
@@ -1016,7 +1009,7 @@ class HardcodedMetadata(ProjectMetadata):
         try:
             return self.info['project_name'].contents
         except KeyError:
-            return super(HardcodedMetadata, self).project_name
+            return super().project_name
 
     def get_long_description_for(self, project):
         return self.info['long_description'].contents
@@ -1047,7 +1040,7 @@ class HardcodedMetadata(ProjectMetadata):
 
 class DebianPackageMetadata(ProjectMetadata):
     def __init__(self, parent, url=None):
-        super(DebianPackageMetadata, self).__init__(parent)
+        super().__init__(parent)
         self.url = url
 
     def __str__(self):
@@ -1083,7 +1076,7 @@ class DebianPackageMetadata(ProjectMetadata):
 
     @property
     def version(self):
-        return Version(six.text_type(self.changelog.version))
+        return Version(str(self.changelog.version))
 
     def get_long_description_for(self, project):
         return self.debian_control.get_long_description_for('python-%s' % project.project_name).replace(' . ', '\n\n')
@@ -1145,7 +1138,7 @@ class DebianPackageMetadata(ProjectMetadata):
         return 0
 
 
-class DebianChangelog(object):
+class DebianChangelog:
     package_name_regex = '(?P<package_name>[a-z][a-z0-9\-]*)'
     version_regex = '\((?P<version>[a-zA-Z\.0-9\-]+)\)'
     heading_regex = '^%s\s+%s.*$' % (package_name_regex, version_regex)
@@ -1170,7 +1163,7 @@ class DebianChangelog(object):
         return self.parse_heading_for('version')
 
 
-class DebianControl(object):
+class DebianControl:
     def __init__(self, filename):
         self.filename = filename
 
@@ -1220,10 +1213,10 @@ class DebianControl(object):
 
 
 
-class SourceControlSystem(object):
+class SourceControlSystem:
     def __str__(self):
         if self.project.chicken_project:
-            return six.text_type(self.project.chicken_project.source_control)
+            return str(self.project.chicken_project.source_control)
         return 'No source control system selected'
 
     def __init__(self, project):
@@ -1275,7 +1268,7 @@ class GitSourceControl(SourceControlSystem):
         self.__init__(parent)
 
     def __init__(self, parent):
-        super(GitSourceControl, self).__init__(parent)
+        super().__init__(parent)
         self.git = Git(self.project.directory)
 
     @property
@@ -1283,11 +1276,11 @@ class GitSourceControl(SourceControlSystem):
         return self.git.last_commit_time
 
     def is_unchanged(self):
-        tag = six.text_type(self.project.version)
+        tag = str(self.project.version)
         return tag in self.git.get_tags(head_only=True)
 
     def needs_new_version(self):
-        tag = six.text_type(self.project.version)
+        tag = str(self.project.version)
         return tag in self.git.get_tags()
 
     def is_version_controlled(self):
@@ -1300,7 +1293,7 @@ class GitSourceControl(SourceControlSystem):
         self.git.tag(tag)
 
 
-class Project(object):
+class Project:
     """Instances of Project each represent a Reahl project in a development environment.
     """
     has_children = False
@@ -1503,16 +1496,16 @@ class Project(object):
     def mark_as_released(self):
         self.do_release_checks()
         self.check_uploaded()
-        self.source_control.place_tag(six.text_type(self.version))
+        self.source_control.place_tag(str(self.version))
 
 
 class SetupCommandFailed(Exception):
     def __init__(self, command):
-        super(SetupCommandFailed, self).__init__(command)
+        super().__init__(command)
         self.command = command
 
 
-class SetupMonitor(object):
+class SetupMonitor:
     def __init__(self):
         self.captured_stdout = []
 
@@ -1575,7 +1568,7 @@ class SetupMonitor(object):
 class EggProject(Project):
     basket_name = None
     def __init__(self, workspace, directory, include_package_data):
-        super(EggProject, self).__init__(workspace, directory)
+        super().__init__(workspace, directory)
         self.namespaces = []
         self.explicitly_specified_entry_points = []
         self.excluded_packages = []
@@ -1613,7 +1606,7 @@ class EggProject(Project):
         extras = ['component']
         if not self.chicken_project:
             extras.append('toplevel')
-        return super(EggProject, self).tags + extras
+        return super().tags + extras
 
     @property
     def chicken_project(self):
@@ -1670,7 +1663,7 @@ class EggProject(Project):
         elif isinstance(child, ScheduledJobSpec):
             self.scheduled_jobs.append(child)
         else:
-            super(EggProject, self).inflate_child(reader, child, tag, parent)
+            super().inflate_child(reader, child, tag, parent)
 
     @property
     def basket(self):
@@ -1717,7 +1710,7 @@ class EggProject(Project):
             with SetupMonitor() as monitor:
                 distribution = setup(script_name=script_name,
                      script_args=setup_command,
-                     name=ascii_as_bytes_or_str(self.project_name),
+                     name=self.project_name,
                      version=self.version_for_setup(),
                      description=self.get_description_for(self),
                      long_description=self.get_long_description_for(self),
@@ -1796,34 +1789,34 @@ class EggProject(Project):
             setup_file.write(')\n')
 
     def version_for_setup(self):
-        return ascii_as_bytes_or_str(six.text_type(self.version.as_upstream()))
+        return str(self.version.as_upstream())
 
     def run_deps_for_setup(self):
-        return [ascii_as_bytes_or_str(dep.as_string_for_egg()) for dep in self.run_deps]
+        return [dep.as_string_for_egg() for dep in self.run_deps]
 
     def build_deps_for_setup(self):
-        return [ascii_as_bytes_or_str(dep.as_string_for_egg()) for dep in self.build_deps]
+        return [dep.as_string_for_egg() for dep in self.build_deps]
 
     def test_deps_for_setup(self):
-        return [ascii_as_bytes_or_str(dep.as_string_for_egg()) for dep in self.test_deps]
+        return [dep.as_string_for_egg() for dep in self.test_deps]
 
     def packages_for_setup(self):
         exclusions = [i.name for i in self.excluded_packages]
         exclusions += ['%s.*' % i.name for i in self.excluded_packages]
         # Adding self.namespace_packages... is to work around https://github.com/pypa/setuptools/issues/97
         ns_packages = self.namespace_packages_for_setup()
-        packages = list(set([ascii_as_bytes_or_str(i) for i in find_packages(where=self.directory, exclude=exclusions)]+ns_packages))
+        packages = list(set([i for i in find_packages(where=self.directory, exclude=exclusions)]+ns_packages))
         packages.sort()
         return packages
 
     def namespace_packages_for_setup(self):
-        return [ascii_as_bytes_or_str(i.name) for i in self.namespaces]  # Note: this has to return non-six.text_type strings for setuptools!
+        return [i.name for i in self.namespaces]  # Note: this has to return non-str strings for setuptools!
 
     def py_modules_for_setup(self):
         return list(set([i[1] for i in pkgutil.iter_modules(['.']) if not i[2]])-{'setup'})
 
     def package_data_for_setup(self):
-        return {ascii_as_bytes_or_str(''): [ascii_as_bytes_or_str('*/LC_MESSAGES/*.mo')]}
+        return {'': ['*/LC_MESSAGES/*.mo']}
 
     @property
     def test_suite(self):
@@ -1961,7 +1954,7 @@ class ChickenProject(EggProject):
 
     @property
     def tags(self):
-        return super(ChickenProject, self).tags + ['toplevel']
+        return super().tags + ['toplevel']
 
 
     def packages_for_setup(self):
@@ -1993,7 +1986,7 @@ class ProjectList(list):
     """A list of Projects, allowing a number of operations on such a list. These include saving the list to disk."""
 
     def __init__(self, workspace):
-        super(ProjectList, self).__init__()
+        super().__init__()
         self.workspace = workspace
         self.name_index = {}  # The dict is used to speed up queries (see project_named)
 
@@ -2001,7 +1994,7 @@ class ProjectList(list):
         assert ignore_duplicates or something.project_name not in self.name_index, 'Attempt to add duplicate project to project list'
         if something.project_name not in self.name_index:
             self.name_index[something.project_name] = something
-            super(ProjectList, self).append(something)
+            super().append(something)
 
     def project_in(self, directory):
         full_path = os.path.normpath(directory)
@@ -2087,7 +2080,7 @@ class ProjectList(list):
         return selection
 
 
-class Workspace(object):
+class Workspace:
     """A Workspace logically contains several Projects in development. It facilitates issuing operations on sets
     of Projects, and administers the results.
 
@@ -2216,7 +2209,7 @@ class Workspace(object):
 
 class SubstvarsFile(list):
     def __init__(self, filename):
-        super(SubstvarsFile, self).__init__()
+        super().__init__()
         self.filename = filename
 
     def read(self):

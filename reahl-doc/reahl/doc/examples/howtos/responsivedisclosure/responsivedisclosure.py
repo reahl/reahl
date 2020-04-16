@@ -15,7 +15,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 
 from reahl.component.modelinterface import exposed, Field, Event, Action, Choice, ChoiceField, IntegerField, BooleanField
 from reahl.component.exceptions import DomainException
@@ -45,7 +44,7 @@ class ResponsiveUI(UserInterface):
 
 class NewInvestmentForm(Form):
     def __init__(self, view):
-        super(NewInvestmentForm, self).__init__(view, 'new_investment_form')
+        super().__init__(view, 'new_investment_form')
         self.enable_refresh()
         self.use_layout(FormLayout())
 
@@ -65,7 +64,7 @@ class NewInvestmentForm(Form):
 
 class InvestorDetailsSection(Div):
     def __init__(self, form, investment_order):
-        super(InvestorDetailsSection, self).__init__(form.view, css_id='investor_details_section')
+        super().__init__(form.view, css_id='investor_details_section')
         self.enable_refresh()
         self.use_layout(FormLayout())
 
@@ -87,7 +86,7 @@ class InvestorDetailsSection(Div):
 
 class IDDocumentSection(FieldSet):
     def __init__(self, form, id_document):
-        super(IDDocumentSection, self).__init__(form.view, legend_text='New investor information', css_id='id_document_section')
+        super().__init__(form.view, legend_text='New investor information', css_id='id_document_section')
         self.enable_refresh()
         self.use_layout(FormLayout())
 
@@ -104,7 +103,7 @@ class IDDocumentSection(FieldSet):
 
 class AllocationDetailSection(Div):
     def __init__(self, form, investment_order):
-        super(AllocationDetailSection, self).__init__(form.view, css_id='investment_allocation_details')
+        super().__init__(form.view, css_id='investment_allocation_details')
         self.form = form
         self.use_layout(FormLayout())
 
@@ -194,7 +193,7 @@ class InvestmentOrder(Base):
         events.allocation_changed = Event(action=Action(self.recalculate))
 
     def __init__(self, **kwargs):
-        super(InvestmentOrder, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.amount_or_percentage = 'percentage'
         self.name = None
         self.surname = None
@@ -269,7 +268,7 @@ class Allocation(Base):
         fields.amount        = IntegerField(label='Amount', required=True, writable=lambda field: self.is_in_amount)
 
     def __init__(self, investment_order, fund_name):
-        super(Allocation, self).__init__(investment_order=investment_order)
+        super().__init__(investment_order=investment_order)
         self.fund = fund_name
         self.amount = 0
         self.percentage = 0

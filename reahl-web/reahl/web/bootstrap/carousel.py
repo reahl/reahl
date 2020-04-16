@@ -1,5 +1,4 @@
 # Copyright 2015-2018 Reahl Software Services (Pty) Ltd. All rights reserved.
-#-*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
 #
@@ -22,9 +21,7 @@ Carousel presents a slideshow of Widgets with captions on each slide.
 
 
 """
-from __future__ import print_function, unicode_literals, absolute_import, division
 
-import six
 from reahl.web.fw import Widget, Url
 from reahl.web.ui import HTMLAttributeValueOption, HTMLElement, Img
 from reahl.web.bootstrap.ui import Div, A, Span, Li, Ol, TextNode
@@ -35,7 +32,7 @@ _ = Catalogue('reahl-web')
 
 class Slide(Div):
     def __init__(self, view, widget, caption_widget, index):
-        super(Slide, self).__init__(view)
+        super().__init__(view)
         self.index = index
         self.append_class('carousel-item')
         self.add_child(widget)
@@ -80,13 +77,13 @@ class Carousel(Widget):
              is an int denoting a height in terms of the size of the font of the contents (em). 
     """
     def __init__(self, view, css_id, show_indicators=True, interval=5000, pause='hover', wrap=True, keyboard=True, min_height=None):
-        super(Carousel, self).__init__(view)
+        super().__init__(view)
         self.carousel_panel = self.add_child(Div(view, css_id=css_id))
         self.carousel_panel.append_class('carousel')
         self.carousel_panel.append_class('slide')
         self.carousel_panel.set_attribute('data-ride', 'carousel')
 
-        self.carousel_panel.set_attribute('data-interval', six.text_type(interval))
+        self.carousel_panel.set_attribute('data-interval', str(interval))
         pause_option = HTMLAttributeValueOption(pause or 'false', True, constrain_value_to=['hover', 'false'])
         self.carousel_panel.set_attribute('data-pause', pause_option.as_html_snippet())
         self.carousel_panel.set_attribute('data-wrap', 'true' if wrap else 'false')
@@ -153,7 +150,7 @@ class Carousel(Widget):
 
     def add_indicator_for(self, item):
         li = self.indicator_list.add_child(Li(self.view))
-        li.set_attribute('data-target', six.text_type(self.url))
+        li.set_attribute('data-target', str(self.url))
         li.set_attribute('data-slide-to', '%s' % item.index)
         if item.is_active:
             li.append_class('active')

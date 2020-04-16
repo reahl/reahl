@@ -14,14 +14,13 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 
 import pytest
 from reahl.stubble import Delegate, stubclass, exempt
 
 @pytest.fixture
 def stubbed_class():
-    class Stubbed(object):
+    class Stubbed:
         def method1(self): pass
         def method2(self): self.method1()
         attr1 = object()

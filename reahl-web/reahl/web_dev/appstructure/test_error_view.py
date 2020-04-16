@@ -14,7 +14,6 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 
 from reahl.tofu.pytestsupport import with_fixtures
 from reahl.tofu import Fixture, scenario
@@ -39,7 +38,7 @@ class ErrorLocationFixture(Fixture):
     def broken_during_widget_creation(self):
         class BreakingWidget(Widget):
             def __init__(self, view):
-                super(BreakingWidget, self).__init__(view)
+                super().__init__(view)
                 raise Exception('breaking intentionally during __init__')
         self.BreakingWidget = BreakingWidget
 
@@ -115,7 +114,7 @@ class ErrorDegradeFixture(Fixture):
         """Force the use of a specific error page by calling UserInterface.define_error_view() explicitly"""
         class CustomErrorPage(HTML5Page):
             def __init__(self, view):
-                super(CustomErrorPage, self).__init__(view)
+                super().__init__(view)
                 error_widget = self.body.insert_child(0, ErrorWidget(view))
                 error_widget.add_child(H(view, 1, text='My custom error page'))
                 error_widget.add_child(P(view, text=error_widget.error_message))

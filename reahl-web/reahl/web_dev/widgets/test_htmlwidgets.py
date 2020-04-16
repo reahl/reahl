@@ -1,5 +1,4 @@
 # Copyright 2013-2018 Reahl Software Services (Pty) Ltd. All rights reserved.
-#-*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
 #
@@ -16,7 +15,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 
 
 from reahl.tofu import scenario, Fixture, expected, uses
@@ -87,7 +85,7 @@ def test_dynamically_determining_attributes(web_fixture):
         state = '1'
         @property
         def attributes(self):
-            attributes = super(WidgetWithDynamicAttributes, self).attributes
+            attributes = super().attributes
             attributes.set_to('dynamic', self.state)
             attributes.add_to('dynamiclist', [self.state])
             attributes.add_to('not-there', ['a value'])

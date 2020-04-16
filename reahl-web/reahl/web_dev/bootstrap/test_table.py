@@ -1,5 +1,4 @@
 # Copyright 2016, 2017, 2018 Reahl Software Services (Pty) Ltd. All rights reserved.
-#-*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
 #
@@ -16,9 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 
-import six
 
 from reahl.stubble import stubclass
 from reahl.tofu import scenario, Fixture, expected, NoException
@@ -158,7 +155,7 @@ class DataTableFixture(TableFixture):
         fixture = self
         class MainWidget(Div):
             def __init__(self, view):
-                super(MainWidget, self).__init__(view)
+                super().__init__(view)
 
                 data_table = DataTable(view, fixture.columns, fixture.data,
                                        items_per_page=fixture.items_per_page,

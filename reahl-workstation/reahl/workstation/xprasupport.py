@@ -25,12 +25,11 @@ import contextlib
 import itertools
 import collections
 
-from six.moves import cStringIO
 
 from reahl.component.shelltools import Command, Executable, CompositeCommand
 
 
-class VagrantMachine(object):
+class VagrantMachine:
     def __init__(self, machine_name):
         self.machine_name = machine_name
 
@@ -57,7 +56,7 @@ class VagrantMachine(object):
         return list(itertools.chain.from_iterable([['-o', '%s=%s' % (name, value)] for name, value in config_dict.items()]))
 
 
-class EndPoint(object):
+class EndPoint:
     def __init__(self, display, ssh_to=None, ssh_arguments=None):
         self.display = display
         self.ssh_to = ssh_to
@@ -80,7 +79,7 @@ class EndPoint(object):
         return [self.ssh_to] + self.ssh_arguments     
 
 
-class Xpra(object):
+class Xpra:
     def __init__(self, xpra_executable=None, ssh_executable=None):
         self.xpra_executable = xpra_executable or Executable('xpra', verbose=True)
         self.ssh_executable = ssh_executable or Executable('ssh', verbose=True)
@@ -111,7 +110,7 @@ class ControlXpra(CompositeCommand):
     keyword = 'xpra'
 
     def __init__(self, xpra=None):
-        super(ControlXpra, self).__init__()
+        super().__init__()
         self.xpra = xpra or Xpra()
 
     @property
@@ -126,13 +125,13 @@ class XpraSubcommand(Command):
         self.xpra = xpra
         self.keyword = keyword
         self.description = description
-        super(XpraSubcommand, self).__init__()
+        super().__init__()
 
     def format_description(self):
         return self.description
     
     def assemble(self):
-        super(XpraSubcommand, self).assemble()
+        super().assemble()
         location_group = self.parser.add_mutually_exclusive_group(required=True)
         location_group.add_argument('-l', '--local', action='store_true', dest='local', help='%s the xpra server locally' % self.keyword)
         location_group.add_argument('-V', '--vagrant', nargs='?', const='default', default=False, help='%s the xpra server inside this vagrant machine' % self.keyword)
@@ -159,7 +158,7 @@ class XpraSubcommand(Command):
             return EndPoint(args.display, ssh_to=args.ssh, ssh_arguments=ssh_args+defaulted_ssh_args)
 
     def execute(self, args):
-        super(XpraSubcommand, self).execute(args)
+        super().execute(args)
 
         if self.keyword == 'attach':
             return self.xpra.attach(self.endpoint_from_args(args), args.extra_args)

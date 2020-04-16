@@ -15,18 +15,16 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 import warnings
 import sys
 import io
-import six
 import inspect
 from contextlib import contextmanager
 
 from reahl.stubble.stub import StubClass
 
 
-class SystemOutStub(object):
+class SystemOutStub:
     """The SystemOutStub can be used as context manager to test output that some code
        sends to sys.stdout. 
 
@@ -59,7 +57,7 @@ class SystemOutStub(object):
             output_file.write(self.captured_output)
 
 
-class MonitoredCall(object):
+class MonitoredCall:
     """The record of one call that was made to a method. This class is not intended to be 
        instantiated by a programmer. Programmers can query instances of MonitoredCall
        returned by a :class:`reahl.stubble.intercept.CallMonitor` or :class:`reahl.stubble.intercept.InitMonitor`."""
@@ -69,7 +67,7 @@ class MonitoredCall(object):
         self.kwargs = kwargs #: The dictionary with keyword arguments passed during the call
 
         
-class CallableMonitor(object):
+class CallableMonitor:
     def __init__(self, obj, method):
         self.obj = obj
         self.method_name = method.__name__
@@ -103,7 +101,7 @@ class CallMonitor(CallableMonitor):
 
        .. code-block:: python
        
-          class SomeClass(object):
+          class SomeClass:
               def foo(self, arg):
                   return 'something'
 
@@ -118,7 +116,7 @@ class CallMonitor(CallableMonitor):
           assert monitor.calls[0].return_value == 'something'
     """
     def __init__(self, method):
-        super(CallMonitor, self).__init__(six.get_method_self(method), method)
+        super().__init__(method.__self__, method)
 
 
 class InitMonitor(CallableMonitor):
@@ -126,7 +124,7 @@ class InitMonitor(CallableMonitor):
        calls to the __init__ of a class. (See :class:`reahl.stubble.intercept.CallMonitor` for attributes.)
     """
     def __init__(self, monitored_class):
-        super(InitMonitor, self).__init__(monitored_class, monitored_class.__init__)
+        super().__init__(monitored_class, monitored_class.__init__)
 
     @property
     def monitored_class(self):
@@ -142,13 +140,13 @@ class InitMonitor(CallableMonitor):
         return self.instance
     
     def __enter__(self):
-        super(InitMonitor, self).__enter__()
+        super().__enter__()
         self.original_new = getattr(self.obj, '__new__')
         setattr(self.obj, '__new__', self.modified_new)
         return self
 
     def __exit__(self, exception_type, value, traceback):
-        super(InitMonitor, self).__exit__(exception_type, value, traceback)
+        super().__exit__(exception_type, value, traceback)
         setattr(self.obj, '__new__', self.original_new)
 
 
@@ -159,7 +157,7 @@ def replaced(method, replacement, on=None):
 
        .. code-block:: python
 
-          class SomethingElse(object):
+          class SomethingElse:
               def foo(self, n, y='yyy'):
                   assert None, 'This should never be reached in this test'
 
@@ -176,15 +174,15 @@ def replaced(method, replacement, on=None):
     """
     StubClass.signatures_match(method, replacement, ignore_self=True)
 
-    is_unbound_method = six.PY2 and inspect.ismethod(method) and not method.im_self
-    if (not inspect.ismethod(method) or is_unbound_method) and not on:
+    if (not inspect.ismethod(method)) and not on:
         raise ValueError('You have to supply a on= when stubbing an unbound method')
-    target = on or six.get_method_self(method)
+    target = on or method.__self__
 
     if inspect.isfunction(method) or inspect.isbuiltin(method):
         method_name = method.__name__
     else:
-        method_name = six.get_method_function(method).__name__
+        method_name = method.__func__.__name__
+
     saved_method = getattr(target, method_name)
     try:
         setattr(target, method_name, replacement)

@@ -1,7 +1,6 @@
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 
-class Address(object):
+class Address:
     def __init__(self, name, email_address):
         self.name = name
         self.email_address = email_address
@@ -10,7 +9,7 @@ class Address(object):
         address_book.add_address(self)
 
 
-class AddressBook(object):
+class AddressBook:
     def __init__(self):
         self.addresses = []
 

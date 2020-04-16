@@ -15,7 +15,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 
 from reahl.component.modelinterface import exposed, Field, BooleanField, ChoiceField, Choice, ChoiceGroup, \
     IntegerField, Event, MultiChoiceField, DateField
@@ -37,7 +36,7 @@ class BasicHTMLInputsUI(UserInterface):
         home.set_slot('main', ExampleForm.factory('myform'))
 
 
-class ModelObject(object):
+class ModelObject:
     multi_choice_field = [1, 3]
     choice_field = 2
     @exposed
@@ -78,7 +77,7 @@ class ModelObject(object):
 
 class ExampleForm(Form):
     def __init__(self, view, event_channel_name):
-        super(ExampleForm, self).__init__(view, event_channel_name)
+        super().__init__(view, event_channel_name)
         self.use_layout(FormLayout())
         model_object = ModelObject()
         self.layout.add_input(TextInput(self, model_object.fields.text_input_field))

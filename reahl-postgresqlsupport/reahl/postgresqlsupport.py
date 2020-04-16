@@ -26,9 +26,7 @@ URIs are as `defined by SqlAlchemy <http://docs.sqlalchemy.org/en/latest/core/en
 
 """
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 
-import six
 import io
 import subprocess
 import gzip
@@ -47,7 +45,7 @@ def as_domain_exception(exception_to_translate):
     try:
         yield
     except exception_to_translate as e:
-        raise DomainException(message=six.text_type(e))
+        raise DomainException(message=str(e))
 
 
 class PostgresqlControl(DatabaseControl):
@@ -59,7 +57,7 @@ class PostgresqlControl(DatabaseControl):
         if self.host:
             args += ['-h', self.host]
         if self.port:
-            args += ['-p', six.text_type(self.port)]
+            args += ['-p', str(self.port)]
         if login_username:
             args += ['-U', login_username]
         return args

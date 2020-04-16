@@ -14,7 +14,6 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 
 from reahl.tofu import scenario, Fixture, uses
 from reahl.tofu.pytestsupport import with_fixtures
@@ -60,7 +59,7 @@ class ParameterisedScenarios(Fixture):
         self.url_arguments() # same setup as this except:
         class SimplePage(HTML5Page):
             def __init__(self, view, some_arg):
-                super(SimplePage, self).__init__(view)
+                super().__init__(view)
                 self.body.add_child(P(view, text='content for %s' % some_arg))
 
         class ParameterisedView(UrlBoundView):

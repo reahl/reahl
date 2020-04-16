@@ -1,5 +1,4 @@
 # Copyright 2016, 2017, 2018 Reahl Software Services (Pty) Ltd. All rights reserved.
-#-*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
 #
@@ -15,7 +14,6 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 
 import os
 import threading 
@@ -43,7 +41,7 @@ class FileInputButtonFixture(Fixture):
         return 'focus' in element.get_attribute('class')
 
     def new_domain_object(self):
-        class DomainObject(object):
+        class DomainObject:
             files = []
             @exposed
             def fields(self, fields):
@@ -59,7 +57,7 @@ class FileInputButtonFixture(Fixture):
         fixture = self
         class FileUploadForm(Form):
             def __init__(self, view):
-                super(FileUploadForm, self).__init__(view, 'test')
+                super().__init__(view, 'test')
                 self.add_child(FileInputButton(self, fixture.domain_object.fields.files))
                 self.define_event_handler(fixture.domain_object.events.submit)
                 self.add_child(Button(self, fixture.domain_object.events.submit))
@@ -120,7 +118,7 @@ class FileInputFixture(FileInputButtonFixture):
         fixture = self
         class FileUploadForm(Form):
             def __init__(self, view):
-                super(FileUploadForm, self).__init__(view, 'test')
+                super().__init__(view, 'test')
                 self.add_child(FileInput(self, fixture.domain_object.fields.files))
         return FileUploadForm   
 
@@ -212,7 +210,7 @@ class FileUploadInputFixture(Fixture):
         return temp_file_with(self.file_to_upload2_content, name=self.file_to_upload2_name, mode='w+b')
 
     def new_domain_object(self): 
-        class DomainObject(object):
+        class DomainObject:
             def __init__(self):
                 self.throws_exception = False
                 self.files = []
@@ -242,7 +240,7 @@ class FileUploadInputFixture(Fixture):
         fixture = self
         class FileUploadForm(Form):
             def __init__(self, view):
-                super(FileUploadForm, self).__init__(view, 'test')
+                super().__init__(view, 'test')
                 self.set_attribute('novalidate','novalidate')
                 self.use_layout(FormLayout())
                 if self.exception:
@@ -266,7 +264,7 @@ class FileUploadInputFixture(Fixture):
 class ConstrainedFileUploadInputFixture(FileUploadInputFixture):
     def new_domain_object(self):
         fixture = self
-        class DomainObject(object):
+        class DomainObject:
             @exposed
             def fields(self, fields):
                 fields.files = fixture.file_field
@@ -302,7 +300,7 @@ class MaxNumberOfFilesFileUploadInputFixture(ConstrainedFileUploadInputFixture):
 
 class ToggleableConstraint(ValidationConstraint):
     def __init__(self, fixture=None):
-        super(ToggleableConstraint, self).__init__(error_message='test validation message')
+        super().__init__(error_message='test validation message')
         self.fixture = fixture
         
     def validate_input(self, unparsed_input):
@@ -310,7 +308,7 @@ class ToggleableConstraint(ValidationConstraint):
             raise self
 
     def __reduce__(self):
-        reduced = super(ToggleableConstraint, self).__reduce__()
+        reduced = super().__reduce__()
         pickle_dict = reduced[2]
         del pickle_dict['fixture']
         return reduced
@@ -320,7 +318,7 @@ class ToggleValidationFixture(FileUploadInputFixture):
     make_validation_fail = False
     def new_domain_object(self):
         fixture = self
-        class DomainObject(object):
+        class DomainObject:
             @exposed
             def fields(self, fields):
                 fields.files = FileField(allow_multiple=True, label='Attached files')
@@ -355,13 +353,13 @@ class StubbedFileUploadInputFixture(FileUploadInputFixture):
             def upload_file(self):
                 if fixture.run_hook_before:
                     fixture.file_upload_hook()
-                super(FileUploadPanelStub, self).upload_file()
+                super().upload_file()
                 if fixture.run_hook_after:
                     fixture.file_upload_hook()
 
         class FileUploadForm(Form):
             def __init__(self, view):
-                super(FileUploadForm, self).__init__(view, 'test')
+                super().__init__(view, 'test')
                 if self.exception:
                     self.use_layout(FormLayout())
                     self.layout.add_alert_for_domain_exception(self.exception)

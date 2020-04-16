@@ -26,9 +26,7 @@ URIs are as `defined by SqlAlchemy <http://docs.sqlalchemy.org/en/latest/core/en
 
 """
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 
-import six
 import io
 import subprocess
 import gzip
@@ -50,20 +48,20 @@ class MysqlControl(DatabaseControl):
         if self.host:
             args += ['-h', self.host]
         if self.port:
-            args += ['-P', six.text_type(self.port)]
+            args += ['-P', str(self.port)]
         if login_username:
             args += ['-u', login_username]
         return args
 
     def create_db_user(self, super_user_name=None, create_with_password=True):
-        super(MysqlControl, self).create_db_user(super_user_name=super_user_name, create_with_password=create_with_password)
+        super().create_db_user(super_user_name=super_user_name, create_with_password=create_with_password)
         identified = 'by \'%s\'' % self.password if create_with_password else 'with \'auth_sock\'' 
         Executable('mysql').check_call( self.login_args(login_username=super_user_name)
                                         + ['-e', 'create user %s identified %s;' % (self.user_name, identified)])
         return 0
 
     def drop_db_user(self, super_user_name=None):
-        super(MysqlControl, self).drop_db_user(super_user_name=super_user_name)
+        super().drop_db_user(super_user_name=super_user_name)
         Executable('mysql').check_call( self.login_args(login_username=super_user_name)
                                         + ['-e', 'drop user %s;' % self.user_name])
         return 0

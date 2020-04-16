@@ -15,7 +15,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 
 import pkg_resources
 
@@ -50,7 +49,7 @@ class LibraryFixture(Fixture):
 
         class MyLibrary(Library):
             def __init__(self):
-                super(MyLibrary, self).__init__('mylib')
+                super().__init__('mylib')
                 self.files = ['somefile.js', 'somefile.css']
                 self.shipped_in_directory = '/static_files'
                 self.egg_name = easter_egg.project_name

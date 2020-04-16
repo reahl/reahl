@@ -24,7 +24,6 @@ try:
     import pytest
 except ImportError:
     pass
-import six
 
 from reahl.tofu.fixture import Scenario
 from reahl.component.eggs import DependencyGraph
@@ -80,7 +79,7 @@ def scope(scope):
     return catcher
 
 
-class WithFixtureDecorator(object):
+class WithFixtureDecorator:
     """A decorator for injecting :py:class:`Fixture`\s into pytest test method arguments.
 
     This decorator takes a list of :py:class:`Fixture` classes as
@@ -143,14 +142,10 @@ class WithFixtureDecorator(object):
                                      if i.__class__ in self.fixture_classes or i.scenario in self.requested_fixtures]
             dependency_ordered_fixtures = self.topological_sort_instances(fixture_instances)
 
-            if six.PY2:
-                with contextlib.nested(*list(dependency_ordered_fixtures)):
-                    return wrapped(*args, **kwargs)
-            else:
-                with contextlib.ExitStack() as stack:
-                    for fixture in dependency_ordered_fixtures:
-                        stack.enter_context(fixture)
-                    return wrapped(*args, **kwargs)
+            with contextlib.ExitStack() as stack:
+                for fixture in dependency_ordered_fixtures:
+                    stack.enter_context(fixture)
+                return wrapped(*args, **kwargs)
 
         ff = test_with_fixtures(f)
         arg_names = self.fixture_arg_names(ff)
@@ -161,12 +156,8 @@ class WithFixtureDecorator(object):
         return [fixture_instances[c] for c in self.fixture_classes]
         
     def fixture_arg_names(self, f):
-        if six.PY2:
-            arg_spec = inspect.getargspec(f)
-            return arg_spec.args[:len(self.requested_fixtures)]
-        else:
-            signature = inspect.signature(f)
-            return list(signature.parameters.keys())[:len(self.requested_fixtures)]
+        signature = inspect.signature(f)
+        return list(signature.parameters.keys())[:len(self.requested_fixtures)]
 
     def topological_sort_instances(self, fixture_instances):
         def find_dependencies(fixture_instance):

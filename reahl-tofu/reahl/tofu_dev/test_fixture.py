@@ -16,18 +16,17 @@
 
 
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 
 from reahl.tofu import Fixture, set_up, tear_down
 
 
 #--------------------------------------------------[ FixtureTests ]
 
-class FixtureTests(object):
+class FixtureTests:
     __test__ = True
 
     def test_automaticsingletons(self):
-        class Stub(object): pass
+        class Stub: pass
         
         class TestFixture(Fixture):
             def new_thing(self, a=None):
@@ -59,7 +58,7 @@ class FixtureTests(object):
         """If a new_ method for a singleton yields a value (instead of returning one) the singleton can be torn down
            after the yield statement in the new_ method. Tairing down such singletons happens in reverse order
            of singletons being created (ie, last created is first to be torn down)."""
-        class Stub(object): pass
+        class Stub: pass
 
         torn_down_things = []
 
@@ -113,7 +112,7 @@ class FixtureTests(object):
 
 
     def test_automaticsingletons_from_mixin(self):
-        class Mixin(object):
+        class Mixin:
             def new_thing(self, a=1):
                 return a
 

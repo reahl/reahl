@@ -9,7 +9,6 @@
   </deps>
 
   <deps purpose="run">
-    <thirdpartyegg name="six"/> 
     <egg name="reahl-component"/>
   </deps>
 

@@ -16,7 +16,6 @@
 
 # Copyright (C) 2006 Reahl Software Services (Pty) Ltd.  All rights reserved. (www.reahl.org)
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 import os
 
 from selenium import webdriver
@@ -150,7 +149,7 @@ class WebServerFixture(Fixture):
 
     def set_noop_app(self):
         # selenium.stop() hits the application its opened on again. NoopApp just ensures this does not break:
-        class NoopApp(object):
+        class NoopApp:
             def __call__(self, environ, start_response):
                 status = '403 Forbidden'
                 response_headers = [('Content-type','text/plain')]

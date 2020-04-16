@@ -15,7 +15,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 
 import threading
 
@@ -215,7 +214,7 @@ def test_web_session_handling(reahl_system_fixture, web_fixture):
 
     import sqlalchemy.orm
     @stubclass(sqlalchemy.orm.Session)
-    class TransactionStub(object):
+    class TransactionStub:
         is_active = True
         def commit(self): pass
         def rollback(self): pass
@@ -230,7 +229,7 @@ def test_web_session_handling(reahl_system_fixture, web_fixture):
         web_fixture.config.web.session_class = UserSessionStub
         with CallMonitor(web_fixture.nested_transaction.commit) as monitor:
             @stubclass(Resource)
-            class ResourceStub(object):
+            class ResourceStub:
                 should_commit = True
                 def cleanup_after_transaction(self):
                     assert monitor.times_called == 2  # The database has been committed after user code started executed, before cleanup
@@ -287,7 +286,7 @@ def test_internal_redirects(web_fixture):
     fixture.handling_resources = []
 
     @stubclass(Resource)
-    class ResourceStub(object):
+    class ResourceStub:
         should_commit = True
         def cleanup_after_transaction(self): pass
         def handle_request(self, request):

@@ -14,19 +14,15 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 import inspect
-import six
+import types
 from functools import reduce
 
-if six.PY2:
-    from collections import Callable
-else:
-    from collections.abc import Callable
+from collections.abc import Callable
 
 
 
-class StubClass(object):
+class StubClass:
     def __init__(self, orig, check_attributes_also=False):
         self.orig = orig
         self.check_attributes_also = check_attributes_also
@@ -83,12 +79,8 @@ class StubClass(object):
 
     @classmethod
     def signatures_match(cls, orig, stubbed, ignore_self=False):
-        if six.PY2:
-            orig_arguments = inspect.getargspec(orig)
-            stub_arguments = inspect.getargspec(stubbed)
-        else:
-            orig_arguments = inspect.getfullargspec(orig)
-            stub_arguments = inspect.getfullargspec(stubbed)
+        orig_arguments = inspect.getfullargspec(orig)
+        stub_arguments = inspect.getfullargspec(stubbed)
 
         if ignore_self:
             if 'self' in orig_arguments.args: orig_arguments.args.remove('self')
@@ -103,26 +95,26 @@ class StubClass(object):
 
 
 #------------------------------------------------[ Impostor ]
-class Impostor(object):
+class Impostor:
     def __getattribute__(self, name):
         _stubbed_class = object.__getattribute__(self, '_stubbed_class')
         if name == '__class__':
             return _stubbed_class
-        return super(Impostor, self).__getattribute__(name)
+        return super().__getattribute__(name)
                         
 
 
 #------------------------------------------------[ Delegate ]
-class Delegate(object):
+class Delegate:
     def __init__(self, real):
-        super(Delegate, self).__setattr__('real', real)
+        super().__setattr__('real', real)
 
     def _bound_delegate_method(self, name, method_name):
-        real = super(Delegate, self).__getattribute__('real')
-        shadowed = super(Delegate, self).__getattribute__('shadowed')
+        real = super().__getattribute__('real')
+        shadowed = super().__getattribute__('shadowed')
 
         if name in shadowed:
-            return getattr(super(Delegate, self), method_name)
+            return getattr(super(), method_name)
         else:
             if method_name == '__getattribute__':
                 method = getattr
@@ -140,20 +132,20 @@ class Delegate(object):
         if name == '__class__':
             return _stubbed_class
 
-        bound_delegate_method = super(Delegate, self).__getattribute__('_bound_delegate_method')
+        bound_delegate_method = super().__getattribute__('_bound_delegate_method')
         return bound_delegate_method(name, '__getattribute__')(name)
 
     def __setattr__(self, name, value):
-        bound_delegate_method = super(Delegate, self).__getattribute__('_bound_delegate_method')
+        bound_delegate_method = super().__getattribute__('_bound_delegate_method')
         bound_delegate_method(name, '__setattr__')(name, value)
 
     def __delattr__(self, name):
-        bound_delegate_method = super(Delegate, self).__getattribute__('_bound_delegate_method')
+        bound_delegate_method = super().__getattribute__('_bound_delegate_method')
         bound_delegate_method(name, '__delattr__')(name)
 
 
 #------------------------------------------------[ StubbleDescriptor ]
-class StubbleDescriptor(object):
+class StubbleDescriptor:
     def stubble_check(self, instance, orig, stub):
         pass
 
@@ -166,7 +158,7 @@ class SlotConstrained(StubbleDescriptor):
     def available_slots(self, cls):
         def flatten_slots(l, cls):
             s = cls.__slots__
-            if isinstance(s, six.string_types):
+            if isinstance(s, str):
                 s = [s]
             l.extend(s)
             return l
@@ -196,7 +188,7 @@ class Exempt(StubbleDescriptor):
             if instance is None:
                 return self
             else:
-                return six.create_bound_method(self.value, instance)
+                return types.MethodType(self.value, instance)
         else:
             return self.value            
 

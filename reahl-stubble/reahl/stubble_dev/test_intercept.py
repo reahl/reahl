@@ -14,10 +14,8 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 
 import io
-import six
 import warnings
 import tempfile
 
@@ -28,19 +26,19 @@ from reahl.stubble import CallMonitor, InitMonitor, SystemOutStub, replaced
 def test_monitor():
     """A CallMonitor records each call to a method, and its arguments."""
 
-    class SomethingElse(object):
+    class SomethingElse:
         def foo(self, n, y=None):
             self.n = n
             return y
 
     s = SomethingElse()
-    original_method = six.get_method_function(s.foo)
+    original_method = s.foo.__func__
 
     with CallMonitor(s.foo) as monitor:
         assert s.foo(1, y='a') == 'a'
         assert s.foo(2) == None
 
-    assert six.get_method_function(s.foo) is original_method
+    assert s.foo.__func__ is original_method
     assert s.n == 2
     assert monitor.times_called == 2
     assert monitor.calls[0].args == (1,)
@@ -55,7 +53,7 @@ def test_monitor():
 def test_monitor_class_methods():
     """A CallMonitor works for class methods as well."""
 
-    class SomethingElse(object):
+    class SomethingElse:
         @classmethod
         def foo(cls):
             return cls
@@ -76,7 +74,7 @@ def test_monitor_class_methods():
 def test_init_monitor():
     """An InitMonitor can monitor calls to __init__."""
 
-    class SomethingElse(object):
+    class SomethingElse:
         def __init__(self):
             self.initialised = True
 
@@ -96,7 +94,7 @@ def test_init_monitor():
 def test_replace():
     """Replaced methods replace the original one, but are restored after the with."""
 
-    class SomethingElse(object):
+    class SomethingElse:
         def foo(self, n, y=None):
             assert None, 'This should never be reached in this test'
 
@@ -105,13 +103,13 @@ def test_replace():
     s = SomethingElse()
     def replacement(n, y=None):
         return y
-    original_method = six.get_method_function(s.foo)
+    original_method = s.foo.__func__
 
     with replaced(s.foo, replacement):
         assert s.foo(1, y='a') == 'a'
         assert s.foo(2) == None
 
-    assert six.get_method_function(s.foo) is original_method
+    assert s.foo.__func__ is original_method
 
     # Case: unbound method
     """Python 3 does not support the concept of unbound methods, they are
@@ -127,13 +125,13 @@ def test_replace():
     def replacement(self, n, y=None):
         return y
 
-    original_method = six.get_unbound_function(SomethingElse.foo)
+    original_method = SomethingElse.foo
 
     with replaced(SomethingElse.foo, replacement, on=SomethingElse):
         assert s.foo(1, y='a') == 'a'
         assert s.foo(2) == None
 
-    restored_method = six.get_unbound_function(SomethingElse.foo)
+    restored_method = SomethingElse.foo
     assert restored_method is original_method
 
     # Case: unbound method (no on= given)
@@ -161,7 +159,7 @@ def test_replacing_functions_is_disallowed():
 def test_replaced_signature_should_match():
     """Replacing methods should have the same signature as the ones they replace."""
 
-    class SomethingElse(object):
+    class SomethingElse:
         def foo(self, n, y=None):
             assert None, 'This should never be reached in this test'
 

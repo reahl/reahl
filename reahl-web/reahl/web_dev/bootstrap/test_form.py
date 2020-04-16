@@ -1,5 +1,4 @@
 # Copyright 2015-2018 Reahl Software Services (Pty) Ltd. All rights reserved.
-#-*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
 #
@@ -15,9 +14,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 
-import six
 
 from sqlalchemy import Column, String, Integer
 
@@ -76,7 +73,7 @@ class FormLayoutFixture(Fixture):
     form_group_xpath = '//form/div[contains(@class, "form-group")]'
 
     def new_domain_object(self):
-        class StubDomainObject(object):
+        class StubDomainObject:
             @exposed
             def fields(self, fields):
                 fields.an_attribute = Field(label='Some input', required=True)
@@ -122,7 +119,7 @@ def test_adding_basic_input(web_fixture, form_layout_fixture):
 
     class FormWithInputAddedUsingDefaults(Form):
         def __init__(self, view):
-            super(FormWithInputAddedUsingDefaults, self).__init__(view, 'aform')
+            super().__init__(view, 'aform')
             self.use_layout(FormLayout())
             self.layout.add_input(TextInput(self, fixture.domain_object.fields.an_attribute))
 
@@ -150,7 +147,7 @@ def test_grid_form_layouts(web_fixture, form_layout_fixture):
 
     class FormWithGridFormLayout(Form):
         def __init__(self, view):
-            super(FormWithGridFormLayout, self).__init__(view, 'aform')
+            super().__init__(view, 'aform')
             self.use_layout(GridFormLayout(ResponsiveSize(lg=4), ResponsiveSize(lg=8)))
             self.layout.add_input(TextInput(self, fixture.domain_object.fields.an_attribute), help_text='some help')
 
@@ -182,7 +179,7 @@ def test_inline_form_layouts(web_fixture, form_layout_fixture):
 
     class FormWithInlineFormLayout(Form):
         def __init__(self, view):
-            super(FormWithInlineFormLayout, self).__init__(view, 'aform')
+            super().__init__(view, 'aform')
             self.use_layout(InlineFormLayout())
             self.layout.add_input(TextInput(self, fixture.domain_object.fields.an_attribute), help_text='some help')
 
@@ -208,7 +205,7 @@ def test_specifying_help_text(web_fixture, form_layout_fixture):
 
     class FormWithInputAndHelp(Form):
         def __init__(self, view):
-            super(FormWithInputAndHelp, self).__init__(view, 'aform')
+            super().__init__(view, 'aform')
             self.use_layout(FormLayout())
             self.layout.add_input(TextInput(self, fixture.domain_object.fields.an_attribute), help_text='some help')
 
@@ -230,7 +227,7 @@ def test_omitting_label(web_fixture, form_layout_fixture):
 
     class FormWithInputNoLabel(Form):
         def __init__(self, view):
-            super(FormWithInputNoLabel, self).__init__(view, 'aform')
+            super().__init__(view, 'aform')
             self.use_layout(FormLayout())
             self.layout.add_input(TextInput(self, fixture.domain_object.fields.an_attribute), hide_label=True)
 
@@ -247,7 +244,7 @@ def test_omitting_label(web_fixture, form_layout_fixture):
 def test_adding_checkboxes(web_fixture, form_layout_fixture):
     """CheckboxInputs are added non-inlined, and by default without labels."""
 
-    class DomainObjectWithBoolean(object):
+    class DomainObjectWithBoolean:
         @exposed
         def fields(self, fields):
             fields.an_attribute = BooleanField(label='Some input', required=True)
@@ -258,7 +255,7 @@ def test_adding_checkboxes(web_fixture, form_layout_fixture):
 
     class FormWithInputWithCheckbox(Form):
         def __init__(self, view):
-            super(FormWithInputWithCheckbox, self).__init__(view, 'aform')
+            super().__init__(view, 'aform')
             self.use_layout(FormLayout())
             self.layout.add_input(CheckboxInput(self, fixture.domain_object.fields.an_attribute))
 
@@ -294,7 +291,7 @@ class ValidationScenarios(FormLayoutFixture):
         fixture = self
         class FormWithInput(Form):
             def __init__(self, view):
-                super(FormWithInput, self).__init__(view, 'aform')
+                super().__init__(view, 'aform')
                 self.set_attribute('novalidate', 'novalidate')
                 self.use_layout(FormLayout())
                 self.layout.add_input(TextInput(self, fixture.domain_object.fields.an_attribute))
@@ -393,7 +390,7 @@ class CheckboxFixture(Fixture):
 
     def new_domain_object(self):
         fixture = self
-        class ModelObject(object):
+        class ModelObject:
             @exposed
             def fields(self, fields):
                 fields.an_attribute = fixture.field
@@ -406,7 +403,7 @@ class CheckboxFixture(Fixture):
         fixture = self
         class FormWithInput(Form):
             def __init__(self, view):
-                super(FormWithInput, self).__init__(view, 'aform')
+                super().__init__(view, 'aform')
                 self.use_layout(FormLayout())
                 self.layout.add_input(CheckboxInput(self, fixture.domain_object.fields.an_attribute))
                 self.define_event_handler(fixture.domain_object.events.submit)
@@ -694,7 +691,7 @@ def test_alert_for_domain_exception(web_fixture):
        button which clears the form input.
     """
 
-    class ModelObject(object):
+    class ModelObject:
         @exposed
         def fields(self, fields):
             fields.some_field = Field(label='Some field', default='not changed')
@@ -708,7 +705,7 @@ def test_alert_for_domain_exception(web_fixture):
 
     class MyForm(Form):
         def __init__(self, view):
-            super(MyForm, self).__init__(view, 'myform')
+            super().__init__(view, 'myform')
             self.use_layout(FormLayout())
             model_object = ModelObject()
 

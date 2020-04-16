@@ -14,8 +14,6 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import print_function, unicode_literals, absolute_import, division
-import six
 import re
 import sys
 import inspect
@@ -81,8 +79,8 @@ def expected(exception, test=None):
     if test and not callable(test):
         test_regex = test
         def check_message(ex):
-            assert re.match(test_regex, six.text_type(ex)), \
-                'Expected exception to match "%s", got "%s"' % (test_regex, six.text_type(ex))
+            assert re.match(test_regex, str(ex)), \
+                'Expected exception to match "%s", got "%s"' % (test_regex, str(ex))
         test = check_message
 
     if exception is NoException:

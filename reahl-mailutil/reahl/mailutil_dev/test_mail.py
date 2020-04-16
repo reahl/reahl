@@ -14,7 +14,6 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 
 from reahl.tofu import Fixture
 from reahl.tofu import expected
@@ -27,7 +26,7 @@ from reahl.dev.mailtest import MailTester
 # noinspection PyAttributeOutsideInit
 class MailerFixture(Fixture):
     def set_up(self):
-        super(MailerFixture, self).set_up()
+        super().set_up()
 
         self.valid_email_addresses = ['someone@home.co.za', 'something@somewhere.com', 'j@j.ca']
         self.invalid_email_addresses = ['somethingWithoutTheAt', '@somethingThatBeginsWithTheAT',
@@ -51,7 +50,7 @@ class MailerFixture(Fixture):
         self.mail_message = email_message.get_payload()[0].get_payload()[0].get_payload()
 
     def tear_down(self):
-        super(MailerFixture, self).tear_down()
+        super().tear_down()
         if self.mail_checker_started:
             self.mail_tester.stop()
 

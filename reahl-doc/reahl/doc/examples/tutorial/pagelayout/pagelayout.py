@@ -1,5 +1,4 @@
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 from reahl.web.fw import UserInterface
 from reahl.web.bootstrap.page import HTML5Page
 from reahl.web.bootstrap.ui import TextNode
@@ -9,7 +8,7 @@ from reahl.web.bootstrap.grid import Container
 
 class AddressBookPage(HTML5Page):
     def __init__(self, view):
-        super(AddressBookPage, self).__init__(view)
+        super().__init__(view)
         self.body.use_layout(Container())
 
         layout = ResponsiveLayout('md', colour_theme='dark', bg_scheme='primary')
