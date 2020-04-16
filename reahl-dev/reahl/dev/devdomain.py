@@ -44,7 +44,6 @@ from reahl.component.shelltools import Executable
 from reahl.dev.xmlreader import XMLReader, TagNotRegisteredException
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.eggs import ReahlEgg
-from reahl.component.py3compat import ascii_as_bytes_or_str
 
 from reahl.dev.exceptions import NoException, StatusException, AlreadyUploadedException, NotAValidProjectException, \
     InvalidProjectFileException, NotUploadedException, NotVersionedException, NotCheckedInException, \

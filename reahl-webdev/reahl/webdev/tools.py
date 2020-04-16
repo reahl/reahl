@@ -37,7 +37,6 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.common.exceptions import StaleElementReferenceException
 
-from reahl.component.py3compat import ascii_as_bytes_or_str, html_escape
 from reahl.component.decorators import deprecated
 from reahl.web.fw import Url
 

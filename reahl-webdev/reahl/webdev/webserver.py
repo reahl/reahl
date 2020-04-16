@@ -43,7 +43,6 @@ from watchdog.events import PatternMatchingEventHandler
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.context import ExecutionContext, NoContextFound
 from reahl.component.config import StoredConfiguration
-from reahl.component.py3compat import ascii_as_bytes_or_str
 from reahl.component.shelltools import Executable
 from reahl.web.fw import ReahlWSGIApplication
 

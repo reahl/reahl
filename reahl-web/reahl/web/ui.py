@@ -28,6 +28,7 @@ import copy
 import re
 import hashlib
 import warnings
+import html
 from collections import OrderedDict
 from collections.abc import Callable
 
@@ -39,7 +40,6 @@ from reahl.component.i18n import Catalogue
 from reahl.component.context import ExecutionContext
 from reahl.component.modelinterface import exposed, ValidationConstraintList, ValidationConstraint, ExpectedInputNotFound,\
     Field, Event, BooleanField, Choice, UploadedFile, InputParseException, StandaloneFieldIndex, MultiChoiceField, ChoiceField, Action
-from reahl.component.py3compat import html_escape
 from reahl.web.fw import EventChannel, RemoteMethod, JsonResult, Widget, \
     ValidationException, WidgetResult, WidgetFactory, Url, ErrorWidget, Layout
 from reahl.mailutil.rst import RestructuredText
@@ -99,7 +99,7 @@ class HTMLAttribute(object):
         if not self.value:
             return ''
 #        return '''%s='%s\'''' % (self.name, self.as_html_value())
-        return '%s="%s"' % (self.name, html_escape(self.as_html_value()))
+        return '%s="%s"' % (self.name, html.escape(self.as_html_value()))
 
     def as_html_value(self):
         return ' '.join(sorted(self.value))
@@ -457,7 +457,7 @@ class TextNode(Widget):
     def render(self):
         # Un-escaped quotes are not harmful between tags, where TextNodes live,
         # and even make the HTML source make nicer
-        return html_escape(self.value, quote=False) if self.html_escape else self.value
+        return html.escape(self.value, quote=False) if self.html_escape else self.value
 
 
 class Title(HTMLElement):
@@ -1807,7 +1807,7 @@ class HTMLInputElement(HTMLElement):
                 validation_message_name = 'data-msg-%s' % validation_constraint.name
                 self.set_attribute(validation_message_name, validation_constraint.message)
             if validation_constraint.name == 'pattern':
-                self.set_attribute('title', html_escape(validation_constraint.message))
+                self.set_attribute('title', html.escape(validation_constraint.message))
 
 
 class TextArea(PrimitiveInput):

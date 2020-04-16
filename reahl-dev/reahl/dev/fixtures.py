@@ -25,7 +25,6 @@ import pkg_resources
 import contextlib
 
 from reahl.tofu import Fixture, set_up, tear_down, scope, uses
-from reahl.component.py3compat import ascii_as_bytes_or_str
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.context import ExecutionContext
 from reahl.component.dbutils import SystemControl

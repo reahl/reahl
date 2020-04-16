@@ -73,7 +73,6 @@ from reahl.component.exceptions import arg_checks
 from reahl.component.i18n import Catalogue
 from reahl.component.modelinterface import StandaloneFieldIndex, FieldIndex, Field, ValidationConstraint,\
                                              Allowed, exposed, Event, Action
-from reahl.component.py3compat import ascii_as_bytes_or_str
 
 _ = Catalogue('reahl-web')
 

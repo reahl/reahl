@@ -29,7 +29,6 @@ from reahl.stubble import stubclass, EmptyStub
 from reahl.tofu.pytestsupport import with_fixtures
 
 from reahl.sqlalchemysupport import Session
-from reahl.component.py3compat import ascii_as_bytes_or_str
 from reahl.webdeclarative.webdeclarative import UserSession, SessionData, UserInput
 
 from reahl.web.ui import Form
