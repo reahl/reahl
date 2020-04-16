@@ -33,7 +33,7 @@ if [ "$TRAVIS_SECURE_ENV_VARS" == 'true' ]; then
 #  echo "allow-loopback-pinentry" >> ~/.gnupg/gpg-agent.conf
   echo "allow-preset-passphrase" >> ~/.gnupg/gpg-agent.conf
   gpgconf --reload gpg-agent
-  killall gpg-agent
+  gpg-connect-agent reloadagent /bye
   sleep 2
   preset_passphrase
   import_gpg_keys /tmp/keys
