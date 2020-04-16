@@ -49,6 +49,7 @@ addons:
 #        - liblcms1-dev
         - liblcms2-dev
         - libmysqlclient-dev
+        - libgconf-2-4 # for chromium
         # - phantomjs  # for reference... not allowed in apt addon
 
 services:
