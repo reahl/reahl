@@ -9,6 +9,7 @@ function preset_passphrase {
   echo 'Calling gpg-preset-passphrase'
   set +x
   echo $GPG_PASSPHRASE | /usr/lib/gnupg2/gpg-preset-passphrase --preset $GPG_KEYGRIP
+  echo $GPG_PASSPHRASE | /usr/lib/gnupg2/gpg-preset-passphrase --preset $GPG_SIGN_KEYGRIP
   set -x
   echo 'done'
 }
@@ -32,6 +33,7 @@ if [ "$TRAVIS_SECURE_ENV_VARS" == 'true' ]; then
 #  echo "allow-loopback-pinentry" >> ~/.gnupg/gpg-agent.conf
   echo "allow-preset-passphrase" >> ~/.gnupg/gpg-agent.conf
   gpgconf --reload gpg-agent
+  killall gpg-agent
   sleep 2
   preset_passphrase
   import_gpg_keys /tmp/keys
