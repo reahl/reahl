@@ -70,7 +70,11 @@ class OptimisticConcurrencyFixture(Fixture):
 
                 self.layout.add_input(TextInput(self, fixture.model_object.fields.some_field))
                 self.define_event_handler(fixture.model_object.events.submit)
-                self.add_child(ButtonInput(self, fixture.model_object.events.submit))
+                submit_button = self.add_child(ButtonInput(self, fixture.model_object.events.submit))
+                submit_button.set_attribute('formnovalidate', 'formnovalidate') # TODO: the form's novalidate already does not, but somehow the browser still
+                                                                                #   validates the input and disables the button. May be because the browser
+                                                                                #   has cached javascript against our expectations because of a previous run?
+                                                                                # We need to clear the browser's cached files before each test.
                 self.define_event_handler(fixture.model_object.events.submit_break)
                 self.add_child(ButtonInput(self, fixture.model_object.events.submit_break))
         return MyForm

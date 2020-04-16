@@ -12,11 +12,11 @@ env:
     - PATH=$HOME/bin:$PATH
 
   matrix:
-#    - TOX_ENV=py34
+    - TOX_ENV=py34
     - TOX_ENV=py35
-#    - TOX_ENV=py36
-#    - TOX_ENV=py37
-#    - TOX_ENV=py38
+    - TOX_ENV=py36
+    - TOX_ENV=py37
+    - TOX_ENV=py38
 
 addons:
   postgresql: "10"
