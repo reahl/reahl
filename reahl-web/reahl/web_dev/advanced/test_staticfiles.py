@@ -245,7 +245,7 @@ def test_file_download_details(web_fixture):
 
     # Case: The whole content is sent, in chunk_size bits
     read = [i for i in response.app_iter]
-    expected = [six.int2byte(i) for i in six.iterbytes(file_content)]
+    expected = [bytes((i,)) for i in file_content]
     assert read == expected
 
     # Case: Headers are set correctly
@@ -267,17 +267,17 @@ def test_file_download_details(web_fixture):
     # Case: partial response is supported - different cases:
     #      - normal case
     actual = [i for i in response.app_iter.app_iter_range(3,7)]
-    expected = [six.int2byte(i) for i in six.iterbytes(file_content[3:8])]
+    expected = [bytes((i,)) for i in file_content[3:8]]
     assert actual == expected
 
     #      - no end specified
     actual = [i for i in response.app_iter.app_iter_range(3)]
-    expected = [six.int2byte(i) for i in six.iterbytes(file_content[3:])]
+    expected = [bytes((i,)) for i in file_content[3:]]
     assert actual == expected
 
     #      - no start specified
     actual = [i for i in response.app_iter.app_iter_range(end=7)]
-    expected = [six.int2byte(i) for i in six.iterbytes(file_content[:8])]
+    expected = [bytes((i,)) for i in file_content[:8]]
     assert actual == expected
 
     #      - where the last chunk read would stretch past end
@@ -294,12 +294,12 @@ def test_file_download_details(web_fixture):
 
     #      - where start < 0
     actual = [i for i in response.app_iter.app_iter_range(start=-10, end=7)]
-    expected = [six.int2byte(i) for i in six.iterbytes(file_content[:8])]
+    expected = [bytes((i,)) for i in file_content[:8]]
     assert actual == expected
 
     #      - where end > length of file
     actual = [i for i in response.app_iter.app_iter_range(start=3, end=2000)]
-    expected = [six.int2byte(i) for i in six.iterbytes(file_content[3:])]
+    expected = [bytes((i,)) for i in file_content[3:]]
     assert actual == expected
 
     #      - where start > length of file

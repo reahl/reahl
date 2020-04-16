@@ -21,7 +21,7 @@ from reahl.stubble import Delegate, stubclass, exempt, Impostor, slotconstrained
 #----------------------------------------[ the real code ]
 # RealClass is not a test class - it is an example of a class
 # which we will create example stubs for
-class RealClass(object):
+class RealClass:
     b = 123
 
     def foo(self, a):
@@ -36,14 +36,14 @@ class RealClass(object):
 
 
 #----------------------------------------[ straightforward stuff ]
-@six.add_metaclass(stubclass(RealClass))
-class Stub(object):
+@stubclass(RealClass)
+class Stub:
     def foo(self, a):
         """i am a fake foo"""
 
 s = Stub()
 s.foo(1)       #calls the fake foo (off course)
-s.x = 1        #sets a new instance attribute "b" as usual
+s.x = 1        #sets a new instance attribute "x" as usual
 try:
     s.bar()    #breaks as usual, since bar does not exist
 except:
@@ -51,7 +51,7 @@ except:
 
 
 #----------------------------------------[ really being a-kind-of the real class ]
-@six.add_metaclass(stubclass(RealClass))
+@stubclass(RealClass)
 class Stub(RealClass):
     def foo(self, a):
         print('i am a fake foo')
@@ -60,9 +60,8 @@ s = Stub()
 s.foo(1)      #calls the fake foo, naturally
 s.bar()       #calls the real bar (which may even call the fake foo polimorphically)
 
-
 #----------------------------------------[ class attributes ]
-@six.add_metaclass(stubclass(RealClass, check_attributes_also=True))
+@stubclass(RealClass, check_attributes_also=True)
 class Stub(RealClass):
     pass
 
@@ -70,8 +69,8 @@ class Stub(RealClass):
 
 
 #----------------------------------------[ exempt methods ]
-@six.add_metaclass(stubclass(RealClass))
-class Stub(object):
+@stubclass(RealClass)
+class Stub:
     @exempt
     def my_own_method(self):
         print('i am my own method')
@@ -84,8 +83,7 @@ s.my_own_method()
 #==================================================[ Impostoring ]
 # (see also acceptance/ImpostoringTests.py)
 
-
-@six.add_metaclass(stubclass(RealClass))
+@stubclass(RealClass)
 class Stub(Impostor):
     pass
 
@@ -102,7 +100,7 @@ assert isinstance(s, RealClass)         #but the foolery works well here
 real_instance = RealClass()
 
 
-@six.add_metaclass(stubclass(RealClass))
+@stubclass(RealClass)
 class Stub(Delegate):
     shadowed = exempt(['foo', 'aa'])
 
@@ -134,7 +132,7 @@ class AnotherRealClass(object):
 real_instance = AnotherRealClass()
 
 
-@six.add_metaclass(stubclass(AnotherRealClass))
+@stubclass(AnotherRealClass)
 class Stub(Delegate):
     shadowed = exempt(['aa'])
 
@@ -192,8 +190,8 @@ class RealClassFollowingConventions(object):
     b = None
 
 
-@six.add_metaclass(stubclass(RealClassFollowingConventions))
-class Stub(object):
+@stubclass(RealClass)
+class Stub:
     a = 'asd'
     b = checkedinstance()
 
@@ -206,8 +204,8 @@ class StubbornRealClass(object):
     __slots__ = ('aa')
 
 
-@six.add_metaclass(stubclass(StubbornRealClass))
-class Stub(object):
+@stubclass(StubbornRealClass)
+class Stub  :
     aa = slotconstrained()
 
 s = Stub()

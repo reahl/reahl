@@ -24,8 +24,7 @@ import six
 from abc import ABCMeta, abstractmethod
 
 
-@six.add_metaclass(ABCMeta)
-class UserSessionProtocol(object):
+class UserSessionProtocol(object, metaclass=ABCMeta):
     """A UserSession represents a potentially lengthy interaction of a particular user with the system."""
 
     @classmethod
@@ -79,8 +78,7 @@ class UserSessionProtocol(object):
         """
         
 
-@six.add_metaclass(ABCMeta)
-class SessionDataProtocol(object):
+class SessionDataProtocol(object, metaclass=ABCMeta):
     @classmethod
     @abstractmethod
     def clear_for_form(cls, form):
@@ -104,8 +102,7 @@ class SessionDataProtocol(object):
         """Is required to be implemented."""
 
 
-@six.add_metaclass(ABCMeta)
-class UserInputProtocol(SessionDataProtocol):
+class UserInputProtocol(SessionDataProtocol, metaclass=ABCMeta):
     """User input, typed as strings on a form is persisted using this class, for the current user's session
        for use in a subsequent request. Used via `web.persisted_userinput_class`.
     """
@@ -196,8 +193,7 @@ class PersistedExceptionProtocol(SessionDataProtocol):
         """Removes all saved Exceptions associated with the given :class:`reahl.web.ui.Form`."""
 
 
-@six.add_metaclass(ABCMeta)
-class PersistedFileProtocol(object):
+class PersistedFileProtocol(object, metaclass=ABCMeta):
     """When a file is uploaded, file is persisted using this class, for the current user's session 
        for use in a subsequent request. Used via `web.persisted_file_class`.
     """

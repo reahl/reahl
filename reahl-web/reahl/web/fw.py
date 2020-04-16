@@ -2635,7 +2635,7 @@ class FileOnDisk(ViewableFile):
 
 class FileFromBlob(ViewableFile):
     def __init__(self, name, content_bytes, mime_type, encoding, size, mtime):
-        if not isinstance(content_bytes, six.binary_type):
+        if not isinstance(content_bytes, bytes):
             raise ProgrammerError('content_bytes should be bytes')
 
         super(FileFromBlob, self).__init__(name, mime_type, encoding, size, mtime)
@@ -3046,7 +3046,7 @@ class ReahlWSGIApplication(object):
                     response = HTTPInternalServerError(unicode_body=str(e))
                 except CouldNotConstructResource as e:
                     if self.config.reahlsystem.debug:
-                        six.raise_from(e.__cause__, None)
+                        raise e.__cause__ from None
                     else:
                         #TODO: constuct a fake view, and pass that in
                         response = UncaughtError(e.current_view, e.root_ui, e.target_ui, e.__cause__)

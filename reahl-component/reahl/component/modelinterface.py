@@ -1637,7 +1637,7 @@ class UploadedFile(object):
 
     """
     def __init__(self, filename, contents, mime_type):
-        assert isinstance(contents, six.binary_type)
+        assert isinstance(contents, bytes)
         self.contents = contents
         self.filename = filename  #: The name of the file
         self.mime_type = mime_type #: The mime type of the file

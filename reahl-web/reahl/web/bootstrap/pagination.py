@@ -45,8 +45,7 @@ from reahl.web.bootstrap.navs import Menu
 _ = Catalogue('reahl-web')
 
 
-@six.add_metaclass(ABCMeta)
-class PageIndexProtocol(object):
+class PageIndexProtocol(object, metaclass=ABCMeta):
     @abstractproperty
     def pages_in_range(self): pass
     @abstractproperty
@@ -223,8 +222,7 @@ class SequentialPageIndex(PageIndex):
         return ((len(self.items)-1) // self.items_per_page)+1
 
 
-@six.add_metaclass(ABCMeta)
-class AnnualItemOrganiserProtocol(object):
+class AnnualItemOrganiserProtocol(object, metaclass=ABCMeta):
     """Manages a list of items, each of which is seen to be for a particular year.
     """
     @abstractmethod
