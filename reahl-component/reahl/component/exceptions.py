@@ -219,7 +219,7 @@ class ArgumentCheckedCallable(object):
             if self.explanation:
                 _, _, tb = sys.exc_info()
                 new_ex = IncorrectArgumentError(self.explanation, ex)
-                six.reraise(new_ex.__class__, new_ex, tb)
+                raise new_ex.with_traceback(tb)
             else:
                 raise
 

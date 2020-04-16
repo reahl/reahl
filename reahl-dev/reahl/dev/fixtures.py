@@ -99,7 +99,7 @@ class ReahlSystemSessionFixture(ContextAwareFixture):
         try:
             config.configure()
         except pkg_resources.DistributionNotFound as ex:
-            six.reraise(CouldNotConfigureServer, CouldNotConfigureServer(ex), sys.exc_info()[2])
+            raise CouldNotConfigureServer(ex).with_traceback(sys.exc_info()[2])
 
         return config
 

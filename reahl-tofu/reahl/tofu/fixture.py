@@ -260,7 +260,7 @@ class Fixture(object):
         try:
             yield
         except AttributeError as ex:
-            six.reraise(AttributeErrorInFactoryMethod, AttributeErrorInFactoryMethod(ex), sys.exc_info()[2])
+            raise AttributeErrorInFactoryMethod(ex).with_traceback(sys.exc_info()[2])
         
     def __getattr__(self, name):
         try:

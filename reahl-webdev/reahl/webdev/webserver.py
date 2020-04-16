@@ -90,8 +90,8 @@ class WrappedApp(object):
 
     def report_exception(self):
         if self.exception:
-            six.reraise(self.exception.__class__, self.exception, self.traceback)
-            
+            raise self.exception.with_traceback(self.traceback)
+
     def clear_exception(self):
         self.exception = None
 
