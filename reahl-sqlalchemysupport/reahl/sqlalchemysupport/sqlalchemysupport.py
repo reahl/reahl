@@ -412,7 +412,7 @@ class PersistedField(Field):
     def unparse_input(self, parsed_value):
         instance = parsed_value
         if instance:
-            return six.text_type(instance.id)
+            return str(instance.id)
         return ''
 
 

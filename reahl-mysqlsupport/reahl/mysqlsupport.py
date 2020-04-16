@@ -50,7 +50,7 @@ class MysqlControl(DatabaseControl):
         if self.host:
             args += ['-h', self.host]
         if self.port:
-            args += ['-P', six.text_type(self.port)]
+            args += ['-P', str(self.port)]
         if login_username:
             args += ['-u', login_username]
         return args

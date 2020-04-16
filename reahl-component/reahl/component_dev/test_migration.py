@@ -251,7 +251,7 @@ def test_missing_schedule_upgrades_warns():
     [warning] = raised_warnings
     expected_message = 'Ignoring TestMigration.schedule_upgrades(): it does not override schedule_upgrades() ' \
                        '(method name typo perhaps?)'
-    assert six.text_type(warning.message) == expected_message
+    assert str(warning.message) == expected_message
 
 
 @with_fixtures(MigrateFixture)

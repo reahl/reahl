@@ -89,7 +89,7 @@ def test_remote_methods(web_fixture):
 
 @with_fixtures(WebFixture, RemoteMethodFixture)
 def test_exception_handling(web_fixture, remote_method_fixture):
-    """The RemoteMethod sends back the six.text_type() of an exception raised for the specified exception class."""
+    """The RemoteMethod sends back the str() of an exception raised for the specified exception class."""
 
 
     def fail():

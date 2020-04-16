@@ -81,17 +81,17 @@ class Catalogue(object):
         self.domain = domain
 
     def __call__(self, message):
-        """Returns a six.text_type literal containing a translation of `message` to the correct language according to the current locale.
+        """Returns a str literal containing a translation of `message` to the correct language according to the current locale.
         """
         return self.gettext(message)
 
     def gettext(self, message):
-        """Returns a six.text_type literal containing a translation of `message` to the correct language according to the current locale.
+        """Returns a str literal containing a translation of `message` to the correct language according to the current locale.
         """
         return SystemWideCatalogue.get_instance().dgettext(self.domain, message)
 
     def ngettext(self, message_singular, message_plural, n):
-        """Returns a six.text_type literal containing a translation of the given messages in the correct plural (or singular) 
+        """Returns a str literal containing a translation of the given messages in the correct plural (or singular) 
            form of the target language for `n` items.
         """
         return SystemWideCatalogue.get_instance().dngettext(self.domain, message_singular, message_plural, n)

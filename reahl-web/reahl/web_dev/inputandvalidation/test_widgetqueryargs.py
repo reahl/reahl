@@ -84,7 +84,7 @@ def test_query_string_widget_arguments(web_fixture, value_scenarios):
     class WidgetWithQueryArguments(Widget):
         def __init__(self, view):
             super(WidgetWithQueryArguments, self).__init__(view)
-            self.add_child(P(view, text=six.text_type(self.arg_directly_on_widget)))
+            self.add_child(P(view, text=str(self.arg_directly_on_widget)))
 
         @exposed
         def query_fields(self, fields):
@@ -94,7 +94,7 @@ def test_query_string_widget_arguments(web_fixture, value_scenarios):
     browser = Browser(wsgi_app)
 
     browser.open('/?%s' % fixture.field_on_query_string.format(field_name='arg_directly_on_widget'))
-    assert browser.lxml_html.xpath('//p')[0].text == six.text_type(fixture.field_value_marshalled)
+    assert browser.lxml_html.xpath('//p')[0].text == str(fixture.field_value_marshalled)
 
 
 @with_fixtures(WebFixture, ValueScenarios)
@@ -160,7 +160,7 @@ def test_widgets_with_bookmarkable_state(web_fixture, query_string_fixture, valu
     web_fixture.driver_browser.open('/')
 
     # Case: the default
-    assert web_fixture.driver_browser.wait_for(fixture.is_state_now, six.text_type(value_scenarios.field.default))
+    assert web_fixture.driver_browser.wait_for(fixture.is_state_now, str(value_scenarios.field.default))
     assert fixture.widget.fancy_state == value_scenarios.field.default
 
     # Case: change without page load

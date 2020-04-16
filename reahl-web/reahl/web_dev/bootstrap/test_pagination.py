@@ -340,7 +340,7 @@ def test_sequential_page_index(sequential_scenarios):
 
     assert fixture.page_index.total_number_of_pages == fixture.expected_pages
     page = fixture.page_index.get_page_number(fixture.expected_pages)
-    assert page.description == six.text_type(fixture.expected_pages)
+    assert page.description == str(fixture.expected_pages)
     assert page.contents == fixture.last_page_contents
     assert fixture.page_index.max_page_links == 12
 

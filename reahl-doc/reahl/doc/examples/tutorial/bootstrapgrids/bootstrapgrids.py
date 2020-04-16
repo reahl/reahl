@@ -39,7 +39,7 @@ class GridBasicsPage(HTML5Page):
         self.body.add_child(div)
 
         for i in range(1, 13):
-            column = div.layout.add_column(six.text_type(i), size=ResponsiveSize(md=1))
+            column = div.layout.add_column(str(i), size=ResponsiveSize(md=1))
             column.add_child(P(self.view, text='1/12th on md and larger'))
 
 

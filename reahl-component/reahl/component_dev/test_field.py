@@ -420,7 +420,7 @@ def test_arguments_to_event(fixture):
         Event(action=EmptyStub())
 
     def check_exc(expected_message, ex):
-        message = six.text_type(ex).split(':')[1][1:]
+        message = str(ex).split(':')[1][1:]
         assert message.startswith(expected_message)
 
         # readable/writable are callable

@@ -88,7 +88,7 @@ def test_remote_field_validator_handles_GET(web_fixture, validation_scenarios):
     web_fixture.reahl_server.set_app(wsgi_app)
     browser = Browser(wsgi_app)
 
-    browser.open(six.text_type(fixture.url))
+    browser.open(str(fixture.url))
     response = browser.last_response
 
     assert response.unicode_body == fixture.expected_body 

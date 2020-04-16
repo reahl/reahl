@@ -126,7 +126,7 @@ class ResponsiveOption(object):
         for device_class, value in self.device_options.items():
             prefix_to_use = prefix or self.prefix
             css_class = device_class.as_combined_css_class([prefix_to_use] if prefix_to_use else [],
-                                                           [six.text_type(value)] if value is not True else [])
+                                                           [str(value)] if value is not True else [])
             html_widget.append_class(css_class)
             classes.append(css_class)
 
@@ -298,7 +298,7 @@ class ColumnLayout(Layout):
     def __init__(self, *column_definitions):
         super(ColumnLayout, self).__init__()
         if not all([isinstance(column_definition, six.string_types+(ColumnOptions,)) for column_definition in column_definitions]):
-            raise ProgrammerError('All column definitions are expected be either a ColumnOptions object of a column name, got %s' % six.text_type(column_definitions))
+            raise ProgrammerError('All column definitions are expected be either a ColumnOptions object of a column name, got %s' % str(column_definitions))
         self.added_column_definitions = []
         self.add_slots = False
         self.add_gutters = True

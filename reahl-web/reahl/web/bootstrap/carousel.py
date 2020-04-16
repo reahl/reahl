@@ -86,7 +86,7 @@ class Carousel(Widget):
         self.carousel_panel.append_class('slide')
         self.carousel_panel.set_attribute('data-ride', 'carousel')
 
-        self.carousel_panel.set_attribute('data-interval', six.text_type(interval))
+        self.carousel_panel.set_attribute('data-interval', str(interval))
         pause_option = HTMLAttributeValueOption(pause or 'false', True, constrain_value_to=['hover', 'false'])
         self.carousel_panel.set_attribute('data-pause', pause_option.as_html_snippet())
         self.carousel_panel.set_attribute('data-wrap', 'true' if wrap else 'false')
@@ -153,7 +153,7 @@ class Carousel(Widget):
 
     def add_indicator_for(self, item):
         li = self.indicator_list.add_child(Li(self.view))
-        li.set_attribute('data-target', six.text_type(self.url))
+        li.set_attribute('data-target', str(self.url))
         li.set_attribute('data-slide-to', '%s' % item.index)
         if item.is_active:
             li.append_class('active')

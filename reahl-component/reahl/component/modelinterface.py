@@ -77,7 +77,7 @@ class FieldIndex(object):
         if isinstance(value, Field):
             self.fields[name] = value
             if not value.is_bound:
-                value.bind(six.text_type(name), self.storage_object)
+                value.bind(str(name), self.storage_object)
         super(FieldIndex, self).__setattr__(name, value)
 
     def set(self, name, value):
@@ -537,7 +537,7 @@ class MinLengthConstraint(ValidationConstraint):
     
     @property
     def parameters(self):
-        return six.text_type(self.min_length)
+        return str(self.min_length)
 
     def validate_input(self, unparsed_input):
         if (unparsed_input is not None) and (len(unparsed_input) <  self.min_length):
@@ -560,7 +560,7 @@ class MaxLengthConstraint(ValidationConstraint):
 
     @property
     def parameters(self):
-        return six.text_type(self.max_length)
+        return str(self.max_length)
 
     def validate_input(self, unparsed_input):
         if (unparsed_input is not None) and (len(unparsed_input) > self.max_length):
@@ -712,7 +712,7 @@ class Field(object):
        .. versionchanged:: 4.0
           Added min_length and max_length kwargs.
     """
-    entered_input_type = six.text_type
+    entered_input_type = str
     @arg_checks(readable=IsCallable(allow_none=True, args=(NotYetAvailable('field'),)), writable=IsCallable(allow_none=True, args=(NotYetAvailable('field'),)))
     def __init__(self, default=None, required=False, required_message=None, label=None,
                  readable=None, writable=None, disallowed_message=None,
@@ -942,7 +942,7 @@ class Field(object):
     def unparse_input(self, parsed_value):
         """Override this method on a subclass to specify how that subclass transforms a given Python
            object (`parsed_value`) to a string that represents it to a user."""
-        return six.text_type(parsed_value if parsed_value is not None else '')
+        return str(parsed_value if parsed_value is not None else '')
 
     def from_input(self, unparsed_input, ignore_validation=False, ignore_access=False):
         """Sets the value of this Field from the given `unparsed_input`."""
@@ -1092,7 +1092,7 @@ class Event(Field):
         self.event_argument_fields = event_argument_fields
 
     def __str__(self):
-        argument_string = (', %s' % six.text_type(self.arguments)) if hasattr(self, 'arguments') else ''
+        argument_string = (', %s' % str(self.arguments)) if hasattr(self, 'arguments') else ''
         return 'Event(%s%s)' % (self.name, argument_string)
 
     def from_input(self, unparsed_input, ignore_validation=False, ignore_access=False):
@@ -1686,7 +1686,7 @@ class FileSizeConstraint(ValidationConstraint):
 
     @property
     def parameters(self):
-        return six.text_type(self.max_size_bytes)
+        return str(self.max_size_bytes)
 
     def validate_input(self, unparsed_input):
         files_list = unparsed_input
@@ -1740,7 +1740,7 @@ class MaxFilesConstraint(ValidationConstraint):
 
     @property
     def parameters(self):
-        return six.text_type(self.max_files)
+        return str(self.max_files)
 
     def validate_input(self, unparsed_input):
         files_list = unparsed_input

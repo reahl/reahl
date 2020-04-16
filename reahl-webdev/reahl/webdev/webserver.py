@@ -74,7 +74,7 @@ class WrappedApp(object):
         except:
             to_return = b''
             (_, self.exception, self.traceback) = sys.exc_info()
-            traceback_html = six.text_type(traceback.format_exc())
+            traceback_html = str(traceback.format_exc())
             for i in HTTPInternalServerError(content_type=ascii_as_bytes_or_str('text/plain'), charset=ascii_as_bytes_or_str('utf-8'), unicode_body=traceback_html)(environ, start_response):
                 to_return += i
         yield to_return

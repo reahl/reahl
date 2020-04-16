@@ -113,7 +113,7 @@ class UserSession(Base, UserSessionProtocol):
 
     def as_key(self):
         Session.flush() # To make sure .id is populated
-        return '%s:%s' % (six.text_type(self.id), self.salt)
+        return '%s:%s' % (str(self.id), self.salt)
 
     def secure_cookie_is_valid(self):
         context = ExecutionContext.get_context()
@@ -260,7 +260,7 @@ class UserInput(SessionData, UserInputProtocol):
 
         values = [i.value for i in query.all()]
 
-        if value_type is six.text_type:
+        if value_type is str:
             assert len(values) == 1, 'There are %s saved values for "%s", but there should only be one' % (len(values), key)
             return values[0]
         elif value_type is list:
@@ -279,11 +279,11 @@ class UserInput(SessionData, UserInputProtocol):
         for i in cls.find_for(view, form=form).filter_by(key=key):
             Session.delete(i)
 
-        if value_type is six.text_type:
-            assert isinstance(value, six.text_type), 'Cannot handle the value: ' + six.text_type(value)
+        if value_type is str:
+            assert isinstance(value, str), 'Cannot handle the value: ' + str(value)
             cls.save_for(view, form=form, key=key, value=value)
         elif value_type is list:
-            assert all([isinstance(i, six.text_type) for i in value]), 'Cannot handle the value: ' + six.text_type(value)
+            assert all([isinstance(i, str) for i in value]), 'Cannot handle the value: ' + str(value)
             if value:
                 for i in value:
                     cls.save_for(view, form=form, key=key, value=i)

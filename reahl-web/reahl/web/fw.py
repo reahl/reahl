@@ -115,7 +115,7 @@ class Url(object):
     def get_current_url(cls, request=None):
         """Returns the Url requested by the current Request."""
         request = request or ExecutionContext.get_context().request
-        return cls(six.text_type(request.url))
+        return cls(str(request.url))
     
     def __init__(self, url_string):
         split_url = urllib.parse.urlsplit(url_string)
@@ -193,7 +193,7 @@ class Url(object):
 
     def as_network_absolute(self):
         """Returns a new Url equal to this one, except that it does not contain a scheme, hostname or port."""
-        absolute = Url(six.text_type(self))
+        absolute = Url(str(self))
         absolute.make_network_absolute()
         return absolute
 
@@ -212,13 +212,13 @@ class Url(object):
 
     def as_locale_relative(self):
         """Returns a new Url equal to this one, except that it does not include the starting path indicating locale."""
-        relative = Url(six.text_type(self))
+        relative = Url(str(self))
         relative.make_locale_relative()
         return relative
 
     def with_new_locale(self, locale):
         """Returns a new Url equal to this one, but with a starting path for the locale given."""
-        new_url = Url(six.text_type(self)).as_locale_relative()
+        new_url = Url(str(self)).as_locale_relative()
         new_url.make_locale_absolute(locale=locale)
         return new_url
         
@@ -859,7 +859,7 @@ class Bookmark(object):
 class RedirectToScheme(HTTPSeeOther):
     def __init__(self, scheme):
         self.scheme = scheme
-        super(RedirectToScheme, self).__init__(location=ascii_as_bytes_or_str(six.text_type(self.compute_target_url())))
+        super(RedirectToScheme, self).__init__(location=ascii_as_bytes_or_str(str(self.compute_target_url())))
 
     def compute_target_url(self):
         context = ExecutionContext.get_context()
@@ -874,7 +874,7 @@ class Redirect(HTTPSeeOther):
     """
     def __init__(self, target):
         self.target = target
-        super(Redirect, self).__init__(location=ascii_as_bytes_or_str(six.text_type(self.compute_target_url())))
+        super(Redirect, self).__init__(location=ascii_as_bytes_or_str(str(self.compute_target_url())))
      
     def compute_target_url(self):
         return self.target.href.as_network_absolute()
@@ -893,7 +893,7 @@ class Detour(Redirect):
     def compute_target_url(self):
         redirect_url = super(Detour, self).compute_target_url()
         qs = redirect_url.get_query_dict()
-        qs['returnTo'] = [six.text_type(self.return_to.href.as_network_absolute())]
+        qs['returnTo'] = [str(self.return_to.href.as_network_absolute())]
         redirect_url.set_query_from(qs, doseq=True)
         return redirect_url
 
@@ -1242,7 +1242,7 @@ class Widget(object):
         for i in inputs_on_page:
             if i.form not in forms_found_on_page:
                 message = 'Could not find form for %s. Its form, %s is not present on the current page' \
-                          % (six.text_type(i), six.text_type(i.form))
+                          % (str(i), str(i.form))
                 raise ProgrammerError(message)
 
     def check_forms_unique(self, forms):
@@ -1422,7 +1422,7 @@ class RegexPath(object):
     def parse_arguments_from_fields(self, for_fields, relative_path):
         if not for_fields:
             return {}
-        assert isinstance(relative_path, six.text_type) # Scaffolding for Py3 port
+        assert isinstance(relative_path, str) # Scaffolding for Py3 port
         matched_arguments = self.match(relative_path).match.groupdict()
         fields = self.get_temp_url_argument_field_index(for_fields)
 
@@ -1963,7 +1963,7 @@ class UrlBoundView(View):
     @property
     def construction_client_side_state(self):
         if not hasattr(self, '_construction_client_side_state'):
-            state = self.persisted_userinput_class.get_persisted_for_view(self, '__reahl_last_construction_client_side_state__', six.text_type)
+            state = self.persisted_userinput_class.get_persisted_for_view(self, '__reahl_last_construction_client_side_state__', str)
             self._construction_client_side_state = state
         else:
             state = self._construction_client_side_state
@@ -1993,7 +1993,7 @@ class UrlBoundView(View):
 
     def save_last_construction_state(self):
         self.clear_last_construction_state()
-        self.persisted_userinput_class.add_persisted_for_view(self.view, '__reahl_last_construction_client_side_state__', self.construction_client_side_state, six.text_type)
+        self.persisted_userinput_class.add_persisted_for_view(self.view, '__reahl_last_construction_client_side_state__', self.construction_client_side_state, str)
 
     def clear_last_construction_state(self):
         self.persisted_userinput_class.remove_persisted_for_view(self.view, '__reahl_last_construction_client_side_state__')
@@ -2017,7 +2017,7 @@ class RedirectView(UrlBoundView):
         self.to_bookmark = to_bookmark
 
     def as_resource(self, page):
-        raise HTTPSeeOther(location=ascii_as_bytes_or_str(six.text_type(self.to_bookmark.href.as_network_absolute())))
+        raise HTTPSeeOther(location=ascii_as_bytes_or_str(str(self.to_bookmark.href.as_network_absolute())))
 
 
 class PseudoView(View):
@@ -2030,7 +2030,7 @@ class NoView(PseudoView):
 
 class UserInterfaceRootRedirectView(PseudoView):
     def as_resource(self, page):
-        raise HTTPSeeOther(location=ascii_as_bytes_or_str(six.text_type(self.user_interface.get_absolute_url_for('/').as_network_absolute())))
+        raise HTTPSeeOther(location=ascii_as_bytes_or_str(str(self.user_interface.get_absolute_url_for('/').as_network_absolute())))
     
 
 
@@ -2232,7 +2232,7 @@ class MethodResult(object):
     def render_exception(self, exception):
         """Instead of overriding `.create_exception_response` to customise how `exception` will be reported, 
            this method can be overridden instead, supplying only the body of a normal 200 Response."""
-        return six.text_type(exception)
+        return str(exception)
 
     def get_response(self, return_value, is_internal_redirect):
         if self.replay_request and not is_internal_redirect:
@@ -2268,11 +2268,11 @@ class RedirectAfterPost(MethodResult):
 
     def create_response(self, return_value):
         next_url = return_value
-        return HTTPSeeOther(location=ascii_as_bytes_or_str(six.text_type(next_url)))
+        return HTTPSeeOther(location=ascii_as_bytes_or_str(str(next_url)))
     
     def create_exception_response(self, exception):
         next_url = SubResource.get_parent_url()
-        return HTTPSeeOther(location=ascii_as_bytes_or_str(six.text_type(next_url)))
+        return HTTPSeeOther(location=ascii_as_bytes_or_str(str(next_url)))
 
 
 class JsonResult(MethodResult):
@@ -2294,7 +2294,7 @@ class JsonResult(MethodResult):
         return self.fields.result.as_input()
 
     def render_exception(self, exception):
-        return '"%s"' % six.text_type(exception)
+        return '"%s"' % str(exception)
 
 
 class RegenerateMethodResult(InternalRedirect):
@@ -2774,7 +2774,7 @@ class FileDownload(Response):
         super(FileDownload, self).__init__(app_iter=self, conditional_response=True)
         self.content_type = ascii_as_bytes_or_str(self.file.mime_type) if self.file.mime_type else None
         self.charset = ascii_as_bytes_or_str(self.file.encoding) if self.file.encoding else None
-        self.content_length = ascii_as_bytes_or_str(six.text_type(self.file.size)) if (self.file.size is not None) else None
+        self.content_length = ascii_as_bytes_or_str(str(self.file.size)) if (self.file.size is not None) else None
         self.last_modified = datetime.fromtimestamp(self.file.mtime)
         self.etag = ascii_as_bytes_or_str(('%s-%s-%s' % (self.file.mtime,
                                                          self.file.size, 
@@ -3043,7 +3043,7 @@ class ReahlWSGIApplication(object):
                 except HTTPException as e:
                     response = e
                 except DisconnectionError as e:
-                    response = HTTPInternalServerError(unicode_body=six.text_type(e))
+                    response = HTTPInternalServerError(unicode_body=str(e))
                 except CouldNotConstructResource as e:
                     if self.config.reahlsystem.debug:
                         six.raise_from(e.__cause__, None)

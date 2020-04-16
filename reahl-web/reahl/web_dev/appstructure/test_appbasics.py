@@ -111,7 +111,7 @@ def test_basic_assembly(web_fixture, basic_scenarios):
         browser.open('/')
         assert browser.title == 'Hello'
 
-    warning_messages = [six.text_type(i.message) for i in caught_warnings]
+    warning_messages = [str(i.message) for i in caught_warnings]
     assert len(warning_messages) == len(fixture.expected_warnings)
     for caught, expected_message in itertools.zip_longest(warning_messages, fixture.expected_warnings):
         assert expected_message in caught

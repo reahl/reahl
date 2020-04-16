@@ -41,7 +41,7 @@ class BasicObjectSetup(Fixture):
         class TestClass(object):
             def inflate_attributes(self, reader, attributes, parent):
                 self.attr2 = int(attributes['attr2'])
-                self.attr1 = six.text_type(attributes['attr1'])
+                self.attr1 = str(attributes['attr1'])
                 self.parent = parent
         return TestClass
 

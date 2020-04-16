@@ -127,7 +127,7 @@ class ListConfig(ProductionCommand):
                 to_print += '\t%s' % value
             if args.print_defaults:
                 if setting.defaulted:
-                    message = six.text_type(setting.default)
+                    message = str(setting.default)
                     if setting.dangerous:
                         message += ' (DANGEROUS DEFAULT)'
                 elif setting.automatic:
@@ -332,7 +332,7 @@ class ListDependencies(ProductionCommand):
         for distribution in distributions:
             deps = ''
             if args.verbose:
-                deps = '[%s]' % (' | '.join([six.text_type(i) for i in distribution.requires()]))
+                deps = '[%s]' % (' | '.join([str(i) for i in distribution.requires()]))
             print('%s %s' % (distribution, deps))
         return 0
 
@@ -362,7 +362,7 @@ class ExportStaticFiles(ProductionCommand):
         try:
             os.mkdir(args.destination_directory)
         except Exception as ex:
-            raise DomainException(message='Could not create %s: %s' % (args.destination_directory, six.text_type(ex)))
+            raise DomainException(message='Could not create %s: %s' % (args.destination_directory, str(ex)))
             
         for packaged_file in self.config.web.frontend_libraries.packaged_files():
             print('extracting %s' % packaged_file.full_path)

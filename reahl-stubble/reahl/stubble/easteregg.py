@@ -70,7 +70,7 @@ class EasterEgg(pkg_resources.Distribution):
         self.entry_points = {}
 
     def as_requirement_string(self):
-        return six.text_type(self.as_requirement())
+        return str(self.as_requirement())
 
     def add_dependency(self, spec):
         requirement = pkg_resources.Requirement.parse(spec)

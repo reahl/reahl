@@ -73,7 +73,7 @@ class BasicBrowser(object):
             html_file.write(self.raw_html)
 
     def is_element_present(self, locator):
-        xpath = six.text_type(locator)
+        xpath = str(locator)
         return len(self.lxml_html.xpath(xpath)) > 0
 
     @property
@@ -84,21 +84,21 @@ class BasicBrowser(object):
 
     def xpath(self, xpath):
         """Returns the `lmxl Element <http://lxml.de/>`_ found by the given `xpath`."""
-        return self.lxml_html.xpath(six.text_type(xpath))
+        return self.lxml_html.xpath(str(xpath))
 
     def get_xpath_count(self, locator):
         """Answers the number of elements matching `locator`.
 
            :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
         """
-        return len(self.xpath(six.text_type(locator)))
+        return len(self.xpath(str(locator)))
 
     def get_html_for(self, locator):
         """Returns the HTML of the element (including its own tags) targeted by the given `locator`
 
            :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
         """
-        xpath = six.text_type(locator)
+        xpath = str(locator)
         element = self.xpath(xpath)[0]
         return html.tostring(element, encoding='unicode')
 
@@ -108,12 +108,12 @@ class BasicBrowser(object):
 
            :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
         """
-        xpath = six.text_type(locator)
+        xpath = str(locator)
         element = self.xpath(xpath)[0]
         return ''.join(html.tostring(child, encoding='unicode') for child in element.getchildren())
 
     def get_id_of(self, locator):
-        xpath = six.text_type(locator)
+        xpath = str(locator)
         element = self.xpath(xpath)[0]
         return element.attrib['id']
 
@@ -247,7 +247,7 @@ class Browser(BasicBrowser):
 
            :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
         """
-        xpath = six.text_type(locator)
+        xpath = str(locator)
         form_id = self.xpath('%s[@form]' % xpath)[0].attrib['form']
         form_element = self.xpath('//form[@id=\'%s\']' % form_id)[0]
         patch_Field()
@@ -259,7 +259,7 @@ class Browser(BasicBrowser):
            :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
            :param text: The text to be typed.
         """
-        xpath = six.text_type(locator)
+        xpath = str(locator)
         inputs = self.xpath(xpath) 
         assert len(inputs) == 1
         form = self.get_form_for(xpath)
@@ -273,7 +273,7 @@ class Browser(BasicBrowser):
            Other keyword arguments are passed directly on to 
            `Form.submit <http://webtest.readthedocs.org/en/latest/api.html#webtest.forms.Form.submit>`_.
         """
-        xpath = six.text_type(locator)
+        xpath = str(locator)
         buttons = self.xpath(xpath)
         assert len(buttons) == 1, 'Could not find one (and only one) button for %s' % locator
         button = buttons[0]
@@ -298,7 +298,7 @@ class Browser(BasicBrowser):
            :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
            :param label_to_choose: The label of the option that should be selected.
         """
-        xpath = six.text_type(locator)
+        xpath = str(locator)
         select = self.xpath(xpath)
         assert len(select) == 1, 'Could not find one (and only one) element for %s' % locator
         select = select[0]
@@ -318,7 +318,7 @@ class Browser(BasicBrowser):
            :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
            :param labels_to_choose: The labels of the options that should be selected.
         """
-        xpath = six.text_type(locator)
+        xpath = str(locator)
         select = self.xpath(xpath)
         assert len(select) == 1, 'Could not find one (and only one) element for %s' % locator
         select = select[0]
@@ -342,7 +342,7 @@ class Browser(BasicBrowser):
 
            :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
         """
-        xpath = six.text_type(locator)
+        xpath = str(locator)
         select = self.xpath(xpath)
         assert len(select) == 1, 'Could not find one (and only one) element for %s' % locator
         select = select[0]
@@ -356,7 +356,7 @@ class Browser(BasicBrowser):
 
            :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
         """
-        xpath = six.text_type(locator)
+        xpath = str(locator)
         inputs = self.xpath(xpath)
         assert len(inputs) == 1
         form = self.get_form_for(xpath)
@@ -371,7 +371,7 @@ class Browser(BasicBrowser):
 
            :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
         """
-        xpath = six.text_type(locator)
+        xpath = str(locator)
         try:
             img_src = self.lxml_html.xpath(xpath)[0].attrib['src']
             self.open(img_src)
@@ -406,7 +406,7 @@ class Browser(BasicBrowser):
 
            :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
         """
-        xpath = six.text_type(locator)
+        xpath = str(locator)
         [element] = self.xpath(xpath)
         if element.tag == 'a':
             return 'href' in element.attrib
@@ -420,7 +420,7 @@ class XPath(object):
        A programmer is not supposed to instantiate an XPath directly. Use one of the descriptive
        class methods to instantiate an XPath instance.
 
-       An XPath expression in a string is returned when an XPath object is cast to six.text_type.
+       An XPath expression in a string is returned when an XPath object is cast to str.
 
        .. versionchanged:: 5.0
           Removed .checkbox_in_table_row() method.
@@ -800,7 +800,7 @@ class DriverBrowser(BasicBrowser):
 
            :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
         """
-        xpath = six.text_type(locator)
+        xpath = str(locator)
         if wait:
             return WebDriverWait(self.web_driver, 2).until(lambda d: d.find_element_by_xpath(xpath), 'waited for %s' % xpath)
         else:
@@ -847,7 +847,7 @@ class DriverBrowser(BasicBrowser):
 
            :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
         """
-        xpath = six.text_type(locator)
+        xpath = str(locator)
         try:
             el = self.find_element(locator, wait=False)
         except:
@@ -998,7 +998,7 @@ class DriverBrowser(BasicBrowser):
             url.hostname = self.default_host
             url.scheme = self.default_scheme
             url.port = self.default_port
-        self.web_driver.get(six.text_type(url))
+        self.web_driver.get(str(url))
         self.wait_for_page_to_load()
 
     def click(self, locator, wait=True, wait_for_ajax=True):
@@ -1093,7 +1093,7 @@ class DriverBrowser(BasicBrowser):
 
            :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
         """
-        xpath = six.text_type(locator)
+        xpath = str(locator)
         self.wait_for_element_present(locator)
         el = self.find_element(xpath)
         actions = ActionChains(self.web_driver)
@@ -1125,7 +1125,7 @@ class DriverBrowser(BasicBrowser):
            ..versionadded:: 3.2
 
         """
-        xpath = six.text_type(locator)
+        xpath = str(locator)
         self.wait_for_element_present(locator)
         el = self.find_element(xpath)
         return self.web_driver.execute_script('arguments[0].focus();', el)
@@ -1233,7 +1233,7 @@ class DriverBrowser(BasicBrowser):
         src = self.get_attribute(locator,'src')
         location = self.current_url
         location.path = urllib.parse.urljoin(location.path, src)
-        self.open(six.text_type(location))
+        self.open(str(location))
         self.go_back()
         return True
 
@@ -1339,7 +1339,7 @@ class DriverBrowser(BasicBrowser):
 
            :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
         """
-        return len(self.web_driver.find_elements_by_xpath(six.text_type(locator)))
+        return len(self.web_driver.find_elements_by_xpath(str(locator)))
 
     def capture_cropped_screenshot(self, output_file, background='White'):
         """Takes a screenshot of the current page, and writes it to `output_file`. The image is cropped

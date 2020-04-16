@@ -81,7 +81,7 @@ class ExplainLegend(WorkspaceCommand):
     keyword = 'explainlegend'
     def execute(self, args):
         for status in StatusException.get_statusses():
-            print('%s\t%s' % (status.legend, six.text_type(status())))
+            print('%s\t%s' % (status.legend, str(status())))
 
 
 class Select(WorkspaceCommand):
@@ -236,10 +236,10 @@ class ForAllWorkspaceCommand(WorkspaceCommand):
                     NotUploadedException, AlreadyMarkedAsReleasedException,
                     AlreadyUploadedException, NotBuiltException,
                     NotBuiltAfterLastCommitException, NotBuiltException) as ex:
-                print(six.text_type(ex), file=sys.stderr)
+                print(str(ex), file=sys.stderr)
                 retcode = None
             except CalledProcessError as ex:
-                print(six.text_type(ex), file=sys.stderr)
+                print(str(ex), file=sys.stderr)
                 retcode = ex.returncode
 
         if retcode != None:
@@ -338,7 +338,7 @@ class Info(ForAllWorkspaceCommand):
         self.print_heading('\tMain project:\t%s' % main_project.directory)
         self.print_heading('\tPackages to distribute:')
         for package in main_project.packages_to_distribute:
-            print('\t%s' % six.text_type(package))
+            print('\t%s' % str(package))
         print('\n')
         return 0
 

@@ -414,7 +414,7 @@ def test_setup_project_file_queries():
 
     # Default Metadata queries that will com for setup.py:
     assert project.project_name == os.path.basename(project_dir.name)
-    assert six.text_type(project.version) == '0.0'
+    assert str(project.version) == '0.0'
 
     @stubclass(ProjectMetadata)
     class MetadataStub(object):
@@ -426,7 +426,7 @@ def test_setup_project_file_queries():
             return 'test-proj'
 
     project.metadata = MetadataStub()
-    assert six.text_type(project.version_for_setup()) == '3.1.2a1'
+    assert str(project.version_for_setup()) == '3.1.2a1'
     assert project.project_name == 'test-proj'
 
     packages = project.packages_for_setup()

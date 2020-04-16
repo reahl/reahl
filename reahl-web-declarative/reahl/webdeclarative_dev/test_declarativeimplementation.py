@@ -255,7 +255,7 @@ def test_session_keeps_living(web_fixture):
 class InputScenarios(Fixture):
     @scenario
     def text(self):
-        self.entered_input_type = six.text_type
+        self.entered_input_type = str
         self.entered_input = 'some value to save'
         self.empty_entered_input = ''
 

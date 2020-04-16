@@ -256,10 +256,10 @@ def test_file_download_details(web_fixture):
     mtime = datetime.datetime.fromtimestamp(int(os.path.getmtime(server_file.name)))
     assert response.last_modified.replace(tzinfo=None) == mtime
     tag_mtime, tag_size, tag_hash = response.etag.split('-')
-    mtime = six.text_type(os.path.getmtime(server_file.name))
+    mtime = str(os.path.getmtime(server_file.name))
     assert tag_mtime == mtime
-    assert tag_size == six.text_type(len(file_content))
-    assert tag_hash == six.text_type(abs(hash(server_file.name)))
+    assert tag_size == str(len(file_content))
+    assert tag_hash == str(abs(hash(server_file.name)))
 
     # Case: conditional response is supported
     assert response.conditional_response

@@ -139,7 +139,7 @@ class PageIndex(PageIndexProtocol):
         """Override this @property in subclasses to state what the total number of pages is."""
 
     def get_description_for_page(self, page_number):
-        return six.text_type(page_number)
+        return str(page_number)
 
     @property
     @memoized
@@ -257,7 +257,7 @@ class AnnualPageIndex(PageIndex):
         return self.annual_item_organiser.get_items_for_year(year)
 
     def get_description_for_page(self, page_number):
-        return six.text_type(self.years[page_number-1])
+        return str(self.years[page_number-1])
 
     @property
     def years(self):

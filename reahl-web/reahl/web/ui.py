@@ -388,7 +388,7 @@ class HTMLElement(Widget):
 
     def generate_random_css_id(self):
         if not self.css_id_is_set:
-            self.set_css_id('tmpid-%s-%s' % (id(self), six.text_type(time.time()).replace('.', '-')))
+            self.set_css_id('tmpid-%s-%s' % (id(self), str(time.time()).replace('.', '-')))
         else:
             raise ProgrammerError('%s already has a css_id set, will not overwrite it!' % self)
         return self.css_id
@@ -504,7 +504,7 @@ class Link(HTMLElement):
     def __init__(self, view, rel, href, _type=None, css_id=None):
         super(Link, self).__init__(view, 'link', css_id=css_id)
         self.set_attribute('rel', rel)
-        self.set_attribute('href', six.text_type(href))
+        self.set_attribute('href', str(href))
         if _type is not None:
             self.set_attribute('type', _type)
 
@@ -702,7 +702,7 @@ class A(HTMLElement):
     def attributes(self):
         attributes = super(A, self).attributes
         if self.active and (not self.disabled) and self.href is not None:
-            attributes.set_to('href', six.text_type(self.href))
+            attributes.set_to('href', str(self.href))
         return attributes
 
     def get_js(self, context=None):
@@ -829,7 +829,7 @@ class P(HTMLElement):
             filled_p.add_child(child)
 
         for i in list(range(0, len(args))):
-            filled_p.set_slot(six.text_type(i), args[i])
+            filled_p.set_slot(str(i), args[i])
         for slot_name, widget in kwargs.items():
             filled_p.set_slot(slot_name, widget)
         return filled_p
@@ -996,7 +996,7 @@ class Img(HTMLElement):
     def __init__(self, view, src=None, alt=None, css_id=None):
         super(Img, self).__init__(view, 'img', css_id=css_id)
         if src is not None:
-            self.set_attribute('src', six.text_type(src))
+            self.set_attribute('src', str(src))
         if alt:
             self.set_attribute('alt', alt)
 
@@ -1071,7 +1071,7 @@ class Form(HTMLElement):
         self.rendered_form = rendered_form or self
         assert unique_name == self.event_channel.name
         super(Form, self).__init__(view, 'form', children_allowed=True, css_id=unique_name)
-        self.set_attribute('data-formatter', six.text_type(self.input_formatter.get_url()))
+        self.set_attribute('data-formatter', str(self.input_formatter.get_url()))
 
         class DelayedConcurrencyDigestValue(DelegatedAttributes):
             def __init__(self, digest_input, for_database_values=False):
@@ -1187,7 +1187,7 @@ class Form(HTMLElement):
         action = self.event_channel.get_url()
         action.query = request.query_string
         action.make_network_relative()
-        return six.text_type(action)
+        return str(action)
 
     def register_input(self, input_widget):
         assert input_widget not in self.inputs.values(), 'Cannot register the same input twice to this form' 
@@ -1796,7 +1796,7 @@ class HTMLInputElement(HTMLElement):
 
         def jquery_validate_parameters_for(validation_constraint):
             if validation_constraint.is_remote:
-                return six.text_type(input_widget.form.field_validator.get_url())
+                return str(input_widget.form.field_validator.get_url())
             elif validation_constraint.name in html5_validations:
                 return validation_constraint.parameters
             return validation_constraint.parameters or 'true'
@@ -1847,9 +1847,9 @@ class TextArea(PrimitiveInput):
         self.text = html_text_area.add_child(TextNode(self.view, self.get_value))
 
         if self.rows:
-            html_text_area.set_attribute('rows', six.text_type(self.rows))
+            html_text_area.set_attribute('rows', str(self.rows))
         if self.columns:
-            html_text_area.set_attribute('cols', six.text_type(self.columns))
+            html_text_area.set_attribute('cols', str(self.columns))
 
         return html_text_area
 
@@ -2453,7 +2453,7 @@ class SimpleFileInput(PrimitiveInput):
     def get_value_from_input(self, input_values):
         field_storages = input_values.get(self.name, [])
 
-        return [UploadedFile(six.text_type(field_storage.filename), field_storage.file.read(), six.text_type(field_storage.type))
+        return [UploadedFile(str(field_storage.filename), field_storage.file.read(), str(field_storage.type))
                  for field_storage in field_storages
                  if field_storage not in ('', b'')]
 
@@ -2598,9 +2598,9 @@ class Cell(HTMLElement):
     def __init__(self, view, html_tag_name, rowspan=None, colspan=None, css_id=None):
         super(Cell, self).__init__(view, html_tag_name, children_allowed=True, css_id=css_id)
         if rowspan:
-            self.set_attribute('rowspan', six.text_type(rowspan))
+            self.set_attribute('rowspan', str(rowspan))
         if colspan:
-            self.set_attribute('colspan', six.text_type(colspan))
+            self.set_attribute('colspan', str(colspan))
 
 
 class Th(Cell):

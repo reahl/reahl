@@ -79,7 +79,7 @@ def test_login_with_detour(web_fixture, party_account_fixture, accounts_web_fixt
     assert fixture.browser.current_url.path == '/a_ui/register'
     assert fixture.browser.current_url.query == 'a=b&name=kitty'
 
-    fixture.browser.open(six.text_type(fixture.new_login_bookmark(request=fixture.browser.last_request).href))
+    fixture.browser.open(str(fixture.new_login_bookmark(request=fixture.browser.last_request).href))
     fixture.browser.click('//a[text()="Forgot your password?"]')
     fixture.browser.go_back()
     fixture.browser.type('//input[@name="login_form-email"]', account.email)
