@@ -19,7 +19,7 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 from datetime import datetime, timedelta
 
 import six
-from six.moves import http_cookies
+import http.cookies
 import urllib.parse
 
 from sqlalchemy import Column, ForeignKey, Integer
@@ -122,7 +122,7 @@ def test_setting_cookies_on_response(sql_alchemy_fixture, web_fixture):
         class ResponseStub(Response):
             @property
             def cookies(self):
-                cookies = http_cookies.SimpleCookie()
+                cookies = http.cookies.SimpleCookie()
                 for header, value in self.headerlist:
                     if header == 'Set-Cookie':
                         cookies.load(value)

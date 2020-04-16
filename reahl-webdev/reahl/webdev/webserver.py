@@ -33,7 +33,7 @@ import logging
 import functools
 import pkg_resources
 
-from six.moves.http_client import CannotSendRequest
+from http.client import CannotSendRequest
 
 from webob import Request
 from webob.exc import HTTPInternalServerError
@@ -121,12 +121,8 @@ class PatchedServerHandler(ServerHandler):
         # we want to fail silently and give up. This often happens in tests where the
         # browser may want to request embedded links (like stylesheets) too, yet the
         # test has already clicked on the next link.
-        if six.PY3:
-            ssl_eof_error = ssl.SSLEOFError
-            broken_pipe_error = BrokenPipeError
-        else:
-            ssl_eof_error = ssl.SSLError
-            broken_pipe_error = socket.error
+        ssl_eof_error = ssl.SSLEOFError
+        broken_pipe_error = BrokenPipeError
             
         try:
             ServerHandler.finish_response(self)

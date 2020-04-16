@@ -21,8 +21,8 @@ import six
 import os.path
 import warnings
 import io
+import itertools
 
-from six.moves import zip_longest
 from reahl.tofu import expected, scenario, Fixture, uses
 from reahl.tofu.pytestsupport import with_fixtures
 from reahl.stubble import EmptyStub
@@ -113,7 +113,7 @@ def test_basic_assembly(web_fixture, basic_scenarios):
 
     warning_messages = [six.text_type(i.message) for i in caught_warnings]
     assert len(warning_messages) == len(fixture.expected_warnings)
-    for caught, expected_message in zip_longest(warning_messages, fixture.expected_warnings):
+    for caught, expected_message in itertools.zip_longest(warning_messages, fixture.expected_warnings):
         assert expected_message in caught
 
     if fixture.content_includes_p:

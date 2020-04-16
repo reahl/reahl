@@ -28,8 +28,8 @@ import time
 import json
 import urllib.parse
 import logging
-from six.moves.http_cookiejar import Cookie
-from six.moves.http_client import CannotSendRequest
+from http.cookiejar import Cookie
+from http.client import CannotSendRequest
 
 from webtest import TestApp
 from lxml import html

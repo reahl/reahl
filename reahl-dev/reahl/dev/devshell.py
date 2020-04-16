@@ -30,8 +30,6 @@ from contextlib import contextmanager
 import traceback
 import shlex
 
-from six.moves import cStringIO
-
 from reahl.component.shelltools import Command, ReahlCommandline, Executable
 
 from reahl.dev.devdomain import Workspace, Project, ProjectList, ProjectNotFound, LocalAptRepository, SetupCommandFailed

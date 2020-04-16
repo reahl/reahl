@@ -49,7 +49,7 @@ import tempfile
 import warnings
 from collections import OrderedDict
 from pkg_resources import Requirement
-from six.moves import cStringIO
+
 import urllib.parse
 from webob import Request, Response
 from webob.exc import HTTPException
@@ -2685,14 +2685,14 @@ class ConcatenatedFile(FileOnDisk):
                 if six.PY3:
                     self.monkey_patch_ply()
 
-                text = cStringIO()
+                text = io.StringIO()
                 for line in input_stream:
                     text.write(line)
                 output_stream.write(slimit.minify(text.getvalue(), mangle=True, mangle_toplevel=True))
 
         class CSSMinifier(object):
             def minify(self, input_stream, output_stream):
-                text = cStringIO()
+                text = io.StringIO()
                 for line in input_stream:
                     text.write(line)
                 output_stream.write(cssmin.cssmin(text.getvalue()))

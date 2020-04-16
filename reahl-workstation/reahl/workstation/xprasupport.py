@@ -25,7 +25,6 @@ import contextlib
 import itertools
 import collections
 
-from six.moves import cStringIO
 
 from reahl.component.shelltools import Command, Executable, CompositeCommand
 

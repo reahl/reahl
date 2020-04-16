@@ -179,10 +179,7 @@ class CompositeCommand(Command):
 
     def print_command(self, keyword, description, max_len, out_stream):
         keyword_column = ('{0: <%s}  ' % max_len).format(keyword)
-        if six.PY3:
-            width = shutil.get_terminal_size().columns or 80
-        else:
-            width = 80
+        width = shutil.get_terminal_size().columns or 80
         output = textwrap.fill(description, width=width, initial_indent=keyword_column, subsequent_indent=' '*(max_len+2))
         print(output, file=out_stream)
         

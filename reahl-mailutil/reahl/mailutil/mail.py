@@ -25,8 +25,8 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 import re
 import smtplib
 import logging
-from six.moves import email_mime_multipart as MIMEMultipart
-from six.moves import email_mime_text as MIMEText
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 
 from reahl.component.context import ExecutionContext
 from reahl.mailutil.rst import RestructuredText

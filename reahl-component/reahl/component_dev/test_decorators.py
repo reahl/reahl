@@ -21,7 +21,7 @@ import six
 import warnings
 import contextlib
 import platform
-from six.moves import zip_longest
+import itertools
 
 import pkg_resources
 
@@ -40,7 +40,7 @@ def expected_deprecation_warnings(expected_warnings):
 
     warning_messages = [six.text_type(i.message) for i in caught_warnings]
     assert len(warning_messages) == len(expected_warnings) 
-    for caught, expected_message in zip_longest(warning_messages, expected_warnings):
+    for caught, expected_message in itertools.zip_longest(warning_messages, expected_warnings):
         assert expected_message in caught 
 
 

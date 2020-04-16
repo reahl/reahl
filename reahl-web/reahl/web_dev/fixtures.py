@@ -18,7 +18,7 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
 import six
 import os
-from six.moves import http_cookies 
+import http.cookies 
 
 from webob import Request, Response
 
@@ -146,7 +146,7 @@ class WebFixture(Fixture):
         # quickly create a response so the fw sets the cookies, which we copy and explicitly set on selenium.
         response = Response()
         session.set_session_key(response)
-        cookies = http_cookies.BaseCookie(ascii_as_bytes_or_str(', '.join(response.headers.getall('set-cookie'))))
+        cookies = http.cookies.BaseCookie(ascii_as_bytes_or_str(', '.join(response.headers.getall('set-cookie'))))
         for name, morsel in cookies.items():
             cookie = {'name':name, 'value':morsel.value}
             cookie.update(dict([(key, value) for key, value in morsel.items() if value]))
