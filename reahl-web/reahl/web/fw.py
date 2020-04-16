@@ -1424,8 +1424,8 @@ class RegexPath(object):
         fields = self.get_temp_url_argument_field_index(for_fields)
 
         raw_input_values = MultiDict()
-        raw_input_values.update([(self.convert_str_to_identifier(key), urllib.parse.unquote(value or ''))
-                                 for key, value in matched_arguments.items()])
+        raw_input_values.update([(argument_name, urllib.parse.unquote(value or ''))
+                                 for argument_name, value in matched_arguments.items()])
         fields.accept_input(raw_input_values.dict_of_lists())
         return fields.as_kwargs()
 
@@ -1433,10 +1433,6 @@ class RegexPath(object):
         fields = self.get_temp_url_argument_field_index(self.argument_fields, arguments)
         fields.validate_defaults()
         return fields.as_input_kwargs()
-
-    @classmethod
-    def convert_str_to_identifier(cls, s):
-        return s
 
 
 class ParameterisedPath(RegexPath):
