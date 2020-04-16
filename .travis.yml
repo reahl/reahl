@@ -12,11 +12,11 @@ env:
     - PATH=$HOME/bin:$PATH
 
   matrix:
-    - TOX_ENV=py34
+#    - TOX_ENV=py34
     - TOX_ENV=py35
     - TOX_ENV=py36
-    - TOX_ENV=py37
-    - TOX_ENV=py38
+#    - TOX_ENV=py37
+#    - TOX_ENV=py38
 
 addons:
   postgresql: "10"
@@ -40,13 +40,9 @@ addons:
         - libsqlite3-0
         - sqlite3
         - postgresql-server-dev-all 
-#        - postgresql-10.12
-#        - postgresql-client-10.12
-#        - postgresql-server-dev-10.12
         - zlib1g-dev
         - libjpeg62-dev
         - libfreetype6-dev
-#        - liblcms1-dev
         - liblcms2-dev
         - libmysqlclient-dev
         - libgconf-2-4 # for chromium
@@ -89,11 +85,6 @@ install:
   - "reahl setup -sX -- develop -N"
 
 before_script:
-  # Set up headless display for browsers
-  # DISPLAY is already set up
-#  - "sh -e /etc/init.d/xvfb start"
-  # No need to give xvfb time to start, because the build hereafter will take lots of time
-
   # Setup pip.conf to use local egg-dist also where we build stuff (for tox to get them)
   - "travis/configurePip.sh"
 
