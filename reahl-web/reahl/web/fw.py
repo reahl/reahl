@@ -105,7 +105,7 @@ class CannotCreate(NoMatchingFactoryFound):
        or UserInterface that is parameterised were invalid."""
 
 
-class Url(object):
+class Url:
     """An Url represents an URL, and is used to modify URLs, or manipulate them in other ways. Construct it
        with an URL in a string."""
     @classmethod
@@ -262,7 +262,7 @@ class InternalRedirect(Exception):
     pass
 
 
-class EventHandler(object):
+class EventHandler:
     """An EventHandler is used to transition the user to the View that matches `target` (a :class:`ViewFactory`),
        but only if the occurring Event matches `event`.
        """
@@ -335,7 +335,7 @@ class FactoryDict(set):
             return default
 
 
-class Controller(object):
+class Controller:
     def __init__(self, user_interface):
         self.user_interface = user_interface
         self.event_handlers = []
@@ -403,7 +403,7 @@ class Controller(object):
         return handler.get_destination_absolute_url(event_ocurrence)
 
 
-class UserInterface(object):
+class UserInterface:
     """A UserInterface holds a collection of :class:`View` instances, each View with its own URL relative to the UserInterface itself.
        UserInterfaces can also contain other UserInterfaces. 
        
@@ -745,7 +745,7 @@ class StaticUI(UserInterface):
         self.define_regex_view('(?P<file_path>.*)', '${file_path}', factory_method=self.create_view, file_path=Field())
 
 
-class Bookmark(object):
+class Bookmark:
     """Like a bookmark in a browser, an instance of this class is a way to refer to a View in a WebApplication
        that takes into account where the View is relative to the root of the URL hierarchy of the application.
     
@@ -921,7 +921,7 @@ class WidgetList(list):
         return False
 
 
-class Layout(object):
+class Layout:
     """A Layout is used to change what a Widget looks like by (e.g.) changing what css classes are used
        by the Widget, or by letting you add children to a Widget in customised ways.
     """
@@ -947,7 +947,7 @@ class Layout(object):
 
 
 
-class Widget(object):
+class Widget:
     """Any user interface element in Reahl is a Widget. A direct instance of this class will not display anything when rendered. 
        A User interface is composed of Widgets by adding other Widgets to a Widget such as this one,
        forming a whole tree of Widgets.
@@ -1311,7 +1311,7 @@ class PlainErrorPage(ErrorWidget):
 
 
 
-class ViewPreCondition(object):
+class ViewPreCondition:
     """A ViewPreCondition can be used to control whether a user can visit a particular View or not. If the 
        `condition_callable` returns False, `exception` will be raised. Useful exceptions exist, like :class:`Detour` 
        and :class:`Return`.
@@ -1344,13 +1344,13 @@ class ViewPreCondition(object):
         return ViewPreCondition(condition_callable, exception or self.exception)
 
 
-class RatedMatch(object):
+class RatedMatch:
     def __init__(self, match, rating):
         self.match = match
         self.rating = rating
 
 
-class RegexPath(object):
+class RegexPath:
     """Represents a relative path of the URL of a parameterised View. The path is a combination of
        path elements and values for arguments to the View that are embedded in the path.
        
@@ -1470,7 +1470,7 @@ class ParameterisedPath(RegexPath):
         return discriminator+arguments_part
 
 
-class Factory(object):
+class Factory:
     def __init__(self, factory_method):
         super(Factory, self).__init__()
         self.factory_method = factory_method
@@ -1730,7 +1730,7 @@ class ViewPseudoFactory(ViewFactory):
         return self.bookmark.href.as_network_absolute()
 
 
-class PseudoBookmark(object):
+class PseudoBookmark:
     def as_view_factory(self):
         return ViewPseudoFactory(self)
 
@@ -1755,7 +1755,7 @@ class ReturnToCurrent(PseudoBookmark):
 
 
 
-class View(object):
+class View:
     """A View is how Reahl denotes the target of any URL. Although there are many types of View (to deal with static files, 
       for example), the most used View is an :class:`UrlBoundView`.
     """
@@ -2050,7 +2050,7 @@ class FooterContent(Widget):
                         for library in config.web.frontend_libraries])
 
 
-class Resource(object):
+class Resource:
     def __init__(self, view):
         self.view = view
 
@@ -2178,7 +2178,7 @@ class SubResource(Resource):
         return self.get_url_for(self.unique_name)
 
 
-class MethodResult(object):
+class MethodResult:
     """A :class:`RemoteMethod` can be constructed to yield its results back to a browser in different
        ways. MethodResult is the superclass of all such different kinds of results.
 
@@ -2587,7 +2587,7 @@ class FileView(View):
         return self.viewable_file.name
 
 
-class ViewableFile(object):
+class ViewableFile:
     def __init__(self, name, mime_type, encoding, size, mtime):
         self.name = name
         self.mime_type = mime_type
@@ -2655,12 +2655,12 @@ class ConcatenatedFile(FileOnDisk):
         super(ConcatenatedFile, self).__init__(self.temp_file.name, relative_name)
      
     def minifier(self, relative_name):
-        class NoOpMinifier(object):
+        class NoOpMinifier:
             def minify(self, input_stream, output_stream):
                 for line in input_stream:
                     output_stream.write(line)
         
-        class JSMinifier(object):
+        class JSMinifier:
             def monkey_patch_ply(self):
                 # Current version of ply (used by slimit) has a bug in Py3
                 # See https://github.com/rspivak/slimit/issues/64
@@ -2683,7 +2683,7 @@ class ConcatenatedFile(FileOnDisk):
                     text.write(line)
                 output_stream.write(slimit.minify(text.getvalue(), mangle=True, mangle_toplevel=True))
 
-        class CSSMinifier(object):
+        class CSSMinifier:
             def minify(self, input_stream, output_stream):
                 text = io.StringIO()
                 for line in input_stream:
@@ -2847,13 +2847,13 @@ class UncaughtError(Redirect):
 
 
 
-class IdentityDictionary(object):
+class IdentityDictionary:
     """A dictionary which has values equal to whatever key is asked for. An IdentityDictionary is
        sometimes useful when mapping between Slot names, etc."""
     def __getitem__(self, x): return x
 
 
-class ReahlWSGIApplication(object):
+class ReahlWSGIApplication:
     """A web application. This class should only ever be instantiated in a WSGI script, using the `from_directory`
        method.
 

@@ -35,7 +35,7 @@ class InvalidEmailAddressException(Exception):
     pass
     
 
-class MailMessage(object):
+class MailMessage:
     """Represents an email message, with one part containing plain text (presumed to be ReST), and the other
        an HTML representation of the same message.
        
@@ -80,7 +80,7 @@ class MailMessage(object):
                 raise InvalidEmailAddressException(address)
 
 
-class Mailer(object):
+class Mailer:
     """A proxy for a remote SMTP server.
     
        :keyword smtp_host: The host to connect to.

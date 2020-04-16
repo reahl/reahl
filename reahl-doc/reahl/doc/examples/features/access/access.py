@@ -17,7 +17,7 @@ class HomePage(HTML5Page):
         super(HomePage, self).__init__(view)
         self.body.add_child(CommentForm(view))
 
-class Comment(object):
+class Comment:
     def allowed_to_see(self):
         # this is hard-coded, but you can check business rules here
         return True 

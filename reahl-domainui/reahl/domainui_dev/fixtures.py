@@ -20,7 +20,7 @@ from reahl.web.fw import Bookmark
 
 
 @stubclass(Bookmark)
-class BookmarkStub(object):
+class BookmarkStub:
     def __init__(self, href, description):
         self.description = description
         self.href = href

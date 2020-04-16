@@ -48,7 +48,7 @@ def test_basic_event_linkup(web_fixture):
     """
     fixture = web_fixture
 
-    class ModelObject(object):
+    class ModelObject:
         handled_event = False
         def handle_event(self):
             self.handled_event = True
@@ -150,7 +150,7 @@ def test_arguments_to_actions(web_fixture):
     fixture = web_fixture
 
     # how you link everything up in code
-    class ModelObject(object):
+    class ModelObject:
         def handle_event(self, *args):
             self.args = args
 
@@ -191,7 +191,7 @@ def test_validation_of_event_arguments(web_fixture):
 
     fixture = web_fixture
 
-    class ModelObject(object):
+    class ModelObject:
         @exposed
         def events(self, events):
             events.an_event = Event(label='Click me', argument=Field(required=True))
@@ -221,7 +221,7 @@ def test_basic_field_linkup(web_fixture):
 
     fixture = web_fixture
 
-    class ModelObject(object):
+    class ModelObject:
         def handle_event(self):
             pass
 
@@ -271,7 +271,7 @@ def test_distinguishing_identical_field_names(web_fixture):
 
     fixture = web_fixture
 
-    class ModelObject(object):
+    class ModelObject:
         @exposed
         def fields(self, fields):
             fields.field_name = IntegerField()
@@ -327,7 +327,7 @@ def test_define_event_handler_not_called(web_fixture):
     """."""
     fixture = web_fixture
 
-    class ModelObject(object):
+    class ModelObject:
         @exposed
         def events(self, events):
             events.an_event = Event()
@@ -419,7 +419,7 @@ def test_form_preserves_user_input_after_validation_exceptions_multichoice(web_f
 
     fixture = web_fixture
 
-    class ModelObject(object):
+    class ModelObject:
         @exposed
         def events(self, events):
             events.an_event = Event(label='click me')
@@ -528,7 +528,7 @@ def test_check_missing_form(web_fixture):
 
     fixture = web_fixture
 
-    class ModelObject(object):
+    class ModelObject:
         @exposed
         def fields(self, fields):
             fields.name = Field()
@@ -559,7 +559,7 @@ def test_nested_forms(web_fixture):
 
     fixture = web_fixture
 
-    class NestedModelObject(object):
+    class NestedModelObject:
         handled_event = False
         def handle_event(self):
             self.handled_event = True
@@ -578,7 +578,7 @@ def test_nested_forms(web_fixture):
             self.add_child(ButtonInput(self.form, nested_model_object.events.nested_event))
             self.add_child(TextInput(self.form, nested_model_object.fields.nested_field))
 
-    class OuterModelObject(object):
+    class OuterModelObject:
         handled_event = False
         def handle_event(self):
             self.handled_event = True
@@ -616,7 +616,7 @@ def test_form_input_validation(web_fixture):
 
     fixture = web_fixture
 
-    class ModelObject(object):
+    class ModelObject:
         def handle_event(self):
             pass
         @exposed
@@ -761,7 +761,7 @@ def test_propagation_of_querystring(web_fixture, query_string_scenarios):
     """
     fixture = query_string_scenarios
 
-    class ModelObject(object):
+    class ModelObject:
         def handle_event(self):
             if fixture.break_on_submit:
                 raise DomainException()
@@ -806,7 +806,7 @@ def test_event_names_are_canonicalised(web_fixture):
 
     fixture = web_fixture
 
-    class ModelObject(object):
+    class ModelObject:
         def handle_event(self, some_argument):
             self.received_argument = some_argument
 
@@ -847,7 +847,7 @@ def test_alternative_event_trigerring(web_fixture):
 
     fixture = web_fixture
 
-    class ModelObject(object):
+    class ModelObject:
         def handle_event(self):
             self.handled_event = True
 
@@ -897,7 +897,7 @@ def test_remote_field_validation(web_fixture):
 
     fixture = web_fixture
 
-    class ModelObject(object):
+    class ModelObject:
         @exposed
         def fields(self, fields):
             fields.a_field = EmailField()
@@ -926,7 +926,7 @@ def test_remote_field_formatting(web_fixture):
 
     fixture = web_fixture
 
-    class ModelObject(object):
+    class ModelObject:
         @exposed
         def fields(self, fields):
             fields.a_field = DateField()

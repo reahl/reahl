@@ -125,7 +125,7 @@ class TagTypeTuple(tuple):
 
 
 #--------------------------------------------------[ XMLReader ]
-class XMLReader(object):
+class XMLReader:
     """This class is used to read python objects from an XML file."""
     def __init__(self, xml_classes):
         self.map = {}

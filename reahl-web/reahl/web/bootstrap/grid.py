@@ -73,7 +73,7 @@ class Container(Layout):
         self.widget.append_class(container_class)
 
 
-class DeviceClass(object):
+class DeviceClass:
     device_classes = ['xs', 'sm', 'md', 'lg', 'xl']
 
     def __init__(self, name):
@@ -107,7 +107,7 @@ class DeviceClass(object):
         return '-'.join(parts)
 
 
-class ResponsiveOption(object):
+class ResponsiveOption:
     def __init__(self, allowed_options, prefix=None, xs=None, sm=None, md=None, lg=None, xl=None):
         self.prefix = prefix
         self.allowed_options = allowed_options
@@ -234,7 +234,7 @@ class ResponsiveSize(ResponsiveOption):
         return total
 
 
-class ColumnOptions(object):
+class ColumnOptions:
     """Various options to change how a column should be displayed.
 
     :param name: The name of the column.

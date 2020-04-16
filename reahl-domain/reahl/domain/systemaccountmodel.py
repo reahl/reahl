@@ -641,7 +641,7 @@ class LoginSession(Base):
                     
 
 
-class SystemAccountStatus(object):
+class SystemAccountStatus:
     def as_user_message(self):
         return _('Unknown status')
     def is_active(self):

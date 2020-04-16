@@ -47,11 +47,11 @@ from functools import reduce
 #  (this is guessing - not used)
 
 
-class Stub(object):
+class Stub:
     pass
 
 
-class StubMethod(object):
+class StubMethod:
     def __init__(self, stub):
         self.stub = stub
 
@@ -77,7 +77,7 @@ def stubmethod(stub):
     return StubMethod(stub)
 
 
-class StubAttribute(object):
+class StubAttribute:
     def __init__(self, name):
         self.name = name
 
@@ -107,7 +107,7 @@ def stubattribute(name):
     return StubAttribute(name)
 
 
-class RealClass(object):
+class RealClass:
     __slots__ = ('x', 'y')
     def __init__(self, x, y):
         self.x = x

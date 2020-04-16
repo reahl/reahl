@@ -36,7 +36,7 @@ class CouldNotFindDatabaseControlException(Exception):
         self.url = url
 
 
-class SystemControl(object):
+class SystemControl:
     """Used to control all aspects relating to the underlying database as per the configuration of the system.
 
     Any Reahl system is assumed to have a database backing it. Our
@@ -205,7 +205,7 @@ class SystemControl(object):
 
     
 
-class DatabaseControl(object):
+class DatabaseControl:
     """An interface to the underlying database backend technology used. 
 
     This class has the responsibility to manage the low-level backend
@@ -263,7 +263,7 @@ class NullDatabaseControl(DatabaseControl):
         return self.donothing
 
 
-class ORMControl(object):
+class ORMControl:
     """An interface to higher-level database operations that may be dependent on the ORM technology used.
 
     This class has the responsibility to manage the higher-level

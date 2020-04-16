@@ -22,7 +22,7 @@ from reahl.stubble import Impostor, stubclass
 def test_impostor_pretends_to_be_stubbed():
     """an Impostor fakes being an instance the stubbed class"""
 
-    class Stubbed(object):
+    class Stubbed:
         __slots__ = 'a'
 
     @stubclass(Stubbed)

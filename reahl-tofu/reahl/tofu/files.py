@@ -52,7 +52,7 @@ def file_with(name, contents, mode='w+'):
     return AutomaticallyDeletedFile(name, contents, mode)
 
 
-class EmptyDirectory(object):
+class EmptyDirectory:
     def __init__(self, name):
         self.name = name
         if os.path.exists(self.name):

@@ -26,11 +26,11 @@ from reahl.stubble import EasterEgg
 
 #first we need some stub classes which in real life would be provided
 # by another egg as entry points:
-class StubClass1(object):
+class StubClass1:
     pass
 
 
-class StubClass2(object):
+class StubClass2:
     pass
 
 

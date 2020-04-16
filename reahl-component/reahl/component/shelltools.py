@@ -40,7 +40,7 @@ class ExecutableNotInstalledException(Exception):
         return 'Executable not found: %s' % self.executable_name
 
 
-class Executable(object):
+class Executable:
     def __init__(self, name, verbose=False):
         self.name = name
         self.verbose = verbose
@@ -79,7 +79,7 @@ class CommandNotFound(Exception):
     pass
 
 
-class Command(object):
+class Command:
     """This is the superclass of all Commands executed from the commandline.
 
     New commands are implemented by subclassing this one and overriding its 
@@ -275,7 +275,7 @@ class RemoveAlias(Command):
             return 1
 
 
-class AliasFile(object):
+class AliasFile:
     @classmethod
     def get_file(cls, local=False):
         filename = '.reahlalias' if local else os.path.expanduser('~/.reahlalias')

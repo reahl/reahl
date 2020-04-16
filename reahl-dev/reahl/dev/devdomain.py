@@ -63,7 +63,7 @@ class EggNotFound(Exception):
     pass
 
 
-class Git(object):
+class Git:
     def __init__(self, directory):
         self.directory = directory
 
@@ -118,7 +118,7 @@ class Git(object):
         return return_code == 0
 
 
-class DistributionPackage(object):
+class DistributionPackage:
     """A DistributionPackage is a package that may be built for distribution."""
     def __init__(self, project):
         self.project = project
@@ -309,7 +309,7 @@ class DebianPackage(DistributionPackage):
         pass
 
 
-class RepositoryLocalState(object):
+class RepositoryLocalState:
     """Used by Repository objects to keep track locally of what packages have been uploaded to the Repository."""
     def __init__(self, repository):
         self.repository = repository
@@ -339,7 +339,7 @@ class RepositoryLocalState(object):
         f.close()
 
 
-class RemoteRepository(object):
+class RemoteRepository:
     """A place where packages can be released to."""
     def __init__(self):
         self.local_storage = RepositoryLocalState(self)
@@ -440,7 +440,7 @@ class SshRepository(RemoteRepository):
         return file_unsafe_id.replace(os.sep, '-')
 
 
-class LocalRepository(object):
+class LocalRepository:
     def __init__(self, root_directory):
         self.root_directory = root_directory
         self.ensure_directory(root_directory)
@@ -493,7 +493,7 @@ class LocalAptRepository(LocalRepository):
         Executable('gpg').check_call(['-abs', '--yes', '-o', 'Release.gpg', 'Release'], cwd=self.root_directory)
 
 
-class EntryPointExport(object):
+class EntryPointExport:
     @classmethod
     def get_xml_registration_info(cls):
         return ('export', cls, None)
@@ -554,7 +554,7 @@ class TranslationPackage(EntryPointExport):
         return self.locator.package_path
 
 
-class ExcludedPackage(object):
+class ExcludedPackage:
     @classmethod
     def get_xml_registration_info(cls):
         return ('excludepackage', cls, None)
@@ -567,7 +567,7 @@ class ExcludedPackage(object):
         self.__init__(attributes['name'])
 
 
-class Version(object):
+class Version:
     def __init__(self, version_string):
         match = re.match('^(?P<major>\d+)\.(?P<minor>\d+)(\.(?P<patch>[0-9a-zA-Z]+)((?P<other>[^-]+)?)(-(?P<debian_rev>.*))?)?$', version_string)
         self.major = match.group('major')
@@ -609,7 +609,7 @@ class Version(object):
         return Version('.'.join([self.major, self.minor]+([self.patch] if self.patch else [])))
 
 
-class Dependency(object):
+class Dependency:
     def __init__(self, project, name, version=None, ignore_version=False):
         self.project = project
         self.name = name
@@ -779,7 +779,7 @@ class ScheduledJobSpec(EntryPointExport):
         self.__init__(attributes['locator'])
 
 
-class OrderedPersistedClass(object):
+class OrderedPersistedClass:
     def __init__(self, locator_string, order, entry_point):
         self.entry_point = entry_point
         self.locator = EntryPointLocator(locator_string)
@@ -830,7 +830,7 @@ class MigrationList(OrderedClassesList):
         return ('migrations', cls, None)
 
 
-class EntryPointLocator(object):
+class EntryPointLocator:
     def __init__(self, string_spec):
         self.string_spec = string_spec
     @property
@@ -844,7 +844,7 @@ class EntryPointLocator(object):
         return self.string_spec.split(':')[-1]
 
 
-class NamespaceEntry(object):
+class NamespaceEntry:
     def __init__(self, name):
         self.name = name
 
@@ -871,13 +871,13 @@ class NamespaceList(list):
         self.append(child)
 
 
-class NoBasket(object):
+class NoBasket:
     def __init__(self, workspace):
         self.workspace = workspace
         self.project_name = 'NO BASKET'
 
 
-class ExtraPath(object):
+class ExtraPath:
     @classmethod
     def get_xml_registration_info(cls):
         return ('pythonpath', cls, None)
@@ -891,7 +891,7 @@ class ExtraPath(object):
 
 
 
-class ProjectTag(object):
+class ProjectTag:
     @classmethod
     def get_xml_registration_info(cls):
         return ('tag', cls, None)
@@ -905,7 +905,7 @@ class ProjectTag(object):
 
 
 
-class ProjectMetadata(object):
+class ProjectMetadata:
     def __str__(self):
         return 'Default project metadata provider'
 
@@ -965,7 +965,7 @@ class ProjectMetadata(object):
 
 
 
-class MetaInfo(object):
+class MetaInfo:
     @classmethod
     def get_xml_registration_info(cls):
         return ('info', cls, None)
@@ -1138,7 +1138,7 @@ class DebianPackageMetadata(ProjectMetadata):
         return 0
 
 
-class DebianChangelog(object):
+class DebianChangelog:
     package_name_regex = '(?P<package_name>[a-z][a-z0-9\-]*)'
     version_regex = '\((?P<version>[a-zA-Z\.0-9\-]+)\)'
     heading_regex = '^%s\s+%s.*$' % (package_name_regex, version_regex)
@@ -1163,7 +1163,7 @@ class DebianChangelog(object):
         return self.parse_heading_for('version')
 
 
-class DebianControl(object):
+class DebianControl:
     def __init__(self, filename):
         self.filename = filename
 
@@ -1213,7 +1213,7 @@ class DebianControl(object):
 
 
 
-class SourceControlSystem(object):
+class SourceControlSystem:
     def __str__(self):
         if self.project.chicken_project:
             return str(self.project.chicken_project.source_control)
@@ -1293,7 +1293,7 @@ class GitSourceControl(SourceControlSystem):
         self.git.tag(tag)
 
 
-class Project(object):
+class Project:
     """Instances of Project each represent a Reahl project in a development environment.
     """
     has_children = False
@@ -1505,7 +1505,7 @@ class SetupCommandFailed(Exception):
         self.command = command
 
 
-class SetupMonitor(object):
+class SetupMonitor:
     def __init__(self):
         self.captured_stdout = []
 
@@ -2080,7 +2080,7 @@ class ProjectList(list):
         return selection
 
 
-class Workspace(object):
+class Workspace:
     """A Workspace logically contains several Projects in development. It facilitates issuing operations on sets
     of Projects, and administers the results.
 

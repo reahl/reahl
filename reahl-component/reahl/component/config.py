@@ -45,11 +45,11 @@ class ConfigurationException(Exception):
     pass
 
 
-class ExplicitSettingRequired(object):
+class ExplicitSettingRequired:
     pass
 
 
-class ConfigSetting(object):
+class ConfigSetting:
     """Used to define one configuration setting on a :class:`Configuration`.
     
     
@@ -128,7 +128,7 @@ class ConfigSetting(object):
         return self.dangerous and not self.is_set(obj)
 
 
-class DeferredDefault(object):
+class DeferredDefault:
     """Sometimes the default value for a :class:`ConfigSetting` cannot be set when the :class:`Configuration`
        is declared. An instance of DeferredDefault can be passed as default in such a scenario.
 
@@ -170,12 +170,12 @@ class EntryPointClassList(ConfigSetting):
         return classes
 
 
-class MissingValue(object):
+class MissingValue:
     def __repr__(self):
         return 'MISSING!!'
 
     
-class Configuration(object):
+class Configuration:
     """A collection of ConfigSettings for a component. To supply configuration for your component,
        subclass from this class and assign each wanted ConfigSetting as a class attribute. Assign
        the required `filename` and `config_key` class attributes in your subclass as well. The resultant
@@ -245,7 +245,7 @@ class Configuration(object):
         pass
         
 
-class NullORMControl(object):
+class NullORMControl:
     def do_nothing(self, *args, **kwargs):
         pass
 

@@ -45,7 +45,7 @@ from collections import OrderedDict
 from reahl.web.fw import PackagedFile, ConcatenatedFile
 
 
-class LibraryIndex(object):
+class LibraryIndex:
     """An ordered collection of :class:`Library` instances.
 
     A LibraryIndex instance is available in the configuration as
@@ -93,7 +93,7 @@ class LibraryIndex(object):
             self.add(library)
 
 
-class Library(object):
+class Library:
     """A frontend-library: a collection of CSS and JavaScript code that can be used with Reahl.
 
     To create your own Library, subclass from this class and set its

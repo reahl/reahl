@@ -71,7 +71,7 @@ class LiteralHTML(Widget):
         return cls(view, RestructuredText(text).as_HTML_fragment(header_start=heading_level_start))
     
 
-class HTMLAttributeValueOption(object):
+class HTMLAttributeValueOption:
     def __init__(self, option_string, is_set, prefix='', delimiter='-', constrain_value_to=None, map_values_using=None):
         if is_set and (constrain_value_to and option_string not in constrain_value_to):
             allowed_strings = ','.join(['"%s"' % i for i in constrain_value_to])
@@ -88,7 +88,7 @@ class HTMLAttributeValueOption(object):
         return '%s%s' % (prefix_with_delimiter, self.option_string)
 
 
-class HTMLAttribute(object):
+class HTMLAttribute:
     def __init__(self, name, values):
         super(HTMLAttribute, self).__init__()
         self.name = name
@@ -111,7 +111,7 @@ class HTMLAttribute(object):
         return values
 
 
-class HTMLAttributeValues(object):
+class HTMLAttributeValues:
     def __init__(self, wrapped):
         self.wrapped = wrapped
 
@@ -208,7 +208,7 @@ class AjaxMethod(RemoteMethod):
 
 
 # Uses: reahl/web/reahl.hashchange.js
-class HashChangeHandler(object):
+class HashChangeHandler:
     def __init__(self, widget, for_fields):
         self.error_message = _('An error occurred when contacting the server. Please try again later.')
         self.timeout_message = _('The server took too long to respond. Please try again later.')
@@ -231,7 +231,7 @@ class HashChangeHandler(object):
                (self.remote_method.get_url(), self.error_message, self.timeout_message, self.argument_defaults)
 
 
-class CssId(object):
+class CssId:
     invalid_char_re = re.compile(r'([^a-zA-Z0-9_-])')
     @classmethod
     def from_dirty_string(cls, dirty_string):
@@ -1409,7 +1409,7 @@ class Legend(HTMLElement):
             self.text_node = self.add_child(TextNode(view, text))
 
 
-class DelegatedAttributes(object):
+class DelegatedAttributes:
     def set_attributes(self, attributes):
         pass
 
@@ -2627,7 +2627,7 @@ class Td(Cell):
         super(Td, self).__init__(view, 'td', rowspan=rowspan, colspan=colspan, css_id=css_id)
 
 
-class DynamicColumn(object):
+class DynamicColumn:
     """DynamicColumn defines a logical column of a table, specifying how its heading will be
        rendered, and how the cell in this column will be displayed for each data item in the
        table.

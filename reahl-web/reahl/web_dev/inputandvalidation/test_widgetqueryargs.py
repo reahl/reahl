@@ -101,7 +101,7 @@ def test_query_string_prepopulates_form(web_fixture, value_scenarios):
 
     fixture = value_scenarios
 
-    class ModelObject(object):
+    class ModelObject:
         @exposed
         def fields(self, fields):
             fields.arg_on_other_object = fixture.field

@@ -29,7 +29,7 @@ from reahl.component.exceptions import ProgrammerError
 
 
 #--------------------------------------------------[ MarkingDecorator ]
-class MarkingDecorator(object):
+class MarkingDecorator:
     """A MarkingDecorator is a decorator used to tag methods on a Fixture.
 
     """
@@ -112,13 +112,13 @@ class AttributeErrorInFactoryMethod(Exception):
 
 
 
-class FixtureOptions(object):
+class FixtureOptions:
     def __init__(self):
         self.dependencies = {}
         self.scope = 'function'
 
     
-class Fixture(object):
+class Fixture:
     """A test Fixture is a collection of objects defined and set up to be
        used together in a test. 
 

@@ -39,7 +39,7 @@ class DJHTMLWidget(LiteralHTML):
     def __init__(self, view, html_content):
         super(DJHTMLWidget, self).__init__(view, html_content)
 
-class DHTMLFile(object):
+class DHTMLFile:
     def __init__(self, filename, ids):
         self.filename = filename
         self.ids = ids

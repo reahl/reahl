@@ -15,7 +15,7 @@ class HomePage(HTML5Page):
         self.body.add_child(CommentForm(view))
 
 
-class Comment(object):
+class Comment:
     @exposed
     def fields(self, fields):
         fields.email_address = EmailField(label='Email address', required=True)

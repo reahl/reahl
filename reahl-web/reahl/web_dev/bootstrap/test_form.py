@@ -74,7 +74,7 @@ class FormLayoutFixture(Fixture):
     form_group_xpath = '//form/div[contains(@class, "form-group")]'
 
     def new_domain_object(self):
-        class StubDomainObject(object):
+        class StubDomainObject:
             @exposed
             def fields(self, fields):
                 fields.an_attribute = Field(label='Some input', required=True)
@@ -245,7 +245,7 @@ def test_omitting_label(web_fixture, form_layout_fixture):
 def test_adding_checkboxes(web_fixture, form_layout_fixture):
     """CheckboxInputs are added non-inlined, and by default without labels."""
 
-    class DomainObjectWithBoolean(object):
+    class DomainObjectWithBoolean:
         @exposed
         def fields(self, fields):
             fields.an_attribute = BooleanField(label='Some input', required=True)
@@ -391,7 +391,7 @@ class CheckboxFixture(Fixture):
 
     def new_domain_object(self):
         fixture = self
-        class ModelObject(object):
+        class ModelObject:
             @exposed
             def fields(self, fields):
                 fields.an_attribute = fixture.field
@@ -692,7 +692,7 @@ def test_alert_for_domain_exception(web_fixture):
        button which clears the form input.
     """
 
-    class ModelObject(object):
+    class ModelObject:
         @exposed
         def fields(self, fields):
             fields.some_field = Field(label='Some field', default='not changed')

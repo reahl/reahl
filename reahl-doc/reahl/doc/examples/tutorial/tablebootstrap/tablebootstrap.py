@@ -60,7 +60,7 @@ class AddressBookUI(UserInterface):
         return self.edit.as_bookmark(self, address_id=address.id, description=description)
 
 
-class Row(object):
+class Row:
     def __init__(self, address):
         self.address = address
         self.selected_by_user = False
@@ -73,7 +73,7 @@ class Row(object):
         return getattr(self.address, name)
 
 
-class TotalRow(object):
+class TotalRow:
     def __init__(self, all_items):
         self.total_rows = len(all_items)
     

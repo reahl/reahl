@@ -25,7 +25,7 @@ from reahl.component.decorators import deprecated
 
 class ArgumentCheckScenarios(Fixture):
     def new_ModelObject(self):
-        class ModelObject(object):
+        class ModelObject:
             @arg_checks(y=IsInstance(int), title=IsInstance(str))
             def do_something(self, x, y, title='a title', style=None):
                 pass
@@ -94,7 +94,7 @@ class ArgumentCheckScenarios(Fixture):
     @scenario
     def checks_on_classmethod(self):
         self.expected_exception = IsInstance
-        class ModelObject(object):
+        class ModelObject:
             @arg_checks(y=IsInstance(int), title=IsInstance(str))
             @classmethod
             def do_something(cls, x, y, title='a title', style=None):
@@ -135,10 +135,10 @@ def test_stubbable_is_instance():
     """Classes can be marked with a flag to let them pass the IsInstance or IsSubclass checks even
        though they do not inherit from the specified class."""
 
-    class A(object):
+    class A:
         pass
 
-    class B(object):
+    class B:
         is_A = True
 
     with expected(NoException):
@@ -150,7 +150,7 @@ def test_stubbable_is_instance():
 def test_checking_before_args_available():
     """When checking arguments before a method call, the checks for some arguments may be ignored by passing NotYetAvailable
        instances for them. The name of NotYetAvailable arguments should match the name of the argument it replaces."""
-    class ModelObject(object):
+    class ModelObject:
         @arg_checks(y=IsInstance(int), title=IsInstance(str))
         def do_something(self, x, y, title='a title', style=None):
             pass
@@ -168,7 +168,7 @@ def test_checking_before_args_available():
 def test_argument_checks_with_deprecated_methods():
     """When used with @deprecated, argument checks still work."""
     @deprecated('this test class is deprecated', '1.2')
-    class ADeprecatedClass(object):
+    class ADeprecatedClass:
         @arg_checks(y=IsInstance(int), title=IsInstance(str))
         def __init__(self, x, y, title='a title', style=None):
             pass
@@ -181,7 +181,7 @@ def test_argument_checks_with_deprecated_methods():
         ArgumentCheckedCallable(ADeprecatedClass, explanation='an explanation').checkargs('x', NotYetAvailable('x'), title='a valid title')
 
 
-    class ADeprecatedClass(object):
+    class ADeprecatedClass:
         @deprecated('this instance method is deprecated', '1.3')
         @arg_checks(y=IsInstance(int), title=IsInstance(str))
         def instance_method(self, x, y, title='a title', style=None):

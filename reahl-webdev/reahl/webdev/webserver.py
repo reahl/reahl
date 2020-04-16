@@ -46,7 +46,7 @@ from reahl.component.shelltools import Executable
 from reahl.web.fw import ReahlWSGIApplication
 
 
-class WrappedApp(object):
+class WrappedApp:
     """A class in which to wrap a WSGI app, allowing catching of exceptions in the wrapped app.
     """
     def __init__(self, wrapped):
@@ -93,7 +93,7 @@ class WrappedApp(object):
         self.exception = None
 
 
-class NoopApp(object):
+class NoopApp:
     def __init__(self, config=None):
         pass
     def start(self): pass
@@ -234,7 +234,7 @@ class SSLCapableWSGIServer(ReahlWSGIServer):
 
 
 
-class WebDriverHandler(object):
+class WebDriverHandler:
     def __init__(self, command_executor):
         self.command_executor = command_executor
         self.original_execute = command_executor.execute
@@ -284,7 +284,7 @@ class WebDriverHandler(object):
 class Py2TimeoutExpired(Exception):
     pass
 
-class SlaveProcess(object):
+class SlaveProcess:
     def __init__(self, command, args):
         self.process = None
         self.args = args
@@ -388,7 +388,7 @@ class ServerSupervisor(PatternMatchingEventHandler):
         self.stop_serving()
 
 
-class ReahlWebServer(object):
+class ReahlWebServer:
     """A web server for testing purposes. This web server runs both an HTTP and HTTPS server. It can 
        be configured to handle requests in the same thread as the test itself, but it can also be run in a
        separate thread. The ReahlWebServer requires a certificate for use with HTTPS upon startup. A self signed

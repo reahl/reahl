@@ -111,7 +111,7 @@ class DeclarativeABCMeta(DeclarativeMeta, ABCMeta):
 Base = declarative_base(class_registry=weakref.WeakValueDictionary(), metadata=metadata, metaclass=DeclarativeABCMeta)    #: A Base for using with declarative
 
 
-class QueryAsSequence(object):
+class QueryAsSequence:
     """Used to adapt a SqlAlchemy Query to behave like a normal
       `Python sequence type <https://docs.python.org/3/glossary.html#term-sequence>`_.
 
@@ -196,7 +196,7 @@ def session_scoped(cls):
     return cls
 
 
-class TransactionVeto(object):
+class TransactionVeto:
     should_commit = None
     @property
     def has_voted(self):

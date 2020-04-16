@@ -59,7 +59,7 @@ def patch_Field():
         patch(v)
 
 
-class BasicBrowser(object):
+class BasicBrowser:
 
     def view_source(self):
         for line in html.tostring(self.lxml_html, pretty_print=True, encoding='unicode').split('\n'): 
@@ -412,7 +412,7 @@ class Browser(BasicBrowser):
         assert None, 'Not yet implemented'
 
 
-class XPath(object):
+class XPath:
     """An object representing an XPath expression for locating a particular element on a web page.
        A programmer is not supposed to instantiate an XPath directly. Use one of the descriptive
        class methods to instantiate an XPath instance.

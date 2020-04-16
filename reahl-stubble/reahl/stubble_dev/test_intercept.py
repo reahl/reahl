@@ -26,7 +26,7 @@ from reahl.stubble import CallMonitor, InitMonitor, SystemOutStub, replaced
 def test_monitor():
     """A CallMonitor records each call to a method, and its arguments."""
 
-    class SomethingElse(object):
+    class SomethingElse:
         def foo(self, n, y=None):
             self.n = n
             return y
@@ -53,7 +53,7 @@ def test_monitor():
 def test_monitor_class_methods():
     """A CallMonitor works for class methods as well."""
 
-    class SomethingElse(object):
+    class SomethingElse:
         @classmethod
         def foo(cls):
             return cls
@@ -74,7 +74,7 @@ def test_monitor_class_methods():
 def test_init_monitor():
     """An InitMonitor can monitor calls to __init__."""
 
-    class SomethingElse(object):
+    class SomethingElse:
         def __init__(self):
             self.initialised = True
 
@@ -94,7 +94,7 @@ def test_init_monitor():
 def test_replace():
     """Replaced methods replace the original one, but are restored after the with."""
 
-    class SomethingElse(object):
+    class SomethingElse:
         def foo(self, n, y=None):
             assert None, 'This should never be reached in this test'
 
@@ -159,7 +159,7 @@ def test_replacing_functions_is_disallowed():
 def test_replaced_signature_should_match():
     """Replacing methods should have the same signature as the ones they replace."""
 
-    class SomethingElse(object):
+    class SomethingElse:
         def foo(self, n, y=None):
             assert None, 'This should never be reached in this test'
 

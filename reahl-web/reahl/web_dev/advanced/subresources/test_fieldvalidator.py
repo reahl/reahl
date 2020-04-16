@@ -70,7 +70,7 @@ def test_remote_field_validator_handles_GET(web_fixture, validation_scenarios):
     fixture = validation_scenarios
 
 
-    class ModelObject(object):
+    class ModelObject:
         @exposed
         def fields(self, fields):
             fields.field_name = EmailField()

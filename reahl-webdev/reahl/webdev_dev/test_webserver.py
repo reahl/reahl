@@ -128,7 +128,7 @@ def test_slave_process_registers_process_to_kill():
 
 
 
-class ProcessFake(object):
+class ProcessFake:
     pid=0
     def terminate(self, timeout=5): pass
     def wait(self, timeout=0): pass

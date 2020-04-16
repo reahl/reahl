@@ -174,7 +174,7 @@ class ReahlSystemFixture(ContextAwareFixture):
         return reahlsystem
             
 
-class MonitoredInvocation(object):
+class MonitoredInvocation:
     def __init__(self, method, commandline_arguments, args, kwargs):
         self.method = method
         self.commandline_arguments = commandline_arguments

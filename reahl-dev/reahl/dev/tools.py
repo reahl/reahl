@@ -15,7 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-class EventTester(object):
+class EventTester:
     def __init__(self, event, **arguments):
         self.occurring_event = event.with_arguments(**arguments)
         self.occurring_event.from_input(self.occurring_event.as_input())

@@ -69,13 +69,13 @@ class IncorrectArgumentError(ProgrammerError):
         return '%s (%s)' % (self.explanation, self.cause)
 
 
-class NotYetAvailable(object):
+class NotYetAvailable:
     def __init__(self, name):
         self.name = name
     def __str__(self):
         return '<%s name=%s>' % (self.__class__.__name__, self.name)
 
-class DeferredImport(object):
+class DeferredImport:
     def __init__(self, value_or_string):
         self.value_or_string = value_or_string
 
@@ -181,7 +181,7 @@ class IsCallable(ArgumentCheck):
     def __str__(self):
         return '%s: %s should be a callable object (got %s)' % (self.func, self.arg_name, self.value)
 
-class ArgumentCheckedCallable(object):
+class ArgumentCheckedCallable:
     def __init__(self, target, explanation=None):
         self.target = target
         self.explanation = explanation

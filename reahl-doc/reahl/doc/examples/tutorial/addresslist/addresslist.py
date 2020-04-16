@@ -42,7 +42,7 @@ class AddressBookUI(UserInterface):
         self.define_view('/', title='Address book', page=AddressBookPage.factory())
 
 
-class Address(object):
+class Address:
     def __init__(self, name, email_address):
         self.name = name
         self.email_address = email_address

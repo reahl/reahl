@@ -355,7 +355,7 @@ def test_regenerating_method_results(reahl_system_fixture, web_fixture,
 
     import sqlalchemy.orm 
     @stubclass(sqlalchemy.orm.Session)
-    class TransactionStub(object):
+    class TransactionStub:
         is_active=True
         def commit(self):pass
         def rollback(self):pass

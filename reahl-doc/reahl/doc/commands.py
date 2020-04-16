@@ -26,7 +26,7 @@ import re
 from reahl.dev.devshell import WorkspaceCommand
 
 
-class CheckoutChanges(object):
+class CheckoutChanges:
     def __init__(self, example):
         self.example = example
         self.source_text_replacements = {}
@@ -54,7 +54,7 @@ class CheckoutChanges(object):
         return output_line
 
 
-class Example(object):
+class Example:
     @classmethod
     def get_all(cls):
         parent = pkg_resources.resource_filename('reahl.doc', 'examples')

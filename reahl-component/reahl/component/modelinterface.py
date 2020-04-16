@@ -44,7 +44,7 @@ _ = Catalogue('reahl-component')
 class ConstraintNotFound(Exception):
     pass
 
-class ObjectDictAdapter(object):
+class ObjectDictAdapter:
     def __init__(self, wrapped_dict):
         self.wrapped_dict = wrapped_dict
     def __getattr__(self, name):
@@ -59,7 +59,7 @@ class ObjectDictAdapter(object):
             super(ObjectDictAdapter, self).__setattr__(name, value)
 
 
-class FieldIndex(object):
+class FieldIndex:
     """Used to define a set of :class:`Field` instances applicable to an object. In order to declare a
        :class:`Field`, merely assign an instance of :class:`Field` to an attribute of the FieldIndex.
     
@@ -136,7 +136,7 @@ class StandaloneFieldIndex(FieldIndex):
             field.validate_default()
 
 
-class ExposedDecorator(object):
+class ExposedDecorator:
     """This class has the alias "exposed". Apply it as decorator to a method declaration to indicate that the method defines
        a number of Fields. The decorated method is passed an instance of :class:`FieldIndex` to which each Field should be assigned. 
        Each such Field is associated with an similarly named attribute on each instance of the current class.
@@ -209,13 +209,13 @@ class ExposedDecorator(object):
 exposed = ExposedDecorator
 
 
-class FakeEvent(object):
+class FakeEvent:
     isEvent = True
     def __init__(self, name):
         self.name = name
         
 
-class ReahlFields(object):
+class ReahlFields:
     def _find_name(self, cls):
         for name in dir(cls):
             if getattr(cls, name) is self:
@@ -234,7 +234,7 @@ class ReahlFields(object):
         return idx
 
 
-class ReadRights(object):
+class ReadRights:
     def __init__(self, access_rights, field):
         self.field = field
         self.access_rights = access_rights
@@ -247,7 +247,7 @@ class ReadRights(object):
         return self.access_rights.readable is not None
 
 
-class AccessRights(object):
+class AccessRights:
     def __init__(self, readable=None, writable=None):
         self.readable = readable
         self.writable = writable
@@ -448,7 +448,7 @@ class RequiredConstraint(ValidationConstraint):
             raise self
 
 
-class Comparison(object):
+class Comparison:
     def __init__(self, compare_function, error_message):
         self.compare_function = compare_function
         self.error_message = error_message
@@ -678,7 +678,7 @@ class ExpectedInputNotFound(Exception):
         super(ExpectedInputNotFound, self).__init__('Expected to find %s in %s' % (input_name, str(searched_inputs)))
     
        
-class Field(object):
+class Field:
     """A Field represents something which can be input by a User.
     
        A Field is responsible for transforming user input from a string into a Python object which that string 
@@ -978,7 +978,7 @@ class Field(object):
         return validation_constraint
 
 
-class AdaptedMethod(object):
+class AdaptedMethod:
     def __init__(self, declared_method, arg_names=[], kwarg_name_map={}):
         self.declared_method = declared_method
         self.arg_names = arg_names
@@ -1226,7 +1226,7 @@ class SecuredFunction(FunctionWrapper):
         return arg_spec.args[:positional_args_end]
 
 
-class SecuredDeclaration(object):
+class SecuredDeclaration:
     """A decorator for marking a method as being @secured. Marking a method as @secured, causes a wrapper
        to be placed around the original method. The wrapper checks the access rights of the current user
        before each call to the method to ensure unauthorised users cannot call the wrapped method.
@@ -1385,7 +1385,7 @@ class DateField(Field):
         return babel.dates.format_date(parsed_value, format='medium', locale=_.current_locale)
 
 
-class Choice(object):
+class Choice:
     """One possible Choice to be allowed as input for a ChoiceField.
     
        :param value: The Python value represented by this Choice.
@@ -1424,7 +1424,7 @@ class Choice(object):
         return []
 
 
-class ChoiceGroup(object):
+class ChoiceGroup:
     """Different :class:`Choice` instances can be grouped together. User interface machinery can
        use this information for display purposes.
 
@@ -1620,7 +1620,7 @@ class SingleFileConstraint(ValidationConstraint):
             raise self
 
 
-class UploadedFile(object):
+class UploadedFile:
     """Represents a file that was input by a user. The contents of the file
     is represented as bytes, because knowing what the encoding is is a tricky
     issue. The user only sits in front of the browser and selects files on their

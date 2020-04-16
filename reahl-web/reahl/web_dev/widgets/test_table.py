@@ -31,7 +31,7 @@ from reahl.web_dev.fixtures import WebFixture
 from reahl.dev.fixtures import ReahlSystemFixture
 
 
-class DataItem(object):
+class DataItem:
     def __init__(self, row, alpha):
         self.row = row
         self.alpha = alpha

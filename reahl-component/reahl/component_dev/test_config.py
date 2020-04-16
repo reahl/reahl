@@ -200,8 +200,8 @@ class ConfigWithEntryPointClassList(Configuration):
     some_setting = EntryPointClassList('some.test.entrypoint', description='we test stuff')
 
 
-class ListedClass1(object): pass
-class ListedClass2(object): pass
+class ListedClass1: pass
+class ListedClass2: pass
 
 
 @with_fixtures(ConfigWithFiles)

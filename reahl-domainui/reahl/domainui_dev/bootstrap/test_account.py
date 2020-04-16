@@ -60,7 +60,7 @@ class AccountsWebFixture(Fixture):
         return Browser(self.wsgi_app)
 
     def new_bookmarks(self):
-        class Bookmarks(object):
+        class Bookmarks:
             terms_bookmark = BookmarkStub(Url('/#terms'), 'Terms')
             privacy_bookmark = BookmarkStub(Url('/#privacy'), 'Privacy Policy')
             disclaimer_bookmark = BookmarkStub(Url('/#disclaimer'), 'Disclaimer')

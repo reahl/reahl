@@ -24,10 +24,10 @@ import pytest
 from reahl.stubble import EasterEgg
 
 
-class TestClass2(object):
+class TestClass2:
     pass
 
-class TestClass1(object):
+class TestClass1:
     pass
 
 @pytest.fixture

@@ -269,7 +269,7 @@ def test_persisting_input(web_fixture, party_account_fixture, input_scenarios):
        like multiple select boxes or multiple checkboxes with the same name).
     """
     @stubclass(Form)
-    class FormStub(object):
+    class FormStub:
         view = web_fixture.view
         user_interface = EmptyStub(name='myui')
         channel_name = 'myform'

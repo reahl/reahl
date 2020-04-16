@@ -39,7 +39,7 @@ class PageFlowExampleUI(UserInterface):
                                guard=Not(Action(comment.contains_text)))
 
         
-class Comment(object):
+class Comment:
     @exposed
     def fields(self, fields):
         fields.email_address = EmailField(label='Email address', required=True)

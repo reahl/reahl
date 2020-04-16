@@ -33,7 +33,7 @@ from reahl.web.bootstrap.forms import ButtonStyle, ButtonSize
 _ = Catalogue('reahl-web')
 
 
-class JsObject(object):
+class JsObject:
     def __init__(self, **attributes):
         self.attributes = attributes
 
@@ -53,7 +53,7 @@ class JsObject(object):
         return self.attributes[key]
 
 
-class JsFunction(object):
+class JsFunction:
     def __init__(self, body_text='', *args):
         self.args = args
         self.body_text = body_text

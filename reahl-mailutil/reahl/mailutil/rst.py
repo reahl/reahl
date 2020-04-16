@@ -20,7 +20,7 @@ import docutils.io
 import docutils.core
 
 
-class RestructuredText(object):
+class RestructuredText:
     """A chunk of ReStructured Text.
     
        :param rst_text: A string containing the actual restructured text represented by this instance.

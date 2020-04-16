@@ -58,7 +58,7 @@ class SimpleInputFixture2(SimpleInputFixture):
         return Field(label=label)
     def new_model_object(self):
         fixture = self
-        class ModelObject(object):
+        class ModelObject:
             def handle_event(self):
                 pass
             @exposed

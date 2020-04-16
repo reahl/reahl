@@ -100,7 +100,7 @@ class TabContentAttributes(DelegatedAttributes):
         attributes.set_to('role', 'tab')
 
 
-class Tab(object):
+class Tab:
     """
     One Tab in a :class:`TabbedPanel`, including the contents that should be displayed for it.
 

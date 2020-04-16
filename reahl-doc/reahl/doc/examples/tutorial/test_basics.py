@@ -19,7 +19,7 @@ def test_fixture_singletons(fixture):
 
 # ------- dependent setup objects example
 
-class User(object):
+class User:
     def __init__(self, name):
         self.name = name
 

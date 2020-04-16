@@ -36,7 +36,7 @@ class RenameRegionToUi(Migration):
             # We need to manually check that it's not coming from reahl-web-elixirimpl 2.0 or 2.1 instead.
             orm_control = ExecutionContext.get_context().system_control.orm_control
 
-            class FakeElixirEgg(object):
+            class FakeElixirEgg:
                 name = 'reahl-web-declarative'
             previous_elixir_version = orm_control.schema_version_for(FakeElixirEgg(), default='0.0')
 

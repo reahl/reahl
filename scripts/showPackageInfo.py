@@ -26,7 +26,7 @@ import pkg_resources
 from pkg_resources import parse_version
 
 
-class PypiPackage(object):
+class PypiPackage:
     def __init__(self, package_name):
         self.package_name = package_name
 

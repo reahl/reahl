@@ -42,7 +42,7 @@ def test_form_encoding(web_fixture):
     """The enctype of a Form changes to multipart/form-data if it contains an input for a file."""
     fixture = web_fixture
 
-    class DomainObject(object):
+    class DomainObject:
         @exposed
         def fields(self, fields):
             fields.file = FileField(allow_multiple=False, label='Attached files')
@@ -65,7 +65,7 @@ def test_simple_file_input(web_fixture):
 
     expected_content = b'some content'
     file_to_upload = temp_file_with(expected_content, mode='w+b')
-    class DomainObject(object):
+    class DomainObject:
         def __init__(self):
            self.file = None
 
@@ -116,7 +116,7 @@ def test_simple_file_input_exceptions(web_fixture):
     file_to_upload = temp_file_with('some content')
     failing_constraint = FailingConstraint('I am breaking')
 
-    class DomainObject(object):
+    class DomainObject:
         def __init__(self):
             self.file = None
 

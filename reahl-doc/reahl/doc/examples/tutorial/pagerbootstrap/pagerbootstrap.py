@@ -37,7 +37,7 @@ class AddressList(PagedPanel):
             self.add_child(P(view, text='%s: %s' % (address.name, address.email_address)))
 
 
-class Address(object):
+class Address:
     def __init__(self, name, email_address):
         self.name = name
         self.email_address = email_address

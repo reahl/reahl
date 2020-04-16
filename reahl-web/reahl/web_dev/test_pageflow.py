@@ -166,7 +166,7 @@ def test_transitions_to_parameterised_views(web_fixture):
     """When a Button is placed for an Event that may trigger a Transition to a parameterised View,
        the Event should be bound to the arguments to be used for the target View, using .with_arguments()"""
 
-    class ModelObject(object):
+    class ModelObject:
         @exposed
         def events(self, events):
             events.an_event = Event(label='click me', event_argument1=IntegerField(),
@@ -213,7 +213,7 @@ def test_transitions_to_parameterised_views_error(web_fixture):
     """If an Event triggers a Transition to a parameterised View, and it was not bound to the arguments
        expected by the target View, an error is raised."""
 
-    class ModelObject(object):
+    class ModelObject:
         @exposed
         def events(self, events):
             events.an_event = Event(label='Click me')

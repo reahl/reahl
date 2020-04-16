@@ -97,7 +97,7 @@ class FakeSMTPServer(EchoSMTPServer):
             self.call_back_function(message, mailfrom, rcpttos)
 
 
-class MailTester(object):
+class MailTester:
 
     def __init__(self, call_back_function=None):
         self.call_back_function = call_back_function

@@ -36,7 +36,7 @@ from reahl.dev.fixtures import ReahlSystemFixture
 
 
 @stubclass(Mailer)
-class MailerStub(object):
+class MailerStub:
     instance = None
     
     @classmethod 

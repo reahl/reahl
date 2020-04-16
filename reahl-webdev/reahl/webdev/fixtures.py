@@ -149,7 +149,7 @@ class WebServerFixture(Fixture):
 
     def set_noop_app(self):
         # selenium.stop() hits the application its opened on again. NoopApp just ensures this does not break:
-        class NoopApp(object):
+        class NoopApp:
             def __call__(self, environ, start_response):
                 status = '403 Forbidden'
                 response_headers = [('Content-type','text/plain')]

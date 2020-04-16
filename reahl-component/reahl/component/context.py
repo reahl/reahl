@@ -22,7 +22,7 @@ class NoContextFound(Exception):
     pass
 
 
-class ExecutionContext(object):
+class ExecutionContext:
     """Most code execute "in the scope of" some ExecutionContext. Such code can obtain
        the current ExecutionContext by calling ExecutionContext.get_context. The ExecutionContext
        of code comprises of: the current Configuration for all components, the current UserSession,

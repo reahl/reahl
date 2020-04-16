@@ -36,7 +36,7 @@ class BasicHTMLInputsUI(UserInterface):
         home.set_slot('main', ExampleForm.factory('myform'))
 
 
-class ModelObject(object):
+class ModelObject:
     multi_choice_field = [1, 3]
     choice_field = 2
     @exposed

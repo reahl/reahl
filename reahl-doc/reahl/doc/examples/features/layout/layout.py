@@ -30,7 +30,7 @@ class LayoutUI(UserInterface):
         home.set_slot('footer', P.factory(text=footer_text))
 
 
-class Comment(object):
+class Comment:
     @exposed
     def fields(self, fields):
         fields.email_address = EmailField(label='Email address', required=True)

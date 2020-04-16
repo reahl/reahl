@@ -29,7 +29,7 @@ import collections
 from reahl.component.shelltools import Command, Executable, CompositeCommand
 
 
-class VagrantMachine(object):
+class VagrantMachine:
     def __init__(self, machine_name):
         self.machine_name = machine_name
 
@@ -56,7 +56,7 @@ class VagrantMachine(object):
         return list(itertools.chain.from_iterable([['-o', '%s=%s' % (name, value)] for name, value in config_dict.items()]))
 
 
-class EndPoint(object):
+class EndPoint:
     def __init__(self, display, ssh_to=None, ssh_arguments=None):
         self.display = display
         self.ssh_to = ssh_to
@@ -79,7 +79,7 @@ class EndPoint(object):
         return [self.ssh_to] + self.ssh_arguments     
 
 
-class Xpra(object):
+class Xpra:
     def __init__(self, xpra_executable=None, ssh_executable=None):
         self.xpra_executable = xpra_executable or Executable('xpra', verbose=True)
         self.ssh_executable = ssh_executable or Executable('ssh', verbose=True)

@@ -34,7 +34,7 @@ class CueInputFixture(Fixture):
     cue_element_xpath = "//p"
 
     def new_domain_object(self):
-        class DomainObject(object):
+        class DomainObject:
             @exposed
             def fields(self, fields):
                 fields.field = Field(label='MyField')

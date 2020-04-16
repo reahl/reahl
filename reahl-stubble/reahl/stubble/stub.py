@@ -22,7 +22,7 @@ from collections.abc import Callable
 
 
 
-class StubClass(object):
+class StubClass:
     def __init__(self, orig, check_attributes_also=False):
         self.orig = orig
         self.check_attributes_also = check_attributes_also
@@ -95,7 +95,7 @@ class StubClass(object):
 
 
 #------------------------------------------------[ Impostor ]
-class Impostor(object):
+class Impostor:
     def __getattribute__(self, name):
         _stubbed_class = object.__getattribute__(self, '_stubbed_class')
         if name == '__class__':
@@ -105,7 +105,7 @@ class Impostor(object):
 
 
 #------------------------------------------------[ Delegate ]
-class Delegate(object):
+class Delegate:
     def __init__(self, real):
         super(Delegate, self).__setattr__('real', real)
 
@@ -145,7 +145,7 @@ class Delegate(object):
 
 
 #------------------------------------------------[ StubbleDescriptor ]
-class StubbleDescriptor(object):
+class StubbleDescriptor:
     def stubble_check(self, instance, orig, stub):
         pass
 

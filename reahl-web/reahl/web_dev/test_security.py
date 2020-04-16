@@ -253,7 +253,7 @@ def test_non_writable_input_is_dealt_with_like_invalid_input(web_fixture):
        the input is silently ignored."""
     fixture = web_fixture
 
-    class ModelObject(object):
+    class ModelObject:
         field_name = 'Original value'
         @exposed
         def events(self, events):
@@ -288,7 +288,7 @@ def test_non_writable_events_are_dealt_with_like_invalid_input(web_fixture):
     """If a form submits an Event with access rights that prohibit writing, a ValidationException is raised."""
     fixture = web_fixture
 
-    class ModelObject(object):
+    class ModelObject:
         @exposed
         def events(self, events):
             events.an_event = Event(label='click me', writable=Allowed(False),

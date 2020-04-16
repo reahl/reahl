@@ -32,7 +32,7 @@ easter_egg = EasterEgg()
 easter_egg.add_to_working_set()  #TODO: why does this not always work anymore??
 
 
-class EmptyStub(object):
+class EmptyStub:
     def __init__(self, **kwargs):
         for k, v in kwargs.items():
             setattr(self, k, v)

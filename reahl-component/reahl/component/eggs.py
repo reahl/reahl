@@ -48,7 +48,7 @@ class CircularDependencyDetected(Exception):
 
 
     
-class DependencyGraph(object):
+class DependencyGraph:
     @classmethod
     def from_vertices(cls, vertices, find_dependencies):
         graph = {}
@@ -109,7 +109,7 @@ class DependencyGraph(object):
 
 
 
-class ReahlEgg(object):
+class ReahlEgg:
     interface_cache = {}
 
     def __init__(self, distribution):

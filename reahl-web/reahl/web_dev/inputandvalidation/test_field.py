@@ -264,7 +264,7 @@ def test_allowed_values_constraint_js(web_fixture, constraint_rendering_fixture)
 def test_equal_to_constraint_js(web_fixture, constraint_rendering_fixture):
     fixture = constraint_rendering_fixture
 
-    class ModelObject(object):
+    class ModelObject:
         @exposed
         def fields(self, fields):
             fields.an_attribute = Field(label='an attribute')

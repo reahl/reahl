@@ -24,7 +24,7 @@ from contextlib import contextmanager
 from reahl.stubble.stub import StubClass
 
 
-class SystemOutStub(object):
+class SystemOutStub:
     """The SystemOutStub can be used as context manager to test output that some code
        sends to sys.stdout. 
 
@@ -57,7 +57,7 @@ class SystemOutStub(object):
             output_file.write(self.captured_output)
 
 
-class MonitoredCall(object):
+class MonitoredCall:
     """The record of one call that was made to a method. This class is not intended to be 
        instantiated by a programmer. Programmers can query instances of MonitoredCall
        returned by a :class:`reahl.stubble.intercept.CallMonitor` or :class:`reahl.stubble.intercept.InitMonitor`."""
@@ -67,7 +67,7 @@ class MonitoredCall(object):
         self.kwargs = kwargs #: The dictionary with keyword arguments passed during the call
 
         
-class CallableMonitor(object):
+class CallableMonitor:
     def __init__(self, obj, method):
         self.obj = obj
         self.method_name = method.__name__
@@ -101,7 +101,7 @@ class CallMonitor(CallableMonitor):
 
        .. code-block:: python
        
-          class SomeClass(object):
+          class SomeClass:
               def foo(self, arg):
                   return 'something'
 
@@ -157,7 +157,7 @@ def replaced(method, replacement, on=None):
 
        .. code-block:: python
 
-          class SomethingElse(object):
+          class SomethingElse:
               def foo(self, n, y='yyy'):
                   assert None, 'This should never be reached in this test'
 

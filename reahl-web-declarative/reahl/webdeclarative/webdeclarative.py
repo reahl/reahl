@@ -371,7 +371,7 @@ class PersistedFile(SessionData, PersistedFileProtocol):
 
     @property
     def file_obj(self):
-        class LazyFileObj(object):
+        class LazyFileObj:
             def __init__(self, persisted_file):
                 self.persisted_file = persisted_file
                 self.position = 0

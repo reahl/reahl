@@ -60,7 +60,7 @@ class AddressBookUI(UserInterface):
         return self.edit.as_bookmark(self, address_id=address.id, description=description)
 
 
-class Row(object):
+class Row:
     def __init__(self, address):
         self.address = address
         self.selected_by_user = False

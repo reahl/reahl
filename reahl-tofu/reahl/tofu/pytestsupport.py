@@ -79,7 +79,7 @@ def scope(scope):
     return catcher
 
 
-class WithFixtureDecorator(object):
+class WithFixtureDecorator:
     """A decorator for injecting :py:class:`Fixture`\s into pytest test method arguments.
 
     This decorator takes a list of :py:class:`Fixture` classes as

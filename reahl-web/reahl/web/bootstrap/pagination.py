@@ -96,7 +96,7 @@ class PagedPanel(Div):
         return self.page_index.current_page.contents
 
 
-class Page(object):
+class Page:
     def __init__(self, number, description, contents_getter):
         self.number = number
         self.description = description

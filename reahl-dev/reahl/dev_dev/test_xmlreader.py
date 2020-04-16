@@ -36,7 +36,7 @@ class BasicObjectSetup(Fixture):
     def new_file(self):
         return temp_file_with(self.file_contents)
     def new_test_class(self):
-        class TestClass(object):
+        class TestClass:
             def inflate_attributes(self, reader, attributes, parent):
                 self.attr2 = int(attributes['attr2'])
                 self.attr1 = str(attributes['attr1'])
@@ -62,12 +62,12 @@ class BasicObjectSetup(Fixture):
 @uses(basic_object_setup=BasicObjectSetup)
 class ConfiguredReader(Fixture):
 
-    class TestClass1(object):
+    class TestClass1:
         @classmethod
         def get_xml_registration_info(cls):
             return ('1', cls, None)
 
-    class TestClass2(object):
+    class TestClass2:
         @classmethod
         def get_xml_registration_info(cls):
             return ('2', cls, 'asd')
@@ -86,7 +86,7 @@ class ConfiguredReader(Fixture):
 
 class TextObjectSetup(BasicObjectSetup):
     def new_test_class(self):
-        class TestClass(object):
+        class TestClass:
             def inflate_text(self, reader, text, parent):
                 self.text = text
         return TestClass
@@ -109,7 +109,7 @@ class CompositeObjectSetup(BasicObjectSetup):
         return super(CompositeObjectSetup, self).new_test_class()
     
     def new_test_class(self):
-        class OuterClass(object):
+        class OuterClass:
             def inflate_attributes(self, reader, attributes, parent):
                 self.inner = []
                 self.parent = parent
@@ -133,7 +133,7 @@ class MultipleClassesForTag(CompositeObjectSetup):
     innerType2 = 'twotype'
 
     def new_inner_class2(self):
-        class Other(object):
+        class Other:
             pass
         return Other
 

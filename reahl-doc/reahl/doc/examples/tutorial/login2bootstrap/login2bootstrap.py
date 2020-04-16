@@ -47,7 +47,7 @@ class LoginUI(UserInterface):
         disclaimer = self.define_view('/disclaimer', title='Disclaimer')
         disclaimer.set_slot('main', LegalNotice.factory('Disclaim ourselves from negligence ...', 'disclaimer'))
 
-        class LegalBookmarks(object):
+        class LegalBookmarks:
             terms_bookmark = terms_of_service.as_bookmark(self)
             privacy_bookmark = privacy_policy.as_bookmark(self)
             disclaimer_bookmark = disclaimer.as_bookmark(self)

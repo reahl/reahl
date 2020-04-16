@@ -23,18 +23,18 @@ def test_checked_instance_attributes_are_like_instance_attributes():
     """an attribute marked as checkedinstance behaves like an instance
        variable, but is checked against the class variables in the stubbed class"""
 
-    class Stubbed(object):
+    class Stubbed:
         a = None
 
     with pytest.raises(AssertionError):
         #case where a class variable with such a name does not exist on the stubbed
         @stubclass(Stubbed)
-        class Stub(object):
+        class Stub:
             b = checkedinstance()
 
     #case where a class variable with such a name does exist on the stub
     @stubclass(Stubbed)
-    class Stub(object):
+    class Stub:
         a = checkedinstance()
 
     s = Stub()
@@ -49,7 +49,7 @@ def test_constrained_declaration():
     """an attribute marked slotconstrained breaks at definition time iff its name is not
        in __slots__ of Stubbed or its ancestors"""
 
-    class Ancestor(object):
+    class Ancestor:
         __slots__ = ('a')
 
     class Stubbed(Ancestor):
@@ -57,16 +57,16 @@ def test_constrained_declaration():
 
     #case for name in __slots__ of ancestors
     @stubclass(Stubbed)
-    class Stub(object):
+    class Stub:
         a = slotconstrained()
 
     #case for name in __slots__ of stubbed
     @stubclass(Stubbed)
-    class Stub(object):
+    class Stub:
         b = slotconstrained()
 
     with pytest.raises(AssertionError):
         #case where name is not found
         @stubclass(Stubbed)
-        class Stub(object):
+        class Stub:
             c = slotconstrained()

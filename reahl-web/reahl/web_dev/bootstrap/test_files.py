@@ -42,7 +42,7 @@ class FileInputButtonFixture(Fixture):
         return 'focus' in element.get_attribute('class')
 
     def new_domain_object(self):
-        class DomainObject(object):
+        class DomainObject:
             files = []
             @exposed
             def fields(self, fields):
@@ -211,7 +211,7 @@ class FileUploadInputFixture(Fixture):
         return temp_file_with(self.file_to_upload2_content, name=self.file_to_upload2_name, mode='w+b')
 
     def new_domain_object(self): 
-        class DomainObject(object):
+        class DomainObject:
             def __init__(self):
                 self.throws_exception = False
                 self.files = []
@@ -265,7 +265,7 @@ class FileUploadInputFixture(Fixture):
 class ConstrainedFileUploadInputFixture(FileUploadInputFixture):
     def new_domain_object(self):
         fixture = self
-        class DomainObject(object):
+        class DomainObject:
             @exposed
             def fields(self, fields):
                 fields.files = fixture.file_field
@@ -319,7 +319,7 @@ class ToggleValidationFixture(FileUploadInputFixture):
     make_validation_fail = False
     def new_domain_object(self):
         fixture = self
-        class DomainObject(object):
+        class DomainObject:
             @exposed
             def fields(self, fields):
                 fields.files = FileField(allow_multiple=True, label='Attached files')

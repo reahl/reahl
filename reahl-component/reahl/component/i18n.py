@@ -25,7 +25,7 @@ from reahl.component.context import ExecutionContext
 from reahl.component.config import ReahlSystemConfig
 
 
-class SystemWideCatalogue(object):
+class SystemWideCatalogue:
     instance = None
     @classmethod
     def get_instance(cls):
@@ -64,7 +64,7 @@ class SystemWideCatalogue(object):
         return self.get_translation_for(self.current_locale, domain).ungettext(message_singular, message_plural, n)
 
 
-class Catalogue(object):
+class Catalogue:
     """Create an instance of this class at the top of your module, in module scope and assign it to the name `_` for
        use in translating literal strings to the language of the current locale.
 

@@ -41,7 +41,7 @@ from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
 class ResponsiveDisclosureFixture(Fixture):
 
     def new_ModelObject(self):
-        class ModelObject(object):
+        class ModelObject:
             def __init__(self):
                 self.choice = 1
 
@@ -110,7 +110,7 @@ class ResponsiveWidgetScenarios(ResponsiveDisclosureFixture):
     def single_valued_checkbox(self):
         fixture = self
 
-        class ModelObject(object):
+        class ModelObject:
             def __init__(self):
                 self.choice = False
             @exposed
@@ -135,7 +135,7 @@ class ResponsiveWidgetScenarios(ResponsiveDisclosureFixture):
     def multi_valued_checkbox_select(self):
         fixture = self
 
-        class ModelObject(object):
+        class ModelObject:
             def __init__(self):
                 self.choice = [1]
 
@@ -164,7 +164,7 @@ class ResponsiveWidgetScenarios(ResponsiveDisclosureFixture):
         self.multi_valued_checkbox_select()
         fixture = self
 
-        class ModelObject(object):
+        class ModelObject:
             def __init__(self):
                 self.choice = [1]
 
@@ -185,7 +185,7 @@ class ResponsiveWidgetScenarios(ResponsiveDisclosureFixture):
         self.multi_valued_checkbox_select()
         fixture = self
 
-        class ModelObject(object):
+        class ModelObject:
             def __init__(self):
                 self.choice = []
 
@@ -206,7 +206,7 @@ class ResponsiveWidgetScenarios(ResponsiveDisclosureFixture):
     def multi_valued_select(self):
         fixture = self
 
-        class ModelObject(object):
+        class ModelObject:
             def __init__(self):
                 self.choice = [1]
 
@@ -252,7 +252,7 @@ def test_overridden_names(web_fixture, query_string_fixture, responsive_disclosu
     """The overridden names of inputs correctly ensures that that input's state is distinguished from another with the same name."""
     fixture = responsive_disclosure_fixture
 
-    class ModelObject(object):
+    class ModelObject:
         def __init__(self):
             self.choice = [1]
 
@@ -414,7 +414,7 @@ class DisclosedInputFixture(Fixture):
 
     def new_MyForm(self):
         fixture = self
-        class ModelObject(object):
+        class ModelObject:
             def __init__(self):
                 self.trigger_field = fixture.default_trigger_field_value
                 self.email = None
@@ -600,7 +600,7 @@ def test_ignore_button_click_on_change(web_fixture, disclosed_input_trigger_fixt
 class NestedResponsiveDisclosureFixture(Fixture):
 
     def new_ModelObject(self):
-        class ModelObject(object):
+        class ModelObject:
             def __init__(self):
                 self.trigger_field = False
                 self.nested_trigger_field = False

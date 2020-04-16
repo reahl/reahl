@@ -244,7 +244,7 @@ def test_getting_modified_copy(fixture):
 def test_helpers_for_fields(fixture):
     """The @exposed decorator makes it simpler to bind Fields to an object."""
 
-    class ModelObject(object):
+    class ModelObject:
         @exposed
         def fields(self, fields):
             fields.field1 = IntegerField()
@@ -262,7 +262,7 @@ def test_helpers_for_fields2(fixture):
     """The ReahlFields class is an alternative way to make it simpler to bind Fields to an object.
        This reads a bit nicer, BUT does not currently play well with internationalising strings."""
 
-    class ModelObject(object):
+    class ModelObject:
         fields = ReahlFields()
         fields.field1 = IntegerField()
         fields.field2 = BooleanField()
@@ -307,7 +307,7 @@ def test_re_binding_behaviour_of_field_index(fixture):
 def test_helpers_for_events(fixture):
     """The @exposed decorator makes it simpler to collect Events on an object similar to how it is used for Fields."""
 
-    class ModelObject(object):
+    class ModelObject:
         @exposed
         def events(self, fields):
             fields.event1 = Event()
@@ -326,7 +326,7 @@ def test_helpers_for_events(fixture):
 def test_helpers_for_events2(fixture):
     """The @exposed decorator can be used to get FakeEvents at a class level, provided the valid Event names are specified."""
 
-    class ModelObject(object):
+    class ModelObject:
         @exposed('event1')
         def events(self, fields):
             fields.event1 = Event()
@@ -342,7 +342,7 @@ def test_helpers_for_events2(fixture):
 def test_helpers_for_events3(fixture):
     """An Event has to be created for each of the names listed to the @exposed decorator, else an error is raised."""
 
-    class ModelObject(object):
+    class ModelObject:
         @exposed('event1', 'forgotten')
         def events(self, fields):
             fields.event1 = Event()
@@ -358,7 +358,7 @@ def test_events(fixture):
        possibly trigger the execution of an Action by the system. Metadata, such as what
        a human might label the Event, is also specified."""
 
-    class ModelObject(object):
+    class ModelObject:
         @exposed
         def events(self, events):
             events.an_event = Event(action=Action(self.do_something), label='human readable label')
@@ -384,7 +384,7 @@ def test_arguments_to_actions(fixture):
     expected_arg = 123
     expected_kwarg = 45
 
-    class ModelObject(object):
+    class ModelObject:
         @exposed
         def events(self, events):
             events.an_event = Event(one_argument=IntegerField(required=True),
@@ -438,7 +438,7 @@ def test_arguments_to_event(fixture):
 class ActionScenarios(Fixture):
     @scenario
     def action_method(self):
-        class ModelObject(object):
+        class ModelObject:
             allow_read_flag = True
             allow_write_flag = True
             def allow_read(self):
@@ -472,7 +472,7 @@ class ActionScenarios(Fixture):
         def do_something():
             pass
 
-        class ModelObject(object):
+        class ModelObject:
             @exposed
             def events(self, events):
                 events.an_event = Event(action=Action(do_something))
@@ -509,7 +509,7 @@ def test_event_security(field_fixture, action_scenarios):
 def test_event_security2(fixture):
     """If an Event does not specify an Action, then Actions can be passed for its readable and writable."""
 
-    class ModelObject(object):
+    class ModelObject:
         allow_read_flag = True
         allow_write_flag = True
         def allow_read(self):
@@ -552,7 +552,7 @@ def test_receiving_events(fixture):
     """An Event is said to have occurred if it received a querystring containing its arguments from user input.
        An Event can only be fired if it occurred."""
 
-    class ModelObject(object):
+    class ModelObject:
         @exposed
         def events(self, events):
             events.an_event = Event(an_argument=IntegerField())
@@ -607,7 +607,7 @@ def test_security_of_receiving_events(field_fixture, allowed_scenarios):
 
     fixture = allowed_scenarios
 
-    class ModelObject(object):
+    class ModelObject:
         def allow_read(self):
             return fixture.allow_read
         def allow_write(self):

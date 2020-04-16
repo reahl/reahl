@@ -123,7 +123,7 @@ assert not hasattr(real_instance, 'aa')  #see, it was not set there
 
 
 #----------------------------------------[ the problem with Delegates ]
-class AnotherRealClass(object):
+class AnotherRealClass:
     def foo(self):
         self.aa = 123
 
@@ -166,7 +166,7 @@ except:
 # This example was originally posted on comp.lang.python
 # by Blair Hall on Apr 10 2003:  (I modified it a bit, though...)
 #
-class A(object):
+class A:
     def __init__(self):
         pass
 
@@ -183,7 +183,7 @@ b.c = 3     # passes
 
 
 #----------------------------------------[ using the class attributes convention ]
-class RealClassFollowingConventions(object):
+class RealClassFollowingConventions:
     a = None
     b = None
 
@@ -198,7 +198,7 @@ class Stub:
 #  (remove 'aa' from __slots__ to see it complain)
 
 
-class StubbornRealClass(object):
+class StubbornRealClass:
     __slots__ = ('aa')
 
 
