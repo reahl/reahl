@@ -19,7 +19,6 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 import warnings
 import sys
 import io
-import six
 import inspect
 from contextlib import contextmanager
 

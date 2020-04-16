@@ -24,7 +24,6 @@ Carousel presents a slideshow of Widgets with captions on each slide.
 """
 from __future__ import print_function, unicode_literals, absolute_import, division
 
-import six
 from reahl.web.fw import Widget, Url
 from reahl.web.ui import HTMLAttributeValueOption, HTMLElement, Img
 from reahl.web.bootstrap.ui import Div, A, Span, Li, Ol, TextNode

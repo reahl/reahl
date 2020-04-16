@@ -24,7 +24,6 @@ Client-side popups and related utilities.
 """
 from __future__ import print_function, unicode_literals, absolute_import, division
 
-import six
 import json
 
 from reahl.component.i18n import Catalogue

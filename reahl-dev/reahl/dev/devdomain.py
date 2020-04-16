@@ -17,7 +17,6 @@
 """This module houses the main classes used to understand and manipulate Reahl projects in development."""
 from __future__ import print_function, unicode_literals, absolute_import, division
 
-import six
 import os
 import io
 import sys

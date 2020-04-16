@@ -23,7 +23,6 @@ import atexit
 import contextlib
 from collections import OrderedDict 
 
-import six
 
 from reahl.component.exceptions import ProgrammerError
 

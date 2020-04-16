@@ -1,6 +1,5 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
-import six
 from reahl.web.fw import UserInterface, Layout
 from reahl.web.layout import PageLayout
 from reahl.web.bootstrap.page import HTML5Page

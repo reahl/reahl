@@ -16,7 +16,6 @@
 
 """The module contains code to implement commands that can be issued from a commandline to manipulate Reahl projects."""
 from __future__ import print_function, unicode_literals, absolute_import, division
-import six
 import sys
 import os
 import re

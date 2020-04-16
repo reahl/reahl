@@ -22,7 +22,6 @@ Copyright (C) 2006 Reahl Software Services (Pty) Ltd.  All rights reserved. (www
 """
 from __future__ import print_function, unicode_literals, absolute_import, division
 
-import six
 import asyncore
 import logging
 from smtpd import DebuggingServer, SMTPServer

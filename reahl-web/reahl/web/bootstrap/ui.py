@@ -27,7 +27,6 @@ correspondence to HTML elements (or are of similar simplicity).
 """
 from __future__ import print_function, unicode_literals, absolute_import, division
 
-import six
 
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.i18n import Catalogue

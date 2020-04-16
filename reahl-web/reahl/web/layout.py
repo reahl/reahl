@@ -22,7 +22,6 @@ Utilities to deal with layout.
 
 """
 
-import six
 
 from reahl.component.exceptions import arg_checks, IsInstance
 from reahl.web.fw import Layout

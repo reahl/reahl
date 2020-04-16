@@ -41,7 +41,6 @@ parent width. A size for a particular device class is thus an integer
 denoting a size in 1/12ths of its container's width.
 """
 from __future__ import print_function, unicode_literals, absolute_import, division
-import six
 
 from collections import OrderedDict
 import copy

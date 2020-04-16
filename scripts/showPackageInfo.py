@@ -16,7 +16,7 @@
 
 """A commandline utility to display package information installed in your environment."""
 
-import six.moves.urllib as urllib
+import urllib
 import argparse
 
 from bs4 import BeautifulSoup

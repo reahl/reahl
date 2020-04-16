@@ -31,7 +31,6 @@ can also be set up to let a user sort data according to different columns.
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 
-import six
 
 import functools
 

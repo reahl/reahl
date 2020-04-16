@@ -23,7 +23,6 @@ import os
 import shutil
 
 import pprint
-import six
 import inspect
 import textwrap
 

@@ -24,7 +24,6 @@ try:
     import pytest
 except ImportError:
     pass
-import six
 
 from reahl.tofu.fixture import Scenario
 from reahl.component.eggs import DependencyGraph

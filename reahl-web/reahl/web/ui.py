@@ -27,7 +27,6 @@ import collections
 import copy
 import re
 import hashlib
-import six
 import warnings
 from collections import OrderedDict
 from collections.abc import Callable

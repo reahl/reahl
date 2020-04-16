@@ -20,7 +20,7 @@ Run 'reahl componentinfo reahl-web' for configuration information.
 """
 
 from __future__ import print_function, unicode_literals, absolute_import, division
-
+import six
 import atexit
 import inspect
 import json
@@ -43,7 +43,6 @@ import os
 import os.path
 import pkg_resources
 import re
-import six
 import slimit
 import tempfile
 import warnings

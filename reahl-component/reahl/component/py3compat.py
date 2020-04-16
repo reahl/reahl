@@ -15,7 +15,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import print_function, unicode_literals, absolute_import, division
 
-import six
 
 
 def ascii_as_bytes_or_str(unicode_str):

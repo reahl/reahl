@@ -24,7 +24,6 @@ of useful content, including a navigation menu.
 from __future__ import print_function, unicode_literals, absolute_import, division
 
 # noinspection PyUnresolvedReferences
-import six
 
 from reahl.component.exceptions import arg_checks, IsInstance, ProgrammerError
 

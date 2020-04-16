@@ -26,7 +26,6 @@ panel.
 from __future__ import print_function, unicode_literals, absolute_import, division
 
 # noinspection PyUnresolvedReferences
-import six
 
 from reahl.component.modelinterface import exposed, Field
 from reahl.web.fw import Widget
