@@ -710,7 +710,7 @@ class UserInterface(object):
         url.make_locale_absolute()
         return url
 
-    @arg_checks(relative_path=IsInstance(six.string_types))
+    @arg_checks(relative_path=IsInstance(str))
     def get_bookmark(self, description=None, relative_path=None, query_arguments=None, ajax=False):
         """Returns a :class:`Bookmark` for the :class:`View` present on `relative_path`.
         

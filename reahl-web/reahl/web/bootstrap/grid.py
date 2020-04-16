@@ -297,7 +297,7 @@ class ColumnLayout(Layout):
     """
     def __init__(self, *column_definitions):
         super(ColumnLayout, self).__init__()
-        if not all([isinstance(column_definition, six.string_types+(ColumnOptions,)) for column_definition in column_definitions]):
+        if not all([isinstance(column_definition, (str, ColumnOptions)) for column_definition in column_definitions]):
             raise ProgrammerError('All column definitions are expected be either a ColumnOptions object of a column name, got %s' % str(column_definitions))
         self.added_column_definitions = []
         self.add_slots = False
@@ -307,7 +307,7 @@ class ColumnLayout(Layout):
         self.columns = OrderedDict()  #: A dictionary containing the added columns, keyed by column name.
         self.column_definitions = OrderedDict()
         for column_definition in column_definitions:
-            if isinstance(column_definition, six.string_types):
+            if isinstance(column_definition, str):
                 name, options = column_definition, ColumnOptions(column_definition)
             else:
                 name, options = column_definition.name, column_definition

@@ -194,7 +194,7 @@ class FileUploadPanel(Div):
 
     def attach_jq_widget(self, selector, widget_name, **options):
         def js_repr(value):
-            if isinstance(value, six.string_types):
+            if isinstance(value, str):
                 return '"%s"' % value
             return value
         option_args = ','.join(['%s: %s' % (name, js_repr(value)) for name, value in options.items()])

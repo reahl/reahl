@@ -575,7 +575,7 @@ class InputGroup(reahl.web.ui.WrappedInput):
         self.set_html_representation(self.div)
 
     def add_as_addon(self, addon, position):
-        if isinstance(addon, six.string_types):
+        if isinstance(addon, str):
             addon = Span(self.view, text=addon)
         span = Span(self.view)
         span.add_child(addon)

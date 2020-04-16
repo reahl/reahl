@@ -99,7 +99,7 @@ class DeferredImport(object):
             raise ProgrammerError('Could not find %s in %s (from %s)' % (class_name, module_name, string_spec))
 
     def coerce_to_type(self, type_or_string):
-        if isinstance(type_or_string, six.string_types):
+        if isinstance(type_or_string, str):
             return self.import_string_spec(type_or_string)
         else:
             return type_or_string

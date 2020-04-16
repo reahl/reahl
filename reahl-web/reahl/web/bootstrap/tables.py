@@ -98,7 +98,7 @@ class TableLayout(Layout):
                  responsive=False, heading_theme=None):
         super(TableLayout, self).__init__()
 
-        if isinstance(responsive, six.string_types):
+        if isinstance(responsive, str):
             self.responsive_attribute_option = HTMLAttributeValueOption(responsive, True,
                                                                    prefix='table-responsive',
                                                                    constrain_value_to=DeviceClass.device_classes)

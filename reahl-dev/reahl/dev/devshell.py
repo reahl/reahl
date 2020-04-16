@@ -243,7 +243,7 @@ class ForAllWorkspaceCommand(WorkspaceCommand):
                 retcode = ex.returncode
 
         if retcode != None:
-            if isinstance(retcode, six.string_types):
+            if isinstance(retcode, str):
                 print('ERROR: Child was terminated with error message: %s\n' % retcode, file=sys.stderr)
             elif retcode < 0:
                 print('ERROR: Child was terminated by signal %s\n' % retcode, file=sys.stderr)

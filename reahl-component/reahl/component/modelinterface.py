@@ -148,7 +148,7 @@ class ExposedDecorator(object):
     """
     def __init__(self, *args):
         self.expected_event_names = []
-        if isinstance(args[0], six.string_types):
+        if isinstance(args[0], str):
             self.add_fake_events(args)
             self.func = None
         else:
@@ -444,7 +444,7 @@ class RequiredConstraint(ValidationConstraint):
         return self.dependency_expression
 
     def validate_input(self, unparsed_input):
-        if isinstance(unparsed_input, six.string_types) and self.empty_regex.match(unparsed_input):
+        if isinstance(unparsed_input, str) and self.empty_regex.match(unparsed_input):
             raise self
         if not unparsed_input:
             raise self

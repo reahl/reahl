@@ -61,7 +61,7 @@ class Alert(Div):
                                                                        'success', 'info', 'warning', 'danger',
                                                                        'light', 'dark'])
         child_widget = message_or_widget
-        if isinstance(message_or_widget, six.string_types):
+        if isinstance(message_or_widget, str):
             child_widget = TextNode(view, message_or_widget)
         self.add_child(child_widget)
         self.append_class('alert')

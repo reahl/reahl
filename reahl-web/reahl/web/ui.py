@@ -633,7 +633,7 @@ class HTML5Page(HTMLElement):
     def get_error_page_factory(cls, *widget_args, **widget_kwargs):
         return PlainHTMLErrorPage.factory(cls, *widget_args, **widget_kwargs)
 
-    @arg_checks(title=IsInstance(six.string_types))
+    @arg_checks(title=IsInstance(str))
     def __init__(self, view, title='$current_title', css_id=None):
         super(HTML5Page, self).__init__(view, 'html', children_allowed=True, css_id=css_id)
         self.append_class('no-js')
@@ -2649,7 +2649,7 @@ class DynamicColumn(object):
             Added `make_footer_widget`.
     """
     def __init__(self, make_heading_or_string, make_widget, make_footer_widget=None, sort_key=None):
-        if isinstance(make_heading_or_string, six.string_types):
+        if isinstance(make_heading_or_string, str):
             def make_span(view):
                 return Span(view, text=make_heading_or_string)
             self.make_heading_widget = make_span
