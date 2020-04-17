@@ -8,6 +8,7 @@ trap cleanup_keyfiles EXIT
 function configure_gnupg {
   mkdir -p ~/.gnupg
   echo "allow-preset-passphrase" >> ~/.gnupg/gpg-agent.conf
+  echo "allow-loopback-pinentry" >> ~/.gnupg/gpg-agent.conf
   echo "use-agent" >> ~/.gnupg/gpg.conf
   gpgconf --reload gpg-agent
 #  gpg-connect-agent reloadagent /bye
@@ -19,7 +20,7 @@ function preset_passphrase {
 
 function import_gpg_keys () {
   from_dir=$1
-  gpg --status-fd 2 --import $from_dir/key.secret.asc
+  gpg --status-fd 2 --pinentry-mode loopback --passphrase-fd 0 --import $from_dir/key.secret.asc <<< $GPG_PASSPHRASE
   gpg --status-fd 2 --import-ownertrust < $from_dir/trust.asc
 }
 
