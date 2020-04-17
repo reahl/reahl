@@ -9,6 +9,7 @@ function configure_gnupg {
   mkdir -p ~/.gnupg
   echo "allow-preset-passphrase" >> ~/.gnupg/gpg-agent.conf
   echo "allow-loopback-pinentry" >> ~/.gnupg/gpg-agent.conf
+  echo "log-file /tmp/gnupg-agent.log" >> ~/.gnupg/gpg-agent.conf
   echo "use-agent" >> ~/.gnupg/gpg.conf
   gpgconf --reload gpg-agent
 #  gpg-connect-agent reloadagent /bye
