@@ -16,6 +16,7 @@ function configure_gnupg {
 
 function preset_passphrase {
   /usr/lib/gnupg2/gpg-preset-passphrase --preset $GPG_KEYGRIP <<< $GPG_PASSPHRASE
+  gpg-connect-agent 'keyinfo --list' /bye
 }
 
 function import_gpg_keys () {
