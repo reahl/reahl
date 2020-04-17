@@ -5,13 +5,16 @@ function cleanup_keyfiles {
 }
 trap cleanup_keyfiles EXIT
 
+function configure_gnupg {
+  mkdir -p ~/.gnupg
+  echo "allow-preset-passphrase" >> ~/.gnupg/gpg-agent.conf
+  echo "use-agent" >> ~/.gnupg/gpg.conf
+  gpgconf --reload gpg-agent
+#  gpg-connect-agent reloadagent /bye
+}
+
 function preset_passphrase {
-  echo 'Calling gpg-preset-passphrase'
-  set +x
-  echo $GPG_PASSPHRASE | /usr/lib/gnupg2/gpg-preset-passphrase --preset $GPG_KEYGRIP
-  echo $GPG_PASSPHRASE | /usr/lib/gnupg2/gpg-preset-passphrase --preset $GPG_SIGN_KEYGRIP
-  set -x
-  echo 'done'
+  /usr/lib/gnupg2/gpg-preset-passphrase --preset $GPG_KEYGRIP <<< $GPG_PASSPHRASE
 }
 
 function import_gpg_keys () {
@@ -22,28 +25,19 @@ function import_gpg_keys () {
 
 rm -f ~/.gnupg/options ~/.gnupg/gpg.conf
 
+configure_gnupg
+
 if [ "$TRAVIS_SECURE_ENV_VARS" == 'true' ]; then
-  set +x
   echo "SECRETS are available, fetching reahl GPG signing key"
   gpg --keyserver $GPG_KEYSERVER --recv $GPG_KEY_ID
   pip install awscli
   aws s3 cp s3://$AWS_BUCKET/keys.tgz.enc /tmp/keys.tgz.enc
+  set +x
   openssl aes-256-cbc -K $encrypted_f7a01544e957_key -iv $encrypted_f7a01544e957_iv -in /tmp/keys.tgz.enc -out /tmp/keys.tgz -d
+  set -x
   tar -C /tmp -zxvf /tmp/keys.tgz 
-  ps aux | grep gpg
-  mkdir -p ~/.gnupg
-#  echo "allow-loopback-pinentry" >> ~/.gnupg/gpg-agent.conf
-  echo "allow-preset-passphrase" >> ~/.gnupg/gpg-agent.conf
-  echo "use-agent" >> ~/.gnupg/gpg.conf
-  gpgconf --reload gpg-agent
-  gpg-connect-agent reloadagent /bye
-  sleep 2
-  ps aux | grep gpg
   preset_passphrase
-  ls ~/.gnupg
-  cat ~/.gnupg/*.conf
   import_gpg_keys /tmp/keys
-  mkdir -p ~/.gnupg
   echo "default-key $GPG_KEY_ID" >> ~/.gnupg/gpg.conf
 else
   echo "SECRETS NOT available, using fake key for signing"
