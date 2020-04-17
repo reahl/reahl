@@ -91,12 +91,7 @@ before_script:
   # Setup ssh for password-less access to localhost
   - "travis/createTestSshKey.sh"
   - "travis/createTestGpgKey.sh"
-  - gpg-connect-agent 'keyinfo --list' /bye
-  - cat /tmp/gnupg-agent.log
-  - gpg --sign /tmp/gnupg-agent.log || true
-  - cat /tmp/gnupg-agent.log
   - "(reahl build -sdX || (EXITCODE=$?; shred -f $HOME/.gnupg/*; exit $EXITCODE))"
-  - gpg-connect-agent 'keyinfo --list' /bye
 
 script:
   - "(reahl shell -sdXg tox -e $TOX_ENV && (EXITCODE=$?; shred -f $HOME/.gnupg/*; exit $EXITCODE))"

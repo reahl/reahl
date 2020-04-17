@@ -477,7 +477,15 @@ class LocalRepository:
     def sign_files_for(self, package):
         sign_file = os.path.join(self.root_directory, package.sign_filename)
         files_to_sign = [os.path.join(self.root_directory, filename) for filename in package.filenames_to_sign]
-        Executable('gpg').check_call(['-ab', '--yes', '-o', sign_file]+files_to_sign, cwd=self.root_directory)
+
+        passphrase_args = []
+        stdin_input = None
+        passphrase = os.environ.get('GPG_PASSPHRASE', None)
+        if passphrase:
+            passphrase_args = ['--pinentry-mode', 'loopback', '--passphrase-fd', '0']
+            stdin_input = ('%s' % passphrase).encode('utf-8')
+        Executable('gpg').run(['-ab', '--yes', '-o', sign_file]+passphrase_args+files_to_sign, input=stdin_input, cwd=self.root_directory)
+
 
 
 class LocalAptRepository(LocalRepository):
