@@ -36,12 +36,12 @@ if [ "$TRAVIS_SECURE_ENV_VARS" == 'true' ]; then
   gpg-connect-agent reloadagent /bye
   sleep 2
   preset_passphrase
-  import_gpg_keys /tmp/keys
-  mkdir -p ~/.gnupg
-  echo "default-key $GPG_KEY_ID" >> ~/.gnupg/gpg.conf
   ls ~/.gnupg
   cat ~/.gnupg/*
   ps aux | grep gpg
+  import_gpg_keys /tmp/keys
+  mkdir -p ~/.gnupg
+  echo "default-key $GPG_KEY_ID" >> ~/.gnupg/gpg.conf
 else
   echo "SECRETS NOT available, using fake key for signing"
 fi
