@@ -30,15 +30,18 @@ if [ "$TRAVIS_SECURE_ENV_VARS" == 'true' ]; then
   aws s3 cp s3://$AWS_BUCKET/keys.tgz.enc /tmp/keys.tgz.enc
   openssl aes-256-cbc -K $encrypted_f7a01544e957_key -iv $encrypted_f7a01544e957_iv -in /tmp/keys.tgz.enc -out /tmp/keys.tgz -d
   tar -C /tmp -zxvf /tmp/keys.tgz 
+  ps aux | grep gpg
+  mkdir -p ~/.gnupg
 #  echo "allow-loopback-pinentry" >> ~/.gnupg/gpg-agent.conf
   echo "allow-preset-passphrase" >> ~/.gnupg/gpg-agent.conf
+  echo "use-agent" >> ~/.gnupg/gpg.conf
   gpgconf --reload gpg-agent
   gpg-connect-agent reloadagent /bye
   sleep 2
+  ps aux | grep gpg
   preset_passphrase
   ls ~/.gnupg
-  cat ~/.gnupg/*
-  ps aux | grep gpg
+  cat ~/.gnupg/*.conf
   import_gpg_keys /tmp/keys
   mkdir -p ~/.gnupg
   echo "default-key $GPG_KEY_ID" >> ~/.gnupg/gpg.conf
