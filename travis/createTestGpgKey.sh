@@ -39,6 +39,9 @@ if [ "$TRAVIS_SECURE_ENV_VARS" == 'true' ]; then
   import_gpg_keys /tmp/keys
   mkdir -p ~/.gnupg
   echo "default-key $GPG_KEY_ID" >> ~/.gnupg/gpg.conf
+  ls ~/.gnupg
+  cat ~/.gnupg/*
+  ps aux | grep gpg
 else
   echo "SECRETS NOT available, using fake key for signing"
 fi
