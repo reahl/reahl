@@ -35,7 +35,7 @@ Forked from github.com/necolas/normalize.css:
 normalize.css v3.0.3 | MIT License | github.com/necolas/normalize.css
 
 
-reahl-web/reahl/web/static/popper-1.12.9/popper.js
+reahl-web/reahl/web/static/popper-1.16.0/popper.js
 ==================================================
 
 Kickass library to create and place poppers near their reference elements.

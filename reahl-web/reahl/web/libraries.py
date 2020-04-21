@@ -316,13 +316,13 @@ class ReahlBootstrap4Additions(Library):
 
 
 class Popper(Library):
-    """Version 1.12.9 (umd) of `Popper <https://popper.js.org/>`_.
+    """Version 1.16.0 (umd) of `Popper <https://popper.js.org/>`_.
     """
     def __init__(self):
         super().__init__('popper')
         self.shipped_in_directory = '/reahl/web/static'
         self.files = [
-            'popper-1.12.9/popper.js' #make sure it is the umd edition
+            'popper-1.16.0/popper.js' #make sure it is the umd edition
         ]
 
 
