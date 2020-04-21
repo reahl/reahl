@@ -1,9 +1,9 @@
 /*!
- * jQuery Validation Plugin v1.17.0
+ * jQuery Validation Plugin v1.19.1
  *
  * https://jqueryvalidation.org/
  *
- * Copyright (c) 2017 Jörn Zaefferer
+ * Copyright (c) 2019 Jörn Zaefferer
  * Released under the MIT license
  */
 (function( factory ) {
@@ -68,6 +68,7 @@ $.extend( $.fn, {
 					// Prevent form submit to be able to see console output
 					event.preventDefault();
 				}
+
 				function handle() {
 					var hidden, result;
 
@@ -83,7 +84,7 @@ $.extend( $.fn, {
 							.appendTo( validator.currentForm );
 					}
 
-					if ( validator.settings.submitHandler ) {
+					if ( validator.settings.submitHandler && !validator.settings.debug ) {
 						result = validator.settings.submitHandler.call( validator, validator.currentForm, event );
 						if ( hidden ) {
 
@@ -143,6 +144,7 @@ $.extend( $.fn, {
 	// https://jqueryvalidation.org/rules/
 	rules: function( command, argument ) {
 		var element = this[ 0 ],
+			isContentEditable = typeof this.attr( "contenteditable" ) !== "undefined" && this.attr( "contenteditable" ) !== "false",
 			settings, staticRules, existingRules, data, param, filtered;
 
 		// If nothing is selected, return empty object; can't chain anyway
@@ -150,7 +152,7 @@ $.extend( $.fn, {
 			return;
 		}
 
-		if ( !element.form && element.hasAttribute( "contenteditable" ) ) {
+		if ( !element.form && isContentEditable ) {
 			element.form = this.closest( "form" )[ 0 ];
 			element.name = this.attr( "name" );
 		}
@@ -216,7 +218,7 @@ $.extend( $.fn, {
 } );
 
 // Custom selectors
-$.extend( $.expr.pseudos, {
+$.extend( $.expr.pseudos || $.expr[ ":" ], {		// '|| $.expr[ ":" ]' here enables backwards compatibility to jQuery 1.7. Can be removed when dropping jQ 1.7.x support
 
 	// https://jqueryvalidation.org/blank-selector/
 	blank: function( a ) {
@@ -396,7 +398,8 @@ $.extend( $.validator, {
 			this.invalid = {};
 			this.reset();
 
-			var groups = ( this.groups = {} ),
+			var currentForm = this.currentForm,
+				groups = ( this.groups = {} ),
 				rules;
 			$.each( this.settings.groups, function( key, value ) {
 				if ( typeof value === "string" ) {
@@ -412,11 +415,18 @@ $.extend( $.validator, {
 			} );
 
 			function delegate( event ) {
+				var isContentEditable = typeof $( this ).attr( "contenteditable" ) !== "undefined" && $( this ).attr( "contenteditable" ) !== "false";
 
 				// Set form expando on contenteditable
-				if ( !this.form && this.hasAttribute( "contenteditable" ) ) {
+				if ( !this.form && isContentEditable ) {
 					this.form = $( this ).closest( "form" )[ 0 ];
 					this.name = $( this ).attr( "name" );
+				}
+
+				// Ignore the element if it belongs to another form. This will happen mainly
+				// when setting the `form` attribute of an input to the id of another form.
+				if ( currentForm !== this.form ) {
+					return;
 				}
 
 				var validator = $.data( this.form, "validator" ),
@@ -617,7 +627,7 @@ $.extend( $.validator, {
 				try {
 					$( this.findLastActive() || this.errorList.length && this.errorList[ 0 ].element || [] )
 					.filter( ":visible" )
-					.focus()
+					.trigger( "focus" )
 
 					// Manually trigger focusin event; without it, focusin handler isn't called, findLastActive won't have anything to find
 					.trigger( "focusin" );
@@ -656,14 +666,21 @@ $.extend( $.validator, {
 			.not( this.settings.ignore )
 			.filter( function() {
 				var name = this.name || $( this ).attr( "name" ); // For contenteditable
+				var isContentEditable = typeof $( this ).attr( "contenteditable" ) !== "undefined" && $( this ).attr( "contenteditable" ) !== "false";
+
 				if ( !name && validator.settings.debug && window.console ) {
 					console.error( "%o has no name assigned", this );
 				}
 
 				// Set form expando on contenteditable
-				if ( this.hasAttribute( "contenteditable" ) ) {
+				if ( isContentEditable ) {
 					this.form = $( this ).closest( "form" )[ 0 ];
 					this.name = name;
+				}
+
+				// Ignore elements that belong to other/nested forms
+				if ( this.form !== validator.currentForm ) {
+					return false;
 				}
 
 				// Select only the first element for each name, and only those with rules specified
@@ -711,6 +728,7 @@ $.extend( $.validator, {
 		elementValue: function( element ) {
 			var $element = $( element ),
 				type = element.type,
+				isContentEditable = typeof $element.attr( "contenteditable" ) !== "undefined" && $element.attr( "contenteditable" ) !== "false",
 				val, idx;
 
 			if ( type === "radio" || type === "checkbox" ) {
@@ -719,7 +737,7 @@ $.extend( $.validator, {
 				return element.validity.badInput ? "NaN" : $element.val();
 			}
 
-			if ( element.hasAttribute( "contenteditable" ) ) {
+			if ( isContentEditable ) {
 				val = $element.text();
 			} else {
 				val = $element.val();
@@ -779,10 +797,6 @@ $.extend( $.validator, {
 			// Note that `this` in the normalizer is `element`.
 			if ( normalizer ) {
 				val = normalizer.call( element, val );
-
-				if ( typeof val !== "string" ) {
-					throw new TypeError( "The normalizer should return a string value." );
-				}
 
 				// Delete the normalizer from rules to avoid treating it as a pre-defined method.
 				delete rules.normalizer;
@@ -1172,7 +1186,19 @@ $.extend( $.validator, {
 				.removeData( "validator" )
 				.find( ".validate-equalTo-blur" )
 					.off( ".validate-equalTo" )
-					.removeClass( "validate-equalTo-blur" );
+					.removeClass( "validate-equalTo-blur" )
+				.find( ".validate-lessThan-blur" )
+					.off( ".validate-lessThan" )
+					.removeClass( "validate-lessThan-blur" )
+				.find( ".validate-lessThanEqual-blur" )
+					.off( ".validate-lessThanEqual" )
+					.removeClass( "validate-lessThanEqual-blur" )
+				.find( ".validate-greaterThanEqual-blur" )
+					.off( ".validate-greaterThanEqual" )
+					.removeClass( "validate-greaterThanEqual-blur" )
+				.find( ".validate-greaterThan-blur" )
+					.off( ".validate-greaterThan" )
+					.removeClass( "validate-greaterThan-blur" );
 		}
 
 	},
@@ -1276,6 +1302,12 @@ $.extend( $.validator, {
 
 		for ( method in $.validator.methods ) {
 			value = $element.data( "rule" + method.charAt( 0 ).toUpperCase() + method.substring( 1 ).toLowerCase() );
+
+			// Cast empty attributes like `data-rule-required` to `true`
+			if ( value === "" ) {
+				value = true;
+			}
+
 			this.normalizeAttributeRule( rules, type, method, value );
 		}
 		return rules;
@@ -1401,7 +1433,7 @@ $.extend( $.validator, {
 			if ( this.checkable( element ) ) {
 				return this.getLength( value, element ) > 0;
 			}
-			return value.length > 0;
+			return value !== undefined && value !== null && value.length > 0;
 		},
 
 		// https://jqueryvalidation.org/email-method/
@@ -1425,9 +1457,26 @@ $.extend( $.validator, {
 		},
 
 		// https://jqueryvalidation.org/date-method/
-		date: function( value, element ) {
-			return this.optional( element ) || !/Invalid|NaN/.test( new Date( value ).toString() );
-		},
+		date: ( function() {
+			var called = false;
+
+			return function( value, element ) {
+				if ( !called ) {
+					called = true;
+					if ( this.settings.debug && window.console ) {
+						console.warn(
+							"The `date` method is deprecated and will be removed in version '2.0.0'.\n" +
+							"Please don't use it, since it relies on the Date constructor, which\n" +
+							"behaves very differently across browsers and locales. Use `dateISO`\n" +
+							"instead or one of the locale specific methods in `localizations/`\n" +
+							"and `additional-methods.js`."
+						);
+					}
+				}
+
+				return this.optional( element ) || !/Invalid|NaN/.test( new Date( value ).toString() );
+			};
+		}() ),
 
 		// https://jqueryvalidation.org/dateISO-method/
 		dateISO: function( value, element ) {

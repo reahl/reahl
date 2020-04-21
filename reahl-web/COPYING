@@ -105,10 +105,10 @@ Dual licensed under the MIT and GPL licenses:
 http://www.opensource.org/licenses/mit-license.php
 http://www.gnu.org/licenses/gpl.html
 
-reahl-web/reahl/web/static/jquery/jquery.cookie-1.0.js
-======================================================
+reahl-web/reahl/web/static/jquery/jquery.cookie-1.4.1.js
+========================================================
 
-Copyright (c) 2006 Klaus Hartl (stilbuero.de)
+Copyright (c) 2013 Klaus Hartl (stilbuero.de)
 Dual licensed under the MIT and GPL licenses:
 http://www.opensource.org/licenses/mit-license.php
 http://www.gnu.org/licenses/gpl.html
@@ -122,10 +122,10 @@ Copyright 2006 M. Alsup
 Dual licensed under the LGPL-2.1+ or MIT licenses
 https://github.com/jquery-form/form#license
 
-reahl-web/reahl/web/static/jquery/jquery.validate-1.17.0.modified.js
-===========================================================
+reahl-web/reahl/web/static/jquery/jquery.validate-1.19.1.modified.js
+====================================================================
 
-Copyright (c) 2017 Jörn Zaefferer
+Copyright (c) 2019 Jörn Zaefferer
 Released under the MIT license
 
 Which includes http://jqueryvalidation.org/url-method/ :
