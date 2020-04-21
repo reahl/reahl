@@ -105,13 +105,17 @@ Dual licensed under the MIT and GPL licenses:
 http://www.opensource.org/licenses/mit-license.php
 http://www.gnu.org/licenses/gpl.html
 
-reahl-web/reahl/web/static/jquery/jquery.cookie-1.4.1.js
-========================================================
+reahl-web/reahl/web/static/js-cookie-2.2.1/js.cookie.js
+=======================================================
 
-Copyright (c) 2013 Klaus Hartl (stilbuero.de)
-Dual licensed under the MIT and GPL licenses:
+ * JavaScript Cookie v2.2.1
+ * https://github.com/js-cookie/js-cookie
+ *
+ * Copyright 2006, 2015 Klaus Hartl & Fagner Brack
+ *
+Copyright 2006, 2015 Klaus Hartl & Fagner Brack
+Released under the MIT license
 http://www.opensource.org/licenses/mit-license.php
-http://www.gnu.org/licenses/gpl.html
 
 reahl-web/reahl/web/static/jquery/jquery.form-4.2.2.js
 =====================================================

@@ -169,8 +169,7 @@ class JQuery(Library):
         self.files = ['jquery-3.3.1/jquery-3.3.1.js',
                       'jquery-3.3.1/jquery-3.3.1.min.map']
         self.shipped_in_directory = '/reahl/web/static'
-        for i in ['jquery.cookie-1.4.1.js',
-                  'jquery.validate-1.19.1.modified.js',
+        for i in ['jquery.validate-1.19.1.modified.js',
                   'jquery.ba-bbq-1.3pre.js',
                   'jquery.blockUI-2.70.0.js',
                   'jquery.form-4.2.2.js']:
@@ -335,4 +334,15 @@ class Underscore(Library):
         self.shipped_in_directory = '/reahl/web/static'
         self.files = [
             'underscore-min-1.9.1.js'
+        ]
+
+
+class JsCookie(Library):
+    """Version 2.2.1 of `js-cookie <https://github.com/js-cookie/js-cookie>`_.
+    """
+    def __init__(self):
+        super().__init__('js-cookie')
+        self.shipped_in_directory = '/reahl/web/static'
+        self.files = [
+            'js-cookie-2.2.1/js.cookie.js' #this is the UMD version
         ]
