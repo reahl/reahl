@@ -73,25 +73,22 @@ Copyright HTML5 Shiv v3.7.3 | MIT/GPL2 Licensed,
 see http://opensource.org/licenses/mit-license.php
 or http://opensource.org/licenses/GPL-2.0
 
-reahl-web/reahl/web/static/jquery/jquery-3.3.1/
-================================================
+reahl-web/reahl/web/static/jquery/jquery-3.4.1/
+===============================================
 
-Copyright jQuery Foundation, Inc. and other contributors
+jQuery JavaScript Library v3.4.1
+https://jquery.com/
+
+Includes Sizzle.js
+https://sizzlejs.com/
+
+Copyright JS Foundation and other contributors
 Released under the MIT license
-http://jquery.org/license
-
-Includes Sizzle.js:
-
-http://sizzlejs.com/
-Copyright jQuery Foundation, Inc. and other contributors
-Released under the MIT license
-http://jquery.org/license
-For exact contribution history, see the revision history
-available at https://github.com/jquery/sizzle
+https://jquery.org/license
 
 
 reahl-web/reahl/web/static/jquery/jquery.ba-bbq-1.3pre.js
-========================================================
+=========================================================
 
 Copyright (c) 2010 "Cowboy" Ben Alman
 Dual licensed under the MIT and GPL licenses.
@@ -143,9 +140,12 @@ modified to allow protocol-relative URLs
 reahl-web/reahl/web/static/jquery-ui-1.12.1.custom/jquery-ui.js
 ===============================================================
 
+jQuery UI - v1.12.1 - 2018-02-27
+http://jqueryui.com
 Includes: widget.js
-Copyright jQuery Foundation and other contributors; Licensed MIT
-
+Copyright jQuery Foundation and other contributors;
+Licensed MIT
+http://www.opensource.org/licenses/mit-license.php
 
 
 reahl-web/reahl/web/holder/holder-2.9.7.js
