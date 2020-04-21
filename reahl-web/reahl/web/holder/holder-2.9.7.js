@@ -1,8 +1,8 @@
 /*!
 
 Holder - client side image placeholders
-Version 2.9.0+f2dkw
-© 2015 Ivan Malopinsky - http://imsky.co
+Version 2.9.7+5g5ho
+© 2020 Ivan Malopinsky - https://imsky.co
 
 Site:     http://holderjs.com
 Issues:   https://github.com/imsky/holder/issues
@@ -210,36 +210,32 @@ License:  MIT
 
   //requestAnimationFrame polyfill for older Firefox/Chrome versions
   if (!window.requestAnimationFrame) {
-    if (window.webkitRequestAnimationFrame) {
+    if (window.webkitRequestAnimationFrame && window.webkitCancelAnimationFrame) {
     //https://github.com/Financial-Times/polyfill-service/blob/master/polyfills/requestAnimationFrame/polyfill-webkit.js
     (function (global) {
-      // window.requestAnimationFrame
       global.requestAnimationFrame = function (callback) {
         return webkitRequestAnimationFrame(function () {
           callback(global.performance.now());
         });
       };
 
-      // window.cancelAnimationFrame
-      global.cancelAnimationFrame = webkitCancelAnimationFrame;
+      global.cancelAnimationFrame = global.webkitCancelAnimationFrame;
     }(window));
-    } else if (window.mozRequestAnimationFrame) {
+    } else if (window.mozRequestAnimationFrame && window.mozCancelAnimationFrame) {
       //https://github.com/Financial-Times/polyfill-service/blob/master/polyfills/requestAnimationFrame/polyfill-moz.js
     (function (global) {
-      // window.requestAnimationFrame
       global.requestAnimationFrame = function (callback) {
         return mozRequestAnimationFrame(function () {
           callback(global.performance.now());
         });
       };
 
-      // window.cancelAnimationFrame
-      global.cancelAnimationFrame = mozCancelAnimationFrame;
+      global.cancelAnimationFrame = global.mozCancelAnimationFrame;
     }(window));
     } else {
     (function (global) {
       global.requestAnimationFrame = function (callback) {
-      return global.setTimeout(callback, 1000 / 60);
+        return global.setTimeout(callback, 1000 / 60);
       };
 
       global.cancelAnimationFrame = global.clearTimeout;
@@ -302,23 +298,23 @@ return /******/ (function(modules) { // webpackBootstrap
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	/*
 	Holder.js - client side image placeholders
-	(c) 2012-2015 Ivan Malopinsky - http://imsky.co
+	(c) 2012-2020 Ivan Malopinsky - https://imsky.co
 	*/
 
 	module.exports = __webpack_require__(1);
 
 
-/***/ },
+/***/ }),
 /* 1 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {/*
 	Holder.js - client side image placeholders
-	(c) 2012-2015 Ivan Malopinsky - http://imsky.co
+	(c) 2012-2020 Ivan Malopinsky - http://imsky.co
 	*/
 
 	//Libraries and functions
@@ -417,7 +413,8 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	        engineSettings.stylesheets = [];
 	        engineSettings.svgXMLStylesheet = true;
-	        engineSettings.noFontFallback = options.noFontFallback ? options.noFontFallback : false;
+	        engineSettings.noFontFallback = !!options.noFontFallback;
+	        engineSettings.noBackgroundSize = !!options.noBackgroundSize;
 
 	        stylenodes.forEach(function (styleNode) {
 	            if (styleNode.attributes.rel && styleNode.attributes.href && styleNode.attributes.rel.value == 'stylesheet') {
@@ -454,7 +451,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                }
 	            }
 
-	            if (holderURL != null) {
+	            if (holderURL) {
 	                var holderFlags = parseURL(holderURL, options);
 	                if (holderFlags) {
 	                    prepareDOMElement({
@@ -602,7 +599,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	        instanceOptions: instanceOptions
 	    };
 
-	    var parts = url.split('?');
+	    var firstQuestionMark = url.indexOf('?');
+	    var parts = [url];
+
+	    if (firstQuestionMark !== -1) {
+	        parts = [url.slice(0, firstQuestionMark), url.slice(firstQuestionMark + 1)];
+	    }
+
 	    var basics = parts[0].split('/');
 
 	    holder.holderURL = url;
@@ -621,6 +624,22 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	    if (parts.length === 2) {
 	        var options = querystring.parse(parts[1]);
+
+	        // Dimensions
+
+	        if (utils.truthy(options.ratio)) {
+	            holder.fluid = true;
+	            var ratioWidth = parseFloat(holder.dimensions.width.replace('%', ''));
+	            var ratioHeight = parseFloat(holder.dimensions.height.replace('%', ''));
+
+	            ratioHeight = Math.floor(100 * (ratioHeight / ratioWidth));
+	            ratioWidth = 100;
+
+	            holder.dimensions.width = ratioWidth + '%';
+	            holder.dimensions.height = ratioHeight + '%';
+	        }
+
+	        holder.auto = utils.truthy(options.auto);
 
 	        // Colors
 
@@ -651,8 +670,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	            holder.textmode = options.textmode;
 	        }
 
-	        if (options.size) {
-	            holder.size = options.size;
+	        if (options.size && parseFloat(options.size)) {
+	            holder.size = parseFloat(options.size);
 	        }
 
 	        if (options.font) {
@@ -670,8 +689,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	        holder.nowrap = utils.truthy(options.nowrap);
 
 	        // Miscellaneous
-
-	        holder.auto = utils.truthy(options.auto);
 
 	        holder.outline = utils.truthy(options.outline);
 
@@ -796,7 +813,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 
 	        if (engineSettings.renderer == 'html') {
-	            el.style.backgroundColor = theme.background;
+	            el.style.backgroundColor = theme.bg;
 	        } else {
 	            render(renderSettings);
 
@@ -828,7 +845,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        setInitialDimensions(el);
 
 	        if (engineSettings.renderer == 'html') {
-	            el.style.backgroundColor = theme.background;
+	            el.style.backgroundColor = theme.bg;
 	        } else {
 	            App.vars.resizableImages.push(el);
 	            updateResizableElements(el);
@@ -895,7 +912,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	    //todo: add <object> canvas rendering
 	    if (mode == 'background') {
 	        el.style.backgroundImage = 'url(' + image + ')';
-	        el.style.backgroundSize = scene.width + 'px ' + scene.height + 'px';
+
+	        if (!engineSettings.noBackgroundSize) {
+	            el.style.backgroundSize = scene.width + 'px ' + scene.height + 'px';
+	        }
 	    } else {
 	        if (el.nodeName.toLowerCase() === 'img') {
 	            DOM.setAttr(el, {
@@ -1336,8 +1356,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	                })
 	            });
 
+	            //Unescape HTML entities to get approximately the right width
+	            var txt = DOM.newEl('textarea');
+	            txt.innerHTML = htgProps.text;
+	            stagingTextNode.nodeValue = txt.value;
+
 	            //Get bounding box for the whole string (total width and height)
-	            stagingTextNode.nodeValue = htgProps.text;
 	            var stagingTextBBox = stagingText.getBBox();
 
 	            //Get line count and split the string into words
@@ -1489,9 +1513,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
-/***/ },
+/***/ }),
 /* 2 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	/*!
 	 * onDomReady.js 1.4.0 (c) 2013 Tubal Martin - MIT license
@@ -1649,9 +1673,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	module.exports = typeof window !== "undefined" && _onDomReady(window);
 
-/***/ },
+/***/ }),
 /* 3 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	//Modified version of component/querystring
 	//Changes: updated dependencies, dot notation parsing, JSHint fixes
@@ -1757,9 +1781,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 
-/***/ },
+/***/ }),
 /* 4 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	
 	exports = module.exports = trim;
@@ -1777,9 +1801,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 
-/***/ },
+/***/ }),
 /* 5 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	/**
 	 * toString ref.
@@ -1817,9 +1841,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 
-/***/ },
+/***/ }),
 /* 6 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	var SceneGraph = function(sceneProperties) {
 	    var nodeCount = 1;
@@ -1928,9 +1952,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = SceneGraph;
 
 
-/***/ },
+/***/ }),
 /* 7 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {/**
 	 * Shallow object clone and merge
@@ -2056,7 +2080,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.parseColor = function(val) {
 	    var hexre = /(^(?:#?)[0-9a-f]{6}$)|(^(?:#?)[0-9a-f]{3}$)/i;
 	    var rgbre = /^rgb\((\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)$/;
-	    var rgbare = /^rgba\((\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(0\.\d{1,}|1)\)$/;
+	    var rgbare = /^rgba\((\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(0*\.\d{1,}|1)\)$/;
 
 	    var match = val.match(hexre);
 	    var retval;
@@ -2080,7 +2104,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	    match = val.match(rgbare);
 
 	    if (match !== null) {
-	        retval = 'rgba(' + match.slice(1).join(',') + ')';
+	        const normalizeAlpha = function (a) { return '0.' + a.split('.')[1]; };
+	        const fixedMatch = match.slice(1).map(function (e, i) {
+	            return (i === 3) ? normalizeAlpha(e) : e;
+	        });
+	        retval = 'rgba(' + fixedMatch.join(',') + ')';
 	        return retval;
 	    }
 
@@ -2105,11 +2133,12 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	    return devicePixelRatio / backingStoreRatio;
 	};
+
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
-/***/ },
+/***/ }),
 /* 8 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {var DOM = __webpack_require__(9);
 
@@ -2223,9 +2252,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
-/***/ },
+/***/ }),
 /* 9 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {/**
 	 * Generic new DOM element function
@@ -2292,9 +2321,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
-/***/ },
+/***/ }),
 /* 10 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	var Color = function(color, options) {
 	    //todo: support rgba, hsla, and rrggbbaa notation
@@ -2500,18 +2529,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = Color;
 
 
-/***/ },
+/***/ }),
 /* 11 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	module.exports = {
-	  'version': '2.9.0',
+	  'version': '2.9.7',
 	  'svg_ns': 'http://www.w3.org/2000/svg'
 	};
 
-/***/ },
+/***/ }),
 /* 12 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	var shaven = __webpack_require__(13);
 
@@ -2592,7 +2621,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	      var word = line.children[wordKey];
 	      var x = textGroup.x + line.x + word.x;
 	      var y = textGroup.y + line.y + word.y;
-
 	      var wordTag = templates.element({
 	        'tag': 'text',
 	        'content': word.properties.text,
@@ -2661,6 +2689,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	  });
 
 	  var output = shaven(svg);
+
+	  if (/\&amp;(x)?#[0-9A-Fa-f]/.test(output[0])) {
+	    output[0] = output[0].replace(/&amp;#/gm, '&#');
+	  }
 	  
 	  output = stylesheetXml + output[0];
 
@@ -2668,9 +2700,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return svgString;
 	};
 
-/***/ },
+/***/ }),
 /* 13 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	var escape = __webpack_require__(14)
 
@@ -2680,12 +2712,12 @@ return /******/ (function(modules) { // webpackBootstrap
 
 		'use strict'
 
-		var i = 1,
-			doesEscape = true,
-			HTMLString,
-			attributeKey,
-			callback,
-			key
+		var i = 1
+		var doesEscape = true
+		var HTMLString
+		var attributeKey
+		var callback
+		var key
 
 
 		returnObject = returnObject || {}
@@ -2693,15 +2725,15 @@ return /******/ (function(modules) { // webpackBootstrap
 
 		function createElement (sugarString) {
 
-			var tags = sugarString.match(/^\w+/),
-				element = {
-					tag: tags ? tags[0] : 'div',
-					attr: {},
-					children: []
-				},
-				id = sugarString.match(/#([\w-]+)/),
-				reference = sugarString.match(/\$([\w-]+)/),
-				classNames = sugarString.match(/\.[\w-]+/g)
+			var tags = sugarString.match(/^[\w-]+/)
+			var element = {
+				tag: tags ? tags[0] : 'div',
+				attr: {},
+				children: []
+			}
+			var id = sugarString.match(/#([\w-]+)/)
+			var reference = sugarString.match(/\$([\w-]+)/)
+			var classNames = sugarString.match(/\.[\w-]+/g)
 
 
 			// Assign id if is set
@@ -2736,9 +2768,11 @@ return /******/ (function(modules) { // webpackBootstrap
 		}
 
 		function escapeAttribute (string) {
-			return String(string)
-				.replace(/&/g, '&amp;')
-				.replace(/"/g, '&quot;')
+			return (string || string === 0) ?
+				String(string)
+					.replace(/&/g, '&amp;')
+					.replace(/"/g, '&quot;') :
+				''
 		}
 
 		function escapeHTML (string) {
@@ -2841,7 +2875,7 @@ return /******/ (function(modules) { // webpackBootstrap
 			for (key in array[0].attr)
 				if (array[0].attr.hasOwnProperty(key))
 					HTMLString += ' ' + key + '="' +
-						escapeAttribute(array[0].attr[key] || '') + '"'
+						escapeAttribute(array[0].attr[key]) + '"'
 
 			HTMLString += '>'
 
@@ -2865,15 +2899,26 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 
-/***/ },
+/***/ }),
 /* 14 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	/*!
 	 * escape-html
 	 * Copyright(c) 2012-2013 TJ Holowaychuk
+	 * Copyright(c) 2015 Andreas Lubbe
+	 * Copyright(c) 2015 Tiancheng "Timothy" Gu
 	 * MIT Licensed
 	 */
+
+	'use strict';
+
+	/**
+	 * Module variables.
+	 * @private
+	 */
+
+	var matchHtmlRegExp = /["'&<>]/;
 
 	/**
 	 * Module exports.
@@ -2885,24 +2930,62 @@ return /******/ (function(modules) { // webpackBootstrap
 	/**
 	 * Escape special characters in the given string of html.
 	 *
-	 * @param  {string} str The string to escape for inserting into HTML
+	 * @param  {string} string The string to escape for inserting into HTML
 	 * @return {string}
 	 * @public
 	 */
 
-	function escapeHtml(html) {
-	  return String(html)
-	    .replace(/&/g, '&amp;')
-	    .replace(/"/g, '&quot;')
-	    .replace(/'/g, '&#39;')
-	    .replace(/</g, '&lt;')
-	    .replace(/>/g, '&gt;');
+	function escapeHtml(string) {
+	  var str = '' + string;
+	  var match = matchHtmlRegExp.exec(str);
+
+	  if (!match) {
+	    return str;
+	  }
+
+	  var escape;
+	  var html = '';
+	  var index = 0;
+	  var lastIndex = 0;
+
+	  for (index = match.index; index < str.length; index++) {
+	    switch (str.charCodeAt(index)) {
+	      case 34: // "
+	        escape = '&quot;';
+	        break;
+	      case 38: // &
+	        escape = '&amp;';
+	        break;
+	      case 39: // '
+	        escape = '&#39;';
+	        break;
+	      case 60: // <
+	        escape = '&lt;';
+	        break;
+	      case 62: // >
+	        escape = '&gt;';
+	        break;
+	      default:
+	        continue;
+	    }
+
+	    if (lastIndex !== index) {
+	      html += str.substring(lastIndex, index);
+	    }
+
+	    lastIndex = index + 1;
+	    html += escape;
+	  }
+
+	  return lastIndex !== index
+	    ? html + str.substring(lastIndex, index)
+	    : html;
 	}
 
 
-/***/ },
+/***/ }),
 /* 15 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	var DOM = __webpack_require__(9);
 	var utils = __webpack_require__(7);
@@ -2969,7 +3052,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 	})();
 
-/***/ }
+/***/ })
 /******/ ])
 });
 ;

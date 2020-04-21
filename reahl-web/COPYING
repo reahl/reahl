@@ -43,13 +43,13 @@ Copyright (c) 2016 Federico Zivolo and contributors
 FezVrasta/popper.js is licensed under the MIT License
 
 
-reahl/reahl-web/reahl/web/static/underscore-min-1.9.1.js
-========================================================
+reahl/reahl-web/reahl/web/static/underscore-min-1.10.2.js
+=========================================================
 
 Underscore is a JavaScript library that provides a whole mess of useful functional programming helpers without extending any built-in objects.
-Underscore.js 1.9.1
+Underscore.js 1.10.2
 http://underscorejs.org
-(c) 2009-2018 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+(c) 2009-2020 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 Underscore may be freely distributed under the MIT license.
 https://github.com/jashkenas/underscore/blob/master/LICENSE
 
@@ -118,7 +118,7 @@ Released under the MIT license
 http://www.opensource.org/licenses/mit-license.php
 
 reahl-web/reahl/web/static/jquery/jquery.form-4.2.2.js
-=====================================================
+======================================================
 
 Copyright 2017 Kevin Morris
 Copyright 2006 M. Alsup
@@ -146,20 +146,16 @@ reahl-web/reahl/web/static/jquery-ui-1.12.1.custom/jquery-ui.js
 Includes: widget.js
 Copyright jQuery Foundation and other contributors; Licensed MIT
 
-7 Jörn Zaefferer
-Released under the MIT license
-
-Which includes http://jqueryvalidation.org/url-method/ :
-
-Copyright (c) 2010-2013 Diego Perini, MIT licensed
-https://gist.github.com/dperini/729294
-see also https://mathiasbynens.be/demo/url-regex
-modified to allow protocol-relative URLs
 
 
-reahl-web/reahl/web/static/jquery-ui-1.12.1.custom/jquery-ui.js
-===============================================================
+reahl-web/reahl/web/holder/holder-2.9.7.js
+==========================================
 
-Includes: widget.js
-Copyright jQuery Foundation and other contributors; Licensed MIT
+Holder - client side image placeholders
+Version 2.9.7+5g5ho
+(c) 2020 Ivan Malopinsky - https://imsky.co
 
+Site:     http://holderjs.com
+Issues:   https://github.com/imsky/holder/issues
+License:  MIT
+http://www.opensource.org/licenses/mit-license.php

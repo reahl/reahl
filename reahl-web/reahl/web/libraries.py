@@ -262,12 +262,12 @@ class Reahl(Library):
 
 
 class Holder(Library):
-    """Version 2.9.0 of `Holder <http://imsky.github.io/holder/>`_.
+    """Version 2.9.7 of `Holder <http://imsky.github.io/holder/>`_.
     """
     def __init__(self):
         super().__init__('holder')
         self.shipped_in_directory = '/reahl/web/holder'
-        self.files = ['holder-2.9.0.js']
+        self.files = ['holder-2.9.7.js']
 
 
 class Bootstrap4(Library):
@@ -327,13 +327,13 @@ class Popper(Library):
 
 
 class Underscore(Library):
-    """Version 1.9.1 of `Underscore.js <https://underscorejs.org>`_.
+    """Version 1.10.2 of `Underscore.js <https://underscorejs.org>`_.
     """
     def __init__(self):
         super().__init__('underscore')
         self.shipped_in_directory = '/reahl/web/static'
         self.files = [
-            'underscore-min-1.9.1.js'
+            'underscore-min-1.10.2.js'
         ]
 
 
