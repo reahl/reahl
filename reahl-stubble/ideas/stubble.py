@@ -14,8 +14,6 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import print_function, unicode_literals, absolute_import, division
-import six
 import types
 import inspect
 from functools import reduce
@@ -49,11 +47,11 @@ from functools import reduce
 #  (this is guessing - not used)
 
 
-class Stub(object):
+class Stub:
     pass
 
 
-class StubMethod(object):
+class StubMethod:
     def __init__(self, stub):
         self.stub = stub
 
@@ -66,7 +64,7 @@ class StubMethod(object):
         stub_args = inspect.getargspec(self.stub)
         assert real_args == stub_args, 'argument specification mismatch'
 
-        return six.create_bound_method(self.stub, instance)
+        return types.MethodType(self.stub, instance)
 
     def __set__(self, instance, value):
         assert None, 'cannot set stub methods'
@@ -79,14 +77,14 @@ def stubmethod(stub):
     return StubMethod(stub)
 
 
-class StubAttribute(object):
+class StubAttribute:
     def __init__(self, name):
         self.name = name
 
     def instance_attributes(self, cls):
         def all_slots(l, cls):
             s = cls.__slots__
-            if isinstance(s, six.string_types):
+            if isinstance(s, str):
                 s = [s]
             l.extend(s)
             return l
@@ -109,7 +107,7 @@ def stubattribute(name):
     return StubAttribute(name)
 
 
-class RealClass(object):
+class RealClass:
     __slots__ = ('x', 'y')
     def __init__(self, x, y):
         self.x = x

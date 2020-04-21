@@ -14,15 +14,13 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 
-import six
 
 import os.path
 import warnings
 import io
+import itertools
 
-from six.moves import zip_longest
 from reahl.tofu import expected, scenario, Fixture, uses
 from reahl.tofu.pytestsupport import with_fixtures
 from reahl.stubble import EmptyStub
@@ -53,7 +51,7 @@ class BasicScenarios(Fixture):
     def view_with_page(self):
         class SimplePage(HTML5Page):
             def __init__(self, view):
-                super(SimplePage, self).__init__(view)
+                super().__init__(view)
                 self.body.add_child(P(view, text='Hello world!'))
 
         class MainUI(UserInterface):
@@ -68,7 +66,7 @@ class BasicScenarios(Fixture):
     def view_with_set_page(self):
         class SimplePage(HTML5Page):
             def __init__(self, view):
-                super(SimplePage, self).__init__(view)
+                super().__init__(view)
                 self.body.add_child(P(view, text='Hello world!'))
 
         class MainUI(UserInterface):
@@ -111,9 +109,9 @@ def test_basic_assembly(web_fixture, basic_scenarios):
         browser.open('/')
         assert browser.title == 'Hello'
 
-    warning_messages = [six.text_type(i.message) for i in caught_warnings]
+    warning_messages = [str(i.message) for i in caught_warnings]
     assert len(warning_messages) == len(fixture.expected_warnings)
-    for caught, expected_message in zip_longest(warning_messages, fixture.expected_warnings):
+    for caught, expected_message in itertools.zip_longest(warning_messages, fixture.expected_warnings):
         assert expected_message in caught
 
     if fixture.content_includes_p:
@@ -272,7 +270,7 @@ def test_out_of_bound_widgets(web_fixture):
 
     class MyPanel(Div):
         def __init__(self, view):
-            super(MyPanel, self).__init__(view, css_id='main_panel')
+            super().__init__(view, css_id='main_panel')
             child_widget = self.add_child(P(view, text='Child Widget'))
             out_of_bound_widget = view.add_out_of_bound_widget(P(view, text='Out Of Bound Widget'))
 

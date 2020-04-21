@@ -10,7 +10,6 @@
   </deps>
 
   <deps purpose="run">
-    <thirdpartyegg name="six"/>
     <thirdpartyegg name="setuptools" minversion="32.3.1"/>
   </deps>
 

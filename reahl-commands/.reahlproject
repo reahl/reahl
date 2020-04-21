@@ -9,7 +9,6 @@
   </deps>
 
   <deps purpose="run">
-    <thirdpartyegg name="six"/> 
   </deps>
 
   <deps purpose="test">

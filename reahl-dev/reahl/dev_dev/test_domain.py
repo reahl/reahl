@@ -16,8 +16,6 @@
 
 
 
-from __future__ import print_function, unicode_literals, absolute_import, division
-import six
 import os
 import os.path
 import filecmp
@@ -53,7 +51,7 @@ class RepositoryUploadFixture(Fixture):
     def new_package(self):
         fixture = self
         @stubclass(DebianPackage)
-        class PackageStub(object):
+        class PackageStub:
             _built = False
             unique_id = 'therecanonlybeone'
             @property
@@ -72,7 +70,7 @@ class RepositoryUploadFixture(Fixture):
     def new_workspace(self):
         fixture = self
         @stubclass(Workspace)
-        class WorkspaceStub(object):
+        class WorkspaceStub:
             repository_state_directory = fixture.state_directory.name
 
         return WorkspaceStub()
@@ -119,7 +117,7 @@ def test_upload_success(repository_upload_fixture):
 def test_reading_and_writing_repository():
     repository_state_dir = temp_dir()
     @stubclass(SshRepository)
-    class RepositoryStub(object):
+    class RepositoryStub:
         @property
         def unique_id(self):
             return 'myid'
@@ -150,7 +148,7 @@ def test_reading_and_writing_repository():
 
 def test_queries():
     @stubclass(DebianPackage)
-    class PackageStub(object):
+    class PackageStub:
         def __init__(self, name):
             self.name = name
 
@@ -163,7 +161,7 @@ def test_queries():
 
 
     @stubclass(SshRepository)
-    class RepositoryStub(object):
+    class RepositoryStub:
         pass
 
     repository = RepositoryStub()
@@ -177,7 +175,7 @@ def test_queries():
 
 
 @stubclass(DebianPackage)
-class DebianPackageStub(object):
+class DebianPackageStub:
     package_files = ['equivs-dummy_1.0_all.deb',  'equivs-dummy_1.0.dsc',
                      'equivs-dummy_1.0_i386.changes', 'equivs-dummy_1.0.tar.gz']
     def __init__(self):
@@ -292,7 +290,7 @@ def test_generic_project_file_queries():
     project_filename = os.path.join(project_dir.name, '.reahlproject')
 
     @stubclass(Workspace)
-    class WorkspaceStub(object):
+    class WorkspaceStub:
         directory = workspace_dir.name
     workspace = WorkspaceStub()
 
@@ -347,11 +345,11 @@ def test_setup_project_file_queries():
     project_dev = project_source.sub_dir('proj_dev')
 
     @stubclass(Project)
-    class ProjectStub(object):
+    class ProjectStub:
         version = Version('1.2.5')
 
     @stubclass(Workspace)
-    class WorkspaceStub(object):
+    class WorkspaceStub:
         directory = workspace_dir.name
         project_name = 'proj'
         projects = []
@@ -414,10 +412,10 @@ def test_setup_project_file_queries():
 
     # Default Metadata queries that will com for setup.py:
     assert project.project_name == os.path.basename(project_dir.name)
-    assert six.text_type(project.version) == '0.0'
+    assert str(project.version) == '0.0'
 
     @stubclass(ProjectMetadata)
-    class MetadataStub(object):
+    class MetadataStub:
         @property
         def version(self):
             return Version('3.1.2a1-ubuntu1')
@@ -426,7 +424,7 @@ def test_setup_project_file_queries():
             return 'test-proj'
 
     project.metadata = MetadataStub()
-    assert six.text_type(project.version_for_setup()) == '3.1.2a1'
+    assert str(project.version_for_setup()) == '3.1.2a1'
     assert project.project_name == 'test-proj'
 
     packages = project.packages_for_setup()
@@ -467,7 +465,7 @@ def test_egg_project_file_queries():
     project_dir = workspace_dir.temp_dir()
     project_filename = os.path.join(project_dir.name, '.reahlproject')
     @stubclass(Workspace)
-    class WorkspaceStub(object):
+    class WorkspaceStub:
         directory = workspace_dir.name
     workspace = WorkspaceStub()
 
@@ -539,7 +537,7 @@ def test_dict_interface():
 # -- Tests for dependencies
 def test_types_of_dependencies():
     @stubclass(Workspace)
-    class WorkspaceStub(object):
+    class WorkspaceStub:
         def __init__(self, contains_project):
             self.contains_project = contains_project
         def project_named(self, name):
@@ -548,12 +546,12 @@ def test_types_of_dependencies():
             return True
 
     @stubclass(ChickenProject)
-    class ChickenProjectStub(object):
+    class ChickenProjectStub:
         def contains_project_named(self, name):
             return True
 
     @stubclass(EggProject)
-    class ProjectStub(object):
+    class ProjectStub:
         def __init__(self, name, version, in_same_chicken=False, also_in_workspace=False):
             self.project_name = name
             self.version = Version(version)
@@ -604,7 +602,7 @@ def test_types_of_dependencies():
 
 def test_types_of_versions():
     @stubclass(EggProject)
-    class ProjectStub(object):
+    class ProjectStub:
         @property
         def chicken_project(self):
             return None

@@ -31,6 +31,7 @@ python-reahl (5.0) unstable; urgency=low
  * Added ignore_concurrent_changes kwarg to PrimitiveInputs.
  * Changed @exposed so that it takes super methods into account automatically.
  * Added start_on_first_request kwarg to ReahlWSGIApplication and related methods to make the application start itself when needed.
+ * Removed python2 support (#178).
 
  -- Iwan Vosloo <iwan@reahl.org>  Thu, 13 Dec 2018 15:15:00 +0200
 

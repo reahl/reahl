@@ -15,8 +15,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from __future__ import print_function, unicode_literals, absolute_import, division
-import six
 from reahl.tofu import scenario, Fixture
 from reahl.tofu.pytestsupport import with_fixtures
 
@@ -72,7 +70,7 @@ def test_remote_field_validator_handles_GET(web_fixture, validation_scenarios):
     fixture = validation_scenarios
 
 
-    class ModelObject(object):
+    class ModelObject:
         @exposed
         def fields(self, fields):
             fields.field_name = EmailField()
@@ -81,14 +79,14 @@ def test_remote_field_validator_handles_GET(web_fixture, validation_scenarios):
 
     class MyForm(Form):
         def __init__(self, view, name):
-            super(MyForm, self).__init__(view, name)
+            super().__init__(view, name)
             self.add_child(TextInput(self, model_object.fields.field_name))
 
     wsgi_app = web_fixture.new_wsgi_app(child_factory=MyForm.factory(name='some_form'))
     web_fixture.reahl_server.set_app(wsgi_app)
     browser = Browser(wsgi_app)
 
-    browser.open(six.text_type(fixture.url))
+    browser.open(str(fixture.url))
     response = browser.last_response
 
     assert response.unicode_body == fixture.expected_body 

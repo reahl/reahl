@@ -1,5 +1,4 @@
 # Copyright 2015-2018 Reahl Software Services (Pty) Ltd. All rights reserved.
-#-*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
 #
@@ -40,8 +39,6 @@ Bootstrap's grid system works on units of 1/12th the size of a given
 parent width. A size for a particular device class is thus an integer
 denoting a size in 1/12ths of its container's width.
 """
-from __future__ import print_function, unicode_literals, absolute_import, division
-import six
 
 from collections import OrderedDict
 import copy
@@ -65,7 +62,7 @@ class Container(Layout):
 
     """
     def __init__(self, fluid=False):
-        super(Container, self).__init__()
+        super().__init__()
         self.fluid = fluid
 
     def customise_widget(self):
@@ -75,7 +72,7 @@ class Container(Layout):
         self.widget.append_class(container_class)
 
 
-class DeviceClass(object):
+class DeviceClass:
     device_classes = ['xs', 'sm', 'md', 'lg', 'xl']
 
     def __init__(self, name):
@@ -109,7 +106,7 @@ class DeviceClass(object):
         return '-'.join(parts)
 
 
-class ResponsiveOption(object):
+class ResponsiveOption:
     def __init__(self, allowed_options, prefix=None, xs=None, sm=None, md=None, lg=None, xl=None):
         self.prefix = prefix
         self.allowed_options = allowed_options
@@ -126,7 +123,7 @@ class ResponsiveOption(object):
         for device_class, value in self.device_options.items():
             prefix_to_use = prefix or self.prefix
             css_class = device_class.as_combined_css_class([prefix_to_use] if prefix_to_use else [],
-                                                           [six.text_type(value)] if value is not True else [])
+                                                           [str(value)] if value is not True else [])
             html_widget.append_class(css_class)
             classes.append(css_class)
 
@@ -152,7 +149,7 @@ class ContentJustification(ResponsiveOption):
     .. versionadded:: 4.0
     """
     def __init__(self, **kwargs):
-        super(ContentJustification, self).__init__(['start', 'center', 'end', 'between', 'around'], prefix='justify-content', **kwargs)
+        super().__init__(['start', 'center', 'end', 'between', 'around'], prefix='justify-content', **kwargs)
 
 
 class Alignment(ResponsiveOption):
@@ -174,7 +171,7 @@ class Alignment(ResponsiveOption):
     .. versionadded:: 4.0
     """
     def __init__(self, **kwargs):
-        super(Alignment, self).__init__(['start', 'end', 'center', 'baseline', 'stretch'], **kwargs)
+        super().__init__(['start', 'end', 'center', 'baseline', 'stretch'], **kwargs)
 
     def add_css_classes(self, html_widget, prefix=None):
         if isinstance(html_widget.layout, ColumnLayout):
@@ -182,7 +179,7 @@ class Alignment(ResponsiveOption):
         else:
             scope = 'self'
 
-        return super(Alignment, self).add_css_classes(html_widget, prefix=prefix or 'align-%s' % scope)
+        return super().add_css_classes(html_widget, prefix=prefix or 'align-%s' % scope)
 
 
 class ResponsiveSize(ResponsiveOption):
@@ -207,7 +204,7 @@ class ResponsiveSize(ResponsiveOption):
 
     """
     def __init__(self, **sizes):
-        super(ResponsiveSize, self).__init__(range(1, 13), **sizes)
+        super().__init__(range(1, 13), **sizes)
 
     def calculated_size_for(self, device_class):
         classes_that_impact = [device_class]+device_class.all_smaller
@@ -236,7 +233,7 @@ class ResponsiveSize(ResponsiveOption):
         return total
 
 
-class ColumnOptions(object):
+class ColumnOptions:
     """Various options to change how a column should be displayed.
 
     :param name: The name of the column.
@@ -296,9 +293,9 @@ class ColumnLayout(Layout):
 
     """
     def __init__(self, *column_definitions):
-        super(ColumnLayout, self).__init__()
-        if not all([isinstance(column_definition, six.string_types+(ColumnOptions,)) for column_definition in column_definitions]):
-            raise ProgrammerError('All column definitions are expected be either a ColumnOptions object of a column name, got %s' % six.text_type(column_definitions))
+        super().__init__()
+        if not all([isinstance(column_definition, (str, ColumnOptions)) for column_definition in column_definitions]):
+            raise ProgrammerError('All column definitions are expected be either a ColumnOptions object of a column name, got %s' % str(column_definitions))
         self.added_column_definitions = []
         self.add_slots = False
         self.add_gutters = True
@@ -307,7 +304,7 @@ class ColumnLayout(Layout):
         self.columns = OrderedDict()  #: A dictionary containing the added columns, keyed by column name.
         self.column_definitions = OrderedDict()
         for column_definition in column_definitions:
-            if isinstance(column_definition, six.string_types):
+            if isinstance(column_definition, str):
                 name, options = column_definition, ColumnOptions(column_definition)
             else:
                 name, options = column_definition.name, column_definition

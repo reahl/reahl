@@ -16,12 +16,11 @@
 
 """Tools for handling ReStructured Text."""
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 import docutils.io
 import docutils.core
 
 
-class RestructuredText(object):
+class RestructuredText:
     """A chunk of ReStructured Text.
     
        :param rst_text: A string containing the actual restructured text represented by this instance.

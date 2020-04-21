@@ -1,5 +1,4 @@
 # Copyright 2013-2018 Reahl Software Services (Pty) Ltd. All rights reserved.
-# -*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
 #
@@ -23,7 +22,6 @@ A user interface for logging in, registering, etc using
 """
 
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 from reahl.component.i18n import Catalogue
 from reahl.component.context import ExecutionContext
 from reahl.web.fw import UserInterface
@@ -42,19 +40,19 @@ _ = Catalogue('reahl-domainui')
 
 class TitledWidget(Widget):
     def __init__(self, view):
-        super(TitledWidget, self).__init__(view)
+        super().__init__(view)
         self.add_child(H(view, 1, text=view.title))
 
 
 class ActionButtonGroup(FieldSet):
     def __init__(self, view, legend_text=None):
-        super(ActionButtonGroup, self).__init__(view, legend_text=legend_text)
+        super().__init__(view, legend_text=legend_text)
         self.add_to_attribute('class', ['action_buttons'])
 
 
 class LoginForm(Form):
     def __init__(self, view, event_channel_name, account_management_interface):
-        super(LoginForm, self).__init__(view, event_channel_name)
+        super().__init__(view, event_channel_name)
         self.account_management_interface = account_management_interface
 
         if self.exception:
@@ -81,7 +79,7 @@ class LoginForm(Form):
 
 class LoginWidget(TitledWidget):
     def __init__(self, view, account_management_interface):
-        super(LoginWidget, self).__init__(view)
+        super().__init__(view)
         self.add_child(LoginForm(view, 'login_form', account_management_interface))
 
 
@@ -95,13 +93,13 @@ class UniqueEmailConstraint(RemoteConstraint):
 
 class RegisterWidget(TitledWidget):
     def __init__(self, view, bookmarks, account_management_interface):
-        super(RegisterWidget, self).__init__(view)
+        super().__init__(view)
         self.add_child(RegisterForm(view, 'register', bookmarks, account_management_interface))
 
 
 class RegisterForm(Form):
     def __init__(self, view, event_channel_name, bookmarks, account_management_interface):
-        super(RegisterForm, self).__init__(view, event_channel_name)
+        super().__init__(view, event_channel_name)
         self.bookmarks = bookmarks
         self.account_management_interface = account_management_interface
 
@@ -157,14 +155,14 @@ class RegisterForm(Form):
 
 class VerifyEmailWidget(TitledWidget):
     def __init__(self, view, account_management_interface):
-        super(VerifyEmailWidget, self).__init__(view)
+        super().__init__(view)
         self.add_child(VerifyForm(view, 'verify', account_management_interface))
 
 
 class VerifyForm(Form):
     def __init__(self, view, event_channel_name, account_management_interface):
         self.account_management_interface = account_management_interface
-        super(VerifyForm, self).__init__(view, event_channel_name)
+        super().__init__(view, event_channel_name)
 
         if self.exception:
             self.add_child(Alert(view, self.exception.as_user_message(), 'warning'))
@@ -187,13 +185,13 @@ class VerifyForm(Form):
 
 class RegisterHelpWidget(TitledWidget):
     def __init__(self, view, account_management_interface):
-        super(RegisterHelpWidget, self).__init__(view)
+        super().__init__(view)
         self.add_child(RegisterHelpForm(view, account_management_interface))
 
 
 class RegisterHelpForm(Form):
     def __init__(self, view, account_management_interface):
-        super(RegisterHelpForm, self).__init__(view, 'register_help')
+        super().__init__(view, 'register_help')
 
         if self.exception:
             self.add_child(Alert(view, self.exception.as_user_message(), 'warning'))
@@ -209,7 +207,7 @@ class RegisterHelpForm(Form):
 
 class RegistrationDuplicatedWidget(TitledWidget):
     def __init__(self, view, account_management_interface):
-        super(RegistrationDuplicatedWidget, self).__init__(view)
+        super().__init__(view)
         self.add_child(P(view, text=_('You are trying to register using the email address "%s"') % account_management_interface.email))
         self.add_child(P(view, text=_('That address is already registered and active on the system.'
                                       'This means that you (or someone else) must have registered using that email address'
@@ -222,7 +220,7 @@ class RegistrationDuplicatedWidget(TitledWidget):
         
 class RegistrationPendingWidget(TitledWidget):
     def __init__(self, view, account_management_interface, verify_bookmark):
-        super(RegistrationPendingWidget, self).__init__(view)
+        super().__init__(view)
         config = ExecutionContext.get_context().config
         self.add_child(P(view, text=_('There is a registration pending for email address "%s".') % account_management_interface.email))
         self.add_child(P(view, text=_('Before you can log in, you need to verify your email address using the secret key '
@@ -244,7 +242,7 @@ class RegistrationPendingWidget(TitledWidget):
 
 class RegistrationPendingForm(Form):
     def __init__(self, view):
-        super(RegistrationPendingForm, self).__init__(view, 'register_pending')
+        super().__init__(view, 'register_pending')
 
         if self.exception:
             self.add_child(Alert(view, self.exception.as_user_message(), 'warning'))
@@ -256,7 +254,7 @@ class RegistrationPendingForm(Form):
 
 class RegistrationNotFoundWidget(TitledWidget):
     def __init__(self, view, account_management_interface):
-        super(RegistrationNotFoundWidget, self).__init__(view)
+        super().__init__(view)
         self.add_child(P(view, text=_('There is no record of someone trying to register the email address "%s".') % account_management_interface.email))
         self.add_child(P(view, text=_('Perhaps you mistyped your email address when registering? The system also removes '
                                       'such a registration request if you take a long time to get around to verifying it.')))
@@ -268,7 +266,7 @@ class RegistrationNotFoundWidget(TitledWidget):
 
 class RegistrationEmailSentWidget(TitledWidget):
     def __init__(self, view, account_management_interface):
-        super(RegistrationEmailSentWidget, self).__init__(view)
+        super().__init__(view)
         self.add_child(P(view, text=_('A new registration email was sent to "%s"') % account_management_interface.email))
         self.add_child(P(view, text=_('Please watch your inbox and follow the instructions in the email.')))
 
@@ -276,14 +274,14 @@ class RegistrationEmailSentWidget(TitledWidget):
 
 class ThanksWidget(TitledWidget):
     def __init__(self, view):
-        super(ThanksWidget, self).__init__(view)
+        super().__init__(view)
         self.add_child(P(view, text=_('Thank you for verifying your email address.')))
         self.add_child(P(view, text=_('Your account is now active, and you can proceed to log in using the details you provided.')))
 
 
 class CongratsWidget(TitledWidget):
     def __init__(self, view, account_management_interface, register_help_bookmark, verify_bookmark):
-        super(CongratsWidget, self).__init__(view)
+        super().__init__(view)
         self.add_child(P(view, text=_('You have successfully registered.')))
         self.add_child(P(view, text=_('Before we can allow you to log in, however, you need to prove to us that you are indeed the owner of %s.') % account_management_interface.email))
         p = P(view, text=_('In order to do this, an email was sent to {email} containing a secret code. '\
@@ -297,7 +295,7 @@ class CongratsWidget(TitledWidget):
 
 class ResetPasswordWidget(TitledWidget):
     def __init__(self, view, account_management_interface):
-        super(ResetPasswordWidget, self).__init__(view)
+        super().__init__(view)
         explanation = P(view,
                         text=_('To ensure you are not an impostor, resetting your password is a two step '
                                'process: First, we send a "secret key" to your registered email address. '
@@ -311,7 +309,7 @@ class ResetPasswordWidget(TitledWidget):
 
 class ResetPasswordForm(Form):
     def __init__(self, view, account_management_interface):
-        super(ResetPasswordForm, self).__init__(view, 'reset_password')
+        super().__init__(view, 'reset_password')
 
         if self.exception:
             self.add_child(Alert(view, self.exception.as_user_message(), 'warning'))
@@ -326,7 +324,7 @@ class ResetPasswordForm(Form):
 
 class ChoosePasswordWidget(TitledWidget):
     def __init__(self, view, account_management_interface):
-        super(ChoosePasswordWidget, self).__init__(view)
+        super().__init__(view)
         explanation = P(view, text=_('Do you have your secret key? You can only choose a new password if you {reset_password}.'))
         
         link_text = _('previously requested a secret key to be sent to your registered email address')
@@ -339,7 +337,7 @@ class ChoosePasswordWidget(TitledWidget):
 class ChoosePasswordForm(Form):
     def __init__(self, view, account_management_interface):
         self.account_management_interface = account_management_interface
-        super(ChoosePasswordForm, self).__init__(view, 'choose_password')
+        super().__init__(view, 'choose_password')
 
         if self.exception:
             self.add_child(Alert(view, self.exception.as_user_message(), 'warning'))
@@ -362,7 +360,7 @@ class ChoosePasswordForm(Form):
 
 class PasswordChangedWidget(TitledWidget):
     def __init__(self, view):
-        super(PasswordChangedWidget, self).__init__(view)
+        super().__init__(view)
         self.add_child(P(view, text=_('Thank you, your password has been changed successfully.')))
 
 

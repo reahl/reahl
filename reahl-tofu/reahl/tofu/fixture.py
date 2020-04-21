@@ -15,22 +15,21 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 import sys
 import inspect
+import types
 import logging
 import atexit
 import contextlib
 from collections import OrderedDict 
 
-import six
 
 from reahl.component.exceptions import ProgrammerError
 
 
 
 #--------------------------------------------------[ MarkingDecorator ]
-class MarkingDecorator(object):
+class MarkingDecorator:
     """A MarkingDecorator is a decorator used to tag methods on a Fixture.
 
     """
@@ -46,7 +45,7 @@ class MarkingDecorator(object):
         if instance is None:
             return self
         else:
-            return six.create_bound_method(self.function, instance)
+            return types.MethodType(self.function, instance)
 
     @property
     def name(self):
@@ -88,7 +87,7 @@ class Scenario(MarkingDecorator):
     
 class DefaultScenario(Scenario):
     def __init__(self):
-        super(DefaultScenario, self).__init__(None)
+        super().__init__(None)
     @property
     def name(self):
         return 'default_scenario'
@@ -113,13 +112,13 @@ class AttributeErrorInFactoryMethod(Exception):
 
 
 
-class FixtureOptions(object):
+class FixtureOptions:
     def __init__(self):
         self.dependencies = {}
         self.scope = 'function'
 
     
-class Fixture(object):
+class Fixture:
     """A test Fixture is a collection of objects defined and set up to be
        used together in a test. 
 
@@ -244,7 +243,7 @@ class Fixture(object):
             except StopIteration:
                 pass
             else:
-                name = generator.__name__ if six.PY2 else generator.__qualname__ 
+                name = generator.__qualname__ 
                 raise ProgrammerError('%s is yielding more than one element. \'new_\' methods should only yield a single element' % name)
 
     def clear(self):
@@ -260,7 +259,7 @@ class Fixture(object):
         try:
             yield
         except AttributeError as ex:
-            six.reraise(AttributeErrorInFactoryMethod, AttributeErrorInFactoryMethod(ex), sys.exc_info()[2])
+            raise AttributeErrorInFactoryMethod(ex).with_traceback(sys.exc_info()[2])
         
     def __getattr__(self, name):
         try:

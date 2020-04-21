@@ -1,5 +1,4 @@
 # Copyright 2013-2018 Reahl Software Services (Pty) Ltd. All rights reserved.
-#-*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
 #
@@ -15,8 +14,6 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import print_function, unicode_literals, absolute_import, division
-import six
 
 
 from reahl.tofu import Fixture, scenario, expected, uses, NoException
@@ -60,7 +57,7 @@ class SimpleInputFixture2(SimpleInputFixture):
         return Field(label=label)
     def new_model_object(self):
         fixture = self
-        class ModelObject(object):
+        class ModelObject:
             def handle_event(self):
                 pass
             @exposed
@@ -76,7 +73,7 @@ class SimpleInputFixture2(SimpleInputFixture):
         input_widget_class = input_widget_class or CheckboxSelectInput
         class MyForm(Form):
             def __init__(self, view, name):
-                super(MyForm, self).__init__(view, name)
+                super().__init__(view, name)
                 checkbox = self.add_child(input_widget_class(self, fixture.model_object.fields.an_attribute))
                 self.define_event_handler(fixture.model_object.events.an_event)
                 self.add_child(ButtonInput(self, fixture.model_object.events.an_event))
@@ -582,7 +579,7 @@ def test_fuzzy(web_fixture, fuzzy_text_input_fixture):
     model_object = fixture.model_object
     class MyForm(Form):
         def __init__(self, view, name):
-            super(MyForm, self).__init__(view, name)
+            super().__init__(view, name)
             self.add_child(TextInput(self, model_object.fields.an_attribute, fuzzy=True))
             self.define_event_handler(model_object.events.an_event)
             self.add_child(ButtonInput(self, model_object.events.an_event))

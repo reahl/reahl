@@ -19,10 +19,8 @@
 Run 'reahl componentinfo reahl-sqlalchemysupport' for configuration information.
 """
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 
 from abc import ABCMeta
-import six
 import weakref
 from contextlib import contextmanager
 import logging
@@ -113,7 +111,7 @@ class DeclarativeABCMeta(DeclarativeMeta, ABCMeta):
 Base = declarative_base(class_registry=weakref.WeakValueDictionary(), metadata=metadata, metaclass=DeclarativeABCMeta)    #: A Base for using with declarative
 
 
-class QueryAsSequence(object):
+class QueryAsSequence:
     """Used to adapt a SqlAlchemy Query to behave like a normal
       `Python sequence type <https://docs.python.org/3/glossary.html#term-sequence>`_.
 
@@ -198,7 +196,7 @@ def session_scoped(cls):
     return cls
 
 
-class TransactionVeto(object):
+class TransactionVeto:
     should_commit = None
     @property
     def has_voted(self):
@@ -349,7 +347,7 @@ class SqlAlchemyControl(ORMControl):
     def migrate_db(self, eggs_in_order):
         with Operations.context(MigrationContext.configure(Session.connection())) as op:
             self.op = op
-            return super(SqlAlchemyControl, self).migrate_db(eggs_in_order)
+            return super().migrate_db(eggs_in_order)
 
     def diff_db(self):
         return compare_metadata(MigrationContext.configure(Session.connection()), metadata)
@@ -401,7 +399,7 @@ class PersistedField(Field):
     """
     def __init__(self, class_to_query, default=None, required=False, required_message=None, label=None, readable=None, writable=None):
         label = label or _('')
-        super(PersistedField, self).__init__(default=default, required=required, required_message=required_message, label=label, readable=readable, writable=writable)
+        super().__init__(default=default, required=required, required_message=required_message, label=label, readable=readable, writable=writable)
         self.class_to_query = class_to_query
         self.add_validation_constraint(IntegerConstraint())
 
@@ -412,7 +410,7 @@ class PersistedField(Field):
     def unparse_input(self, parsed_value):
         instance = parsed_value
         if instance:
-            return six.text_type(instance.id)
+            return str(instance.id)
         return ''
 
 

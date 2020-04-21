@@ -15,7 +15,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 import json
 from webob import Response
 
@@ -46,7 +45,7 @@ class RemoteMethodFixture(Fixture):
         @stubclass(Widget)
         class WidgetWithRemoteMethod(Widget):
             def __init__(self, view):
-                super(WidgetWithRemoteMethod, self).__init__(view)
+                super().__init__(view)
                 view.add_resource(remote_method)
 
         return WidgetWithRemoteMethod.factory()
@@ -71,7 +70,7 @@ def test_remote_methods(web_fixture):
     @stubclass(Widget)
     class WidgetWithRemoteMethod(Widget):
         def __init__(self, view):
-            super(WidgetWithRemoteMethod, self).__init__(view)
+            super().__init__(view)
             view.add_resource(remote_method)
 
     wsgi_app = fixture.new_wsgi_app(child_factory=WidgetWithRemoteMethod.factory())
@@ -89,7 +88,7 @@ def test_remote_methods(web_fixture):
 
 @with_fixtures(WebFixture, RemoteMethodFixture)
 def test_exception_handling(web_fixture, remote_method_fixture):
-    """The RemoteMethod sends back the six.text_type() of an exception raised for the specified exception class."""
+    """The RemoteMethod sends back the str() of an exception raised for the specified exception class."""
 
 
     def fail():
@@ -356,7 +355,7 @@ def test_regenerating_method_results(reahl_system_fixture, web_fixture,
 
     import sqlalchemy.orm 
     @stubclass(sqlalchemy.orm.Session)
-    class TransactionStub(object):
+    class TransactionStub:
         is_active=True
         def commit(self):pass
         def rollback(self):pass
@@ -378,7 +377,7 @@ class WidgetResultScenarios(Fixture):
         @stubclass(Widget)
         class WidgetChildStub(Widget):
             def __init__(self, view, text):
-                super(WidgetChildStub, self).__init__(view)
+                super().__init__(view)
                 self.text = text
             def render(self): return '<%s>' % self.text
             def get_js(self, context=None): return ['js(%s)' % self.text]
@@ -390,7 +389,7 @@ class WidgetResultScenarios(Fixture):
         class WidgetStub(Widget):
             css_id = 'an_id'
             def __init__(self, view):
-                super(WidgetStub, self).__init__(view)
+                super().__init__(view)
                 message = 'changed contents' if fixture.changes_made else 'initial contents'
                 self.add_child(fixture.WidgetChildStub(view, message))
         return WidgetStub
@@ -400,7 +399,7 @@ class WidgetResultScenarios(Fixture):
         @stubclass(Widget)
         class WidgetWithRemoteMethod(Widget):
             def __init__(self, view):
-                super(WidgetWithRemoteMethod, self).__init__(view)
+                super().__init__(view)
                 method_result = WidgetResult(fixture.WidgetStub(view), as_json_and_result=True)
                 def change_something():
                     fixture.changes_made = True
@@ -442,7 +441,7 @@ def test_widgets_that_change_during_method_processing(web_fixture, widget_result
 @stubclass(Widget)
 class CoactiveWidgetStub(Widget):
     def __init__(self, view, css_id, coactive_widgets):
-        super(CoactiveWidgetStub, self).__init__(view)
+        super().__init__(view)
         self._coactive_widgets = coactive_widgets
         self.css_id = css_id
 
@@ -451,7 +450,7 @@ class CoactiveWidgetStub(Widget):
 
     @property
     def coactive_widgets(self):
-        return super(CoactiveWidgetStub, self).coactive_widgets + self._coactive_widgets
+        return super().coactive_widgets + self._coactive_widgets
 
 
 @with_fixtures(WebFixture)
@@ -464,7 +463,7 @@ def test_coactive_widgets(web_fixture):
     @stubclass(Widget)
     class WidgetWithRemoteMethod(Widget):
         def __init__(self, view):
-            super(WidgetWithRemoteMethod, self).__init__(view)
+            super().__init__(view)
             coactive_widgets = [self.add_child(CoactiveWidgetStub(view, 'coactive1', [self.add_child(CoactiveWidgetStub(view, 'coactive2', []))]))]
             result_widget = self.add_child(CoactiveWidgetStub(view, 'main', []))
             result_widget.add_child(CoactiveWidgetStub(view, 'child', coactive_widgets))

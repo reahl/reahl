@@ -14,7 +14,6 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 import pkg_resources
 
 
@@ -56,7 +55,7 @@ class WorkflowWebFixture(Fixture):
         return [self.task_queue_fixture.queue]
     
     def new_account_bookmarks(self):
-        class Bookmarks(object):
+        class Bookmarks:
             terms_bookmark = BookmarkStub(Url('/#terms'), 'Terms')
             privacy_bookmark = BookmarkStub(Url('/#privacy'), 'Privacy Policy')
             disclaimer_bookmark = BookmarkStub(Url('/#disclaimer'), 'Disclaimer')

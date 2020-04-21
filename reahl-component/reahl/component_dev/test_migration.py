@@ -15,9 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 
-import six
 from contextlib import contextmanager
 import warnings
 import re
@@ -34,7 +32,7 @@ from reahl.component.migration import Migration, MigrationSchedule, MigrationRun
 from reahl.component.exceptions import ProgrammerError
 
 
-class FakeStubClass(object):
+class FakeStubClass:
     # noinspection PyUnusedLocal
     def __init__(self, cls):
         pass
@@ -49,7 +47,7 @@ stubclass = FakeStubClass
 @stubclass(ReahlEgg)
 class ReahlEggStub(ReahlEgg):
     def __init__(self, name, version, migrations):
-        super(ReahlEggStub, self).__init__(None)
+        super().__init__(None)
         self._name = name
         self._version = version
         self.migrations = migrations
@@ -105,7 +103,7 @@ def test_how_migration_works(migrate_fixture):
        they are executed as scheduled.
     """
 
-    class SomeObject(object):
+    class SomeObject:
         calls_made = []
 
         def do_something(self, arg):
@@ -145,7 +143,7 @@ def test_schedule_executes_in_order():
     schedule_names = ['a', 'b', 'c']
     migration_schedule = MigrationSchedule(*schedule_names)
 
-    class SomeObject(object):
+    class SomeObject:
         def do_something(self, arg):
             pass
     some_object = SomeObject()
@@ -169,7 +167,7 @@ def test_schedule_executes_phases_with_parameters():
     """When a MigrationSchedule executes the calls that were scheduled from a Migration, 
        the methods are actually called, and passed the correct arguments."""
 
-    class SomeObject(object):
+    class SomeObject:
         def please_call_me(self, arg, kwarg=None):
             pass
     some_object = SomeObject()
@@ -251,7 +249,7 @@ def test_missing_schedule_upgrades_warns():
     [warning] = raised_warnings
     expected_message = 'Ignoring TestMigration.schedule_upgrades(): it does not override schedule_upgrades() ' \
                        '(method name typo perhaps?)'
-    assert six.text_type(warning.message) == expected_message
+    assert str(warning.message) == expected_message
 
 
 @with_fixtures(MigrateFixture)

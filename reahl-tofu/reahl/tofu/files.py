@@ -14,7 +14,6 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 import tempfile
 import os
 import sys
@@ -53,7 +52,7 @@ def file_with(name, contents, mode='w+'):
     return AutomaticallyDeletedFile(name, contents, mode)
 
 
-class EmptyDirectory(object):
+class EmptyDirectory:
     def __init__(self, name):
         self.name = name
         if os.path.exists(self.name):
@@ -82,7 +81,7 @@ class AutomaticallyDeletedDirectory(EmptyDirectory):
        :param name: The full path name of the directory.
     """
     def __init__(self, name):
-        super(AutomaticallyDeletedDirectory, self).__init__(name)
+        super().__init__(name)
         self.entries = []
 
     def __del__(self):
@@ -133,7 +132,7 @@ class AutomaticallyDeletedDirectory(EmptyDirectory):
 class AutomaticallyDeletedTempDirectory(AutomaticallyDeletedDirectory):
     def __init__(self, directory=None):
         name = tempfile.mkdtemp(dir=directory)
-        super(AutomaticallyDeletedTempDirectory, self).__init__(name)
+        super().__init__(name)
 
 def temp_dir():
     """Creates an :class:`AutomaticallyDeletedDirectory`."""

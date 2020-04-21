@@ -1,7 +1,6 @@
 
 
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 from reahl.web.fw import UserInterface
 from reahl.web.layout import PageLayout
 from reahl.web.bootstrap.page import HTML5Page
@@ -15,7 +14,7 @@ from reahl.domainui.bootstrap.accounts import AccountUI
 
 class MenuPage(HTML5Page):
     def __init__(self, view, main_bookmarks):
-        super(MenuPage, self).__init__(view)
+        super().__init__(view)
         self.use_layout(PageLayout(document_layout=Container()))
         contents_layout = ColumnLayout(ColumnOptions('main', size=ResponsiveSize(md=4))).with_slots()
         self.layout.contents.use_layout(contents_layout)
@@ -24,7 +23,7 @@ class MenuPage(HTML5Page):
 
 class LegalNotice(P):
     def __init__(self, view, text, name):
-        super(LegalNotice, self).__init__(view, text=text, css_id=name)
+        super().__init__(view, text=text, css_id=name)
         self.set_as_security_sensitive()
 
 
@@ -48,7 +47,7 @@ class LoginUI(UserInterface):
         disclaimer = self.define_view('/disclaimer', title='Disclaimer')
         disclaimer.set_slot('main', LegalNotice.factory('Disclaim ourselves from negligence ...', 'disclaimer'))
 
-        class LegalBookmarks(object):
+        class LegalBookmarks:
             terms_bookmark = terms_of_service.as_bookmark(self)
             privacy_bookmark = privacy_policy.as_bookmark(self)
             disclaimer_bookmark = disclaimer.as_bookmark(self)

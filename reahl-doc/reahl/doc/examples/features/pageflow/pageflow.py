@@ -1,4 +1,3 @@
-from __future__ import print_function, unicode_literals, absolute_import, division
 
 from reahl.component.modelinterface import exposed, EmailField, Field
 from reahl.component.modelinterface import Event, Action, Not
@@ -40,7 +39,7 @@ class PageFlowExampleUI(UserInterface):
                                guard=Not(Action(comment.contains_text)))
 
         
-class Comment(object):
+class Comment:
     @exposed
     def fields(self, fields):
         fields.email_address = EmailField(label='Email address', required=True)
@@ -60,7 +59,7 @@ class Comment(object):
 
 class CommentForm(Form):
     def __init__(self, view, comment):
-        super(CommentForm, self).__init__(view, 'myform')
+        super().__init__(view, 'myform')
         self.use_layout(FormLayout())
 
         self.layout.add_input(TextInput(self, comment.fields.email_address))

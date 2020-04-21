@@ -1,6 +1,5 @@
 
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 from datetime import datetime
 
 from sqlalchemy import Column, Integer, UnicodeText, DateTime
@@ -33,7 +32,7 @@ class AddressBookUI(UserInterface):
 
 class AddressBookPage(HTML5Page):
     def __init__(self, view):
-        super(AddressBookPage, self).__init__(view)
+        super().__init__(view)
         self.use_layout(PageLayout(document_layout=Container()))
         contents_layout = ColumnLayout(ColumnOptions('main', size=ResponsiveSize(lg=6))).with_slots()
         self.layout.contents.use_layout(contents_layout)
@@ -41,7 +40,7 @@ class AddressBookPage(HTML5Page):
 
 class AddressBookPanel(Div):
     def __init__(self, view):
-        super(AddressBookPanel, self).__init__(view)
+        super().__init__(view)
 
         self.add_child(H(view, 1, text='Addresses'))
         
@@ -53,7 +52,7 @@ class AddressBookPanel(Div):
 
 class AddAddressForm(Form):
     def __init__(self, view):
-        super(AddAddressForm, self).__init__(view, 'add_form')
+        super().__init__(view, 'add_form')
 
         new_address = Address()
 
@@ -69,7 +68,7 @@ class AddAddressForm(Form):
 
 class AddressBox(Widget):
     def __init__(self, view, address):
-        super(AddressBox, self).__init__(view)
+        super().__init__(view)
         self.add_child(P(view, text='%s: %s (%s)' % (address.name, address.email_address, address.added_date)))
 
 

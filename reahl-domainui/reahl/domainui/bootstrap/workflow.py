@@ -23,7 +23,6 @@ Run 'reahl componentinfo reahl-domainui' for configuration information.
 
 """
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.i18n import Catalogue
 from reahl.component.context import ExecutionContext
@@ -43,7 +42,7 @@ _ = Catalogue('reahl-domainui')
 
 class TaskBox(Li):
     def __init__(self, view, task):
-        super(TaskBox, self).__init__(view)
+        super().__init__(view)
         self.task = task
         self.add_child(P(view, text=self.task.title))
         form = self.add_child(Form(view, 'task_%s' % task.id))
@@ -56,7 +55,7 @@ class TaskBox(Li):
 
 class InboxWidget(Div):
     def __init__(self, view, inbox):
-        super(InboxWidget, self).__init__(view)
+        super().__init__(view)
         self.add_child(H(view, 1, text=_('Inbox')))
         self.list = self.add_child(Ul(view))
 
@@ -89,7 +88,7 @@ class TaskWidget(HTMLWidget):
         return task.__class__ is Task
 
     def __init__(self, view, task):
-        super(TaskWidget, self).__init__(view)
+        super().__init__(view)
         self.task = task
         self.create_contents()
 

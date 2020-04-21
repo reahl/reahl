@@ -14,14 +14,13 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 
 import pytest
 
 from reahl.stubble import stubclass, exempt, EmptyStub
 
 
-class Stubbed(object):
+class Stubbed:
     attr = 1
     
     def method(self, a, b, akwarg=None, *args, **kwargs): pass
@@ -50,7 +49,7 @@ def test_method_attribute_mismatch():
     #normal case
     with pytest.raises(AssertionError) as excinfo:
         @stubclass(Stubbed)
-        class Stub(object):
+        class Stub:
             def attr(self):
                 pass
 
@@ -62,7 +61,7 @@ def test_method_signature_mismatch():
     #normal case
     with pytest.raises(AssertionError) as excinfo:
         @stubclass(Stubbed)
-        class Stub(object):
+        class Stub:
             def method(self, b, akwarg=None, *args, **kwargs):
                 pass
     assert excinfo.match('^signature mismatch:.*Stub.method.*\(self, b, akwarg=None, \*args, \*\*kwargs\) does not match .*Stubbed.method.*\(self, a, b, akwarg=None, \*args, \*\*kwargs\)$')
@@ -73,7 +72,7 @@ def test_property_method_missing_on_orig():
     #case where the property does ont exist on the stubbed class
     with pytest.raises(AssertionError):
         @stubclass(Stubbed)
-        class Stub(object):
+        class Stub:
             @property
             def non_existing_property(self):
                 return 2
@@ -84,7 +83,7 @@ def test_property_method_masks_method_on_orig():
     #case where the property does ont exist on the stubbed class
     with pytest.raises(AssertionError):
         @stubclass(Stubbed)
-        class Stub(object):
+        class Stub:
             @property
             def method(self):
                 return 2
@@ -94,14 +93,14 @@ def test_property_method_for_attribute_on_orig():
     """a property on the stub is allowed if the stubbed class has a property or an attribute of the same name"""
     #case where the stubbed class has an attribute for the property
     @stubclass(Stubbed)
-    class Stub(object):
+    class Stub:
         @property
         def attr(self):
             return 2
 
     #case where the stubbed class has a matching property
     @stubclass(Stubbed)
-    class Stub(object):
+    class Stub:
         @property
         def my_existing_property(self):
             return 2
@@ -112,7 +111,7 @@ def test_attribute_not_present_mismatch():
     #normal case
     with pytest.raises(AssertionError):
         @stubclass(Stubbed, True)
-        class Stub(object):
+        class Stub:
             i_am_not = 1
 
 
@@ -121,7 +120,7 @@ def test_method_name_mismatch():
     #normal case
     with pytest.raises(AssertionError):
         @stubclass(Stubbed)
-        class Stub(object):
+        class Stub:
             def method1(self, a, b):
                 pass
 
@@ -130,7 +129,7 @@ def test_normal_method():
     """a method in the stub which accurately describes one in the stubbed is allowed"""
     #normal case
     @stubclass(Stubbed)
-    class Stub(object):
+    class Stub:
         def method(self, a, b, akwarg=None, *args, **kwargs):
             pass
 
@@ -140,12 +139,12 @@ def test_normal_attribute():
 
     #normal case
     @stubclass(Stubbed, True)
-    class Stub(object):
+    class Stub:
         attr = 1
 
     #case where we're not checking for attributes
     @stubclass(Stubbed)
-    class Stub(object):
+    class Stub:
         i_am_not = 1
 
 
@@ -154,7 +153,7 @@ def test_exempt_attribute():
     """an attribute or property marked exempt does not raise an error"""
     @stubclass(Stubbed, True)
     #normal case
-    class Stub(object):
+    class Stub:
         attr = 1
         attr = exempt(attr)
         @exempt
@@ -170,7 +169,7 @@ def test_exempt_method():
     """any methods marked as exempt does not raise an error"""
     #normal case
     @stubclass(Stubbed)
-    class Stub(object):
+    class Stub:
         @exempt
         def local_method(self):
             pass
@@ -197,7 +196,7 @@ def test_exempt_inherited_method():
     """any methods marked as exempt do not raise an error, even if they are inherited by the stub"""
     #normal case
     @stubclass(Stubbed)
-    class Stub(object):
+    class Stub:
         @exempt
         def local_method(self):
             pass

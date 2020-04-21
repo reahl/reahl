@@ -1,5 +1,4 @@
 # Copyright 2015-2018 Reahl Software Services (Pty) Ltd. All rights reserved.
-# -*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
 #
@@ -28,8 +27,6 @@ menu on which a user can choose to navigate to another section (or page) of the 
 
 """
 
-from __future__ import print_function, unicode_literals, absolute_import, division
-import six
 
 from functools import partial
 from abc import ABCMeta, abstractproperty, abstractmethod
@@ -45,8 +42,7 @@ from reahl.web.bootstrap.navs import Menu
 _ = Catalogue('reahl-web')
 
 
-@six.add_metaclass(ABCMeta)
-class PageIndexProtocol(object):
+class PageIndexProtocol(object, metaclass=ABCMeta):
     @abstractproperty
     def pages_in_range(self): pass
     @abstractproperty
@@ -82,7 +78,7 @@ class PagedPanel(Div):
     """
     def __init__(self, view, page_index, css_id):
         self.page_index = page_index
-        super(PagedPanel, self).__init__(view, css_id=css_id)
+        super().__init__(view, css_id=css_id)
         self.enable_refresh()
 
     def get_bookmark(self, description=None, page_number=1):
@@ -99,7 +95,7 @@ class PagedPanel(Div):
         return self.page_index.current_page.contents
 
 
-class Page(object):
+class Page:
     def __init__(self, number, description, contents_getter):
         self.number = number
         self.description = description
@@ -120,7 +116,7 @@ class PageIndex(PageIndexProtocol):
        :keyword max_page_links: The number of pages to be shown in the current :class:`PageMenu`.
     """
     def __init__(self, current_page_number=1, start_page_number=1, max_page_links=5):
-        super(PageIndex, self).__init__()
+        super().__init__()
         self.current_page_number = current_page_number
         self.start_page_number = start_page_number
         self.max_page_links = max_page_links
@@ -139,7 +135,7 @@ class PageIndex(PageIndexProtocol):
         """Override this @property in subclasses to state what the total number of pages is."""
 
     def get_description_for_page(self, page_number):
-        return six.text_type(page_number)
+        return str(page_number)
 
     @property
     @memoized
@@ -206,7 +202,7 @@ class SequentialPageIndex(PageIndex):
            :keyword max_page_links: (See :class:`PageIndex`)
         """
     def __init__(self, items, items_per_page=5, current_page_number=1, start_page_number=1, max_page_links=4):
-        super(SequentialPageIndex, self).__init__(current_page_number=current_page_number,
+        super().__init__(current_page_number=current_page_number,
                                                   start_page_number=start_page_number,
                                                   max_page_links=max_page_links)
         self.items = items
@@ -223,8 +219,7 @@ class SequentialPageIndex(PageIndex):
         return ((len(self.items)-1) // self.items_per_page)+1
 
 
-@six.add_metaclass(ABCMeta)
-class AnnualItemOrganiserProtocol(object):
+class AnnualItemOrganiserProtocol(object, metaclass=ABCMeta):
     """Manages a list of items, each of which is seen to be for a particular year.
     """
     @abstractmethod
@@ -247,7 +242,7 @@ class AnnualPageIndex(PageIndex):
        :keyword max_page_links: (See :class:`PageIndex`)
     """
     def __init__(self, annual_item_organiser, current_page_number=1, start_page_number=1, max_page_links=4):
-        super(AnnualPageIndex, self).__init__(current_page_number=current_page_number,
+        super().__init__(current_page_number=current_page_number,
                                               start_page_number=start_page_number,
                                               max_page_links=max_page_links)
         self.annual_item_organiser = annual_item_organiser
@@ -257,7 +252,7 @@ class AnnualPageIndex(PageIndex):
         return self.annual_item_organiser.get_items_for_year(year)
 
     def get_description_for_page(self, page_number):
-        return six.text_type(self.years[page_number-1])
+        return str(self.years[page_number-1])
 
     @property
     def years(self):
@@ -283,7 +278,7 @@ class PageMenu(HTMLWidget):
     def __init__(self, view, css_id, page_index, paged_panel):
         self.page_index = page_index
         self.paged_panel = paged_panel
-        super(PageMenu, self).__init__(view)
+        super().__init__(view)
 
         self.menu = self.add_child(Menu(view))
         self.create_items(self.menu)
@@ -352,4 +347,4 @@ class PageMenu(HTMLWidget):
 
     def get_js(self, context=None):
         js = ['$(%s).bootstrappagemenu({});' % self.jquery_selector]
-        return super(PageMenu, self).get_js(context=context) + js 
+        return super().get_js(context=context) + js 

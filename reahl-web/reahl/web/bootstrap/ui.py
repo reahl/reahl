@@ -1,5 +1,4 @@
 # Copyright 2015-2018 Reahl Software Services (Pty) Ltd. All rights reserved.
-#-*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
 #
@@ -25,9 +24,7 @@ correspondence to HTML elements (or are of similar simplicity).
 
 
 """
-from __future__ import print_function, unicode_literals, absolute_import, division
 
-import six
 
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.i18n import Catalogue
@@ -55,13 +52,13 @@ class Alert(Div):
 
     """
     def __init__(self, view, message_or_widget, severity):
-        super(Alert, self).__init__(view)
+        super().__init__(view)
         severity_option = HTMLAttributeValueOption(severity, severity, prefix='alert', 
                                                    constrain_value_to=['primary', 'secondary',
                                                                        'success', 'info', 'warning', 'danger',
                                                                        'light', 'dark'])
         child_widget = message_or_widget
-        if isinstance(message_or_widget, six.string_types):
+        if isinstance(message_or_widget, str):
             child_widget = TextNode(view, message_or_widget)
         self.add_child(child_widget)
         self.append_class('alert')
@@ -81,7 +78,7 @@ class Badge(Span):
     :keyword pill: Defaults to False. If set to True the badge will look like a pill.
     """
     def __init__(self, view, message, level, pill=False):
-        super(Badge, self).__init__(view)
+        super().__init__(view)
         severity_option = HTMLAttributeValueOption(level, level, prefix='badge',
                                                    constrain_value_to=['primary', 'secondary',
                                                                        'success', 'info', 'warning', 'danger',

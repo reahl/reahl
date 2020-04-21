@@ -1,5 +1,4 @@
 # Copyright 2014-2018 Reahl Software Services (Pty) Ltd. All rights reserved.
-#-*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
 #
@@ -16,7 +15,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 
 from reahl.stubble import EmptyStub
 from reahl.tofu import Fixture, scenario, uses
@@ -32,7 +30,7 @@ from reahl.web_dev.fixtures import WebFixture
 from reahl.dev.fixtures import ReahlSystemFixture
 
 
-class DataItem(object):
+class DataItem:
     def __init__(self, row, alpha):
         self.row = row
         self.alpha = alpha
@@ -72,7 +70,7 @@ def test_table_basics(web_fixture, table_fixture):
 
     class MainWidget(Div):
         def __init__(self, view):
-            super(MainWidget, self).__init__(view)
+            super().__init__(view)
             table = Table(view, caption_text='All my friends', summary='Summary for screen reader')
             table.with_data(
                             [StaticColumn(Field(label='Row Number'), 'row'),
@@ -126,7 +124,7 @@ def test_table_totals(web_fixture, table_fixture, scenario):
 
     class MainWidget(Div):
         def __init__(self, view):
-            super(MainWidget, self).__init__(view)
+            super().__init__(view)
             table = Table(view)
             table.with_data(
                             [StaticColumn(Field(label='Another Row Number'), 'row_another'),

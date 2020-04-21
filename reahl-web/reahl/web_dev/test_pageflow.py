@@ -15,9 +15,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 
-from six.moves.urllib import parse as urllib_parse
+import urllib.parse
 
 from reahl.tofu import expected
 from reahl.tofu.pytestsupport import with_fixtures
@@ -34,7 +33,7 @@ from reahl.web_dev.fixtures import WebFixture, BasicPageLayout
 
 class FormWithButton(Form):
     def __init__(self, view, event):
-        super(FormWithButton, self).__init__(view, 'test_events')
+        super().__init__(view, 'test_events')
         self.add_child(ButtonInput(self, event))
                 
 
@@ -167,7 +166,7 @@ def test_transitions_to_parameterised_views(web_fixture):
     """When a Button is placed for an Event that may trigger a Transition to a parameterised View,
        the Event should be bound to the arguments to be used for the target View, using .with_arguments()"""
 
-    class ModelObject(object):
+    class ModelObject:
         @exposed
         def events(self, events):
             events.an_event = Event(label='click me', event_argument1=IntegerField(),
@@ -177,7 +176,7 @@ def test_transitions_to_parameterised_views(web_fixture):
 
     class MyForm(Form):
         def __init__(self, view, name):
-            super(MyForm, self).__init__(view, name)
+            super().__init__(view, name)
             event = model_object.events.an_event.with_arguments(event_argument1=1, event_argument2=2, view_argument=3)
             self.add_child(ButtonInput(self, event))
 
@@ -214,7 +213,7 @@ def test_transitions_to_parameterised_views_error(web_fixture):
     """If an Event triggers a Transition to a parameterised View, and it was not bound to the arguments
        expected by the target View, an error is raised."""
 
-    class ModelObject(object):
+    class ModelObject:
         @exposed
         def events(self, events):
             events.an_event = Event(label='Click me')
@@ -223,7 +222,7 @@ def test_transitions_to_parameterised_views_error(web_fixture):
 
     class FormWithIncorrectButtonToParameterisedView(Form):
         def __init__(self, view):
-            super(FormWithIncorrectButtonToParameterisedView, self).__init__(view, 'test_events')
+            super().__init__(view, 'test_events')
             self.add_child(ButtonInput(self, model_object.events.an_event.with_arguments(arg1='1', arg2='2')))
 
     class ParameterisedView(UrlBoundView):
@@ -539,7 +538,7 @@ def test_detour_is_non_reentrant(web_fixture):
     browser = Browser(wsgi_app)
 
     def locationIsSetToReturnTo(url_path):
-        return urllib_parse.parse_qs(browser.current_url.query)['returnTo'] == [url_path]
+        return urllib.parse.parse_qs(browser.current_url.query)['returnTo'] == [url_path]
 
     browser.open('/initial')
     browser.click(XPath.link().with_text('Step 1'))

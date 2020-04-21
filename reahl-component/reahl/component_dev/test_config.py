@@ -15,8 +15,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from __future__ import print_function, unicode_literals, absolute_import, division
-import six
 import pkg_resources
 import re
 import logging
@@ -202,8 +200,8 @@ class ConfigWithEntryPointClassList(Configuration):
     some_setting = EntryPointClassList('some.test.entrypoint', description='we test stuff')
 
 
-class ListedClass1(object): pass
-class ListedClass2(object): pass
+class ListedClass1: pass
+class ListedClass2: pass
 
 
 @with_fixtures(ConfigWithFiles)

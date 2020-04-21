@@ -20,8 +20,6 @@
    Queues that can be monitored by these users. Via this model a program can also be written
    to schedule a particular task for the system to do some time in the future.
 """
-from __future__ import print_function, unicode_literals, absolute_import, division
-import six
 
 import datetime
 
@@ -39,7 +37,7 @@ from reahl.domain.partymodel import Party
 
 _ = Catalogue('reahl-domain')
 
-class WorkflowInterface(object):
+class WorkflowInterface:
     """An object that @exposes a number of Events that user interface 
        Widgets can use to access the functionality of this module.
        
@@ -203,7 +201,7 @@ class Task(Base):
         self.reserved_by = party
 
 
-class Inbox(object):
+class Inbox:
     """The inbox of a user monitors several Task Queues."""
     def __init__(self, queues):
         self.queues = queues

@@ -1,6 +1,5 @@
 
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 
 from sqlalchemy import Column, Integer, UnicodeText
 from sqlalchemy.orm.exc import NoResultFound
@@ -21,7 +20,7 @@ from reahl.component.modelinterface import exposed, EmailField, Field, Event, In
 
 class AddressBookPage(HTML5Page):
     def __init__(self, view, main_bookmarks):
-        super(AddressBookPage, self).__init__(view)
+        super().__init__(view)
         self.use_layout(PageLayout(document_layout=Container()))
         contents_layout = ColumnLayout(ColumnOptions('main', ResponsiveSize(lg=6))).with_slots()
         self.layout.contents.use_layout(contents_layout)
@@ -61,7 +60,7 @@ class AddressBookUI(UserInterface):
         return self.edit.as_bookmark(self, address_id=address.id, description=description)
 
 
-class Row(object):
+class Row:
     def __init__(self, address):
         self.address = address
         self.selected_by_user = False
@@ -76,7 +75,7 @@ class Row(object):
 
 class AddressBookPanel(Div):
     def __init__(self, view, address_book_ui):
-        super(AddressBookPanel, self).__init__(view)
+        super().__init__(view)
         self.rows = QueryAsSequence(Session.query(Address).order_by(Address.id), map_function=lambda address: Row(address))
 
         self.add_child(H(view, 1, text='Addresses'))
@@ -103,7 +102,7 @@ class AddressBookPanel(Div):
 
 class EditAddressForm(Form):
     def __init__(self, view, address):
-        super(EditAddressForm, self).__init__(view, 'edit_form')
+        super().__init__(view, 'edit_form')
 
         grouped_inputs = self.add_child(FieldSet(view, legend_text='Edit address'))
         grouped_inputs.use_layout(FormLayout())
@@ -116,7 +115,7 @@ class EditAddressForm(Form):
 
 class AddAddressForm(Form):
     def __init__(self, view):
-        super(AddAddressForm, self).__init__(view, 'add_form')
+        super().__init__(view, 'add_form')
 
         new_address = Address()
         grouped_inputs = self.add_child(FieldSet(view, legend_text='Add an address'))
@@ -131,7 +130,7 @@ class AddAddressForm(Form):
 class AddressBox(Form):
     def __init__(self, view, address):
         form_name = 'address_%s' % address.id  # Forms need unique names!
-        super(AddressBox, self).__init__(view, form_name)
+        super().__init__(view, form_name)
 
         par = self.add_child(P(view, text='%s: %s ' % (address.name, address.email_address)))
         par.add_child(Button(self, address.events.edit.with_arguments(address_id=address.id)))

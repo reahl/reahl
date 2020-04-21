@@ -15,7 +15,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 from tempfile import NamedTemporaryFile
 import os
 import pkg_resources
@@ -25,10 +24,10 @@ import pytest
 from reahl.stubble import EasterEgg
 
 
-class TestClass2(object):
+class TestClass2:
     pass
 
-class TestClass1(object):
+class TestClass1:
     pass
 
 @pytest.fixture

@@ -12,7 +12,6 @@
     <egg name="reahl-component"/>
     <egg name="reahl-tofu"/> 
     <egg name="reahl-stubble"/> 
-    <thirdpartyegg name="six"/>
     <thirdpartyegg name="Babel" minversion="2.8" maxversion="2.8.999"/>
     <thirdpartyegg name="twine" minversion="1.15.0" maxversion="1.15.9999"/>
     <thirdpartyegg name="wheel" minversion="0.34.0" maxversion="0.34.9999"/>

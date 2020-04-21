@@ -9,7 +9,6 @@
   </deps>
 
   <deps purpose="run">
-    <thirdpartyegg name="six"/>
     <thirdpartyegg name="wrapt" minversion="1.10.11" maxversion="1.10.999"/>
     <egg name="reahl-component"/>
   </deps>
