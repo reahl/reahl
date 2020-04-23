@@ -337,13 +337,15 @@ class ButtonLayout(reahl.web.fw.Layout):
                         (buttons can be said to be active in the same sense that a menu item can
                         be the currently active menu item).
        :keyword wide: If True, the button stretches to the entire width of its parent.
+       :keyword text_wrap: If False, text on the Button does not wrap. 
 
     """
-    def __init__(self, style=None, outline=False, size=None, active=False, wide=False):
+    def __init__(self, style=None, outline=False, size=None, active=False, wide=False, text_wrap=True):
         super().__init__()
         self.style = ButtonStyle(style, outline=outline)
         self.size = ButtonSize(size)
         self.active = HTMLAttributeValueOption('active', active)
+        self.text_nowrap = HTMLAttributeValueOption('text-nowrap', not text_wrap)
         self.wide = HTMLAttributeValueOption('btn-block', wide)
 
     def customise_widget(self):
@@ -351,7 +353,11 @@ class ButtonLayout(reahl.web.fw.Layout):
 
         if isinstance(self.widget, A) and self.widget.disabled:
             self.widget.append_class('disabled')
-        for option in [self.style, self.size, self.active, self.wide]:
+            self.widget.set_attribute('aria-disabled', 'true')
+            self.widget.set_attribute('tabindex', '-1')
+            self.widget.set_attribute('role', 'button')
+
+        for option in [self.style, self.size, self.active, self.wide, self.text_nowrap]:
             if option.is_set:
                 self.widget.append_class(option.as_html_snippet())
 
@@ -361,10 +367,13 @@ class ChoicesLayout(reahl.web.fw.Layout):
         super().__init__()
         self.inline = inline
 
+    def get_choice_type(self, html_input):
+        return html_input.choice_type
+
     @arg_checks(html_input=IsInstance((PrimitiveCheckboxInput, SingleChoice)))
     def add_choice(self, html_input):
-        input_type_custom_control = HTMLAttributeValueOption(html_input.choice_type, True, prefix='custom',
-                                                             constrain_value_to=['radio', 'checkbox'])
+        input_type_custom_control = HTMLAttributeValueOption(self.get_choice_type(html_input), True, prefix='custom',
+                                                             constrain_value_to=['radio', 'checkbox', 'switch'])
 
         label_widget = Label(self.view, for_input=html_input)
         label_widget.append_class('custom-control-label')
@@ -378,6 +387,7 @@ class ChoicesLayout(reahl.web.fw.Layout):
             outer_div.append_class('custom-control-inline')
         if html_input.disabled:
             outer_div.append_class('disabled')
+            outer_div.set_attribute('aria-disabled', 'true')
 
         outer_div.add_child(html_input)
         outer_div.add_child(label_widget)
@@ -385,6 +395,13 @@ class ChoicesLayout(reahl.web.fw.Layout):
         self.widget.add_child(outer_div)
 
         return outer_div
+
+
+class SwitchLayout(ChoicesLayout):
+    def get_choice_type(self, html_input):
+        if html_input.choice_type != 'checkbox':
+            raise ProgrammerError('SwitchLayout is used with RadioButtons, but it only applies to checkboxes')
+        return 'switch'
 
 
 class FormLayout(reahl.web.fw.Layout):

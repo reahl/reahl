@@ -58,8 +58,10 @@ class Container(Layout):
     Using a Container is compulsory if you want to make use of a
     ColumnLayout.
 
-    :keyword fluid: If True, the container fills the entire available width.
+    :keyword fluid: If True, the container fills the entire available width. If a string denoting a device class, the container fills the entire width for smaller device classes only.
 
+    .. versionchanged: 5.0
+       Changed `fluid` to also take a device class string to make the Container responsive.
     """
     def __init__(self, fluid=False):
         super().__init__()
@@ -67,8 +69,11 @@ class Container(Layout):
 
     def customise_widget(self):
         container_class = 'container'
-        if self.fluid:
+        if self.fluid is True:
             container_class = 'container-fluid'
+        elif self.fluid:
+            container_class = HTMLAttributeValue(self.fluid, True, prefix='container', constrain_value_to=DeviceClass.device_classes).as_html_snippet()
+
         self.widget.append_class(container_class)
 
 
