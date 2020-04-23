@@ -9,7 +9,7 @@ from reahl.web.fw import UserInterface, Widget
 from reahl.web.layout import PageLayout
 from reahl.web.bootstrap.page import HTML5Page
 from reahl.web.bootstrap.ui import Div, P, H
-from reahl.web.bootstrap.forms import Form, TextInput, Button, FormLayout, ButtonLayout, FieldSet
+from reahl.web.bootstrap.forms import Form, TextInput, Button, FormLayout, FieldSet
 from reahl.web.bootstrap.grid import ColumnLayout, ColumnOptions, ResponsiveSize, Container
 from reahl.component.modelinterface import exposed, EmailField, Field, Event, Action
 
@@ -52,8 +52,7 @@ class AddAddressForm(Form):
         grouped_inputs.layout.add_input(TextInput(self, new_address.fields.email_address))
 
         self.define_event_handler(new_address.events.save)
-        btn = grouped_inputs.add_child(Button(self, new_address.events.save))
-        btn.use_layout(ButtonLayout(style='primary'))
+        grouped_inputs.add_child(Button(self, new_address.events.save, style='primary'))
 
 
 class AddressBox(Widget):

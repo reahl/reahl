@@ -21,7 +21,8 @@ Configuration for reahl-web.
 import os
 
 from reahl.component.config import Configuration, ConfigSetting
-from reahl.web.libraries import LibraryIndex, JQuery, JQueryUI, Underscore, HTML5Shiv, IE9, Reahl, Holder, Popper, Bootstrap4, ReahlBootstrap4Additions
+from reahl.web.libraries import LibraryIndex, JQuery, JQueryUI, Underscore, HTML5Shiv, IE9, Reahl, Holder, Popper, \
+    Bootstrap4, ReahlBootstrap4Additions, JsCookie
 
 
 class WebConfig(Configuration):
@@ -79,7 +80,7 @@ class WebConfig(Configuration):
     def __init__(self):
         super().__init__()
         # We create it here, so that each instance of a WebConfig will have its own LibraryIndex instance
-        self.frontend_libraries = LibraryIndex(JQuery(), JQueryUI(), Underscore(), HTML5Shiv(), IE9(), Reahl(), Holder(),
+        self.frontend_libraries = LibraryIndex(JQuery(), JsCookie(), JQueryUI(), Underscore(), HTML5Shiv(), IE9(), Reahl(), Holder(),
                                                Popper(),  # must be before Bootstrap in html script includes
                                                Bootstrap4(), ReahlBootstrap4Additions())
 

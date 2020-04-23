@@ -9,12 +9,12 @@
   <translations locator="reahl.messages"/>
 
   <deps purpose="build">
-    <thirdpartyegg name="setuptools-git" minversion="1.1" maxversion="1.1.999"/>
+    <thirdpartyegg name="setuptools-git" minversion="1.1"/>
     <thirdpartyegg name="pytest-runner"/>
   </deps>
 
   <deps purpose="run">
-    <thirdpartyegg name="passlib" minversion="1.7.1" maxversion="1.7.9999"/>
+    <thirdpartyegg name="passlib" minversion="1.7.2" maxversion="1.7.9999"/>
     <egg name="reahl-component"/>
     <egg name="reahl-mailutil"/>
     <egg name="reahl-sqlalchemysupport"/>

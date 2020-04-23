@@ -1,6 +1,6 @@
 <project type="egg">
   <deps purpose="run">
-    <thirdpartyegg name="passlib" minversion="1.7.1" maxversion="1.7.9999"/>
+    <thirdpartyegg name="passlib" minversion="1.7.2" maxversion="1.7.9999"/>
     <egg name="reahl-web"/>
     <egg name="reahl-component"/>
     <egg name="reahl-sqlalchemysupport"/>

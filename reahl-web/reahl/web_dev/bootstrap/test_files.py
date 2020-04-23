@@ -122,7 +122,7 @@ class FileInputFixture(FileInputButtonFixture):
                 self.add_child(FileInput(self, fixture.domain_object.fields.files))
         return FileUploadForm   
 
-    message_span_xpath = '//div[contains(@class, "reahl-bootstrapfileinput")]//span[2]'
+    message_span_xpath = '//div[contains(@class, "reahl-bootstrapfileinput")]/span'
     def message_displayed_is(self, message):
         return message == self.web_fixture.driver_browser.get_inner_html_for(self.message_span_xpath)
 

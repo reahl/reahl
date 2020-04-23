@@ -108,5 +108,8 @@ class PartyAccountFixture(Fixture):
         return account_management_interface
 
     def new_session(self, system_account=None):
-        return UserSession()
+        user_session = UserSession()
+        Session.add(user_session)
+        Session.flush()
+        return user_session
 

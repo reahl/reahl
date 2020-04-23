@@ -251,14 +251,22 @@ class ButtonInput(reahl.web.ui.ButtonInput):
        :keyword base_name: (See:class:`~reahl.web.ui.ButtonInput`)
        :keyword name_discriminator: (See :class:`~reahl.web.ui.PrimitiveInput`)
        :keyword ignore_concurrent_change: (See :class:`~reahl.web.ui.PrimitiveInput`)
+       :keyword style: (See :class:`~reahl.web.bootstrap.forms.ButtonLayout`)
+       :keyword outline: (See :class:`~reahl.web.bootstrap.forms.ButtonLayout`)
+       :keyword size: (See :class:`~reahl.web.bootstrap.forms.ButtonLayout`)
+       :keyword active: (See :class:`~reahl.web.bootstrap.forms.ButtonLayout`)
+       :keyword wide: (See :class:`~reahl.web.bootstrap.forms.ButtonLayout`)
+       :keyword text_wrap: (See :class:`~reahl.web.bootstrap.forms.ButtonLayout`)
 
        .. versionchanged:: 5.0
-          Added `base_name`, `name_discriminator` and `refresh_widget`
+          Added `base_name` and `name_discriminator`
           Added `ignore_concurrent_change`
+          Changed to always get a :class:`ButtonLayout` upon creation.
     """
-    def __init__(self, form, event, base_name=None, name_discriminator=None, ignore_concurrent_change=False):
+    def __init__(self, form, event, base_name=None, name_discriminator=None, ignore_concurrent_change=False, style='secondary', outline=False, size=None, active=False, wide=False, text_wrap=True):
         super().__init__(form, event, base_name=base_name, name_discriminator=name_discriminator, ignore_concurrent_change=ignore_concurrent_change)
         self.append_class('btn')
+        self.use_layout(ButtonLayout(style=style, outline=outline, size=size, active=active, wide=wide, text_wrap=text_wrap))
 
 
 Button = ButtonInput
@@ -331,19 +339,26 @@ class ButtonLayout(reahl.web.fw.Layout):
        and can be used to change the default look of a :class:`Button` as well.
 
        :keyword style: The general style of the button
-                   (one of: 'default', 'primary', 'success', 'info', 'warning', 'danger', 'link', 'light', 'dark')
+                       (one of: 'primary', 'secondary', 'success', 'info', 'warning', 'danger', 'link', 'light', 'dark')
+       :keyword outline: If True, show an outline around the button.
        :keyword size: The size of the button (one of: 'xs', 'sm', 'lg')
        :keyword active: If True, the button is visually altered to indicate it is active
                         (buttons can be said to be active in the same sense that a menu item can
                         be the currently active menu item).
        :keyword wide: If True, the button stretches to the entire width of its parent.
+       :keyword text_wrap: If False, text on the Button does not wrap. 
+
+       .. versionchanged::
+          Change style to allow 'secondary' (Bootstrap 4) instead of 'default' (Bootstrap 3).
+          Default style is not 'secondary'.
 
     """
-    def __init__(self, style=None, outline=False, size=None, active=False, wide=False):
+    def __init__(self, style='secondary', outline=False, size=None, active=False, wide=False, text_wrap=True):
         super().__init__()
         self.style = ButtonStyle(style, outline=outline)
         self.size = ButtonSize(size)
         self.active = HTMLAttributeValueOption('active', active)
+        self.text_nowrap = HTMLAttributeValueOption('text-nowrap', not text_wrap)
         self.wide = HTMLAttributeValueOption('btn-block', wide)
 
     def customise_widget(self):
@@ -351,7 +366,11 @@ class ButtonLayout(reahl.web.fw.Layout):
 
         if isinstance(self.widget, A) and self.widget.disabled:
             self.widget.append_class('disabled')
-        for option in [self.style, self.size, self.active, self.wide]:
+            self.widget.set_attribute('aria-disabled', 'true')
+            self.widget.set_attribute('tabindex', '-1')
+            self.widget.set_attribute('role', 'button')
+
+        for option in [self.style, self.size, self.active, self.wide, self.text_nowrap]:
             if option.is_set:
                 self.widget.append_class(option.as_html_snippet())
 
@@ -361,10 +380,13 @@ class ChoicesLayout(reahl.web.fw.Layout):
         super().__init__()
         self.inline = inline
 
+    def get_choice_type(self, html_input):
+        return html_input.choice_type
+
     @arg_checks(html_input=IsInstance((PrimitiveCheckboxInput, SingleChoice)))
     def add_choice(self, html_input):
-        input_type_custom_control = HTMLAttributeValueOption(html_input.choice_type, True, prefix='custom',
-                                                             constrain_value_to=['radio', 'checkbox'])
+        input_type_custom_control = HTMLAttributeValueOption(self.get_choice_type(html_input), True, prefix='custom',
+                                                             constrain_value_to=['radio', 'checkbox', 'switch'])
 
         label_widget = Label(self.view, for_input=html_input)
         label_widget.append_class('custom-control-label')
@@ -378,6 +400,7 @@ class ChoicesLayout(reahl.web.fw.Layout):
             outer_div.append_class('custom-control-inline')
         if html_input.disabled:
             outer_div.append_class('disabled')
+            outer_div.set_attribute('aria-disabled', 'true')
 
         outer_div.add_child(html_input)
         outer_div.add_child(label_widget)
@@ -385,6 +408,13 @@ class ChoicesLayout(reahl.web.fw.Layout):
         self.widget.add_child(outer_div)
 
         return outer_div
+
+
+class SwitchLayout(ChoicesLayout):
+    def get_choice_type(self, html_input):
+        if html_input.choice_type != 'checkbox':
+            raise ProgrammerError('SwitchLayout is used with RadioButtons, but it only applies to checkboxes')
+        return 'switch'
 
 
 class FormLayout(reahl.web.fw.Layout):
@@ -493,7 +523,7 @@ class FormLayout(reahl.web.fw.Layout):
 
         reset_form = alert.add_child(NestedForm(self.widget.view, 'reset_%s%s' % (form.channel_name, unique_name)))
         reset_form.form.define_event_handler(form.events.reset)
-        reset_form.add_child(Button(reset_form.form, form.events.reset)).use_layout(ButtonLayout(style='primary'))
+        reset_form.add_child(Button(reset_form.form, form.events.reset, style='primary'))
             
 
 

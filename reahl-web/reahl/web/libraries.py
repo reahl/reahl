@@ -150,15 +150,15 @@ class Library:
 
     
 class JQuery(Library):
-    """Version 3.3.1 of `JQuery <https://jquery.com>`_.
+    """Version 3.4.1 of `JQuery <https://jquery.com>`_.
 
     This Library also includes a number of plugins we use internally:
 
     =================== ==================================
      Plugin              Version
     =================== ==================================
-     jquery.cookie       1.0
-     jquery.validate     1.17.0 (a heavily modified version)
+     jquery.cookie       1.4.1
+     jquery.validate     1.19.1 (a heavily modified version)
      jquery.ba-bbq       1.3pre
      jquery.blockUI      2.70.0
      jquery.form         4.2.2
@@ -166,11 +166,10 @@ class JQuery(Library):
     """
     def __init__(self):
         super().__init__('jquery')
-        self.files = ['jquery-3.3.1/jquery-3.3.1.js',
-                      'jquery-3.3.1/jquery-3.3.1.min.map']
+        self.files = ['jquery-3.4.1/jquery-3.4.1.js',
+                      'jquery-3.4.1/jquery-3.4.1.min.map']
         self.shipped_in_directory = '/reahl/web/static'
-        for i in ['jquery.cookie-1.0.js',
-                  'jquery.validate-1.17.0.modified.js',
+        for i in ['jquery.validate-1.19.1.modified.js',
                   'jquery.ba-bbq-1.3pre.js',
                   'jquery.blockUI-2.70.0.js',
                   'jquery.form-4.2.2.js']:
@@ -263,29 +262,29 @@ class Reahl(Library):
 
 
 class Holder(Library):
-    """Version 2.9.0 of `Holder <http://imsky.github.io/holder/>`_.
+    """Version 2.9.7 of `Holder <http://imsky.github.io/holder/>`_.
     """
     def __init__(self):
         super().__init__('holder')
         self.shipped_in_directory = '/reahl/web/holder'
-        self.files = ['holder-2.9.0.js']
+        self.files = ['holder-2.9.7.js']
 
 
 class Bootstrap4(Library):
-    """Version 4.1.1 of `Bootstrap <http://getbootstrap.com/>`_.
+    """Version 4.4.1 of `Bootstrap <http://getbootstrap.com/>`_.
     """
     def __init__(self):
         super().__init__('bootstrap4')
         self.shipped_in_directory = '/reahl/web/static'
         self.files = [
-                      'bootstrap-4.1.1/css/bootstrap.css',
-                      'bootstrap-4.1.1/css/reahl-patch.css',
-                      'bootstrap-4.1.1/css/bootstrap.css.map',
-                      # 'bootstrap-4.1.1/css/bootstrap-grid.css',
-                      # 'bootstrap-4.1.1/css/bootstrap-grid.css.map',
-                      # 'bootstrap-4.1.1/css/bootstrap-reboot.css',
-                      # 'bootstrap-4.1.1/css/bootstrap-reboot.css.map',
-                      'bootstrap-4.1.1/js/bootstrap.js'
+                      'bootstrap-4.4.1/css/bootstrap.css',
+                      'bootstrap-4.4.1/css/reahl-patch.css',
+                      'bootstrap-4.4.1/css/bootstrap.css.map',
+                      # 'bootstrap-4.4.1/css/bootstrap-grid.css',
+                      # 'bootstrap-4.4.1/css/bootstrap-grid.css.map',
+                      # 'bootstrap-4.4.1/css/bootstrap-reboot.css',
+                      # 'bootstrap-4.4.1/css/bootstrap-reboot.css.map',
+                      'bootstrap-4.4.1/js/bootstrap.js'
                       ]
 
 
@@ -312,27 +311,38 @@ class ReahlBootstrap4Additions(Library):
                       'reahl.bootstrapcueinput.js',
                       'reahl.bootstrapfileuploadli.js',
                       'reahl.bootstrapfileuploadpanel.js',
-                      'reahl.datatable.css'                      
+                      'reahl.datatable.css'
                       ]
 
 
 class Popper(Library):
-    """Version 1.12.9 (umd) of `Popper <https://popper.js.org/>`_.
+    """Version 1.16.0 (umd) of `Popper <https://popper.js.org/>`_.
     """
     def __init__(self):
         super().__init__('popper')
         self.shipped_in_directory = '/reahl/web/static'
         self.files = [
-            'popper-1.12.9/popper.js' #make sure it is the umd edition
+            'popper-1.16.0/popper.js' #make sure it is the umd edition
         ]
 
 
 class Underscore(Library):
-    """Version 1.9.1 of `Underscore.js <https://underscorejs.org>`_.
+    """Version 1.10.2 of `Underscore.js <https://underscorejs.org>`_.
     """
     def __init__(self):
         super().__init__('underscore')
         self.shipped_in_directory = '/reahl/web/static'
         self.files = [
-            'underscore-min-1.9.1.js'
+            'underscore-min-1.10.2.js'
+        ]
+
+
+class JsCookie(Library):
+    """Version 2.2.1 of `js-cookie <https://github.com/js-cookie/js-cookie>`_.
+    """
+    def __init__(self):
+        super().__init__('js-cookie')
+        self.shipped_in_directory = '/reahl/web/static'
+        self.files = [
+            'js-cookie-2.2.1/js.cookie.js' #this is the UMD version
         ]

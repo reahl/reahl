@@ -24,7 +24,7 @@ from reahl.web.bootstrap.ui import P
 from reahl.web.layout import PageLayout
 from reahl.web.bootstrap.grid import ColumnLayout, ColumnOptions, Container, ResponsiveSize
 from reahl.web.bootstrap.forms import Form, FormLayout, ButtonInput, CueInput, TextArea, SelectInput, \
-    RadioButtonSelectInput, CheckboxInput, TextInput, PasswordInput, ButtonLayout, ChoicesLayout
+    RadioButtonSelectInput, CheckboxInput, TextInput, PasswordInput, ChoicesLayout
 
 
 class BasicHTMLInputsUI(UserInterface):
@@ -95,6 +95,5 @@ class ExampleForm(Form):
         self.layout.add_input(CueInput(TextInput(self, model_object.fields.cue_field), P(view, text='This is a cue')))
         self.define_event_handler(model_object.events.do_something)
 
-        btn = self.add_child(ButtonInput(self, model_object.events.do_something))
-        btn.use_layout(ButtonLayout(style='primary'))
+        self.add_child(ButtonInput(self, model_object.events.do_something, style='primary'))
 
