@@ -647,7 +647,7 @@ def test_button_layouts(web_fixture):
 
     tester = WidgetTester(button)
     [button] = tester.xpath(XPath.button_labelled('click me'))
-    assert button.attrib['class'] == 'btn reahl-primitiveinput'
+    assert button.attrib['class'] == 'btn btn-secondary reahl-primitiveinput'
 
     # Case: possible effects
     form = Form(web_fixture.view, 'test')
@@ -666,7 +666,7 @@ def test_button_layouts_on_anchors(web_fixture):
     anchor = A(web_fixture.view, href=Url('/an/href'), description='link text').use_layout(ButtonLayout())
     tester = WidgetTester(anchor)
     [rendered_anchor] = tester.xpath(XPath.link().with_text('link text'))
-    assert rendered_anchor.attrib['class'] == 'btn'
+    assert rendered_anchor.attrib['class'] == 'btn btn-secondary'
     assert 'aria-disabled' not in rendered_anchor.attrib
     assert 'tabindex' not in rendered_anchor.attrib
 
@@ -674,7 +674,7 @@ def test_button_layouts_on_anchors(web_fixture):
     anchor = A(web_fixture.view, href=Url('/an/href'), description='link text', write_check=lambda: False).use_layout(ButtonLayout())
     tester = WidgetTester(anchor)
     [rendered_anchor] = tester.xpath(XPath.link().with_text('link text'))
-    assert rendered_anchor.attrib['class'] == 'btn disabled'
+    assert rendered_anchor.attrib['class'] == 'btn btn-secondary disabled'
     assert rendered_anchor.attrib['aria-disabled'] == 'true'
     assert rendered_anchor.attrib['tabindex'] == '-1'
 
@@ -691,7 +691,7 @@ def test_button_layouts_on_disabled_anchors(web_fixture):
 
     tester = WidgetTester(anchor)
     [rendered_anchor] = tester.xpath(XPath.link().with_text('link text'))
-    assert rendered_anchor.attrib['class'] == 'btn disabled'
+    assert rendered_anchor.attrib['class'] == 'btn btn-secondary disabled'
 
 
 
