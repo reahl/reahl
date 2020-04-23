@@ -20,7 +20,7 @@
 "use strict";
 
 function renderButton(name, label, form_id) {
-    return '<input class="btn" type="submit" name="'+name+'" value="'+label+'" form="'+form_id+'">';
+    return '<input class="btn btn-outline-secondary" type="submit" name="'+name+'" value="'+label+'" form="'+form_id+'">';
 }
 
 $.widget('reahl.bootstrapfileuploadli', {
