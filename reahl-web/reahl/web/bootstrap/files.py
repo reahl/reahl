@@ -29,7 +29,7 @@ from reahl.component.context import ExecutionContext
 import reahl.web.ui
 from reahl.web.ui import PrimitiveInput, UniqueFilesConstraint
 from reahl.web.bootstrap.ui import Div, Span, Li, Ul
-from reahl.web.bootstrap.forms import Button, NestedForm, FormLayout, Label, ButtonLayout
+from reahl.web.bootstrap.forms import Button, NestedForm, FormLayout, Label
 
 
 _ = Catalogue('reahl-web')
@@ -116,7 +116,7 @@ class FileUploadLi(Li):
     def __init__(self, form, remove_event, persisted_file, css_id=None):
         super().__init__(form.view, css_id=css_id)
         self.set_attribute('class', 'reahl-bootstrap-file-upload-li')
-        self.add_child(Button(form, remove_event.with_arguments(filename=persisted_file.filename)).use_layout(ButtonLayout(style='secondary', outline=True)))
+        self.add_child(Button(form, remove_event.with_arguments(filename=persisted_file.filename), style='secondary'))
         self.add_child(Span(self.view, persisted_file.filename))
 
     def get_js(self, context=None):
@@ -158,7 +158,7 @@ class FileUploadPanel(Div):
         
         button_addon = file_input.html_representation.add_child(Div(self.view))
         button_addon.append_class('input-group-append')
-        button_addon.add_child(Button(self.upload_form.form, self.events.upload_file).use_layout(ButtonLayout(style='secondary', outline=True)))
+        button_addon.add_child(Button(self.upload_form.form, self.events.upload_file, style='secondary', outline=True))
         return controls_panel
 
     @property

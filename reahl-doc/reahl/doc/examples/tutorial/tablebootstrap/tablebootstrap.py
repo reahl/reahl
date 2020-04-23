@@ -10,7 +10,7 @@ from reahl.web.fw import CannotCreate, UrlBoundView, UserInterface
 from reahl.web.layout import PageLayout
 from reahl.web.bootstrap.page import HTML5Page
 from reahl.web.bootstrap.ui import Div, P, H, A, TextNode
-from reahl.web.bootstrap.forms import Form, TextInput, Button, FieldSet, PrimitiveCheckboxInput, FormLayout, ButtonLayout
+from reahl.web.bootstrap.forms import Form, TextInput, Button, FieldSet, PrimitiveCheckboxInput, FormLayout
 from reahl.web.bootstrap.grid import ColumnLayout, ColumnOptions, ResponsiveSize, Container
 from reahl.web.bootstrap.navs import Nav, TabLayout
 from reahl.web.bootstrap.tables import Table, TableLayout
@@ -133,8 +133,7 @@ class EditAddressForm(Form):
         grouped_inputs.layout.add_input(TextInput(self, address.fields.name))
         grouped_inputs.layout.add_input(TextInput(self, address.fields.email_address))
 
-        btn = grouped_inputs.add_child(Button(self, address.events.update))
-        btn.use_layout(ButtonLayout(style='primary'))
+        grouped_inputs.add_child(Button(self, address.events.update, style='primary'))
 
 
 class AddAddressForm(Form):
@@ -147,8 +146,7 @@ class AddAddressForm(Form):
         grouped_inputs.layout.add_input(TextInput(self, new_address.fields.name))
         grouped_inputs.layout.add_input(TextInput(self, new_address.fields.email_address))
 
-        btn = grouped_inputs.add_child(Button(self, new_address.events.save))
-        btn.use_layout(ButtonLayout(style='primary'))
+        grouped_inputs.add_child(Button(self, new_address.events.save, style='primary'))
 
 
 class AddressBox(Form):

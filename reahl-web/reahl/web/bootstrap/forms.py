@@ -251,14 +251,22 @@ class ButtonInput(reahl.web.ui.ButtonInput):
        :keyword base_name: (See:class:`~reahl.web.ui.ButtonInput`)
        :keyword name_discriminator: (See :class:`~reahl.web.ui.PrimitiveInput`)
        :keyword ignore_concurrent_change: (See :class:`~reahl.web.ui.PrimitiveInput`)
+       :keyword style: (See :class:`~reahl.web.bootstrap.forms.ButtonLayout`)
+       :keyword outline: (See :class:`~reahl.web.bootstrap.forms.ButtonLayout`)
+       :keyword size: (See :class:`~reahl.web.bootstrap.forms.ButtonLayout`)
+       :keyword active: (See :class:`~reahl.web.bootstrap.forms.ButtonLayout`)
+       :keyword wide: (See :class:`~reahl.web.bootstrap.forms.ButtonLayout`)
+       :keyword text_wrap: (See :class:`~reahl.web.bootstrap.forms.ButtonLayout`)
 
        .. versionchanged:: 5.0
-          Added `base_name`, `name_discriminator` and `refresh_widget`
+          Added `base_name` and `name_discriminator`
           Added `ignore_concurrent_change`
+          Changed to always get a :class:`ButtonLayout` upon creation.
     """
-    def __init__(self, form, event, base_name=None, name_discriminator=None, ignore_concurrent_change=False):
+    def __init__(self, form, event, base_name=None, name_discriminator=None, ignore_concurrent_change=False, style='secondary', outline=False, size=None, active=False, wide=False, text_wrap=True):
         super().__init__(form, event, base_name=base_name, name_discriminator=name_discriminator, ignore_concurrent_change=ignore_concurrent_change)
         self.append_class('btn')
+        self.use_layout(ButtonLayout(style=style, outline=outline, size=size, active=active, wide=wide, text_wrap=text_wrap))
 
 
 Button = ButtonInput
@@ -331,7 +339,8 @@ class ButtonLayout(reahl.web.fw.Layout):
        and can be used to change the default look of a :class:`Button` as well.
 
        :keyword style: The general style of the button
-                   (one of: 'default', 'primary', 'success', 'info', 'warning', 'danger', 'link', 'light', 'dark')
+                       (one of: 'primary', 'secondary', 'success', 'info', 'warning', 'danger', 'link', 'light', 'dark')
+       :keyword outline: If True, show an outline around the button.
        :keyword size: The size of the button (one of: 'xs', 'sm', 'lg')
        :keyword active: If True, the button is visually altered to indicate it is active
                         (buttons can be said to be active in the same sense that a menu item can
@@ -339,8 +348,12 @@ class ButtonLayout(reahl.web.fw.Layout):
        :keyword wide: If True, the button stretches to the entire width of its parent.
        :keyword text_wrap: If False, text on the Button does not wrap. 
 
+       .. versionchanged::
+          Change style to allow 'secondary' (Bootstrap 4) instead of 'default' (Bootstrap 3).
+          Default style is not 'secondary'.
+
     """
-    def __init__(self, style=None, outline=False, size=None, active=False, wide=False, text_wrap=True):
+    def __init__(self, style='secondary', outline=False, size=None, active=False, wide=False, text_wrap=True):
         super().__init__()
         self.style = ButtonStyle(style, outline=outline)
         self.size = ButtonSize(size)
@@ -510,7 +523,7 @@ class FormLayout(reahl.web.fw.Layout):
 
         reset_form = alert.add_child(NestedForm(self.widget.view, 'reset_%s%s' % (form.channel_name, unique_name)))
         reset_form.form.define_event_handler(form.events.reset)
-        reset_form.add_child(Button(reset_form.form, form.events.reset)).use_layout(ButtonLayout(style='primary'))
+        reset_form.add_child(Button(reset_form.form, form.events.reset, style='primary'))
             
 
 

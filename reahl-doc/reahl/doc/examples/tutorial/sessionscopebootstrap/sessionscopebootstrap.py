@@ -13,7 +13,7 @@ from reahl.web.fw import UserInterface
 from reahl.web.layout import PageLayout
 from reahl.web.bootstrap.page import HTML5Page
 from reahl.web.bootstrap.ui import P, Alert
-from reahl.web.bootstrap.forms import Form, TextInput, Button, PasswordInput, ButtonLayout, FormLayout
+from reahl.web.bootstrap.forms import Form, TextInput, Button, PasswordInput, FormLayout
 from reahl.web.bootstrap.navs import Nav, TabLayout
 from reahl.web.bootstrap.grid import ColumnLayout, ColumnOptions, ResponsiveSize, Container
 from reahl.component.modelinterface import Action, EmailField, Event, PasswordField, exposed
@@ -90,8 +90,7 @@ class LoginForm(Form):
         self.layout.add_input(PasswordInput(self, login_session.fields.password))
 
         self.define_event_handler(login_session.events.log_in)
-        btn = self.add_child(Button(self, login_session.events.log_in))
-        btn.use_layout(ButtonLayout(style='primary'))
+        self.add_child(Button(self, login_session.events.log_in, style='primary'))
 
 
 class SessionScopeUI(UserInterface):

@@ -26,7 +26,7 @@ from reahl.web.bootstrap.page import HTML5Page
 from reahl.web.bootstrap.ui import FieldSet, Div, P
 from reahl.web.bootstrap.files import FileUploadInput
 from reahl.web.bootstrap.grid import Container, ColumnLayout, ColumnOptions, ResponsiveSize
-from reahl.web.bootstrap.forms import Form, FormLayout, ButtonInput, ButtonLayout, TextInput
+from reahl.web.bootstrap.forms import Form, FormLayout, ButtonInput, TextInput
 
 
 
@@ -101,8 +101,7 @@ class CommentForm(Form):
         attachments.layout.add_input(FileUploadInput(self, new_comment.fields.uploaded_files), hide_label=True)
 
         self.define_event_handler(new_comment.events.submit)
-        btn = self.add_child(ButtonInput(self, new_comment.events.submit))
-        btn.use_layout(ButtonLayout(style='primary'))
+        self.add_child(ButtonInput(self, new_comment.events.submit, style='primary'))
 
 
 class CommentBox(Div):

@@ -9,7 +9,7 @@ from reahl.web.bootstrap.ui import Div, H, P, A
 from reahl.web.bootstrap.navbar import Navbar, ResponsiveLayout
 from reahl.web.bootstrap.navs import Nav
 from reahl.web.bootstrap.grid import Container, ColumnLayout, ColumnOptions, ResponsiveSize
-from reahl.web.bootstrap.forms import TextInput, Form, FormLayout, Button, ButtonLayout, FieldSet
+from reahl.web.bootstrap.forms import TextInput, Form, FormLayout, Button, FieldSet
 from reahl.component.modelinterface import exposed, Field, EmailField, Action, Event, IntegerField
 from reahl.sqlalchemysupport import Session, Base
 from sqlalchemy.orm.exc import NoResultFound
@@ -51,8 +51,7 @@ class EditAddressForm(Form):
         grouped_inputs.layout.add_input(TextInput(self, address.fields.name))
         grouped_inputs.layout.add_input(TextInput(self, address.fields.email_address))
 
-        button = grouped_inputs.add_child(Button(self, address.events.update))
-        button.use_layout(ButtonLayout(style='primary'))
+        grouped_inputs.add_child(Button(self, address.events.update, style='primary'))
 
 
 class AddressForm(Form):
@@ -65,8 +64,7 @@ class AddressForm(Form):
         grouped_inputs.layout.add_input(TextInput(self, new_address.fields.name))
         grouped_inputs.layout.add_input(TextInput(self, new_address.fields.email_address))
 
-        button = grouped_inputs.add_child(Button(self, new_address.events.save))
-        button.use_layout(ButtonLayout(style='primary'))
+        grouped_inputs.add_child(Button(self, new_address.events.save, style='primary'))
 
 
 class AddressBookPanel(Div):

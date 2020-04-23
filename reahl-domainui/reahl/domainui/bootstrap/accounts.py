@@ -27,7 +27,7 @@ from reahl.component.context import ExecutionContext
 from reahl.web.fw import UserInterface
 from reahl.web.fw import Widget
 from reahl.web.bootstrap.ui import H, P, A, Alert
-from reahl.web.bootstrap.forms import Button, ButtonLayout, CueInput, TextInput, PasswordInput, \
+from reahl.web.bootstrap.forms import Button, CueInput, TextInput, PasswordInput, \
     FieldSet, Form, FormLayout, CheckboxInput, TextNode
 from reahl.web.bootstrap.popups import PopupA, CheckCheckboxScript
 
@@ -73,8 +73,7 @@ class LoginForm(Form):
         login_inputs.layout.add_input(CueInput(CheckboxInput(self, self.account_management_interface.fields.stay_logged_in), stay_cue))
 
         login_buttons = self.add_child(ActionButtonGroup(view))
-        btn = login_buttons.add_child(Button(self, account_management_interface.events.login_event))
-        btn.use_layout(ButtonLayout(style='primary'))
+        btn = login_buttons.add_child(Button(self, account_management_interface.events.login_event, style='primary'))
 
 
 class LoginWidget(TitledWidget):
@@ -149,8 +148,7 @@ class RegisterForm(Form):
 
     def create_action_buttons(self):
         actions = self.add_child(ActionButtonGroup(self.view))
-        btn = actions.add_child(Button(self, self.account_management_interface.events.register_event))
-        btn.use_layout(ButtonLayout(style='primary'))
+        actions.add_child(Button(self, self.account_management_interface.events.register_event, style='primary'))
 
 
 class VerifyEmailWidget(TitledWidget):
@@ -174,8 +172,7 @@ class VerifyForm(Form):
         identification_inputs.layout.add_input(PasswordInput(self, account_management_interface.fields.password))
 
         actions = self.add_child(ActionButtonGroup(view))
-        btn = actions.add_child(Button(self, account_management_interface.events.verify_event))
-        btn.use_layout(ButtonLayout(style='primary'))
+        actions.add_child(Button(self, account_management_interface.events.verify_event, style='primary'))
 
     @exposed
     def query_fields(self, fields):
@@ -201,8 +198,7 @@ class RegisterHelpForm(Form):
                                 help_text=_('Please supply the email address you tried to register with.'))
 
         actions = self.add_child(ActionButtonGroup(view))
-        btn = actions.add_child(Button(self, account_management_interface.events.investigate_event))
-        btn.use_layout(ButtonLayout(style='primary'))
+        actions.add_child(Button(self, account_management_interface.events.investigate_event, style='primary'))
 
 
 class RegistrationDuplicatedWidget(TitledWidget):
@@ -248,8 +244,7 @@ class RegistrationPendingForm(Form):
             self.add_child(Alert(view, self.exception.as_user_message(), 'warning'))
         
         actions = self.add_child(ActionButtonGroup(view, legend_text=_('Re-send registration email')))
-        btn = actions.add_child(Button(self, self.user_interface.account_management_interface.events.resend_event))
-        btn.use_layout(ButtonLayout(style='primary'))
+        actions.add_child(Button(self, self.user_interface.account_management_interface.events.resend_event, style='primary'))
 
 
 class RegistrationNotFoundWidget(TitledWidget):
@@ -318,8 +313,7 @@ class ResetPasswordForm(Form):
         inputs.layout.add_input(TextInput(self, account_management_interface.fields.email))
 
         actions = self.add_child(ActionButtonGroup(view))
-        btn = actions.add_child(Button(self, account_management_interface.events.reset_password_event))
-        btn.use_layout(ButtonLayout(style='primary'))
+        actions.add_child(Button(self, account_management_interface.events.reset_password_event, style='primary'))
 
 
 class ChoosePasswordWidget(TitledWidget):
@@ -349,8 +343,7 @@ class ChoosePasswordForm(Form):
         inputs.layout.add_input(PasswordInput(self, account_management_interface.fields.repeat_password))
 
         actions = self.add_child(ActionButtonGroup(view))
-        btn = actions.add_child(Button(self, account_management_interface.events.choose_password_event))
-        btn.use_layout(ButtonLayout(style='primary'))
+        actions.add_child(Button(self, account_management_interface.events.choose_password_event, style='primary'))
 
     @exposed
     def query_fields(self, fields):

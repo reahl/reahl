@@ -643,7 +643,7 @@ def test_button_layouts(web_fixture):
     form.define_event_handler(event)
 
     # Case: the defaults
-    button = Button(form, event).use_layout(ButtonLayout())
+    button = Button(form, event)
 
     tester = WidgetTester(button)
     [button] = tester.xpath(XPath.button_labelled('click me'))
@@ -652,7 +652,7 @@ def test_button_layouts(web_fixture):
     # Case: possible effects
     form = Form(web_fixture.view, 'test')
     form.define_event_handler(event)
-    button = Button(form, event).use_layout(ButtonLayout(style='secondary', outline=True, size='sm', active=True, wide=True, text_wrap=False))
+    button = Button(form, event, style='secondary', outline=True, size='sm', active=True, wide=True, text_wrap=False)
 
     tester = WidgetTester(button)
     [button] = tester.xpath(XPath.button_labelled('click me'))

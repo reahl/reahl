@@ -5,7 +5,7 @@ from reahl.web.bootstrap.ui import Div, H, P, FieldSet
 from reahl.web.bootstrap.navbar import Navbar, ResponsiveLayout
 from reahl.web.bootstrap.navs import Nav
 from reahl.web.bootstrap.grid import Container
-from reahl.web.bootstrap.forms import TextInput, Form, FormLayout, Button, ButtonLayout
+from reahl.web.bootstrap.forms import TextInput, Form, FormLayout, Button
 from reahl.component.modelinterface import exposed, Field, EmailField, Action, Event
 from reahl.sqlalchemysupport import Session, Base
 from sqlalchemy import Column, Integer, UnicodeText
@@ -47,8 +47,7 @@ class AddressForm(Form):
         inputs.layout.add_input(TextInput(self, new_address.fields.name))
         inputs.layout.add_input(TextInput(self, new_address.fields.email_address))
 
-        button = inputs.add_child(Button(self, new_address.events.save))
-        button.use_layout(ButtonLayout(style='primary'))
+        inputs.add_child(Button(self, new_address.events.save))
 
 
 class AddressBookPanel(Div):

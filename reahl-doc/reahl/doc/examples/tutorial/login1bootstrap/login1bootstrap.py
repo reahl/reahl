@@ -6,7 +6,7 @@ from reahl.web.fw import UserInterface
 from reahl.web.layout import PageLayout
 from reahl.web.bootstrap.page import HTML5Page
 from reahl.web.bootstrap.ui import P, Alert
-from reahl.web.bootstrap.forms import Form, TextInput, Button, FormLayout, ButtonLayout, PasswordInput
+from reahl.web.bootstrap.forms import Form, TextInput, Button, FormLayout, PasswordInput
 from reahl.web.bootstrap.navs import Nav, TabLayout
 from reahl.web.bootstrap.grid import ColumnLayout, ColumnOptions, ResponsiveSize, Container
 from reahl.domain.systemaccountmodel import AccountManagementInterface, LoginSession
@@ -35,8 +35,7 @@ class LoginForm(Form):
         self.layout.add_input(PasswordInput(self, accounts.fields.password))
 
         self.define_event_handler(accounts.events.login_event)
-        btn = self.add_child(Button(self, accounts.events.login_event))
-        btn.use_layout(ButtonLayout(style='primary'))
+        self.add_child(Button(self, accounts.events.login_event, style='primary'))
 
 
 class LoginUI(UserInterface):

@@ -13,7 +13,7 @@ from reahl.web.bootstrap.grid import ColumnLayout, ColumnOptions, ResponsiveSize
 from reahl.web.bootstrap.page import HTML5Page
 from reahl.web.bootstrap.ui import Div, P, H, A, Alert
 from reahl.web.bootstrap.forms import Form, TextInput, Button, PasswordInput, SelectInput, CheckboxInput, \
-                         FormLayout, ButtonLayout, FieldSet
+                         FormLayout, FieldSet
 from reahl.domain.systemaccountmodel import AccountManagementInterface, EmailAndPasswordSystemAccount, LoginSession
 from reahl.component.modelinterface import exposed, IntegerField, BooleanField, Field, EmailField, Event, Action, Choice, ChoiceField
 
@@ -197,16 +197,14 @@ class LoginForm(Form):
         self.layout.add_input(PasswordInput(self, accounts.fields.password))
 
         self.define_event_handler(accounts.events.login_event)
-        btn = self.add_child(Button(self, accounts.events.login_event))
-        btn.use_layout(ButtonLayout(style='primary'))
+        self.add_child(Button(self, accounts.events.login_event, style='primary'))
 
 
 class LogoutForm(Form):
     def __init__(self, view, accounts):
         super().__init__(view, 'logout')
         self.define_event_handler(accounts.events.log_out_event)
-        btn = self.add_child(Button(self, accounts.events.log_out_event))
-        btn.use_layout(ButtonLayout(style='primary'))
+        self.add_child(Button(self, accounts.events.log_out_event, style='primary'))
 
 
 class HomePageWidget(Widget):
@@ -258,9 +256,7 @@ class EditAddressForm(Form):
         grouped_inputs.layout.add_input(TextInput(self, address.fields.name))
         grouped_inputs.layout.add_input(TextInput(self, address.fields.email_address))
 
-        btn = grouped_inputs.add_child(Button(self, address.events.update.with_arguments(address_book_id=address.address_book.id)))
-        btn.use_layout(ButtonLayout(style='primary'))
-
+        grouped_inputs.add_child(Button(self, address.events.update.with_arguments(address_book_id=address.address_book.id), style='primary'))
 
 
 class AddAddressForm(Form):
@@ -274,8 +270,7 @@ class AddAddressForm(Form):
         grouped_inputs.layout.add_input(TextInput(self, new_address.fields.name))
         grouped_inputs.layout.add_input(TextInput(self, new_address.fields.email_address))
 
-        btn = grouped_inputs.add_child(Button(self, new_address.events.save.with_arguments(address_book_id=address_book.id)))
-        btn.use_layout(ButtonLayout(style='primary'))
+        grouped_inputs.add_child(Button(self, new_address.events.save.with_arguments(address_book_id=address_book.id), style='primary'))
 
 
 class AddressBox(Form):
@@ -319,8 +314,7 @@ class AddCollaboratorForm(Form):
         rights_inputs.layout.add_input(CheckboxInput(self, address_book.fields.may_edit_address))
         rights_inputs.layout.add_input(CheckboxInput(self, address_book.fields.may_add_address))
 
-        btn = grouped_inputs.add_child(Button(self, address_book.events.add_collaborator.with_arguments(address_book_id=address_book.id)))
-        btn.use_layout(ButtonLayout(style='primary'))
+        grouped_inputs.add_child(Button(self, address_book.events.add_collaborator.with_arguments(address_book_id=address_book.id), style='primary'))
 
 
 class AddCollaboratorView(UrlBoundView):
