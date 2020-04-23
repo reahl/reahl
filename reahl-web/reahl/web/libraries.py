@@ -271,20 +271,20 @@ class Holder(Library):
 
 
 class Bootstrap4(Library):
-    """Version 4.1.1 of `Bootstrap <http://getbootstrap.com/>`_.
+    """Version 4.4.1 of `Bootstrap <http://getbootstrap.com/>`_.
     """
     def __init__(self):
         super().__init__('bootstrap4')
         self.shipped_in_directory = '/reahl/web/static'
         self.files = [
-                      'bootstrap-4.1.1/css/bootstrap.css',
-                      'bootstrap-4.1.1/css/reahl-patch.css',
-                      'bootstrap-4.1.1/css/bootstrap.css.map',
-                      # 'bootstrap-4.1.1/css/bootstrap-grid.css',
-                      # 'bootstrap-4.1.1/css/bootstrap-grid.css.map',
-                      # 'bootstrap-4.1.1/css/bootstrap-reboot.css',
-                      # 'bootstrap-4.1.1/css/bootstrap-reboot.css.map',
-                      'bootstrap-4.1.1/js/bootstrap.js'
+                      'bootstrap-4.4.1/css/bootstrap.css',
+                      'bootstrap-4.4.1/css/reahl-patch.css',
+                      'bootstrap-4.4.1/css/bootstrap.css.map',
+                      # 'bootstrap-4.4.1/css/bootstrap-grid.css',
+                      # 'bootstrap-4.4.1/css/bootstrap-grid.css.map',
+                      # 'bootstrap-4.4.1/css/bootstrap-reboot.css',
+                      # 'bootstrap-4.4.1/css/bootstrap-reboot.css.map',
+                      'bootstrap-4.4.1/js/bootstrap.js'
                       ]
 
 
@@ -311,7 +311,7 @@ class ReahlBootstrap4Additions(Library):
                       'reahl.bootstrapcueinput.js',
                       'reahl.bootstrapfileuploadli.js',
                       'reahl.bootstrapfileuploadpanel.js',
-                      'reahl.datatable.css'                      
+                      'reahl.datatable.css'
                       ]
 
 

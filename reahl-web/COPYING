@@ -23,16 +23,12 @@ Several files from other projects are included in this code. See the copyright i
 of each applicable file below:
 
 
-reahl-web/reahl/web/static/bootstrap-4.1.1/
-===================================================
+reahl-web/reahl/web/static/bootstrap-4.4.1/
+===========================================
 
-Bootstrap v4.1.1 (https://getbootstrap.com)
-Copyright 2011-2018 The Bootstrap Authors (https://github.com/twbs/bootstrap/graphs/contributors)
+Bootstrap v4.4.1 (https://getbootstrap.com)
+Copyright 2011-2019 The Bootstrap Authors (https://github.com/twbs/bootstrap/graphs/contributors)
 Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
-
-Forked from github.com/necolas/normalize.css:
-
-normalize.css v3.0.3 | MIT License | github.com/necolas/normalize.css
 
 
 reahl-web/reahl/web/static/popper-1.16.0/popper.js
