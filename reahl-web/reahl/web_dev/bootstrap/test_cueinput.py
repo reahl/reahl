@@ -87,6 +87,7 @@ def test_cue_is_visible_when_js_disabled(web_fixture, cue_input_fixture):
 
     web_fixture.reahl_server.set_app(wsgi_app)
     browser = web_fixture.driver_browser
+    browser.clear_cache()
     browser.open('/')
     browser.refresh() # To prevent flipper we don't understand
 

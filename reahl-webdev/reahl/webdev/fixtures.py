@@ -119,6 +119,8 @@ class WebServerFixture(Fixture):
         options.add_argument('--dns-prefetch-disable')
 #        options.add_argument('--start-maximized')  # This breaks xpra pair programming currently.
         options.add_argument('--no-sandbox')  # Needed to be able to run a user-installed version of chromium on travis
+        options.add_argument('--allow-insecure-localhost')  # https allowed for localhost
+        #options.add_argument('--disable-application-cache')  # doesnt seem to work
         options.binary_location = Executable('chromium-browser').executable_file  # To run a custom-installed chromium as picked up by the PATH
         #--enable-http-pipelining
         #--learning
@@ -127,7 +129,7 @@ class WebServerFixture(Fixture):
 
     def new_chrome_driver(self):
         try:
-            wd = webdriver.Chrome(chrome_options=self.chrome_options) #, service_args=["--verbose", "--log-path=/tmp/chromedriver.log"]
+            wd = webdriver.Chrome(options=self.chrome_options) #, service_args=["--verbose", "--log-path=/tmp/chromedriver.log"]
         except WebDriverException as ex:
             if ex.msg.startswith('Unable to either launch or connect to Chrome'):
                 ex.msg += '  *****NOTE****: On linux, chrome needs write access to /dev/shm.'

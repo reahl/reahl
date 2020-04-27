@@ -1124,7 +1124,10 @@ class DriverBrowser(BasicBrowser):
         xpath = str(locator)
         self.wait_for_element_present(locator)
         el = self.find_element(xpath)
-        return self.web_driver.execute_script('arguments[0].focus();', el)
+        actions = ActionChains(self.web_driver)
+        actions.move_to_element(el)
+        actions.click()
+        actions.perform()
 
     def is_focus_on(self, locator):
         """Answers whether the tab-focus is on the element found by the `locator`.
@@ -1310,7 +1313,7 @@ class DriverBrowser(BasicBrowser):
         self.web_driver.add_cookie(cookie_dict)
 
     def delete_all_cookies(self):
-        """Removes all cookies fomr the browser."""
+        """Removes all cookies from the browser."""
         self.web_driver.delete_all_cookies()
 
     def get_html_for(self, locator):
@@ -1463,4 +1466,7 @@ class DriverBrowser(BasicBrowser):
             self.web_driver.close()
             self.web_driver.switch_to.window(current_tab)
 
-
+    def clear_cache(self):
+        self.delete_all_cookies()
+        self.open('chrome://settings/clearBrowserData')
+        self.find_element('//settings-ui').send_keys(Keys.ENTER)

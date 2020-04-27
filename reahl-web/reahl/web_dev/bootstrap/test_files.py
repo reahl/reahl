@@ -84,21 +84,23 @@ def test_file_upload_button(web_fixture, file_input_button_fixture):
     assert len(fixture.domain_object.files) == 1 
 
 
-@with_fixtures(WebFixture, FileInputButtonFixture)
-def test_file_upload_button_focus(web_fixture, file_input_button_fixture):
-    """If the FileInputButton gets tab focus, it is styled to appear focussed."""
-
-    fixture = file_input_button_fixture
-
-
-    wsgi_app = web_fixture.new_wsgi_app(child_factory=file_input_button_fixture.FileUploadForm.factory(), enable_js=True)
-    web_fixture.reahl_server.set_app(wsgi_app)
-    browser = web_fixture.driver_browser
-    browser.open('/')
-
-    assert browser.wait_for_not(fixture.upload_button_indicates_focus) 
-    browser.focus_on(XPath.input_labelled('Choose file(s)'))
-    assert browser.wait_for(fixture.upload_button_indicates_focus) 
+# @with_fixtures(WebFixture, FileInputButtonFixture)
+# def test_file_upload_button_focus(web_fixture, file_input_button_fixture):
+#     """If the FileInputButton gets tab focus, it is styled to appear focussed."""
+#
+#     fixture = file_input_button_fixture
+#
+#     wsgi_app = web_fixture.new_wsgi_app(child_factory=file_input_button_fixture.FileUploadForm.factory(), enable_js=True)
+#     web_fixture.reahl_server.set_app(wsgi_app)
+#     browser = web_fixture.driver_browser
+#     browser.open('/')
+#
+#     assert browser.wait_for_not(fixture.upload_button_indicates_focus)
+#     browser.focus_on(XPath.input_labelled('Choose file(s)')) #can't do this, as the system file choose dialog is opened
+#
+#     assert browser.wait_for(fixture.upload_button_indicates_focus)
+#    # We can't dismiss the local file dialog with selenium: one day we would be able to when firefox
+#    # selenium is implemented differently
 
 
 #def test_select_file_dialog_opens(fixture):
@@ -145,11 +147,13 @@ def test_file_input_basics(web_fixture, file_input_fixture):
     browser = web_fixture.driver_browser
     browser.open('/')
 
+    file1 = temp_file_with('', name='file1.txt')
+    file2 = temp_file_with('', name='file2.txt')
     browser.wait_for(fixture.message_displayed_is, 'No files chosen')
-    browser.type(XPath.input_labelled('Choose file(s)'), '/tmp/koos.html')
-    browser.wait_for(fixture.message_displayed_is, 'koos.html')
+    browser.type(XPath.input_labelled('Choose file(s)'), file1.name)
+    browser.wait_for(fixture.message_displayed_is, os.path.basename(file1.name))
 
-    browser.type(XPath.input_labelled('Choose file(s)'), '/tmp/koos.html\n/tmp/jannie.html')
+    browser.type(XPath.input_labelled('Choose file(s)'), file2.name)
     browser.wait_for(fixture.message_displayed_is, '2 files chosen')
 
 
