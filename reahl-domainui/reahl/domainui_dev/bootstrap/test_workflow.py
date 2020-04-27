@@ -14,7 +14,6 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 import pkg_resources
 
 
@@ -34,7 +33,8 @@ from reahl.webdev.tools import Browser
 
 from reahl.web.fw import UserInterface, Url
 from reahl.web.layout import PageLayout
-from reahl.web.bootstrap.ui import HTML5Page, P
+from reahl.web.bootstrap.page import HTML5Page
+from reahl.web.bootstrap.ui import P
 from reahl.web.bootstrap.grid import ResponsiveSize, ColumnLayout, ColumnOptions, Container
 
 from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
@@ -55,7 +55,7 @@ class WorkflowWebFixture(Fixture):
         return [self.task_queue_fixture.queue]
     
     def new_account_bookmarks(self):
-        class Bookmarks(object):
+        class Bookmarks:
             terms_bookmark = BookmarkStub(Url('/#terms'), 'Terms')
             privacy_bookmark = BookmarkStub(Url('/#privacy'), 'Privacy Policy')
             disclaimer_bookmark = BookmarkStub(Url('/#disclaimer'), 'Disclaimer')

@@ -1,6 +1,5 @@
 
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 
 from sqlalchemy import Column, Integer, UnicodeText
 
@@ -8,8 +7,9 @@ from reahl.sqlalchemysupport import Session, Base
 
 from reahl.web.fw import UserInterface, Widget
 from reahl.web.layout import PageLayout
-from reahl.web.bootstrap.ui import HTML5Page, Div, P, H
-from reahl.web.bootstrap.forms import Form, TextInput, Button, FormLayout, ButtonLayout, FieldSet
+from reahl.web.bootstrap.page import HTML5Page
+from reahl.web.bootstrap.ui import Div, P, H
+from reahl.web.bootstrap.forms import Form, TextInput, Button, FormLayout, FieldSet
 from reahl.web.bootstrap.grid import ColumnLayout, ColumnOptions, ResponsiveSize, Container
 from reahl.component.modelinterface import exposed, EmailField, Field, Event, Action
 from reahl.component.config import Configuration, ConfigSetting
@@ -31,7 +31,7 @@ class AddressBookUI(UserInterface):
 
 class AddressBookPage(HTML5Page):
     def __init__(self, view):
-        super(AddressBookPage, self).__init__(view)
+        super().__init__(view)
         self.use_layout(PageLayout(document_layout=Container()))
         contents_layout = ColumnLayout(ColumnOptions('main', ResponsiveSize(md=4))).with_slots()
         self.layout.contents.use_layout(contents_layout)
@@ -39,7 +39,7 @@ class AddressBookPage(HTML5Page):
 
 class AddressBookPanel(Div):
     def __init__(self, view):
-        super(AddressBookPanel, self).__init__(view)
+        super().__init__(view)
 
         config = ExecutionContext.get_context().config
         if config.componentconfig.showheader:
@@ -53,7 +53,7 @@ class AddressBookPanel(Div):
 
 class AddAddressForm(Form):
     def __init__(self, view):
-        super(AddAddressForm, self).__init__(view, 'add_form')
+        super().__init__(view, 'add_form')
 
         new_address = Address()
 
@@ -63,13 +63,12 @@ class AddAddressForm(Form):
         grouped_inputs.layout.add_input(TextInput(self, new_address.fields.email_address))
 
         self.define_event_handler(new_address.events.save)
-        btn = grouped_inputs.add_child(Button(self, new_address.events.save))
-        btn.use_layout(ButtonLayout(style='primary'))
+        grouped_inputs.add_child(Button(self, new_address.events.save, style='primary'))
 
 
 class AddressBox(Widget):
     def __init__(self, view, address):
-        super(AddressBox, self).__init__(view)
+        super().__init__(view)
         self.add_child(P(view, text='%s: %s' % (address.name, address.email_address)))
 
 

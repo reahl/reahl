@@ -23,21 +23,15 @@ Several files from other projects are included in this code. See the copyright i
 of each applicable file below:
 
 
-reahl-web/reahl/web/static/bootstrap-4.1.1/
-===================================================
+reahl-web/reahl/web/static/bootstrap-4.4.1/
+===========================================
 
-Bootstrap v4.1.1 (https://getbootstrap.com)
-Copyright 2011-2018 The Bootstrap Authors (https://github.com/twbs/bootstrap/graphs/contributors)
+Bootstrap v4.4.1 (https://getbootstrap.com)
+Copyright 2011-2019 The Bootstrap Authors (https://github.com/twbs/bootstrap/graphs/contributors)
 Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
 
 
-Forked from github.com/necolas/normalize.css
-============================================
-
-normalize.css v3.0.3 | MIT License | github.com/necolas/normalize.css
-
-
-reahl-web/reahl/web/static/popper-1.12.9/popper.js
+reahl-web/reahl/web/static/popper-1.16.0/popper.js
 ==================================================
 
 Kickass library to create and place poppers near their reference elements.
@@ -45,13 +39,13 @@ Copyright (c) 2016 Federico Zivolo and contributors
 FezVrasta/popper.js is licensed under the MIT License
 
 
-reahl/reahl-web/reahl/web/static/underscore-min-1.9.1.js
-========================================================
+reahl/reahl-web/reahl/web/static/underscore-min-1.10.2.js
+=========================================================
 
 Underscore is a JavaScript library that provides a whole mess of useful functional programming helpers without extending any built-in objects.
-Underscore.js 1.9.1
+Underscore.js 1.10.2
 http://underscorejs.org
-(c) 2009-2018 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+(c) 2009-2020 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 Underscore may be freely distributed under the MIT license.
 https://github.com/jashkenas/underscore/blob/master/LICENSE
 
@@ -75,25 +69,22 @@ Copyright HTML5 Shiv v3.7.3 | MIT/GPL2 Licensed,
 see http://opensource.org/licenses/mit-license.php
 or http://opensource.org/licenses/GPL-2.0
 
-reahl-web/reahl/web/static/jquery/jquery-3.3.1/
-================================================
+reahl-web/reahl/web/static/jquery/jquery-3.4.1/
+===============================================
 
-Copyright jQuery Foundation, Inc. and other contributors
+jQuery JavaScript Library v3.4.1
+https://jquery.com/
+
+Includes Sizzle.js
+https://sizzlejs.com/
+
+Copyright JS Foundation and other contributors
 Released under the MIT license
-http://jquery.org/license
-
-Includes Sizzle.js:
-
-http://sizzlejs.com/
-Copyright jQuery Foundation, Inc. and other contributors
-Released under the MIT license
-http://jquery.org/license
-For exact contribution history, see the revision history
-available at https://github.com/jquery/sizzle
+https://jquery.org/license
 
 
 reahl-web/reahl/web/static/jquery/jquery.ba-bbq-1.3pre.js
-========================================================
+=========================================================
 
 Copyright (c) 2010 "Cowboy" Ben Alman
 Dual licensed under the MIT and GPL licenses.
@@ -107,16 +98,20 @@ Dual licensed under the MIT and GPL licenses:
 http://www.opensource.org/licenses/mit-license.php
 http://www.gnu.org/licenses/gpl.html
 
-reahl-web/reahl/web/static/jquery/jquery.cookie-1.0.js
-======================================================
+reahl-web/reahl/web/static/js-cookie-2.2.1/js.cookie.js
+=======================================================
 
-Copyright (c) 2006 Klaus Hartl (stilbuero.de)
-Dual licensed under the MIT and GPL licenses:
+ * JavaScript Cookie v2.2.1
+ * https://github.com/js-cookie/js-cookie
+ *
+ * Copyright 2006, 2015 Klaus Hartl & Fagner Brack
+ *
+Copyright 2006, 2015 Klaus Hartl & Fagner Brack
+Released under the MIT license
 http://www.opensource.org/licenses/mit-license.php
-http://www.gnu.org/licenses/gpl.html
 
 reahl-web/reahl/web/static/jquery/jquery.form-4.2.2.js
-=====================================================
+======================================================
 
 Copyright 2017 Kevin Morris
 Copyright 2006 M. Alsup
@@ -124,10 +119,10 @@ Copyright 2006 M. Alsup
 Dual licensed under the LGPL-2.1+ or MIT licenses
 https://github.com/jquery-form/form#license
 
-reahl-web/reahl/web/static/jquery/jquery.validate-1.17.0.modified.js
-===========================================================
+reahl-web/reahl/web/static/jquery/jquery.validate-1.19.1.modified.js
+====================================================================
 
-Copyright (c) 2017 Jörn Zaefferer
+Copyright (c) 2019 Jörn Zaefferer
 Released under the MIT license
 
 Which includes http://jqueryvalidation.org/url-method/ :
@@ -141,23 +136,22 @@ modified to allow protocol-relative URLs
 reahl-web/reahl/web/static/jquery-ui-1.12.1.custom/jquery-ui.js
 ===============================================================
 
+jQuery UI - v1.12.1 - 2018-02-27
+http://jqueryui.com
 Includes: widget.js
-Copyright jQuery Foundation and other contributors; Licensed MIT
-
-7 Jörn Zaefferer
-Released under the MIT license
-
-Which includes http://jqueryvalidation.org/url-method/ :
-
-Copyright (c) 2010-2013 Diego Perini, MIT licensed
-https://gist.github.com/dperini/729294
-see also https://mathiasbynens.be/demo/url-regex
-modified to allow protocol-relative URLs
+Copyright jQuery Foundation and other contributors;
+Licensed MIT
+http://www.opensource.org/licenses/mit-license.php
 
 
-reahl-web/reahl/web/static/jquery-ui-1.12.1.custom/jquery-ui.js
-===============================================================
+reahl-web/reahl/web/holder/holder-2.9.7.js
+==========================================
 
-Includes: widget.js
-Copyright jQuery Foundation and other contributors; Licensed MIT
+Holder - client side image placeholders
+Version 2.9.7+5g5ho
+(c) 2020 Ivan Malopinsky - https://imsky.co
 
+Site:     http://holderjs.com
+Issues:   https://github.com/imsky/holder/issues
+License:  MIT
+http://www.opensource.org/licenses/mit-license.php

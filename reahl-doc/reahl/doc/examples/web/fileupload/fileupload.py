@@ -15,7 +15,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 
 from sqlalchemy import Column, ForeignKey, UnicodeText, Integer, LargeBinary
 from sqlalchemy.orm import relationship
@@ -23,10 +22,11 @@ from reahl.sqlalchemysupport import Session, Base
 from reahl.component.modelinterface import exposed, EmailField, Field, Event, Action, FileField
 from reahl.web.fw import UserInterface
 from reahl.web.layout import PageLayout
-from reahl.web.bootstrap.ui import FieldSet, HTML5Page, Div, P
+from reahl.web.bootstrap.page import HTML5Page
+from reahl.web.bootstrap.ui import FieldSet, Div, P
 from reahl.web.bootstrap.files import FileUploadInput
 from reahl.web.bootstrap.grid import Container, ColumnLayout, ColumnOptions, ResponsiveSize
-from reahl.web.bootstrap.forms import Form, FormLayout, ButtonInput, ButtonLayout, TextInput
+from reahl.web.bootstrap.forms import Form, FormLayout, ButtonInput, TextInput
 
 
 
@@ -77,7 +77,7 @@ class AttachedFile(Base):
 
 class CommentPostPanel(Div):
     def __init__(self, view):
-        super(CommentPostPanel, self).__init__(view)
+        super().__init__(view)
 
         self.add_child(CommentForm(view))
 
@@ -87,7 +87,7 @@ class CommentPostPanel(Div):
 
 class CommentForm(Form):
     def __init__(self, view):
-        super(CommentForm, self).__init__(view, 'myform')
+        super().__init__(view, 'myform')
 
         new_comment = Comment()
         grouped_inputs = self.add_child(FieldSet(view, legend_text='Leave a comment'))
@@ -101,13 +101,12 @@ class CommentForm(Form):
         attachments.layout.add_input(FileUploadInput(self, new_comment.fields.uploaded_files), hide_label=True)
 
         self.define_event_handler(new_comment.events.submit)
-        btn = self.add_child(ButtonInput(self, new_comment.events.submit))
-        btn.use_layout(ButtonLayout(style='primary'))
+        self.add_child(ButtonInput(self, new_comment.events.submit, style='primary'))
 
 
 class CommentBox(Div):
     def __init__(self, view, comment):
-        super(CommentBox, self).__init__(view)
+        super().__init__(view)
         self.add_child(P(view, text='By %s: %s' % (comment.email_address, comment.text)))
         
 

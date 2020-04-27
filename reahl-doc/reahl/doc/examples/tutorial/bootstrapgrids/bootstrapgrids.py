@@ -1,16 +1,15 @@
 
-from __future__ import print_function, unicode_literals, absolute_import, division
-import six
 from reahl.web.fw import UserInterface, Layout
 from reahl.web.layout import PageLayout
-from reahl.web.bootstrap.ui import HTML5Page, P, Div, H
+from reahl.web.bootstrap.page import HTML5Page
+from reahl.web.bootstrap.ui import P, Div, H
 from reahl.web.bootstrap.grid import Container, ColumnLayout, ColumnOptions, ResponsiveSize
 from reahl.web.bootstrap.navs import Nav
 
 
 class GridBasicsPage(HTML5Page):
     def __init__(self, view):
-        super(GridBasicsPage, self).__init__(view)
+        super().__init__(view)
 
         self.body.use_layout(Container())
 
@@ -38,13 +37,13 @@ class GridBasicsPage(HTML5Page):
         self.body.add_child(div)
 
         for i in range(1, 13):
-            column = div.layout.add_column(six.text_type(i), size=ResponsiveSize(md=1))
+            column = div.layout.add_column(str(i), size=ResponsiveSize(md=1))
             column.add_child(P(self.view, text='1/12th on md and larger'))
 
 
 class PageLayoutPage(HTML5Page):
     def __init__(self, view):
-        super(PageLayoutPage, self).__init__(view)
+        super().__init__(view)
         self.body.use_layout(Container())
         column_layout = ColumnLayout(ColumnOptions('left', ResponsiveSize(md=4)),
                                      ColumnOptions('right', ResponsiveSize(md=8)))
@@ -76,7 +75,7 @@ class CenteredLayout(Layout):
 
 class ContainerPage(HTML5Page):
     def __init__(self, view):
-        super(ContainerPage, self).__init__(view)
+        super().__init__(view)
 
         page_layout = PageLayout(contents_layout=CenteredLayout(),
                                  header_layout=Container(fluid=True),
@@ -97,7 +96,7 @@ class ContainerPage(HTML5Page):
 
 class HomePage(HTML5Page):
     def __init__(self, view, bookmarks):
-        super(HomePage, self).__init__(view)
+        super().__init__(view)
 
         self.body.use_layout(Container())
         self.add_child(H(view, 1, text='Examples'))

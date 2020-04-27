@@ -1,5 +1,4 @@
 # Copyright 2018 Reahl Software Services (Pty) Ltd. All rights reserved.
-# -*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
 #
@@ -16,7 +15,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 
 import threading
 
@@ -29,7 +27,7 @@ from reahl.web_dev.fixtures import WebFixture, BasicPageLayout
 from reahl.webdev.tools import XPath, Browser
 from reahl.web.fw import Widget, UserInterface
 from reahl.web.ui import Form, Div, SelectInput, Label, P, RadioButtonSelectInput, CheckboxSelectInput, \
-    CheckboxInput, ButtonInput, TextInput, HTML5Page
+    CheckboxInput, ButtonInput, TextInput, HTML5Page, FormLayout
 from reahl.component.modelinterface import Field, BooleanField, MultiChoiceField, ChoiceField, Choice, exposed, \
     IntegerField, EmailField, Event, Action, Allowed
 from reahl.component.exceptions import ProgrammerError, DomainException
@@ -42,7 +40,7 @@ from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
 class ResponsiveDisclosureFixture(Fixture):
 
     def new_ModelObject(self):
-        class ModelObject(object):
+        class ModelObject:
             def __init__(self):
                 self.choice = 1
 
@@ -58,7 +56,7 @@ class ResponsiveDisclosureFixture(Fixture):
         fixture = self
         class MainWidget(Widget):
             def __init__(self, view):
-                super(MainWidget, self).__init__(view)
+                super().__init__(view)
                 an_object = fixture.ModelObject()
                 self.add_child(fixture.MyForm(view, an_object))
 
@@ -68,7 +66,7 @@ class ResponsiveDisclosureFixture(Fixture):
         fixture = self
         class MyForm(Form):
             def __init__(self, view, an_object):
-                super(MyForm, self).__init__(view, 'myform')
+                super().__init__(view, 'myform')
                 self.enable_refresh()
                 self.change_trigger_input = fixture.create_trigger_input(self, an_object)
                 self.add_child(Label(view, for_input=self.change_trigger_input))
@@ -111,7 +109,7 @@ class ResponsiveWidgetScenarios(ResponsiveDisclosureFixture):
     def single_valued_checkbox(self):
         fixture = self
 
-        class ModelObject(object):
+        class ModelObject:
             def __init__(self):
                 self.choice = False
             @exposed
@@ -136,7 +134,7 @@ class ResponsiveWidgetScenarios(ResponsiveDisclosureFixture):
     def multi_valued_checkbox_select(self):
         fixture = self
 
-        class ModelObject(object):
+        class ModelObject:
             def __init__(self):
                 self.choice = [1]
 
@@ -165,7 +163,7 @@ class ResponsiveWidgetScenarios(ResponsiveDisclosureFixture):
         self.multi_valued_checkbox_select()
         fixture = self
 
-        class ModelObject(object):
+        class ModelObject:
             def __init__(self):
                 self.choice = [1]
 
@@ -186,7 +184,7 @@ class ResponsiveWidgetScenarios(ResponsiveDisclosureFixture):
         self.multi_valued_checkbox_select()
         fixture = self
 
-        class ModelObject(object):
+        class ModelObject:
             def __init__(self):
                 self.choice = []
 
@@ -207,7 +205,7 @@ class ResponsiveWidgetScenarios(ResponsiveDisclosureFixture):
     def multi_valued_select(self):
         fixture = self
 
-        class ModelObject(object):
+        class ModelObject:
             def __init__(self):
                 self.choice = [1]
 
@@ -247,12 +245,13 @@ def test_inputs_can_refresh_parent_widgets(web_fixture, query_string_fixture, re
     fixture.change_value(browser)
     assert browser.wait_for(query_string_fixture.is_state_now, fixture.changed_state)
 
+
 @with_fixtures(WebFixture, QueryStringFixture, ResponsiveDisclosureFixture)
 def test_overridden_names(web_fixture, query_string_fixture, responsive_disclosure_fixture):
     """The overridden names of inputs correctly ensures that that input's state is distinguished from another with the same name."""
     fixture = responsive_disclosure_fixture
 
-    class ModelObject(object):
+    class ModelObject:
         def __init__(self):
             self.choice = [1]
 
@@ -265,14 +264,14 @@ def test_overridden_names(web_fixture, query_string_fixture, responsive_disclosu
     fixture.ModelObject = ModelObject
 
     def create_trigger_input(form, an_object):
-        the_input = CheckboxSelectInput(form, an_object.fields.choice, name='first_choice', refresh_widget=form)
+        the_input = CheckboxSelectInput(form, an_object.fields.choice, base_name='first_choice', refresh_widget=form)
         the_input.set_id('marvin')
         return the_input
     fixture.create_trigger_input = create_trigger_input
 
     class MyForm(fixture.MyForm):
         def __init__(self, view, an_object):
-            super(MyForm, self).__init__(view, an_object)
+            super().__init__(view, an_object)
             another_model_object = fixture.ModelObject()
             another_input = CheckboxSelectInput(self, another_model_object.fields.choice)
             self.add_child(Label(view, for_input=another_input))
@@ -285,7 +284,7 @@ def test_overridden_names(web_fixture, query_string_fixture, responsive_disclosu
     browser = web_fixture.driver_browser
     browser.open('/')
 
-    browser.click('//input[@name="first_choice[]" and @value="3"]')
+    browser.click('//input[@name="myform-first_choice[]" and @value="3"]')
     assert browser.wait_for(query_string_fixture.is_state_now, [1,3])
 
 
@@ -303,9 +302,9 @@ class BlockingRefreshFixture(ResponsiveDisclosureFixture):
 
     def new_MyForm(self):
         fixture = self
-        class MyFormThatPauses(super(BlockingRefreshFixture, self).new_MyForm()):
+        class MyFormThatPauses(super().new_MyForm()):
             def __init__(self, view, model_object):
-                super(MyFormThatPauses, self).__init__(view, model_object)
+                super().__init__(view, model_object)
                 if fixture.should_pause_to_simulate_long_refresh:
                     fixture.simulate_long_refresh_start()
 
@@ -363,7 +362,7 @@ def test_form_values_are_not_persisted_until_form_is_submitted(web_fixture, resp
 
     class FormWithButton(fixture.MyForm):
         def __init__(self, view, an_object):
-            super(FormWithButton, self).__init__(view, an_object)
+            super().__init__(view, an_object)
 
             self.define_event_handler(self.events.submit)
             self.add_child(ButtonInput(self, self.events.submit))
@@ -381,7 +380,7 @@ def test_form_values_are_not_persisted_until_form_is_submitted(web_fixture, resp
 
         class MainWidgetWithPersistentModelObject(Widget):
             def __init__(self, view):
-                super(MainWidgetWithPersistentModelObject, self).__init__(view)
+                super().__init__(view)
                 an_object = fixture.model_object
                 self.add_child(fixture.MyForm(view, an_object))
 
@@ -414,7 +413,7 @@ class DisclosedInputFixture(Fixture):
 
     def new_MyForm(self):
         fixture = self
-        class ModelObject(object):
+        class ModelObject:
             def __init__(self):
                 self.trigger_field = fixture.default_trigger_field_value
                 self.email = None
@@ -435,7 +434,7 @@ class DisclosedInputFixture(Fixture):
 
         class MyForm(Form):
             def __init__(self, view):
-                super(MyForm, self).__init__(view, 'myform')
+                super().__init__(view, 'myform')
                 self.enable_refresh()
                 if self.exception:
                     self.add_child(P(view, text='Exception raised'))
@@ -600,7 +599,7 @@ def test_ignore_button_click_on_change(web_fixture, disclosed_input_trigger_fixt
 class NestedResponsiveDisclosureFixture(Fixture):
 
     def new_ModelObject(self):
-        class ModelObject(object):
+        class ModelObject:
             def __init__(self):
                 self.trigger_field = False
                 self.nested_trigger_field = False
@@ -617,7 +616,7 @@ class NestedResponsiveDisclosureFixture(Fixture):
         class MyNestedChangingWidget(Div):
             def __init__(self, form, model_object):
                 self.model_object = model_object
-                super(MyNestedChangingWidget, self).__init__(form.view, css_id='nested_changing_widget')
+                super().__init__(form.view, css_id='nested_changing_widget')
                 self.enable_refresh()
 
                 nested_checkbox_input = CheckboxInput(form, model_object.fields.nested_trigger_field, refresh_widget=self)
@@ -629,7 +628,7 @@ class NestedResponsiveDisclosureFixture(Fixture):
 
         class MyForm(Form):
             def __init__(self, view):
-                super(MyForm, self).__init__(view, 'myform')
+                super().__init__(view, 'myform')
                 self.enable_refresh()
                 model_object = fixture.ModelObject()
 
@@ -694,7 +693,7 @@ def test_inputs_and_widgets_work_when_nested(web_fixture, query_string_fixture, 
 
 @with_fixtures(WebFixture, DisclosedInputFixture)
 def test_clear_previously_given_user_input(web_fixture, disclosed_input_fixture):
-    """If a an input is refreshed as part of a Widget, and disappears, then reappears after a second refresh, its input is defaulted to the model value."""
+    """If an input is refreshed as part of a Widget, and disappears, then reappears after a second refresh, its input is defaulted to the model value."""
 
     fixture = disclosed_input_fixture
     wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=fixture.MyForm.factory())
@@ -728,7 +727,7 @@ def test_browser_back_after_state_changes_goes_to_previous_url(web_fixture, quer
 
     class FormWithButton(fixture.MyForm):
         def __init__(self, view, an_object):
-            super(FormWithButton, self).__init__(view, an_object)
+            super().__init__(view, an_object)
 
             self.define_event_handler(self.events.submit)
             self.add_child(ButtonInput(self, self.events.submit))
@@ -797,14 +796,14 @@ class RecalculatedWidgetScenarios(Fixture):
         fixture = self
         class MyForm(Form):
             def __init__(self, view, an_object):
-                super(MyForm, self).__init__(view, 'myform')
+                super().__init__(view, 'myform')
+                self.use_layout(FormLayout())
                 self.an_object = an_object
                 self.enable_refresh(on_refresh=an_object.events.choice_changed)
                 if self.exception:
-                    self.add_child(P(self.view, text=str(self.exception)))
+                    self.layout.add_alert_for_domain_exception(self.exception)
                 self.change_trigger_input = TextInput(self, an_object.fields.choice, refresh_widget=self)
-                self.add_child(Label(view, for_input=self.change_trigger_input))
-                self.add_child(self.change_trigger_input)
+                self.layout.add_input(self.change_trigger_input)
                 self.add_child(P(self.view, text='My state is now %s' % an_object.choice))
                 fixture.add_to_form(self, an_object)
                 self.define_event_handler(an_object.events.submit)
@@ -812,7 +811,7 @@ class RecalculatedWidgetScenarios(Fixture):
 
         class MainWidgetWithPersistentModelObject(Widget):
             def __init__(self, view):
-                super(MainWidgetWithPersistentModelObject, self).__init__(view)
+                super().__init__(view)
                 an_object = fixture.model_object
                 self.add_child(MyForm(view, an_object))
 
@@ -921,18 +920,17 @@ def test_invalid_trigger_inputs(web_fixture, query_string_fixture, sql_alchemy_f
 
     class MyForm(Form):
         def __init__(self, view, an_object):
-            super(MyForm, self).__init__(view, 'myform')
+            super().__init__(view, 'myform')
+            self.use_layout(FormLayout())
             self.an_object = an_object
             self.enable_refresh(on_refresh=an_object.events.choice_changed)
             if self.exception:
-                self.add_child(P(self.view, text=str(self.exception)))
+                self.layout.add_alert_for_domain_exception(self.exception)
             self.change_trigger_input = TextInput(self, an_object.fields.choice, refresh_widget=self)
-            self.add_child(Label(view, for_input=self.change_trigger_input))
-            self.add_child(self.change_trigger_input)
+            self.layout.add_input(self.change_trigger_input)
             self.add_child(P(self.view, text='My choice state is now %s' % an_object.choice))
             self.change2_trigger_input = TextInput(self, an_object.fields.choice2, refresh_widget=self)
-            self.add_child(Label(view, for_input=self.change2_trigger_input))
-            self.add_child(self.change2_trigger_input)
+            self.layout.add_input(self.change2_trigger_input)
             self.add_child(P(self.view, text='My choice2 state is now %s' % an_object.choice2))
             self.add_child(P(self.view, text='My calculated state is now %s' % an_object.calculated_state))
             self.define_event_handler(an_object.events.submit)
@@ -940,7 +938,7 @@ def test_invalid_trigger_inputs(web_fixture, query_string_fixture, sql_alchemy_f
 
     class MainWidgetWithPersistentModelObject(Widget):
         def __init__(self, view):
-            super(MainWidgetWithPersistentModelObject, self).__init__(view)
+            super().__init__(view)
             an_object = fixture.model_object
             self.add_child(MyForm(view, an_object))
 
@@ -1010,7 +1008,7 @@ def test_invalid_non_trigger_input_corner_case(web_fixture, query_string_fixture
 
     class MyForm(Form):
         def __init__(self, view, an_object):
-            super(MyForm, self).__init__(view, 'myform')
+            super().__init__(view, 'myform')
             self.an_object = an_object
             self.enable_refresh(on_refresh=an_object.events.choice_changed)
             if self.exception:
@@ -1028,7 +1026,7 @@ def test_invalid_non_trigger_input_corner_case(web_fixture, query_string_fixture
 
     class MainWidgetWithPersistentModelObject(Widget):
         def __init__(self, view):
-            super(MainWidgetWithPersistentModelObject, self).__init__(view)
+            super().__init__(view)
             an_object = fixture.model_object
             self.add_child(MyForm(view, an_object))
 

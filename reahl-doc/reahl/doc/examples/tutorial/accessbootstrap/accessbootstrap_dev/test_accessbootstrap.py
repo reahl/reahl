@@ -4,7 +4,6 @@
 # To set up a demo database for playing with, do:
 # pytest -o python_functions=demo_setup --pyargs reahl.doc.examples.tutorial.accessbootstrap.accessbootstrap_dev.test_accessbootstrap
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 from reahl.tofu import scenario, Fixture, uses
 from reahl.tofu.pytestsupport import with_fixtures
 

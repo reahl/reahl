@@ -1,5 +1,4 @@
 # Copyright 2013-2018 Reahl Software Services (Pty) Ltd. All rights reserved.
-#-*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
 #
@@ -15,10 +14,8 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import print_function, unicode_literals, absolute_import, division
-import six
 import os
-from six.moves import http_cookies 
+import http.cookies 
 
 from webob import Request, Response
 
@@ -30,7 +27,6 @@ from reahl.webdeclarative.webdeclarative import UserSession, PersistedException,
 
 from reahl.domain.systemaccountmodel import LoginSession
 from reahl.component.i18n import Catalogue
-from reahl.component.py3compat import ascii_as_bytes_or_str
 from reahl.component.context import ExecutionContext
 from reahl.web.fw import ReahlWSGIApplication, UrlBoundView, UserInterface, Url, Widget
 from reahl.web.ui import HTML5Page, Slot, Div
@@ -58,7 +54,7 @@ class ReahlWSGIApplicationStub(ReahlWSGIApplication):
 
 class BasicPageLayout(Layout):
     def __init__(self, slots=['main', 'footer']):
-        super(BasicPageLayout, self).__init__()
+        super().__init__()
         self.slots = slots
 
     def customise_widget(self):
@@ -73,12 +69,12 @@ class FakeQUnit(Library):
     """
     """
     def __init__(self):
-        super(FakeQUnit, self).__init__('fakequnit')
+        super().__init__('fakequnit')
         self.shipped_in_directory = '/reahl/web/static'
         self.files = []
 
     def footer_only_material(self, rendered_page):
-        result = super(FakeQUnit, self).footer_only_material(rendered_page)
+        result = super().footer_only_material(rendered_page)
         result += '\n<script type="text/javascript">\n'
         result += 'window.QUnit = true;'
         result += '\n</script>\n'
@@ -146,7 +142,7 @@ class WebFixture(Fixture):
         # quickly create a response so the fw sets the cookies, which we copy and explicitly set on selenium.
         response = Response()
         session.set_session_key(response)
-        cookies = http_cookies.BaseCookie(ascii_as_bytes_or_str(', '.join(response.headers.getall('set-cookie'))))
+        cookies = http.cookies.BaseCookie(', '.join(response.headers.getall('set-cookie')))
         for name, morsel in cookies.items():
             cookie = {'name':name, 'value':morsel.value}
             cookie.update(dict([(key, value) for key, value in morsel.items() if value]))

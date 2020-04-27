@@ -4,14 +4,14 @@
   </namespaces>
   
   <deps purpose="build">
-    <thirdpartyegg name="setuptools-git" minversion="1.1" maxversion="1.1.999"/>
+    <thirdpartyegg name="setuptools-git" minversion="1.1"/>
     <thirdpartyegg name="pytest-runner"/>
   </deps>
 
   <deps purpose="run">
     <egg name="reahl-component"/>
     <egg name="reahl-commands"/>
-    <thirdpartyegg name="psycopg2-binary" minversion="2.7" maxversion="2.7.9999"/>
+    <thirdpartyegg name="psycopg2-binary" minversion="2.8" maxversion="2.8.9999"/>
   </deps>
 
   <deps purpose="test">

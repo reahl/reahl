@@ -1,5 +1,4 @@
 # Copyright 2016, 2017, 2018 Reahl Software Services (Pty) Ltd. All rights reserved.
-#-*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
 #
@@ -22,9 +21,7 @@ Client-side popups and related utilities.
 
 
 """
-from __future__ import print_function, unicode_literals, absolute_import, division
 
-import six
 import json
 
 from reahl.component.i18n import Catalogue
@@ -35,7 +32,7 @@ from reahl.web.bootstrap.forms import ButtonStyle, ButtonSize
 _ = Catalogue('reahl-web')
 
 
-class JsObject(object):
+class JsObject:
     def __init__(self, **attributes):
         self.attributes = attributes
 
@@ -55,7 +52,7 @@ class JsObject(object):
         return self.attributes[key]
 
 
-class JsFunction(object):
+class JsFunction:
     def __init__(self, body_text='', *args):
         self.args = args
         self.body_text = body_text
@@ -70,7 +67,7 @@ class CheckCheckboxScript(JsFunction):
         selector = self.checkbox.jquery_selector
         body_text = '''$(%s).filter("input").attr("checked", true);$(%s).find("input").attr("checked", true);''' % \
                                (selector, selector)
-        super(CheckCheckboxScript, self).__init__(body_text=body_text)
+        super().__init__(body_text=body_text)
 
 
 
@@ -78,7 +75,7 @@ class CheckCheckboxScript(JsFunction):
 class PopupA(A):
     def __init__(self, view, target_bookmark, show_for_selector, dismiss_label=None, close_button=True,
                  center_vertically=False, css_id=None):
-        super(PopupA, self).__init__(view, target_bookmark.href, target_bookmark.description, css_id=css_id)
+        super().__init__(view, target_bookmark.href, target_bookmark.description, css_id=css_id)
         self.set_title(target_bookmark.description)
         self.title = target_bookmark.description
         self.append_class('reahl-bootstrappopupa')

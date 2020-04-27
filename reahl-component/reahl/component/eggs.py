@@ -16,7 +16,6 @@
 
 """Classes that aid in dealing with Eggs and setting them up."""
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 import os
 import os.path
 import logging
@@ -49,7 +48,7 @@ class CircularDependencyDetected(Exception):
 
 
     
-class DependencyGraph(object):
+class DependencyGraph:
     @classmethod
     def from_vertices(cls, vertices, find_dependencies):
         graph = {}
@@ -110,7 +109,7 @@ class DependencyGraph(object):
 
 
 
-class ReahlEgg(object):
+class ReahlEgg:
     interface_cache = {}
 
     def __init__(self, distribution):

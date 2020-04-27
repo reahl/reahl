@@ -14,7 +14,6 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 from threading import Timer
 import datetime
 
@@ -30,7 +29,7 @@ from reahl.component.config import Configuration, ConfigSetting
 @stubclass(ExecutionContext)
 class LocaleContextStub(ExecutionContext):
     def __init__(self, locale='af'):
-        super(LocaleContextStub, self).__init__()
+        super().__init__()
         self.test_locale = locale
 
     @property

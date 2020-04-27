@@ -1,5 +1,4 @@
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 from reahl.tofu import Fixture
 from reahl.tofu.pytestsupport import with_fixtures
 
@@ -20,7 +19,7 @@ def test_fixture_singletons(fixture):
 
 # ------- dependent setup objects example
 
-class User(object):
+class User:
     def __init__(self, name):
         self.name = name
 

@@ -14,8 +14,6 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import print_function, unicode_literals, absolute_import, division
-import six
 import threading
 import subprocess
 import time
@@ -34,7 +32,7 @@ class SlaveProcessStartCounterStub(SlaveProcess):
     spawned = 0
     terminated = 0
     def __init__(self):
-        super(SlaveProcessStartCounterStub, self).__init__(None, None)
+        super().__init__(None, None)
     def start(self): self.spawned += 1
     def terminate(self, timeout=5): self.terminated += 1
 
@@ -110,7 +108,7 @@ def test_server_supervisor_restarts_slave_when_files_changed(supervisor_fixture)
 class SlaveProcessRegisterOrphanStub(SlaveProcess):
     kill_orphan_callable = None
     def __init__(self):
-        super(SlaveProcessRegisterOrphanStub, self).__init__(None, None)
+        super().__init__(None, None)
 
     def spawn_new_process(self):
         return EmptyStub(pid=123)
@@ -130,7 +128,7 @@ def test_slave_process_registers_process_to_kill():
 
 
 
-class ProcessFake(object):
+class ProcessFake:
     pid=0
     def terminate(self, timeout=5): pass
     def wait(self, timeout=0): pass
@@ -140,7 +138,7 @@ class ProcessFake(object):
 @stubclass(SlaveProcess)
 class SlaveProcessStub(SlaveProcess):
     def __init__(self):
-        super(SlaveProcessStub, self).__init__(None, None)
+        super().__init__(None, None)
 
     def spawn_new_process(self):
         return ProcessFake()
@@ -164,7 +162,7 @@ def test_slave_process_terminates_then_waits():
 @stubclass(SlaveProcess)
 class SlaveProcessThatDoesNotReallyStart(SlaveProcess):
     def __init__(self):
-        super(SlaveProcessThatDoesNotReallyStart, self).__init__(None, None)
+        super().__init__(None, None)
     def start(self): pass
 
 
@@ -173,10 +171,7 @@ class ProcessThatTakesLongToDie(ProcessFake):
     time_to_take_to_die = 1.0
     killed = False
     def wait(self, timeout=0):
-        if six.PY2:
-            time.sleep(self.time_to_take_to_die)
-        else: 
-            raise subprocess.TimeoutExpired('fake', 123)
+        raise subprocess.TimeoutExpired('fake', 123)
     def kill(self):
         self.killed = True
 

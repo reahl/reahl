@@ -14,7 +14,6 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 
 from reahl.tofu import Fixture, scenario, uses
 from reahl.tofu.pytestsupport import with_fixtures
@@ -60,7 +59,7 @@ def test_serving_security_sensitive_widgets(web_fixture):
        else it will only be served on config.web.default_http_scheme."""
     class TestPanel(Div):
         def __init__(self, view):
-            super(TestPanel, self).__init__(view)
+            super().__init__(view)
             widget = self.add_child(Widget(view))
 
             if fixture.security_sensitive:
@@ -254,7 +253,7 @@ def test_non_writable_input_is_dealt_with_like_invalid_input(web_fixture):
        the input is silently ignored."""
     fixture = web_fixture
 
-    class ModelObject(object):
+    class ModelObject:
         field_name = 'Original value'
         @exposed
         def events(self, events):
@@ -267,7 +266,7 @@ def test_non_writable_input_is_dealt_with_like_invalid_input(web_fixture):
 
     class TestPanel(Div):
         def __init__(self, view):
-            super(TestPanel, self).__init__(view)
+            super().__init__(view)
             form = self.add_child(Form(view, 'some_form'))
             form.define_event_handler(model_object.events.an_event)
             form.add_child(ButtonInput(form, model_object.events.an_event))
@@ -279,7 +278,7 @@ def test_non_writable_input_is_dealt_with_like_invalid_input(web_fixture):
     browser = Browser(wsgi_app)
     browser.open('/')
 
-    browser.post(fixture.form.event_channel.get_url().path, {'event.some_form-an_event?':'', 'field_name': 'illigitimate value'})
+    browser.post(fixture.form.event_channel.get_url().path, {'event.some_form-an_event?':'', 'field_name': 'illigitimate value', 'some_form-_reahl_client_concurrency_digest':'', 'some_form-_reahl_database_concurrency_digest':''})
     browser.follow_response()
     assert model_object.field_name == 'Original value'
 
@@ -289,7 +288,7 @@ def test_non_writable_events_are_dealt_with_like_invalid_input(web_fixture):
     """If a form submits an Event with access rights that prohibit writing, a ValidationException is raised."""
     fixture = web_fixture
 
-    class ModelObject(object):
+    class ModelObject:
         @exposed
         def events(self, events):
             events.an_event = Event(label='click me', writable=Allowed(False),
@@ -298,7 +297,7 @@ def test_non_writable_events_are_dealt_with_like_invalid_input(web_fixture):
     model_object = ModelObject()
     class TestPanel(Div):
         def __init__(self, view):
-            super(TestPanel, self).__init__(view)
+            super().__init__(view)
             form = self.add_child(Form(view, 'some_form'))
             form.define_event_handler(model_object.events.an_event)
             button = form.add_child(ButtonInput(form, model_object.events.an_event))
@@ -311,7 +310,7 @@ def test_non_writable_events_are_dealt_with_like_invalid_input(web_fixture):
     browser = Browser(wsgi_app)
     browser.open('/')
 
-    browser.post(fixture.form.event_channel.get_url().path, {'event.some_form-an_event?':''})
+    browser.post(fixture.form.event_channel.get_url().path, {'event.some_form-an_event?':'', 'some_form-_reahl_client_concurrency_digest':'', 'some_form-_reahl_database_concurrency_digest':''})
     browser.follow_response()
     error_label = browser.get_html_for('//label')
     input_id = browser.get_id_of('//input[@name="event.some_form-an_event?"]')
@@ -343,7 +342,7 @@ def test_posting_to_view(web_fixture):
 
     class MyForm(Form):
         def __init__(self, view):
-            super(MyForm, self).__init__(view, 'myform')
+            super().__init__(view, 'myform')
             self.define_event_handler(self.events.an_event)
             self.add_child(ButtonInput(self, self.events.an_event))
         @exposed

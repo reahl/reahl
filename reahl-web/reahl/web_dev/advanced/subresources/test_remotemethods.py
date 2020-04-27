@@ -15,14 +15,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 import json
 from webob import Response
 
 from sqlalchemy import Column, UnicodeText, Integer
 
-from reahl.stubble import stubclass, CallMonitor
-from reahl.tofu import scenario, expected, Fixture, uses
+from reahl.stubble import stubclass, CallMonitor, replaced
+from reahl.tofu import scenario, expected, Fixture, uses, NoException
 from reahl.tofu.pytestsupport import with_fixtures
 
 from reahl.webdev.tools import Browser
@@ -46,7 +45,7 @@ class RemoteMethodFixture(Fixture):
         @stubclass(Widget)
         class WidgetWithRemoteMethod(Widget):
             def __init__(self, view):
-                super(WidgetWithRemoteMethod, self).__init__(view)
+                super().__init__(view)
                 view.add_resource(remote_method)
 
         return WidgetWithRemoteMethod.factory()
@@ -66,12 +65,12 @@ def test_remote_methods(web_fixture):
         return 'value returned from method'
 
     encoding = 'koi8_r'  # Deliberate
-    remote_method = RemoteMethod('amethod', callable_object, MethodResult(mime_type='ttext/hhtml', encoding=encoding))
+    remote_method = RemoteMethod(web_fixture.view, 'amethod', callable_object, MethodResult(mime_type='ttext/hhtml', encoding=encoding))
 
     @stubclass(Widget)
     class WidgetWithRemoteMethod(Widget):
         def __init__(self, view):
-            super(WidgetWithRemoteMethod, self).__init__(view)
+            super().__init__(view)
             view.add_resource(remote_method)
 
     wsgi_app = fixture.new_wsgi_app(child_factory=WidgetWithRemoteMethod.factory())
@@ -89,12 +88,12 @@ def test_remote_methods(web_fixture):
 
 @with_fixtures(WebFixture, RemoteMethodFixture)
 def test_exception_handling(web_fixture, remote_method_fixture):
-    """The RemoteMethod sends back the six.text_type() of an exception raised for the specified exception class."""
+    """The RemoteMethod sends back the str() of an exception raised for the specified exception class."""
 
 
     def fail():
         raise Exception('I failed')
-    remote_method = RemoteMethod('amethod', fail, MethodResult(catch_exception=Exception))
+    remote_method = RemoteMethod(web_fixture.view, 'amethod', fail, MethodResult(catch_exception=Exception))
 
     wsgi_app = remote_method_fixture.new_wsgi_app(remote_method=remote_method)
     browser = Browser(wsgi_app)
@@ -109,7 +108,7 @@ def test_idempotent_remote_methods(web_fixture, remote_method_fixture):
 
     def callable_object():
         return 'value returned from method'
-    remote_method = RemoteMethod('amethod', callable_object, MethodResult(), idempotent=True)
+    remote_method = RemoteMethod(web_fixture.view, 'amethod', callable_object, MethodResult(), idempotent=True)
 
     wsgi_app = remote_method_fixture.new_wsgi_app(remote_method=remote_method)
     browser = Browser(wsgi_app)
@@ -137,7 +136,7 @@ def test_immutable_remote_methods(web_fixture, remote_method_fixture, sql_alchem
             assert Session.query(TestObject).count() == 1
             return 'value returned from method'
         
-        remote_method = RemoteMethod('amethod', callable_object, MethodResult(), immutable=True)
+        remote_method = RemoteMethod(web_fixture.view, 'amethod', callable_object, MethodResult(), immutable=True)
 
         assert remote_method.idempotent  # Immutable methods are idempotent
 
@@ -170,7 +169,7 @@ def test_arguments_to_remote_methods(web_fixture, remote_method_fixture, argumen
         fixture.method_kwargs = kwargs
         return ''
 
-    remote_method = RemoteMethod('amethod', callable_object, MethodResult(), idempotent=fixture.idempotent)
+    remote_method = RemoteMethod(web_fixture.view, 'amethod', callable_object, MethodResult(), idempotent=fixture.idempotent)
 
     wsgi_app = remote_method_fixture.new_wsgi_app(remote_method=remote_method)
     browser = Browser(wsgi_app)
@@ -193,7 +192,7 @@ def test_checked_arguments(web_fixture, remote_method_fixture, argument_scenario
         fixture.method_kwargs = {'anint': anint, 'astring': astring}
         return ''
 
-    remote_method = CheckedRemoteMethod('amethod', callable_object, MethodResult(),
+    remote_method = CheckedRemoteMethod(web_fixture.view, 'amethod', callable_object, MethodResult(),
                                         idempotent=fixture.idempotent,
                                         anint=IntegerField(),
                                         astring=Field())
@@ -239,6 +238,8 @@ class ResultScenarios(Fixture):
     @scenario
     def widget_as_json(self):
         self.method_result = WidgetResult(self.WidgetStub(self.web_fixture.view), as_json_and_result=True)
+        self.web_fixture.view.page = self.method_result.result_widget
+
         self.value_to_return = 'ignored in this case'
         self.expected_response = {'widgets': {"someid": '<the widget contents><script type="text/javascript">javascriptsome</script>'},
                                   'success': True}
@@ -257,7 +258,7 @@ def test_different_kinds_of_result(web_fixture, remote_method_fixture, result_sc
 
     def callable_object():
         return fixture.value_to_return
-    remote_method = RemoteMethod('amethod', callable_object, default_result=fixture.method_result)
+    remote_method = RemoteMethod(web_fixture.view, 'amethod', callable_object, default_result=fixture.method_result)
 
     wsgi_app = remote_method_fixture.new_wsgi_app(remote_method=remote_method)
     browser = Browser(wsgi_app)
@@ -276,7 +277,7 @@ def test_exception_handling_for_json(web_fixture, remote_method_fixture, json_re
 
     def fail():
         raise Exception('exception text')
-    remote_method = RemoteMethod('amethod', fail, default_result=fixture.method_result)
+    remote_method = RemoteMethod(web_fixture.view, 'amethod', fail, default_result=fixture.method_result)
 
     wsgi_app = remote_method_fixture.new_wsgi_app(remote_method=remote_method)
     browser = Browser(wsgi_app)
@@ -295,7 +296,7 @@ def test_exception_handling_for_widgets(web_fixture, remote_method_fixture, widg
 
     def fail():
         raise Exception('exception text')
-    remote_method = RemoteMethod('amethod', fail, default_result=fixture.method_result)
+    remote_method = RemoteMethod(web_fixture.view, 'amethod', fail, default_result=fixture.method_result)
 
     wsgi_app = remote_method_fixture.new_wsgi_app(remote_method=remote_method)
     browser = Browser(wsgi_app)
@@ -304,6 +305,7 @@ def test_exception_handling_for_widgets(web_fixture, remote_method_fixture, widg
         browser.post('/_amethod_method', {})
 
 
+@uses(web_fixture=WebFixture)
 class RegenerateMethodResultScenarios(Fixture):
     method_called = 0
     def new_method_result(self):
@@ -323,7 +325,7 @@ class RegenerateMethodResultScenarios(Fixture):
             fixture.method_called += 1
             if fixture.exception:
                 raise DomainException('ex')
-        return RemoteMethod('amethod', callable_to_call, self.method_result, immutable=False)
+        return RemoteMethod(self.web_fixture.view, 'amethod', callable_to_call, self.method_result, immutable=False)
 
     @scenario
     def success(self):
@@ -351,10 +353,22 @@ def test_regenerating_method_results(reahl_system_fixture, web_fixture,
     wsgi_app = remote_method_fixture.new_wsgi_app(remote_method=regenerate_method_result_scenarios.remote_method)
     browser = Browser(wsgi_app)
 
-    with CallMonitor(reahl_system_fixture.system_control.orm_control.commit) as monitor:
-        browser.post('/_amethod_method', {})
-    assert browser.raw_html == regenerate_method_result_scenarios.expected_response
-    assert monitor.times_called == 2
+    import sqlalchemy.orm 
+    @stubclass(sqlalchemy.orm.Session)
+    class TransactionStub:
+        is_active=True
+        def commit(self):pass
+        def rollback(self):pass
+    
+    def wrapped_nested_transaction():
+        return web_fixture.nested_transaction
+    
+    web_fixture.nested_transaction =  TransactionStub()
+    with replaced(Session().begin_nested, wrapped_nested_transaction):
+        with CallMonitor(web_fixture.nested_transaction.commit) as monitor:
+            browser.post('/_amethod_method', {})
+        assert browser.raw_html == regenerate_method_result_scenarios.expected_response
+        assert monitor.times_called == 2
 
 
 class WidgetResultScenarios(Fixture):
@@ -363,7 +377,7 @@ class WidgetResultScenarios(Fixture):
         @stubclass(Widget)
         class WidgetChildStub(Widget):
             def __init__(self, view, text):
-                super(WidgetChildStub, self).__init__(view)
+                super().__init__(view)
                 self.text = text
             def render(self): return '<%s>' % self.text
             def get_js(self, context=None): return ['js(%s)' % self.text]
@@ -375,7 +389,7 @@ class WidgetResultScenarios(Fixture):
         class WidgetStub(Widget):
             css_id = 'an_id'
             def __init__(self, view):
-                super(WidgetStub, self).__init__(view)
+                super().__init__(view)
                 message = 'changed contents' if fixture.changes_made else 'initial contents'
                 self.add_child(fixture.WidgetChildStub(view, message))
         return WidgetStub
@@ -385,13 +399,13 @@ class WidgetResultScenarios(Fixture):
         @stubclass(Widget)
         class WidgetWithRemoteMethod(Widget):
             def __init__(self, view):
-                super(WidgetWithRemoteMethod, self).__init__(view)
+                super().__init__(view)
                 method_result = WidgetResult(fixture.WidgetStub(view), as_json_and_result=True)
                 def change_something():
                     fixture.changes_made = True
                     if fixture.exception:
                         raise DomainException('ex')
-                remote_method = RemoteMethod('amethod', change_something, default_result=method_result,
+                remote_method = RemoteMethod(view, 'amethod', change_something, default_result=method_result,
                                              immutable=False)
                 view.add_resource(remote_method)
         return WidgetWithRemoteMethod
@@ -424,12 +438,10 @@ def test_widgets_that_change_during_method_processing(web_fixture, widget_result
     assert json_response == widget_result_scenarios.expected_response
 
 
-
-
 @stubclass(Widget)
 class CoactiveWidgetStub(Widget):
     def __init__(self, view, css_id, coactive_widgets):
-        super(CoactiveWidgetStub, self).__init__(view)
+        super().__init__(view)
         self._coactive_widgets = coactive_widgets
         self.css_id = css_id
 
@@ -438,7 +450,7 @@ class CoactiveWidgetStub(Widget):
 
     @property
     def coactive_widgets(self):
-        return super(CoactiveWidgetStub, self).coactive_widgets + self._coactive_widgets
+        return super().coactive_widgets + self._coactive_widgets
 
 
 @with_fixtures(WebFixture)
@@ -451,12 +463,12 @@ def test_coactive_widgets(web_fixture):
     @stubclass(Widget)
     class WidgetWithRemoteMethod(Widget):
         def __init__(self, view):
-            super(WidgetWithRemoteMethod, self).__init__(view)
+            super().__init__(view)
             coactive_widgets = [self.add_child(CoactiveWidgetStub(view, 'coactive1', [self.add_child(CoactiveWidgetStub(view, 'coactive2', []))]))]
             result_widget = self.add_child(CoactiveWidgetStub(view, 'main', []))
             result_widget.add_child(CoactiveWidgetStub(view, 'child', coactive_widgets))
             method_result = WidgetResult(result_widget, as_json_and_result=True)
-            remote_method = RemoteMethod('amethod', lambda: None, default_result=method_result)
+            remote_method = RemoteMethod(view, 'amethod', lambda: None, default_result=method_result)
             view.add_resource(remote_method)
 
     wsgi_app = web_fixture.new_wsgi_app(child_factory=WidgetWithRemoteMethod.factory())
@@ -471,45 +483,75 @@ def test_coactive_widgets(web_fixture):
                                 'coactive2': '<coactive2><script type="text/javascript"></script>'}
                              }
 
-@with_fixtures(WebFixture)
-def test_coactive_widgets_cannot_be_descendants(web_fixture):
-    """The descendant Widgets of a given Widget cannot be its coactive Widgets."""
 
-    @stubclass(Widget)
-    class WidgetWithRemoteMethod(Widget):
-        def __init__(self, view):
-            super(WidgetWithRemoteMethod, self).__init__(view)
-            child = CoactiveWidgetStub(view, 'child', [])
-            result_widget = CoactiveWidgetStub(view, 'parent', [child])
-            result_widget.add_child(child)
-            method_result = WidgetResult(result_widget, as_json_and_result=True)
-            remote_method = RemoteMethod('amethod', lambda: None, default_result=method_result)
-            view.add_resource(remote_method)
+@uses(web_fixture=WebFixture)
+class CoactiveScenarios(Fixture):
+    expected_exception = NoException
+    expected_exception_regex = None
+    def new_page(self):
+        return Div(self.view)
 
-    wsgi_app = web_fixture.new_wsgi_app(child_factory=WidgetWithRemoteMethod.factory())
-    browser = Browser(wsgi_app)
+    def new_view(self):
+        return self.web_fixture.view
 
-    with expected(ProgrammerError, '.+ are coactive widgets of .+ and are also itself or one of its descendants'):
-        browser.post('/_amethod_method', {})
+    @scenario
+    def descendents_that_are_coactive_are_ignored(self):
+        """Descendents that are also coactive_widgets are ignored in the final coactive_widget list."""
 
-@with_fixtures(WebFixture)
-def test_coactive_widgets_cannot_be_parents(web_fixture):
-    """The ancestor Widgets of a given Widget cannot be its coactive Widgets."""
+        coactive_descendent = CoactiveWidgetStub(self.view, 'coactive_descendent', [])
 
-    @stubclass(Widget)
-    class WidgetWithRemoteMethod(Widget):
-        def __init__(self, view):
-            super(WidgetWithRemoteMethod, self).__init__(view)
-            result_widget = CoactiveWidgetStub(view, 'parent', [])
-            grandparent = self.add_child(Div(view, css_id='grandparent'))
-            result_widget.add_child(CoactiveWidgetStub(view, 'child', [grandparent]))
-            grandparent.add_child(result_widget)
-            method_result = WidgetResult(result_widget, as_json_and_result=True)
-            remote_method = RemoteMethod('amethod', lambda: None, default_result=method_result)
-            view.add_resource(remote_method)
+        widget = self.page.add_child(CoactiveWidgetStub(self.view, 'main', [coactive_descendent]))
+        child = widget.add_child(CoactiveWidgetStub(self.view, 'child', []))
+        child.add_child(coactive_descendent)
 
-    wsgi_app = web_fixture.new_wsgi_app(child_factory=WidgetWithRemoteMethod.factory())
-    browser = Browser(wsgi_app)
+        self.result_widget = widget
+        self.expected_coactive_widgets = []
+        assert self.result_widget.coactive_widgets == [coactive_descendent]
 
-    with expected(ProgrammerError, '.+ is a coactive widget of .+ and is also one of its ancestors'):
-        browser.post('/_amethod_method', {})
+    @scenario
+    def coactive_widgets_include_children_coactive_widgets(self):
+        """The coactive widgets of descendents are included in a widget's coactive widgets."""
+
+        coactive_widget = self.page.add_child(CoactiveWidgetStub(self.view, 'coactive_widget', []))
+        widget = self.page.add_child(CoactiveWidgetStub(self.view, 'main', []))
+        child = widget.add_child(CoactiveWidgetStub(self.view, 'child', [coactive_widget]))
+
+        self.result_widget = widget
+        self.expected_coactive_widgets = [coactive_widget]
+
+    @scenario
+    def coactiveness_is_transitive(self):
+        """The coactive widgets of the coactive widgets of a widget are included in its coactive widgets."""
+
+        coactive_widget_level2 = self.page.add_child(CoactiveWidgetStub(self.view, 'coactive_widget_level2', []))
+        coactive_widget_level1 = self.page.add_child(CoactiveWidgetStub(self.view, 'coactive_widget_level1', [coactive_widget_level2]))
+        widget = self.page.add_child(CoactiveWidgetStub(self.view, 'main', [coactive_widget_level1]))
+
+        self.result_widget = widget
+        self.expected_coactive_widgets = [coactive_widget_level1, coactive_widget_level2]
+
+    @scenario
+    def coactive_widgets_cannot_be_parents(self):
+        """The ancestor Widgets of a given Widget cannot be its coactive Widgets."""
+
+        grandparent = self.page.add_child(Div(self.view, css_id='grandparent'))
+        parent = grandparent.add_child(CoactiveWidgetStub(self.view, 'parent', []))
+        child = parent.add_child(CoactiveWidgetStub(self.view, 'child', [grandparent]))
+
+        self.result_widget = child
+        self.expected_coactive_widgets = None
+        self.expected_exception = ProgrammerError
+        self.expected_exception_regex = 'The coactive Widgets of .+ include its ancestor\(s\): .+'
+
+
+@with_fixtures(WebFixture, CoactiveScenarios)
+def test_what_is_included_in_coactive_widgets(web_fixture, coactive_scenarios):
+
+    fixture = coactive_scenarios
+    fixture.view.page = fixture.page
+
+    with expected(fixture.expected_exception, fixture.expected_exception_regex):
+        coactive_widgets = WidgetResult(fixture.result_widget, as_json_and_result=True).get_coactive_widgets_recursively(fixture.result_widget)
+        assert set(coactive_widgets) == set(fixture.expected_coactive_widgets)
+
+

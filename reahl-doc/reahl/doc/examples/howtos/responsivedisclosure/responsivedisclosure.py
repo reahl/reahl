@@ -15,14 +15,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 
 from reahl.component.modelinterface import exposed, Field, Event, Action, Choice, ChoiceField, IntegerField, BooleanField
 from reahl.component.exceptions import DomainException
 from reahl.web.fw import UserInterface
 from reahl.web.ui import StaticColumn, DynamicColumn
 from reahl.web.layout import PageLayout
-from reahl.web.bootstrap.ui import FieldSet, HTML5Page, Div, P, Alert
+from reahl.web.bootstrap.page import HTML5Page
+from reahl.web.bootstrap.ui import FieldSet, Div, P, Alert
 from reahl.web.bootstrap.grid import Container, ColumnLayout, ColumnOptions, ResponsiveSize
 from reahl.web.bootstrap.forms import Form, FormLayout, TextInput, SelectInput, RadioButtonSelectInput, CheckboxInput, Button
 from reahl.web.bootstrap.tables import Table
@@ -44,11 +44,12 @@ class ResponsiveUI(UserInterface):
 
 class NewInvestmentForm(Form):
     def __init__(self, view):
-        super(NewInvestmentForm, self).__init__(view, 'new_investment_form')
+        super().__init__(view, 'new_investment_form')
         self.enable_refresh()
+        self.use_layout(FormLayout())
 
         if self.exception:
-            self.add_child(Alert(view, str(self.exception), 'warning'))
+            self.layout.add_alert_for_domain_exception(self.exception)
 
         investment_order = InvestmentOrder.for_current_session()
         type_of_investor = self.add_child(FieldSet(view, legend_text='Introduction'))
@@ -63,7 +64,7 @@ class NewInvestmentForm(Form):
 
 class InvestorDetailsSection(Div):
     def __init__(self, form, investment_order):
-        super(InvestorDetailsSection, self).__init__(form.view, css_id='investor_details_section')
+        super().__init__(form.view, css_id='investor_details_section')
         self.enable_refresh()
         self.use_layout(FormLayout())
 
@@ -85,7 +86,7 @@ class InvestorDetailsSection(Div):
 
 class IDDocumentSection(FieldSet):
     def __init__(self, form, id_document):
-        super(IDDocumentSection, self).__init__(form.view, legend_text='New investor information', css_id='id_document_section')
+        super().__init__(form.view, legend_text='New investor information', css_id='id_document_section')
         self.enable_refresh()
         self.use_layout(FormLayout())
 
@@ -102,7 +103,7 @@ class IDDocumentSection(FieldSet):
 
 class AllocationDetailSection(Div):
     def __init__(self, form, investment_order):
-        super(AllocationDetailSection, self).__init__(form.view, css_id='investment_allocation_details')
+        super().__init__(form.view, css_id='investment_allocation_details')
         self.form = form
         self.use_layout(FormLayout())
 
@@ -120,7 +121,7 @@ class AllocationDetailSection(Div):
         allocation_controls.use_layout(FormLayout())
 
         if self.form.exception:
-            self.add_child(Alert(self.view, str(self.form.exception), 'warning'))
+            self.layout.add_alert_for_domain_exception(self.form.exception, form=self.form, unique_name='details_section')
         
         total_amount_input = TextInput(self.form, self.investment_order.fields.amount, refresh_widget=self)
         allocation_controls.layout.add_input(total_amount_input)
@@ -130,7 +131,7 @@ class AllocationDetailSection(Div):
 
     def make_allocation_input(self, allocation, field):
         div = Div(self.view).use_layout(FormLayout())
-        div.layout.add_input(TextInput(self.form, field, name='%s.%s' % (field.name, allocation.fund_code), refresh_widget=self), hide_label=True)
+        div.layout.add_input(TextInput(self.form, field, name_discriminator=allocation.fund_code, refresh_widget=self), hide_label=True)
         return div
 
     def make_total_widget(self, total_value):
@@ -192,7 +193,7 @@ class InvestmentOrder(Base):
         events.allocation_changed = Event(action=Action(self.recalculate))
 
     def __init__(self, **kwargs):
-        super(InvestmentOrder, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.amount_or_percentage = 'percentage'
         self.name = None
         self.surname = None
@@ -267,7 +268,7 @@ class Allocation(Base):
         fields.amount        = IntegerField(label='Amount', required=True, writable=lambda field: self.is_in_amount)
 
     def __init__(self, investment_order, fund_name):
-        super(Allocation, self).__init__(investment_order=investment_order)
+        super().__init__(investment_order=investment_order)
         self.fund = fund_name
         self.amount = 0
         self.percentage = 0

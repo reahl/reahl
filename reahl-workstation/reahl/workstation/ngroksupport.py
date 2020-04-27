@@ -32,7 +32,7 @@ class NgrokStart(Command):
     """Starts ngrok to open a tunnel to a local / vagrant or other machine reachable via ssh."""
     keyword = 'start'
     def assemble(self):
-        super(NgrokStart, self).assemble()
+        super().assemble()
         location_group = self.parser.add_mutually_exclusive_group(required=True)
         location_group.add_argument('-l', '--local', action='store_true', dest='local', help='exposes the local machine ssh port')
         location_group.add_argument('-V', '--vagrant', nargs='?', const='default', default=False, help='exposes the given vagrant machine')
@@ -43,7 +43,7 @@ class NgrokStart(Command):
         self.parser.add_argument('-P', '--path',  default='~/bin', help='where to find ngrok')
 
     def execute(self, args):
-        super(NgrokStart, self).execute(args)
+        super().execute(args)
 
         env_with_path = dict(os.environ)
         env_with_path['PATH'] += '%s%s' % (os.pathsep, os.path.expanduser(args.path))

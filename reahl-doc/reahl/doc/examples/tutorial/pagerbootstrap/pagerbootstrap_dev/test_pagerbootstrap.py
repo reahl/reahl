@@ -3,7 +3,6 @@
 # pytest -s --pyargs reahl.doc.examples.tutorial.pagerbootstrap.pagerbootstrap_dev.test_pagerbootstrap
 #
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 from reahl.tofu import Fixture, uses
 from reahl.tofu.pytestsupport import with_fixtures
 

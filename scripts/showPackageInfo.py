@@ -16,7 +16,7 @@
 
 """A commandline utility to display package information installed in your environment."""
 
-import six.moves.urllib as urllib
+import urllib
 import argparse
 
 from bs4 import BeautifulSoup
@@ -26,7 +26,7 @@ import pkg_resources
 from pkg_resources import parse_version
 
 
-class PypiPackage(object):
+class PypiPackage:
     def __init__(self, package_name):
         self.package_name = package_name
 

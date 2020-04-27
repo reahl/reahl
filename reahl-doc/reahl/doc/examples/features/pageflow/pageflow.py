@@ -1,11 +1,11 @@
-from __future__ import print_function, unicode_literals, absolute_import, division
 
 from reahl.component.modelinterface import exposed, EmailField, Field
 from reahl.component.modelinterface import Event, Action, Not
 
 from reahl.web.fw import UserInterface
 from reahl.web.layout import PageLayout
-from reahl.web.bootstrap.ui import HTML5Page, P
+from reahl.web.bootstrap.page import HTML5Page
+from reahl.web.bootstrap.ui import P
 from reahl.web.bootstrap.forms import Form, TextInput, FormLayout, ButtonInput
 from reahl.web.bootstrap.grid import ResponsiveSize, ColumnLayout, ColumnOptions, Container
 
@@ -39,7 +39,7 @@ class PageFlowExampleUI(UserInterface):
                                guard=Not(Action(comment.contains_text)))
 
         
-class Comment(object):
+class Comment:
     @exposed
     def fields(self, fields):
         fields.email_address = EmailField(label='Email address', required=True)
@@ -59,7 +59,7 @@ class Comment(object):
 
 class CommentForm(Form):
     def __init__(self, view, comment):
-        super(CommentForm, self).__init__(view, 'myform')
+        super().__init__(view, 'myform')
         self.use_layout(FormLayout())
 
         self.layout.add_input(TextInput(self, comment.fields.email_address))

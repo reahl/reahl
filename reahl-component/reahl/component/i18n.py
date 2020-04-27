@@ -14,7 +14,6 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 import gettext
 import threading
 import logging
@@ -26,7 +25,7 @@ from reahl.component.context import ExecutionContext
 from reahl.component.config import ReahlSystemConfig
 
 
-class SystemWideCatalogue(object):
+class SystemWideCatalogue:
     instance = None
     @classmethod
     def get_instance(cls):
@@ -65,7 +64,7 @@ class SystemWideCatalogue(object):
         return self.get_translation_for(self.current_locale, domain).ungettext(message_singular, message_plural, n)
 
 
-class Catalogue(object):
+class Catalogue:
     """Create an instance of this class at the top of your module, in module scope and assign it to the name `_` for
        use in translating literal strings to the language of the current locale.
 
@@ -81,17 +80,17 @@ class Catalogue(object):
         self.domain = domain
 
     def __call__(self, message):
-        """Returns a six.text_type literal containing a translation of `message` to the correct language according to the current locale.
+        """Returns a str literal containing a translation of `message` to the correct language according to the current locale.
         """
         return self.gettext(message)
 
     def gettext(self, message):
-        """Returns a six.text_type literal containing a translation of `message` to the correct language according to the current locale.
+        """Returns a str literal containing a translation of `message` to the correct language according to the current locale.
         """
         return SystemWideCatalogue.get_instance().dgettext(self.domain, message)
 
     def ngettext(self, message_singular, message_plural, n):
-        """Returns a six.text_type literal containing a translation of the given messages in the correct plural (or singular) 
+        """Returns a str literal containing a translation of the given messages in the correct plural (or singular) 
            form of the target language for `n` items.
         """
         return SystemWideCatalogue.get_instance().dngettext(self.domain, message_singular, message_plural, n)

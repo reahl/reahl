@@ -14,12 +14,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import print_function, unicode_literals, absolute_import, division
-try:
-    from six.moves import input
-except:
-    if 'raw_input' in dir(__builtins__):
-        input = raw_input
+
 import sys
 import subprocess
 import pkg_resources
@@ -88,7 +83,7 @@ def fake_distributions_into_existence(project_dirs):
             os.mkdir(egg_dir)
 
 def find_all_prerequisits_for(project_dirs):
-    prerequisites = {'tox>=2.5,<2.5.999'} # Nothing depends on tox, but we use it in .travis.yml so it forms part of our basic infrastructure
+    prerequisites = {'tox>=3.14,<3.14.999'} # Nothing depends on tox, but we use it in .travis.yml so it forms part of our basic infrastructure
     for project_dir in project_dirs:
         prerequisites.update(parse_prerequisites_from(os.path.join(os.getcwd(), project_dir, '.reahlproject')))
     return prerequisites

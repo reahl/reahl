@@ -21,10 +21,9 @@
 """
 
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 import re
 from contextlib import contextmanager
-from six.moves.urllib import parse as urllib_parse
+import urllib.parse 
 
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.eggs import ReahlEgg
@@ -33,11 +32,11 @@ from reahl.component.migration import MigrationRun
 
 class CouldNotFindDatabaseControlException(Exception):
     def __init__(self, url):
-        super(CouldNotFindDatabaseControlException, self).__init__(url)
+        super().__init__(url)
         self.url = url
 
 
-class SystemControl(object):
+class SystemControl:
     """Used to control all aspects relating to the underlying database as per the configuration of the system.
 
     Any Reahl system is assumed to have a database backing it. Our
@@ -206,7 +205,7 @@ class SystemControl(object):
 
     
 
-class DatabaseControl(object):
+class DatabaseControl:
     """An interface to the underlying database backend technology used. 
 
     This class has the responsibility to manage the low-level backend
@@ -224,14 +223,17 @@ class DatabaseControl(object):
     def __init__(self, url, config):
         self.config = config
         self.connection_uri = url
-        uri_parts = urllib_parse.urlparse(url)
-        self.user_name = uri_parts.username
-        self.password = uri_parts.password
-        self.host = uri_parts.hostname
+        uri_parts = urllib.parse.urlparse(url)
+        self.user_name = self.unquote(uri_parts.username)
+        self.password = self.unquote(uri_parts.password)
+        self.host = self.unquote(uri_parts.hostname)
         self.port = uri_parts.port
-        self.database_name = uri_parts.path[1:] if uri_parts.path.startswith('/') else uri_parts.path
+        self.database_name = self.unquote(uri_parts.path[1:] if uri_parts.path.startswith('/') else uri_parts.path)
         if not self.database_name:
             raise ProgrammerError('Please specify a database name in reahlsystem.connection_uri')
+
+    def unquote(self, value):
+        return urllib.parse.unquote(value) if value else None
 
     def get_dbapi_connection_creator(self):
         return None
@@ -253,7 +255,6 @@ class DatabaseControl(object):
     
 class NullDatabaseControl(DatabaseControl):
     """A stubbed-out :class:`DatabaseControl` for systems that do not have any database at all."""
-    uri_regex_string = r''
 
     def donothing(self, *args, **kwargs):
         pass
@@ -262,7 +263,7 @@ class NullDatabaseControl(DatabaseControl):
         return self.donothing
 
 
-class ORMControl(object):
+class ORMControl:
     """An interface to higher-level database operations that may be dependent on the ORM technology used.
 
     This class has the responsibility to manage the higher-level

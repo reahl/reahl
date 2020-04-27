@@ -15,14 +15,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 
 from reahl.component.modelinterface import exposed, Field, Event, Action, Choice, ChoiceField, IntegerField
 from reahl.component.exceptions import DomainException
 from reahl.web.fw import UserInterface
 from reahl.web.ui import StaticColumn, DynamicColumn
 from reahl.web.layout import PageLayout
-from reahl.web.bootstrap.ui import FieldSet, HTML5Page, Div, P, Alert
+from reahl.web.bootstrap.page import HTML5Page
+from reahl.web.bootstrap.ui import FieldSet, Div, P, Alert
 from reahl.web.bootstrap.grid import Container, ColumnLayout, ColumnOptions, ResponsiveSize
 from reahl.web.bootstrap.forms import Form, FormLayout, TextInput, RadioButtonSelectInput, Button
 from reahl.web.bootstrap.tables import Table
@@ -43,7 +43,7 @@ class DynamicUI(UserInterface):
 
 class AllocationDetailForm(Form):
     def __init__(self, view):
-        super(AllocationDetailForm, self).__init__(view, 'investment_order_allocation_details_form')
+        super().__init__(view, 'investment_order_allocation_details_form')
         self.use_layout(FormLayout())
 
         self.investment_order = InvestmentOrder.for_current_session()
@@ -70,7 +70,7 @@ class AllocationDetailForm(Form):
 
     def make_allocation_input(self, allocation, field):
         div = Div(self.view).use_layout(FormLayout())
-        div.layout.add_input(TextInput(self, field, name='%s.%s' % (field.name, allocation.fund_code), refresh_widget=self), hide_label=True)
+        div.layout.add_input(TextInput(self, field, name_discriminator=allocation.fund_code, refresh_widget=self), hide_label=True)
         return div
 
     def make_total_widget(self, total_value):
@@ -119,7 +119,7 @@ class InvestmentOrder(Base):
         events.allocation_changed = Event(action=Action(self.recalculate))
 
     def __init__(self, **kwargs):
-        super(InvestmentOrder, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.amount_or_percentage = 'percentage'
         self.amount = 0
         if not self.allocations:
@@ -180,7 +180,7 @@ class Allocation(Base):
         fields.amount        = IntegerField(label='Amount', required=True, writable=lambda field: self.is_in_amount)
 
     def __init__(self, investment_order, fund_name):
-        super(Allocation, self).__init__(investment_order=investment_order)
+        super().__init__(investment_order=investment_order)
         self.fund = fund_name
         self.amount = 0
         self.percentage = 0

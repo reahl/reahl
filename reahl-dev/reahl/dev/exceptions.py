@@ -16,7 +16,6 @@
 
 """Exceptions used by modules in this package."""
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 import inspect
 
 class StatusException(Exception):
@@ -124,5 +123,5 @@ class NoSuchProjectException(Exception):
 class CouldNotConfigureServer(Exception):
     def __init__(self, ex):
         message = '\nCould not configure server: %s\nDid you perhaps forget to: "reahl setup -- develop -N" ?' % ex
-        super(CouldNotConfigureServer, self).__init__(message)
+        super().__init__(message)
     

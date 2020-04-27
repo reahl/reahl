@@ -14,7 +14,6 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 
 import pytest
 from reahl.stubble import Impostor, stubclass
@@ -23,7 +22,7 @@ from reahl.stubble import Impostor, stubclass
 def test_impostor_pretends_to_be_stubbed():
     """an Impostor fakes being an instance the stubbed class"""
 
-    class Stubbed(object):
+    class Stubbed:
         __slots__ = 'a'
 
     @stubclass(Stubbed)

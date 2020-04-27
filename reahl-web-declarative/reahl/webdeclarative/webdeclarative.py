@@ -20,10 +20,8 @@ Run 'reahl componentinfo reahl-web-declarative' for configuration information.
 
 """
 
-from __future__ import print_function, unicode_literals, absolute_import, division
-import six
 import random
-from six.moves.urllib import parse as urllib_parse
+import urllib.parse
 from datetime import datetime, timedelta
 
 
@@ -79,7 +77,7 @@ class UserSession(Base, UserSessionProtocol):
         self.generate_salt()
         self.last_activity = datetime.fromordinal(1)
         self.set_idle_lifetime(False)
-        super(UserSession, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     def is_secured(self):
         context = ExecutionContext.get_context()
@@ -113,7 +111,7 @@ class UserSession(Base, UserSessionProtocol):
 
     def as_key(self):
         Session.flush() # To make sure .id is populated
-        return '%s:%s' % (six.text_type(self.id), self.salt)
+        return '%s:%s' % (str(self.id), self.salt)
 
     def secure_cookie_is_valid(self):
         context = ExecutionContext.get_context()
@@ -144,16 +142,16 @@ class UserSession(Base, UserSessionProtocol):
         context = ExecutionContext.get_context()
         try:
             raw_cookie = context.request.cookies[context.config.web.session_key_name]
-            return urllib_parse.unquote(raw_cookie)
+            return urllib.parse.unquote(raw_cookie)
         except KeyError:
             return None
 
     def set_session_key(self, response):
         context = ExecutionContext.get_context()
         session_cookie = self.as_key()
-        response.set_cookie(context.config.web.session_key_name, urllib_parse.quote(session_cookie), path='/')
+        response.set_cookie(context.config.web.session_key_name, urllib.parse.quote(session_cookie), path='/')
         if self.is_secured():
-            response.set_cookie(context.config.web.secure_key_name, urllib_parse.quote(self.secure_salt), secure=True, path='/',
+            response.set_cookie(context.config.web.secure_key_name, urllib.parse.quote(self.secure_salt), secure=True, path='/',
                                 max_age=context.config.web.idle_secure_lifetime)
 
     def generate_salt(self):
@@ -200,6 +198,13 @@ class SessionData(Base):
             Session.delete(stale)
 
     @classmethod
+    def clear_all_view_data(cls, view):
+        web_session = ExecutionContext.get_context().session
+        items = Session.query(cls).filter_by(web_session=web_session, view_path=view.full_path, ui_name=view.user_interface.name)
+        for stale in items:
+            Session.delete(stale)
+        
+    @classmethod
     def find_for(cls, view, form=None):
         assert (not form) or (form.view is view)
         web_session = ExecutionContext.get_context().session
@@ -237,7 +242,7 @@ class UserInput(SessionData, UserInputProtocol):
 
     __hash__ = None
     def __eq__(self, other):
-        return super(UserInput, self).__eq__(other) and \
+        return super().__eq__(other) and \
                self.key == other.key and \
                self.value == other.value
 
@@ -253,7 +258,7 @@ class UserInput(SessionData, UserInputProtocol):
 
         values = [i.value for i in query.all()]
 
-        if value_type is six.text_type:
+        if value_type is str:
             assert len(values) == 1, 'There are %s saved values for "%s", but there should only be one' % (len(values), key)
             return values[0]
         elif value_type is list:
@@ -272,11 +277,11 @@ class UserInput(SessionData, UserInputProtocol):
         for i in cls.find_for(view, form=form).filter_by(key=key):
             Session.delete(i)
 
-        if value_type is six.text_type:
-            assert isinstance(value, six.text_type), 'Cannot handle the value: ' + six.text_type(value)
+        if value_type is str:
+            assert isinstance(value, str), 'Cannot handle the value: ' + str(value)
             cls.save_for(view, form=form, key=key, value=value)
         elif value_type is list:
-            assert all([isinstance(i, six.text_type) for i in value]), 'Cannot handle the value: ' + six.text_type(value)
+            assert all([isinstance(i, str) for i in value]), 'Cannot handle the value: ' + str(value)
             if value:
                 for i in value:
                     cls.save_for(view, form=form, key=key, value=i)
@@ -310,7 +315,7 @@ class PersistedException(SessionData, PersistedExceptionProtocol):
     input_name = Column(UnicodeText)
 
     def __eq__(self, other):
-        return super(PersistedException, self).__eq__(other) and \
+        return super().__eq__(other) and \
                self.exception == other.exception
 
     @classmethod
@@ -319,7 +324,7 @@ class PersistedException(SessionData, PersistedExceptionProtocol):
 
     @classmethod
     def for_input(cls, form, input_name):
-        return super(PersistedException, cls).find_for(form.view, form=form).filter_by(input_name=input_name)
+        return super().find_for(form.view, form=form).filter_by(input_name=input_name)
 
     @classmethod
     def clear_for_form_except_inputs(cls, form):
@@ -328,7 +333,7 @@ class PersistedException(SessionData, PersistedExceptionProtocol):
 
     @classmethod
     def clear_for_all_inputs(cls, form):
-        for e in super(PersistedException, cls).find_for(form.view, form=form).filter(cls.input_name != None):
+        for e in super().find_for(form.view, form=form).filter(cls.input_name != None):
             Session.delete(e)
 
     @classmethod
@@ -360,13 +365,13 @@ class PersistedFile(SessionData, PersistedFileProtocol):
     size = Column(BigInteger, nullable=False)
 
     def __eq__(self, other):
-        return super(PersistedFile, self).__eq__(other) and \
+        return super().__eq__(other) and \
                self.filename == other.filename and \
                self.input_name == other.input_name
 
     @property
     def file_obj(self):
-        class LazyFileObj(object):
+        class LazyFileObj:
             def __init__(self, persisted_file):
                 self.persisted_file = persisted_file
                 self.position = 0

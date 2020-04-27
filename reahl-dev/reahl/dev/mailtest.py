@@ -20,9 +20,7 @@
 Copyright (C) 2006 Reahl Software Services (Pty) Ltd.  All rights reserved. (www.reahl.org)
 
 """
-from __future__ import print_function, unicode_literals, absolute_import, division
 
-import six
 import asyncore
 import logging
 from smtpd import DebuggingServer, SMTPServer
@@ -39,10 +37,7 @@ from reahl.dev.devshell import WorkspaceCommand
 
 class EchoSMTPServer(DebuggingServer):
     def __init__(self):
-        if six.PY2 or parse_version(platform.python_version()) < parse_version('3.5.0'):
-            init_kwargs = {}
-        else:
-            init_kwargs = dict(decode_data=True)
+        init_kwargs = dict(decode_data=True)
         DebuggingServer.__init__(self, ('localhost', 8025), (None, 0), **init_kwargs)
  
     def process_message(self, peer, mailfrom, rcpttos, data, **kwargs):
@@ -52,9 +47,9 @@ class EchoSMTPServer(DebuggingServer):
         logging.debug("Parsed Message")
 
         self.current_id = m['Message-Id']
-        self.process_simple_message(m)
+        self.process_simple_message(m, mailfrom, rcpttos)
 
-    def process_simple_message(self, message):
+    def process_simple_message(self, message, mailfrom, rcpttos):
         print((self.message_as_text(message)))
 
     def message_as_text(self, message):
@@ -95,14 +90,14 @@ class FakeSMTPServer(EchoSMTPServer):
     def handle_close(self):
         logging.debug("close called")
 
-    def process_simple_message(self, message):
+    def process_simple_message(self, message, mailfrom, rcpttos):
         logging.debug(self.message_as_text(message))
 
         if self.call_back_function:
-            self.call_back_function(message)
+            self.call_back_function(message, mailfrom, rcpttos)
 
 
-class MailTester(object):
+class MailTester:
 
     def __init__(self, call_back_function=None):
         self.call_back_function = call_back_function

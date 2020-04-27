@@ -1,5 +1,4 @@
 # Copyright 2013-2018 Reahl Software Services (Pty) Ltd. All rights reserved.
-#-*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
 #
@@ -16,8 +15,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from __future__ import print_function, unicode_literals, absolute_import, division
-import six
 import datetime
 import os.path
 
@@ -245,7 +242,7 @@ def test_file_download_details(web_fixture):
 
     # Case: The whole content is sent, in chunk_size bits
     read = [i for i in response.app_iter]
-    expected = [six.int2byte(i) for i in six.iterbytes(file_content)]
+    expected = [bytes((i,)) for i in file_content]
     assert read == expected
 
     # Case: Headers are set correctly
@@ -256,10 +253,10 @@ def test_file_download_details(web_fixture):
     mtime = datetime.datetime.fromtimestamp(int(os.path.getmtime(server_file.name)))
     assert response.last_modified.replace(tzinfo=None) == mtime
     tag_mtime, tag_size, tag_hash = response.etag.split('-')
-    mtime = six.text_type(os.path.getmtime(server_file.name))
+    mtime = str(os.path.getmtime(server_file.name))
     assert tag_mtime == mtime
-    assert tag_size == six.text_type(len(file_content))
-    assert tag_hash == six.text_type(abs(hash(server_file.name)))
+    assert tag_size == str(len(file_content))
+    assert tag_hash == str(abs(hash(server_file.name)))
 
     # Case: conditional response is supported
     assert response.conditional_response
@@ -267,17 +264,17 @@ def test_file_download_details(web_fixture):
     # Case: partial response is supported - different cases:
     #      - normal case
     actual = [i for i in response.app_iter.app_iter_range(3,7)]
-    expected = [six.int2byte(i) for i in six.iterbytes(file_content[3:8])]
+    expected = [bytes((i,)) for i in file_content[3:8]]
     assert actual == expected
 
     #      - no end specified
     actual = [i for i in response.app_iter.app_iter_range(3)]
-    expected = [six.int2byte(i) for i in six.iterbytes(file_content[3:])]
+    expected = [bytes((i,)) for i in file_content[3:]]
     assert actual == expected
 
     #      - no start specified
     actual = [i for i in response.app_iter.app_iter_range(end=7)]
-    expected = [six.int2byte(i) for i in six.iterbytes(file_content[:8])]
+    expected = [bytes((i,)) for i in file_content[:8]]
     assert actual == expected
 
     #      - where the last chunk read would stretch past end
@@ -294,12 +291,12 @@ def test_file_download_details(web_fixture):
 
     #      - where start < 0
     actual = [i for i in response.app_iter.app_iter_range(start=-10, end=7)]
-    expected = [six.int2byte(i) for i in six.iterbytes(file_content[:8])]
+    expected = [bytes((i,)) for i in file_content[:8]]
     assert actual == expected
 
     #      - where end > length of file
     actual = [i for i in response.app_iter.app_iter_range(start=3, end=2000)]
-    expected = [six.int2byte(i) for i in six.iterbytes(file_content[3:])]
+    expected = [bytes((i,)) for i in file_content[3:]]
     assert actual == expected
 
     #      - where start > length of file

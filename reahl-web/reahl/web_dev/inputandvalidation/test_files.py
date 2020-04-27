@@ -1,5 +1,4 @@
 # Copyright 2013-2018 Reahl Software Services (Pty) Ltd. All rights reserved.
-# -*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
 #
@@ -17,7 +16,6 @@
 
 
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 import os.path
 
 from reahl.tofu import temp_file_with
@@ -43,7 +41,7 @@ def test_form_encoding(web_fixture):
     """The enctype of a Form changes to multipart/form-data if it contains an input for a file."""
     fixture = web_fixture
 
-    class DomainObject(object):
+    class DomainObject:
         @exposed
         def fields(self, fields):
             fields.file = FileField(allow_multiple=False, label='Attached files')
@@ -66,7 +64,7 @@ def test_simple_file_input(web_fixture):
 
     expected_content = b'some content'
     file_to_upload = temp_file_with(expected_content, mode='w+b')
-    class DomainObject(object):
+    class DomainObject:
         def __init__(self):
            self.file = None
 
@@ -82,7 +80,7 @@ def test_simple_file_input(web_fixture):
 
     class FileUploadForm(Form):
         def __init__(self, view):
-            super(FileUploadForm, self).__init__(view, 'test')
+            super().__init__(view, 'test')
             self.add_child(SimpleFileInput(self, domain_object.fields.file))
             self.define_event_handler(domain_object.events.upload)
             self.add_child(ButtonInput(self, domain_object.events.upload))
@@ -117,7 +115,7 @@ def test_simple_file_input_exceptions(web_fixture):
     file_to_upload = temp_file_with('some content')
     failing_constraint = FailingConstraint('I am breaking')
 
-    class DomainObject(object):
+    class DomainObject:
         def __init__(self):
             self.file = None
 
@@ -135,7 +133,7 @@ def test_simple_file_input_exceptions(web_fixture):
 
     class FileUploadForm(Form):
         def __init__(self, view):
-            super(FileUploadForm, self).__init__(view, 'test')
+            super().__init__(view, 'test')
             file_input = self.add_child(SimpleFileInput(self, domain_object.fields.file))
             if file_input.validation_error:
                 self.add_child(self.create_error_label(file_input))

@@ -15,12 +15,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 from datetime import datetime, timedelta
 
-import six
-from six.moves import http_cookies
-from six.moves.urllib import parse as urllib_parse
+import http.cookies
+import urllib.parse
 
 from sqlalchemy import Column, ForeignKey, Integer
 from webob import Response
@@ -30,7 +28,6 @@ from reahl.stubble import stubclass, EmptyStub
 from reahl.tofu.pytestsupport import with_fixtures
 
 from reahl.sqlalchemysupport import Session
-from reahl.component.py3compat import ascii_as_bytes_or_str
 from reahl.webdeclarative.webdeclarative import UserSession, SessionData, UserInput
 
 from reahl.web.ui import Form
@@ -122,7 +119,7 @@ def test_setting_cookies_on_response(sql_alchemy_fixture, web_fixture):
         class ResponseStub(Response):
             @property
             def cookies(self):
-                cookies = http_cookies.SimpleCookie()
+                cookies = http.cookies.SimpleCookie()
                 for header, value in self.headerlist:
                     if header == 'Set-Cookie':
                         cookies.load(value)
@@ -135,7 +132,7 @@ def test_setting_cookies_on_response(sql_alchemy_fixture, web_fixture):
         user_session.set_session_key(response)
 
         session_cookie = response.cookies[fixture.config.web.session_key_name]
-        assert session_cookie.value == urllib_parse.quote(user_session.as_key())
+        assert session_cookie.value == urllib.parse.quote(user_session.as_key())
         assert session_cookie['path'] == '/'
         assert not session_cookie['max-age']
         #assert 'httponly' in session_cookie
@@ -174,7 +171,7 @@ def test_reading_cookies_on_initialising_a_session(web_fixture):
     user_session.set_last_activity_time()
     Session.add(user_session)
 
-    fixture.request.headers['Cookie'] = ascii_as_bytes_or_str('reahl=%s' % user_session.as_key())
+    fixture.request.headers['Cookie'] = 'reahl=%s' % user_session.as_key()
     UserSession.initialise_web_session_on(fixture.context)
 
     assert fixture.context.session is user_session
@@ -188,8 +185,8 @@ def test_reading_cookies_on_initialising_a_session(web_fixture):
     user_session.set_last_activity_time()
     Session.add(user_session)
 
-    fixture.request.headers['Cookie'] = ascii_as_bytes_or_str('reahl=%s , reahl_secure=%s' % \
-                                        (user_session.as_key(), user_session.secure_salt))
+    fixture.request.headers['Cookie'] = 'reahl=%s , reahl_secure=%s' % \
+                                        (user_session.as_key(), user_session.secure_salt)
     UserSession.initialise_web_session_on(fixture.context)
 
     assert fixture.context.session is user_session
@@ -202,8 +199,8 @@ def test_reading_cookies_on_initialising_a_session(web_fixture):
     user_session = UserSession()
     user_session.set_last_activity_time()
     Session.add(user_session)
-    fixture.request.headers['Cookie'] = ascii_as_bytes_or_str('reahl=%s , reahl_secure=%s' % \
-                                        (user_session.as_key(), user_session.secure_salt))
+    fixture.request.headers['Cookie'] = 'reahl=%s , reahl_secure=%s' % \
+                                        (user_session.as_key(), user_session.secure_salt)
 
     UserSession.initialise_web_session_on(fixture.context)
 
@@ -255,7 +252,7 @@ def test_session_keeps_living(web_fixture):
 class InputScenarios(Fixture):
     @scenario
     def text(self):
-        self.entered_input_type = six.text_type
+        self.entered_input_type = str
         self.entered_input = 'some value to save'
         self.empty_entered_input = ''
 
@@ -272,7 +269,7 @@ def test_persisting_input(web_fixture, party_account_fixture, input_scenarios):
        like multiple select boxes or multiple checkboxes with the same name).
     """
     @stubclass(Form)
-    class FormStub(object):
+    class FormStub:
         view = web_fixture.view
         user_interface = EmptyStub(name='myui')
         channel_name = 'myform'

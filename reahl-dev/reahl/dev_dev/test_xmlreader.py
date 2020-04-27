@@ -17,8 +17,6 @@
 # -*- mode: python; mode: font-lock -*-
 # Copyright 2005 Iwan Vosloo
 
-from __future__ import print_function, unicode_literals, absolute_import, division
-import six
 import time
 
 from reahl.stubble import easter_egg, stubclass, EmptyStub
@@ -38,10 +36,10 @@ class BasicObjectSetup(Fixture):
     def new_file(self):
         return temp_file_with(self.file_contents)
     def new_test_class(self):
-        class TestClass(object):
+        class TestClass:
             def inflate_attributes(self, reader, attributes, parent):
                 self.attr2 = int(attributes['attr2'])
-                self.attr1 = six.text_type(attributes['attr1'])
+                self.attr1 = str(attributes['attr1'])
                 self.parent = parent
         return TestClass
 
@@ -64,12 +62,12 @@ class BasicObjectSetup(Fixture):
 @uses(basic_object_setup=BasicObjectSetup)
 class ConfiguredReader(Fixture):
 
-    class TestClass1(object):
+    class TestClass1:
         @classmethod
         def get_xml_registration_info(cls):
             return ('1', cls, None)
 
-    class TestClass2(object):
+    class TestClass2:
         @classmethod
         def get_xml_registration_info(cls):
             return ('2', cls, 'asd')
@@ -88,7 +86,7 @@ class ConfiguredReader(Fixture):
 
 class TextObjectSetup(BasicObjectSetup):
     def new_test_class(self):
-        class TestClass(object):
+        class TestClass:
             def inflate_text(self, reader, text, parent):
                 self.text = text
         return TestClass
@@ -108,10 +106,10 @@ class TextObjectSetup(BasicObjectSetup):
 class CompositeObjectSetup(BasicObjectSetup):
     inner_tag_name = 'inner'
     def new_inner_class(self):
-        return super(CompositeObjectSetup, self).new_test_class()
+        return super().new_test_class()
     
     def new_test_class(self):
-        class OuterClass(object):
+        class OuterClass:
             def inflate_attributes(self, reader, attributes, parent):
                 self.inner = []
                 self.parent = parent
@@ -135,7 +133,7 @@ class MultipleClassesForTag(CompositeObjectSetup):
     innerType2 = 'twotype'
 
     def new_inner_class2(self):
-        class Other(object):
+        class Other:
             pass
         return Other
 
@@ -154,12 +152,12 @@ class MultipleClassesForTag(CompositeObjectSetup):
 
 class TimeStampedInflationSetup(CompositeObjectSetup):
     def new_test_class(self):
-        class OuterClass(super(TimeStampedInflationSetup, self).new_test_class()):
+        class OuterClass(super().new_test_class()):
             def inflate_attributes(self, reader, attributes, parent):
-                super(OuterClass, self).inflate_attributes(reader, attributes, parent)
+                super().inflate_attributes(reader, attributes, parent)
                 self.attribute_stamp = time.time()
             def inflate_child(self, reader, child, tag, parent):
-                super(OuterClass, self).inflate_child(reader, child, tag, parent)
+                super().inflate_child(reader, child, tag, parent)
                 self.child_stamp = time.time()
             def inflate_text(self, reader, text, parent):
                 self.child_stamp = time.time()

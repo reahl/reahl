@@ -14,9 +14,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 
-import six
 
 import platform
 import sys
@@ -52,7 +50,7 @@ class ServeCurrentProject(WorkspaceCommand):
     keyword = 'serve'
 
     def assemble(self):
-        super(ServeCurrentProject, self).assemble()
+        super().assemble()
         self.parser.add_argument('-p', '--port', action='store', type=int, dest='port', default=8000, help='port (optional)')
         self.parser.add_argument('-s', '--seconds-between-restart', action='store', type=int, dest='max_seconds_between_restarts', 
                                  default=3, help='poll only every n seconds for filesystem changes (optional)')
@@ -74,20 +72,20 @@ class ServeCurrentProject(WorkspaceCommand):
                                      ['.']+args.monitored_directories).run()
                 else:
                     config_directory = args.config_directory
-                    print('\nUsing config from %s\n' % config_directory)
+                    print('\nUsing config from %s\n' % config_directory, flush=True)
                     
                     try:
                         reahl_server = ReahlWebServer.fromConfigDirectory(config_directory, args.port)
                     except pkg_resources.DistributionNotFound as ex:
                         terminate_keys = 'Ctrl+Break' if platform.system() == 'Windows' else 'Ctrl+C'
-                        print('\nPress %s to terminate\n\n' % terminate_keys)
+                        print('\nPress %s to terminate\n\n' % terminate_keys, flush=True)
                         raise CouldNotConfigureServer(ex)
 
                     reahl_server.start(connect=True)
-                    print('\n\nServing http on port %s, https on port %s (config=%s)' % \
+                    print('\n\nServing http on port %s, https on port %s (config=%s, flush=True)' % \
                                      (args.port, args.port+363, config_directory))
                     terminate_keys = 'Ctrl+Break' if platform.system() == 'Windows' else 'Ctrl+C'
-                    print('\nPress %s to terminate\n\n' % terminate_keys)
+                    print('\nPress %s to terminate\n\n' % terminate_keys, flush=True)
 
                     notify = Executable('notify-send')
                     try:
@@ -97,9 +95,9 @@ class ServeCurrentProject(WorkspaceCommand):
 
                     reahl_server.wait_for_server_to_complete()
             except KeyboardInterrupt:
-                print('\nShutting down')
+                print('\nShutting down', flush=True)
             except CouldNotConfigureServer as ex:
-                print(ex)
+                print(ex, flush=True)
         return 0
 
 
@@ -125,7 +123,7 @@ class SyncFiles(Command):
                                  help='the name of the site as listed in sitecopy.rc')
 
     def execute(self, args):
-        super(SyncFiles, self).execute(args)
+        super().execute(args)
         self.sitecopy = Executable('sitecopy')
 
         try:

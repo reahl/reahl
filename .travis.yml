@@ -1,5 +1,6 @@
-sudo: false
-dist: precise
+#sudo: false
+#dist: precise
+dist: bionic
 
 env:
   global:
@@ -11,14 +12,14 @@ env:
     - PATH=$HOME/bin:$PATH
 
   matrix:
-    - TOX_ENV=py27 
-    - TOX_ENV=py34
+#    - TOX_ENV=py34
     - TOX_ENV=py35
-#    - TOX_ENV=py36
+    - TOX_ENV=py36
 #    - TOX_ENV=py37
+#    - TOX_ENV=py38
 
 addons:
-  postgresql: "9.2"
+  postgresql: "10"
   apt:
     packages:
        # Basic apt dependencies
@@ -35,18 +36,20 @@ addons:
         - gcc
         - cython
         - libxml2-dev
+        - libxslt-dev
         - libsqlite3-0
         - sqlite3
-        - postgresql-9.2
-        - postgresql-client-9.2
-        - postgresql-server-dev-9.2
+        - postgresql-server-dev-all 
         - zlib1g-dev
         - libjpeg62-dev
         - libfreetype6-dev
-        - liblcms1-dev
+        - liblcms2-dev
+        - libmysqlclient-dev
+        - libgconf-2-4 # for chromium
         # - phantomjs  # for reference... not allowed in apt addon
 
 services:
+  - xvfb
   - postgresql
   #- mysql
 
@@ -82,11 +85,6 @@ install:
   - "reahl setup -sX -- develop -N"
 
 before_script:
-  # Set up headless display for browsers
-  # DISPLAY is already set up
-  - "sh -e /etc/init.d/xvfb start"
-  # No need to give xvfb time to start, because the build hereafter will take lots of time
-
   # Setup pip.conf to use local egg-dist also where we build stuff (for tox to get them)
   - "travis/configurePip.sh"
 

@@ -1,5 +1,4 @@
 # Copyright 2016, 2017, 2018 Reahl Software Services (Pty) Ltd. All rights reserved.
-#-*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
 #
@@ -22,9 +21,7 @@
 Styled Inputs that allow a user to choose or upload files.
 
 """
-from __future__ import print_function, unicode_literals, absolute_import, division
 
-import six
 
 from reahl.component.i18n import Catalogue
 from reahl.component.modelinterface import exposed, Action, Event, Field, UploadedFile
@@ -40,7 +37,7 @@ _ = Catalogue('reahl-web')
 
 class _UnstyledHTMLFileInput(reahl.web.ui.SimpleFileInput):
     def __init__(self, form, bound_field):
-        super(_UnstyledHTMLFileInput, self).__init__(form, bound_field)
+        super().__init__(form, bound_field)
         self.append_class('form-control-file')
 
 
@@ -60,7 +57,7 @@ class FileInputButton(reahl.web.ui.WrappedInput):
         self.simple_input = label.add_child(_UnstyledHTMLFileInput(form, bound_field))
         self.simple_input.html_representation.append_class('btn-secondary')
         label.add_child(Span(form.view, text=_('Choose file(s)')))
-        super(FileInputButton, self).__init__(self.simple_input)
+        super().__init__(self.simple_input)
         self.add_child(label)
 
         label.append_class('reahl-bootstrapfileinputbutton')
@@ -74,7 +71,7 @@ class FileInputButton(reahl.web.ui.WrappedInput):
 
     def get_js(self, context=None):
         js = ['$(".reahl-bootstrapfileinputbutton").bootstrapfileinputbutton({});']
-        return super(FileInputButton, self).get_js(context=context) + js
+        return super().get_js(context=context) + js
 
 
 class FileInput(reahl.web.ui.WrappedInput):
@@ -92,17 +89,16 @@ class FileInput(reahl.web.ui.WrappedInput):
     """
     def __init__(self, form, bound_field):
         file_input = FileInputButton(form, bound_field)
-        super(FileInput, self).__init__(file_input)
+        super().__init__(file_input)
 
         self.input_group = self.add_child(Div(self.view))
         self.input_group.append_class('input-group')
-        self.input_group.append_class('form-control')
         self.input_group.append_class('reahl-bootstrapfileinput')
         self.set_html_representation(self.input_group)
 
-        span = self.input_group.add_child(Span(form.view))
-        span.append_class('input-group-append')
-        span.add_child(file_input)
+        div = self.input_group.add_child(Div(form.view))
+        div.append_class('input-group-prepend')
+        div.add_child(file_input)
 
         filename_input = self.input_group.add_child(Span(self.view, text=_('No files chosen')))
         filename_input.append_class('form-control')
@@ -111,16 +107,16 @@ class FileInput(reahl.web.ui.WrappedInput):
     def get_js(self, context=None):
         js = ['$(".reahl-bootstrapfileinput").bootstrapfileinput({nfilesMessage: "%s", nofilesMessage: "%s"});' % \
               (_('files chosen'), _('No files chosen'))]
-        return super(FileInput, self).get_js(context=context) + js
+        return super().get_js(context=context) + js
 
 
 
 # Uses: reahl/web/reahl.files.js
 class FileUploadLi(Li):
     def __init__(self, form, remove_event, persisted_file, css_id=None):
-        super(FileUploadLi, self).__init__(form.view, css_id=css_id)
+        super().__init__(form.view, css_id=css_id)
         self.set_attribute('class', 'reahl-bootstrap-file-upload-li')
-        self.add_child(Button(form, remove_event.with_arguments(filename=persisted_file.filename)))
+        self.add_child(Button(form, remove_event.with_arguments(filename=persisted_file.filename), style='secondary'))
         self.add_child(Span(self.view, persisted_file.filename))
 
     def get_js(self, context=None):
@@ -131,7 +127,7 @@ class FileUploadLi(Li):
 # Uses: reahl/web/reahl.files.js
 class FileUploadPanel(Div):
     def __init__(self, file_upload_input, css_id=None):
-        super(FileUploadPanel, self).__init__(file_upload_input.view, css_id=css_id)
+        super().__init__(file_upload_input.view, css_id=css_id)
         self.set_attribute('class', 'reahl-bootstrap-file-upload-panel')
         self.file_upload_input = file_upload_input
 
@@ -159,10 +155,10 @@ class FileUploadPanel(Div):
     def add_upload_controls(self):
         controls_panel = self.upload_form.add_child(Div(self.view)).use_layout(FormLayout())
         file_input = controls_panel.layout.add_input(FileInput(self.upload_form.form, self.fields.uploaded_file), hide_label=True)
-
-        button_addon = file_input.html_representation.add_child(Span(self.view))
+        
+        button_addon = file_input.html_representation.add_child(Div(self.view))
         button_addon.append_class('input-group-append')
-        button_addon.add_child(Button(self.upload_form.form, self.events.upload_file))
+        button_addon.add_child(Button(self.upload_form.form, self.events.upload_file, style='secondary', outline=True))
         return controls_panel
 
     @property
@@ -190,11 +186,11 @@ class FileUploadPanel(Div):
         fields.uploaded_file.disallow_multiple()
         fields.uploaded_file.label = _('Add file')
         fields.uploaded_file.make_optional()
-        fields.uploaded_file.add_validation_constraint(UniqueFilesConstraint(self.input_form, self.bound_field.name))
+        fields.uploaded_file.add_validation_constraint(UniqueFilesConstraint(self.input_form, self.bound_field.name_in_input))
 
     def attach_jq_widget(self, selector, widget_name, **options):
         def js_repr(value):
-            if isinstance(value, six.string_types):
+            if isinstance(value, str):
                 return '"%s"' % value
             return value
         option_args = ','.join(['%s: %s' % (name, js_repr(value)) for name, value in options.items()])
@@ -212,7 +208,7 @@ class FileUploadPanel(Div):
                     cancelLabel=_('Cancel'),
                     duplicateValidationErrorMessage=unique_names_constraint.message,
                     waitForUploadsMessage=_('Please try again when all files have finished uploading.'))
-        return super(FileUploadPanel, self).get_js(context=context) + [js]
+        return super().get_js(context=context) + [js]
 
     def remove_file(self, filename):
         self.persisted_file_class.remove_persisted_for_form(self.input_form, self.name, filename)
@@ -235,26 +231,36 @@ class FileUploadInput(reahl.web.ui.Input):
     :param form: (See :class:`~reahl.web.ui.Input`)
     :param bound_field: (See :class:`~reahl.web.ui.Input`, must be of 
               type :class:`reahl.component.modelinterface.FileField`)
-    :keyword name: An optional name for this input (overrides the default)
+    :keyword base_name: (See :class:`~reahl.web.ui.PrimitiveInput`)
     :keyword name_discriminator: A string added to the computed name to prevent name clashes.
+    :keyword ignore_concurrent_change: If True, don't check for possible concurrent changes by others to this input (just override such changes).
+
 
     .. versionchanged:: 5.0
        Subclass of :class:`~reahl.web.ui.Input` and not :class:`~reahl.web.ui.PrimitiveInput`
-       Added `name`
+       Added `base_name`
        Added `name_discriminator`
+       Added `ignore_concurrency_change`
 
     """
     is_for_file = False
 
-    def __init__(self, form, bound_field, name=None, name_discriminator=None):
-        super(FileUploadInput, self).__init__(form, bound_field)
-        name_to_use = name or ('%s-%s%s' % (form.channel_name, self.bound_field.name, name_discriminator or ''))
+    def __init__(self, form, bound_field, base_name=None, name_discriminator=None, ignore_concurrency_change=False):
+        super().__init__(form, bound_field)
+        
+        self.ignore_concurrency_change = ignore_concurrency_change
+        name_to_use = '%s-%s%s' % (form.channel_name, base_name or self.bound_field.name, name_discriminator or '')
         bound_field.override_unqualified_name_in_input(name_to_use)
 
         form.register_input(self) # bound_field must be set for this registration to work
 
         self.set_html_representation(self.add_child(self.create_html_widget()))
 
+
+    def get_concurrency_hash_strings(self, for_database_values=False):
+        if not self.ignore_concurrency_change:
+            yield self.original_value
+            
     @property
     def name(self):
         return self.bound_field.name_in_input

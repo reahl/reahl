@@ -15,9 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 
-import six
 
 from reahl.tofu import Fixture, expected, scenario, uses
 from reahl.tofu.pytestsupport import with_fixtures
@@ -28,7 +26,7 @@ from reahl.webdev.tools import Browser, XPath
 
 from reahl.component.modelinterface import Field, exposed, IntegerField, MultiChoiceField, Choice, Action, Event
 from reahl.web.fw import Bookmark, Widget
-from reahl.web.ui import A, P, Form, TextInput, Div, CheckboxSelectInput, SelectInput, Label, NestedForm, ButtonInput
+from reahl.web.ui import A, P, Form, TextInput, Div, CheckboxSelectInput, SelectInput, Label, NestedForm, ButtonInput, FormLayout
 
 from reahl.web_dev.fixtures import WebFixture
 from reahl.dev.fixtures import ReahlSystemFixture
@@ -38,7 +36,7 @@ from reahl.dev.fixtures import ReahlSystemFixture
 class ValueScenarios(Fixture):
     @scenario
     def single_value(self):
-        self.field = IntegerField(required=False, default=1)
+        self.field = IntegerField(required=False, default=1, label='field')
         self.field_on_query_string = '{field_name}=123'
         self.field_value_marshalled = 123
         self.field_value_as_string = '123'
@@ -48,7 +46,8 @@ class ValueScenarios(Fixture):
         self.field = MultiChoiceField([Choice(1, IntegerField(label='One')),
                                        Choice(2, IntegerField(label='Two')),
                                        Choice(3, IntegerField(label='Three'))],
-                                       default=[])
+                                       default=[],
+                                       label='field')
         self.field_on_query_string = '{field_name}[]=1&{field_name}[]=3'
         self.field_value_marshalled = [1, 3]
         self.field_value_as_string = '1,3'
@@ -58,7 +57,7 @@ class ValueScenarios(Fixture):
         self.field = MultiChoiceField([Choice(1, IntegerField(label='One')),
                                        Choice(2, IntegerField(label='Two')),
                                        Choice(3, IntegerField(label='Three'))],
-                                       default=[2])
+                                       default=[2], label='field')
         self.field_on_query_string = ''
         self.field_value_marshalled = [2]
         self.field_value_as_string = '2'
@@ -68,7 +67,7 @@ class ValueScenarios(Fixture):
         self.field = MultiChoiceField([Choice(1, IntegerField(label='One')),
                                        Choice(2, IntegerField(label='Two')),
                                        Choice(3, IntegerField(label='Three'))],
-                                       default=[2])
+                                       default=[2], label='field')
         self.field_on_query_string = '{field_name}[]-'
         self.field_value_marshalled = []
         self.field_value_as_string = ''
@@ -82,8 +81,8 @@ def test_query_string_widget_arguments(web_fixture, value_scenarios):
 
     class WidgetWithQueryArguments(Widget):
         def __init__(self, view):
-            super(WidgetWithQueryArguments, self).__init__(view)
-            self.add_child(P(view, text=six.text_type(self.arg_directly_on_widget)))
+            super().__init__(view)
+            self.add_child(P(view, text=str(self.arg_directly_on_widget)))
 
         @exposed
         def query_fields(self, fields):
@@ -93,7 +92,7 @@ def test_query_string_widget_arguments(web_fixture, value_scenarios):
     browser = Browser(wsgi_app)
 
     browser.open('/?%s' % fixture.field_on_query_string.format(field_name='arg_directly_on_widget'))
-    assert browser.lxml_html.xpath('//p')[0].text == six.text_type(fixture.field_value_marshalled)
+    assert browser.lxml_html.xpath('//p')[0].text == str(fixture.field_value_marshalled)
 
 
 @with_fixtures(WebFixture, ValueScenarios)
@@ -102,7 +101,7 @@ def test_query_string_prepopulates_form(web_fixture, value_scenarios):
 
     fixture = value_scenarios
 
-    class ModelObject(object):
+    class ModelObject:
         @exposed
         def fields(self, fields):
             fields.arg_on_other_object = fixture.field
@@ -110,8 +109,9 @@ def test_query_string_prepopulates_form(web_fixture, value_scenarios):
     class FormWithQueryArguments(Form):
         def __init__(self, view):
             self.model_object = ModelObject()
-            super(FormWithQueryArguments, self).__init__(view, 'name')
-            self.add_child(TextInput(self, self.model_object.fields.arg_on_other_object))
+            super().__init__(view, 'name')
+            self.use_layout(FormLayout())
+            self.layout.add_input(TextInput(self, self.model_object.fields.arg_on_other_object))
 
         @exposed
         def query_fields(self, fields):
@@ -121,7 +121,7 @@ def test_query_string_prepopulates_form(web_fixture, value_scenarios):
     browser = Browser(wsgi_app)
 
     browser.open('/?%s' % fixture.field_on_query_string.format(field_name='name-arg_on_other_object'))
-    assert browser.lxml_html.xpath('//input')[0].value == fixture.field_value_as_string
+    assert browser.get_value(XPath.input_labelled('field')) == fixture.field_value_as_string
 
 
 @uses(web_fixture=WebFixture)
@@ -144,7 +144,7 @@ def test_widgets_with_bookmarkable_state(web_fixture, query_string_fixture, valu
 
     class MyFancyWidget(Div):
         def __init__(self, view):
-            super(MyFancyWidget, self).__init__(view, css_id='sedrick')
+            super().__init__(view, css_id='sedrick')
             self.enable_refresh()
             self.add_child(P(self.view, text='My state is now %s' % self.fancy_state))
             fixture.widget = self
@@ -158,7 +158,7 @@ def test_widgets_with_bookmarkable_state(web_fixture, query_string_fixture, valu
     web_fixture.driver_browser.open('/')
 
     # Case: the default
-    assert web_fixture.driver_browser.wait_for(fixture.is_state_now, six.text_type(value_scenarios.field.default))
+    assert web_fixture.driver_browser.wait_for(fixture.is_state_now, str(value_scenarios.field.default))
     assert fixture.widget.fancy_state == value_scenarios.field.default
 
     # Case: change without page load
@@ -179,7 +179,7 @@ def test_css_id_is_mandatory(web_fixture):
 
     class MyFancyWidget(Div):
         def __init__(self, view):
-            super(MyFancyWidget, self).__init__(view)
+            super().__init__(view)
             self.enable_refresh()
 
     with expected(ProgrammerError):
@@ -197,7 +197,7 @@ def test_refreshing_only_for_specific_args(web_fixture, query_string_fixture):
 
     class MyFancyWidget(Div):
         def __init__(self, view):
-            super(MyFancyWidget, self).__init__(view, css_id='sedrick')
+            super().__init__(view, css_id='sedrick')
             self.enable_refresh(self.query_fields.refreshing_state)
             self.add_child(P(self.view, text='My refreshing state is now %s' % self.refreshing_state))
             self.add_child(P(self.view, text='My non-refreshing state is now %s' % self.non_refreshing_state))
@@ -228,6 +228,62 @@ def test_refreshing_only_for_specific_args(web_fixture, query_string_fixture):
 
 
 @with_fixtures(WebFixture, QueryStringFixture)
+def test_coactive_widgets_are_refreshed_when_their_widgets_are(web_fixture, query_string_fixture):
+    """The coactive Widgets of a Widget are refreshed whenever the Widget itself is refreshed, even though
+       they are not children of the refreshed Widget."""
+
+    fixture = query_string_fixture
+    fixture.submitted = False
+
+    class RefreshingDiv(Div):
+        def __init__(self, view, coactive_div):
+            super().__init__(view, css_id='sedrick')
+            self.coactive_div = coactive_div
+            self.enable_refresh()
+            self.add_child(P(self.view, text='My state is now %s' % self.fancy_state))
+
+        @property
+        def coactive_widgets(self):
+            return super().coactive_widgets + [self.coactive_div]
+
+        @exposed
+        def query_fields(self, fields):
+            fields.fancy_state = IntegerField(required=False, default=1)
+
+
+    class MyFancyWidget(Widget):
+        def __init__(self, view):
+            super().__init__(view)
+            
+            static_div = self.add_child(Div(view))
+            coactive_div = static_div.add_child(Div(view, css_id='coactive_div'))
+
+            refreshing_div = self.add_child(RefreshingDiv(view, coactive_div))
+
+            text_to_show = 'original'
+            if refreshing_div.fancy_state == 2:
+                text_to_show = 'coactive refreshed'
+            coactive_div.add_child(P(view, text=text_to_show))
+
+            fixture.widget = self
+
+
+    wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=MyFancyWidget.factory())
+    web_fixture.reahl_server.set_app(wsgi_app)
+    web_fixture.driver_browser.open('/')
+
+    def coactive_widget_text_is(expected_text):
+        return web_fixture.driver_browser.is_element_present(XPath.paragraph().including_text(expected_text))
+
+    assert web_fixture.driver_browser.wait_for(fixture.is_state_now, '1')
+    assert coactive_widget_text_is('original')
+
+    web_fixture.driver_browser.set_fragment('#fancy_state=%s' % '2')
+    assert web_fixture.driver_browser.wait_for(fixture.is_state_now, '2')
+    assert coactive_widget_text_is('coactive refreshed')
+
+
+@with_fixtures(WebFixture, QueryStringFixture)
 def test_refresh_nested_forms(web_fixture, query_string_fixture):
     """NestedForms work correctly when they appear as children of a refreshed widget."""
 
@@ -236,7 +292,7 @@ def test_refresh_nested_forms(web_fixture, query_string_fixture):
 
     class MyFancyWidget(Div):
         def __init__(self, view):
-            super(MyFancyWidget, self).__init__(view, css_id='sedrick')
+            super().__init__(view, css_id='sedrick')
             self.enable_refresh()
             self.add_child(P(self.view, text='My state is now %s' % self.fancy_state))
             if self.fancy_state == 2:

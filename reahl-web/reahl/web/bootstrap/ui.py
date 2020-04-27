@@ -1,5 +1,4 @@
 # Copyright 2015-2018 Reahl Software Services (Pty) Ltd. All rights reserved.
-#-*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
 #
@@ -25,47 +24,20 @@ correspondence to HTML elements (or are of similar simplicity).
 
 
 """
-from __future__ import print_function, unicode_literals, absolute_import, division
 
-import six
 
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.i18n import Catalogue
+from reahl.component.modelinterface import exposed
 
 import reahl.web.ui
+# These are imported here for convenience so they can be imported from reahl.web.bootstrap.ui:
 from reahl.web.ui import A, Article, Body, Br, Div, Footer, H, Head, Header, Img, \
     Li, Link, LiteralHTML, Meta, Nav, Ol, OptGroup, P, Small, RunningOnBadge, Slot, Span, TextNode, \
-    Title, Ul, WrappedInput, FieldSet, Legend, HTMLAttributeValueOption, Widget, HTMLElement, HTMLWidget
-
-from reahl.web.bootstrap.grid import Container, ColumnLayout, ResponsiveSize
-
+    Title, Ul, WrappedInput, FieldSet, Legend, HTMLAttributeValueOption, Widget, HTMLElement, HTMLWidget, \
+    Br, Hr
 
 _ = Catalogue('reahl-web')
-
-
-class HTML5Page(reahl.web.ui.HTML5Page):
-    """A web page that may be used as the page of a web application. It ensures that everything needed by
-       the framework (linked CSS and JavaScript, etc) is available on such a page.
-
-       .. admonition:: Styling
-       
-          Renders as an HTML5 page with customised <head> and an empty <body>.
-       
-       :param view: (See :class:`reahl.web.fw.Widget`)
-       :keyword title: (See :class:`reahl.web.ui.HTML5Page`)
-       :keyword css_id: (See :class:`reahl.web.ui.HTMLElement`)
-       
-    """
-    def check_form_related_programmer_errors(self):
-        super(HTML5Page, self).check_form_related_programmer_errors()
-        self.check_grids_nesting()
-        
-    def check_grids_nesting(self):
-        for widget, parents_set in self.parent_widget_pairs(set([])):
-            if isinstance(widget.layout, ColumnLayout):
-                if not any(isinstance(parent.layout, Container) for parent in parents_set):
-                    raise ProgrammerError(('%s does not have a parent with Layout of type %s.' % (widget, Container))+\
-                      ' %s has a ColumnLayout, and thus needs to have an anchestor with a Container Layout.' % widget)
 
 
 class Alert(Div):
@@ -80,18 +52,18 @@ class Alert(Div):
 
     """
     def __init__(self, view, message_or_widget, severity):
-        super(Alert, self).__init__(view)
+        super().__init__(view)
         severity_option = HTMLAttributeValueOption(severity, severity, prefix='alert', 
                                                    constrain_value_to=['primary', 'secondary',
                                                                        'success', 'info', 'warning', 'danger',
                                                                        'light', 'dark'])
         child_widget = message_or_widget
-        if isinstance(message_or_widget, six.string_types):
+        if isinstance(message_or_widget, str):
             child_widget = TextNode(view, message_or_widget)
         self.add_child(child_widget)
         self.append_class('alert')
         self.append_class(severity_option.as_html_snippet())
-        self.set_attribute('role', 'alert')
+        self.set_attribute('role', 'alert') 
 
 
 class Badge(Span):
@@ -106,7 +78,7 @@ class Badge(Span):
     :keyword pill: Defaults to False. If set to True the badge will look like a pill.
     """
     def __init__(self, view, message, level, pill=False):
-        super(Badge, self).__init__(view)
+        super().__init__(view)
         severity_option = HTMLAttributeValueOption(level, level, prefix='badge',
                                                    constrain_value_to=['primary', 'secondary',
                                                                        'success', 'info', 'warning', 'danger',
