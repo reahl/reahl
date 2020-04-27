@@ -170,7 +170,10 @@ def test_i18n(web_fixture, file_input_fixture):
     browser.wait_for(fixture.message_displayed_is, 'Geen lêers gekies')
     browser.wait_for_element_present(XPath.input_labelled('Kies lêer(s)'))
 
-    browser.type(XPath.input_labelled('Kies lêer(s)'), '/tmp/koos.html\n/tmp/jannie.html')
+    file1 = temp_file_with('', name='file1.txt')
+    file2 = temp_file_with('', name='file2.txt')
+    browser.type(XPath.input_labelled('Kies lêer(s)'), file1.name)
+    browser.type(XPath.input_labelled('Kies lêer(s)'), file2.name)
     browser.wait_for(fixture.message_displayed_is, '2 gekose lêers')
 
 
