@@ -670,7 +670,6 @@ def test_button_layouts_on_anchors(web_fixture):
     assert 'aria-disabled' not in rendered_anchor.attrib
     assert 'tabindex' not in rendered_anchor.attrib
 
-
     anchor = A(web_fixture.view, href=Url('/an/href'), description='link text', write_check=lambda: False).use_layout(ButtonLayout())
     tester = WidgetTester(anchor)
     [rendered_anchor] = tester.xpath(XPath.link().with_text('link text'))
@@ -681,10 +680,9 @@ def test_button_layouts_on_anchors(web_fixture):
 
 @with_fixtures(WebFixture)
 def test_button_layouts_on_disabled_anchors(web_fixture):
-    """Disabled A's are marked with a class so Bootstap can style them appropriately."""
+    """Disabled A's are marked with a class so Bootstrap can style them appropriately."""
     def can_write():
         return False
-
 
     anchor = A(web_fixture.view, href=Url('/an/href'), description='link text', write_check=can_write)
     anchor.use_layout(ButtonLayout())
