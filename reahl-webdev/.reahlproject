@@ -17,12 +17,12 @@
     <egg name="reahl-tofu"/>
     <egg name="reahl-domain"/>
     
-    <thirdpartyegg name="lxml" minversion="4.5" maxversion="4.5.999"/>
+    <thirdpartyegg name="lxml" minversion="4.2" maxversion="4.5.999"/>
     <thirdpartyegg name="WebTest" minversion="2.0" maxversion="2.0.999"/>
-    <thirdpartyegg name="selenium" minversion="3.141" maxversion="3.9999"/>
-    <thirdpartyegg name="watchdog" minversion="0.10.2" maxversion="0.10.2.999"/>
+    <thirdpartyegg name="selenium" minversion="2.42" maxversion="3.141.999"/>
+    <thirdpartyegg name="watchdog" minversion="0.8.3" maxversion="0.10.999"/>
     <thirdpartyegg name="setuptools" minversion="32.3.1"/>
-    <thirdpartyegg name="WebOb" minversion="1.8" maxversion="1.8.999"/>
+    <thirdpartyegg name="WebOb" minversion="1.4" maxversion="1.8.999"/>
   </deps>
 
   <deps purpose="test">
@@ -33,7 +33,7 @@
   </deps>
 
   <extras name="pillow">
-    <thirdpartyegg name="Pillow" minversion="7.1" maxversion="7.1.999"/>
+    <thirdpartyegg name="Pillow" minversion="2.5" maxversion="7.1.999"/>
   </extras>
 
   <export entrypoint="reahl.component.commands" name="ServeCurrentProject" locator="reahl.webdev.commands:ServeCurrentProject"/>
