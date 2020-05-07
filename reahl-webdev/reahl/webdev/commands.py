@@ -14,8 +14,6 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
-
 import platform
 import sys
 import os
@@ -31,18 +29,14 @@ from reahl.dev.exceptions import CouldNotConfigureServer
 
 from reahl.component.shelltools import Executable, Command
 from reahl.component.exceptions import DomainException
-from reahl.component.context import ExecutionContext
 from reahl.component.config import StoredConfiguration
-from reahl.component.i18n import Catalogue
+from reahl.component.decorators import memoized
 from reahl.webdev.webserver import ReahlWebServer, ServerSupervisor
 
 from prompt_toolkit import prompt
 from prompt_toolkit.validation import Validator
 from prompt_toolkit.completion import WordCompleter
 from prompt_toolkit.completion.filesystem import PathCompleter
-
-
-_ = Catalogue('reahl-webdev')
 
 
 class ServeCurrentProject(WorkspaceCommand):
@@ -167,11 +161,11 @@ class Menu(object):
             key = index + 1
             messages.append('%s %s' % (self.indent, mi.as_option(key)))
             allowed_words.append('%s' % key)
-        messages.append('%s%s: ' % (self.indent, _('Type your selection')))
+        messages.append('%s%s: ' % (self.indent, 'Type your selection'))
 
         prompt_message = '\n'.join(messages)
         allowed_menu_selection_validator = Validator.from_callable(lambda x: x in allowed_words,
-                                                                   error_message=_('Not a valid selection'),
+                                                                   error_message='Not a valid selection',
                                                                    move_cursor_to_end=True)
 
         selected_key_string = prompt(prompt_message,
@@ -184,12 +178,11 @@ class Menu(object):
         try:
             return selected.call_callable()
         except Exception as e:
-            prompt(_('Something is wrong with the option you chose [%s]. Press <enter> and choose another item.'
-                     % str(e)))
+            prompt('Something is wrong with the option you chose [%s]. Press <enter> and choose another item.' % str(e))
             return self.show()
 
     def ensure_exit_menu_item_exists(self):
-        exit_str = _('Exit')
+        exit_str = 'Exit'
         if self.menu_items[-1].message != exit_str:
             self.add_menu_item(exit_str, sys.exit, 0)
 
@@ -211,52 +204,76 @@ class MenuItem(object):
 class BasicConfig(object):
     def __init__(self):
         self.target_config_directory = None
+        self.root_egg = None
         self.site_root = None
-        self.existing_config = None
         self.reahl_debug = True
+        self.database = None
 
     def ask_detail_questions(self):
         self.ask_target_directory()
+        self.ask_root_egg()
         self.ask_site_root()
         self.ask_reahl_debug()
+        self.ask_database_questions()
+
+    def ask_database_questions(self):
+        menu = Menu('Database type')
+        menu.add_menu_item('Sqlite', SQLiteConfig)
+        menu.add_menu_item('Postgresql', PostgreSQLConfig)
+        menu.add_menu_item('MySql', MySQLConfig)
+        self.database = menu.show()
+        self.database.ask_detail_questions()
 
     def ask_target_directory(self):
         def not_path_exists(x):
             return not os.path.exists(x)
-        path_exist_validator = Validator.from_callable(not_path_exists, error_message=_('Path exists, choose another'), move_cursor_to_end=True)
-        self.target_config_directory = prompt('%s: ' % _('New config directory name'),
+        path_exist_validator = Validator.from_callable(not_path_exists, error_message='Path exists, choose another', move_cursor_to_end=True)
+        self.target_config_directory = prompt('%s: ' % 'New config directory name',
                                               completer=WordCompleter(words=['etc-prod']), validator=path_exist_validator)
 
     def ask_reahl_debug(self):
-        menu = Menu(_('Configure the application to run in DEBUG mode'))
-        menu.add_menu_item('%s? ' % _('Yes'), lambda: True)
-        menu.add_menu_item('%s? ' % _('No'), lambda: False)
+        menu = Menu('Configure the application to run in DEBUG mode')
+        menu.add_menu_item('Yes? ', lambda: True)
+        menu.add_menu_item('No? ', lambda: False)
         self.reahl_debug = menu.show()
 
+    def ask_root_egg(self):
+        menu = Menu('What is the name of your main component?')
+        menu.add_menu_item('From existing config? ', self.get_root_egg_from_existing_config)
+        menu.add_menu_item('Provide it yourself? ', self.get_root_egg_from_user)
+        self.root_egg = menu.show()
+
+    def get_root_egg_from_user(self):
+        return prompt('Enter the main component name', default=os.path.basename(os.getcwd()))
+
+    def get_root_egg_from_existing_config(self):
+        return self.existing_config.reahlsystem.root_egg
+
     def ask_site_root(self):
-        menu = Menu(_('Root application module'))
-        menu.add_menu_item('%s? ' % _('From existing config'), self.get_site_root_from_existing_config)
-        menu.add_menu_item('%s? ' % _('Provide it yourself'), self.get_site_root_from_user)
+        menu = Menu('Root application module')
+        menu.add_menu_item('From existing config? ', self.get_site_root_from_existing_config)
+        menu.add_menu_item('Provide it yourself? ', self.get_site_root_from_user)
         self.site_root = menu.show()
 
     def get_site_root_from_user(self):
-        module_name = prompt('%s: ' % _('Enter the site root module'), default='my.module')
-        class_name = prompt('%s: ' % _('Enter the site root class'), default='MyApp')
+        module_name = prompt('Enter the site root module: ', default='my.module')
+        class_name = prompt('Enter the site root class: ', default='MyApp')
         exec('from %s import %s' % (module_name, class_name))
         return getattr(sys.modules[module_name], class_name)
 
     def get_site_root_from_existing_config(self):
-        self.ask_existing_config()
         return self.existing_config.web.site_root
 
-    def ask_existing_config(self):
+    @property
+    @memoized
+    def existing_config(self):
         path_exist_validator = Validator.from_callable(os.path.exists,
-                                                       error_message=_('Path does not exist, choose existing path'),
+                                                       error_message='Path does not exist, choose existing path',
                                                        move_cursor_to_end=True)
-        config_directory = prompt('%s: ' % _('Existing config directory name'),
+        config_directory = prompt('%s: ' % 'Existing config directory name',
                                   completer=PathCompleter(only_directories=True, expanduser=True),
                                   validator=path_exist_validator)
-        self.existing_config = self.read_existing_config(config_directory)
+        return self.read_existing_config(config_directory)
 
     def read_existing_config(self, config_directory):
         config = StoredConfiguration(config_directory)
@@ -308,16 +325,16 @@ class DatabaseConfig(object):
         return ''
 
     def ask_detail_questions(self):
-        self.username = prompt('%s ? ' % _('username'), default='')
-        self.password = prompt('%s ? ' % _('password'), default='')
-        self.hostname = prompt('%s ? ' % _('hostname'), default=self.hostname_default)
-        self.port = prompt('%s ? ' % _('port'), default=self.port_default)
-        self.database_name = prompt('%s ? ' % _('database name'), default=self.database_name_default)
+        self.username = prompt('username ? ', default='')
+        self.password = prompt('password (will be echoed to screen) ? ', default='')
+        self.hostname = prompt('hostname ? ', default=self.hostname_default)
+        self.port = prompt('port ? ', default=self.port_default)
+        self.database_name = prompt('database name ? ', default=self.database_name_default)
 
 
 class SQLiteConfig(DatabaseConfig):
     def __init__(self):
-        super(SQLiteConfig, self).__init__('sqlite')
+        super().__init__('sqlite')
         self.in_memory = False
         self.file_path = False
 
@@ -329,20 +346,20 @@ class SQLiteConfig(DatabaseConfig):
         elif self.in_memory:
             self.database_name = ':memory:'
         if self.database_name:
-            return super(SQLiteConfig, self).url()
-        raise Exception('SQLite ' % _('should be in_memory or for file_path'))
+            return super().url
+        raise Exception('SQLite should be in_memory or for file_path')
 
     def set_to_in_memory(self):
         self.in_memory = True
 
     def set_file_path(self):
-        file_path = prompt(_('Enter the file_path for the db'), default='/tmp/myapp.db')
+        file_path = prompt('Enter the file_path for the db: ', default='/tmp/myapp.db')
         self.file_path = file_path
 
     def ask_detail_questions(self):
-        menu = Menu('SQLite %s' % _('options'))
-        menu.add_menu_item('SQLite - %s' % _('in memory'), self.set_to_in_memory)
-        menu.add_menu_item('SQLite - %s' % _('file'), self.set_file_path)
+        menu = Menu('SQLite options')
+        menu.add_menu_item('SQLite - in memory', self.set_to_in_memory)
+        menu.add_menu_item('SQLite - file', self.set_file_path)
         menu.show()
 
 
@@ -356,95 +373,36 @@ class MySQLConfig(DatabaseConfig):
         super(MySQLConfig, self).__init__('mysql')
 
 
-class MySQLConfigPythonAnywhere(MySQLConfig):
-    @property
-    def hostname_default(self):
-        return '%s.mysql.pythonanywhere-services.com' % self.username
-
-    @property
-    def database_name_default(self):
-        return '%s$%s' % (self.username, 'reahl')
-
-
-class Platform(object):
-    def __init__(self):
-        pass
-
-    def ask_detail_questions(self):
-        pass
-
-
-class LocalApp(Platform):
-    def __init__(self):
-        self.database = None
-
-    def ask_detail_questions(self):
-        menu = Menu(_('Database type'))
-        menu.add_menu_item('Sqlite', SqliteConfig)
-        menu.add_menu_item('Postgresql', PostgresqlConfig)
-        self.database = menu.show()
-        self.database.ask_detail_questions()
-
-
-class LocaleContext(ExecutionContext):
-    def __init__(self, locale='en_gb'):
-        super(LocaleContext, self).__init__()
-        self.locale = locale
-
-    @property
-    def interface_locale(self):
-        return self.locale
-
-
 class CreateConfig(WorkspaceCommand):
     """Interactively create new set of configuration settings."""
     keyword = 'createconfig'
 
-    def assemble(self):
-        super(CreateConfig, self).assemble()
-        self.parser.add_argument('-l', '--locale', action='store', dest='locale', help='locale identifier, used to translate interactive questions if the translation exists, such as en_gb(default, english), af(afrikaans) etc.')
-
-    def ask_platform(self):
-        def not_yet_available():
-            raise Exception(_('This option is not yet available'))
-
-        menu = Menu(_('Application platform'))
-        menu.add_menu_item(_('local, on this machine'), LocalApp)
-        menu.add_menu_item('pythonanywhere', not_yet_available)
-        menu.add_menu_item('AWS', not_yet_available)
-        # menu.add_menu_item('Docker')
-        # menu.add_menu_item('Heroku')
-        return menu.show()
-
     def execute(self, args):
         print('\n')
-        LocaleContext(locale=args.locale).install()
 
         basic_config = BasicConfig()
         basic_config.ask_detail_questions()
 
-        print('\n')
-        platform_ = self.ask_platform()
-        platform_.ask_detail_questions()
-
         os.mkdir(basic_config.target_config_directory)
-        self.create_reahl_system_config_file(basic_config, platform_)
+        self.create_reahl_system_config_file(basic_config)
         self.create_web_config_file(basic_config)
 
         print('\n')
-        print('%s: %s' % (_('Created config in'), basic_config.target_config_directory))
+        print('%s: %s' % ('Created config in', basic_config.target_config_directory))
 
-    def create_reahl_system_config_file(self, basic_config, platform_):
+    def create_reahl_system_config_file(self, basic_config):
         reahl_config = ConfigFile(os.path.join(basic_config.target_config_directory, 'reahl.config.py'))
-        reahl_config.add_line("reahlsystem.root_egg = %s" % str(basic_config.root_egg))
-        reahl_config.add_line("reahlsystem.debug = %s" % str(basic_config.reahl_debug))
-        reahl_config.add_line("reahlsystem.connection_uri = '%s'" % platform_.database.url)
+        reahl_config.add_line('')
+        reahl_config.add_line("reahlsystem.root_egg = '%s'" % str(basic_config.root_egg))
+        reahl_config.add_line('reahlsystem.debug = %s' % str(basic_config.reahl_debug))
+        reahl_config.add_line("reahlsystem.connection_uri = '%s'" % basic_config.database.url)
         reahl_config.write()
 
     def create_web_config_file(self, basic_config):
         class_part = basic_config.site_root.__name__
         module_part = basic_config.site_root.__module__
         reahl_config = ConfigFile(os.path.join(basic_config.target_config_directory, 'web.config.py'))
+        reahl_config.add_line('')
         reahl_config.add_line('from %s import %s' % (module_part, class_part))
         reahl_config.add_line('')
         reahl_config.add_line('web.site_root = %s' % class_part)
