@@ -23,6 +23,7 @@
     <thirdpartyegg name="watchdog" minversion="0.8.3" maxversion="0.10.999"/>
     <thirdpartyegg name="setuptools" minversion="32.3.1"/>
     <thirdpartyegg name="WebOb" minversion="1.4" maxversion="1.8.999"/>
+    <thirdpartyegg name="prompt_toolkit" minversion="3.0.5" maxversion="3.0.999"/>
   </deps>
 
   <deps purpose="test">
