@@ -109,10 +109,6 @@ class Example:
         root_path = pkg_resources.resource_filename(self.containing_package, '')
         return self.absolute_path[len(root_path):]
 
-    # @property
-    # def checkout_directory_name(self):
-    #     return self.module_name
-
     @property
     def exists(self):
         try:
@@ -139,14 +135,19 @@ class Example:
     @property
     def checkout_changes(self):
         changes = CheckoutChanges(self)
-        if self.name == 'features.i18nexample':
+        if self.name == 'tutorial.i18nexamplebootstrap':
+            catalogue_name = 'i18nexamplebootstrap' or self.new_name
+            changes.add_replace_text('Catalogue(\'reahl-doc\')', 'Catalogue(\'%s\')' % catalogue_name)
+            changes.add_file_rename('reahl-doc.po', '%s.po' % catalogue_name)
+            changes.add_file_rename('reahl-doc', '%s' % catalogue_name)
+        elif self.name == 'features.i18nexample':
             catalogue_name = 'i18nexample' or self.new_name
             changes.add_replace_text('Catalogue(\'reahl-doc\')', 'Catalogue(\'%s\')' % catalogue_name)
             changes.add_file_rename('reahl-doc.po', '%s.po' % catalogue_name)
             changes.add_file_rename('reahl-doc', '%s' % catalogue_name)
-            return changes
         if self.new_name:
             changes.add_replace_text(self.module_name, self.new_name)
+            changes.add_replace_text('#: reahl/doc/examples/%s/' % self.name.split('.')[0], '#: ')
         return changes
 
     def checkout_dir(self, source, dest):
