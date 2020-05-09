@@ -60,7 +60,7 @@ class ExampleFixture(Fixture):
     def new_GetExample(self):
         @stubclass(GetExample)
         class GetExampleStub(GetExample):
-            def create_example(self, name):
+            def create_example(self, name, new_name=None):
                 return Example('testexamples', name)
         return GetExampleStub
     
