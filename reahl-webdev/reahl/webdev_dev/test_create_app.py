@@ -69,8 +69,8 @@ class PromptFixture(Fixture):
 
     def new_existing_etc(self):
         class Etc:
-            reahl_config = file_with(self.existing_etc_path.joinpath('reahl.config.py'), '\n'.join(self.new_expected_reahl_config(root_egg='reahl-doc')))
-            web_config = file_with(self.existing_etc_path.joinpath('web.config.py'), '\n'.join(self.new_expected_web_config(module='reahl.doc.examples.tutorial.addresslist.addresslist', root_class='AddressBookUI')))
+            reahl_config = file_with(str(self.existing_etc_path.joinpath('reahl.config.py')), '\n'.join(self.new_expected_reahl_config(root_egg='reahl-doc')))
+            web_config = file_with(str(self.existing_etc_path.joinpath('web.config.py')), '\n'.join(self.new_expected_web_config(module='reahl.doc.examples.tutorial.addresslist.addresslist', root_class='AddressBookUI')))
         return Etc
 
     config_directory_question = 'New config directory name:'
