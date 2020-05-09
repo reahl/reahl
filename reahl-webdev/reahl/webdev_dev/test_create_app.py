@@ -121,7 +121,7 @@ class PromptFixture(Fixture):
         ''' % (module, root_class, root_class) ).splitlines()
 
     def get_lines_of_file(self, filename):
-        with open(self.etc_path.joinpath(filename)) as f:
+        with open(str(self.etc_path.joinpath(filename))) as f:
             return f.read().splitlines()
 
     def navigate_up_to_database(self):
