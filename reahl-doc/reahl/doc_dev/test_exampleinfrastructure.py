@@ -63,7 +63,7 @@ class ExampleFixture(Fixture):
             def create_example(self, name, new_name=None):
                 return Example('testexamples', name)
         return GetExampleStub
-    
+
 
 class ImportErrorScenarios(ExampleFixture):
     @scenario
@@ -107,6 +107,7 @@ def in_directory(temp_working_directory):
         yield
     finally:
         os.chdir(cwd)
+
 
 def test_example_renames():
     "When checking out an example with another name, the relevant parts of the code is changed and files are renamed to the new name."

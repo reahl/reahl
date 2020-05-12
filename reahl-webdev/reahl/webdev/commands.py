@@ -109,7 +109,6 @@ class SyncFiles(Command):
                     return match.group(1)
         raise DomainException(message='Cannot find the site name in sitecopy.rc')
 
-    
     def assemble(self):
         self.parser.add_argument('-f', '--fetch-first', action='store_true', dest='fetch_first',
                                  help='first fetch data from the site to ensure we are in sync')
@@ -132,13 +131,11 @@ class SyncFiles(Command):
             raise DomainException(message='Running "%s" failed with exit code %s' % (' '.join(ex.cmd), ex.returncode))
 
 
-class Menu(object):
+class Menu:
     def __init__(self, message):
-        #assert isinstance(Menu, parent_menu) if parent_menu else True, parent_menu
         self.message = message
         self.menu_items = []
         self.selected_key_string = None
-        #self.indent_level = parent_menu.indent_level+1 if parent_menu else 0
         self.indent_level = 0
 
     @property
@@ -187,7 +184,7 @@ class Menu(object):
             self.add_menu_item(exit_str, sys.exit, 0)
 
 
-class MenuItem(object):
+class MenuItem:
     def __init__(self, message, callable_item, args, kwargs):
         self.message = message
         self.callable_item = callable_item
@@ -201,7 +198,7 @@ class MenuItem(object):
         return self.callable_item(*self.callable_args, **self.callable_kwargs)
 
 
-class BasicConfig(object):
+class BasicConfig:
     def __init__(self):
         self.target_config_directory = None
         self.root_egg = None
@@ -281,7 +278,7 @@ class BasicConfig(object):
         return config
 
 
-class ConfigFile(object):
+class ConfigFile:
     def __init__(self, file_path):
         self.file_path = file_path
         self.config_lines = []
@@ -294,7 +291,7 @@ class ConfigFile(object):
             config_file.writelines('%s\n' % l for l in self.config_lines)
 
 
-class DatabaseConfig(object):
+class DatabaseConfig:
     def __init__(self, db_url_scheme):
         self.db_url_scheme = db_url_scheme
         self.username = None
@@ -340,7 +337,6 @@ class SQLiteConfig(DatabaseConfig):
 
     @property
     def url(self):
-        url = 'sqlite:///%s'
         if self.file_path:
             self.database_name = self.file_path
         elif self.in_memory:
@@ -365,12 +361,12 @@ class SQLiteConfig(DatabaseConfig):
 
 class PostgreSQLConfig(DatabaseConfig):
     def __init__(self):
-        super(PostgreSQLConfig, self).__init__('postgresql')
+        super().__init__('postgresql')
 
 
 class MySQLConfig(DatabaseConfig):
     def __init__(self):
-        super(MySQLConfig, self).__init__('mysql')
+        super().__init__('mysql')
 
 
 class CreateConfig(WorkspaceCommand):
