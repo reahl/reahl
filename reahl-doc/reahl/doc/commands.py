@@ -13,15 +13,12 @@
 #
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-
-
-
 import os
 import shutil
 import pkg_resources
 import codecs
 import re
+import collections
 
 from reahl.dev.devshell import WorkspaceCommand
 
@@ -29,7 +26,7 @@ from reahl.dev.devshell import WorkspaceCommand
 class CheckoutChanges:
     def __init__(self, example):
         self.example = example
-        self.source_text_replacements = {}
+        self.source_text_replacements = collections.OrderedDict()
         self.files_to_rename = {}
 
         full_module_name = 'reahl.doc.examples.%s' % self.example.name
