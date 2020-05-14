@@ -132,6 +132,7 @@ class Example:
     @property
     def checkout_changes(self):
         changes = CheckoutChanges(self)
+        changes.add_replace_text("reahlsystem.root_egg = 'reahl-doc'", '')
         if self.name == 'tutorial.i18nexamplebootstrap':
             catalogue_name = 'i18nexamplebootstrap' or self.new_name
             changes.add_replace_text('Catalogue(\'reahl-doc\')', 'Catalogue(\'%s\')' % catalogue_name)
