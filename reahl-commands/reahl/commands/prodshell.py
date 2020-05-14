@@ -17,6 +17,7 @@
 """The Reahl production commandline utility."""
 
 
+import sys
 import os.path
 import os
 import shutil
@@ -30,10 +31,9 @@ from pkg_resources import DistributionNotFound, get_distribution
 from reahl.component.dbutils import SystemControl
 from reahl.component.shelltools import Command, ReahlCommandline, AliasFile
 from reahl.component.context import ExecutionContext
-from reahl.component.config import EntryPointClassList, Configuration, ConfigSetting, StoredConfiguration, MissingValue
+from reahl.component.config import ConfigSetting, StoredConfiguration, MissingValue
 from reahl.component.eggs import ReahlEgg
 from reahl.component.exceptions import DomainException
-
 
 
 class ComponentInfo(Command):

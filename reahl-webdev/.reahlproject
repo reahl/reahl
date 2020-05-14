@@ -3,6 +3,8 @@
     <package name="reahl"/>
   </namespaces>
 
+  <translations locator="reahl.messages"/>
+
   <deps purpose="build">
     <thirdpartyegg name="setuptools-git" minversion="1.1"/>
     <thirdpartyegg name="pytest-runner"/>
@@ -21,10 +23,12 @@
     <thirdpartyegg name="watchdog" minversion="0.8.3" maxversion="0.10.999"/>
     <thirdpartyegg name="setuptools" minversion="32.3.1"/>
     <thirdpartyegg name="WebOb" minversion="1.4" maxversion="1.8.999"/>
+    <thirdpartyegg name="prompt_toolkit" minversion="2.0.10" maxversion="2.0.999"/>
   </deps>
 
   <deps purpose="test">
     <thirdpartyegg name="pytest" minversion="3.0"/>
+    <egg name="reahl-doc"/>
     <egg name="reahl-tofu"/>
     <egg name="reahl-postgresqlsupport"/>
     <egg name="reahl-stubble"/>
@@ -36,6 +40,7 @@
 
   <export entrypoint="reahl.component.commands" name="ServeCurrentProject" locator="reahl.webdev.commands:ServeCurrentProject"/>
   <export entrypoint="reahl.component.commands" name="SyncFiles" locator="reahl.webdev.commands:SyncFiles"/>
+  <export entrypoint="reahl.component.commands" name="CreateConfig" locator="reahl.webdev.commands:CreateConfig"/>
 
 
   <distpackage type="wheel">

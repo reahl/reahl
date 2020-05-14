@@ -64,7 +64,8 @@ def test_method_signature_mismatch():
         class Stub:
             def method(self, b, akwarg=None, *args, **kwargs):
                 pass
-    assert excinfo.match('^signature mismatch:.*Stub.method.*\(self, b, akwarg=None, \*args, \*\*kwargs\) does not match .*Stubbed.method.*\(self, a, b, akwarg=None, \*args, \*\*kwargs\)$')
+    #assert excinfo.match('^signature mismatch:.*Stub.method.*\(self, b, akwarg=None, \*args, \*\*kwargs\) does not match .*Stubbed.method.*\(self, a, b, akwarg=None, \*args, \*\*kwargs\)$')
+    assert excinfo.match('^signature mismatch for args: orig\(\[\'self\', \'a\', \'b\', \'akwarg\'\]\) != stub\(\[\'self\', \'b\', \'akwarg\'\]\)$')
 
 
 def test_property_method_missing_on_orig():

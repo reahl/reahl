@@ -78,17 +78,22 @@ class StubClass:
             (stub, stubbed, type(orig), self.orig)
 
     @classmethod
-    def signatures_match(cls, orig, stubbed, ignore_self=False):
+    def signatures_match(cls, orig, stubbed, ignore_self=False, compare_in_signature=['args', 'varargs', 'varkw', 'defaults', 'kwonlyargs', 'kwonlydefaults']):
         orig_arguments = inspect.getfullargspec(orig)
         stub_arguments = inspect.getfullargspec(stubbed)
 
         if ignore_self:
             if 'self' in orig_arguments.args: orig_arguments.args.remove('self')
             if 'self' in stub_arguments.args: stub_arguments.args.remove('self')
-        assert orig_arguments == stub_arguments, \
-            'signature mismatch: %s%s does not match %s%s' % \
-            (stubbed, inspect.formatargspec(*stub_arguments), 
-             orig, inspect.formatargspec(*orig_arguments))
+        orig_arg_dict = orig_arguments._asdict()
+        stub_arg_dict = stub_arguments._asdict()
+
+        def assert_same(key):
+            orig = orig_arg_dict[key]
+            stub = stub_arg_dict[key]
+            assert orig == stub, 'signature mismatch for %s: orig(%s) != stub(%s)' % (key, orig, stub)
+        for key in compare_in_signature:
+            assert_same(key)
             
         return False
         
