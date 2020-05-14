@@ -22,26 +22,67 @@
     $.widget("reahl.primitiveinput", {
         options: {
         },
-        
+
         _create: function() {
             var o = this.options;
             var _this = this;
+            this.busyTabbing = false;
+            this.shift = false;
+            this.focussedElement = undefined;
+            this.buffer = [];
             this.element.addClass("reahl-primitiveinput");
     
             this.getAllRelatedFormInputs().data('reahlPrimitiveinput', this);
 
             if (this.getRefreshWidgetId()) {
-                this.element.on('change', function(e) {
-//                    var currentInput = $(_this.getAllRelatedFormInputs()[0]);
-                    var currentInput = $(e.target);
-                    var inputId = currentInput.attr('id');
-                    var selectorForFocus = '#'+inputId;
+                this.element.on('keydown', function(e) {
+                    if ( e.which == 9 ) {
+                        _this.busyTabbing = true;
+                        _this.shift = e.shiftKey;
+                        _this.focussedElement = $(':focus');
+                        e.preventDefault();
+                        setTimeout(function() {_this.element.change() }, 0);
+                    } 
+                });
 
+                this.element.on('keypress', function(e) {
+                    if ( _this.busyTabbing ) {
+                        _this.buffer.push(e.which);
+                        e.preventDefault();
+                    }
+                });
+
+                this.element.on('change', function(e) {
                     if (_this.isValid()) { 
-                        $(currentInput).focus();
                         $('#'+_this.getRefreshWidgetId()).data('reahlHashchange').forceReload(function(){ 
-                            $(selectorForFocus).focus();
+                            var newFocussedElement;
+                            if (_this.busyTabbing) {
+                                var currentInput = _this.focussedElement;
+                                var inputId = currentInput.attr('id');
+                                var selectorForFocus = '#'+inputId;
+
+                                var focusables = $(":tabbable");//focusable
+                                var current = focusables.index($(selectorForFocus));
+                                var next;
+                                if (_this.shift) {
+                                    next = current-1 < 0 ? focusables.length-1 : current-1;
+                                } else {
+                                   next = current+1 > focusables.length-1 ? 0 : current+1;
+                                }
+                                newFocussedElement = focusables.eq(next);
+                            } else {
+                                var currentInput = $(e.target);
+                                var inputId = currentInput.attr('id');
+                                newFocussedElement = $( '#'+inputId);
+                            }
+
+                            _this.busyTabbing = false;
+                            _this.shift = false;
+                            newFocussedElement.focus();
                         });
+                    } else {
+                        _this.busyTabbing = false;
+                        _this.shift = false;
                     }
                 })
             };
