@@ -540,13 +540,110 @@ def test_inputs_cleared_after_domain_exception_resubmit(web_fixture, disclosed_i
     assert browser.get_value(XPath.input_labelled('Email')) == ''
 
 
-@with_fixtures(WebFixture, DisclosedInputFixture)
+class DirectionScenarios(Fixture):
+    @scenario
+    def forwards(self):
+        self.going_forwards = True
+
+    @scenario
+    def backwards(self):
+        self.going_forwards = False
+
+
+class InputOrderScenarios(Fixture):
+    @scenario
+    def next_input_appears(self):
+        self.start_with_other_present = False
+        self.add_button = True
+        self.expected_next_focussed = XPath.input_labelled('Other')
+
+    @scenario
+    def next_input_disappears(self):
+        self.start_with_other_present = True
+        self.add_button = True
+        self.expected_next_focussed = XPath.button_labelled('click me')
+
+    @scenario
+    def last_input_disappears(self):
+        self.start_with_other_present = True
+        self.add_button = False
+        self.expected_next_focussed = XPath.input_labelled('Edge')
+
+
+
+@uses(direction=DirectionScenarios, input_order=InputOrderScenarios)
+class TabOrderFixture(Fixture):
+
+    @property
+    def going_forwards(self):
+        return self.direction.going_forwards
+
+    @property
+    def add_button(self):
+        return self.input_order.add_button
+
+    @property
+    def start_with_other_present(self):
+        return self.input_order.start_with_other_present
+
+    def new_MyForm(self):
+        fixture = self
+        class ModelObject:
+            def __init__(self):
+                self.trigger_field = fixture.start_with_other_present
+                self.other = None
+                self.edge = None
+
+            @exposed
+            def events(self, events):
+                events.an_event = Event(label='click me')
+
+            @exposed
+            def fields(self, fields):
+                fields.trigger_field = BooleanField(label='Trigger field')
+                fields.other = Field(label='Other')
+                fields.edge = Field(label='Edge')
+
+        class MyForm(Form):
+            def __init__(self, view):
+                super().__init__(view, 'myform')
+                self.enable_refresh()
+                self.use_layout(FormLayout())
+                if self.exception:
+                    self.add_child(P(view, text='Exception raised'))
+
+                model_object = ModelObject()
+
+                trigger_input = TextInput(self, model_object.fields.trigger_field, refresh_widget=self)
+                self.define_event_handler(model_object.events.an_event)
+
+                if fixture.going_forwards:
+                    self.layout.add_input(TextInput(self, model_object.fields.edge))
+                else:
+                    if fixture.add_button:
+                        self.add_child(ButtonInput(self, model_object.events.an_event))
+                    if model_object.trigger_field:
+                        self.layout.add_input(TextInput(self, model_object.fields.other))
+
+                self.layout.add_input(trigger_input)
+
+                if fixture.going_forwards:
+                    if model_object.trigger_field:
+                        self.layout.add_input(TextInput(self, model_object.fields.other))
+                    if fixture.add_button:
+                        self.add_child(ButtonInput(self, model_object.events.an_event))
+                else:
+                    self.layout.add_input(TextInput(self, model_object.fields.edge))
+        return MyForm
+
+
+
+
+@with_fixtures(WebFixture, TabOrderFixture)
 def test_correct_tab_order_for_responsive_widgets(web_fixture, disclosed_input_trigger_fixture):
-    """When a user TAB's out of an input that then triggers a change, the tab is ignored and focus stays on the original input so that the tab order can be recalculated."""
+    """When a user TABs out of an input that then triggers a change, focus is shifted to the correct element as per the page after the refresh."""
 
     fixture = disclosed_input_trigger_fixture
-    fixture.trigger_input_type = TextInput
-    fixture.default_trigger_field_value = False
 
     wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=fixture.MyForm.factory())
 
@@ -554,20 +651,127 @@ def test_correct_tab_order_for_responsive_widgets(web_fixture, disclosed_input_t
     browser = web_fixture.driver_browser
     browser.open('/')
 
-    # Case: a new input appears in next tab order position
-    assert browser.get_value(XPath.input_labelled('Trigger field')) == 'off'
+    current_value = browser.get_value(XPath.input_labelled('Trigger field'))
+    new_value = 'on' if current_value == 'off' else 'off'
+
+    browser.type(XPath.input_labelled('Trigger field'), new_value, trigger_blur=False, wait_for_ajax=False)
+    browser.press_tab(shift=not fixture.going_forwards)
+    assert browser.wait_for(browser.is_focus_on, fixture.input_order.expected_next_focussed)
+
+
+
+
+
+
+class TabOrderBetweenInputsFixture(ResponsiveDisclosureFixture):
+
+    def new_ModelObject(self):
+        class ModelObject:
+            def __init__(self):
+                self.choice = 1
+
+            @exposed
+            def fields(self, fields):
+                fields.choice = ChoiceField([Choice(1, IntegerField(label='One')),
+                                             Choice(2, IntegerField(label='Two'))],
+                                            label='Choice')
+                fields.multi_choice = MultiChoiceField([Choice(3, IntegerField(label='Three')),
+                                                        Choice(4, IntegerField(label='Four'))],
+                                                 label='Multi Choice')
+                fields.select_choice = ChoiceField([Choice('a', Field(label='A')),
+                                                    Choice('b', Field(label='B'))],
+                                                    label='Select Choice')
+                fields.some_text = Field(label='Some Text')
+        return ModelObject
+
+    def new_MyForm(self):
+        fixture = self
+        class MyForm(Form):
+            def __init__(self, view, an_object):
+                super().__init__(view, 'myform')
+                self.enable_refresh()
+                self.change_trigger_input = RadioButtonSelectInput(self, an_object.fields.choice, refresh_widget=self)
+                self.add_child(self.change_trigger_input)
+
+                if an_object.choice == 1:
+                    text_input = TextInput(self, an_object.fields.some_text)
+                    self.add_child(Label(view, for_input=text_input))
+                    self.add_child(text_input)
+
+                checkbox_select_input = CheckboxSelectInput(self, an_object.fields.multi_choice)
+                self.add_child(Label(view, for_input=checkbox_select_input))
+                self.add_child(checkbox_select_input)
+
+                select_input = SelectInput(self, an_object.fields.select_choice)
+                self.add_child(Label(view, for_input=select_input))
+                self.add_child(select_input)
+
+        return MyForm
+
+
+@with_fixtures(WebFixture, TabOrderBetweenInputsFixture)
+def test_correct_tab_order_for_responsive_widgets_radios(web_fixture, disclosed_input_trigger_fixture):
+    """"""
+
+    """If you change the value of an input which triggers refresh without having to tab out, the focus stays(??) on the changed input:
+
+        - simple case: SelectInput - because it really is just one input
+        - radio buttons???  what happens?
+        - check boxes - should stay on the checkbox (multi / single)
+    """
+
+    """Timing issues and typing:
+        - Tab out (triggers refresh) and start typing while refreshing: keyboard input is ignored until after refresh - then you start typing into the new element
+    """
+
+    fixture = disclosed_input_trigger_fixture
+    #fixture.trigger_input_type = RadioButtonSelectInput
+    # fixture.default_trigger_field_value = False
+
+    wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=fixture.MainWidget.factory())
+
+    web_fixture.reahl_server.set_app(wsgi_app)
+    browser = web_fixture.driver_browser
+    browser.open('/')
+
+    # Case: next tab order position
     browser.press_tab()
-    assert browser.is_focus_on(XPath.input_labelled('Trigger field'))
-    browser.type(XPath.input_labelled('Trigger field'), 'on', trigger_blur=False, wait_for_ajax=False)
+    assert browser.is_focus_on(XPath.input_labelled('One'))
     browser.press_tab()
+    assert browser.is_focus_on(XPath.input_labelled('Two'))
     browser.press_tab()
-    assert browser.is_focus_on(XPath.input_labelled('Email'))
-    
-    # Case: an input disappears from the next tab order position
-    browser.type(XPath.input_labelled('Trigger field'), 'off', trigger_blur=False, wait_for_ajax=False)
+    assert browser.is_focus_on(XPath.input_labelled('Some Text'))
+
+    #move backwards
+    # browser.press_tab(shift=True)
+    # assert browser.is_focus_on(XPath.input_labelled('Two'))
+    browser.press_tab(shift=True)
+    assert browser.is_focus_on(XPath.input_labelled('One'))
+
+    #interact, and an input disappears, tab order still works
+    browser.press_arrow('right')
+    assert browser.is_focus_on(XPath.input_labelled('Two'))
+    assert browser.is_selected(XPath.input_labelled('Two'))
+    assert not browser.is_element_present(XPath.input_labelled('Some Text'))
     browser.press_tab()
+    assert browser.is_focus_on(XPath.input_labelled('Three'))
+
+    #wrap
     browser.press_tab()
-    assert browser.is_focus_on(XPath.button_labelled('click me'))
+    assert browser.is_focus_on(XPath.input_labelled('Four'))
+    browser.press_tab()
+    assert browser.is_focus_on(XPath.select_labelled('Select Choice'))
+    #When manul testing, the focus is diffrent:
+    #browser.press_tab()#somewhere
+    browser.press_tab()#browser url bar
+    browser.press_tab()
+    assert browser.is_focus_on(XPath.input_labelled('Two')) #it was selected last
+    #When manul testing, the focus is diffrent:
+    #browser.press_tab(shift=True)
+    browser.press_tab(shift=True)
+    browser.press_tab(shift=True)
+    assert browser.is_focus_on(XPath.select_labelled('Select Choice'))
+
 
 
 @with_fixtures(WebFixture, DisclosedInputFixture)
@@ -688,7 +892,6 @@ def test_inputs_and_widgets_work_when_nested(web_fixture, query_string_fixture, 
     assert browser.wait_for(query_string_fixture.is_state_now, 'showing nested responsive content')
 
     assert browser.wait_for(fixture.are_all_parts_enabled, browser)
-
 
 
 @with_fixtures(WebFixture, DisclosedInputFixture)

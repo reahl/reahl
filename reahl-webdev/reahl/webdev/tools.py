@@ -767,6 +767,7 @@ class DriverBrowser(BasicBrowser):
        :keyword port: The port used by default for URLs.
        :keyword scheme: The URL scheme used by default for URLs.
     """
+    Keys = Keys
     def __init__(self, web_driver, host='localhost', port=8000, scheme='http'):
         self.web_driver = web_driver
         self.default_host = host
@@ -795,6 +796,7 @@ class DriverBrowser(BasicBrowser):
            for elements that will be created via JavaScript, and may need some time before they appear.
 
            :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
+           :keyword wait: If wait=False don't wait for the element to appear (default is True).
         """
         xpath = str(locator)
         if wait:
@@ -1358,26 +1360,30 @@ class DriverBrowser(BasicBrowser):
         except ImportError:
             logging.warning('PILlow is not available, unable to crop screenshots')
 
-    def press_tab(self):
+    def press_keys(self, keys, locator=None):
+        el = self.find_element(locator) if locator else self.web_driver.switch_to.active_element
+        el.send_keys(keys)
+
+    def press_tab(self, shift=False):
         """Simulates the user pressing the tab key on element that is currently focussed.
 
         .. versionchanged:: 4.0
-           Changed to operate on the currently focussed element.
+           Changed to operate on the currently focused element.
+        .. versionchanged:: 5.0
+           Added shift to be able to tab backwards
         """
-        el = self.web_driver.switch_to.active_element
-        el.send_keys(Keys.TAB)
-        try:
-            # To ensure the element gets blur event which for some reason does not always happen when pressing TAB:
-            self.web_driver.execute_script('if ( "undefined" !== typeof jQuery) {jQuery(arguments[0]).blur();};', el)
-        except StaleElementReferenceException:
-            pass
+        self.press_keys((Keys.SHIFT+Keys.TAB) if shift else Keys.TAB) 
 
-    def press_backspace(self, locator):
-        """Simulates the user pressing the backspace key while the element at `locator` has focus.
+    def press_arrow(self, direction):
+        """Simulates the user pressing arrow key on the element that has focus.
 
-           :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
+           :param direction: Either 'up', 'down', 'left', 'right'
+
+           .. versionadded:: 5.0
+
         """
-        self.find_element(locator, wait=False).send_keys(Keys.BACK_SPACE)
+        direction_key = {'up': Keys.ARROW_UP, 'down': Keys.ARROW_DOWN, 'left': Keys.ARROW_LEFT, 'right': Keys.ARROW_RIGHT}
+        self.press_keys(direction_key[direction])
 
     @property
     def title(self):

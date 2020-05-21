@@ -161,7 +161,7 @@ def test_required_constraint_js(web_fixture, constraint_rendering_fixture):
 
     web_fixture.driver_browser.type(XPath.input_labelled('an attribute'), '')
     
-    web_fixture.driver_browser.press_backspace(XPath.input_labelled('an attribute'))  # To trigger validation on the field
+    web_fixture.driver_browser.press_keys(web_fixture.driver_browser.Keys.BACK_SPACE, locator=XPath.input_labelled('an attribute'))  # To trigger validation on the field
 
     web_fixture.driver_browser.wait_for_element_visible(fixture.error_xpath)
 
