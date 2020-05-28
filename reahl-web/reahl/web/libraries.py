@@ -168,7 +168,7 @@ class JQuery(Library):
         super().__init__('jquery')
         self.files = ['jquery-3.4.1/jquery-3.4.1.js',
                       'jquery-3.4.1/jquery-3.4.1.min.map']
-        self.shipped_in_directory = '/reahl/web/static'
+        self.shipped_in_directory = 'reahl/web/static'
         for i in ['jquery.validate-1.19.1.modified.js',
                   'jquery.ba-bbq-1.3pre.js',
                   'jquery.blockUI-2.70.0.js',
@@ -205,7 +205,7 @@ class JQueryUI(Library):
     """
     def __init__(self):
         super().__init__('jqueryui')
-        self.shipped_in_directory = '/reahl/web/static'
+        self.shipped_in_directory = 'reahl/web/static'
         self.files = ['jquery-ui-1.12.1.custom/jquery-ui.js']
 
 
@@ -215,7 +215,7 @@ class HTML5Shiv(Library):
     """
     def __init__(self):
         super().__init__('html5shiv')
-        self.shipped_in_directory = '/reahl/web/static'
+        self.shipped_in_directory = 'reahl/web/static'
         self.files = ['html5shiv-printshiv-3.7.3.js']
 
     def footer_only_material(self, rendered_page):
@@ -231,7 +231,7 @@ class IE9(Library):
     """
     def __init__(self):
         super().__init__('IE9')
-        self.shipped_in_directory = '/reahl/web/static'
+        self.shipped_in_directory = 'reahl/web/static'
         self.files = ['IE9.js']
 
     def footer_only_material(self, rendered_page):
@@ -248,7 +248,7 @@ class Reahl(Library):
     """
     def __init__(self):
         super().__init__('reahl')
-        self.shipped_in_directory = '/reahl/web/static'
+        self.shipped_in_directory = 'reahl/web/static'
         self.files = ['reahl.hashchange.js',
                       'reahl.ajaxlink.js',
                       'reahl.primitiveinput.js',
@@ -266,7 +266,7 @@ class Holder(Library):
     """
     def __init__(self):
         super().__init__('holder')
-        self.shipped_in_directory = '/reahl/web/holder'
+        self.shipped_in_directory = 'reahl/web/holder'
         self.files = ['holder-2.9.7.js']
 
 
@@ -275,7 +275,7 @@ class Bootstrap4(Library):
     """
     def __init__(self):
         super().__init__('bootstrap4')
-        self.shipped_in_directory = '/reahl/web/static'
+        self.shipped_in_directory = 'reahl/web/static'
         self.files = [
                       'bootstrap-4.4.1/css/bootstrap.css',
                       'bootstrap-4.4.1/css/reahl-patch.css',
@@ -300,7 +300,7 @@ class ReahlBootstrap4Additions(Library):
     """
     def __init__(self):
         super().__init__('bootstrap4.reahladditions')
-        self.shipped_in_directory = '/reahl/web/bootstrap'
+        self.shipped_in_directory = 'reahl/web/bootstrap'
         self.files = [
                       'reahl.bootstrapform.js',
                       'reahl.pagination.js',
@@ -320,7 +320,7 @@ class Popper(Library):
     """
     def __init__(self):
         super().__init__('popper')
-        self.shipped_in_directory = '/reahl/web/static'
+        self.shipped_in_directory = 'reahl/web/static'
         self.files = [
             'popper-1.16.0/popper.js' #make sure it is the umd edition
         ]
@@ -331,7 +331,7 @@ class Underscore(Library):
     """
     def __init__(self):
         super().__init__('underscore')
-        self.shipped_in_directory = '/reahl/web/static'
+        self.shipped_in_directory = 'reahl/web/static'
         self.files = [
             'underscore-min-1.10.2.js'
         ]
@@ -342,7 +342,7 @@ class JsCookie(Library):
     """
     def __init__(self):
         super().__init__('js-cookie')
-        self.shipped_in_directory = '/reahl/web/static'
+        self.shipped_in_directory = 'reahl/web/static'
         self.files = [
             'js-cookie-2.2.1/js.cookie.js' #this is the UMD version
         ]

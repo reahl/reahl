@@ -216,7 +216,6 @@ class ReahlEgg:
         for translation_entry_point in iter_entry_points('reahl.translations'):
             requirement = translation_entry_point.dist.as_requirement()
             egg_internal_path = cls.get_egg_internal_path_for(translation_entry_point)
-
             if resource_isdir(requirement, egg_internal_path):
                 languages = [d for d in resource_listdir(requirement, egg_internal_path)
                              if (resource_isdir(requirement, '%s/%s' % (egg_internal_path, d)) and not d.startswith('__'))]
