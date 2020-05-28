@@ -68,9 +68,8 @@ class ResponsiveDisclosureFixture(Fixture):
             def __init__(self, view, an_object):
                 super().__init__(view, 'myform')
                 self.enable_refresh()
-                self.change_trigger_input = fixture.create_trigger_input(self, an_object)
-                self.add_child(Label(view, for_input=self.change_trigger_input))
-                self.add_child(self.change_trigger_input)
+                self.use_layout(FormLayout())
+                self.layout.add_input(fixture.create_trigger_input(self, an_object))
                 self.add_child(P(self.view, text='My state is now %s' % an_object.choice))
 
         return MyForm
@@ -83,32 +82,28 @@ class ResponsiveDisclosureFixture(Fixture):
 class ResponsiveWidgetScenarios(ResponsiveDisclosureFixture):
     @scenario
     def select_input(self):
-        fixture = self
-
+        self.expected_focussed_element = XPath.select_labelled('Choice')
         def change_value(browser):
-            browser.select(XPath.select_labelled('Choice'), 'Three')
+            browser.select(self.expected_focussed_element, 'Three')
         self.change_value = change_value
         self.initial_state = 1
         self.changed_state = 3
 
     @scenario
     def radio_buttons(self):
-        fixture = self
-
         def create_trigger_input(form, an_object):
             return RadioButtonSelectInput(form, an_object.fields.choice, refresh_widget=form)
         self.create_trigger_input = create_trigger_input
 
+        self.expected_focussed_element = XPath.input_labelled('Three')
         def change_value(browser):
-            browser.click(XPath.input_labelled('Three'))
+            browser.click(self.expected_focussed_element)
         self.change_value = change_value
         self.initial_state = 1
         self.changed_state = 3
 
     @scenario
     def single_valued_checkbox(self):
-        fixture = self
-
         class ModelObject:
             def __init__(self):
                 self.choice = False
@@ -124,16 +119,15 @@ class ResponsiveWidgetScenarios(ResponsiveDisclosureFixture):
             return the_input
         self.create_trigger_input = create_trigger_input
 
+        self.expected_focussed_element = XPath.input_labelled('Choice')
         def change_value(browser):
-            browser.click(XPath.input_labelled('Choice'))
+            browser.click(self.expected_focussed_element)
         self.change_value = change_value
         self.initial_state = False
         self.changed_state = True
 
     @scenario
     def multi_valued_checkbox_select(self):
-        fixture = self
-
         class ModelObject:
             def __init__(self):
                 self.choice = [1]
@@ -152,8 +146,9 @@ class ResponsiveWidgetScenarios(ResponsiveDisclosureFixture):
             return the_input
         self.create_trigger_input = create_trigger_input
 
+        self.expected_focussed_element = XPath.input_labelled('Three')
         def change_value(browser):
-            browser.click(XPath.input_labelled('Three'))
+            browser.click(self.expected_focussed_element)
         self.change_value = change_value
         self.initial_state = [1]
         self.changed_state = [1, 3]
@@ -161,8 +156,6 @@ class ResponsiveWidgetScenarios(ResponsiveDisclosureFixture):
     @scenario
     def multi_valued_checkbox_select_with_single_choice_corner_case_empty_a_list(self):
         self.multi_valued_checkbox_select()
-        fixture = self
-
         class ModelObject:
             def __init__(self):
                 self.choice = [1]
@@ -173,8 +166,9 @@ class ResponsiveWidgetScenarios(ResponsiveDisclosureFixture):
                                                  label='Choice')
         self.ModelObject = ModelObject
 
+        self.expected_focussed_element = XPath.input_labelled('One')
         def change_value(browser):
-            browser.click(XPath.input_labelled('One'))
+            browser.click(self.expected_focussed_element)
         self.change_value = change_value
         self.initial_state = [1]
         self.changed_state = []
@@ -182,8 +176,6 @@ class ResponsiveWidgetScenarios(ResponsiveDisclosureFixture):
     @scenario
     def multi_valued_checkbox_select_with_single_choice_corner_case_add_to_empty_list(self):
         self.multi_valued_checkbox_select()
-        fixture = self
-
         class ModelObject:
             def __init__(self):
                 self.choice = []
@@ -195,16 +187,15 @@ class ResponsiveWidgetScenarios(ResponsiveDisclosureFixture):
         self.ModelObject = ModelObject
         #self.MyForm from multi_valued_checkbox_select
 
+        self.expected_focussed_element = XPath.input_labelled('One')
         def change_value(browser):
-            browser.click(XPath.input_labelled('One'))
+            browser.click(self.expected_focussed_element)
         self.change_value = change_value
         self.initial_state = []
         self.changed_state = [1]
 
     @scenario
     def multi_valued_select(self):
-        fixture = self
-
         class ModelObject:
             def __init__(self):
                 self.choice = [1]
@@ -223,8 +214,9 @@ class ResponsiveWidgetScenarios(ResponsiveDisclosureFixture):
             return the_input
         self.create_trigger_input = create_trigger_input
 
+        self.expected_focussed_element = XPath.select_labelled('Choice')
         def change_value(browser):
-            browser.select(XPath.select_labelled('Choice'), 'Three')
+            browser.select(self.expected_focussed_element, 'Three')
         self.change_value = change_value
         self.initial_state = [1]
         self.changed_state = [1, 3]
@@ -273,9 +265,7 @@ def test_overridden_names(web_fixture, query_string_fixture, responsive_disclosu
         def __init__(self, view, an_object):
             super().__init__(view, an_object)
             another_model_object = fixture.ModelObject()
-            another_input = CheckboxSelectInput(self, another_model_object.fields.choice)
-            self.add_child(Label(view, for_input=another_input))
-            self.add_child(another_input)
+            self.layout.add_input(CheckboxSelectInput(self, another_model_object.fields.choice))
 
     fixture.MyForm = MyForm
 
@@ -436,18 +426,16 @@ class DisclosedInputFixture(Fixture):
             def __init__(self, view):
                 super().__init__(view, 'myform')
                 self.enable_refresh()
+                self.use_layout(FormLayout())
+
                 if self.exception:
                     self.add_child(P(view, text='Exception raised'))
 
                 model_object = ModelObject()
-                checkbox_input = fixture.trigger_input_type(self, model_object.fields.trigger_field, refresh_widget=self)
-                self.add_child(Label(view, for_input=checkbox_input))
-                self.add_child(checkbox_input)
+                self.layout.add_input(fixture.trigger_input_type(self, model_object.fields.trigger_field, refresh_widget=self))
 
                 if model_object.trigger_field:
-                    email_input = TextInput(self, model_object.fields.email)
-                    self.add_child(Label(self.view, for_input=email_input))
-                    self.add_child(email_input)
+                    self.layout.add_input(TextInput(self, model_object.fields.email))
 
                 self.define_event_handler(model_object.events.an_event)
                 self.add_child(ButtonInput(self, model_object.events.an_event))
@@ -570,7 +558,6 @@ class InputOrderScenarios(Fixture):
         self.expected_next_focussed = XPath.input_labelled('Edge')
 
 
-
 @uses(direction=DirectionScenarios, input_order=InputOrderScenarios)
 class TabOrderFixture(Fixture):
 
@@ -637,8 +624,6 @@ class TabOrderFixture(Fixture):
         return MyForm
 
 
-
-
 @with_fixtures(WebFixture, TabOrderFixture)
 def test_correct_tab_order_for_responsive_widgets(web_fixture, disclosed_input_trigger_fixture):
     """When a user TABs out of an input that then triggers a change, focus is shifted to the correct element as per the page after the refresh."""
@@ -659,12 +644,24 @@ def test_correct_tab_order_for_responsive_widgets(web_fixture, disclosed_input_t
     assert browser.wait_for(browser.is_focus_on, fixture.input_order.expected_next_focussed)
 
 
+@with_fixtures(WebFixture, QueryStringFixture, ResponsiveWidgetScenarios)
+def test_focus_location_after_refresh_without_tabbing(web_fixture, query_string_fixture, responsive_widget_scenarios):
+    """Check that focus remains on changed widget after refresh, without having to trigger the change by pressing TAB."""
+
+    fixture = responsive_widget_scenarios
+
+    wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=fixture.MainWidget.factory())
+    web_fixture.reahl_server.set_app(wsgi_app)
+    browser = web_fixture.driver_browser
+    browser.open('/')
+
+    assert browser.wait_for(query_string_fixture.is_state_now, fixture.initial_state)
+    fixture.change_value(browser)
+    assert browser.wait_for(query_string_fixture.is_state_now, fixture.changed_state)
+    assert browser.is_focus_on(fixture.expected_focussed_element)
 
 
-
-
-class TabOrderBetweenInputsFixture(ResponsiveDisclosureFixture):
-
+class TimingFixture(BlockingRefreshFixture):
     def new_ModelObject(self):
         class ModelObject:
             def __init__(self):
@@ -672,106 +669,50 @@ class TabOrderBetweenInputsFixture(ResponsiveDisclosureFixture):
 
             @exposed
             def fields(self, fields):
-                fields.choice = ChoiceField([Choice(1, IntegerField(label='One')),
-                                             Choice(2, IntegerField(label='Two'))],
-                                            label='Choice')
-                fields.multi_choice = MultiChoiceField([Choice(3, IntegerField(label='Three')),
-                                                        Choice(4, IntegerField(label='Four'))],
-                                                 label='Multi Choice')
-                fields.select_choice = ChoiceField([Choice('a', Field(label='A')),
-                                                    Choice('b', Field(label='B'))],
-                                                    label='Select Choice')
                 fields.some_text = Field(label='Some Text')
+                fields.trigger_field = Field(label='Trigger')
         return ModelObject
 
     def new_MyForm(self):
         fixture = self
-        class MyForm(Form):
-            def __init__(self, view, an_object):
-                super().__init__(view, 'myform')
-                self.enable_refresh()
-                self.change_trigger_input = RadioButtonSelectInput(self, an_object.fields.choice, refresh_widget=self)
-                self.add_child(self.change_trigger_input)
+        class MyFormWithTextInput(super().new_MyForm()):
+            def __init__(self, view, model_object):
+                super().__init__(view, model_object)
+                self.layout.add_input(TextInput(self, model_object.fields.some_text))
+        return MyFormWithTextInput
 
-                if an_object.choice == 1:
-                    text_input = TextInput(self, an_object.fields.some_text)
-                    self.add_child(Label(view, for_input=text_input))
-                    self.add_child(text_input)
-
-                checkbox_select_input = CheckboxSelectInput(self, an_object.fields.multi_choice)
-                self.add_child(Label(view, for_input=checkbox_select_input))
-                self.add_child(checkbox_select_input)
-
-                select_input = SelectInput(self, an_object.fields.select_choice)
-                self.add_child(Label(view, for_input=select_input))
-                self.add_child(select_input)
-
-        return MyForm
+    def create_trigger_input(self, form, an_object):
+        return TextInput(form, an_object.fields.trigger_field, refresh_widget=form)
 
 
-@with_fixtures(WebFixture, TabOrderBetweenInputsFixture)
-def test_correct_tab_order_for_responsive_widgets_radios(web_fixture, disclosed_input_trigger_fixture):
-    """"""
+@with_fixtures(WebFixture, TimingFixture, QueryStringFixture)
+def test_while_refreshing_typed_input_is_discarded(web_fixture, blocking_refresh_fixture, query_string_fixture):
+    """When the user tabs out all keyboard input is ignored until after the page has changed."""
 
-    """If you change the value of an input which triggers refresh without having to tab out, the focus stays(??) on the changed input:
-
-        - simple case: SelectInput - because it really is just one input
-        - radio buttons???  what happens?
-        - check boxes - should stay on the checkbox (multi / single)
-    """
-
-    """Timing issues and typing:
-        - Tab out (triggers refresh) and start typing while refreshing: keyboard input is ignored until after refresh - then you start typing into the new element
-    """
-
-    fixture = disclosed_input_trigger_fixture
-    #fixture.trigger_input_type = RadioButtonSelectInput
-    # fixture.default_trigger_field_value = False
+    fixture = blocking_refresh_fixture
 
     wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=fixture.MainWidget.factory())
-
     web_fixture.reahl_server.set_app(wsgi_app)
     browser = web_fixture.driver_browser
+
+    fixture.should_pause_to_simulate_long_refresh = False
     browser.open('/')
 
-    # Case: next tab order position
-    browser.press_tab()
-    assert browser.is_focus_on(XPath.input_labelled('One'))
-    browser.press_tab()
-    assert browser.is_focus_on(XPath.input_labelled('Two'))
-    browser.press_tab()
-    assert browser.is_focus_on(XPath.input_labelled('Some Text'))
+    fixture.should_pause_to_simulate_long_refresh = True
+    with web_fixture.reahl_server.in_background():
+        browser.type(XPath.input_labelled('Trigger'), 'qwerty', trigger_blur=False, wait_for_ajax=False)
+        browser.press_tab()
+        browser.type_focussed('abc')
+        assert 'abc' not in browser.get_value(XPath.input_labelled('Some Text'))
+        assert 'abc' not in browser.get_value(XPath.input_labelled('Trigger'))
+        fixture.simulate_long_refresh_done()
+    
+    assert browser.wait_for_not(fixture.is_form_blocked, browser)
 
-    #move backwards
-    # browser.press_tab(shift=True)
-    # assert browser.is_focus_on(XPath.input_labelled('Two'))
-    browser.press_tab(shift=True)
-    assert browser.is_focus_on(XPath.input_labelled('One'))
-
-    #interact, and an input disappears, tab order still works
-    browser.press_arrow('right')
-    assert browser.is_focus_on(XPath.input_labelled('Two'))
-    assert browser.is_selected(XPath.input_labelled('Two'))
-    assert not browser.is_element_present(XPath.input_labelled('Some Text'))
-    browser.press_tab()
-    assert browser.is_focus_on(XPath.input_labelled('Three'))
-
-    #wrap
-    browser.press_tab()
-    assert browser.is_focus_on(XPath.input_labelled('Four'))
-    browser.press_tab()
-    assert browser.is_focus_on(XPath.select_labelled('Select Choice'))
-    #When manul testing, the focus is diffrent:
-    #browser.press_tab()#somewhere
-    browser.press_tab()#browser url bar
-    browser.press_tab()
-    assert browser.is_focus_on(XPath.input_labelled('Two')) #it was selected last
-    #When manul testing, the focus is diffrent:
-    #browser.press_tab(shift=True)
-    browser.press_tab(shift=True)
-    browser.press_tab(shift=True)
-    assert browser.is_focus_on(XPath.select_labelled('Select Choice'))
-
+    assert 'abc' not in browser.get_value(XPath.input_labelled('Some Text'))
+    assert 'abc' not in browser.get_value(XPath.input_labelled('Trigger'))
+    browser.type_focussed('asd')
+    assert 'asd' in browser.get_value(XPath.input_labelled('Some Text'))
 
 
 @with_fixtures(WebFixture, DisclosedInputFixture)
@@ -791,7 +732,7 @@ def test_ignore_button_click_on_change(web_fixture, disclosed_input_trigger_fixt
     assert browser.get_value(XPath.input_labelled('Trigger field')) == 'off'
     assert not browser.is_element_present(XPath.input_labelled('Email'))
 
-    browser.type(XPath.input_labelled('Trigger field'), 'on', trigger_blur=False) 
+    browser.type(XPath.input_labelled('Trigger field'), 'on', trigger_blur=False)
     with browser.no_page_load_expected():
         browser.click(XPath.button_labelled('click me'))
 
@@ -834,11 +775,10 @@ class NestedResponsiveDisclosureFixture(Fixture):
             def __init__(self, view):
                 super().__init__(view, 'myform')
                 self.enable_refresh()
+                self.use_layout(FormLayout())
                 model_object = fixture.ModelObject()
 
-                checkbox_input = CheckboxInput(self, model_object.fields.trigger_field, refresh_widget=self)
-                self.add_child(Label(self.view, for_input=checkbox_input))
-                self.add_child(checkbox_input)
+                self.layout.add_input(CheckboxInput(self, model_object.fields.trigger_field, refresh_widget=self))
 
                 if model_object.trigger_field:
                     self.add_child(P(self.view, 'My state is now showing outer responsive content'))
@@ -1035,9 +975,7 @@ class RecalculatedWidgetScenarios(Fixture):
     @scenario
     def writable_input(self):
         def add_to_form(form, model_object):
-            text_input = TextInput(form, model_object.fields.calculated_state)
-            form.add_child(Label(form.view, for_input=text_input))
-            form.add_child(text_input)
+            text_input = form.layout.add_input(TextInput(form, model_object.fields.calculated_state))
             form.add_child(P(form.view, text='Status: %s' % text_input.get_input_status()))
 
         def check_widget_value(browser, value):
@@ -1213,16 +1151,13 @@ def test_invalid_non_trigger_input_corner_case(web_fixture, query_string_fixture
         def __init__(self, view, an_object):
             super().__init__(view, 'myform')
             self.an_object = an_object
+            self.use_layout(FormLayout())
             self.enable_refresh(on_refresh=an_object.events.choice_changed)
             if self.exception:
                 self.add_child(P(self.view, text=str(self.exception)))
-            self.change_trigger_input = TextInput(self, an_object.fields.choice, refresh_widget=self)
-            self.add_child(Label(view, for_input=self.change_trigger_input))
-            self.add_child(self.change_trigger_input)
+            self.change_trigger_input = self.layout.add_input(TextInput(self, an_object.fields.choice, refresh_widget=self))
             self.add_child(P(self.view, text='My choice state is now %s' % an_object.choice))
-            self.change3_non_trigger_input = TextInput(self, an_object.fields.choice3)
-            self.add_child(Label(view, for_input=self.change3_non_trigger_input))
-            self.add_child(self.change3_non_trigger_input)
+            self.change3_non_trigger_input = self.layout.add_input(TextInput(self, an_object.fields.choice3))
             self.add_child(P(self.view, text='My calculated state is now %s' % an_object.calculated_state))
             self.define_event_handler(an_object.events.submit)
             self.add_child(ButtonInput(self, an_object.events.submit))

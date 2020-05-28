@@ -1039,6 +1039,18 @@ class DriverBrowser(BasicBrowser):
         if wait_for_ajax:
             self.wait_for(self.is_ajax_finished)
 
+    def type_focussed(self, keys):
+        """Type the keys wherever the focus is.
+
+           :param keys: Keys to send
+
+           ..versionadded:: 5.0
+        """
+
+        actions = ActionChains(self.web_driver)
+        actions.send_keys(keys)
+        actions.perform()
+
     def select(self, locator, label_to_choose, wait_for_ajax=True):
         """Finds the select element indicated by `locator` and selects one of its options.
 
