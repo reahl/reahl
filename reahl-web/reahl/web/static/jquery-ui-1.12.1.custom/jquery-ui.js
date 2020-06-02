@@ -1,6 +1,6 @@
-/*! jQuery UI - v1.12.1 - 2018-02-27
+/*! jQuery UI - v1.12.1 - 2020-06-02
 * http://jqueryui.com
-* Includes: widget.js
+* Includes: widget.js, focusable.js, tabbable.js
 * Copyright jQuery Foundation and other contributors; Licensed MIT */
 
 (function( factory ) {
@@ -743,12 +743,6 @@ $.each( { show: "fadeIn", hide: "fadeOut" }, function( method, defaultEffect ) {
 var widget = $.widget;
 
 
-
-
-}));
-
-
-
 /*!
  * jQuery UI Focusable 1.12.1
  * http://jqueryui.com
@@ -814,8 +808,6 @@ function visible( element ) {
 	return visibility !== "hidden";
 }
 
-
-
 $.extend( $.expr[ ":" ], {
 	focusable: function( element ) {
 		return $.ui.focusable( element, $.attr( element, "tabindex" ) != null );
@@ -848,3 +840,8 @@ var tabbable = $.extend( $.expr[ ":" ], {
 		return ( !hasTabindex || tabIndex >= 0 ) && $.ui.focusable( element, hasTabindex );
 	}
 } );
+
+
+
+
+}));
