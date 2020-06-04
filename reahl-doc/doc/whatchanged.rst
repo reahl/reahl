@@ -3,7 +3,7 @@
 
 
 
-What changed in version 4.0
+What changed in version 5.0
 ===========================
 
 .. |Widget| replace:: :class:`~reahl.web.fw.Widget`
@@ -40,319 +40,175 @@ What changed in version 4.0
 Upgrading
 ---------
 
-This release has been a long time in the making and comes with many
-changes. Various changes have been made to the underlying database
-schema. To upgrade a production system, install the new system in a
+To upgrade a production system, install the new system in a
 new virtualenv, then migrate your database:
 
 .. code-block:: bash
 
    reahl migratedb etc
    
-                                
-Bootstrap
----------
-
-All the |Widget|\s in this release are based on `Bootstrap
-<http://getbootstrap.com>`_. The older home-rolled |Widget| styling we
-had was removed.
-
-The basic |Widget|\s in :mod:`reahl.web.ui` represent basic HTML and
-thus are unstyled. These are not really meant to be used directly.
-More interesting |Widget|\s only have Bootstrap-based versions and
-they live in modules inside :doc:`the reahl.web.bootstrap
-package <web/bootstrap/index>`.
-
-If you develop a site and use basic HTML |Widget|\s, like
-:class:`~reahl.web.bootstrap.ui.P`, import all of them from from:
-:mod:`reahl.web.bootstrap.ui`.
-
 
 Backwards-incompatible changes
 ------------------------------
-
+                                
 Since this version is a major version update it is not
 backwards-compatible with previous versions.  Everything what was
 deprecated in older versions is removed now.
 
+change name
+  change description
 
-Infrastructure
- :code:`ReahlApplication` (which is used to fire up you app via WSGI) was renamed to |ReahlWSGIApplication|.
- 
-Internationalisation
-  :code:`Translator` was renamed to :class:`~reahl.component.i18n.Catalogue`.
+@exposed
+   now takes into account super
 
-Layout
- The way one creates a |ColumnLayout| and specifies options for
- creating columns has changed. A new class, |ColumnOptions| is now 
- used to specify various options relating to a specific column. This
- includes the offset of the column, which previously used to be
- specified as part of its |ResponsiveSize|.
+Python 2 support
+   Since `Python 2 is now officially retired <https://www.python.org/doc/sunset-python-2/>`_, this release drops support for Python < 3.5.
 
- The arguments to :meth:`~reahl.web.bootstrap.grid.ColumnLayout` that
- define the columns can now be one of:
- 
-    - either just the column name as a string (which assumes default
-      |ColumnOptions|); or
-    - a tuple with the column name and a |ColumnOptions| object
-      (previously this had to be a |ResponsiveSize|).
+ButtonInput
+   creates its own layout upon construction
 
-      
-Basic Widgets
- A single checkbox is used fetch boolean input from a user, but a list
- of related checkboxes lets the user choose from a list of
- choices.
+Unique input names and IDs
+   Inputs used to automatically adapt their names so as to prevent name clashes on a form. This is no longer the case: Inputs that have name clashes
+   now have to be explitly disambiguated (see |PrimitiveInput|).
+   Every Input now also is generated with an ID that is unique on the page.
 
- The |forms.CheckboxInput| is a high-level construct which can be
- used for either purpose, depending on whether it is used with a
- |BooleanField| or a |MultiChoiceField|.
+Changes to nested_transaction
 
- :code:`reahl.web.bootstrap.forms.RadioButtonInput` is now named
- |forms.RadioButtonSelectInput| and `reahl.web.ui.RadioButtonInput` is
- :code:now named |ui.RadioButtonSelectInput|.
- 
- Amongst the plain HTML |Widget|\s, |ui.CheckboxInput| serves
- the first purpose; |ui.CheckboxSelectInput| was added for the
- second. 
- 
-
-Fields and app construction
- The `slot_definitions` kwarg no longer exists on
- |UserInterface.define_view|. Rather call |ViewFactory.set_slot| on
- the returned |ViewFactory| to define the contents of the new view.
- 
- The methods :code:`as_with_validation_constraint` and
- :code:`as_without_validation_constraint` on |Field| have been renamed
- to |Field.with_validation_constraint| and
- |Field.without_validation_constraint| for consistency with :doc:`our coding
- conventions <devmanual/conventions>`.
-
- 
-Menus
- |Menu| was moved to :mod:`reahl.web.bootstrap.navs`. It is not
- meant to be used directly, rather use |Nav|.  The :code:`.add_item`
- and :code:`.add_submenu` methods were removed in favour of the
- consistently named variants for adding items: |Menu.add_a|,
- |Menu.add_bookmark| and |Nav.add_dropdown|.
+Moved HTML5Page
 
 
-Declarative implementation
- An issue was discovered regarding the correct handling of
- |MultiChoiceField|\s when a |DomainException| occurred. In order to
- correctly save the input provided by a user, the methods on
- |UserInputProtocol| were changed to take an extra argument,
- `entered_input_type`.
+Changing contents in response to a changing Input
+-------------------------------------------------
 
+The major goal of this release was to incorporate more javascript
+logic into pages, but still hide that behind Python.
+
+We've done that by adding |refresh_widget|. When constructing a
+|PrimitiveInput| you can pass an |HTMLWidget| as the `refresh_widget`
+of the |PrimitiveInput|. When the |PrimitiveInput| is changed, it will
+trigger a refresh of its `refresh_widget`. As before, it is necessary
+to call |enable_refresh| on such an |HTMLWidget| for this to work.
+
+Two HOWTOs were added to explain usage of this feature:
+ - :ref:`<howto/dynamiccontent>`
+ - :ref:`<howto/responsivedisclosure>`
+
+
+Optimistic concurrency
+----------------------
+
+This release also guards against the scenario where more than one user
+modifies the same data at the same time.
+
+Consider, for example, the following sequence of events:
+ - user A opens page X
+ - user B opens page X
+ - user A changes input on a form on page X, and clicks on a |Button| that submits it
+ - the database is changed as a result of user A's changes in such a way that page X would not render the same anymore
+ - yet, user B still has the old page X open, and now makes similar changes on that page and clicks on a |Button| that submits the info
+
+Without intervention in the above scenario user B's changes might
+overwrite those of user A or the application could break - depending
+on how the code was written.
+
+Reahl now computes a hash of all the input values on a form on a
+page. When the page is submitted, this hash is sent back to the server
+which recomputes the hash. If any differences are picked up, the user
+is shown an error message explaining that someone else has changed the
+same data and given the chance to refresh the values and try again.
+
+This mechanism can also be customised to:
+ - ignore some |Input|\s from such a check; or
+ - to include arbitrary |Widget|\s in the check
+
+TODO: we need a HOWTO   
+
+Error pages
+-----------
+
+Previously if an application encountered an unexpected exception, it
+would return an HTTP 5xx error code to the browser, which typically
+displays an unhelpful, unattractive error page.
+
+In this release introduces the concept of a `default_error_view`.
+
+The effect of this is that error messages can be rendered within the
+general look, feel and layout of your application. This happens by
+default, but the mechanism can also be customised at several different
+levels of your application.
+
+TODO: we need a HOWTO
+
+Widget changes
+--------------
+
+Table and Column to allow for table footer content
+
+FormLayout.all_alert_for_domain_exception
+
+
+A more expressive and composable XPath
+--------------------------------------
+
+|XPath| has been changed significantly to make it more useful and expressive in tests.
+
+You can now construct an |XPath| by chaining and composition. For
+example, you can find a `div` with a specific css class like this::
+
+    XPath.div().including_class('myclass')
+
+|XPath| instances can be further composed in terms of one another::
+
+   XPath.button_labelled('Save').inside_of(XPath.div().including_class('myclass'))
+  
+
+A more Ajax-friendly DriverBrowser
+----------------------------------
    
-Passwords
----------
+When one generally tests an application, it is to be expected that
+user actions could trigger ajax refreshes or generally refer to
+elements that aren't visible on the page yet - hut that have to be
+waited for to appear.
 
-Previous releases used md5 to encrypt passwords in the database. This
-practice is no longer viewed as being secure. This release uses
-`pbkdf2_sha512` password hashes `via passlib <https://passlib.readthedocs.io/en/stable/>`_.
+Test code that continually triggers such events and waits for the
+results can obfuscate the intent of a test.
 
-Older passwords will automatically be changed to `pbkdf2_sha512` upon
-a successful login.
+For this reason several |DriverBrowser| methods have been changed to
+automatically do "the right thing" in such circumstances.
+
+Methods like |type| and |click|\, for example, now always trigger a
+`blur` event on the |PrimitiveInput| targeted and then wait for any
+ajax that might have been triggered in response to finish before
+returning.
+
+This default behaviour can be overridden using keyword arguments where
+appropriate.
 
 
 Commandline tools
 -----------------
 
-The `reahl` and `reahl-control` tools have both been rolled into a
-single `reahl` commandline tool. The commands it has vary depending
-on which parts of Reahl you have installed. With reahl-dev installed,
-for example, it will include commands only used in development.
+Creating a new project
+  You can now start a new project by checking out one of our examples,
+  but with a different name. In such checked-out code module, package,
+  and various other names are renamed appropriately.
+  (See `reahl example -h`)
+
+Help with configuration
+  You can also create a fresh new configuration directory with configuration
+  based on having answered a few questions interactively.
+  (See `reahl createconfig -h`)
+
+Hosting static file
+  Sometimes you need to host static files directly via a proxy such as nginx.
+  You can now get to all those static files by running `reahl exportstatic`.
+  (See `reahl exportstatic`)
 
 
-Development environment
------------------------
+Smaller changes
+---------------
 
-Development on Reahl itself now happens on a `Vagrant
-<https://www.vagrantup.com//>`_ image using a publicly available box,
-called `reahl/bionic64`.  This may be useful for projects using Reahl
-as well. An example Vagrantfile for your projects is supplied in file
-`vagrant/Vagrantfile.example` in the Reahl source code.
-
-See :doc:`devmanual/devenv` for details.
-
-As part of the move to develop in a Vagrant machine, we added a new
-component, `reahl-workstation`.  You can `pip install
-reahl-workstation` on your actual host. This gives you a simple
-`reahl` commandline outside of the vagrant machine which helps with a
-few simple things such as attaching to the xpra display running
-inside. 
-
-Mysql
------
-
-In addition to `PostgreSQL <https://www.postgresql.org>`_ and `Sqlite
-<https://www.sqlite.org>`_ we now support `MySql
-<https://www.mysql.com>`_ as well. Include `reahl-mysqlsupport` in
-your dependencies to be able to use mysql as a backend.
-
-
-Tofu - pytest instead of nosetests
-----------------------------------
-
-A lot of changes in this release happened behind the scenes and in
-our development environment. One such change is that our tests run on
-`pytest <https://docs.pytest.org/en/latest/>`_ now, instead of on
-`nosetests <http://nose.readthedocs.io/en/latest/>`_.
-
-Tofu changed extensively to make this possible.
-
-Support for nose has now been dropped from
-|Fixture|\s, and instead we now support `pytest
-<https://docs.pytest.org/en/latest/>`_.
-
-A |Fixture| should *not* to be confused with
-pytest.fixture. Whereas a pytest.fixture is a factory function that
-pytest calls at appropriate times to create a single resource needed
-by one or more tests, a |Fixture| is still a
-collection of test resources that are used together by a test.
-
-|Fixture|\s further differ from pytest.fixture in that you import them
-where needed--there is no magic to how they are named or reused.
-       
-The old idea of a run fixture (built by means of a nose plugin) has
-been removed. Instead |Fixture|\s now have scope similar to the scope
-of pytest.fixtures.
-
-
-Here is an example of how to use a |Fixture| with pytest::
-
-  from reahl.tofu import Fixture, with_fixtures
-
-  class MyFixture(Fixture):
-     def new_thing(self):
-         return 'thing'
-
-  @with_fixtures(MyFixture)
-  def test_something(f):
-      assert f.thing == 'thing'
-
-
-Previously a test could only have a single |Fixture|. That has been
-changed: multiple |Fixture|\s can be used now. Note that the argument
-names declared with the test function are not important. |Fixture|\s
-are assigned to arguments based on position only::
-
-  from reahl.tofu import Fixture, with_fixtures
-
-  class MyFixture(Fixture):
-     def new_thing(self):
-         return 'thing'
-
-  class OtherFixture(Fixture):
-     def new_thing(self):
-         return 'other thing'
-
-  @with_fixtures(MyFixture, OtherFixture)
-  def test_something(f, f2):
-      assert f.thing == 'thing'
-      assert f2.thing == 'other thing'
-
-|Fixture|\s can also depend on other |Fixture|\s. In this case use
-:func:`~reahl.tofu.uses` to decorate the |Fixture| class, stating
-which other |Fixture| classes it depends on, and what to name
-these. At runtime, each |Fixture| is created and assigned to an
-attribute on the |Fixture| that depends on it::
-
-  from reahl.tofu import Fixture, with_fixtures, uses
-
-  class MyFixture(Fixture):
-     def new_thing(self):
-         return 'thing'
-
-  @uses(my_fix=MyFixture)
-  class OtherFixture(Fixture):
-     def new_thing(self):
-         return 'other %s' % self.my_fix.thing
-
-  @with_fixtures(OtherFixture)
-  def test_something(f):
-      assert f.thing == 'other thing'
-  
-By default, a |Fixture| has 'function' scope, meaning it is created
-and set up before a test function, and torn down after the test
-function ran. :func:`~reahl.tofu.scope` is used as decoration on the
-|Fixture| class to change the scope. Currently, only 'function' and
-'session' scopes are supported. A |Fixture| that has 'session' scope
-is set up only once per test process, and torn down when the test
-process ends::
-
-  from reahl.tofu import Fixture, with_fixtures, uses
-
-  @scope('session')
-  class MyFixture(Fixture):
-     def new_thing(self):
-         return 'thing'
-
-  @with_fixtures(MyFixture)
-  def test_something(f):
-      assert f.thing == 'other thing' # f here is the same instance in all tests
-
-  @with_fixtures(MyFixture)
-  def test_something_else(f):
-      assert f.thing == 'other thing' # f here is the same instance in all tests
-
-
-Tofu - other changes
----------------------
-
-Some changes in |Fixture| is not related to the pytest move.
-
-
-Previously, you could add a method with name starting with 'del\_' if
-you needed to tear down one of the |Fixture| attributes created with a
-corresponding 'new\_' method. Support for these 'del\_' methods have now
-been removed. Instead, tear down can now happen inside the 'new\_'
-method which creates the instance by making use of a yield statement::
-
-  from reahl.tofu import Fixture
-
-  class MyFixture(Fixture):
-     def new_thing(self):
-         thing = 'thing'
-         yield thing
-         # tear down thing here
-
-|Fixture| previously also had a default contextmanager, assumed to be
-created with a `new_context` method on the fixture. This was present
-because of our use of an |ExecutionContext| and our need to make sure
-test code always ran within an appropriate |ExecutionContext|.
-
-The idea of |ExecutionContext| does not belong in the domain of
-|Fixture|\s, however, and it was really impossible to explain why a
-|Fixture| should have an additional context manager without explaining
-|ExecutionContext|.
-
-For these reasons, |Fixture| now does not support or need an extra
-contextmanager.  Instead, a new
-:class:`~reahl.dev.fixtures.ContextAwareFixture` was added--as
-part of :mod:`reahl.dev.fixtures`\--making the design of a |Fixture|
-simpler.
-         
-
-Git vs Bzr
-----------
-
-We have switched internally to use `git <https://git-scm.com/>`_ and
-`GitHub <https://github.com/reahl/reahl/>`_. Previously, we needed to
-provide our own `file_finder` function so that setuptools would know
-which source files to include in a distribution, based on whether the
-file was added to `Bzr <http://bazaar.canonical.com/en/>`_. Since
-we're not using Bzr anymore, the Bzr `file_finder` was removed. If you
-still use Bzr, `you can easily roll your own
-<http://code.activestate.com/recipes/577910-bazaar-as-a-setuptools-file-finder//>`_.
-
-
-Devpi
------
-
-We have also stopped using `Devpi <http://doc.devpi.net/latest//>`_
-internally and hence removed the `devpitest` and `devpipush` commands
-from the `reahl` commandline tool.
+ReahlWSGIApplication start_on_first_request
 
 
 Updated dependencies
@@ -360,30 +216,43 @@ Updated dependencies
 
 Some included thirdparty JavaScript and CSS libraries were updated:
 
-  - JQuery to 3.3.1 with JQuery-migrate 3.0.1.
-  - JQueryUI to 1.12.1 - but our distribution includes *only* the widget factory, nothing else.
-  - JQuery.validation was updated to 1.17.0 (and patched).
-  - jquery-metadata plugin was removed.
-  - Bootstrap to 4.0.0.
-  - JQuery BBQ to 1.3pre (patched).
-  - JQuery-form to 4.2.2.
-  - HTML5shiv to 3.7.3.
+  - JQuery to 3.5.1
+  - Bootstrap to 4.5.0
+  - JQueryUI to 1.12.1 - but our distribution includes *only* the widget factory with :focusable and :tabbable, nothing else.
+  - JQuery.validate was updated to 1.19.1 (and patched).
+  - JQuery.form to 4.2.2
+  - JQuery.blockUI to 2.70.0
+  - js.cookie to 1.4.1
+  - Popper to 1.16
+  - holder to 2.9.7
 
-Some were added:
+Unchanged:
 
-  - Added Popper 1.12.9.
+  - JQuery BBQ 1.3pre (patched).
+  - JQuery-form 4.2.2.
+  - HTML5shiv to 3.7.3
 
 The versions of some external dependencies were updated:
-
-  - BeautifulSoup to 4.6.
-  - Wheel to 0.29.
-  - setuptools to 32.3.
-  - Lxml version to 3.8.
-  - SqlAlchemy to 1.2.0.
-  - Alembic to 0.9.6.
-  - Twine to 1.11.
-  - Lxml to 4.2.
-
-
+  - alembic to 0.9.6
+  - Babel to 2.8
+  - beautifulsoup4 to 4.6
+  - docutils to 0.14
+  - lxml to 4.2
+  - mysqlclient to 1.3
+  - Pillow to 2.5
+  - ply to 3.8
+  - prompt_toolkit to 2.0.10
+  - psycopg2-binary to 2.7
+  - Pygments to 2.1.0
+  - python-dateutil to 2.8
+  - selenium to 2.42
+  - setuptools-git to 1.1
+  - SQLAlchemy to 1.2.0
+  - twine to 1.15.0
+  - tzlocal to 2.0.0
+  - watchdog to 0.8.3
+  - WebOb to 1.4
+  - wheel to 0.34.0
+  - wrapt to 1.10.2
 
 
