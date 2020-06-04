@@ -149,10 +149,10 @@ class UserSession(Base, UserSessionProtocol):
     def set_session_key(self, response):
         context = ExecutionContext.get_context()
         session_cookie = self.as_key()
-        response.set_cookie(context.config.web.session_key_name, urllib.parse.quote(session_cookie), path='/')
+        response.set_cookie(context.config.web.session_key_name, urllib.parse.quote(session_cookie), path='/', samesite='Strict')
         if self.is_secured():
             response.set_cookie(context.config.web.secure_key_name, urllib.parse.quote(self.secure_salt), secure=True, path='/',
-                                max_age=context.config.web.idle_secure_lifetime)
+                                max_age=context.config.web.idle_secure_lifetime, samesite='Strict')
 
     def generate_salt(self):
         alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZqwertyuiopasdfghjklzxcvbnm0123456789'

@@ -23,11 +23,11 @@ Several files from other projects are included in this code. See the copyright i
 of each applicable file below:
 
 
-reahl-web/reahl/web/static/bootstrap-4.4.1/
+reahl-web/reahl/web/static/bootstrap-4.5.0/
 ===========================================
 
-Bootstrap v4.4.1 (https://getbootstrap.com)
-Copyright 2011-2019 The Bootstrap Authors (https://github.com/twbs/bootstrap/graphs/contributors)
+Bootstrap v4.5.0 (https://getbootstrap.com)
+Copyright 2011-2020 The Bootstrap Authors (https://github.com/twbs/bootstrap/graphs/contributors)
 Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
 
 
@@ -69,10 +69,10 @@ Copyright HTML5 Shiv v3.7.3 | MIT/GPL2 Licensed,
 see http://opensource.org/licenses/mit-license.php
 or http://opensource.org/licenses/GPL-2.0
 
-reahl-web/reahl/web/static/jquery/jquery-3.4.1/
+reahl-web/reahl/web/static/jquery/jquery-3.5.1/
 ===============================================
 
-jQuery JavaScript Library v3.4.1
+jQuery JavaScript Library v3.5.1
 https://jquery.com/
 
 Includes Sizzle.js

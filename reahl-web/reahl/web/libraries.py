@@ -150,7 +150,7 @@ class Library:
 
     
 class JQuery(Library):
-    """Version 3.4.1 of `JQuery <https://jquery.com>`_.
+    """Version 3.5.1 of `JQuery <https://jquery.com>`_.
 
     This Library also includes a number of plugins we use internally:
 
@@ -166,8 +166,8 @@ class JQuery(Library):
     """
     def __init__(self):
         super().__init__('jquery')
-        self.files = ['jquery-3.4.1/jquery-3.4.1.js',
-                      'jquery-3.4.1/jquery-3.4.1.min.map']
+        self.files = ['jquery-3.5.1/jquery-3.5.1.js',
+                      'jquery-3.5.1/jquery-3.5.1.min.map']
         self.shipped_in_directory = 'reahl/web/static'
         for i in ['jquery.validate-1.19.1.modified.js',
                   'jquery.ba-bbq-1.3pre.js',
@@ -201,7 +201,7 @@ class JQuery(Library):
 class JQueryUI(Library):
     """A heavily customised subset of version 1.12.1 of `JQuery UI <https://jqueryui.com>`_.
     
-   Only contains the `Widget Factory <http://api.jqueryui.com/jQuery.widget/>`_.
+   Only contains the `Widget Factory <http://api.jqueryui.com/jQuery.widget/>`_ and :tabbable, :focusable Selector.
     """
     def __init__(self):
         super().__init__('jqueryui')
@@ -271,20 +271,20 @@ class Holder(Library):
 
 
 class Bootstrap4(Library):
-    """Version 4.4.1 of `Bootstrap <http://getbootstrap.com/>`_.
+    """Version 4.5.0 of `Bootstrap <http://getbootstrap.com/>`_.
     """
     def __init__(self):
         super().__init__('bootstrap4')
         self.shipped_in_directory = 'reahl/web/static'
         self.files = [
-                      'bootstrap-4.4.1/css/bootstrap.css',
-                      'bootstrap-4.4.1/css/reahl-patch.css',
-                      'bootstrap-4.4.1/css/bootstrap.css.map',
-                      # 'bootstrap-4.4.1/css/bootstrap-grid.css',
-                      # 'bootstrap-4.4.1/css/bootstrap-grid.css.map',
-                      # 'bootstrap-4.4.1/css/bootstrap-reboot.css',
-                      # 'bootstrap-4.4.1/css/bootstrap-reboot.css.map',
-                      'bootstrap-4.4.1/js/bootstrap.js'
+                      'bootstrap-4.5.0/css/bootstrap.css',
+                      'bootstrap-4.5.0/css/reahl-patch.css',
+                      'bootstrap-4.5.0/css/bootstrap.css.map',
+                      # 'bootstrap-4.5.0/css/bootstrap-grid.css',
+                      # 'bootstrap-4.5.0/css/bootstrap-grid.css.map',
+                      # 'bootstrap-4.5.0/css/bootstrap-reboot.css',
+                      # 'bootstrap-4.5.0/css/bootstrap-reboot.css.map',
+                      'bootstrap-4.5.0/js/bootstrap.js'
                       ]
 
 
