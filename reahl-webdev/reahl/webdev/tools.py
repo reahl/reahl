@@ -1455,7 +1455,7 @@ class DriverBrowser(BasicBrowser):
             yield
         finally:
             self.wait_for_page_to_load()
-            new_element_loaded = not self.web_driver.execute_script('''return $('%s').find('%s')''' % (escaped_jquery_selector, escaped_load_flag_selector)) 
+            new_element_loaded = not self.web_driver.execute_script('''return $('%s').find('%s').length > 0''' % (escaped_jquery_selector, escaped_load_flag_selector)) 
             if bool(new_element_loaded) is not refresh_expected:
                 raise UnexpectedLoadOf(jquery_selector)
             if not new_element_loaded:
