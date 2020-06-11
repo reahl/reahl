@@ -1,37 +1,38 @@
-FROM phusion/baseimage:0.9.19
-#MAINTAINER Anatoly Bubenkov "bubenkoff@gmail.com"
+FROM ubuntu:20.04 as base
 
-ENV HOME /root
+# ---- ENV vars set here are available to all phases of the build going forward
 
-# enable ssh
-RUN rm -f /etc/service/sshd/down
+ENV VENV_ROOT=/var/local/reahl
+ENV VENV=$VENV_ROOT/opt
+ENV PIP=$VENV/bin/pip3
+ENV PYTHON=$VENV/bin/python3
 
-# Use baseimage-docker's init system.
-CMD ["/sbin/my_init"]
-
-RUN apt-get update
-
-RUN apt-get install -y openssh-server wget lsb-release sudo
-
-EXPOSE 22
-
-# Create and configure vagrant user
-RUN useradd --create-home -s /bin/bash vagrant
-WORKDIR /home/vagrant
-
-# Configure SSH access
-RUN echo -n 'vagrant:vagrant' | chpasswd
-RUN mkdir -p /home/vagrant/.ssh
-RUN chmod 0700 /home/vagrant/.ssh
-RUN echo "ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEA6NF8iallvQVp22WDkTkyrtvp9eWW6A8YVr+kz4TjGYe7gHzIw+niNltGEFHzD8+v1I2YJ6oXevct1YeS0o9HZyN1Q9qgCgzUFtdOKLv6IedplqoPkcmF0aYet2PkEDo3MlTBckFXPITAMzF8dJSIFo9D8HfdOV0IAdx4O7PtixWKn5y2hMNG0zQPyUecp4pzC6kivAIhyfHilFR61RGL+GPXQ2MWZWFYbAGjyiYJnAmCP3NOTd0jMZEnDkbUvxhMmBYSdETk1rRgm+R4LOzFUGaHqHDLKLX+FIPKcF96hrucXzcWyLbIbEgE98OHlnVYCzRdK8jlqm8tehUc9c9WhQ== vagrant insecure public key" > /home/vagrant/.ssh/authorized_keys
-RUN chown -R vagrant:vagrant /home/vagrant/.ssh
-RUN chmod -R 0600 /home/vagrant/.ssh/*
-
-# Enable passwordless sudo for the "vagrant" user
-RUN echo 'vagrant ALL=NOPASSWD: ALL' > /etc/sudoers.d/vagrant
-RUN chmod 0440 /etc/sudoers.d/vagrant
+ENV REAHL_SCRIPTS=/opt/reahl
 
 
-# Clean up APT when done.
 
-#RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+# ---- Then we start fresh without the ruby build-deps and install what we need for monitor: 
+
+FROM base as python-install
+
+
+RUN mkdir -p $REAHL_SCRIPTS
+COPY ./scripts/installDebs.sh $REAHL_SCRIPTS/scripts/installDebs.sh
+
+RUN $REAHL_SCRIPTS/scripts/installDebs.sh && \
+    adduser --disabled-password --gecos '' developer && \
+    echo "Defaults env_keep += REAHL_SCRIPTS\ndeveloper ALL=(root) NOPASSWD: /opt/reahl/scripts/provision.sh" > /etc/sudoers.d/reahl
+
+COPY ./scripts $REAHL_SCRIPTS/scripts
+COPY ./travis $REAHL_SCRIPTS/travis
+COPY ./vagrant $REAHL_SCRIPTS/vagrant
+
+RUN /etc/init.d/ssh start && \
+    sudo -i -u developer bash -c "cd $REAHL_SCRIPTS; $REAHL_SCRIPTS/vagrant/setupDevEnv.sh"
+
+USER developer
+
+ENTRYPOINT [ "/opt/reahl/scripts/runDevelopmentDocker.sh" ]
+CMD [ "tail", "-f", "/dev/null" ]
+
+

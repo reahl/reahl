@@ -1,11 +1,15 @@
 #!/bin/bash -ev
 
+echo "Email: $EMAIL"
+echo "Name: $DEBFULLNAME"
+
 git config --global user.email $EMAIL
 git config --global user.name "$DEBFULLNAME"
 
-GIT_HOOKS=$(git rev-parse --git-dir)/hooks
+if git rev-parse --git-dir > /dev/null 2>&1 ; then 
+    GIT_HOOKS=$(git rev-parse --git-dir)/hooks
 
-cat > $GIT_HOOKS/pre-commit <<"EOF"
+    cat > $GIT_HOOKS/pre-commit <<"EOF"
 #!/bin/sh
 
 if [ "$USER" = "vagrant" ] 
@@ -18,5 +22,5 @@ fi
 
 EOF
 
-chmod u+x $GIT_HOOKS/pre-commit
-
+    chmod u+x $GIT_HOOKS/pre-commit
+fi

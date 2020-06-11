@@ -1,0 +1,8 @@
+version: "3.0"
+services:
+  reahl:
+    container_name: reahl
+    restart: always
+    image: reahl
+    volumes:
+      - .:/home/developer/reahl
