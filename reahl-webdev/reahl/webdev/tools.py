@@ -1032,7 +1032,9 @@ class DriverBrowser(BasicBrowser):
         self.wait_for_element_interactable(locator)
         el = self.find_element(locator)
         if el.get_attribute('type') != 'file':
-            el.send_keys(Keys.CONTROL+'a'+Keys.BACKSPACE) # To clear() the element without triggering extra onchange events
+            el.send_keys(Keys.CONTROL+'a') # To clear() the element without triggering extra onchange events
+            if not text:
+                el.send_keys(Keys.BACKSPACE)
         el.send_keys(text)
         if trigger_blur:
             self.web_driver.execute_script('if ( "undefined" !== typeof jQuery) { jQuery(arguments[0]).blur().focus(); };', el)
