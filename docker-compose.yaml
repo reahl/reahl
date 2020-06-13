@@ -1,8 +1,29 @@
 version: "3.0"
 services:
+
   reahl:
     container_name: reahl
     restart: always
     image: reahl
     volumes:
       - .:/home/developer/reahl
+    expose:
+      - "22"
+      - "8000"
+      - "8383"
+
+  postgres:
+    container_name: postgres
+    image: postgres:12.3
+    restart: always
+    environment:
+       POSTGRES_PASSWORD: reahl
+       POSTGRES_USER: reahl
+
+  mysql:
+    container_name: mysql
+    image: mysql:5.7
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: reahl

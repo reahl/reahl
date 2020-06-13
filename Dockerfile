@@ -28,11 +28,11 @@ COPY ./travis $REAHL_SCRIPTS/travis
 COPY ./vagrant $REAHL_SCRIPTS/vagrant
 
 RUN /etc/init.d/ssh start && \
-    sudo -i -u developer bash -c "cd $REAHL_SCRIPTS; $REAHL_SCRIPTS/vagrant/setupDevEnv.sh"
+        sudo -i -u developer bash -c "cd $REAHL_SCRIPTS; $REAHL_SCRIPTS/vagrant/setupDevEnv.sh" && \
+        /etc/init.d/ssh stop
 
-USER developer
-
+EXPOSE 80 8000 8363
 ENTRYPOINT [ "/opt/reahl/scripts/runDevelopmentDocker.sh" ]
-CMD [ "tail", "-f", "/dev/null" ]
+CMD [ "/usr/sbin/sshd", "-D" ]
 
 
