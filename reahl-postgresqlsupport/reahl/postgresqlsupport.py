@@ -35,6 +35,9 @@ from contextlib import closing, contextmanager
 import os.path
 import socket
 
+import psycopg2
+import psycopg2.extensions
+
 from reahl.component.dbutils import DatabaseControl
 from reahl.component.exceptions import DomainException
 from reahl.component.shelltools import Executable, ExecutableNotInstalledException
@@ -52,6 +55,31 @@ class PostgresqlControl(DatabaseControl):
     """A DatabaseControl implementation for PostgreSQL."""
     control_matching_regex = r'^postgres(ql)?:'
 
+    def execute(self, sql, login_username=None, password=None):
+        login_args = {}
+        if self.host:
+            login_args['host'] = self.host
+        if self.port:
+            login_args['port'] = self.port
+        if login_username:
+            login_args['user'] = login_username
+        if password:
+            login_args['password'] = password
+            
+        connection = psycopg2.connect(**login_args)
+        try:
+            connection.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
+            cursor = connection.cursor()
+            try:
+                return cursor.execute(sql)
+            finally:
+                cursor.close()
+        finally:
+            connection.close()
+
+    def get_superuser_password(self):
+        return os.environ.get('PGPASSWORD', None)
+    
     def login_args(self, login_username=None):
         args = []
         if self.host:
@@ -63,35 +91,27 @@ class PostgresqlControl(DatabaseControl):
         return args
 
     def create_db_user(self, super_user_name=None, create_with_password=True):
-        create_password_option = 'P' if create_with_password else ''
-        with as_domain_exception(ExecutableNotInstalledException):
-            Executable('createuser').check_call(['-DSRl%s' % create_password_option]
-                                                + self.login_args(login_username=super_user_name)
-                                                + [self.user_name])
+        create_password_option = 'PASSWORD \'%s\'' % self.password if create_with_password else ''
+        self.execute('create user %s %s;' % (self.user_name, create_password_option), login_username=super_user_name, password=self.get_superuser_password())
         return 0
-
+    
     def drop_db_user(self, super_user_name=None):
-        with as_domain_exception(ExecutableNotInstalledException):
-            Executable('dropuser').check_call(self.login_args(login_username=super_user_name) + [self.user_name])
+        self.execute('drop user %s;' % self.user_name, login_username=super_user_name, password=self.get_superuser_password())
         return 0
 
     def drop_database(self, super_user_name=None, yes=False):
-        cmd_args = self.login_args(login_username=super_user_name) + ['--if-exists']
-        last_part = ['-i', self.database_name]
-        if yes:
-            last_part = [self.database_name]
-
-        with as_domain_exception(ExecutableNotInstalledException):
-            Executable('dropdb').check_call(cmd_args + last_part)
+        # TODO: deal with "yes - I am sure" and possibly asking for password?
+        try:
+            self.execute('drop database %s;' % self.database_name, login_username=super_user_name, password=self.get_superuser_password())
+        except psycopg2.errors.InvalidCatalogName:
+            pass
         return 0
 
     def create_database(self, super_user_name=None):
-        owner_option = ['-O', self.user_name] if self.user_name else []
-        with as_domain_exception(ExecutableNotInstalledException):
-            Executable('createdb').check_call(['-Eunicode']
-                                              + self.login_args(login_username=super_user_name)
-                                              + ['-T', 'template0']
-                                              + owner_option + [self.database_name])
+        # TODO: deal with possibly asking for password?
+        owner_option = 'owner %s' % self.user_name if self.user_name else ''
+        self.execute('create database %s with %s template template0 encoding UTF8;' \
+                     % (self.database_name, owner_option), login_username=super_user_name, password=self.get_superuser_password())
         return 0
 
     def backup_database(self, directory, super_user_name=None):

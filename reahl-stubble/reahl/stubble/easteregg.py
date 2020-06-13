@@ -116,7 +116,7 @@ class EasterEgg(pkg_resources.Distribution):
         self.added_paths = set(sys.path) - set(saved_path)
 
     def contains(self, module):
-        return hasattr(module, '__file__') and module.__file__.startswith(self.location)
+        return hasattr(module, '__file__') and module.__file__ and module.__file__.startswith(self.location)
 
     def deactivate(self):
         for i in self.added_paths:

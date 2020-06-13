@@ -9,6 +9,7 @@ echo "export DEBFULLNAME=\"Travis Tester\"" >> $HOME/.profile
 echo "export DEBEMAIL=\$EMAIL" >> $HOME/.profile
 echo "export PACKAGESIGNKEYID=DE633F86" >> $HOME/.profile
 echo "export PATH=\$HOME/bin:\$PATH" >> $HOME/.profile
+echo "export PGPASSWORD=reahl" >> $HOME/.profile
 . $HOME/.profile
 
 cat <<'EOF' >> $HOME/.profile

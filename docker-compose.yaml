@@ -18,7 +18,7 @@ services:
     restart: always
     environment:
        POSTGRES_PASSWORD: reahl
-       POSTGRES_USER: reahl
+       POSTGRES_USER: developer
 
   mysql:
     container_name: mysql
