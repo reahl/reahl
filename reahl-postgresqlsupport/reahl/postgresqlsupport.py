@@ -34,12 +34,13 @@ from datetime import date
 from contextlib import closing, contextmanager
 import os.path
 import socket
+import getpass
 
 import psycopg2
 import psycopg2.extensions
 
 from reahl.component.dbutils import DatabaseControl
-from reahl.component.exceptions import DomainException
+from reahl.component.exceptions import DomainException, ProgrammerError
 from reahl.component.shelltools import Executable, ExecutableNotInstalledException
 
 
@@ -55,14 +56,16 @@ class PostgresqlControl(DatabaseControl):
     """A DatabaseControl implementation for PostgreSQL."""
     control_matching_regex = r'^postgres(ql)?:'
 
-    def execute(self, sql, login_username=None, password=None):
+    def execute(self, sql, login_username=None, password=None, database_name=None):
         login_args = {}
+        if not (database_name or self.database_name):
+            raise ProgrammerError('no database name specified')
+        login_args['dbname'] = database_name or self.database_name
         if self.host:
             login_args['host'] = self.host
         if self.port:
             login_args['port'] = self.port
-        if login_username:
-            login_args['user'] = login_username
+        login_args['user'] = login_username or getpass.getuser()
         if password:
             login_args['password'] = password
             
@@ -91,18 +94,18 @@ class PostgresqlControl(DatabaseControl):
         return args
 
     def create_db_user(self, super_user_name=None, create_with_password=True):
-        create_password_option = 'PASSWORD \'%s\'' % self.password if create_with_password else ''
-        self.execute('create user %s %s;' % (self.user_name, create_password_option), login_username=super_user_name, password=self.get_superuser_password())
+        create_password_option = 'PASSWORD \'%s\'' % self.password if create_with_password and self.password else ''
+        self.execute('create user %s %s;' % (self.user_name or getpass.getuser(), create_password_option), login_username=super_user_name, password=self.get_superuser_password(), database_name='postgres')
         return 0
     
     def drop_db_user(self, super_user_name=None):
-        self.execute('drop user %s;' % self.user_name, login_username=super_user_name, password=self.get_superuser_password())
+        self.execute('drop user %s;' % self.user_name, login_username=super_user_name, password=self.get_superuser_password(), database_name='postgres')
         return 0
 
     def drop_database(self, super_user_name=None, yes=False):
         # TODO: deal with "yes - I am sure" and possibly asking for password?
         try:
-            self.execute('drop database %s;' % self.database_name, login_username=super_user_name, password=self.get_superuser_password())
+            self.execute('drop database %s;' % self.database_name, login_username=super_user_name, password=self.get_superuser_password(), database_name='postgres')
         except psycopg2.errors.InvalidCatalogName:
             pass
         return 0
@@ -111,7 +114,7 @@ class PostgresqlControl(DatabaseControl):
         # TODO: deal with possibly asking for password?
         owner_option = 'owner %s' % self.user_name if self.user_name else ''
         self.execute('create database %s with %s template template0 encoding UTF8;' \
-                     % (self.database_name, owner_option), login_username=super_user_name, password=self.get_superuser_password())
+                     % (self.database_name, owner_option), login_username=super_user_name, password=self.get_superuser_password(), database_name='postgres')
         return 0
 
     def backup_database(self, directory, super_user_name=None):
