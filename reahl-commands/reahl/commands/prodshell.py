@@ -193,7 +193,10 @@ class DropDB(ProductionCommand):
 
     def execute(self, args):
         super().execute(args)
-        return self.sys_control.drop_database(super_user_name=args.super_user_name, yes=args.yes)
+        if args.yes or (input('Are you sure? (y/N)? ').strip().lower().startswith('y')):
+            return self.sys_control.drop_database(super_user_name=args.super_user_name)
+        else:
+            return 
 
 
 class CreateDB(ProductionCommand):

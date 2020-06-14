@@ -66,10 +66,9 @@ class MysqlControl(DatabaseControl):
                                         + ['-e', 'drop user %s;' % self.user_name])
         return 0
 
-    def drop_database(self, super_user_name=None, yes=False):
+    def drop_database(self, super_user_name=None):
         cmd_args = self.login_args(login_username=super_user_name) 
-        if yes:
-            cmd_args.append('-f')
+        cmd_args.append('-f')
 
         Executable('mysqladmin').check_call(['drop'] + cmd_args + [self.database_name])
         return 0

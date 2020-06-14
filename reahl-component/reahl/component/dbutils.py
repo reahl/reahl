@@ -146,9 +146,9 @@ class SystemControl:
         with self.orm_control.managed_transaction() as transaction:
             return self.orm_control.drop_db_tables(transaction)
 
-    def initialise_database(self, yes=False):
+    def initialise_database(self):
         """Ensures a new clean database exists, with a schema created. This drops an existing database if one is present."""
-        self.drop_database(yes=yes)
+        self.drop_database()
         self.create_database()
         self.connect()
         try:
@@ -179,9 +179,9 @@ class SystemControl:
         """Drops the database user."""
         return self.db_control.drop_db_user(super_user_name=super_user_name)
     
-    def drop_database(self, super_user_name=None, yes=False):
+    def drop_database(self, super_user_name=None):
         """Drops the database (if it exists)."""
-        return self.db_control.drop_database(super_user_name=super_user_name, yes=yes)
+        return self.db_control.drop_database(super_user_name=super_user_name)
     
     def create_database(self, super_user_name=None):
         """Creates the database."""

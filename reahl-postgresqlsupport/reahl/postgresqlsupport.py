@@ -102,12 +102,9 @@ class PostgresqlControl(DatabaseControl):
         self.execute('drop user %s;' % self.user_name, login_username=super_user_name, password=self.get_superuser_password(), database_name='postgres')
         return 0
 
-    def drop_database(self, super_user_name=None, yes=False):
-        # TODO: deal with "yes - I am sure" and possibly asking for password?
-        try:
-            self.execute('drop database %s;' % self.database_name, login_username=super_user_name, password=self.get_superuser_password(), database_name='postgres')
-        except psycopg2.errors.InvalidCatalogName:
-            pass
+    def drop_database(self, super_user_name=None):
+        self.execute('drop database if exists %s;' % self.database_name, login_username=super_user_name, password=self.get_superuser_password(), database_name='postgres')
+
         return 0
 
     def create_database(self, super_user_name=None):
