@@ -783,7 +783,7 @@ class DriverBrowser(BasicBrowser):
                  'xl': (1200+300, 900)}
         assert size in sizes.keys(), 'size should be one of: %s' % (', '.join(sizes.keys()))
         self.web_driver.set_window_size(*sizes[size]) # Setting it once requires some sort of delay before it actually happens, twice does that trick.
-        self.web_driver.set_window_size(*sizes[size]) 
+        self.web_driver.set_window_size(*sizes[size])
 
     @property
     def raw_html(self):
@@ -972,14 +972,14 @@ class DriverBrowser(BasicBrowser):
         except:
             pass # Will only work on HTML pages
 
-    def wait_for_element_present(self, locator): 
+    def wait_for_element_present(self, locator):
         """Waits until the element found by `locator` is present on the page (whether visible or not).
 
            :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
         """
         return self.wait_for(self.is_element_present, locator)
 
-    def wait_for_element_not_present(self, locator): 
+    def wait_for_element_not_present(self, locator):
         """Waits until the element found by `locator` is not present on the page (whether visible or not).
 
            :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
@@ -1192,7 +1192,7 @@ class DriverBrowser(BasicBrowser):
         el = self.find_element(locator, wait=False)
         return el.get_attribute(attribute_name)
 
-    def get_value(self, locator): 
+    def get_value(self, locator):
         """Returns the value of the input indicated by `locator`.
 
            :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
@@ -1384,7 +1384,7 @@ class DriverBrowser(BasicBrowser):
         .. versionchanged:: 5.0
            Added shift to be able to tab backwards
         """
-        self.press_keys((Keys.SHIFT+Keys.TAB) if shift else Keys.TAB) 
+        self.press_keys((Keys.SHIFT+Keys.TAB) if shift else Keys.TAB)
 
     def press_arrow(self, direction):
         """Simulates the user pressing arrow key on the element that has focus.
@@ -1433,7 +1433,7 @@ class DriverBrowser(BasicBrowser):
             yield
         finally:
             self.wait_for_page_to_load()
-            new_element_loaded = not self.web_driver.execute_script('return $("%s").hasClass("load_flag")' % escaped_jquery_selector) 
+            new_element_loaded = not self.web_driver.execute_script('return $("%s").hasClass("load_flag")' % escaped_jquery_selector)
             if bool(new_element_loaded) is not refresh_expected:
                 raise UnexpectedLoadOf(jquery_selector)
             if not new_element_loaded:
@@ -1455,7 +1455,7 @@ class DriverBrowser(BasicBrowser):
             yield
         finally:
             self.wait_for_page_to_load()
-            new_element_loaded = not self.web_driver.execute_script('''return $('%s').find('%s')''' % (escaped_jquery_selector, escaped_load_flag_selector)) 
+            new_element_loaded = not self.web_driver.execute_script('''return $('%s').find('%s')''' % (escaped_jquery_selector, escaped_load_flag_selector))
             if bool(new_element_loaded) is not refresh_expected:
                 raise UnexpectedLoadOf(jquery_selector)
             if not new_element_loaded:
@@ -1481,4 +1481,22 @@ class DriverBrowser(BasicBrowser):
             self.web_driver.close()
             self.web_driver.switch_to.window(current_tab)
 
+    @contextlib.contextmanager
+    def switch_to_new_tab_closed(self):
+        """ Returns a context manager that ensures selenium switches to the new tab, and closed afterwards.
+
+           .. versionadded:: 5.0
+
+        """
+        original_tab = self.web_driver.current_window_handle
+        new_tabs = [h for h in self.web_driver.window_handles if h != original_tab]
+        assert len(new_tabs) == 1
+        self.web_driver.switch_to.window(new_tabs[0])
+
+        try:
+            yield
+
+        finally:
+            self.web_driver.close()
+            self.web_driver.switch_to.window(original_tab)
 
