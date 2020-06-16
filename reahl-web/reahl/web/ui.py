@@ -1083,7 +1083,7 @@ class Form(HTMLElement):
 
         self.hash_inputs = self.add_child(Div(self.view, css_id='%s_hashes' % unique_name))
 
-        self.posted_client_concurrency_digest = None        
+        self.posted_client_concurrency_digest = None
         self.client_digest_input = self.hash_inputs.add_child(HiddenInput(self, self.fields.posted_client_concurrency_digest, base_name='_reahl_client_concurrency_digest', ignore_concurrent_change=True))
         if not self.client_digest_input.value:
             self.client_digest_input.add_attribute_source(DelayedConcurrencyDigestValue(self.client_digest_input))

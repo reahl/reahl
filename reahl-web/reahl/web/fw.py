@@ -2842,7 +2842,7 @@ class CouldNotConstructResource(Exception):
 class UncaughtError(Redirect):
     def __init__(self, view, root_ui, target_ui, exception):
         error_source_bookmark = view.as_bookmark(target_ui) if view else None
-        target_bookmark=root_ui.get_bookmark_for_error(str(exception), error_source_bookmark)
+        target_bookmark = root_ui.get_bookmark_for_error(str(exception), error_source_bookmark)
         super().__init__(target_bookmark)
 
 
