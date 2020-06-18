@@ -11,7 +11,6 @@ ENV REAHL_SCRIPTS=/opt/reahl
 
 
 
-# ---- Then we start fresh without the ruby build-deps and install what we need for monitor: 
 
 FROM base as python-install
 
@@ -24,10 +23,9 @@ RUN $REAHL_SCRIPTS/scripts/installDebs.sh && \
 
 COPY ./scripts $REAHL_SCRIPTS/scripts
 COPY ./travis $REAHL_SCRIPTS/travis
-COPY ./vagrant $REAHL_SCRIPTS/vagrant
 
 RUN /etc/init.d/ssh start && \
-        sudo -i -u developer bash -c "cd $REAHL_SCRIPTS; $REAHL_SCRIPTS/vagrant/setupDevEnv.sh" && \
+        sudo -i -u developer bash -c "cd $REAHL_SCRIPTS; $REAHL_SCRIPTS/scripts/setupDevEnv.sh" && \
         /etc/init.d/ssh stop
 
 EXPOSE 80 8000 8363

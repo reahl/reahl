@@ -23,10 +23,10 @@ if ! xdpyinfo -display $DISPLAY 1>/dev/null 2>&1; then
   xpra start --sharing=yes $DISPLAY 1>/dev/null 2>&1
 fi
 
-# Show fingerprints of current vagrant host
+# Show fingerprints of current host
 echo 
-echo "The fingerprints of the vagrant host are:"
-echo "========================================="
+echo "The fingerprints of the host are:"
+echo "================================="
 for i in $(ls /etc/ssh/ssh_host_*.pub); do
     for e in md5 sha256; do
         ssh-keygen -l -E $e -f $i;

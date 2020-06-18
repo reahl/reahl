@@ -12,9 +12,9 @@ if git rev-parse --git-dir > /dev/null 2>&1 ; then
     cat > $GIT_HOOKS/pre-commit <<"EOF"
 #!/bin/sh
 
-if [ "$USER" = "vagrant" ] 
+if [ "$USER" = "developer" ] 
 then
-        echo "Please don't commit as the vagrant user...rather commit from your own machine as yourself."
+        echo "Please don't commit as the developer user...rather commit from your own machine as yourself."
         exit 1
 else
         exit 0

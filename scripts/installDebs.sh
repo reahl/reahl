@@ -23,10 +23,6 @@ BUILD_DEPS="$OS_DEPS_BUILD $PYTHON_DEV $LXML_DEV $MYSQL_DEV $POSTGRES_DEV"
 
 DEV_ENV="openssh-server openssh-client xpra x11-utils firefox firefox-geckodriver screen unzip git apt-utils"
 
-while (ps aux | grep apt | grep -qv grep )
-do
-  echo 'Waiting for systemd daily apt jobs to complete'; sleep 1;
-done
 
 export DEBIAN_FRONTEND=noninteractive
 
