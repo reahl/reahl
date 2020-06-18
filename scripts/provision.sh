@@ -43,7 +43,9 @@ if [ ! -f /.provisioned ]; then
     '
 
     USER=developer $REAHL_SCRIPTS/vagrant/setupDevDatabases.sh
-    
+
+    /etc/init.d/ssh stop
+
     touch /.provisioned
 fi
 
