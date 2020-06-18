@@ -20,8 +20,7 @@ RUN mkdir -p $REAHL_SCRIPTS
 COPY ./scripts/installDebs.sh $REAHL_SCRIPTS/scripts/installDebs.sh
 
 RUN $REAHL_SCRIPTS/scripts/installDebs.sh && \
-    adduser --disabled-password --gecos '' developer && \
-    echo "Defaults env_keep += REAHL_SCRIPTS\ndeveloper ALL=(root) NOPASSWD: /opt/reahl/scripts/provision.sh" > /etc/sudoers.d/reahl
+    adduser --disabled-password --gecos '' developer 
 
 COPY ./scripts $REAHL_SCRIPTS/scripts
 COPY ./travis $REAHL_SCRIPTS/travis

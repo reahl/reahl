@@ -10,7 +10,9 @@ echo "export DEBEMAIL=\$EMAIL" >> $HOME/.profile
 echo "export PACKAGESIGNKEYID=DE633F86" >> $HOME/.profile
 echo "export PATH=\$HOME/bin:\$PATH" >> $HOME/.profile
 echo "export PGPASSWORD=reahl" >> $HOME/.profile
+echo "export MYSQL_PWD=reahl" >> $HOME/.profile
 echo "export REAHL_TEST_CONNECTION_URI='postgresql://reahl:reahl@postgres/reahl'" >> $HOME/.profile
+echo "#export REAHL_TEST_CONNECTION_URI='mysql://reahl:reahl@mysql/reahl'" >> $HOME/.profile
 . $HOME/.profile
 
 cat <<'EOF' >> $HOME/.profile

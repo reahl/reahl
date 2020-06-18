@@ -2,13 +2,26 @@
 
 # Installs needed to develop on reahl itself
 
-PYTHON_DEPS="python3 python3-venv virtualenvwrapper python3-dev gcc cython libxml2-dev libxslt-dev libsqlite3-0 sqlite3 postgresql-server-dev-all zlib1g-dev libfreetype6-dev build-essential openssh-client dpkg-dev postgresql libyaml-dev mysql-client mysql-server libmysqlclient-dev"
-UTILS="screen unzip git apt-utils"
+PYTHON_DEPS="python3 python3-venv virtualenvwrapper"
 
-# For X11 forwarding to work and other misc stuff we need
-#OS_DEPS="xauth dmidecode xpra libexif12 python-rencode x11-utils"
-OS_DEPS="sudo gnupg wget openssh-server xauth dmidecode libexif12 x11-utils firefox firefox-geckodriver"
+PYTHON_DEV="zlib1g-dev libfreetype6-dev dpkg-dev libyaml-dev"
+LXML_DEV="build-essential python3-dev gcc cython libxml2-dev libxslt-dev"
+MYSQL_DEV="build-essential python3-dev default-libmysqlclient-dev"
+POSTGRES_DEV="postgresql-server-dev-all"
 
+MYSQL="mysql-client"
+POSTGRES="postgresql-client"
+SQLITE="sqlite3 libsqlite3-0"
+
+OS_DEPS="ca-certificates sudo xauth libexif12"
+OS_DEPS_BUILD="ca-certificates wget gnupg"
+OS_DEPS_DEV="wget gnupg"
+
+
+RUNTIME_DEPS="$OS_DEPS $PYTHON_DEPS"
+BUILD_DEPS="$OS_DEPS_BUILD $PYTHON_DEV $LXML_DEV $MYSQL_DEV $POSTGRES_DEV"
+
+DEV_ENV="openssh-server openssh-client xpra x11-utils firefox firefox-geckodriver screen unzip git apt-utils"
 
 while (ps aux | grep apt | grep -qv grep )
 do
@@ -25,13 +38,14 @@ locales locales/default_environment_locale      select  en_ZA.UTF-8
 HERE
 
 apt-get update 
-apt-get install --no-install-recommends -y $PYTHON_DEPS $UTILS $OS_DEPS
+apt-get install --no-install-recommends -y $BUILD_DEPS
 
 wget https://xpra.org/gpg.asc -O- | apt-key add
 wget https://xpra.org/repos/focal/xpra.list -O- > /etc/apt/sources.list.d/xpra.list
 
 apt-get update 
-apt-get install -y --no-install-recommends xpra
+apt-get install --no-install-recommends -y $RUNTIME_DEPS $DEV_ENV $MYSQL $POSTGRES $SQLITE
+
 
 apt-get clean
 rm -rf /var/cache/apt/*
