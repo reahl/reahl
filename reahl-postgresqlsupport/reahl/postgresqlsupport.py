@@ -69,16 +69,11 @@ class PostgresqlControl(DatabaseControl):
         if password:
             login_args['password'] = password
             
-        connection = psycopg2.connect(**login_args)
-        try:
+        with psycopg2.connect(**login_args) as connection:
             connection.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
-            cursor = connection.cursor()
-            try:
+            with connection.cursor() as cursor:
                 return cursor.execute(sql)
-            finally:
-                cursor.close()
-        finally:
-            connection.close()
+
 
     def get_superuser_password(self):
         return os.environ.get('PGPASSWORD', None)
@@ -95,7 +90,8 @@ class PostgresqlControl(DatabaseControl):
 
     def create_db_user(self, super_user_name=None, create_with_password=True):
         create_password_option = 'PASSWORD \'%s\'' % self.password if create_with_password and self.password else ''
-        self.execute('create user %s %s;' % (self.user_name or getpass.getuser(), create_password_option), login_username=super_user_name, password=self.get_superuser_password(), database_name='postgres')
+        self.execute('create user %s %s;' % (self.user_name or getpass.getuser(), create_password_option),
+                     login_username=super_user_name, password=self.get_superuser_password(), database_name='postgres')
         return 0
     
     def drop_db_user(self, super_user_name=None):
@@ -103,12 +99,12 @@ class PostgresqlControl(DatabaseControl):
         return 0
 
     def drop_database(self, super_user_name=None):
-        self.execute('drop database if exists %s;' % self.database_name, login_username=super_user_name, password=self.get_superuser_password(), database_name='postgres')
+        self.execute('drop database if exists %s;' % self.database_name,
+                     login_username=super_user_name, password=self.get_superuser_password(), database_name='postgres')
 
         return 0
 
     def create_database(self, super_user_name=None):
-        # TODO: deal with possibly asking for password?
         owner_option = 'owner %s' % self.user_name if self.user_name else ''
         self.execute('create database %s with %s template template0 encoding UTF8;' \
                      % (self.database_name, owner_option), login_username=super_user_name, password=self.get_superuser_password(), database_name='postgres')
