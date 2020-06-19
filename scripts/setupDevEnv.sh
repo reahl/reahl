@@ -1,5 +1,9 @@
 #!/bin/sh -ex
 
+# Setup virtualenv, virtualenvwrapper;
+echo "export WORKON_HOME=~/.venvs" >> $HOME/.profile
+echo ". /usr/share/virtualenvwrapper/virtualenvwrapper.sh" >> $HOME/.profile
+echo 'workon $VENV_NAME' >> $HOME/.profile
 
 # Setup environment
 echo "if [ -z \"\$DISPLAY\" ]; then export DISPLAY=:100; fi" >> $HOME/.profile
@@ -13,7 +17,6 @@ echo "export PGPASSWORD=reahl" >> $HOME/.profile
 echo "export MYSQL_PWD=reahl" >> $HOME/.profile
 echo "export REAHL_TEST_CONNECTION_URI='postgresql://reahl:reahl@postgres/reahl'" >> $HOME/.profile
 echo "#export REAHL_TEST_CONNECTION_URI='mysql://reahl:reahl@mysql/reahl'" >> $HOME/.profile
-. $HOME/.profile
 
 cat <<'EOF' >> $HOME/.profile
 
@@ -41,9 +44,12 @@ hardstatus string "%{.bW}%-w%{.rW}%n %t%{-}%+w %=%{..G} %H %{..Y} %m/%d %C%a "
 EOF
 
 # User installs and config
-./travis/createTestSshKey.sh
-./travis/createTestGpgKey.sh
-./travis/configurePip.sh
+bash -l -c "
+. $HOME/.profile;
+./travis/createTestSshKey.sh;
+./travis/createTestGpgKey.sh;
+./travis/configurePip.sh;
 ./travis/setupTestGit.sh
+"
 
 
