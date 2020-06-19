@@ -11,6 +11,8 @@ services:
       - "22"
       - "8000"
       - "8383"
+    environment:
+      BOOTSTRAP_GIT: /home/developer/reahl
 
   postgres:
     container_name: postgres
@@ -20,10 +22,10 @@ services:
        POSTGRES_PASSWORD: reahl
        POSTGRES_USER: developer
 
-  mysql:
-    container_name: mysql
-    image: mysql:5.7
-    command: --default-authentication-plugin=mysql_native_password
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: reahl
+#  mysql:
+#    container_name: mysql
+#    image: mysql:5.7
+#    command: --default-authentication-plugin=mysql_native_password
+#    restart: always
+#    environment:
+#      MYSQL_ROOT_PASSWORD: reahl
