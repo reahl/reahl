@@ -5,14 +5,10 @@ services:
     container_name: reahl
     restart: always
     image: reahl
-    volumes:
-      - .:/home/developer/reahl
     expose:
       - "22"
       - "8000"
       - "8383"
-    environment:
-      BOOTSTRAP_GIT: /home/developer/reahl
 
   postgres:
     container_name: postgres

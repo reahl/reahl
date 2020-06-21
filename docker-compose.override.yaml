@@ -1,0 +1,9 @@
+version: "3.0"
+services:
+  reahl:
+    volumes:
+      - .:/home/developer/reahl
+      - /home/iwan/.ssh/docker_authorized_keys:/home/developer/.ssh/authorized_keys2
+    environment:
+      BOOTSTRAP_GIT: /home/developer/reahl
+

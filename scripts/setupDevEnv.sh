@@ -3,7 +3,7 @@
 # Setup virtualenv, virtualenvwrapper;
 echo "export WORKON_HOME=~/.venvs" >> $HOME/.profile
 echo ". /usr/share/virtualenvwrapper/virtualenvwrapper.sh" >> $HOME/.profile
-echo 'workon $VENV_NAME' >> $HOME/.profile
+echo "workon $VENV_NAME" >> $HOME/.profile
 
 # Setup environment
 echo "if [ -z \"\$DISPLAY\" ]; then export DISPLAY=:100; fi" >> $HOME/.profile
@@ -45,7 +45,6 @@ EOF
 
 # User installs and config
 bash -l -c "
-. $HOME/.profile;
 ./travis/createTestSshKey.sh;
 ./travis/createTestGpgKey.sh;
 ./travis/configurePip.sh;

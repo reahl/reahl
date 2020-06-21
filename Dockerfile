@@ -37,12 +37,13 @@ RUN $REAHL_SCRIPTS/scripts/createVenv.sh $BUILD_VENV_NAME
 
 USER root
 RUN /etc/init.d/ssh start && \
-        sudo -i -u $REAHL_USER -- bash -l -c "cd $REAHL_SCRIPTS && $REAHL_SCRIPTS/scripts/setupDevEnv.sh" && \
+        sudo -i -u $REAHL_USER -- bash -lex -c "export VENV_NAME=$VENV_NAME; cd $REAHL_SCRIPTS && $REAHL_SCRIPTS/scripts/setupDevEnv.sh" && \
         /etc/init.d/ssh stop
 
 USER $REAHL_USER
-RUN bash -l -c ". $HOME/.profile && workon $BUILD_VENV_NAME && cd $REAHL_SCRIPTS && python scripts/bootstrap.py --script-dependencies && python scripts/bootstrap.py --pip-installs; reahl build -sdX "
-RUN bash -l -c ". $HOME/.profile && workon $VENV_NAME && pip install reahl[all]"
+RUN mkdir -p $REAHLWORKSPACE/.reahlworkspace/dist-egg
+RUN bash -l -c "workon $BUILD_VENV_NAME && cd $REAHL_SCRIPTS && python scripts/bootstrap.py --script-dependencies && python scripts/bootstrap.py --pip-installs; reahl build -sdX "
+RUN bash -l -c "workon $VENV_NAME && pip install reahl[all]"
 
     
 
@@ -58,10 +59,13 @@ RUN $REAHL_SCRIPTS/scripts/installDebs.sh && \
     $REAHL_SCRIPTS/scripts/installDevEnvDebs.sh
 
 RUN adduser --disabled-password --gecos '' $REAHL_USER
+
 COPY --chown=$REAHL_USER:$REAHL_USER --from=python-install "$VENV" "$VENV"
 
+RUN chown $REAHL_USER:$REAHL_USER $VENV_HOME
+
 RUN /etc/init.d/ssh start && \
-        sudo -i -u $REAHL_USER -- bash -l -c "cd $REAHL_SCRIPTS && $REAHL_SCRIPTS/scripts/setupDevEnv.sh" && \
+        sudo -i -u $REAHL_USER -- bash -lex -c "export VENV_NAME=$VENV_NAME; cd $REAHL_SCRIPTS && $REAHL_SCRIPTS/scripts/setupDevEnv.sh" && \
         /etc/init.d/ssh stop
 
 EXPOSE 80 8000 8363
