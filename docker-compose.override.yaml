@@ -1,0 +1,27 @@
+version: "3.7"
+services:
+  reahl:
+    volumes:
+      - type: bind
+        source: ~/.bash_history_docker
+        target: /home/developer/.bash_history
+      - /tmp/examples:/tmp/examples
+    environment:
+      BOOTSTRAP_REAHL_SOURCE: /home/developer/reahl
+
+  postgres:
+    container_name: postgres
+    image: postgres:12.3
+    restart: always
+    environment:
+        POSTGRES_PASSWORD: reahl
+        POSTGRES_USER: developer
+    
+#  mysql:
+#    container_name: mysql
+#    image: mysql:5.7
+#    command: --default-authentication-plugin=mysql_native_password
+#    restart: always
+#    environment:
+#      MYSQL_ROOT_PASSWORD: reahl
+    

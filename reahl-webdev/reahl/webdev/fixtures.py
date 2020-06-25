@@ -66,9 +66,9 @@ class WebServerFixture(Fixture):
 
     @property
     def web_driver(self):
-        return self.chrome_driver
+#        return self.chrome_driver
 #        return self.phantomjs_driver
-#        return self.firefox_driver
+        return self.firefox_driver
 
     def new_phantomjs_driver(self):
         driver = webdriver.PhantomJS() # or add to your PATH
@@ -86,13 +86,15 @@ class WebServerFixture(Fixture):
         # We're on 48.0 now on local machines, but on 31 on travis
 
         fp = FirefoxProfile()
-#        fp.set_preference("focusmanager.testmode", False)
-#        fp.set_preference('plugins.testmode', False)
-        fp.set_preference('webdriver_enable_native_events', True)
-        fp.set_preference('webdriver.enable.native.events', True)
-        fp.set_preference('enable.native.events', True)
-        fp.native_events_enabled = True
+##        fp.set_preference("focusmanager.testmode", False)
+##        fp.set_preference('plugins.testmode', False)
+#        fp.set_preference('webdriver_enable_native_events', True)
+#        fp.set_preference('webdriver.enable.native.events', True)
+#        fp.set_preference('enable.native.events', True)
+#        fp.native_events_enabled = True
 
+        fp.set_preference('webdriver.log.file', '/tmp/firefox.webdriver.log')
+        fp.set_preference('webdriver.firefox.logfile', '/tmp/firefox.log')
         fp.set_preference('network.http.max-connections-per-server', 1)
         fp.set_preference('network.http.max-persistent-connections-per-server', 0)
         fp.set_preference('network.http.spdy.enabled', False)

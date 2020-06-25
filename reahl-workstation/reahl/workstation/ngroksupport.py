@@ -18,6 +18,7 @@ import os
 
 from reahl.component.shelltools import Command, Executable, CompositeCommand
 from reahl.workstation.xprasupport import VagrantMachine
+from reahl.workstation.dockersupport import DockerContainer
 
 class Ngrok(CompositeCommand):
     """Manipulates ngrok on the local machine."""
@@ -36,6 +37,7 @@ class NgrokStart(Command):
         location_group = self.parser.add_mutually_exclusive_group(required=True)
         location_group.add_argument('-l', '--local', action='store_true', dest='local', help='exposes the local machine ssh port')
         location_group.add_argument('-V', '--vagrant', nargs='?', const='default', default=False, help='exposes the given vagrant machine')
+        location_group.add_argument('-D', '--docker', nargs='?', const='reahl', default=False, help='exposes the given docker container')
         location_group.add_argument('-s', '--ssh', default=None, help='exposes the given remote machine')
         location_group.add_argument('-n', '--named-tunnel', nargs='*', default=None, help='starts the given named tunnels')
         self.parser.add_argument('-p', '--port',  default='22', help='the port to expose')
@@ -54,6 +56,10 @@ class NgrokStart(Command):
                 vagrant_ssh_config = VagrantMachine(args.vagrant).get_ssh_config()
                 hostname = vagrant_ssh_config['HostName']
                 port = vagrant_ssh_config['Port']
+            elif args.docker:
+                docker_container = DockerContainer(args.docker)
+                hostname = docker_container.ip_address
+                port = '22'
             elif args.ssh:
                 hostname = args.ssh
                 port = args.port

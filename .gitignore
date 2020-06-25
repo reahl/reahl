@@ -20,7 +20,7 @@ chromedriver.log
 .pytest_cache
 .vs
 *.db
-
+*geckodriver.log
 debian/python-reahl-doc/
 debian/python-reahl-sqlalchemysupport/
 debian/python-reahl-mailutil/

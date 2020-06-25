@@ -27,8 +27,8 @@ addons:
         - dpkg-dev
         - bzr
         - git
-#        - chromium-browser       # See travis/installChromium.sh
-#        - chromium-chromedriver  # Ditto
+        - firefox
+        - firefox-geckodriver
 
        # For compiling pip installed extensions we use
         - python-virtualenv
@@ -45,7 +45,7 @@ addons:
         - libfreetype6-dev
         - liblcms2-dev
         - libmysqlclient-dev
-        - libgconf-2-4 # for chromium
+
         # - phantomjs  # for reference... not allowed in apt addon
 
 services:
@@ -64,18 +64,13 @@ cache:
     - $HOME/.cache/pip
 
 before_install: 
-  # Install stuff we can't install with apt addon
-  - "travis/installChromium.sh"
-
   # Make git happy
   - "travis/setupTestGit.sh"
 
   # Version checks of these things are useful for debugging
   - git --version
   - firefox --version
-  #- wires --version # Not installed on travis
-  - chromium-browser --version
-  - chromedriver --version
+  - geckodriver --version
   - gpg --version
   
 install:

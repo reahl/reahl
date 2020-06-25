@@ -895,8 +895,7 @@ def test_browser_back_after_state_changes_goes_to_previous_url(web_fixture, quer
     browser.select(XPath.select_labelled('Choice'), 'Three')
 
     # when the user navigates back to the same url in history, the page retains the youngest state
-    browser.go_back() 
-    browser.wait_for_page_to_load() # to prevent it from flipping - we know it is reloaded in js
+    browser.refresh()
     assert browser.current_url.path == '/'
     assert browser.wait_for(query_string_fixture.is_state_now, 3)
 

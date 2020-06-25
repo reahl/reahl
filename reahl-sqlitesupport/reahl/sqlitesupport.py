@@ -71,7 +71,7 @@ class SQLiteControl(DatabaseControl):
     def drop_db_user(self, super_user_name=None):
         return 0
 
-    def drop_database(self, super_user_name=None, yes=False):
+    def drop_database(self, super_user_name=None):
         if not self.is_in_memory:
             try:
                 os.remove(self.database_name)

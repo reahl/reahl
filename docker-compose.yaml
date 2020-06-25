@@ -1,0 +1,17 @@
+version: "3.7"
+services:
+
+  reahl:
+    container_name: reahl
+    restart: always
+    init: true
+    image: reahl-dev:5.0
+    ports:
+      - "8000:8000"
+      - "8383:8383"
+    volumes:
+      - .:/home/developer/reahl
+      - type: bind
+        source: ~/.ssh/authorized_keys_docker
+        target: /home/developer/.ssh/authorized_keys2
+
