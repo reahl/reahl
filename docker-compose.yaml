@@ -1,9 +1,10 @@
-version: "3.0"
+version: "3.7"
 services:
 
   reahl:
     container_name: reahl
     restart: always
+    init: true
     image: reahl
     expose:
       - "22"

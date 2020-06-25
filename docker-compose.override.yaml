@@ -1,9 +1,14 @@
-version: "3.0"
+version: "3.7"
 services:
   reahl:
+    ports:
+      - "8000:8000"
+      - "8383:8383"
     volumes:
       - .:/home/developer/reahl
-      - /home/iwan/.ssh/docker_authorized_keys:/home/developer/.ssh/authorized_keys2
+      - ~/.ssh/docker_authorized_keys:/home/developer/.ssh/authorized_keys
+      - ~/.bash_history_docker:/home/developer/.bash_history
+      - /tmp/examples:/tmp/examples:rw
     environment:
       BOOTSTRAP_GIT: /home/developer/reahl
 
