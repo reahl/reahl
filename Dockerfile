@@ -2,7 +2,7 @@ FROM ubuntu:20.04 as base
 
 # ---- ENV vars set here are available to all phases of the build going forward
 
-ENV BOOTSTRAP_GIT=
+ENV BOOTSTRAP_REAHL_SOURCE=
 ENV REAHL_USER=developer
 ENV VENV_HOME=/home/$REAHL_USER/.venvs
 ENV VENV_NAME=python3.8

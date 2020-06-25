@@ -10,6 +10,7 @@ if [ ! -f /.provisioned ]; then
     echo "PermitRootLogin no" >> /etc/ssh/sshd_config.d/reahl.conf
     echo "AuthorizedKeysFile .ssh/authorized_keys .ssh/authorized_keys2" >> /etc/ssh/sshd_config.d/reahl.conf
     echo "ClientAliveInterval 30" >> /etc/ssh/sshd_config.d/reahl.conf
+    echo "AddressFamily inet" >> /etc/ssh/sshd_config.d/reahl.conf  # For ssh X11 forwarding to work
     
     # Fake /run/user/1000
     mkdir -p /run/user/1000
@@ -21,14 +22,14 @@ if [ ! -f /.provisioned ]; then
     # Update localhost known_hosts
     su $REAHL_USER -c -- bash -l -c 'ssh-keyscan -t rsa localhost > ~/.ssh/known_hosts'
 
-    if [ ! -z "$BOOTSTRAP_GIT" ]; then
+    if [ ! -z "$BOOTSTRAP_REAHL_SOURCE" ]; then
         $REAHL_SCRIPTS/scripts/installBuildDebs.sh
         su $REAHL_USER -c -- bash -l -c "
            deactivate
            rmvirtualenv $VENV_NAME
            $REAHL_SCRIPTS/scripts/createVenv.sh $VENV_NAME
            workon $VENV_NAME
-           cd $BOOTSTRAP_GIT
+           cd $BOOTSTRAP_REAHL_SOURCE
            python3 scripts/bootstrap.py --script-dependencies
            python3 scripts/bootstrap.py --pip-installs
         "

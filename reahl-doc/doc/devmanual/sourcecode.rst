@@ -30,8 +30,9 @@ together. In the source code, it contains:
  - the current version of all components
 
 To make :doc:`our development environment <devenv>` manageable and
-reproducible, the root directory contains a Vagrantfile and a few
-useful scripts in the `scripts/` subdirectory.
+reproducible, the root directory contains a **docker-compose.yaml**, 
+**docker-compose.override.yaml** and a few useful scripts in the 
+`scripts/` subdirectory.
 
 It also contains a `debian/` directory from which we derive the
 version numbers of projects and other metadata, such as project
@@ -64,9 +65,9 @@ Making sense of code
 
 .. sidebar:: Note on tools
 
-   Plantuml is not installed in our Vagrant box, since we use it via
-   plugins to our IDEs while editing code. These are installed outside
-   of the Vagrant box.
+   Plantuml is not installed in our Docker dev container, since we use it via
+   plugins to our IDEs while editing code. These IDEs are installed outside
+   of the Docker dev container.
 
    We'd love to replace Freeplane with something that graphically
    shows the `_dev` directory structure, and each file or subdirectory

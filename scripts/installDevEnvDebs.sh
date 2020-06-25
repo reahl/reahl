@@ -1,6 +1,6 @@
 #!/bin/bash -ev
 
-MYSQL="mysql-client"
+MYSQL="default-libmysqlclient-dev mysql-client"
 POSTGRES="postgresql-client"
 SQLITE="sqlite3 libsqlite3-0"
 DEV_ENV="virtualenvwrapper openssh-server openssh-client xpra x11-utils firefox firefox-geckodriver screen unzip git apt-utils"

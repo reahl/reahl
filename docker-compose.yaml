@@ -5,24 +5,13 @@ services:
     container_name: reahl
     restart: always
     init: true
-    image: reahl
-    expose:
-      - "22"
-      - "8000"
-      - "8383"
+    image: reahl-dev:5.0
+    ports:
+      - "8000:8000"
+      - "8383:8383"
+    volumes:
+      - .:/home/developer/reahl
+      - type: bind
+        source: ~/.ssh/authorized_keys_docker
+        target: /home/developer/.ssh/authorized_keys2
 
-  postgres:
-    container_name: postgres
-    image: postgres:12.3
-    restart: always
-    environment:
-       POSTGRES_PASSWORD: reahl
-       POSTGRES_USER: developer
-
-#  mysql:
-#    container_name: mysql
-#    image: mysql:5.7
-#    command: --default-authentication-plugin=mysql_native_password
-#    restart: always
-#    environment:
-#      MYSQL_ROOT_PASSWORD: reahl
