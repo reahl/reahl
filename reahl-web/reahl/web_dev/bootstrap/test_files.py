@@ -101,16 +101,21 @@ def test_file_upload_button_focus(web_fixture, file_input_button_fixture):
     assert browser.wait_for(fixture.upload_button_indicates_focus) 
 
 
-#def test_select_file_dialog_opens(fixture):
-#    """Clicking on the FileInputButton opens up the browser choose file dialog."""
-#
-#    fixture.reahl_server.set_app(fixture.new_wsgi_app(enable_js=True))
-#    browser = fixture.driver_browser
-#    browser.open('/')
-#
-#    browser.click(fixture.upload_button_xpath)
-#    # We can't dismiss the local file dialog with selenium: one day we would be able to when firefox
-#    # selenium is implemented differently
+# @with_fixtures(WebFixture, FileInputButtonFixture)
+# def test_select_file_dialog_opens(web_fixture, file_input_button_fixture):
+#     """Clicking on the FileInputButton opens up the browser choose file dialog."""
+
+#     fixture = file_input_button_fixture
+
+#     wsgi_app = web_fixture.new_wsgi_app(child_factory=file_input_button_fixture.FileUploadForm.factory(), enable_js=True)
+#     web_fixture.reahl_server.set_app(wsgi_app)
+#     browser = web_fixture.driver_browser
+#     browser.open('/')
+
+#     import pdb; pdb.set_trace()
+#     browser.click(XPath.span().with_text('Choose file(s)'))
+#     browser.click(fixture.upload_button_xpath)
+#     # We can't dismiss the local file dialog with selenium: yet?
 
 
 class FileInputFixture(FileInputButtonFixture):
@@ -145,11 +150,13 @@ def test_file_input_basics(web_fixture, file_input_fixture):
     browser = web_fixture.driver_browser
     browser.open('/')
 
+    file1 = temp_file_with('', name='file1.txt')
+    file2 = temp_file_with('', name='file2.txt')
     browser.wait_for(fixture.message_displayed_is, 'No files chosen')
-    browser.type(XPath.input_labelled('Choose file(s)'), '/tmp/koos.html')
-    browser.wait_for(fixture.message_displayed_is, 'koos.html')
+    browser.type(XPath.input_labelled('Choose file(s)'), file1.name)
+    browser.wait_for(fixture.message_displayed_is, os.path.basename(file1.name))
 
-    browser.type(XPath.input_labelled('Choose file(s)'), '/tmp/koos.html\n/tmp/jannie.html')
+    browser.type(XPath.input_labelled('Choose file(s)'), file2.name)
     browser.wait_for(fixture.message_displayed_is, '2 files chosen')
 
 
@@ -163,10 +170,13 @@ def test_i18n(web_fixture, file_input_fixture):
     browser = web_fixture.driver_browser
     browser.open('/af/')
 
+    file1 = temp_file_with('', name='file1.txt')
+    file2 = temp_file_with('', name='file2.txt')
     browser.wait_for(fixture.message_displayed_is, 'Geen lêers gekies')
     browser.wait_for_element_present(XPath.input_labelled('Kies lêer(s)'))
 
-    browser.type(XPath.input_labelled('Kies lêer(s)'), '/tmp/koos.html\n/tmp/jannie.html')
+    browser.type(XPath.input_labelled('Kies lêer(s)'), file1.name)
+    browser.type(XPath.input_labelled('Kies lêer(s)'), file2.name)
     browser.wait_for(fixture.message_displayed_is, '2 gekose lêers')
 
 
@@ -379,10 +389,6 @@ class LargeFileUploadInputFixture(StubbedFileUploadInputFixture):
 
     def simulate_large_file_upload_done(self):
         self.upload_done.set()
-
-    @property
-    def web_driver(self):  
-        return self.web_fixture.chrome_driver  # These tests only work on chrome
 
     def new_upload_done(self):
         return threading.Event()
@@ -701,7 +707,7 @@ def test_prevent_form_submit(web_fixture, large_file_upload_input_fixture):
 
     with browser.no_page_load_expected():
         browser.click( XPath.button_labelled('Submit'), wait=False, wait_for_ajax=False)
-        alert = fixture.web_driver.switch_to.alert
+        alert = browser.web_driver.switch_to.alert
         assert alert.text == 'Please try again when all files have finished uploading.' 
         alert.accept()
 

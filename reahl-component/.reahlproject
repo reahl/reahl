@@ -12,7 +12,7 @@
   </deps>
 
   <deps purpose="run">
-    <thirdpartyegg name="Babel" minversion="2.8" maxversion="2.8.999"/>
+    <thirdpartyegg name="Babel" minversion="2.1" maxversion="2.8.999"/>
     <thirdpartyegg name="python-dateutil" minversion="2.8" maxversion="2.8.999"/>
     <thirdpartyegg name="wrapt" minversion="1.11.0" maxversion="1.12.999"/>
     <thirdpartyegg name="setuptools" minversion="32.3.1"/> 

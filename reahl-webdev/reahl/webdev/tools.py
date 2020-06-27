@@ -1032,7 +1032,9 @@ class DriverBrowser(BasicBrowser):
         self.wait_for_element_interactable(locator)
         el = self.find_element(locator)
         if el.get_attribute('type') != 'file':
-            el.send_keys(Keys.CONTROL+'a'+Keys.BACKSPACE) # To clear() the element without triggering extra onchange events
+            el.send_keys(Keys.CONTROL+'a') # To clear() the element without triggering extra onchange events
+            if not text:
+                el.send_keys(Keys.BACKSPACE)
         el.send_keys(text)
         if trigger_blur:
             self.web_driver.execute_script('if ( "undefined" !== typeof jQuery) { jQuery(arguments[0]).blur().focus(); };', el)
@@ -1455,7 +1457,7 @@ class DriverBrowser(BasicBrowser):
             yield
         finally:
             self.wait_for_page_to_load()
-            new_element_loaded = not self.web_driver.execute_script('''return $('%s').find('%s')''' % (escaped_jquery_selector, escaped_load_flag_selector))
+            new_element_loaded = not self.web_driver.execute_script('''return $('%s').find('%s').length > 0''' % (escaped_jquery_selector, escaped_load_flag_selector)) 
             if bool(new_element_loaded) is not refresh_expected:
                 raise UnexpectedLoadOf(jquery_selector)
             if not new_element_loaded:

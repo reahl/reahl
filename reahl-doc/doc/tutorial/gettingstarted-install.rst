@@ -6,7 +6,7 @@ Install Reahl
 .. toctree::
    :hidden:
 
-   install-vagrant
+   install-docker
    install-ubuntu
    install-mac
    install-win
@@ -29,15 +29,14 @@ Install Reahl
      - A C/C++ compiler (such as gcc)
      - Cython
 
-This version of Reahl requires version 2.7 of Python 2 or versions
-of Python greater than 3.3.
+This version of Reahl requires version 3.5 of Python or greater.
 
 Reahl depends on a lot of other software. Installing it is not just a
 straight `pip3 install reahl`. You need to install a couple of other
 things first.
 
-If you know `Vagrant <https://www.vagrantup.com>`_ then :doc:`use our
-Vagrant box <install-vagrant>`. It contains a virtualenv with Reahl
+If you know `Docker <https://www.docker.com>`_ then :doc:`use our
+Docker dev box <install-docker>`. It contains a virtualenv with Reahl
 installed. Otherwise, follow the instructions below:
 
 
@@ -58,13 +57,13 @@ installed. Otherwise, follow the instructions below:
 
    .. code-block:: bash
 
-      virtualenv ./reahl_env
+      python3 -m venv ./reahl_env
 
    On Windows, do (in a command shell):
 
    .. code-block:: bash
 
-      virtualenv reahl_env
+      python3 -m venv reahl_env
 
    This creates a new directory `reahl_env` with an isolated Python
    environment inside it.

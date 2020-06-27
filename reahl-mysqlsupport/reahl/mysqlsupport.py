@@ -34,10 +34,12 @@ from datetime import date
 from contextlib import closing
 import os.path
 import socket
+import getpass
 
 from reahl.component.dbutils import DatabaseControl
 from reahl.component.shelltools import Executable
 
+import MySQLdb
 
 class MysqlControl(DatabaseControl):
     """A DatabaseControl implementation for MySQL."""
@@ -53,38 +55,61 @@ class MysqlControl(DatabaseControl):
             args += ['-u', login_username]
         return args
 
+    def execute(self, sql, login_username=None, password=None, database_name=None):
+        login_args = {}
+        if database_name:
+            login_args['db'] = database_name
+        if self.host:
+            login_args['host'] = self.host
+        if self.port:
+            login_args['port'] = self.port
+        login_args['user'] = login_username or getpass.getuser()
+        if password:
+            login_args['passwd'] = password
+            
+        connection = MySQLdb.connect(**login_args)
+        try:
+            with connection.cursor() as cursor:
+                return cursor.execute(sql)
+        finally:
+            connection.close()
+
+    def get_superuser_password(self):
+        return os.environ.get('MYSQL_PWD', None)
+    
     def create_db_user(self, super_user_name=None, create_with_password=True):
+        super_user_name = super_user_name or 'root'
         super().create_db_user(super_user_name=super_user_name, create_with_password=create_with_password)
-        identified = 'by \'%s\'' % self.password if create_with_password else 'with \'auth_sock\'' 
-        Executable('mysql').check_call( self.login_args(login_username=super_user_name)
-                                        + ['-e', 'create user %s identified %s;' % (self.user_name, identified)])
+        identified = 'by \'%s\'' % self.password if create_with_password else 'with \'auth_sock\''
+        self.execute('create user %s identified %s;' % (self.user_name, identified),
+                     login_username=super_user_name, password=self.get_superuser_password())
         return 0
 
     def drop_db_user(self, super_user_name=None):
+        super_user_name = super_user_name or 'root'
         super().drop_db_user(super_user_name=super_user_name)
-        Executable('mysql').check_call( self.login_args(login_username=super_user_name)
-                                        + ['-e', 'drop user %s;' % self.user_name])
+        self.execute('drop user %s;' % self.user_name,
+                     login_username=super_user_name, password=self.get_superuser_password())
         return 0
 
-    def drop_database(self, super_user_name=None, yes=False):
-        cmd_args = self.login_args(login_username=super_user_name) 
-        if yes:
-            cmd_args.append('-f')
-
-        Executable('mysqladmin').check_call(['drop'] + cmd_args + [self.database_name])
+    def drop_database(self, super_user_name=None):
+        super_user_name = super_user_name or 'root'
+        self.execute('drop database if exists %s;' % self.database_name,
+                     login_username=super_user_name, password=self.get_superuser_password())
         return 0
 
     def create_database(self, super_user_name=None):
-        Executable('mysqladmin').check_call(['create']
-                                          + self.login_args(login_username=super_user_name)
-                                          + [self.database_name])
+        super_user_name = super_user_name or 'root'
+        self.execute('create database %s;' % self.database_name,
+                     login_username=super_user_name, password=self.get_superuser_password())
+
         if self.user_name:
-            Executable('mysql').check_call(self.login_args(login_username=super_user_name)
-                                           + ['-e', 'grant all privileges on %s.* to %s;' % (self.database_name, self.user_name)])
-        Executable('mysqladmin').check_call(['flush-privileges'] + self.login_args(login_username=super_user_name))
+            self.execute('grant all privileges on %s.* to %s;' % (self.database_name, self.user_name),
+                         login_username=super_user_name, password=self.get_superuser_password())
         return 0
 
     def backup_database(self, directory, super_user_name=None):
+        super_user_name = super_user_name or 'root'
         today = date.today()
         filename = '%s.%s.sql.gz' % (self.database_name, today.strftime('%A'))
         full_path = os.path.join(directory, filename)
@@ -96,6 +121,7 @@ class MysqlControl(DatabaseControl):
         return 0
 
     def backup_all_databases(self, directory, super_user_name=None):
+        super_user_name = super_user_name or 'root'
         today = date.today()
         hostname = self.host
         if hostname == 'localhost':
@@ -111,9 +137,11 @@ class MysqlControl(DatabaseControl):
         return 0
 
     def restore_database(self, filename, super_user_name=None):
+        super_user_name = super_user_name or 'root'
         return self.restore_all_databases(filename, super_user_name=super_user_name)
 
     def restore_all_databases(self, filename, super_user_name=None):
+        super_user_name = super_user_name or 'root'
         with closing(gzip.open(filename, 'rb')) as zipped_file:
             proc = Executable('mysql').Popen(self.login_args(login_username=super_user_name),
                                              stdin=subprocess.PIPE)

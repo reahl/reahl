@@ -18,6 +18,7 @@ import shutil
 import pkg_resources
 import codecs
 import re
+import pathlib
 import collections
 
 from reahl.dev.devshell import WorkspaceCommand
@@ -104,7 +105,7 @@ class Example:
     @property
     def relative_path(self):
         root_path = pkg_resources.resource_filename(self.containing_package, '')
-        return self.absolute_path[len(root_path):]
+        return str(pathlib.Path(self.absolute_path).relative_to(pathlib.Path(root_path)))
 
     @property
     def exists(self):
