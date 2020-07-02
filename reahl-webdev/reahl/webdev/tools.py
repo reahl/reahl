@@ -1353,7 +1353,7 @@ class DriverBrowser(BasicBrowser):
         """
         return len(self.web_driver.find_elements_by_xpath(str(locator)))
 
-    def capture_cropped_screenshot(self, output_file, background='White'):
+    def capture_cropped_screenshot(self, output_file, background=255):
         """Takes a screenshot of the current page, and writes it to `output_file`. The image is cropped
            to contain only the parts containing something other than the background color.
 
@@ -1463,11 +1463,21 @@ class DriverBrowser(BasicBrowser):
             if not new_element_loaded:
                 self.web_driver.execute_script('''$('%s').find('%s').remove()''' % (escaped_jquery_selector, escaped_load_flag_selector))
 
+    @property
+    def current_browser_tab(self):
+        return self.web_driver.current_window_handle
+
+    def switch_to_different_tab(self):
+        original_tab = self.current_browser_tab
+        other_tabs = [h for h in self.web_driver.window_handles if h != original_tab]
+        self.web_driver.switch_to.window(other_tabs[0])
+
     @contextlib.contextmanager
     def new_tab_closed(self):
-        """ Returns a context manager that ensures selenium stays on the current tab while another is temporarily opened.
+        """Returns a context manager that ensures, if a new tab is opened in its context, selenium ends up  
+           on the original tab while the newly created tab is closed on exit.
         """
-        current_tab = self.web_driver.current_window_handle
+        current_tab = self.current_browser_tab
         tabs_before = [w for w in self.web_driver.window_handles if w != current_tab]
 
         try:
@@ -1482,23 +1492,4 @@ class DriverBrowser(BasicBrowser):
             self.web_driver.switch_to.window(new_tab)
             self.web_driver.close()
             self.web_driver.switch_to.window(current_tab)
-
-    @contextlib.contextmanager
-    def switch_to_new_tab_closed(self):
-        """ Returns a context manager that ensures selenium switches to the new tab, and closed afterwards.
-
-           .. versionadded:: 5.0
-
-        """
-        original_tab = self.web_driver.current_window_handle
-        new_tabs = [h for h in self.web_driver.window_handles if h != original_tab]
-        assert len(new_tabs) == 1
-        self.web_driver.switch_to.window(new_tabs[0])
-
-        try:
-            yield
-
-        finally:
-            self.web_driver.close()
-            self.web_driver.switch_to.window(original_tab)
 

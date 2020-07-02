@@ -6,34 +6,17 @@
 What changed in version 5.0
 ===========================
 
+.. |PrimitiveInput| replace:: :class:`~reahl.web.ui.PrimitiveInput`
+.. |HTMLWidget| replace:: :class:`~reahl.web.ui.HTMLWidget`
+.. |refresh_widget| replace:: `refresh_widget` keyword argument of :meth:`~reahl.web.ui.PrimitiveInput.__init__`
+.. |enable_refresh| replace:: :meth:`~reahl.web.ui.HTMLElement.enable_refresh`
 .. |Widget| replace:: :class:`~reahl.web.fw.Widget`
-.. |ReahlWSGIApplication| replace:: :class:`~reahl.web.fw.ReahlWSGIApplication`
-.. |Fixture| replace:: :class:`~reahl.tofu.Fixture`
-.. |ExecutionContext| replace:: :class:`~reahl.component.context.ExecutionContext`
-.. |ColumnLayout| replace:: :class:`~reahl.web.bootstrap.grid.ColumnLayout`
-.. |ColumnOptions| replace:: :class:`~reahl.web.bootstrap.grid.ColumnOptions`
-.. |ResponsiveSize| replace:: :class:`~reahl.web.bootstrap.grid.ResponsiveSize`
-.. |Menu| replace:: :class:`~reahl.web.bootstrap.navs.Menu`
-.. |Nav| replace:: :class:`~reahl.web.bootstrap.navs.Nav`
-.. |Menu.add_a| replace:: :meth:`~reahl.web.bootstrap.navs.Menu.add_a`
-.. |Menu.add_bookmark| replace:: :meth:`~reahl.web.bootstrap.navs.Menu.add_bookmark`
-.. |Nav.add_dropdown| replace:: :meth:`~reahl.web.bootstrap.navs.Nav.add_dropdown`
-.. |forms.CheckboxInput| replace:: :class:`~reahl.web.bootstrap.forms.CheckboxInput`
-.. |ui.CheckboxInput| replace:: :class:`~reahl.web.ui.CheckboxInput`
-.. |ui.CheckboxSelectInput| replace:: :class:`~reahl.web.ui.CheckboxSelectInput`
-.. |forms.RadioButtonSelectInput| replace:: :class:`~reahl.web.bootstrap.forms.RadioButtonSelectInput`
-.. |ui.RadioButtonSelectInput| replace:: :class:`~reahl.web.ui.RadioButtonSelectInput`
-.. |ViewFactory| replace:: :class:`~reahl.web.fw.ViewFactory`
-.. |UserInterface.define_view| replace:: :meth:`~reahl.web.fw.UserInterface.define_view`
-.. |ViewFactory.set_slot| replace:: :meth:`~reahl.web.fw.ViewFactory.set_slot`
-.. |Field| replace:: :class:`~reahl.component.modelinterface.Field`
-.. |Field.with_validation_constraint| replace:: :meth:`~reahl.component.modelinterface.Field.with_validation_constraint`
-.. |Field.without_validation_constraint| replace:: :meth:`~reahl.component.modelinterface.Field.without_validation_constraint`
-.. |BooleanField| replace:: :class:`~reahl.component.modelinterface.BooleanField`
-.. |MultiChoiceField| replace:: :class:`~reahl.component.modelinterface.MultiChoiceField`
-.. |DomainException| replace:: :class:`~reahl.component.exceptions.DomainException`
-.. |UserInputProtocol| replace:: :class:`~reahl.web.interfaces.UserInputProtocol`
-
+.. |Input| replace:: :class:`~reahl.web.ui.Input`
+.. |ButtonInput| replace:: :class:`~reahl.web.ui.ButtonInput`
+.. |XPath| replace:: :class:`~reahl.webdev.tools.XPath`
+.. |DriverBrowser| replace:: :class:`~reahl.webdev.tools.DriverBrowser`
+.. |type| replace:: :meth:`~reahl.webdev.tools.DriverBrowser.type`
+.. |click| replace:: :meth:`~reahl.webdev.tools.DriverBrowser.click`
 
 
 
@@ -94,8 +77,8 @@ Two HOWTOs were added to explain usage of this feature:
  - :ref:`<howto/responsivedisclosure>`
 
 
-Optimistic concurrency
-----------------------
+Optimistic locking
+------------------
 
 This release adds functionality that guards against one user
 overwriting changes made concurrently to the same data by another
@@ -104,9 +87,9 @@ user.
 Consider, for example, the following sequence of events:
  - user A opens page X
  - user B opens page X
- - user A changes input on a form on page X, and clicks on a |Button| that submits it
+ - user A changes input on a form on page X, and clicks on a |ButtonInput| that submits it
  - the database is changed as a result of user A's changes in such a way that page X would not render the same anymore
- - yet, user B still has the old page X open, and now makes similar changes on that page and clicks on a |Button| that submits the info
+ - yet, user B still has the old page X open, and now makes similar changes on that page and clicks on a |ButtonInput| that submits the info
 
 Without intervention in the above scenario user B's changes might
 overwrite those of user A or the application could break - depending
@@ -122,8 +105,9 @@ This mechanism can also be customised to:
  - ignore some |Input|\s from such a check; or
  - to include arbitrary |Widget|\s in the check
 
- - :ref:`<howto/dynamiccontent>`
-TODO: we need a HOWTO   
+For more info, see the HOWTO:
+ - :ref:`<howto/optimisticlocking>`
+  
 
 Error pages
 -----------
@@ -139,7 +123,8 @@ general look, feel and layout of your application. This happens by
 default, but the mechanism can also be customised at several different
 levels of your application.
 
-TODO: we need a HOWTO
+For more info, see the HOWTO:
+ - :ref:`<howto/customisingerrorpages>`
 
 Widget changes
 --------------

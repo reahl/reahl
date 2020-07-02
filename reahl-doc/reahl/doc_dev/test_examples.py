@@ -56,6 +56,8 @@ from reahl.doc.examples.tutorial.parameterised1 import parameterised1
 
 from reahl.doc.examples.howtos.responsivedisclosure import responsivedisclosure
 from reahl.doc.examples.howtos.dynamiccontent import dynamiccontent
+from reahl.doc.examples.howtos.optimisticconcurrency import optimisticconcurrency
+
 
 from reahl.web_dev.fixtures import WebFixture
 
@@ -193,6 +195,10 @@ class ExampleFixture(Fixture):
     @scenario
     def responsivedisclosure(self):
         self.wsgi_app = self.web_fixture.new_wsgi_app(site_root=responsivedisclosure.ResponsiveUI, enable_js=True)
+
+    @scenario
+    def optimisticconcurrency(self):
+        self.wsgi_app = self.web_fixture.new_wsgi_app(site_root=optimisticconcurrency.OptimisticConcurrencyUI, enable_js=True)
 
 
 @with_fixtures(WebFixture, ExampleFixture)
@@ -540,3 +546,21 @@ def test_responsivedisclosure(web_fixture, responsivedisclosure_scenario):
 
     browser.set_selected(XPath.input_labelled('New'))
     browser.capture_cropped_screenshot(fixture.new_screenshot_path('responsivedisclosure_3.png'))
+
+@with_fixtures(WebFixture, ExampleFixture.optimisticconcurrency)
+def test_optimisticconcurrency(web_fixture, optimisticconcurrency_scenario):
+    fixture = optimisticconcurrency_scenario
+    browser = web_fixture.driver_browser
+
+    fixture.start_example_app()
+    browser.open('/')
+    with browser.new_tab_closed():
+       browser.click(XPath.link().with_text('Open another tab...'))
+       browser.switch_to_different_tab()
+       browser.click(XPath.button_labelled('Increment'))
+
+    browser.click(XPath.button_labelled('Submit'))
+    error_alert = XPath.div().including_class('alert').including_text('Some data changed since you opened this page')
+    assert browser.is_element_present(error_alert)
+    import pdb; pdb.set_trace()
+    browser.capture_cropped_screenshot(fixture.new_screenshot_path('optimisticconcurrency_1.png'))

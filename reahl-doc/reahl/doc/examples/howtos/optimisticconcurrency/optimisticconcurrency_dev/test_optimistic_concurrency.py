@@ -41,9 +41,9 @@ def test_example(web_fixture, optimistic_concurrency_example_fixture):
 
     browser.open('/')
 
-    # In a new tab, increment the counter
-    browser.click(fixture.link_opens_new_tab())
-    with browser.switch_to_new_tab_closed():
+    with browser.new_tab_closed():
+        browser.click(fixture.link_opens_new_tab())
+        browser.switch_to_different_tab()
         browser.click(fixture.increment_button())
         fixture.check_counter_value_is(1)
 
