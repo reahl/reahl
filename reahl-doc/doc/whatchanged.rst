@@ -97,8 +97,9 @@ Two HOWTOs were added to explain usage of this feature:
 Optimistic concurrency
 ----------------------
 
-This release also guards against the scenario where more than one user
-modifies the same data at the same time.
+This release adds functionality that guards against one user
+overwriting changes made concurrently to the same data by another
+user.
 
 Consider, for example, the following sequence of events:
  - user A opens page X
@@ -121,6 +122,7 @@ This mechanism can also be customised to:
  - ignore some |Input|\s from such a check; or
  - to include arbitrary |Widget|\s in the check
 
+ - :ref:`<howto/dynamiccontent>`
 TODO: we need a HOWTO   
 
 Error pages
@@ -203,6 +205,21 @@ Hosting static file
   Sometimes you need to host static files directly via a proxy such as nginx.
   You can now get to all those static files by running `reahl exportstatic`.
   (See `reahl exportstatic`)
+
+
+Docker instead of Vagrant
+-------------------------
+
+Maintaining our Vagrant boxes for development became a bit cumbersome. With
+this release we have switched to using a Docker image for that purpose.
+
+Downloading the Docker dev image is the quickest way to get started with Reahl
+because in it Reahl is installed in a clean venv ready for use.
+
+The Docker development image is not meant for production use. It comes with
+Reahl as well as a bunch of development tools installed. 
+
+More info on using it can be found in `<devmanual/devenv.rst>`.
 
 
 Smaller changes
