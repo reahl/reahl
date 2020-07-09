@@ -1,8 +1,8 @@
 
 from reahl.web.fw import UserInterface
 from reahl.web.bootstrap.page import HTML5Page
-from reahl.web.bootstrap.forms import Form, TextInput, FormLayout
-from reahl.component.modelinterface import exposed, EmailField
+from reahl.web.bootstrap.forms import Form, TextInput, FormLayout, ButtonInput
+from reahl.component.modelinterface import exposed, EmailField, Event
 
 class ValidationUI(UserInterface):
     def assemble(self):
@@ -19,6 +19,10 @@ class Comment:
     @exposed
     def fields(self, fields):
         fields.email_address = EmailField(label='Email address', required=True)
+    
+    @exposed
+    def events(self, events):
+        events.do_nothing = Event(label='Submit')
 
 
 class CommentForm(Form):
@@ -28,6 +32,9 @@ class CommentForm(Form):
         new_comment = Comment()
         self.use_layout(FormLayout())
         self.layout.add_input( TextInput(self, new_comment.fields.email_address) )
+
+        self.define_event_handler(new_comment.events.do_nothing)
+        self.add_child(ButtonInput(self, new_comment.events.do_nothing))
 
 
 
