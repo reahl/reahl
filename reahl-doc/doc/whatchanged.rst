@@ -241,7 +241,7 @@ its database...and the forked processes inherit these established connections.
 Such database connections are not thread-safe and cannot be shared between processes.
 
 The `start_on_first_request=True` of |ReahlWSGIApplication| ensures that your application 
-is not started when created. Instead, it will be started when it receives its first 
+need not be started when created. Instead, it will be started when it receives its first 
 request and avoid this problem:
 
 .. literalinclude:: ../reahl/doc/examples/tutorial/helloanywhere/helloanywherewsgi.py
