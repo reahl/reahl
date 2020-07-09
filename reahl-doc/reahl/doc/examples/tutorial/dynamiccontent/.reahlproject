@@ -18,8 +18,8 @@
   </deps>
 
   <persisted>
-    <class locator="reahl.doc.examples.howtos.dynamiccontent.dynamiccontent:InvestmentOrder"/>
-    <class locator="reahl.doc.examples.howtos.dynamiccontent.dynamiccontent:Allocation"/>
+    <class locator="reahl.doc.examples.tutorial.dynamiccontent.dynamiccontent:InvestmentOrder"/>
+    <class locator="reahl.doc.examples.tutorial.dynamiccontent.dynamiccontent:Allocation"/>
   </persisted>
 
 </project>

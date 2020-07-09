@@ -9,7 +9,7 @@
 .. |WidgetFactory| replace:: :class:`~reahl.web.fw.WidgetFactory`
 .. |Nav| replace:: :class:`~reahl.web.bootstrap.navs.Nav`
 .. |Navbar| replace:: :class:`~reahl.web.bootstrap.navbar.Navbar`
-
+.. |define_transition| replace:: :meth:`~reahl.web.fw.UserInterface.define_transition`
    
 Moving between Views
 ====================
@@ -72,7 +72,7 @@ method of each page.
 .. literalinclude:: ../../reahl/doc/examples/tutorial/pageflow1/pageflow1.py
    :pyobject: AddressBookUI
 
-The call to :meth:`~reahl.web.fw.UserInterface.define_transition` is
+The call to |define_transition| is
 changed to take the user back to the home page after adding a new
 Address.
 	      

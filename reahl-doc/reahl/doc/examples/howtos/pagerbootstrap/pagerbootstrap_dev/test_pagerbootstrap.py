@@ -1,13 +1,13 @@
 
 # To run this test do:
-# pytest -s --pyargs reahl.doc.examples.tutorial.pagerbootstrap.pagerbootstrap_dev.test_pagerbootstrap
+# pytest -s --pyargs reahl.doc.examples.howtos.pagerbootstrap.pagerbootstrap_dev.test_pagerbootstrap
 #
 
 from reahl.tofu import Fixture, uses
 from reahl.tofu.pytestsupport import with_fixtures
 
 from reahl.webdev.tools import XPath
-from reahl.doc.examples.tutorial.pagerbootstrap.pagerbootstrap import AddressBookUI
+from reahl.doc.examples.howtos.pagerbootstrap.pagerbootstrap import AddressBookUI
 
 from reahl.web_dev.fixtures import WebFixture
 

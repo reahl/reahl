@@ -9,6 +9,7 @@ Package reahl.web.bootstrap
 .. toctree::
    :maxdepth: 1
 
+   Widgets related to the main page <page>
    Basic Widgets <ui>
    Forms and user input <forms>
    Layout and responsive sizing <grid>

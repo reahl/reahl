@@ -6,7 +6,7 @@ from reahl.tofu import Fixture, uses
 from reahl.web_dev.fixtures import WebFixture
 from reahl.webdev.tools import XPath
 
-from reahl.doc.examples.howtos.dynamiccontent.dynamiccontent import DynamicUI
+from reahl.doc.examples.tutorial.dynamiccontent.dynamiccontent import DynamicUI
 
 @uses(web_fixture=WebFixture)
 class DynamicExampleFixture(Fixture):

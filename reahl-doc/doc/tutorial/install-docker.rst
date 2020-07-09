@@ -8,15 +8,15 @@ pre-installed as well as the necessary tools ready to go.
 
 Put the following docker-compose.yaml file in your development directory:
 
-.. literalinclude:: ../../../../docker-compose.yaml
+.. literalinclude:: ../../../docker-compose.yaml
 
 
-* Then do:
+Then do:
 
-  .. code-block:: bash
+.. code-block:: bash
 
-     docker-compose up
+   docker-compose up
 
-For instructions on how to use this container, see `<../devmanual/devenv>`.
+For detailed instructions on how to use this container, see: :doc:`../devmanual/devenv`.
 
 

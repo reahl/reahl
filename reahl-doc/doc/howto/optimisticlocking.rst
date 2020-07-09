@@ -3,6 +3,7 @@
 .. |Input| replace:: :class:`~reahl.web.ui.Input`
 .. |ButtonInput| replace:: :class:`~reahl.web.ui.ButtonInput`
 .. |PrimitiveInput| replace:: :class:`~reahl.web.ui.PrimitiveInput`
+.. |Widget| replace:: :class:`~reahl.web.fw.Widget`
 .. |Form| replace:: :class:`~reahl.web.ui.Form`
 .. |add_alert_for_domain_exception| replace:: :meth:`~reahl.web.bootstrap.forms.FormLayout.add_alert_for_domain_exception`
 .. |get_concurrency_hash_strings| replace:: :meth:`~reahl.web.fw.Widget.get_concurrency_hash_strings`
@@ -65,7 +66,7 @@ that may occur as is done with |add_alert_for_domain_exception| in:
    :pyobject: SimpleForm.__init__
 
 When a |Form| is submitted, the new user input is not immediately applied. First, the values of 
-all of its |PrimitveInput|\s are computed as they would render at this point and compared with 
+all of its |PrimitiveInput|\s are computed as they would render at this point and compared with 
 what they were when the |Form| was rendered initially. 
 
 If any differences are detected here it means that someone must have changed relevant data in 

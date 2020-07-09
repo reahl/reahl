@@ -23,27 +23,25 @@ To use the Reahl dev Docker image, `install Docker and docker-compose
 <https://docs.docker.com/get-docker/>`_, then put the following 
 docker-compose.yaml file in your development directory:
 
-.. literalinclude:: ../../../../docker-compose.yaml
+.. literalinclude:: ../../../docker-compose.yaml
 
 
 Inside the Docker dev image
 ---------------------------
 
 Inside the Docker container, we have:
- - Projects installed that Reahl depends on;
- - A Python3 virtualenv prepared for Reahl development;
- - A version of firefox that works well with tests;
- - A matching version of geckodriver to enable selenium tests; 
- - Various ways to access the GUI on the Docker container; and
- - Configuration for pip to allow local installation of what is built (useful for tox tests).
+
+- Projects installed that Reahl depends on;
+- A Python3 virtualenv prepared for Reahl development;
+- A version of firefox that works well with tests;
+- A matching version of geckodriver to enable selenium tests; 
+- Various ways to access the GUI on the Docker container; and
+- Configuration for pip to allow local installation of what is built (useful for tox tests).
 
 Using the container
 -------------------
 
 Run the container:
-
-(The first time you do this might take a while, since the image needs to be 
- downloaded and prepared.)
 
 .. code-block:: bash
 
@@ -52,8 +50,14 @@ Run the container:
    docker-compose up
    docker exec -u developer -ti reahl bash -l
 
+.. note:: 
+
+   The first time you do this might take a while, since the image needs to be 
+   downloaded and prepared.
 
 Run an example inside the container:
+
+.. code-block:: bash
 
    cd ~/reahl
    reahl example tutorial.hello
@@ -71,7 +75,7 @@ Ssh to the dev container
 ------------------------
 
 Ssh-ing into the container is needed for pair programming or to see the GUI of the browser that 
-starts up when running selenium tests.
+runs selenium tests.
 
 To be able to ssh, put your public ssh key on your host machine into ~/.ssh/authorized_keys_docker:
 
@@ -91,6 +95,13 @@ Test your ssh connection to the container:
 Browsers and seeing stuff
 -------------------------
 
+The webserver ports of the Docker dev container are forwarded to your local
+machine. To surf to your app, start your app inside the container and point 
+your usual browser to http://localhost:8000.
+
+When tests are run inside the container, you may want to see the browser 
+used for testing.
+
 We use `an Xpra display server <https://xpra.org/>`_ for the Docker dev
 container. It allows headless operation and sharing of GUI windows for pair
 programming.
@@ -99,18 +110,15 @@ When you run a login shell inside the container an xpra display server is
 automatically started on :100.
 
 If you are working alone, you can bypass the headless server by forwarding 
-your local X display server. Do this by entering the container like so:
+your local X display server by adding a `-X` to the ssh command:
 
 .. code-block:: bash
 
    DOCKER_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' reahl)
    ssh -X developer@$DOCKER_IP -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
 
-The webserver ports of the Docker dev container are forwarded to your local
-machine. Thus, you need not make use of the browser inside the container
-to check things out. You can use your own, on your own machine: if
-you have a webserver running inside the dev container on port 8000, you can
-visit it by surfing to http://localhost:8000
+
+
 
 Editing code
 ------------
@@ -159,16 +167,16 @@ programming.
 
 If you are on ubuntu install it like this:
 
-.. code-block: bash
+.. code-block:: bash
 
    sudo apt-get install python-pip
    sudo pip install reahl-workstation
 
-(The rest of this text assumed that you have reahl-workstation installed.)
+(The rest of this text assumes that you have reahl-workstation installed.)
 
 
-Use ngrok to expose the Docker dev container
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Use ngrok to make a local Docker dev container accessible to remote co-workers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 We use `ngrok <https://ngrok.com/>`_ to make a local Docker dev container
 accessible on the Internet to all the tools we use.
@@ -176,13 +184,12 @@ accessible on the Internet to all the tools we use.
 Jane must have an account at ngrok, and share her Docker dev container.
 
 In order to setup ngrok, download it--our scripts expect its executable
-to be in `~/bin`. Follow the instructions on the ngrok website to
+to be in your PATH. Follow the instructions on the ngrok website to
 create an account and save your credentials locally.
 
 To share a locally running Docker dev container (assuming ngrok is all set
-up), Jane can then run `reahl ngrok start -D` from the root
-directory of the Reahl source.  This command will provide output in
-the form of a DNS name and port number that the remote party can use
+up), Jane can then run `reahl ngrok start -D`. This command will provide 
+output in the form of a DNS name and port number that the remote party can use
 to access. Make a note of these for use later on.
    
 Let the remote user connect securely
@@ -269,7 +276,6 @@ know of these:
  - `Eclipse with saros plugin <https://www.saros-project.org/documentation/installation.html#via-eclipse-marketplace>`_
  - `Gobby <https://gobby.github.io/>`_
 
-.. [#lts] We develop on the latest LTS version of Ubuntu.
    
 .. [#passlogin] Once you expose a Docker dev container to the Internet,
    malicious parties will discover it and start trying user name and

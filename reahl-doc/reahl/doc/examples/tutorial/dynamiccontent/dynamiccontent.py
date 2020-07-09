@@ -104,7 +104,7 @@ class InvestmentOrder(Base):
     id              = Column(Integer, primary_key=True)
     amount          = Column(Integer)
     amount_or_percentage = Column(UnicodeText)
-    allocations     = relationship('reahl.doc.examples.howtos.dynamiccontent.dynamiccontent.Allocation', back_populates='investment_order', lazy='immediate')
+    allocations     = relationship('reahl.doc.examples.tutorial.dynamiccontent.dynamiccontent.Allocation', back_populates='investment_order', lazy='immediate')
 
     @exposed
     def fields(self, fields):
@@ -172,7 +172,7 @@ class Allocation(Base):
     amount     = Column(Integer)
     fund       = Column(UnicodeText)
     investment_order_id = Column(Integer, ForeignKey(InvestmentOrder.id))
-    investment_order  = relationship('reahl.doc.examples.howtos.dynamiccontent.dynamiccontent.InvestmentOrder', back_populates='allocations')
+    investment_order  = relationship('reahl.doc.examples.tutorial.dynamiccontent.dynamiccontent.InvestmentOrder', back_populates='allocations')
 
     @exposed
     def fields(self, fields):

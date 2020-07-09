@@ -1,6 +1,6 @@
 
 # To run this test do:
-# pytest --pyargs reahl.doc.examples.tutorial.ajaxbootstrap.ajaxbootstrap_dev.test_ajaxbootstrap
+# pytest --pyargs reahl.doc.examples.howtos.ajaxbootstrap.ajaxbootstrap_dev.test_ajaxbootstrap
 # or
 # reahl unit
 #
@@ -10,7 +10,7 @@ from reahl.tofu import Fixture, uses
 from reahl.tofu.pytestsupport import with_fixtures
 
 from reahl.webdev.tools import XPath
-from reahl.doc.examples.tutorial.ajaxbootstrap.ajaxbootstrap import WidgetRefreshUI
+from reahl.doc.examples.howtos.ajaxbootstrap.ajaxbootstrap import WidgetRefreshUI
 
 from reahl.web_dev.fixtures import WebFixture
 

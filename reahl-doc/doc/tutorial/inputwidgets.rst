@@ -52,7 +52,7 @@ associated labels and validation error messages. Call
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/addressbook2/addressbook2.py
    :pyobject: AddressForm
-   :end-before: button =
+   :end-before: Button
 
 
 Fields provide metadata
