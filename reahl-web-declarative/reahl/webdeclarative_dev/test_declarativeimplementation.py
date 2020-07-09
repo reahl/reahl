@@ -27,7 +27,8 @@ from reahl.tofu import scenario, Fixture, uses
 from reahl.stubble import stubclass, EmptyStub
 from reahl.tofu.pytestsupport import with_fixtures
 
-from reahl.sqlalchemysupport import Session
+from reahl.component.context import ExecutionContext
+from reahl.sqlalchemysupport import Session, Base, session_scoped
 from reahl.webdeclarative.webdeclarative import UserSession, SessionData, UserInput
 
 from reahl.web.ui import Form
@@ -296,3 +297,51 @@ def test_persisting_input(web_fixture, party_account_fixture, input_scenarios):
     assert previously_entered == fixture.empty_entered_input
 
 
+class SessionScopedFixture(Fixture):
+
+    def create_user_session(self):
+        user_session = UserSession()
+        Session.add(user_session)
+        ExecutionContext.get_context().session = user_session
+        return user_session
+
+    @scenario
+    def remove_session_scoped(self):
+        self.expected_user_session_after_delete = 1
+        self.cascade = False
+
+    @scenario
+    def remove_user_session(self):
+        self.expected_user_session_after_delete = 0
+        self.cascade = True
+
+
+@with_fixtures(SqlAlchemyFixture, SessionScopedFixture)
+def test_cascade_removal_of_user_session(sql_alchemy_fixture, session_scoped_fixture):
+    """
+        If a user session is deleted, all session scoped objects are deleted as well.
+    """
+
+    fixture = session_scoped_fixture
+
+    @session_scoped
+    class MySessionScoped(Base):
+        __tablename__ = 'my_session_scoped'
+        id = Column(Integer, primary_key=True)
+
+    with sql_alchemy_fixture.persistent_test_classes(MySessionScoped):
+        user_session = fixture.create_user_session()
+        assert Session.query(MySessionScoped).count() == 0
+
+        session_object = MySessionScoped.for_current_session()
+        assert Session.query(MySessionScoped).one() is session_object
+        assert session_object.user_session is user_session
+
+        if fixture.cascade:
+            Session.delete(user_session)
+        else:
+            Session.delete(session_object)
+        Session.flush()
+
+        assert Session.query(MySessionScoped).count() == 0
+        assert Session.query(UserSession).count() == fixture.expected_user_session_after_delete
