@@ -1087,11 +1087,28 @@ class Form(HTMLElement):
         self.client_digest_input = self.hash_inputs.add_child(HiddenInput(self, self.fields.posted_client_concurrency_digest, base_name='_reahl_client_concurrency_digest', ignore_concurrent_change=True))
         if not self.client_digest_input.value:
             self.client_digest_input.add_attribute_source(DelayedConcurrencyDigestValue(self.client_digest_input))
+        else:
+            pass # maintain the POSTed value
 
         self.posted_database_concurrency_digest = None
         self.database_digest_input = self.hash_inputs.add_child(HiddenInput(self, self.fields.posted_database_concurrency_digest, base_name='_reahl_database_concurrency_digest', ignore_concurrent_change=True))
-        if not self.database_digest_input.value:
+        # the digest input will have a value when:
+        #  (1) you're busy with an ajax call (because prepare_input will have read the input value from construction state); or
+        #  (2) you're busy submitting and you saved its value because of an validation exception (and prepare_input read the value from saved inputs due to the exception)
+        #
+        # If (1), we want to maintain the value it originally had, so we want to use the POSTed value (a)
+        # If (2), we want to update the value (b) to what it would have been if computed from the original database as if it displayed the 
+        #  set of inputs that were being displayed at the time of the exception (these could be different from what was there at initial 
+        #  rendering because of ajax that may have happened since then)
+        #
+        # If the digest does not have a value, its not ajax, so we update (as opposed to maintain the POSTed value)
+        # If there is an exception we know that we're in case (2), so we update (as opposed to maintain the POSTed value)
+        if self.exception or (not self.database_digest_input.value):
+            # (b)
             self.database_digest_input.add_attribute_source(DelayedConcurrencyDigestValue(self.database_digest_input, for_database_values=True))
+        else:
+            # (a)
+            pass # maintain the POSTed value
 
     @property
     def ancestral_coactive_widgets(self):
