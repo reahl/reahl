@@ -53,9 +53,9 @@ from reahl.doc.examples.tutorial.addressbook2bootstrap import addressbook2bootst
 from reahl.doc.examples.tutorial.bootstrapgrids import bootstrapgrids
 from reahl.doc.examples.tutorial.pageflow1 import pageflow1
 from reahl.doc.examples.tutorial.parameterised1 import parameterised1
+from reahl.doc.examples.tutorial.dynamiccontent import dynamiccontent
 
 from reahl.doc.examples.howtos.responsivedisclosure import responsivedisclosure
-from reahl.doc.examples.howtos.dynamiccontent import dynamiccontent
 from reahl.doc.examples.howtos.optimisticconcurrency import optimisticconcurrency
 
 
@@ -562,5 +562,4 @@ def test_optimisticconcurrency(web_fixture, optimisticconcurrency_scenario):
     browser.click(XPath.button_labelled('Submit'))
     error_alert = XPath.div().including_class('alert').including_text('Some data changed since you opened this page')
     assert browser.is_element_present(error_alert)
-    import pdb; pdb.set_trace()
     browser.capture_cropped_screenshot(fixture.new_screenshot_path('optimisticconcurrency_1.png'))

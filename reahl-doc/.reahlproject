@@ -66,8 +66,8 @@
         <class locator="reahl.doc.examples.howtos.responsivedisclosure.responsivedisclosure:InvestmentOrder"/>
         <class locator="reahl.doc.examples.howtos.responsivedisclosure.responsivedisclosure:Allocation"/>
         <class locator="reahl.doc.examples.howtos.responsivedisclosure.responsivedisclosure:IDDocument"/>
-        <class locator="reahl.doc.examples.howtos.dynamiccontent.dynamiccontent:InvestmentOrder"/>
-        <class locator="reahl.doc.examples.howtos.dynamiccontent.dynamiccontent:Allocation"/>
+        <class locator="reahl.doc.examples.tutorial.dynamiccontent.dynamiccontent:InvestmentOrder"/>
+        <class locator="reahl.doc.examples.tutorial.dynamiccontent.dynamiccontent:Allocation"/>
        </persisted>
 
   <schedule locator="reahl.doc.examples.tutorial.jobsbootstrap.jobsbootstrap:Address.clear_added_flags"/>
