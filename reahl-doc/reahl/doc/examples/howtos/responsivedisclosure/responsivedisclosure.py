@@ -160,7 +160,7 @@ class AllocationDetailSection(Div):
 
 @session_scoped
 class InvestmentOrder(Base):
-    __tablename__ = 'responsive_disclosure_investment_order'
+    __tablename__ = 'rspnsv_disc_investment_order'
 
     id              = Column(Integer, primary_key=True)
     agreed_to_terms = Column(Boolean)
@@ -253,7 +253,7 @@ class InvestmentOrder(Base):
 
 
 class Allocation(Base):
-    __tablename__ = 'responsive_disclosure_allocation'
+    __tablename__ = 'rspnsv_disc_allocation'
 
     id         = Column(Integer, primary_key=True)
     percentage = Column(Integer)
@@ -296,7 +296,7 @@ class Allocation(Base):
 
 
 class IDDocument(Base):
-    __tablename__ = 'responsive_disclosure_iddocument'
+    __tablename__ = 'rspnsv_disc_iddoc'
 
     id         = Column(Integer, primary_key=True)
     

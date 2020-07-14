@@ -159,7 +159,7 @@ class Example:
                     relative_dirpath = relative_dirpath.replace(self.module_name, self.new_name)
                 dest_dirname = os.path.join(dest, relative_dirpath)
                 os.mkdir(dest_dirname)
-                for filename in [f for f in filenames if not re.match('.*(.pyc|~|.mo|.noseids)$', f)]:
+                for filename in [f for f in filenames if not re.match('.*(.pyc|~|.mo|.noseids|.db)$', f)]:
                     source_file_path = os.path.join(dirpath, filename)
                     if source_file_path != os.path.join(source, '__init__.py'):
                         dest_file_path = self.checkout_changes.get_output_filename(source_file_path, dest_dirname)
