@@ -3,9 +3,30 @@
 Howtos
 ======
 
+Dynamic content
+---------------
+
 .. toctree::
    :maxdepth: 1
 
-   Dynamically changing page content <dynamiccontent>
-   Responsive disclosure <responsivedisclosure>
-   Programmatic arguments to parameterised views <programmaticparameterised>
+   responsivedisclosure
+   paginglonglists
+   refreshingwidgets
+
+Parameterised views
+-------------------
+
+.. toctree::
+   :maxdepth: 1
+
+   programmaticparameterised
+.. transitionstoparameterised
+
+Misc
+----
+.. toctree::
+   :maxdepth: 1
+
+   customisingerrorpages
+   optimisticlocking
+

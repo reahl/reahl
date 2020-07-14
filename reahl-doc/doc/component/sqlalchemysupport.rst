@@ -54,3 +54,9 @@ SqlAlchemyControl
    :members:
 
 
+TransactionVeto
+"""""""""""""""
+
+.. autoclass:: TransactionVeto
+   :members:
+

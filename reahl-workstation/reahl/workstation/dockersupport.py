@@ -14,6 +14,8 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import subprocess
+from reahl.component.shelltools import Executable
 
 class DockerContainer:
     def __init__(self, container_name):
@@ -21,19 +23,19 @@ class DockerContainer:
         self.docker = Executable('docker', verbose=True)
         
     def get_ssh_args(self):
-        return ['-o', 'UserKnownHostsFile=/dev/null', '-o', 'StrictHostKeyChecking no']
+        return ['-o', 'UserKnownHostsFile=/dev/null', '-o', 'StrictHostKeyChecking=no']
 
     @property
     def ip_address(self):
         res = self.docker.run(['inspect', '-f',  '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}', self.container_name],
                               stdout=subprocess.PIPE, encoding='utf-8')
-        return res.stdout
+        return res.stdout.strip()
 
     @property
     def user_name(self):
         res = self.docker.run(['container', 'exec', self.container_name, 'printenv', 'REAHL_USER'],
                               stdout=subprocess.PIPE, encoding='utf-8')
-        return res.stdout
+        return res.stdout.strip()
 
     @property
     def ssh_to(self):

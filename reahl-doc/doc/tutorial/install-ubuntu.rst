@@ -22,38 +22,12 @@ Preparing for installation on Ubuntu
    The next step is to :ref:`create a virtualenv <install-reahl-itself>`.
 
 
-3. Chromedriver (optional)
+3. Geckodriver and Firefox (optional)
 
-   You do not need to install chromedriver in order to follow this
-   tutorial. However, if you are going to use chromium for testing, you
-   will need chromedriver.
-
-   .. code-block:: bash
-
-      sudo apt-get install chromium-chromedriver
-
-   You also need to adjust your PATH so that /usr/lib/chromium-browser is
-   included. In your .bashrc, add the line:
+   If you want to run your own automated selenium tests, install Firefox 
+   and geckodriver as well.
 
    .. code-block:: bash
 
-      export PATH=$PATH:/usr/lib/chromium-browser
-
-   .. note::
-
-       In Ubuntu 14.4, the chromedriver binary is installed in
-       `/usr/lib/chromium-browser/chromedriver`, but it neglects setting
-       the LD_LIBRARY_PATH for it to work correctly. To correct this,
-       create the file `/etc/ld.so.conf.d/chrome_lib.conf`, with the
-       following contents:
-
-       .. code-block:: bash
-
-          /usr/lib/chromium-browser/libs
-
-       Finally, run:
-
-       .. code-block:: bash
-
-          sudo ldconfig
+      sudo apt-get install firefox firefox-geckodriver
 

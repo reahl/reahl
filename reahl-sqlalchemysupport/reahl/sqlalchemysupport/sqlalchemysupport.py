@@ -197,7 +197,12 @@ def session_scoped(cls):
 
 
 class TransactionVeto:
-    should_commit = None
+    """An object that can be used to force the transaction to be committed or not.
+
+    .. versionadded: 5.0
+
+    """
+    should_commit = None  #: Set this to True to force a commit or False to force a rollback
     @property
     def has_voted(self):
         return self.should_commit is not None

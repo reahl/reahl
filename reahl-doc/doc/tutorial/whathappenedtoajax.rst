@@ -1,28 +1,19 @@
 .. Copyright 2013, 2015, 2016 Reahl Software Services (Pty) Ltd. All rights reserved.
 
-.. |Widget| replace:: :class:`~reahl.web.fw.Widget`
-.. |UrlBoundView| replace:: :class:`~reahl.web.fw.UrlBoundView`
-.. |View| replace:: :class:`~reahl.web.fw.View`
 .. |HTMLElement| replace:: :class:`~reahl.web.ui.HTMLElement`
-.. |Bookmark| replace:: :class:`~reahl.web.fw.Bookmark`
-.. |Div| replace:: :class:`~reahl.web.bootstrap.ui.Div`
-.. |Nav| replace:: :class:`~reahl.web.bootstrap.navs.Nav`
-.. |Field| replace:: :class:`~reahl.component.modelinterface.Field`
-.. |SequentialPageIndex| replace:: :class:`~reahl.web.bootstrap.pagination.SequentialPageIndex`
-.. |PageIndex| replace:: :class:`~reahl.web.bootstrap.pagination.PageIndex`
-.. |PagedPanel| replace:: :class:`~reahl.web.bootstrap.pagination.PagedPanel`
-.. |PageMenu| replace:: :class:`~reahl.web.bootstrap.pagination.PageMenu`
-.. |AnnualPageIndex| replace:: :class:`~reahl.web.bootstrap.pagination.AnnualPageIndex`
+.. |TextInput| replace:: :class:`~reahl.web.bootstrap.forms.TextInput`
+.. |Event| replace:: :class:`~reahl.component.modelinterface.Event`
+.. |Action| replace:: :class:`~reahl.component.modelinterface.Action`
+.. |DomainException| replace:: :class:`~reahl.component.exceptions.DomainException`
+.. |enable_refresh| replace:: :meth:`~reahl.web.ui.HTMLElement.enable_refresh`
 
 
-
-What about Ajax?
-================
+Changing content without refreshing (Ajax)
+==========================================
 
 .. sidebar:: Examples in this section
 
-   - tutorial.ajaxbootstrap
-   - tutorial.pagerbootstrap
+   - tutorial.dynamiccontent
 
    Get a copy of an example by running:
 
@@ -30,88 +21,86 @@ What about Ajax?
 
       reahl example <examplename>
 
+.. note:: See also
 
-Refreshing an individual Widget
--------------------------------
-
-You can build a :class:`~reahl.web.fw.Widget` which gets refreshed
-without reloading the entire page.
-
-The `tutorial.ajaxbootstrap` example has |Nav| and a |Div|. The
-contents of the |Div| changes each time an item is selected on the
-|Nav| without reloading the entire page.
-
-Only |HTMLElement|\s can refresh. To let an |HTMLElement| refresh, it
-needs arguments and needs to call
-:meth:`~reahl.web.ui.HTMLElement.enable_refresh` in its `__init__`
-method.
-
-In the example, RefreshedPanel is given arguments in an
-:class:`~reahl.component.modelinterface.exposed` method named
-:meth:`~reahl.web.fw.Widget.query_fields`. Each argument is defined by
-assigning a |Field| to an attribute of `fields`:
+   - :doc:`../howto/refreshingwidgets`
+   - :doc:`../howto/paginglonglists`
+   - :doc:`../howto/responsivedisclosure`
 
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/ajaxbootstrap/ajaxbootstrap.py
-   :pyobject: RefreshedPanel.query_fields
-
-This makes the value of `self.selected` available in `RefreshedPanel.__init__` to be
-used when generating the RefreshedPanel (`self.selected` is set from
-the URL or the default of the |Field|):
-
-.. literalinclude:: ../../reahl/doc/examples/tutorial/ajaxbootstrap/ajaxbootstrap.py
-   :pyobject: RefreshedPanel
-   :end-before: exposed
-
-A special "in-page" |Bookmark| refers to a |Widget| on the current
-|UrlBoundView|, but with different argument values.
-
-Construct such a |Bookmark| for a given value of `selected` by calling
-:meth:`~reahl.web.fw.Bookmark.for_widget` with suitable
-`query_arguments`. Before using the |Bookmark|, call
-:meth:`~reahl.web.fw.Bookmark.on_view` to bind it to the current
-|View|.
-
-.. literalinclude:: ../../reahl/doc/examples/tutorial/ajaxbootstrap/ajaxbootstrap.py
-   :pyobject: RefreshedPanel.get_bookmark
-
-Use such bound |Bookmark|\s as usual:
-
-.. literalinclude:: ../../reahl/doc/examples/tutorial/ajaxbootstrap/ajaxbootstrap.py
-   :pyobject: HomePanel
-
-.. note:: If a |Widget| declares `query_fields`, it must have a unique css_id.
-
-
-Paging long lists
+Dishing out money
 -----------------
 
-The `tutorial.pagerbootstrap` example lets a user page though a very
-long list of Addresses, displaying only a managable number at a time.
+You can make parts of your page refresh in response to having changed the value of an input.
 
-Three objects play a role in this scenario:
+This example is a page on which you choose how to divide an amount you want to invest into two different funds:
 
-* A |SequentialPageIndex| breaks the long list of Addresses into
-  separate chunks.
-* AddressList is a |PagedPanel|\---it displays the
-  appropriate chunk of Addresses (its
-  :meth:`~reahl.web.bootstrap.pagination.PagedPanel.current_contents`).
-* An accompanying |PageMenu| allows the user to navigate.
+.. figure:: ../_build/screenshots/dynamiccontent_1.png
+   :align: center
+   :alt: AllocationDetailForm.
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/pagerbootstrap/pagerbootstrap.py
-   :pyobject: AddressBookPanel
+You enter the total amount, and then the percentage allocated to each fund. Each time you tab out of a 
+percentage input, the amount portion next to it and the totals at the bottom of the table are recalculated.
 
-Since AddressList is a |PagedPanel|, it automatically refreshes and
-computes its :attr:`~reahl.web.bootstrap.pagination.PagedPanel.current_contents` based on the given
-|SequentialPageIndex|.
+.. figure:: ../_build/screenshots/dynamiccontent_2.png
+   :align: center
+   :alt: AllocationDetailForm with totals and amounts recalculated.
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/pagerbootstrap/pagerbootstrap.py
-   :pyobject: AddressList
+You can also change the total amount or elect to rather specify portions as amounts instead of percentages.
 
-Other implementations of |PageIndex| are possible, such as
-|AnnualPageIndex| which arranges all items with the same year
-together.
+.. figure:: ../_build/screenshots/dynamiccontent_3.png
+   :align: center
+   :alt: AllocationDetailForm specified in amount.
 
- .. figure:: pager.png
-    :align: center
 
+Make an |HTMLElement| refreshable
+---------------------------------
+
+You make an |HTMLElement| (AllocationDetailForm in this example) refreshable by calling |enable_refresh| on it:
+
+.. literalinclude:: ../../reahl/doc/examples/tutorial/dynamiccontent/dynamiccontent.py
+   :pyobject: AllocationDetailForm.__init__
+
+A |TextInput| will trigger a refresh of the |HTMLElement| passed as its `refresh_widget`.
+
+.. literalinclude:: ../../reahl/doc/examples/tutorial/dynamiccontent/dynamiccontent.py
+   :pyobject: AllocationDetailForm.add_allocation_controls
+
+Recalculate
+-----------
+
+.. note:: The values you recalculate must be attributes of persisted model objects.
+
+Specify an `on_refresh` |Event| in your |enable_refresh| call to trigger a recalculate |Action|:
+
+.. literalinclude:: ../../reahl/doc/examples/tutorial/dynamiccontent/dynamiccontent.py
+   :pyobject: AllocationDetailForm.__init__
+   :start-after: self.investment_order = 
+   :end-before: self.add_allocation_controls()
+
+.. literalinclude:: ../../reahl/doc/examples/tutorial/dynamiccontent/dynamiccontent.py
+   :pyobject: InvestmentOrder.events
+   
+.. literalinclude:: ../../reahl/doc/examples/tutorial/dynamiccontent/dynamiccontent.py
+   :pyobject: InvestmentOrder.recalculate
+
+
+Validating results
+------------------
+
+When the user finally submits the InvestmentOrder, recalculate the order before validating 
+the newly recalculated results. 
+
+.. literalinclude:: ../../reahl/doc/examples/tutorial/dynamiccontent/dynamiccontent.py
+   :pyobject: InvestmentOrder.submit
+
+If the submitted data is not correct, raise a |DomainException| to indicate the problem:
+
+.. literalinclude:: ../../reahl/doc/examples/tutorial/dynamiccontent/dynamiccontent.py
+   :pyobject: InvestmentOrder.validate_allocations
+
+Communicate the error condition to the user by displaying the |DomainException| as part of 
+AllocationDetailForm:
+
+.. literalinclude:: ../../reahl/doc/examples/tutorial/dynamiccontent/dynamiccontent.py
+   :pyobject: AllocationDetailForm.add_allocation_controls

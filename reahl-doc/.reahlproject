@@ -31,6 +31,7 @@
   <deps purpose="test">
     <thirdpartyegg name="pytest" minversion="3.0"/>
     <thirdpartyegg name="Sphinx"/>
+    <thirdpartyegg name="sphinxcontrib-plantuml"/>
     <egg name="reahl-tofu"/>
     <egg name="reahl-stubble"/>
     <egg name="reahl-dev"/>
@@ -65,8 +66,8 @@
         <class locator="reahl.doc.examples.howtos.responsivedisclosure.responsivedisclosure:InvestmentOrder"/>
         <class locator="reahl.doc.examples.howtos.responsivedisclosure.responsivedisclosure:Allocation"/>
         <class locator="reahl.doc.examples.howtos.responsivedisclosure.responsivedisclosure:IDDocument"/>
-        <class locator="reahl.doc.examples.howtos.dynamiccontent.dynamiccontent:InvestmentOrder"/>
-        <class locator="reahl.doc.examples.howtos.dynamiccontent.dynamiccontent:Allocation"/>
+        <class locator="reahl.doc.examples.tutorial.dynamiccontent.dynamiccontent:InvestmentOrder"/>
+        <class locator="reahl.doc.examples.tutorial.dynamiccontent.dynamiccontent:Allocation"/>
        </persisted>
 
   <schedule locator="reahl.doc.examples.tutorial.jobsbootstrap.jobsbootstrap:Address.clear_added_flags"/>
