@@ -1632,7 +1632,7 @@ class PrimitiveInput(Input):
 
         self.ignore_concurrent_change = ignore_concurrent_change
 
-        name_to_use = name or ('%s-%s%s' % (self.channel_name, base_name or self.bound_field.name, name_discriminator or ''))
+        name_to_use = name or ('%s%s' % (base_name or self.bound_field.name, name_discriminator or ''))
         bound_field.override_unqualified_name_in_input(name_to_use)
 
         if refresh_widget:
@@ -1647,7 +1647,7 @@ class PrimitiveInput(Input):
 
         self.set_html_representation(self.add_child(self.create_html_widget()))
         if self.html_control:
-            self.set_html_control_css_id()
+            self.html_control.set_id(self.make_html_control_css_id()) 
 
         if not self.is_contained:
             self.add_to_attribute('class', ['reahl-primitiveinput'])
@@ -1655,10 +1655,9 @@ class PrimitiveInput(Input):
         if self.refresh_widget:
             self.set_attribute('data-refresh-widget-id', self.refresh_widget.css_id)
 
-    def set_html_control_css_id(self):
-        css_id = 'id-%s' % self.name
-        self.html_control.set_id(str(CssId.from_dirty_string(css_id))) 
-            
+    def make_html_control_css_id(self):
+        return str(CssId.from_dirty_string('id-%s-%s' % (self.channel_name, self.name)))
+
     def add_input_data_attributes(self):
         if isinstance(self.bound_field, BooleanField):
             self.set_attribute('data-is-boolean', '')
@@ -1880,9 +1879,8 @@ class ContainedInput(PrimitiveInput):
                                              name=name,
                                              registers_with_form=False, refresh_widget=refresh_widget)
 
-    def set_html_control_css_id(self):
-        css_id = 'id-%s-%s' % (self.containing_input.name, self.value)
-        self.html_control.set_id(str(CssId.from_dirty_string(css_id)))
+    def make_html_control_css_id(self):
+        return str(CssId.from_dirty_string('id-%s-%s-%s' % (self.channel_name, self.containing_input.name, self.value)))
 
     def get_input_status(self):
         return 'defaulted'

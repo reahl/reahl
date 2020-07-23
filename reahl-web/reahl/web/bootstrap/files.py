@@ -249,7 +249,7 @@ class FileUploadInput(reahl.web.ui.Input):
         super().__init__(form, bound_field)
         
         self.ignore_concurrency_change = ignore_concurrency_change
-        name_to_use = '%s-%s%s' % (form.channel_name, base_name or self.bound_field.name, name_discriminator or '')
+        name_to_use = '%s%s' % (base_name or self.bound_field.name, name_discriminator or '')
         bound_field.override_unqualified_name_in_input(name_to_use)
 
         form.register_input(self) # bound_field must be set for this registration to work

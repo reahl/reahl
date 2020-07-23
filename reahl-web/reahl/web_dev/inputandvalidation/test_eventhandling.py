@@ -450,8 +450,8 @@ def test_form_preserves_user_input_after_validation_exceptions_multichoice(web_f
 
     browser.open('/')
 
-    no_validation_exception_input = '//select[@name="my_form-no_validation_exception_field[]"]'
-    validation_exception_input = '//select[@name="my_form-validation_exception_field[]"]'
+    no_validation_exception_input = '//select[@name="no_validation_exception_field[]"]'
+    validation_exception_input = '//select[@name="validation_exception_field[]"]'
 
     browser.select_many(no_validation_exception_input, ['One', 'Two'])
     browser.select_none(validation_exception_input) # select none to trigger the RequiredConstraint
@@ -488,8 +488,8 @@ def test_rendering_of_form(web_fixture):
 
     expected = '''<form id="test_channel" action="/a/b/_test_channel_method?x=y" data-formatter="/__test_channel_format_method" method="POST" class="reahl-form">''' \
                '''<div id="test_channel_hashes">'''\
-               '''<input name="test_channel-_reahl_client_concurrency_digest" id="id-test_channel-_reahl_client_concurrency_digest" form="test_channel" type="hidden" value="" class="reahl-primitiveinput">''' \
-               '''<input name="test_channel-_reahl_database_concurrency_digest" id="id-test_channel-_reahl_database_concurrency_digest" form="test_channel" type="hidden" value="" class="reahl-primitiveinput">''' \
+               '''<input name="_reahl_client_concurrency_digest" id="id-test_channel-_reahl_client_concurrency_digest" form="test_channel" type="hidden" value="" class="reahl-primitiveinput">''' \
+               '''<input name="_reahl_database_concurrency_digest" id="id-test_channel-_reahl_database_concurrency_digest" form="test_channel" type="hidden" value="" class="reahl-primitiveinput">''' \
                '''</div>''' \
                '''</form>'''
     assert actual == expected
@@ -543,7 +543,7 @@ def test_check_missing_form(web_fixture):
     wsgi_app = fixture.new_wsgi_app(child_factory=MyPanel.factory())
     browser = Browser(wsgi_app)
 
-    expected_message = 'Could not find form for <TextInput name=myform-name>. '\
+    expected_message = 'Could not find form for <TextInput name=name>. '\
                        'Its form, <Form form id="myform".*> is not present on the current page'
 
     with expected(ProgrammerError, test=expected_message):
@@ -598,7 +598,7 @@ def test_nested_forms(web_fixture):
     browser = fixture.driver_browser
 
     browser.open('/')
-    browser.type(XPath.input_named('my_nested_form-nested_field'), 'some nested input')
+    browser.type(XPath.input_named('nested_field'), 'some nested input')
 
     browser.click(XPath.button_labelled('click nested'))
 
@@ -681,7 +681,7 @@ def test_form_input_validation(web_fixture):
     input_id = browser.get_id_of('//input[@type="text"]')
     assert label == '<label for="%s" class="error">field_name should be a valid email address</label>' % input_id
 
-    assert Session.query(UserInput).filter_by(key='myform-field_name').count() == 1  # The invalid input was persisted
+    assert Session.query(UserInput).filter_by(key='field_name').count() == 1  # The invalid input was persisted
     exception = Session.query(PersistedException).one().exception
     assert isinstance(exception, ValidationException)  # Is was persisted
     assert not exception.commit
@@ -694,7 +694,7 @@ def test_form_input_validation(web_fixture):
     browser.click("//input[@value='click me']")
     assert model_object.field_name == 'valid@home.org'
 
-    assert Session.query(UserInput).filter_by(key='myform-field_name').count() == 0  # The invalid input was removed
+    assert Session.query(UserInput).filter_by(key='field_name').count() == 0  # The invalid input was removed
     assert Session.query(PersistedException).count() == 0  # The exception was removed
 
     assert browser.current_url.path == '/page2'
@@ -834,7 +834,7 @@ def test_event_names_are_canonicalised(web_fixture):
     browser = Browser(wsgi_app)
 
     # when the Action is executed, the correct arguments are passed
-    browser.post('/__myform_method', {'event.myform-an_event?some_argument=f~nnystuff': '', 'myform-_reahl_client_concurrency_digest':'', 'myform-_reahl_database_concurrency_digest':''})
+    browser.post('/__myform_method', {'event.an_event?some_argument=f~nnystuff': '', '_reahl_client_concurrency_digest':'', '_reahl_database_concurrency_digest':''})
     assert model_object.received_argument == 'f~nnystuff'
 
 
@@ -875,7 +875,7 @@ def test_alternative_event_trigerring(web_fixture):
     browser = Browser(wsgi_app)
 
     # when POSTing with _noredirect, the Action is executed, but the browser is not redirected to /page2 as usual
-    browser.post('/__myform_method', {'event.myform-an_event?': '', '_noredirect': '', 'myform-_reahl_client_concurrency_digest':'', 'myform-_reahl_database_concurrency_digest':''})
+    browser.post('/__myform_method', {'event.an_event?': '', '_noredirect': '', '_reahl_client_concurrency_digest':'', '_reahl_database_concurrency_digest':''})
     browser.follow_response()  # Needed to make the test break should a HTTPTemporaryRedirect response be sent
     assert model_object.handled_event
     assert browser.current_url.path != '/page2'
@@ -912,10 +912,10 @@ def test_remote_field_validation(web_fixture):
     wsgi_app = fixture.new_wsgi_app(child_factory=MyForm.factory('myform'))
     browser = Browser(wsgi_app)
 
-    browser.open('/_myform_validate_method?myform-a_field=invalid email address')
+    browser.open('/_myform_validate_method?a_field=invalid email address')
     assert browser.raw_html == '"a_field should be a valid email address"'
 
-    browser.open('/_myform_validate_method?myform-a_field=valid@email.org')
+    browser.open('/_myform_validate_method?a_field=valid@email.org')
     assert browser.raw_html == 'true'
 
 
@@ -941,10 +941,10 @@ def test_remote_field_formatting(web_fixture):
     wsgi_app = fixture.new_wsgi_app(child_factory=MyForm.factory('myform'))
     browser = Browser(wsgi_app)
 
-    browser.open('/_myform_format_method?myform-a_field=13 November 2012')
+    browser.open('/_myform_format_method?a_field=13 November 2012')
     assert browser.raw_html == '13 Nov 2012'
 
-    browser.open('/_myform_format_method?myform-a_field=invaliddate')
+    browser.open('/_myform_format_method?a_field=invaliddate')
     assert browser.raw_html == ''
 
 

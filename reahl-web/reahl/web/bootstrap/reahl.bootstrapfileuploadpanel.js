@@ -52,16 +52,16 @@ $.widget('reahl.bootstrapfileuploadpanel', {
         return this.options.errorMessage;
     },
     getUploadInput: function() {
-        return $(this.element).find('input[name^="event.'+this.getFormId()+'-upload_file"]');
+        return $(this.element).find('input[name^="event.upload_file"]');
     },
     getRemoveFileButtonName: function() {
-        return 'event.'+this.getFormId()+'-remove_file';
+        return 'event.remove_file';
     },
     getFileInput: function() {
         return $(this.element).find('input[type="file"]');
     },
     getValidationError: function() {
-        return $(this.element).find('span[for="'+this.fileInputName+'"][class~="invalid-feedback"]');
+        return $(this.element).find('span[data-generated-for="'+this.fileInputId+'"][class~="invalid-feedback"]');
     },
     getNumberOfUploadedFiles: function() {
         return $(this.element).find('li').length;
@@ -72,7 +72,8 @@ $.widget('reahl.bootstrapfileuploadpanel', {
         this.queuedUploads = [];
         this.uploadInputName = this.getUploadInput().attr('name');
         this.fileInputName = this.getFileInput().attr('name');
-        this.duplicateValidationError = $('<span data-generated-for="'+this.fileInputName+'" class="invalid-feedback">'+this.options.duplicateValidationErrorMessage+'</span>');
+        this.fileInputId = this.getFileInput().attr('id');
+        this.duplicateValidationError = $('<span data-generated-for="'+this.fileInputId+'" class="invalid-feedback">'+this.options.duplicateValidationErrorMessage+'</span>');
         this.uploadCounter = 0;
 
         $(this.element).on('click', 'input[name="'+this_.uploadInputName+'"]', function(e){
