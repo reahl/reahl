@@ -716,7 +716,7 @@ class Field:
                  readable=None, writable=None, disallowed_message=None,
                  min_length=None, max_length=None):
         self._name = None
-        self._overridden_unqualified_name_in_input = None
+        self.namespace = ''
         self.storage_object = None
         self.default = default
         self.label = label or ''
@@ -734,8 +734,8 @@ class Field:
 
         self.clear_user_input()
 
-    def override_unqualified_name_in_input(self, name):
-        self._overridden_unqualified_name_in_input = name
+    def set_namespace(self, namespace):
+        self.namespace = namespace
 
     def validate_default(self):
         unparsed_input = self.as_input()
@@ -884,18 +884,25 @@ class Field:
     def name(self):
         if not self._name:
             raise AssertionError('field %s with label "%s" is not yet bound' % (self, self.label))
-        return self._name
+        return '-'.join([i for i in [self.namespace, self._name] if i])
+
+    def with_namespace(self, namespace):
+        new_field = self.copy()
+        new_field.set_namespace(namespace)
+        return new_field
 
     @property
     def variable_name(self):
-        return self.name
+        if not self._name:
+            raise AssertionError('field %s with label "%s" is not yet bound' % (self, self.label))
+        return self._name
 
     def qualify_name(self, name):
         return name
 
     @property
     def name_in_input(self):
-        return self.qualify_name(self._overridden_unqualified_name_in_input if self._overridden_unqualified_name_in_input else self.name)
+        return self.qualify_name(self.name)
 
     def get_model_value(self):
         return getattr(self.storage_object, self.variable_name, self.default)

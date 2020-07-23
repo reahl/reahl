@@ -1083,15 +1083,15 @@ class Form(HTMLElement):
 
         self.hash_inputs = self.add_child(Div(self.view, css_id='%s_hashes' % unique_name))
 
-        self.posted_client_concurrency_digest = None
-        self.client_digest_input = self.hash_inputs.add_child(HiddenInput(self, self.fields.posted_client_concurrency_digest, base_name='_reahl_client_concurrency_digest', ignore_concurrent_change=True))
+        self._reahl_client_concurrency_digest = None
+        self.client_digest_input = self.hash_inputs.add_child(HiddenInput(self, self.fields._reahl_client_concurrency_digest.with_namespace(unique_name), ignore_concurrent_change=True))
         if not self.client_digest_input.value:
             self.client_digest_input.add_attribute_source(DelayedConcurrencyDigestValue(self.client_digest_input))
         else:
             pass # maintain the POSTed value
 
-        self.posted_database_concurrency_digest = None
-        self.database_digest_input = self.hash_inputs.add_child(HiddenInput(self, self.fields.posted_database_concurrency_digest, base_name='_reahl_database_concurrency_digest', ignore_concurrent_change=True))
+        self._currency_digest = None
+        self.database_digest_input = self.hash_inputs.add_child(HiddenInput(self, self.fields._reahl_database_concurrency_digest.with_namespace(unique_name), ignore_concurrent_change=True))
         # the digest input will have a value when:
         #  (1) you're busy with an ajax call (because prepare_input will have read the input value from construction state); or
         #  (2) you're busy submitting and you saved its value because of an validation exception (and prepare_input read the value from saved inputs due to the exception)
@@ -1121,8 +1121,8 @@ class Form(HTMLElement):
     @exposed
     def fields(self, fields):
         client_validation = ConcurrentChange(self)
-        fields.posted_client_concurrency_digest = Field().with_validation_constraint(client_validation)
-        fields.posted_database_concurrency_digest = Field().with_validation_constraint(ConcurrentChange(self, for_database_values=True, if_other_passed=client_validation))
+        fields._reahl_client_concurrency_digest = Field().with_validation_constraint(client_validation)
+        fields._reahl_database_concurrency_digest = Field().with_validation_constraint(ConcurrentChange(self, for_database_values=True, if_other_passed=client_validation))
 
     @exposed
     def events(self, events):
@@ -1611,29 +1611,22 @@ class PrimitiveInput(Input):
 
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
-       :keyword name: If given force the name of the input (dangerous - for internal use only)
-       :keyword base_name: If given, the name of the Input is derived from base_name (default: the name of its bound_field).
-       :keyword name_discriminator: A string added to the computed name to prevent name clashes.
        :keyword registers_with_form: (for internal use)
        :keyword refresh_widget: An :class:`HTMLElement` that will be refreshed when the value of this input changes.
        :keyword ignore_concurrent_change: If True, don't check for possible concurrent changes by others to this input (just override such changes).
 
        .. versionchanged:: 5.0
           Added `refresh_widget`
-          Added `name_discriminator`
           Added `ignore_concurrent_change`
-          Renamed `name` kwarg to `base_name` and changed it to override only the bound_field.name part.
+          Removed `name` kwarg.
     """
     is_for_file = False
     is_contained = False
 
-    def __init__(self, form, bound_field, name=None, base_name=None, name_discriminator=None, registers_with_form=True, refresh_widget=None, ignore_concurrent_change=False):
+    def __init__(self, form, bound_field, registers_with_form=True, refresh_widget=None, ignore_concurrent_change=False):
         super().__init__(form, bound_field)
 
         self.ignore_concurrent_change = ignore_concurrent_change
-
-        name_to_use = name or ('%s%s' % (base_name or self.bound_field.name, name_discriminator or ''))
-        bound_field.override_unqualified_name_in_input(name_to_use)
 
         if refresh_widget:
             if not refresh_widget.is_refresh_enabled:
@@ -1833,22 +1826,18 @@ class TextArea(PrimitiveInput):
 
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
-       :keyword base_name: (See :class:`~reahl.web.ui.PrimitiveInput`)
-       :keyword name_discriminator: (See :class:`~reahl.web.ui.PrimitiveInput`).
        :keyword rows: The number of rows that this Input should have.
        :keyword columns: The number of columns that this Input should have.
        :keyword refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
        :keyword ignore_concurrent_change: (See :class:`~reahl.web.ui.PrimitiveInput`)
 
        .. versionchanged:: 5.0
-          Added `name` and `refresh_widget`.
-          Added `name_discriminator`
           Added `ignore_concurrent_change`
     """
-    def __init__(self, form, bound_field, base_name=None, name_discriminator=None, rows=None, columns=None, refresh_widget=None, ignore_concurrent_change=False):
+    def __init__(self, form, bound_field, rows=None, columns=None, refresh_widget=None, ignore_concurrent_change=False):
         self.rows = rows
         self.columns = columns
-        super().__init__(form, bound_field, base_name=base_name, name_discriminator=name_discriminator, refresh_widget=refresh_widget, ignore_concurrent_change=ignore_concurrent_change)
+        super().__init__(form, bound_field, refresh_widget=refresh_widget, ignore_concurrent_change=ignore_concurrent_change)
 
     def create_html_widget(self):
         html_text_area = HTMLElement(self.view, 'textarea', children_allowed=True)
@@ -1872,12 +1861,10 @@ class TextArea(PrimitiveInput):
 
 class ContainedInput(PrimitiveInput):
     is_contained = True
-    def __init__(self, containing_input, choice, name=None, refresh_widget=None):
+    def __init__(self, containing_input, choice, refresh_widget=None):
         self.choice = choice
         self.containing_input = containing_input
-        super().__init__(containing_input.form, choice.field,
-                                             name=name,
-                                             registers_with_form=False, refresh_widget=refresh_widget)
+        super().__init__(containing_input.form, choice.field, registers_with_form=False, refresh_widget=refresh_widget)
 
     def make_html_control_css_id(self):
         return str(CssId.from_dirty_string('id-%s-%s-%s' % (self.channel_name, self.containing_input.name, self.value)))
@@ -1959,13 +1946,8 @@ class SelectInput(PrimitiveInput):
           Represented in HTML as a <select> element which can contain <option> and <optgroup> children.
 
        :param form: (See :class:`~reahl.web.ui.Input`)
-       :param bound_field: (See :class:`~reahl.web.ui.Input`)
-       :keyword base_name: (See :class:`~reahl.web.ui.PrimitiveInput`)
        :keyword refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
 
-       .. versionchanged:: 5.0
-          Renamed `name` to `base_name` and changed its meaning (See: :class:`~reahl.web.ui.PrimitiveInput`)
-          Added `name_discriminator` and `refresh_widget`.
     """
     def create_html_widget(self):
         html_select = HTMLElement(self.view, 'select', children_allowed=True)
@@ -2003,8 +1985,11 @@ class SingleChoice(ContainedInput):
     def __init__(self, containing_input, choice):
         self.choice = choice
         self.containing_input = containing_input
-        super().__init__(containing_input, choice,
-                                           name=containing_input.name)
+        super().__init__(containing_input, choice)
+
+    @property
+    def name(self):
+        return self.containing_input.name
 
     @property
     def choice_type(self):
@@ -2043,8 +2028,6 @@ class RadioButtonSelectInput(PrimitiveInput):
 
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
-       :keyword base_name: (See :class:`~reahl.web.ui.PrimitiveInput`)
-       :keyword name_discriminator: (See :class:`~reahl.web.ui.PrimitiveInput`).
        :keyword refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
        :keyword ignore_concurrent_change: (See :class:`~reahl.web.ui.PrimitiveInput`)
 
@@ -2052,8 +2035,7 @@ class RadioButtonSelectInput(PrimitiveInput):
           Renamed from RadioButtonInput
 
        .. versionchanged:: 5.0
-          Added `name` and `refresh_widget`
-          Added `name_discriminator`
+          Added `refresh_widget`
           Added `ignore_concurrent_change`
 
     """
@@ -2061,8 +2043,8 @@ class RadioButtonSelectInput(PrimitiveInput):
     choice_type = 'radio'
 
     @arg_checks(bound_field=IsInstance(ChoiceField))
-    def __init__(self, form, bound_field, base_name=None, name_discriminator=None, refresh_widget=None, ignore_concurrent_change=False):
-        super().__init__(form, bound_field, base_name=base_name, name_discriminator=name_discriminator, refresh_widget=refresh_widget, ignore_concurrent_change=ignore_concurrent_change)
+    def __init__(self, form, bound_field, refresh_widget=None, ignore_concurrent_change=False):
+        super().__init__(form, bound_field, refresh_widget=refresh_widget, ignore_concurrent_change=ignore_concurrent_change)
 
     def is_choice_selected(self, value):
         if self.bound_field.allows_multiple_selections:
@@ -2100,8 +2082,6 @@ class TextInput(PrimitiveInput):
 
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
-       :keyword base_name: (See :class:`~reahl.web.ui.PrimitiveInput`)
-       :keyword name_discriminator: (See :class:`~reahl.web.ui.PrimitiveInput`).
        :keyword fuzzy: If True, the typed input will be dealt with as "fuzzy input". Fuzzy input is
                      when a user is allowed to type almost free-form input for structured types of input,
                      such as a date. The assumption is that the `bound_field` used should be able to parse
@@ -2118,13 +2098,12 @@ class TextInput(PrimitiveInput):
           Added `placeholder`.
 
        .. versionchanged:: 5.0
-          Added `name` and `refresh_widget`
-          Added `name_discriminator`
+          Added `refresh_widget`
           Added `ignore_concurrent_change`
 
     """
-    def __init__(self, form, bound_field, base_name=None, name_discriminator=None, fuzzy=False, placeholder=False, refresh_widget=None, ignore_concurrent_change=False):
-        super().__init__(form, bound_field, base_name=base_name, name_discriminator=name_discriminator, refresh_widget=refresh_widget, ignore_concurrent_change=ignore_concurrent_change)
+    def __init__(self, form, bound_field, fuzzy=False, placeholder=False, refresh_widget=None, ignore_concurrent_change=False):
+        super().__init__(form, bound_field, refresh_widget=refresh_widget, ignore_concurrent_change=ignore_concurrent_change)
         self.append_class('reahl-textinput')
         if placeholder:
             placeholder_text = self.label if placeholder is True else placeholder
@@ -2151,26 +2130,23 @@ class PasswordInput(PrimitiveInput):
 
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
-       :keyword base_name: (See :class:`~reahl.web.ui.PrimitiveInput`)
-       :keyword name_discriminator: (See :class:`~reahl.web.ui.PrimitiveInput`).
        :keyword refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
        :keyword ignore_concurrent_change: (See :class:`~reahl.web.ui.PrimitiveInput`)
 
        .. versionchanged:: 5.0
-          Added `name` and `refresh_widget`
-          Added `name_discriminator`
+          Added `refresh_widget`
           Added `ignore_concurrent_change`
     """
-    def __init__(self, form, bound_field, base_name=None, name_discriminator=None, refresh_widget=None, ignore_concurrent_change=False):
-        super().__init__(form, bound_field, base_name=base_name, name_discriminator=name_discriminator, refresh_widget=refresh_widget, ignore_concurrent_change=ignore_concurrent_change)
+    def __init__(self, form, bound_field, refresh_widget=None, ignore_concurrent_change=False):
+        super().__init__(form, bound_field, refresh_widget=refresh_widget, ignore_concurrent_change=ignore_concurrent_change)
 
     def create_html_widget(self):
         return HTMLInputElement(self, 'password', render_value_attribute=False)
 
 
 class HiddenInput(PrimitiveInput):
-    def __init__(self, form, bound_field, base_name=None, name_discriminator=None, ignore_concurrent_change=False):
-        super().__init__(form, bound_field, base_name=base_name, name_discriminator=name_discriminator, ignore_concurrent_change=ignore_concurrent_change)
+    def __init__(self, form, bound_field, ignore_concurrent_change=False):
+        super().__init__(form, bound_field, ignore_concurrent_change=ignore_concurrent_change)
 
     def create_html_widget(self):
         return HTMLInputElement(self, 'hidden')
@@ -2198,8 +2174,8 @@ class CheckboxInput(PrimitiveInput):
     choice_type = 'checkbox'
 
     @arg_checks(bound_field=IsInstance(BooleanField))
-    def __init__(self, form, bound_field, base_name=None, name_discriminator=None, refresh_widget=None, ignore_concurrent_change=False):
-        super().__init__(form, bound_field, base_name=base_name, name_discriminator=name_discriminator, refresh_widget=refresh_widget, ignore_concurrent_change=ignore_concurrent_change)
+    def __init__(self, form, bound_field, refresh_widget=None, ignore_concurrent_change=False):
+        super().__init__(form, bound_field, refresh_widget=refresh_widget, ignore_concurrent_change=ignore_concurrent_change)
 
     @property
     def checked(self):
@@ -2232,26 +2208,23 @@ class CheckboxSelectInput(PrimitiveInput):
 
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
-       :keyword base_name: (See :class:`~reahl.web.ui.PrimitiveInput`)
-       :keyword name_discriminator: (See :class:`~reahl.web.ui.PrimitiveInput`).
        :keyword refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
        :keyword ignore_concurrent_change: (See :class:`~reahl.web.ui.PrimitiveInput`)
 
        .. versionadded:: 4.0
 
        .. versionchanged:: 5.0
-          Added `name` and `refresh_widget`
-          Added `name_discriminator`
+          Added `refresh_widget`
           Added `ignore_concurrent_change`
     """
     choice_type = 'checkbox'
     allowed_field_types = [MultiChoiceField]
 
-    def __init__(self, form, bound_field, base_name=None, name_discriminator=None, refresh_widget=None, ignore_concurrent_change=False):
+    def __init__(self, form, bound_field, refresh_widget=None, ignore_concurrent_change=False):
         if not isinstance(bound_field, *self.allowed_field_types):
             raise ProgrammerError('%s is not allowed to be used with %s' % (bound_field.__class__, self.__class__))
         self.added_choices = []
-        super().__init__(form, bound_field, base_name=base_name, name_discriminator=name_discriminator, refresh_widget=refresh_widget, ignore_concurrent_change=ignore_concurrent_change)
+        super().__init__(form, bound_field, refresh_widget=refresh_widget, ignore_concurrent_change=ignore_concurrent_change)
 
     @property
     def html_control(self):
@@ -2305,17 +2278,14 @@ class ButtonInput(PrimitiveInput):
 
        :param form: (See :class:`reahl.web.ui.PrimitiveInput`)
        :param event: The :class:`reahl.component.modelinterface.Event` that will be triggered server-side when the user clicks on the button.
-       :keyword base_name: (See :class:`~reahl.web.ui.PrimitiveInput`)
-       :keyword name_discriminator: (See :class:`~reahl.web.ui.PrimitiveInput`).
        :keyword ignore_concurrent_change: (See :class:`~reahl.web.ui.PrimitiveInput`)
 
        .. versionchanged:: 5.0
-          Added `name_discriminator`
           Added `ignore_concurrent_change`
 
     """
-    def __init__(self, form, event, base_name=None, name_discriminator=None, ignore_concurrent_change=False):
-        super().__init__(form, event, base_name=base_name, name_discriminator=name_discriminator, ignore_concurrent_change=ignore_concurrent_change)
+    def __init__(self, form, event, ignore_concurrent_change=False):
+        super().__init__(form, event, ignore_concurrent_change=ignore_concurrent_change)
         if not self.controller.has_event_named(event.name):
             raise ProgrammerError('no Event/Transition available for name %s' % event.name)
         try:
@@ -2453,8 +2423,8 @@ class SimpleFileInput(PrimitiveInput):
     """
     is_for_file = True
 
-    def __init__(self, form, bound_field, base_name=None, name_discriminator=None, refresh_widget=None):
-        super().__init__(form, bound_field, base_name=base_name, name_discriminator=name_discriminator, refresh_widget=refresh_widget)
+    def __init__(self, form, bound_field, refresh_widget=None):
+        super().__init__(form, bound_field, refresh_widget=refresh_widget)
 
     def create_html_widget(self):
         file_input = HTMLInputElement(self, 'file')

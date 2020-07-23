@@ -290,7 +290,7 @@ def test_distinguishing_identical_field_names(web_fixture):
             self.add_child(ButtonInput(self, self.events.an_event))
 
             self.add_child(TextInput(self, model_object1.fields.field_name))
-            self.add_child(TextInput(self, model_object2.fields.field_name, name_discriminator='2'))
+            self.add_child(TextInput(self, model_object2.fields.field_name.with_namespace('object2')))
 
     wsgi_app = fixture.new_wsgi_app(child_factory=MyForm.factory('form'))
     fixture.reahl_server.set_app(wsgi_app)
@@ -488,8 +488,8 @@ def test_rendering_of_form(web_fixture):
 
     expected = '''<form id="test_channel" action="/a/b/_test_channel_method?x=y" data-formatter="/__test_channel_format_method" method="POST" class="reahl-form">''' \
                '''<div id="test_channel_hashes">'''\
-               '''<input name="_reahl_client_concurrency_digest" id="id-test_channel-_reahl_client_concurrency_digest" form="test_channel" type="hidden" value="" class="reahl-primitiveinput">''' \
-               '''<input name="_reahl_database_concurrency_digest" id="id-test_channel-_reahl_database_concurrency_digest" form="test_channel" type="hidden" value="" class="reahl-primitiveinput">''' \
+               '''<input name="test_channel-_reahl_client_concurrency_digest" id="id-test_channel-test_channel-_reahl_client_concurrency_digest" form="test_channel" type="hidden" value="" class="reahl-primitiveinput">''' \
+               '''<input name="test_channel-_reahl_database_concurrency_digest" id="id-test_channel-test_channel-_reahl_database_concurrency_digest" form="test_channel" type="hidden" value="" class="reahl-primitiveinput">''' \
                '''</div>''' \
                '''</form>'''
     assert actual == expected
@@ -834,7 +834,7 @@ def test_event_names_are_canonicalised(web_fixture):
     browser = Browser(wsgi_app)
 
     # when the Action is executed, the correct arguments are passed
-    browser.post('/__myform_method', {'event.an_event?some_argument=f~nnystuff': '', '_reahl_client_concurrency_digest':'', '_reahl_database_concurrency_digest':''})
+    browser.post('/__myform_method', {'event.an_event?some_argument=f~nnystuff': '', 'myform-_reahl_client_concurrency_digest':'', 'myform-_reahl_database_concurrency_digest':''})
     assert model_object.received_argument == 'f~nnystuff'
 
 
@@ -875,7 +875,7 @@ def test_alternative_event_trigerring(web_fixture):
     browser = Browser(wsgi_app)
 
     # when POSTing with _noredirect, the Action is executed, but the browser is not redirected to /page2 as usual
-    browser.post('/__myform_method', {'event.an_event?': '', '_noredirect': '', '_reahl_client_concurrency_digest':'', '_reahl_database_concurrency_digest':''})
+    browser.post('/__myform_method', {'event.an_event?': '', '_noredirect': '', 'myform-_reahl_client_concurrency_digest':'', 'myform-_reahl_database_concurrency_digest':''})
     browser.follow_response()  # Needed to make the test break should a HTTPTemporaryRedirect response be sent
     assert model_object.handled_event
     assert browser.current_url.path != '/page2'

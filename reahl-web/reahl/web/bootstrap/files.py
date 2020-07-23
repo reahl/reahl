@@ -149,7 +149,7 @@ class FileUploadPanel(Div):
     def add_uploaded_list(self):
         ul = self.upload_form.add_child(Ul(self.view))
         for persisted_file in self.persisted_file_class.get_persisted_for_form(self.input_form, self.name):
-            ul.add_child(FileUploadLi(self.upload_form.form, self.events.remove_file, persisted_file))
+            ul.add_child(FileUploadLi(self.upload_form.form, self.events.remove_file.with_namespace(persisted_file.filename), persisted_file))
         return ul
 
     def add_upload_controls(self):
@@ -231,26 +231,20 @@ class FileUploadInput(reahl.web.ui.Input):
     :param form: (See :class:`~reahl.web.ui.Input`)
     :param bound_field: (See :class:`~reahl.web.ui.Input`, must be of 
               type :class:`reahl.component.modelinterface.FileField`)
-    :keyword base_name: (See :class:`~reahl.web.ui.PrimitiveInput`)
-    :keyword name_discriminator: A string added to the computed name to prevent name clashes.
     :keyword ignore_concurrent_change: If True, don't check for possible concurrent changes by others to this input (just override such changes).
 
 
     .. versionchanged:: 5.0
        Subclass of :class:`~reahl.web.ui.Input` and not :class:`~reahl.web.ui.PrimitiveInput`
-       Added `base_name`
-       Added `name_discriminator`
        Added `ignore_concurrency_change`
 
     """
     is_for_file = False
 
-    def __init__(self, form, bound_field, base_name=None, name_discriminator=None, ignore_concurrency_change=False):
+    def __init__(self, form, bound_field, ignore_concurrency_change=False):
         super().__init__(form, bound_field)
         
         self.ignore_concurrency_change = ignore_concurrency_change
-        name_to_use = '%s%s' % (base_name or self.bound_field.name, name_discriminator or '')
-        bound_field.override_unqualified_name_in_input(name_to_use)
 
         form.register_input(self) # bound_field must be set for this registration to work
 
