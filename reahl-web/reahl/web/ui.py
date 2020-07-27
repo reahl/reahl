@@ -1033,8 +1033,9 @@ class ConcurrentChange(ValidationConstraint):
         if self.if_other_passed and self.if_other_passed.passed:
             if unparsed_input != self.form.get_concurrency_hash_digest(for_database_values=self.for_database_values):
                 self.failed = True
-    #            from string import Template
-    #            self.error_message = Template('Failing concurrency check: for_database_values(%s) [%s] != [%s]' % (self.for_database_values, unparsed_input, self.form.get_concurrency_hash_digest(for_database_values=self.for_database_values)))
+                #xxxxx
+#                from string import Template
+#                self.error_message = Template('Failing concurrency check: for_database_values(%s) [%s] != [%s]' % (self.for_database_values, unparsed_input, self.form.get_concurrency_hash_digest(for_database_values=self.for_database_values)))
                 raise self
 
 
@@ -1670,6 +1671,13 @@ class PrimitiveInput(Input):
                 yield self.original_database_value
             else:
                 yield self.original_value
+
+    def xxxget_concurrency_hash_strings(self, for_database_values=False):
+        if not self.ignore_concurrent_change:
+            if for_database_values:
+                yield '%s[%s]' % (self.name, self.original_database_value)
+            else:
+                yield '%s[%s]' % (self.name, self.original_value)
 
     @property
     def html_control(self):

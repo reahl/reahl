@@ -5,7 +5,7 @@
 from reahl.web.fw import UserInterface
 from reahl.web.layout import PageLayout
 from reahl.web.bootstrap.page import HTML5Page
-from reahl.web.bootstrap.ui import P, Alert
+from reahl.web.bootstrap.ui import P
 from reahl.web.bootstrap.forms import Form, TextInput, Button, FormLayout, PasswordInput
 from reahl.web.bootstrap.navs import Nav, TabLayout
 from reahl.web.bootstrap.grid import ColumnLayout, ColumnOptions, ResponsiveSize, Container
@@ -29,7 +29,7 @@ class LoginForm(Form):
         accounts = AccountManagementInterface.for_current_session()
 
         if self.exception:
-            self.add_child(Alert(view, self.exception.as_user_message(), 'warning'))
+            self.layout.add_alert_for_domain_exception(self.exception)
 
         self.layout.add_input(TextInput(self, accounts.fields.email))
         self.layout.add_input(PasswordInput(self, accounts.fields.password))

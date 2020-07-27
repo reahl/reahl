@@ -149,7 +149,7 @@ class FileUploadPanel(Div):
     def add_uploaded_list(self):
         ul = self.upload_form.add_child(Ul(self.view))
         for persisted_file in self.persisted_file_class.get_persisted_for_form(self.input_form, self.name):
-            ul.add_child(FileUploadLi(self.upload_form.form, self.events.remove_file.with_namespace(persisted_file.filename), persisted_file))
+            ul.add_child(FileUploadLi(self.upload_form.form, self.events.remove_file, persisted_file))
         return ul
 
     def add_upload_controls(self):

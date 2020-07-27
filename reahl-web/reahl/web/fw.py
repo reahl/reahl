@@ -70,7 +70,7 @@ from reahl.component.exceptions import NotYetAvailable
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.exceptions import arg_checks
 from reahl.component.i18n import Catalogue
-from reahl.component.modelinterface import StandaloneFieldIndex, FieldIndex, Field, ValidationConstraint,\
+from reahl.component.modelinterface import StandaloneFieldIndex, FieldIndex, Field, Event, ValidationConstraint,\
                                              Allowed, exposed, Event, Action
 
 _ = Catalogue('reahl-web')
@@ -1046,6 +1046,17 @@ class Widget:
             concurrency_hash.update(str(self.disabled).encode('utf-8'))
             return concurrency_hash.hexdigest()
 
+    def xxget_concurrency_hash_digest(self, for_database_values=False):
+        if not self.visible:
+            return ''
+
+        concurrency_hash = self.get_concurrency_hash_strings(for_database_values=for_database_values)
+
+        if not concurrency_hash:
+            return ''
+        else:
+            return '-'.join(list(concurrency_hash)+[str(self.disabled)])
+
     def get_concurrency_hash_strings(self, for_database_values=False):
         for child in self.children:
             digest = child.get_concurrency_hash_digest(for_database_values=for_database_values)
@@ -1232,9 +1243,8 @@ class Widget:
                 forms.append(widget)
             elif widget.is_Input:
                 inputs.append(widget)
-                if not getattr(widget, 'is_contained', False):
+                if not getattr(widget, 'is_contained', False) and not isinstance(widget.bound_field, Event):
                     unique_fields.add(widget.bound_field)
-            unique_fields.update(widget.query_fields.values())
 
         self.check_forms_unique(forms)
         self.check_all_inputs_forms_exist(forms, inputs)
@@ -1265,7 +1275,7 @@ class Widget:
         problem_names = {name:fields_for_name for name, fields_for_name in names.items()
                          if len(fields_for_name) > 1}
         if problem_names:
-            raise ProgrammerError('There is more than one Field with the same name on this page: %s' % problem_names)
+            raise ProgrammerError('There is more than one Field with the same name on this page: %s' % (label, problem_names))
 
     def plug_in(self, view):
         self.check_slots(view)
