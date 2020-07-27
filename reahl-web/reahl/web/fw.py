@@ -1275,7 +1275,7 @@ class Widget:
         problem_names = {name:fields_for_name for name, fields_for_name in names.items()
                          if len(fields_for_name) > 1}
         if problem_names:
-            raise ProgrammerError('There is more than one Field with the same name on this page: %s' % (label, problem_names))
+            raise ProgrammerError('There is more than one Field with the same name on this page: %s' % problem_names)
 
     def plug_in(self, view):
         self.check_slots(view)
