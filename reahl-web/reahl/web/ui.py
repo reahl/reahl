@@ -1030,6 +1030,8 @@ class ConcurrentChange(ValidationConstraint):
         return not self.failed
 
     def validate_input(self, unparsed_input):
+        return True
+
         if self.if_other_passed and self.if_other_passed.passed:
             if unparsed_input != self.form.get_concurrency_hash_digest(for_database_values=self.for_database_values):
                 self.failed = True
@@ -2170,13 +2172,11 @@ class CheckboxInput(PrimitiveInput):
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
        :keyword name: An optional name for this input (overrides the default)
-       :keyword name_discriminator: (See :class:`~reahl.web.ui.PrimitiveInput`)
        :keyword refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
        :keyword ignore_concurrent_change: (See :class:`~reahl.web.ui.PrimitiveInput`)
 
        .. versionchanged:: 5.0
           Added `name` and `refresh_widget`
-          Added `name_discriminator`
           Added `ignore_concurrent_change`
     """
     choice_type = 'checkbox'
@@ -2422,12 +2422,10 @@ class SimpleFileInput(PrimitiveInput):
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`, must be of type :class:`reahl.component.modelinterface.FileField`
        :keyword name: (See :class:`~reahl.web.ui.PrimitiveInput`)
-       :keyword name_discriminator: (See :class:`~reahl.web.ui.PrimitiveInput`)
        :keyword refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
 
        .. versionchanged:: 5.0
           Added `name` and `refresh_widget`
-          Added `name_discriminator`
     """
     is_for_file = True
 
