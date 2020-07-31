@@ -737,6 +737,17 @@ class Field:
     def set_namespace(self, namespace):
         self.namespace = namespace
 
+    def save_initial_value(self, initial_values):
+        if self.has_changed_model:
+            initial_values[self.name_in_input] = self.initial_value
+
+    def restore_initial_value(self, initial_values):
+        try:
+            self.initial_value = initial_values[self.name_in_input]
+            self.has_changed_model = True
+        except KeyError:
+            pass
+        
     def validate_default(self):
         unparsed_input = self.as_input()
         self.validate_input(unparsed_input, ignore=AccessRightsConstraint)
