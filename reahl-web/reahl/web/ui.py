@@ -1030,8 +1030,6 @@ class ConcurrentChange(ValidationConstraint):
         return not self.failed
 
     def validate_input(self, unparsed_input):
-        return True
-
         if self.if_other_passed and self.if_other_passed.passed:
             if unparsed_input != self.form.get_concurrency_hash_digest(for_database_values=self.for_database_values):
                 self.failed = True
