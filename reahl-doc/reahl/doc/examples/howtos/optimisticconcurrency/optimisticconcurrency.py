@@ -76,7 +76,7 @@ class MyConcurrencyWidget(Widget):
         self.domain_object = domain_object
         self.add_child(P(view, text='Counter: %s' % domain_object.counter))
 
-    def get_concurrency_hash_strings(self, for_database_values=False):
+    def get_concurrency_hash_strings(self):
         yield '%s' % self.domain_object.counter
 
 

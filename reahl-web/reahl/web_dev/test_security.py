@@ -278,7 +278,7 @@ def test_non_writable_input_is_dealt_with_like_invalid_input(web_fixture):
     browser = Browser(wsgi_app)
     browser.open('/')
 
-    browser.post(fixture.form.event_channel.get_url().path, {'event.an_event?':'', 'field_name': 'illigitimate value', 'some_form-_reahl_client_concurrency_digest':'', 'some_form-_reahl_database_concurrency_digest':''})
+    browser.post(fixture.form.event_channel.get_url().path, {'event.an_event?':'', 'field_name': 'illigitimate value', 'some_form-_reahl_database_concurrency_digest':''})
     browser.follow_response()
     assert model_object.field_name == 'Original value'
 
@@ -310,7 +310,7 @@ def test_non_writable_events_are_dealt_with_like_invalid_input(web_fixture):
     browser = Browser(wsgi_app)
     browser.open('/')
 
-    browser.post(fixture.form.event_channel.get_url().path, {'event.an_event?':'', 'some_form-_reahl_client_concurrency_digest':'', 'some_form-_reahl_database_concurrency_digest':''})
+    browser.post(fixture.form.event_channel.get_url().path, {'event.an_event?':'', 'some_form-_reahl_database_concurrency_digest':''})
     browser.follow_response()
     error_label = browser.get_html_for('//label')
     input_id = browser.get_id_of('//input[@name="event.an_event?"]')

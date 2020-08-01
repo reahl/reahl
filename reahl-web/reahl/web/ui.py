@@ -1020,25 +1020,22 @@ class Span(HTMLElement):
 
 
 class ConcurrentChange(ValidationConstraint):
-    def __init__(self, form, for_database_values=False, if_other_passed=None):
+    def __init__(self, form):
         super().__init__(error_message=_('Some data changed since you opened this page, please reset input to try again.'))
         self.form = form
-        self.for_database_values = for_database_values
         self.failed = False
-        self.if_other_passed = if_other_passed
 
     @property
     def passed(self):
         return not self.failed
 
     def validate_input(self, unparsed_input):
-        if self.if_other_passed and self.if_other_passed.passed:
-            if unparsed_input != self.form.get_concurrency_hash_digest(for_database_values=self.for_database_values):
-                self.failed = True
-                #xxxxx
-#                from string import Template
-#                self.error_message = Template('Failing concurrency check: for_database_values(%s) [%s] != [%s]' % (self.for_database_values, unparsed_input, self.form.get_concurrency_hash_digest(for_database_values=self.for_database_values)))
-                raise self
+        if unparsed_input != self.form.get_concurrency_hash_digest():
+            self.failed = True
+            #xxxxx
+#            from string import Template
+#            self.error_message = Template('Failing concurrency check: [%s] != [%s]' % (unparsed_input, self.form.get_concurrency_hash_digest()))
+            raise self
 
 
 
@@ -1074,26 +1071,17 @@ class Form(HTMLElement):
         self.set_attribute('data-formatter', str(self.input_formatter.get_url()))
 
         class DelayedConcurrencyDigestValue(DelegatedAttributes):
-            def __init__(self, digest_input, for_database_values=False):
+            def __init__(self, digest_input):
                 super().__init__()
                 self.digest_input = digest_input
-                self.for_database_values = for_database_values
 
             def set_attributes(self, attributes):
                 super().set_attributes(attributes)
-                digest = self.digest_input.form.get_concurrency_hash_digest(for_database_values=self.for_database_values)
+                digest = self.digest_input.form.get_concurrency_hash_digest()
                 attributes.set_to('value', digest)
 
         self.hash_inputs = self.add_child(Div(self.view, css_id='%s_hashes' % unique_name))
 
-        self._reahl_client_concurrency_digest = None
-        self.client_digest_input = self.hash_inputs.add_child(HiddenInput(self, self.fields._reahl_client_concurrency_digest.with_namespace(unique_name), ignore_concurrent_change=True))
-        if not self.client_digest_input.value:
-            self.client_digest_input.add_attribute_source(DelayedConcurrencyDigestValue(self.client_digest_input))
-        else:
-            pass # maintain the POSTed value
-
-        self._currency_digest = None
         self.database_digest_input = self.hash_inputs.add_child(HiddenInput(self, self.fields._reahl_database_concurrency_digest.with_namespace(unique_name), ignore_concurrent_change=True))
         # the digest input will have a value when:
         #  (1) you're busy with an ajax call (because prepare_input will have read the input value from construction state); or
@@ -1108,7 +1096,7 @@ class Form(HTMLElement):
         # If there is an exception we know that we're in case (2), so we update (as opposed to maintain the POSTed value)
         if self.exception or (not self.database_digest_input.value):
             # (b)
-            self.database_digest_input.add_attribute_source(DelayedConcurrencyDigestValue(self.database_digest_input, for_database_values=True))
+            self.database_digest_input.add_attribute_source(DelayedConcurrencyDigestValue(self.database_digest_input))
         else:
             # (a)
             pass # maintain the POSTed value
@@ -1123,9 +1111,7 @@ class Form(HTMLElement):
 
     @exposed
     def fields(self, fields):
-        client_validation = ConcurrentChange(self)
-        fields._reahl_client_concurrency_digest = Field().with_validation_constraint(client_validation)
-        fields._reahl_database_concurrency_digest = Field().with_validation_constraint(ConcurrentChange(self, for_database_values=True, if_other_passed=client_validation))
+        fields._reahl_database_concurrency_digest = Field().with_validation_constraint(ConcurrentChange(self))
 
     @exposed
     def events(self, events):
@@ -1667,19 +1653,13 @@ class PrimitiveInput(Input):
     def name(self):
         return self.bound_field.name_in_input
 
-    def get_concurrency_hash_strings(self, for_database_values=False):
+    def get_concurrency_hash_strings(self):
         if not self.ignore_concurrent_change:
-            if for_database_values:
-                yield self.original_database_value
-            else:
-                yield self.original_value
+            yield self.original_database_value
 
-    def xxxget_concurrency_hash_strings(self, for_database_values=False):
+    def xxxget_concurrency_hash_strings(self):
         if not self.ignore_concurrent_change:
-            if for_database_values:
-                yield '%s[%s]' % (self.name, self.original_database_value)
-            else:
-                yield '%s[%s]' % (self.name, self.original_value)
+            yield '%s[%s]' % (self.name, self.original_database_value)
 
     @property
     def html_control(self):

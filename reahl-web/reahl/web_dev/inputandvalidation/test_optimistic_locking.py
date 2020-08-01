@@ -235,7 +235,7 @@ class ParticipationScenarios(Fixture):
     def custom_non_input_widget(self):
         """Normal Widgets can be made to particilate by yielding one or more strings denoting their value in get_concurrency_hash_strings method return"""
         class CustomWidget(Widget):
-            def get_concurrency_hash_strings(self, for_database_values=False):
+            def get_concurrency_hash_strings(self):
                 yield 'a value'
                 yield 'another'
         self.widget = CustomWidget(self.view)
