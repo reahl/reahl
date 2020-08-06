@@ -842,6 +842,16 @@ class Field:
         new_version.label = label
         return new_version
 
+    def with_namespace(self, namespace):
+        """Returns a new Field which is exactly like this one, except that its name is mangled to 
+           include the given text as to prevent name clashes.
+
+        .. versionadded:: 5.0
+        """
+        new_field = self.copy()
+        new_field.set_namespace(namespace)
+        return new_field
+
     def clear_user_input(self):
         self.input_status = 'defaulted'
         self.validation_error = None
@@ -901,11 +911,6 @@ class Field:
         if not self._name:
             raise AssertionError('field %s with label "%s" is not yet bound' % (self, self.label))
         return '-'.join([i for i in [self.namespace, self._name] if i])
-
-    def with_namespace(self, namespace):
-        new_field = self.copy()
-        new_field.set_namespace(namespace)
-        return new_field
 
     @property
     def variable_name(self):

@@ -23,6 +23,7 @@ What changed in version 5.0
 .. |exposed| replace:: :class:`~reahl.component.modelinterface.exposed`
 .. |FieldIndex| replace:: :class:`~reahl.component.modelinterface.FieldIndex`
 .. |Field| replace:: :class:`~reahl.component.modelinterface.Field`
+.. |with_namespace| replace:: :meth:`~reahl.component.modelinterface.Field.with_namespace`
 .. |Layout| replace:: :class:`~reahl.web.fw.Layout`
 .. |HTML5Page| replace:: :class:`~reahl.web.bootstrap.page.HTML5Page`
 .. |ReahlWSGIApplication| replace:: :class:`~reahl.web.fw.ReahlWSGIApplication`
@@ -63,7 +64,9 @@ ButtonInput
 
 Unique input names and IDs
    Inputs used to automatically adapt their names so as to prevent name clashes on a form. This is no 
-   longer the case: Inputs that have name clashes now have to be explitly disambiguated (see |PrimitiveInput|).
+   longer the case: an Input that has a name clash with another is now explitly disambiguated by passing 
+   it a |Field| that is placed in a distinct namespace (see |with_namespace|).
+ 
    Every Input now also is generated with an ID that is unique on the page.
 
 Changes to nested_transaction
