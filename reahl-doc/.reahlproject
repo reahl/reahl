@@ -25,7 +25,7 @@
   </deps>
 
   <extras name="pillow">
-    <egg name="pillow"/>
+    <thirdpartyegg name="Pillow" minversion="2.5" maxversion="7.1.999"/>
   </extras>
 
   <deps purpose="test">

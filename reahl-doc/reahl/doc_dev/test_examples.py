@@ -257,6 +257,7 @@ def test_slots(web_fixture, slots_scenario):
     fixture = slots_scenario
     fixture.start_example_app()
     web_fixture.driver_browser.open('/')
+    web_fixture.driver_browser.set_window_size('xs')
 
     expected_main_contents = 'In this slot will be some main content for the view on /'
     expected_secondary_contents = 'Some secondary content related to /'
@@ -288,6 +289,8 @@ def test_widgets_using_factories(web_fixture, tabbed_panel_scenario):
     fixture = tabbed_panel_scenario
     fixture.start_example_app()
     web_fixture.driver_browser.open('/')
+    web_fixture.driver_browser.set_window_size('xs')
+    
     assert web_fixture.driver_browser.wait_for(fixture.tab_is_active, 'Tab 1')
     assert web_fixture.driver_browser.wait_for(fixture.tab_contents_equals, 'A paragraph to give content to the first tab.')
     web_fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path('tabbedpanel1.png'))
@@ -313,6 +316,8 @@ def test_validation(web_fixture, validation_scenario):
     
     fixture.start_example_app()
     web_fixture.driver_browser.open('/')
+    web_fixture.driver_browser.set_window_size('xs')
+    
     assert web_fixture.driver_browser.wait_for_not(fixture.error_is_visible) 
     assert web_fixture.driver_browser.is_element_present(XPath.input_labelled('Email address')) 
     web_fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path('validation1.png'))
@@ -371,6 +376,7 @@ def test_persistence(web_fixture, persistence_scenario):
 
     fixture.start_example_app()
     web_fixture.driver_browser.open('/')
+    web_fixture.driver_browser.set_window_size('xs')
 
     assert not web_fixture.driver_browser.is_element_present('//h1') 
     assert web_fixture.driver_browser.is_element_present('//form') 
@@ -394,6 +400,8 @@ def test_access(web_fixture, access_control_scenario):
     fixture = access_control_scenario
     fixture.start_example_app()
     web_fixture.driver_browser.open('/')
+    web_fixture.driver_browser.set_window_size('xs')
+
     assert web_fixture.driver_browser.is_element_present(XPath.input_labelled('Some data') )
     assert not web_fixture.driver_browser.is_editable(XPath.input_labelled('Some data')) 
     assert web_fixture.driver_browser.is_element_present(XPath.button_labelled('Greyed out button')) 
@@ -456,6 +464,7 @@ def test_addressbook2bootstrap(web_fixture, addressbook2bootstrap_scenario):
     fixture = addressbook2bootstrap_scenario
     fixture.start_example_app()
     web_fixture.driver_browser.open('/')
+    web_fixture.driver_browser.set_window_size('xs')
 
     web_fixture.driver_browser.type(XPath.input_labelled('Name'), 'John')
     web_fixture.driver_browser.type(XPath.input_labelled('Email'), 'johndoe@some.org')
@@ -562,4 +571,4 @@ def test_optimisticconcurrency(web_fixture, optimisticconcurrency_scenario):
     browser.click(XPath.button_labelled('Submit'))
     error_alert = XPath.div().including_class('alert').including_text('Some data changed since you opened this page')
     assert browser.is_element_present(error_alert)
-    browser.capture_cropped_screenshot(fixture.new_screenshot_path('optimisticconcurrency_1.png'))
+    browser.capture_cropped_screenshot(fixture.new_screenshot_path('optimisticconcurrency.png'))
