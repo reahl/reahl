@@ -203,8 +203,6 @@ class AjaxMethod(RemoteMethod):
         construction_state = {}
         for widget in self.view.page.contained_widgets():
             widget.update_construction_state(construction_state)
-            if hasattr(widget, 'bound_field'):
-                widget.bound_field.save_initial_value(ExecutionContext.get_context().request.initial_values)
         self.view.set_construction_state_from_state_dict(construction_state)
 
 
@@ -1736,13 +1734,12 @@ class PrimitiveInput(Input):
         return self.form.persisted_userinput_class
 
     def prepare_input(self):
-        initial_values = ExecutionContext.get_context().request.initial_values = getattr(ExecutionContext.get_context().request, 'initial_values', {})
-        self.bound_field.restore_initial_value(ExecutionContext.get_context().request.initial_values)
+        value_store = ExecutionContext.get_context().initial_field_values = getattr(ExecutionContext.get_context(), 'initial_field_values', {})
+        self.bound_field.activate_initial_value_store(value_store)
         
         construction_state = self.view.get_construction_state()
         if construction_state:
             self.bound_field.from_disambiguated_input(construction_state, ignore_validation=True, ignore_access=True)
-            self.bound_field.save_initial_value(ExecutionContext.get_context().request.initial_values)
 
         previously_entered_value = self.persisted_userinput_class.get_previously_entered_for_form(self.form, self.name, self.bound_field.entered_input_type)
 

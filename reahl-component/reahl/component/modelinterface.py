@@ -34,6 +34,7 @@ from wrapt import FunctionWrapper, BoundFunctionWrapper
 
 
 from reahl.component.i18n import Catalogue
+from reahl.component.context import ExecutionContext
 from reahl.component.exceptions import AccessRestricted, ProgrammerError, arg_checks, IsInstance, IsCallable, NotYetAvailable
 from collections.abc import Callable
 
@@ -731,22 +732,26 @@ class Field:
             self.add_validation_constraint(MaxLengthConstraint(max_length))
         self.initial_value = None
         self.has_changed_model = False
-
+        self.initial_value_store = {}
         self.clear_user_input()
 
     def set_namespace(self, namespace):
         self.namespace = namespace
 
-    def save_initial_value(self, initial_values):
-        if self.has_changed_model:
-            initial_values[self.name_in_input] = self.initial_value
+    def activate_initial_value_store(self, initial_value_store):
+        self.initial_value_store = initial_value_store
+        self.restore_initial_value()
 
-    def restore_initial_value(self, initial_values):
+    def save_initial_value(self):
+        self.initial_value_store[self.name_in_input] = self.initial_value
+
+    def restore_initial_value(self):
         try:
-            self.initial_value = initial_values[self.name_in_input]
-            self.has_changed_model = True
+            self.initial_value = self.initial_value_store[self.name_in_input]
         except KeyError:
             pass
+        else:
+            self.has_changed_model = True
         
     def validate_default(self):
         unparsed_input = self.as_input()
@@ -922,6 +927,7 @@ class Field:
         if not self.has_changed_model:
             self.initial_value = self.get_model_value()
             self.has_changed_model = True
+            self.save_initial_value()
         setattr(self.storage_object, self.variable_name, self.parsed_input)
 
     def validate_input(self, unparsed_input, ignore=None):
