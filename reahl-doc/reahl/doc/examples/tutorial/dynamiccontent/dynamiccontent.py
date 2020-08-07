@@ -60,7 +60,7 @@ class AllocationDetailForm(Form):
         allocation_controls.use_layout(FormLayout())
 
         if self.exception:
-            self.add_child(Alert(self.view, str(self.exception), 'warning'))
+            self.layout.add_alert_for_domain_exception(self.exception)
         
         total_amount_input = TextInput(self, self.investment_order.fields.amount, refresh_widget=self)
         allocation_controls.layout.add_input(total_amount_input)
@@ -70,7 +70,7 @@ class AllocationDetailForm(Form):
 
     def make_allocation_input(self, allocation, field):
         div = Div(self.view).use_layout(FormLayout())
-        div.layout.add_input(TextInput(self, field, name_discriminator=allocation.fund_code, refresh_widget=self), hide_label=True)
+        div.layout.add_input(TextInput(self, field.with_namespace(allocation.fund_code), refresh_widget=self), hide_label=True)
         return div
 
     def make_total_widget(self, total_value):

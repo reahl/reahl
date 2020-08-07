@@ -34,6 +34,7 @@ from wrapt import FunctionWrapper, BoundFunctionWrapper
 
 
 from reahl.component.i18n import Catalogue
+from reahl.component.context import ExecutionContext
 from reahl.component.exceptions import AccessRestricted, ProgrammerError, arg_checks, IsInstance, IsCallable, NotYetAvailable
 from collections.abc import Callable
 
@@ -716,7 +717,7 @@ class Field:
                  readable=None, writable=None, disallowed_message=None,
                  min_length=None, max_length=None):
         self._name = None
-        self._overridden_unqualified_name_in_input = None
+        self.namespace = ''
         self.storage_object = None
         self.default = default
         self.label = label or ''
@@ -731,12 +732,27 @@ class Field:
             self.add_validation_constraint(MaxLengthConstraint(max_length))
         self.initial_value = None
         self.has_changed_model = False
-
+        self.initial_value_store = {}
         self.clear_user_input()
 
-    def override_unqualified_name_in_input(self, name):
-        self._overridden_unqualified_name_in_input = name
+    def set_namespace(self, namespace):
+        self.namespace = namespace
 
+    def activate_initial_value_store(self, initial_value_store):
+        self.initial_value_store = initial_value_store
+        self.restore_initial_value()
+
+    def save_initial_value(self):
+        self.initial_value_store[self.name_in_input] = self.initial_value
+
+    def restore_initial_value(self):
+        try:
+            self.initial_value = self.initial_value_store[self.name_in_input]
+        except KeyError:
+            pass
+        else:
+            self.has_changed_model = True
+        
     def validate_default(self):
         unparsed_input = self.as_input()
         self.validate_input(unparsed_input, ignore=AccessRightsConstraint)
@@ -826,6 +842,16 @@ class Field:
         new_version.label = label
         return new_version
 
+    def with_namespace(self, namespace):
+        """Returns a new Field which is exactly like this one, except that its name is mangled to 
+           include the given text as to prevent name clashes.
+
+        .. versionadded:: 5.0
+        """
+        new_field = self.copy()
+        new_field.set_namespace(namespace)
+        return new_field
+
     def clear_user_input(self):
         self.input_status = 'defaulted'
         self.validation_error = None
@@ -884,18 +910,20 @@ class Field:
     def name(self):
         if not self._name:
             raise AssertionError('field %s with label "%s" is not yet bound' % (self, self.label))
-        return self._name
+        return '-'.join([i for i in [self.namespace, self._name] if i])
 
     @property
     def variable_name(self):
-        return self.name
+        if not self._name:
+            raise AssertionError('field %s with label "%s" is not yet bound' % (self, self.label))
+        return self._name
 
     def qualify_name(self, name):
         return name
 
     @property
     def name_in_input(self):
-        return self.qualify_name(self._overridden_unqualified_name_in_input if self._overridden_unqualified_name_in_input else self.name)
+        return self.qualify_name(self.name)
 
     def get_model_value(self):
         return getattr(self.storage_object, self.variable_name, self.default)
@@ -904,6 +932,7 @@ class Field:
         if not self.has_changed_model:
             self.initial_value = self.get_model_value()
             self.has_changed_model = True
+            self.save_initial_value()
         setattr(self.storage_object, self.variable_name, self.parsed_input)
 
     def validate_input(self, unparsed_input, ignore=None):

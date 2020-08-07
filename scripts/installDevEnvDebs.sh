@@ -3,7 +3,7 @@
 MYSQL="default-libmysqlclient-dev mysql-client"
 POSTGRES="postgresql-client"
 SQLITE="sqlite3 libsqlite3-0"
-DEV_ENV="virtualenvwrapper openssh-server openssh-client xpra x11-utils firefox firefox-geckodriver screen unzip git apt-utils plantuml graphviz vim"
+DEV_ENV="virtualenvwrapper openssh-server openssh-client xpra python3-paramiko x11-utils firefox firefox-geckodriver screen unzip git apt-utils plantuml graphviz vim less"
 
 export DEBIAN_FRONTEND=noninteractive
 apt-get update 

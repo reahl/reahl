@@ -1,4 +1,4 @@
-python-reahl (5.0) unstable; urgency=low
+python-reahl (5.0.0a1) unstable; urgency=low
 
  * Added the ability for onchange events to cause Widgets to be refreshed via ajax (responsive-disclosure #132).
  * Added the ability for refreshed Widgets to be able to recalculate their domain before rendering again.
@@ -21,7 +21,7 @@ python-reahl (5.0) unstable; urgency=low
  * Changed Table and Column to allow for table footer content in Columns.
  * Changed the names of Inputs to include their form names so they can be unique in JS state (#154).
  * Added unique IDs to all HTML input controls (#154).
- * Added name_discriminator kwarg to PrimitiveInputs for distinguishing same-named inputs.
+ * Added Field.with_namespace() (and removed name kwarg to PrimitiveInputs) for distinguishing same-named inputs.
  * Removed the in_production kwarg for StoredConfiguration (#174). Rather use strict_checking.
  * Moved reahl.web.bootstrap.ui.HTML5Page to reahl.web.bootstrap.page to resolve dependency issues.
  * Added a way to render customised error pages.
@@ -38,7 +38,7 @@ python-reahl (5.0) unstable; urgency=low
  * Added ability to add config, in a guided manner, to an existing project.
  * Upgrade to Bootstrap 4.5.0 and jquery 3.5.1
 
- -- Iwan Vosloo <iwan@reahl.org>  Thu, 13 Dec 2018 15:15:00 +0200
+ -- Iwan Vosloo <iwan@reahl.org>  Thu, 30 Jul 2020 15:15:00 +0200
 
 
 python-reahl (4.0.5) unstable; urgency=low

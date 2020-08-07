@@ -1708,7 +1708,7 @@ class EggProject(Project):
     def list_missing_dependencies(self, for_development=False):
         deps = self.run_deps
         if for_development:
-            deps = self.run_deps + self.build_deps + self.test_deps
+            deps = self.run_deps + self.build_deps + self.test_deps + self.extras
         dependencies = [ i for i in deps
                          if (not i.is_in_development) and (not i.is_installed) ]
         return [i.as_string_for_egg().replace(' ', '') for i in dependencies]
@@ -1852,6 +1852,13 @@ class EggProject(Project):
     def extras_require_for_setup(self):
         return dict( [ (name, [dep.as_string_for_egg() for dep in dependencies])
                        for name, dependencies in self.extras_required.items()] )
+
+    @property
+    def extras(self):
+        extras = []
+        for dependencies in self.extras_required.values():
+            extras.extend(dependencies)
+        return extras
 
     def debinstall(self, args):
         root = os.path.join(self.directory, 'debian', 'python-%s' % self.project_name)

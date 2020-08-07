@@ -49,9 +49,9 @@ When a user clicks on a |ButtonInput|\, Reahl checks whether the |Input| values 
 been changed since it was rendered for this user. If a change is detected, an error
 is shown (with an option to refresh the |Form|).
 
-.. figure:: ../_build/screenshots/optimisticlocking.png
+.. figure:: ../_build/screenshots/optimisticconcurrency.png
    :align: center
-   :alt: The error shown when submitting an out of date |Form|.
+   :alt: The error shown when submitting an out of date |Form|\.
 
 Customising the up-to-date-check
 --------------------------------

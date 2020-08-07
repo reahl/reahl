@@ -107,7 +107,7 @@ class AllocationDetailSection(Div):
         self.form = form
         self.use_layout(FormLayout())
 
-        self.investment_order = InvestmentOrder.for_current_session()
+        self.investment_order = investment_order    
         self.enable_refresh(on_refresh=self.investment_order.events.allocation_changed)
 
         self.add_allocation_controls()
@@ -131,7 +131,7 @@ class AllocationDetailSection(Div):
 
     def make_allocation_input(self, allocation, field):
         div = Div(self.view).use_layout(FormLayout())
-        div.layout.add_input(TextInput(self.form, field, name_discriminator=allocation.fund_code, refresh_widget=self), hide_label=True)
+        div.layout.add_input(TextInput(self.form, field.with_namespace(allocation.fund_code), refresh_widget=self), hide_label=True)
         return div
 
     def make_total_widget(self, total_value):
@@ -160,7 +160,7 @@ class AllocationDetailSection(Div):
 
 @session_scoped
 class InvestmentOrder(Base):
-    __tablename__ = 'responsive_disclosure_investment_order'
+    __tablename__ = 'rspnsv_disc_investment_order'
 
     id              = Column(Integer, primary_key=True)
     agreed_to_terms = Column(Boolean)
@@ -253,7 +253,7 @@ class InvestmentOrder(Base):
 
 
 class Allocation(Base):
-    __tablename__ = 'responsive_disclosure_allocation'
+    __tablename__ = 'rspnsv_disc_allocation'
 
     id         = Column(Integer, primary_key=True)
     percentage = Column(Integer)
@@ -296,7 +296,7 @@ class Allocation(Base):
 
 
 class IDDocument(Base):
-    __tablename__ = 'responsive_disclosure_iddocument'
+    __tablename__ = 'rspnsv_disc_iddoc'
 
     id         = Column(Integer, primary_key=True)
     

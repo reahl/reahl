@@ -142,7 +142,7 @@ class InputRenderingScenarios(Fixture):
         self.writable = Allowed(True)
         self.input_widget = TextInput(self.form, self.field)
 
-        self.expected_html = '<input name="some_form-field_name" id="id-some_form-field_name" form="some_form" type="text" value="3" class="reahl-primitiveinput reahl-textinput">'
+        self.expected_html = '<input name="field_name" id="id-some_form-field_name" form="some_form" type="text" value="3" class="reahl-primitiveinput reahl-textinput">'
 
     @scenario
     def disabled_rendering(self):
@@ -150,7 +150,7 @@ class InputRenderingScenarios(Fixture):
         self.writable = Allowed(False)
         self.input_widget = TextInput(self.form, self.field)
 
-        self.expected_html = '<input name="some_form-field_name" id="id-some_form-field_name" disabled="disabled" form="some_form" type="text" value="3" class="reahl-primitiveinput reahl-textinput">'
+        self.expected_html = '<input name="field_name" id="id-some_form-field_name" disabled="disabled" form="some_form" type="text" value="3" class="reahl-primitiveinput reahl-textinput">'
 
     @scenario
     def valueless_rendering(self):
@@ -158,7 +158,7 @@ class InputRenderingScenarios(Fixture):
         self.writable = Allowed(True)
         self.input_widget = TextInput(self.form, self.field)
 
-        self.expected_html = '<input name="some_form-field_name" id="id-some_form-field_name" form="some_form" type="text" value="" class="reahl-primitiveinput reahl-textinput">'
+        self.expected_html = '<input name="field_name" id="id-some_form-field_name" form="some_form" type="text" value="" class="reahl-primitiveinput reahl-textinput">'
 
     @scenario
     def empty_rendering(self):
@@ -174,7 +174,7 @@ class InputRenderingScenarios(Fixture):
         self.writable = Allowed(True)
         self.input_widget = ButtonInput(self.form, self.event)
 
-        self.expected_html = '<input name="event.some_form-event_name?" id="id-event-46-some_form-event_name-63-" form="some_form" type="submit" value="event_name" class="reahl-primitiveinput">'
+        self.expected_html = '<input name="event.event_name?" id="id-some_form-event-46-event_name-63-" form="some_form" type="submit" value="event_name" class="reahl-primitiveinput">'
 
     @scenario
     def greyed_button_rendering(self):
@@ -182,7 +182,7 @@ class InputRenderingScenarios(Fixture):
         self.writable = Allowed(False)
         self.input_widget = ButtonInput(self.form, self.event)
 
-        self.expected_html = '<input name="event.some_form-event_name?" id="id-event-46-some_form-event_name-63-" disabled="disabled" form="some_form" type="submit" value="event_name" class="reahl-primitiveinput">'
+        self.expected_html = '<input name="event.event_name?" id="id-some_form-event-46-event_name-63-" disabled="disabled" form="some_form" type="submit" value="event_name" class="reahl-primitiveinput">'
 
     @scenario
     def buttons_must_be_readable_to_be_present(self):
@@ -278,7 +278,7 @@ def test_non_writable_input_is_dealt_with_like_invalid_input(web_fixture):
     browser = Browser(wsgi_app)
     browser.open('/')
 
-    browser.post(fixture.form.event_channel.get_url().path, {'event.some_form-an_event?':'', 'field_name': 'illigitimate value', 'some_form-_reahl_client_concurrency_digest':'', 'some_form-_reahl_database_concurrency_digest':''})
+    browser.post(fixture.form.event_channel.get_url().path, {'event.an_event?':'', 'field_name': 'illigitimate value', 'some_form-_reahl_database_concurrency_digest':''})
     browser.follow_response()
     assert model_object.field_name == 'Original value'
 
@@ -310,10 +310,10 @@ def test_non_writable_events_are_dealt_with_like_invalid_input(web_fixture):
     browser = Browser(wsgi_app)
     browser.open('/')
 
-    browser.post(fixture.form.event_channel.get_url().path, {'event.some_form-an_event?':'', 'some_form-_reahl_client_concurrency_digest':'', 'some_form-_reahl_database_concurrency_digest':''})
+    browser.post(fixture.form.event_channel.get_url().path, {'event.an_event?':'', 'some_form-_reahl_database_concurrency_digest':''})
     browser.follow_response()
     error_label = browser.get_html_for('//label')
-    input_id = browser.get_id_of('//input[@name="event.some_form-an_event?"]')
+    input_id = browser.get_id_of('//input[@name="event.an_event?"]')
     assert error_label == '<label for="%s" class="error">you cannot do this</label>' % input_id
 
 

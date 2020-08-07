@@ -70,7 +70,7 @@ from reahl.component.exceptions import NotYetAvailable
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.exceptions import arg_checks
 from reahl.component.i18n import Catalogue
-from reahl.component.modelinterface import StandaloneFieldIndex, FieldIndex, Field, ValidationConstraint,\
+from reahl.component.modelinterface import StandaloneFieldIndex, FieldIndex, Field, Event, ValidationConstraint,\
                                              Allowed, exposed, Event, Action
 
 _ = Catalogue('reahl-web')
@@ -1031,13 +1031,13 @@ class Widget:
            argument values set as attributes on this Widget (with names matching the argument names).
         """
     
-    def get_concurrency_hash_digest(self, for_database_values=False):
+    def get_concurrency_hash_digest(self):
         if not self.visible:
             return ''
 
         concurrency_hash = hashlib.md5()
         is_empty = True
-        for value in self.get_concurrency_hash_strings(for_database_values=for_database_values):
+        for value in self.get_concurrency_hash_strings():
             is_empty = False
             concurrency_hash.update(value.encode('utf-8'))
         if is_empty:
@@ -1046,9 +1046,31 @@ class Widget:
             concurrency_hash.update(str(self.disabled).encode('utf-8'))
             return concurrency_hash.hexdigest()
 
-    def get_concurrency_hash_strings(self, for_database_values=False):
+    def xxget_concurrency_hash_digest(self):
+        if not self.visible:
+            return ''
+
+        concurrency_hash = self.get_concurrency_hash_strings()
+
+        if not concurrency_hash:
+            return ''
+        else:
+            return '-'.join(list(concurrency_hash)+[str(self.disabled)])
+
+    def get_concurrency_hash_strings(self):
+        """Yields one or more strings representing the database value of this Widget. 
+
+           This is used to determine whether or not the database has changed since a page was rendered, because if
+           it did, the page is considered out of date and needs to be refreshed.
+
+           By default only :class:`~reahl.web.ui.Input` participate in this algorithm, but you may override
+           this method for your :class:`Widget` subclass to make it participate as well - presuming it
+           can somehow be related to a value in the database.
+
+           .. versionadded:: 5.0
+        """
         for child in self.children:
-            digest = child.get_concurrency_hash_digest(for_database_values=for_database_values)
+            digest = child.get_concurrency_hash_digest()
             if digest:
                 yield digest
 
@@ -1225,15 +1247,19 @@ class Widget:
     def check_form_related_programmer_errors(self):
         inputs = []
         forms = []
+        unique_fields = set()
 
         for widget in itertools.chain([self], self.contained_widgets()):
             if widget.is_Form:
                 forms.append(widget)
             elif widget.is_Input:
                 inputs.append(widget)
+                if not getattr(widget, 'is_contained', False) and not isinstance(widget.bound_field, Event):
+                    unique_fields.add(widget.bound_field)
 
         self.check_forms_unique(forms)
         self.check_all_inputs_forms_exist(forms, inputs)
+        self.check_fields_uniquely_named(unique_fields)
 
     def check_all_inputs_forms_exist(self, forms_found_on_page, inputs_on_page):
         for i in inputs_on_page:
@@ -1251,6 +1277,16 @@ class Widget:
                 existing_form = checked_forms[form.css_id]
                 message = 'More than one form was added using the same unique_name: %s and %s' % (form, existing_form)
                 raise ProgrammerError(message)
+
+    def check_fields_uniquely_named(self, fields):
+        names = {}
+        for i in fields:
+            names.setdefault(i.name, []).append(i)
+        
+        problem_names = {name:fields_for_name for name, fields_for_name in names.items()
+                         if len(fields_for_name) > 1}
+        if problem_names:
+            raise ProgrammerError('There is more than one Field with the same name on this page: %s' % problem_names)
 
     def plug_in(self, view):
         self.check_slots(view)
@@ -2961,7 +2997,7 @@ class ReahlWSGIApplication:
             raise CouldNotConstructResource(current_view, root_ui, target_ui, ex)
 
     def is_form_submit(self, full_path, request):
-        return SubResource.is_for_sub_resource(full_path) and request.method == 'POST' and any(name.endswith('_reahl_client_concurrency_digest') for name in request.POST.keys())
+        return SubResource.is_for_sub_resource(full_path) and request.method == 'POST' and any(name.endswith('_reahl_database_concurrency_digest') for name in request.POST.keys())
 
     def check_scheme(self, security_sensitive):
         scheme_needed = self.config.web.default_http_scheme

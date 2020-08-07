@@ -39,6 +39,10 @@ class DomainException(Exception):
                         should be committed. By default transactions are rolled back
                         when a DomainException is raised.
        :keyword message: Optional error message.
+       :keyword detail_messages: A list of error messages giving more detail about the exception.
+
+       .. versionchanged: 5.0
+          Added `detail_messages` kwarg.
     """
     def __init__(self, commit=False, message=None, detail_messages=[]):
         super().__init__(message)

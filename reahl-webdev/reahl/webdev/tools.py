@@ -1353,19 +1353,18 @@ class DriverBrowser(BasicBrowser):
         """
         return len(self.web_driver.find_elements_by_xpath(str(locator)))
 
-    def capture_cropped_screenshot(self, output_file, background=255):
+    def capture_cropped_screenshot(self, output_file):
         """Takes a screenshot of the current page, and writes it to `output_file`. The image is cropped
            to contain only the parts containing something other than the background color.
 
            :param output_file: The name of the file to which to write the screenshot.
-           :keyword background: The color to use as background color when cropping.
         """
         self.web_driver.get_screenshot_as_file(output_file)
-
         try:
             from PIL import Image, ImageChops
-            im = Image.open(output_file)
-            bg = Image.new(im.mode, im.size, background)
+            im = Image.open(output_file).convert('RGB') #need this mode 1 without alpha, else difference does not work https://stackoverflow.com/questions/61812374/imagechops-difference-not-working-with-simple-png-images
+            right_bottom_corner = (im.size[0]-1, im.size[1]-1) #sample of background
+            bg = Image.new(im.mode, im.size, im.getpixel(right_bottom_corner))
             diff = ImageChops.difference(im, bg)
             bbox = diff.getbbox()
 
