@@ -27,6 +27,15 @@ What changed in version 5.0
 .. |Layout| replace:: :class:`~reahl.web.fw.Layout`
 .. |HTML5Page| replace:: :class:`~reahl.web.bootstrap.page.HTML5Page`
 .. |ReahlWSGIApplication| replace:: :class:`~reahl.web.fw.ReahlWSGIApplication`
+.. |Table.with_data| replace:: :meth:`reahl.web.ui.Table.with_data`
+.. |bootstrap.Table.with_data| replace:: :meth:`reahl.web.bootstrap.tables.Table.with_data`
+.. |DomainException| replace:: :class:`~reahl.component.exceptions.DomainException`
+.. |ValidationException| replace:: :class:`~reahl.web.fw.ValidationException`
+.. |Form| replace:: :class:`~reahl.web.ui.Form`
+.. |FormLayout| replace:: :class:`reahl.web.ui.FormLayout`
+.. |bootstrap.FormLayout| replace:: :class:`reahl.web.bootstrap.forms.FormLayout`
+.. |add_alert_for_domain_exception| replace:: :meth:`~reahl.web.bootstrap.forms.FormLayout.add_alert_for_domain_exception`
+.. |Alert| replace:: :class:`~reahl.web.bootstrap.ui.Alert`
 
 
 Upgrading
@@ -44,13 +53,13 @@ Backwards-incompatible changes
 ------------------------------
                                 
 Since this version is a major version update it is not
-backwards-compatible with previous versions.  Everything what was
+backwards-compatible with previous versions.  Everything that was
 deprecated in older versions is removed now.
 
 @exposed
   Previously, if you marked a method with |exposed|, its returned |FieldIndex| did not take into account
   possible methods higher up in the inheritance hierarchy. This has been changed - |exposed| now always
-  calls each method higer up in a hierarchy, thus the resultant |FieldIndex| now contains all |Field|\s
+  calls each method higher up in a hierarchy, thus the resultant |FieldIndex| now contains all |Field|\s
   added by overridden methods in the hierarchy.
 
 Python 2 support
@@ -63,11 +72,15 @@ ButtonInput
    construction: `style`, `outline`, `size`, `active`, `wide` or `text_wrap`
 
 Unique input names and IDs
-   Inputs used to automatically adapt their names so as to prevent name clashes on a form. This is no 
-   longer the case: an Input that has a name clash with another is now explitly disambiguated by passing 
+   The name of an |Input| is derived from the name of its |Field|. Previously |Input| names used to be adapted
+   automatically as to prevent name clashes between different |Input|\s on a form. This is no 
+   longer the case: an Input that has a name clash with another is now explicitly disambiguated by passing 
    it a |Field| that is placed in a distinct namespace (see |with_namespace|).
- 
+
    Every Input now also is generated with an ID that is unique on the page.
+
+   All distinct |Field|\s on a page also have to have distinct names. |with_namespace| is used to disambiguate
+   different |Field|\s with the name as well.
 
 Changes to nested_transaction
    |nested_transaction| used to yield the transaction object. It now yields a |TransactionVeto| object which
@@ -124,7 +137,7 @@ same data and given the chance to refresh the values and try again.
 
 This mechanism can also be customised to:
 
-- ignore some |Input|\s from such a check; or
+- ignore some |Input|\s in this check; or
 - to include arbitrary |Widget|\s in the check
 
 For more info, see the HOWTO:
@@ -153,10 +166,33 @@ For more info, see the HOWTO:
 Widget changes
 --------------
 
-Table and Column to allow for table footer content
+Table footers
+  |Table.with_data| and |bootstrap.Table.with_data| gained
+  a `footer_items` keyword argument. This allows one to supply
+  content for the table footer.
 
-FormLayout.all_alert_for_domain_exception
+Domain exceptions and exception Alerts
+  |DomainException| was changed to hold onto a list of possible error
+  messages via its new `detail_messages` keyword argument. This is used,
+  for example, by |ValidationException| where a |ValidationException|
+  signals that there were validation errors and its `detail_messages`
+  provide a list of all the specific validation failures.
 
+  If an exception is present on a |Form| you should display it. Previously
+  displaying its message in an |Alert| would have been enough, but with
+  the list of `detail_messages` now included, one should really display
+  that list as well - and with it all styled better.
+
+  To do this |add_alert_for_domain_exception| was added to |bootstrap.FormLayout|\.
+  This provides an easy way to add an error message in cases where there
+  is an exception present on a |Form|. The |Alert| added by |add_alert_for_domain_exception|
+  also includes a way for a user to react to the case where it is detected
+  that another user made concurrent changes to underlying data.
+
+Simple FormLayout
+  |FormLayout| was added to provide similar functionality to |bootstrap.FormLayout|
+  on a lower level. This is especially used in tests.
+ 
 
 A more expressive and composable XPath
 --------------------------------------

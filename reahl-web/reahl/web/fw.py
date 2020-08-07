@@ -1058,6 +1058,17 @@ class Widget:
             return '-'.join(list(concurrency_hash)+[str(self.disabled)])
 
     def get_concurrency_hash_strings(self):
+        """Yields one or more strings representing the database value of this Widget. 
+
+           This is used to determine whether or not the database has changed since a page was rendered, because if
+           it did, the page is considered out of date and needs to be refreshed.
+
+           By default only :class:`~reahl.web.ui.Input` participate in this algorithm, but you may override
+           this method for your :class:`Widget` subclass to make it participate as well - presuming it
+           can somehow be related to a value in the database.
+
+           .. versionadded:: 5.0
+        """
         for child in self.children:
             digest = child.get_concurrency_hash_digest()
             if digest:

@@ -1,4 +1,4 @@
-.. Copyright 2013-2016 Reahl Software Services (Pty) Ltd. All rights reserved.
+. Copyright 2013-2016 Reahl Software Services (Pty) Ltd. All rights reserved.
  
 Module reahl.web.ui
 -------------------
@@ -164,6 +164,12 @@ Form
 """"
 
 .. autoclass:: Form
+   :members:
+
+FormLayout
+""""""""""
+
+.. autoclass:: FormLayout
    :members:
 
 NestedForm
@@ -341,4 +347,11 @@ SimpleFileInput
 
 
 
+Widgets related to Reahl implementation
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+HTMLWidget
+""""""""""
+
+.. autoclass:: HTMLWidget
+   :members:

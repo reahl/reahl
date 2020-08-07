@@ -62,6 +62,16 @@ class Table(reahl.web.ui.HTMLWidget):
         self.table.append_class('table')
 
     def with_data(self, columns, items, footer_items=None):
+        """Populate the table with the given data. Data is arranged into columns as
+           defined by the list of :class:`DynamicColumn` or :class:`StaticColumn` instances passed in.
+
+           :param columns: The :class:`DynamicColumn` instances that define the contents of the table.
+           :param items: A list containing objects represented in each row of the table.
+           :keyword footer_items: If given a footer is added. A list containing objects represented in each footer row of the table.
+
+           .. versionchanged:: 5.0
+              Added `footer_items`.
+        """
         self.table.with_data(columns, items, footer_items=footer_items)
         return self
 

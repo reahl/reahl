@@ -107,7 +107,7 @@ class AllocationDetailSection(Div):
         self.form = form
         self.use_layout(FormLayout())
 
-        self.investment_order = investment_order
+        self.investment_order = investment_order    
         self.enable_refresh(on_refresh=self.investment_order.events.allocation_changed)
 
         self.add_allocation_controls()
