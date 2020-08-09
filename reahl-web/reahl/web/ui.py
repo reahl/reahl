@@ -1551,15 +1551,8 @@ class Input(HTMLWidget):
         return self.bound_field.as_user_input_value(self.get_input_status())
 
     @property
-    def original_value(self):
-        return self.bound_field.as_user_input_value('defaulted')
-
-    @property
     def original_database_value(self):
-        if self.bound_field.has_changed_model:
-            return self.bound_field.get_initial_value_as_user_input()
-        else:
-            return self.original_value
+        return self.bound_field.get_initial_value_as_user_input()
 
     def get_input_status(self):
         return self.bound_field.input_status

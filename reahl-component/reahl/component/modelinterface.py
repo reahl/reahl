@@ -730,8 +730,6 @@ class Field:
             self.add_validation_constraint(MinLengthConstraint(min_length))
         if max_length:
             self.add_validation_constraint(MaxLengthConstraint(max_length))
-        self.initial_value = None
-        self.has_changed_model = False
         self.initial_value_store = {}
         self.clear_user_input()
 
@@ -743,19 +741,17 @@ class Field:
 
     def activate_initial_value_store(self, initial_value_store):
         self.initial_value_store = initial_value_store
-        self.restore_initial_value()
-
-    def save_initial_value(self):
-        self.initial_value_store[self.name_in_input] = self.initial_value
-
-    def restore_initial_value(self):
         try:
             self.initial_value = self.initial_value_store[self.name_in_input]
         except KeyError:
-            pass
-        else:
-            self.has_changed_model = True
-        
+            self.set_initial_value(self.get_model_value())
+
+    def set_initial_value(self, value):
+        self.initial_value_store[self.name_in_input] = value
+
+    def get_initial_value(self):
+        return self.initial_value_store.get(self.name_in_input, None)
+
     def validate_default(self):
         unparsed_input = self.as_input()
         self.validate_input(unparsed_input, ignore=AccessRightsConstraint)
@@ -938,10 +934,6 @@ class Field:
         return getattr(self.storage_object, self.variable_name, self.default)
         
     def set_model_value(self):
-        if not self.has_changed_model:
-            self.initial_value = self.get_model_value()
-            self.has_changed_model = True
-            self.save_initial_value()
         setattr(self.storage_object, self.variable_name, self.parsed_input)
 
     def validate_input(self, unparsed_input, ignore=None):
@@ -994,7 +986,7 @@ class Field:
         return self.input_as_string(self.as_list_unaware_user_input_value(for_input_status=for_input_status))
 
     def get_initial_value_as_user_input(self):
-        return self.input_as_string(self.unparse_input(self.initial_value))
+        return self.input_as_string(self.unparse_input(self.get_initial_value()))
 
     def as_list_unaware_user_input_value(self, for_input_status=None):
         if (for_input_status or self.input_status) == 'defaulted' or (not self.can_read()):

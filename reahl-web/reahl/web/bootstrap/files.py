@@ -253,7 +253,7 @@ class FileUploadInput(reahl.web.ui.Input):
 
     def get_concurrency_hash_strings(self):
         if not self.ignore_concurrency_change:
-            yield self.original_value
+            yield self.original_database_value
             
     @property
     def name(self):

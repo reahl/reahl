@@ -250,20 +250,20 @@ def test_optimistic_concurrency_participation(scenario):
 
 @uses(input_fixture=SimpleInputFixture)
 class ChangeScenarios(Fixture):
-    readable = True
+    writable = True
     def new_input_widget(self):
-        return PrimitiveInputStub(self.input_fixture.form, self.input_fixture.new_field(readable=lambda field: self.readable))
+        return PrimitiveInputStub(self.input_fixture.form, self.input_fixture.new_field(writable=lambda field: self.writable))
 
-    def set_unreadable(self):
-        self.readable = False
+    def set_unwritable(self):
+        self.writable = False
 
     def change_domain_value(self):
         self.input_widget.bound_field.bound_to.an_attribute = 'changed'
         
     @scenario
     def change_readability(self):
-        """When the readability of an input changes, that counts as a change"""
-        self.change_something = self.set_unreadable
+        """When the input changes between being disabled and enabled, that counts as a change"""
+        self.change_something = self.set_unwritable
 
     @scenario
     def change_value(self):
@@ -278,6 +278,7 @@ def test_optimistic_concurrency_what_constitutes_a_change(web_fixture, input_fix
 
     before_hash = input_widget.get_concurrency_hash_digest()
     scenario.change_something()
+    input_widget.bound_field.activate_initial_value_store({}) # To simulate the Input being constructed twice and the comparison happening after the second
     assert before_hash != input_widget.get_concurrency_hash_digest()
 
 
