@@ -717,7 +717,7 @@ class Field:
                  readable=None, writable=None, disallowed_message=None,
                  min_length=None, max_length=None):
         self._name = None
-        self.namespace = ''
+        self.namespace = []
         self.storage_object = None
         self.default = default
         self.label = label or ''
@@ -735,8 +735,11 @@ class Field:
         self.initial_value_store = {}
         self.clear_user_input()
 
-    def set_namespace(self, namespace):
-        self.namespace = namespace
+    def push_namespace(self, namespace):
+        self.namespace.append(namespace)
+
+    def pop_namespace(self):
+        self.namespace.pop()
 
     def activate_initial_value_store(self, initial_value_store):
         self.initial_value_store = initial_value_store
@@ -803,6 +806,7 @@ class Field:
         new_version = copy.copy(self)
         new_version.validation_constraints = self.validation_constraints.copy_for_field(new_version)
         new_version.access_rights = self.access_rights.copy()
+        new_version.namespace = self.namespace.copy()
         return new_version
 
     def unbound_copy(self):
@@ -849,7 +853,12 @@ class Field:
         .. versionadded:: 5.0
         """
         new_field = self.copy()
-        new_field.set_namespace(namespace)
+        new_field.push_namespace(namespace)
+        return new_field
+
+    def without_namespace(self):
+        new_field = self.copy()
+        new_field.pop_namespace()
         return new_field
 
     def clear_user_input(self):
@@ -910,7 +919,7 @@ class Field:
     def name(self):
         if not self._name:
             raise AssertionError('field %s with label "%s" is not yet bound' % (self, self.label))
-        return '-'.join([i for i in [self.namespace, self._name] if i])
+        return '-'.join(self.namespace + [self._name])
 
     @property
     def variable_name(self):
@@ -1151,7 +1160,8 @@ class Event(Field):
 
     def copy(self):
         new_field = super().copy()
-        new_field.bind(new_field.name, new_field)
+        new_field.bind(new_field._name, new_field)
+        new_field.old_field = self
         return new_field
     
     def with_arguments(self, **event_arguments):
