@@ -256,7 +256,7 @@ def test_overridden_names(web_fixture, query_string_fixture, responsive_disclosu
     fixture.ModelObject = ModelObject
 
     def create_trigger_input(form, an_object):
-        the_input = CheckboxSelectInput(form, an_object.fields.choice.with_namespace('first'), refresh_widget=form)
+        the_input = CheckboxSelectInput(form, an_object.fields.choice.in_namespace('first'), refresh_widget=form)
         the_input.set_id('marvin')
         return the_input
     fixture.create_trigger_input = create_trigger_input

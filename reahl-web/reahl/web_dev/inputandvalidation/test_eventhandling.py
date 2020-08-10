@@ -290,7 +290,7 @@ def test_distinguishing_identical_field_names(web_fixture):
             self.add_child(ButtonInput(self, self.events.an_event))
 
             self.add_child(TextInput(self, model_object1.fields.field_name))
-            self.add_child(TextInput(self, model_object2.fields.field_name.with_namespace('object2')))
+            self.add_child(TextInput(self, model_object2.fields.field_name.in_namespace('object2')))
 
     wsgi_app = fixture.new_wsgi_app(child_factory=MyForm.factory('form'))
     fixture.reahl_server.set_app(wsgi_app)

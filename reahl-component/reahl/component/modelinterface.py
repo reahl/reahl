@@ -677,7 +677,14 @@ class InputParseException(Exception):
 class ExpectedInputNotFound(Exception):
     def __init__(self, input_name, searched_inputs):
         super().__init__('Expected to find %s in %s' % (input_name, str(searched_inputs)))
-    
+
+class FieldData:
+    def __init__(self):
+        self.initial_value = None
+        self.input_status = None
+        self.validation_error = None
+        self.user_input = None
+        self.parsed_input = None
        
 class Field:
     """A Field represents something which can be input by a User.
@@ -730,8 +737,19 @@ class Field:
             self.add_validation_constraint(MinLengthConstraint(min_length))
         if max_length:
             self.add_validation_constraint(MaxLengthConstraint(max_length))
-        self.initial_value_store = {}
+        self.data = FieldData()
         self.clear_user_input()
+
+    def get_data(name, self):
+        return getattr(self.data, name)
+    def set_data(name, self, value):
+        return setattr(self.data, name, value)
+
+    initial_value = property(functools.partial(get_data, 'initial_value'), functools.partial(set_data, 'initial_value'))
+    input_status = property(functools.partial(get_data, 'input_status'), functools.partial(set_data, 'input_status'))
+    validation_error = property(functools.partial(get_data, 'validation_error'), functools.partial(set_data, 'validation_error'))
+    user_input = property(functools.partial(get_data, 'user_input'), functools.partial(set_data, 'user_input'))
+    parsed_input = property(functools.partial(get_data, 'parsed_input'), functools.partial(set_data, 'parsed_input'))
 
     def push_namespace(self, namespace):
         self.namespace.append(namespace)
@@ -739,18 +757,12 @@ class Field:
     def pop_namespace(self):
         self.namespace.pop()
 
-    def activate_initial_value_store(self, initial_value_store):
-        self.initial_value_store = initial_value_store
+    def activate_global_field_data_store(self, global_field_data_store):
         try:
-            self.initial_value = self.initial_value_store[self.name_in_input]
+            self.data = global_field_data_store[self.name_in_input]
         except KeyError:
-            self.set_initial_value(self.get_model_value())
-
-    def set_initial_value(self, value):
-        self.initial_value_store[self.name_in_input] = value
-
-    def get_initial_value(self):
-        return self.initial_value_store.get(self.name_in_input, None)
+            global_field_data_store[self.name_in_input] = self.data
+            self.initial_value = self.get_model_value()
 
     def validate_default(self):
         unparsed_input = self.as_input()
@@ -803,6 +815,7 @@ class Field:
         new_version.validation_constraints = self.validation_constraints.copy_for_field(new_version)
         new_version.access_rights = self.access_rights.copy()
         new_version.namespace = self.namespace.copy()
+        new_version.data = copy.copy(self.data)
         return new_version
 
     def unbound_copy(self):
@@ -842,19 +855,15 @@ class Field:
         new_version.label = label
         return new_version
 
-    def with_namespace(self, namespace):
-        """Returns a new Field which is exactly like this one, except that its name is mangled to 
+    def in_namespace(self, namespace):
+        """Returns a new Field which shares this one's underlying data, but its name is mangled to 
            include the given text as to prevent name clashes.
 
         .. versionadded:: 5.0
         """
         new_field = self.copy()
         new_field.push_namespace(namespace)
-        return new_field
-
-    def without_namespace(self):
-        new_field = self.copy()
-        new_field.pop_namespace()
+        new_field.data = self.data
         return new_field
 
     def clear_user_input(self):
@@ -986,7 +995,7 @@ class Field:
         return self.input_as_string(self.as_list_unaware_user_input_value(for_input_status=for_input_status))
 
     def get_initial_value_as_user_input(self):
-        return self.input_as_string(self.unparse_input(self.get_initial_value()))
+        return self.input_as_string(self.unparse_input(self.initial_value))
 
     def as_list_unaware_user_input_value(self, for_input_status=None):
         if (for_input_status or self.input_status) == 'defaulted' or (not self.can_read()):
@@ -1101,7 +1110,7 @@ class Event(Field):
        :keyword readable: (See :class:`Field`)
        :keyword writable: (See :class:`Field`)
        :keyword disallowed_message: (See :class:`Field`)
-       :keyword event_argument_fields: Keyword arguments given in order to specify the names of the arguments 
+       :keyword event_argument_fields: Keyword arguments given in order to specify the names of the auirguments 
                         this Event should have. The value to each keyword argument is a Field
                         governing input to that Event argument.
     """
@@ -1153,7 +1162,6 @@ class Event(Field):
     def copy(self):
         new_field = super().copy()
         new_field.bind(new_field._name, new_field)
-        new_field.old_field = self
         return new_field
     
     def with_arguments(self, **event_arguments):

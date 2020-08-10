@@ -278,7 +278,7 @@ def test_optimistic_concurrency_what_constitutes_a_change(web_fixture, input_fix
 
     before_hash = input_widget.get_concurrency_hash_digest()
     scenario.change_something()
-    input_widget.bound_field.activate_initial_value_store({}) # To simulate the Input being constructed twice and the comparison happening after the second
+    input_widget.bound_field.activate_global_field_data_store({}) # To simulate the Input being constructed twice and the comparison happening after the second
     assert before_hash != input_widget.get_concurrency_hash_digest()
 
 

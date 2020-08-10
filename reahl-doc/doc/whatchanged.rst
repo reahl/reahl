@@ -23,7 +23,7 @@ What changed in version 5.0
 .. |exposed| replace:: :class:`~reahl.component.modelinterface.exposed`
 .. |FieldIndex| replace:: :class:`~reahl.component.modelinterface.FieldIndex`
 .. |Field| replace:: :class:`~reahl.component.modelinterface.Field`
-.. |with_namespace| replace:: :meth:`~reahl.component.modelinterface.Field.with_namespace`
+.. |in_namespace| replace:: :meth:`~reahl.component.modelinterface.Field.in_namespace`
 .. |Layout| replace:: :class:`~reahl.web.fw.Layout`
 .. |HTML5Page| replace:: :class:`~reahl.web.bootstrap.page.HTML5Page`
 .. |ReahlWSGIApplication| replace:: :class:`~reahl.web.fw.ReahlWSGIApplication`
@@ -75,11 +75,11 @@ Unique input names and IDs
    The name of an |Input| is derived from the name of its |Field|. Previously |Input| names used to be adapted
    automatically as to prevent name clashes between different |Input|\s on a form. This is no 
    longer the case: an Input that has a name clash with another is now explicitly disambiguated by passing 
-   it a |Field| that is placed in a distinct namespace (see |with_namespace|).
+   it a |Field| that is placed in a distinct namespace (see |in_namespace|).
 
    Every Input now also is generated with an ID that is unique on the page.
 
-   All distinct |Field|\s on a page also have to have distinct names. |with_namespace| is used to disambiguate
+   All distinct |Field|\s on a page also have to have distinct names. |in_namespace| is used to disambiguate
    different |Field|\s with the name as well.
 
 Changes to nested_transaction

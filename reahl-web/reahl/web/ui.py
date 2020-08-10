@@ -1080,7 +1080,7 @@ class Form(HTMLElement):
 
         self.hash_inputs = self.add_child(Div(self.view, css_id='%s_hashes' % unique_name))
 
-        self.database_digest_input = self.hash_inputs.add_child(HiddenInput(self, self.fields._reahl_database_concurrency_digest.with_namespace(unique_name), ignore_concurrent_change=True))
+        self.database_digest_input = self.hash_inputs.add_child(HiddenInput(self, self.fields._reahl_database_concurrency_digest.in_namespace(unique_name), ignore_concurrent_change=True))
         # the digest input will have a value when:
         #  (1) you're busy with an ajax call, after being internally redirected (because AjaxMethod.fire_ajax_event will have inputted the browser value); or
         #  (2) you're busy submitting and you saved its value because of an validation exception (and prepare_input read the value from saved inputs due to the exception)
@@ -1727,8 +1727,8 @@ class PrimitiveInput(Input):
         return self.form.persisted_userinput_class
 
     def prepare_input(self):
-        value_store = ExecutionContext.get_context().initial_field_values = getattr(ExecutionContext.get_context(), 'initial_field_values', {})
-        self.bound_field.activate_initial_value_store(value_store)
+        field_data_store = ExecutionContext.get_context().initial_field_values = getattr(ExecutionContext.get_context(), 'global_field_values', {})
+        self.bound_field.activate_global_field_data_store(field_data_store)
         
         construction_state = self.view.get_construction_state()
         if construction_state:
