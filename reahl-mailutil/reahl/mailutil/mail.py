@@ -21,12 +21,11 @@ Run 'reahl componentinfo reahl-mailutil' for configuration information.
 """ 
 
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 import re
 import smtplib
 import logging
-from six.moves import email_mime_multipart as MIMEMultipart
-from six.moves import email_mime_text as MIMEText
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 
 from reahl.component.context import ExecutionContext
 from reahl.mailutil.rst import RestructuredText
@@ -36,7 +35,7 @@ class InvalidEmailAddressException(Exception):
     pass
     
 
-class MailMessage(object):
+class MailMessage:
     """Represents an email message, with one part containing plain text (presumed to be ReST), and the other
        an HTML representation of the same message.
        
@@ -53,7 +52,7 @@ class MailMessage(object):
             self.to_addresses = to_addresses
             self.subject = subject
             self.rst_text = rst_message
-            self.message_root = MIMEMultipart.MIMEMultipart('related')
+            self.message_root = MIMEMultipart('related')
             self.message_root['Subject'] = subject
             self.message_root['From'] = from_address
             self.message_root['To'] = ", ".join(to_addresses)
@@ -61,14 +60,14 @@ class MailMessage(object):
 
             # Encapsulate the plain and HTML versions of the message body in an
             # 'alternative' part, so message agents can decide which they want to display.
-            self.message_alternative = MIMEMultipart.MIMEMultipart('alternative')
+            self.message_alternative = MIMEMultipart('alternative')
             self.message_root.attach(self.message_alternative)
 
-            message_text = MIMEText.MIMEText(rst_message.encode(charset), 'plain', charset)
+            message_text = MIMEText(rst_message.encode(charset), 'plain', charset)
             self.message_alternative.attach(message_text)
 
             rst = RestructuredText(rst_message)
-            message_text = MIMEText.MIMEText(rst.as_HTML_fragment().encode(charset), 'html', charset)
+            message_text = MIMEText(rst.as_HTML_fragment().encode(charset), 'html', charset)
             self.message_alternative.attach(message_text)
 
     def as_string(self):
@@ -81,7 +80,7 @@ class MailMessage(object):
                 raise InvalidEmailAddressException(address)
 
 
-class Mailer(object):
+class Mailer:
     """A proxy for a remote SMTP server.
     
        :keyword smtp_host: The host to connect to.

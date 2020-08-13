@@ -154,7 +154,7 @@ msgstr ""
 "Jy behoort die outomatise epos te ontvang enigiets tussen 'n minuut en 'n"
 " uur na registrasie.  Pasop tog, partymaal kan jou eie epos sagteware "
 "verkeerdelik ons outomatiese epos aansien as onwenslike epos. Sou dit "
-"gebeur, sal die epos dalk iewers in 'n spesiale leêr vir daardie doel  "
+"gebeur, sal die epos dalk iewers in 'n spesiale lêer vir daardie doel  "
 "weggesteek word."
 
 #: reahl/domainui/bootstrap/accounts.py:234
@@ -356,7 +356,7 @@ msgstr "Dankie vir jou moeite"
 #: reahl/domainui/bootstrap/workflow.py:58
 #: reahl/domainui/bootstrap/workflow.py:143
 msgid "Inbox"
-msgstr "Taak leêr"
+msgstr "Taak lêer"
 
 #~ msgid "Please specify:"
 #~ msgstr "Spesifiseer asseblief:"

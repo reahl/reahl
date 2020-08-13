@@ -1,1 +1,1 @@
-  unit setup -- -q pytest --addopts '-s --pyargs reahl.doc.examples.web.responsivedisclosure.responsivedisclosure_dev'
+  unit setup -- -q pytest --addopts '-s --pyargs reahl.doc.examples.howtos.responsivedisclosure.responsivedisclosure_dev'

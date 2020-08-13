@@ -1,0 +1,63 @@
+FROM ubuntu:20.04 as base
+
+# ---- ENV vars set here are available to all phases of the build going forward
+
+ENV REAHL_USER=reahl
+ENV VENV=/var/local/reahl
+
+ENV PIP=$VENV/bin/pip3
+ENV PYTHON=$VENV/bin/python3
+
+ENV PYTHON_DEPS="python3 python3-venv"
+
+ENV OS_DEPS="ca-certificates sudo xauth libexif12"
+ENV OS_DEPS_BUILD="ca-certificates wget gnupg"
+ENV OS_DEPS_DEV="wget gnupg"
+
+ENV RUNTIME_DEPS="$OS_DEPS $PYTHON_DEPS"
+ENV BUILD_DEPS="$OS_DEPS_BUILD $PYTHON_DEV $LXML_DEV $MYSQL_DEV $POSTGRES_DEV"
+
+
+# ---- Build the venv
+
+FROM base as python-install
+
+RUN apt-get update && \
+    apt-get install --no-recommends -y $BUILD_DEPS $RUNTIME_DEPS && \
+    apt-get clean && \
+    rm -rf /var/cache/apt/*
+
+RUN python3 -m venv $VENV && \
+    $PIP install reahl[declarative,web]
+
+
+# ---- Build the final image
+
+FROM base as runtime
+COPY --from=python-install "$VENV" "$VENV"
+
+RUN apt-get update && \
+    apt-get install --no-recommends -y $RUNTIME_DEPS && uwsgi uwsgi-python3 \
+    apt-get clean && \
+    rm -rf /var/cache/apt/*
+
+RUN adduser --disabled-password --gecos '' $REAHL_USER
+
+
+# TODO:
+#  add volumes for config, maybe a static file dir?
+#  config for uwsgi?
+#  run uwsgi with correct ReahlWSGIApplication's module with stuff like:
+#    application = ReahlWSGIApplication.from_directory('%s/sites/reahl-widget-examples/etc' % os.environ['HOME'], start_on_first_request=True)
+
+EXPOSE 3031
+
+CMD [ "uwsgi", "--socket", "0.0.0.0:3031", \
+               "--uid", "uwsgi", \
+               "--plugins", "python3", \
+               "--protocol", "uwsgi", \
+               "--wsgi", "main:application" ]
+
+ 
+ 
+

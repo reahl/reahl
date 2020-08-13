@@ -1,5 +1,4 @@
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 from hellonginx import HelloUI
 
 # The Region class acting as the root of the URL hierachy of your application:

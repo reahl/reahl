@@ -27,7 +27,6 @@ URIs are as `defined by SqlAlchemy <http://docs.sqlalchemy.org/en/latest/core/en
 """
 
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 import os
 import shutil
 import os.path
@@ -44,7 +43,7 @@ class SQLiteControl(DatabaseControl):
     control_matching_regex = r'^sqlite:'
 
     def __init__(self, url, config):
-        super(SQLiteControl, self).__init__(url, config)
+        super().__init__(url, config)
         if not config.reahlsystem.serialise_parallel_requests:
             config.reahlsystem.serialise_parallel_requests = True
             logging.getLogger(__name__).info('Overriding config setting[reahlsystem.serialise_parallel_requests] to True for Sqlite.')
@@ -72,7 +71,7 @@ class SQLiteControl(DatabaseControl):
     def drop_db_user(self, super_user_name=None):
         return 0
 
-    def drop_database(self, super_user_name=None, yes=False):
+    def drop_database(self, super_user_name=None):
         if not self.is_in_memory:
             try:
                 os.remove(self.database_name)

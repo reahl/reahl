@@ -15,7 +15,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 
 from reahl.tofu import Fixture, scenario, expected, NoException
 from reahl.tofu.pytestsupport import with_fixtures
@@ -27,7 +26,7 @@ from reahl.component.exceptions import AccessRestricted, ProgrammerError
 def test_methods_can_be_secured_basics():
     """A secured method can only be called if it can be read and written."""
 
-    class ModelObject(object):
+    class ModelObject:
         did_something = False
 
         def always_allow(self): return True
@@ -92,7 +91,7 @@ def test_checks_must_match_signature():
     expected_arg = 'expected arg'
     expected_kwarg = 'expected kwarg'
 
-    class ModelObject(object):
+    class ModelObject:
         def read_check(self, arg, kwarg=None): 
             self.saved_arg_in_read_check = arg
             self.saved_kwarg_in_read_check = kwarg
@@ -154,7 +153,7 @@ def test_exception_on_mismatch_of_signature(mismatch_scenarios):
     fixture = mismatch_scenarios
     
     with expected(ProgrammerError):
-        class ModelObject(object):
+        class ModelObject:
             @secured( read_check=fixture.read_check, write_check=fixture.write_check )
             def do_something_with_arguments(self, arg, kwarg=None):
                 pass
@@ -167,7 +166,7 @@ def test_adapted_methods():
     expected_arg = 'expected arg'
     expected_kwarg = 'expected kwarg'
 
-    class ModelObject(object):
+    class ModelObject:
         def read_check(self, an_arg, a_kwarg=None): 
             self.saved_arg_in_read_check = an_arg
             self.saved_kwarg_in_read_check = a_kwarg

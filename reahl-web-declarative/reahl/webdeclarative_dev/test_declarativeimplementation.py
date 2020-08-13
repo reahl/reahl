@@ -15,12 +15,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 from datetime import datetime, timedelta
 
-import six
-from six.moves import http_cookies
-from six.moves.urllib import parse as urllib_parse
+import http.cookies
+import urllib.parse
 
 from sqlalchemy import Column, ForeignKey, Integer
 from webob import Response
@@ -29,8 +27,8 @@ from reahl.tofu import scenario, Fixture, uses
 from reahl.stubble import stubclass, EmptyStub
 from reahl.tofu.pytestsupport import with_fixtures
 
-from reahl.sqlalchemysupport import Session
-from reahl.component.py3compat import ascii_as_bytes_or_str
+from reahl.component.context import ExecutionContext
+from reahl.sqlalchemysupport import Session, Base, session_scoped
 from reahl.webdeclarative.webdeclarative import UserSession, SessionData, UserInput
 
 from reahl.web.ui import Form
@@ -122,7 +120,7 @@ def test_setting_cookies_on_response(sql_alchemy_fixture, web_fixture):
         class ResponseStub(Response):
             @property
             def cookies(self):
-                cookies = http_cookies.SimpleCookie()
+                cookies = http.cookies.SimpleCookie()
                 for header, value in self.headerlist:
                     if header == 'Set-Cookie':
                         cookies.load(value)
@@ -135,7 +133,7 @@ def test_setting_cookies_on_response(sql_alchemy_fixture, web_fixture):
         user_session.set_session_key(response)
 
         session_cookie = response.cookies[fixture.config.web.session_key_name]
-        assert session_cookie.value == urllib_parse.quote(user_session.as_key())
+        assert session_cookie.value == urllib.parse.quote(user_session.as_key())
         assert session_cookie['path'] == '/'
         assert not session_cookie['max-age']
         #assert 'httponly' in session_cookie
@@ -174,7 +172,7 @@ def test_reading_cookies_on_initialising_a_session(web_fixture):
     user_session.set_last_activity_time()
     Session.add(user_session)
 
-    fixture.request.headers['Cookie'] = ascii_as_bytes_or_str('reahl=%s' % user_session.as_key())
+    fixture.request.headers['Cookie'] = 'reahl=%s' % user_session.as_key()
     UserSession.initialise_web_session_on(fixture.context)
 
     assert fixture.context.session is user_session
@@ -188,8 +186,8 @@ def test_reading_cookies_on_initialising_a_session(web_fixture):
     user_session.set_last_activity_time()
     Session.add(user_session)
 
-    fixture.request.headers['Cookie'] = ascii_as_bytes_or_str('reahl=%s , reahl_secure=%s' % \
-                                        (user_session.as_key(), user_session.secure_salt))
+    fixture.request.headers['Cookie'] = 'reahl=%s , reahl_secure=%s' % \
+                                        (user_session.as_key(), user_session.secure_salt)
     UserSession.initialise_web_session_on(fixture.context)
 
     assert fixture.context.session is user_session
@@ -202,8 +200,8 @@ def test_reading_cookies_on_initialising_a_session(web_fixture):
     user_session = UserSession()
     user_session.set_last_activity_time()
     Session.add(user_session)
-    fixture.request.headers['Cookie'] = ascii_as_bytes_or_str('reahl=%s , reahl_secure=%s' % \
-                                        (user_session.as_key(), user_session.secure_salt))
+    fixture.request.headers['Cookie'] = 'reahl=%s , reahl_secure=%s' % \
+                                        (user_session.as_key(), user_session.secure_salt)
 
     UserSession.initialise_web_session_on(fixture.context)
 
@@ -255,7 +253,7 @@ def test_session_keeps_living(web_fixture):
 class InputScenarios(Fixture):
     @scenario
     def text(self):
-        self.entered_input_type = six.text_type
+        self.entered_input_type = str
         self.entered_input = 'some value to save'
         self.empty_entered_input = ''
 
@@ -272,7 +270,7 @@ def test_persisting_input(web_fixture, party_account_fixture, input_scenarios):
        like multiple select boxes or multiple checkboxes with the same name).
     """
     @stubclass(Form)
-    class FormStub(object):
+    class FormStub:
         view = web_fixture.view
         user_interface = EmptyStub(name='myui')
         channel_name = 'myform'
@@ -299,3 +297,51 @@ def test_persisting_input(web_fixture, party_account_fixture, input_scenarios):
     assert previously_entered == fixture.empty_entered_input
 
 
+class SessionScopedFixture(Fixture):
+
+    def create_user_session(self):
+        user_session = UserSession()
+        Session.add(user_session)
+        ExecutionContext.get_context().session = user_session
+        return user_session
+
+    @scenario
+    def remove_session_scoped(self):
+        self.expected_user_session_after_delete = 1
+        self.cascade = False
+
+    @scenario
+    def remove_user_session(self):
+        self.expected_user_session_after_delete = 0
+        self.cascade = True
+
+
+@with_fixtures(SqlAlchemyFixture, SessionScopedFixture)
+def test_cascade_removal_of_user_session(sql_alchemy_fixture, session_scoped_fixture):
+    """
+        If a user session is deleted, all session scoped objects are deleted as well.
+    """
+
+    fixture = session_scoped_fixture
+
+    @session_scoped
+    class MySessionScoped(Base):
+        __tablename__ = 'my_session_scoped'
+        id = Column(Integer, primary_key=True)
+
+    with sql_alchemy_fixture.persistent_test_classes(MySessionScoped):
+        user_session = fixture.create_user_session()
+        assert Session.query(MySessionScoped).count() == 0
+
+        session_object = MySessionScoped.for_current_session()
+        assert Session.query(MySessionScoped).one() is session_object
+        assert session_object.user_session is user_session
+
+        if fixture.cascade:
+            Session.delete(user_session)
+        else:
+            Session.delete(session_object)
+        Session.flush()
+
+        assert Session.query(MySessionScoped).count() == 0
+        assert Session.query(UserSession).count() == fixture.expected_user_session_after_delete

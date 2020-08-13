@@ -9,12 +9,6 @@ Module reahl.web.bootstrap.ui
 Widgets for constructing a page
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-HTML5Page
-"""""""""
-
-.. autoclass:: HTML5Page
-   :members:
-
 Slot
 """"
 

@@ -1,5 +1,4 @@
 # Copyright 2016, 2017, 2018 Reahl Software Services (Pty) Ltd. All rights reserved.
-#-*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
 #
@@ -15,9 +14,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 
-import six
 import time
 
 
@@ -231,7 +228,7 @@ class NavbarToggleFixture(Fixture):
         fixture = self
         class MainWidget(Div):
             def __init__(self, view):
-                super(MainWidget, self).__init__(view)
+                super().__init__(view)
 
                 navbar = Navbar(view)
                 navbar.use_layout(NavbarLayout(colour_theme='dark', bg_scheme='dark'))

@@ -1,5 +1,4 @@
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 
 
 from passlib.hash import pbkdf2_sha256
@@ -12,8 +11,9 @@ from reahl.sqlalchemysupport import Session, Base, session_scoped
 from reahl.component.exceptions import DomainException
 from reahl.web.fw import UserInterface
 from reahl.web.layout import PageLayout
-from reahl.web.bootstrap.ui import HTML5Page, P, Alert
-from reahl.web.bootstrap.forms import Form, TextInput, Button, PasswordInput, ButtonLayout, FormLayout
+from reahl.web.bootstrap.page import HTML5Page
+from reahl.web.bootstrap.ui import P
+from reahl.web.bootstrap.forms import Form, TextInput, Button, PasswordInput, FormLayout
 from reahl.web.bootstrap.navs import Nav, TabLayout
 from reahl.web.bootstrap.grid import ColumnLayout, ColumnOptions, ResponsiveSize, Container
 from reahl.component.modelinterface import Action, EmailField, Event, PasswordField, exposed
@@ -66,7 +66,7 @@ class LoginSession(Base):
 
 class MenuPage(HTML5Page):
     def __init__(self, view, main_bookmarks):
-        super(MenuPage, self).__init__(view)
+        super().__init__(view)
         self.use_layout(PageLayout(document_layout=Container()))
         contents_layout = ColumnLayout(ColumnOptions('main', size=ResponsiveSize())).with_slots()
         self.layout.contents.use_layout(contents_layout)
@@ -81,17 +81,16 @@ class InvalidPassword(DomainException):
 
 class LoginForm(Form):
     def __init__(self, view, login_session):
-        super(LoginForm, self).__init__(view, 'login')
+        super().__init__(view, 'login')
         self.use_layout(FormLayout())
         if self.exception:
-            self.add_child(Alert(view, self.exception.as_user_message(), 'warning'))
+            self.layout.add_alert_for_domain_exception(self.exception)
 
         self.layout.add_input(TextInput(self, login_session.fields.email_address))
         self.layout.add_input(PasswordInput(self, login_session.fields.password))
 
         self.define_event_handler(login_session.events.log_in)
-        btn = self.add_child(Button(self, login_session.events.log_in))
-        btn.use_layout(ButtonLayout(style='primary'))
+        self.add_child(Button(self, login_session.events.log_in, style='primary'))
 
 
 class SessionScopeUI(UserInterface):

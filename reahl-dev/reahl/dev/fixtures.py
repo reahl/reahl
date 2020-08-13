@@ -17,16 +17,13 @@
 # Copyright (C) 2006 Reahl Software Services (Pty) Ltd.  All rights reserved. (www.reahl.org)
 
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 
-import six
 import sys
 import copy
 import pkg_resources
 import contextlib
 
 from reahl.tofu import Fixture, set_up, tear_down, scope, uses
-from reahl.component.py3compat import ascii_as_bytes_or_str
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.context import ExecutionContext
 from reahl.component.dbutils import SystemControl
@@ -52,11 +49,11 @@ class ContextAwareFixture(Fixture):
 
     def __enter__(self):
         self.context.install(lambda f: isinstance(f.f_locals.get('self', None), WithFixtureDecorator))
-        return super(ContextAwareFixture, self).__enter__()
+        return super().__enter__()
 
     def run_tear_down_actions(self):
         self.context.install()
-        return super(ContextAwareFixture, self).run_tear_down_actions()
+        return super().run_tear_down_actions()
 
 
 @scope('session')
@@ -99,7 +96,7 @@ class ReahlSystemSessionFixture(ContextAwareFixture):
         try:
             config.configure()
         except pkg_resources.DistributionNotFound as ex:
-            six.reraise(CouldNotConfigureServer, CouldNotConfigureServer(ex), sys.exc_info()[2])
+            raise CouldNotConfigureServer(ex).with_traceback(sys.exc_info()[2])
 
         return config
 
@@ -123,7 +120,7 @@ class ReahlSystemSessionFixture(ContextAwareFixture):
         for dependency in self.test_dependencies:
             orm_control.instrument_classes_for(dependency)
         if not self.system_control.is_in_memory:
-            self.system_control.initialise_database(yes=True)
+            self.system_control.initialise_database()
         self.system_control.connect()
 
     @tear_down
@@ -177,7 +174,7 @@ class ReahlSystemFixture(ContextAwareFixture):
         return reahlsystem
             
 
-class MonitoredInvocation(object):
+class MonitoredInvocation:
     def __init__(self, method, commandline_arguments, args, kwargs):
         self.method = method
         self.commandline_arguments = commandline_arguments
@@ -192,7 +189,7 @@ class MonitoredInvocation(object):
 @stubclass(Executable)
 class ExecutableStub(Executable):
     def __init__(self, name='fake executable', stdout=''):
-        super(ExecutableStub, self).__init__(name)
+        super().__init__(name)
         self.calls = []
         self.stdout = stdout
 
@@ -216,10 +213,11 @@ class ExecutableStub(Executable):
         executable = self
         saved_which = Executable.which
         def stub_which(self, program):
-            if executable.name == program:
+            full_path_to_executable = saved_which(self, program)
+            if program in [full_path_to_executable, executable.name]:
                 return program
             else:
-                return saved_which(self, program)
+                return full_path_to_executable
 
         saved_execute = Executable.execute
         def stub_execute(self, method, commandline_arguments, *args, **kwargs):
@@ -228,8 +226,8 @@ class ExecutableStub(Executable):
             else:
                 return saved_execute(self, method, commandline_arguments, *args, **kwargs)
 
-        stub_which.__name__ = ascii_as_bytes_or_str('which')
-        stub_execute.__name__ = ascii_as_bytes_or_str('execute')
+        stub_which.__name__ = 'which'
+        stub_execute.__name__ = 'execute'
         with replaced(Executable.which, stub_which, Executable), replaced(Executable.execute, stub_execute, Executable):
             yield executable
     

@@ -26,9 +26,7 @@ URIs are as `defined by SqlAlchemy <http://docs.sqlalchemy.org/en/latest/core/en
 
 """
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 
-import six
 import io
 import subprocess
 import gzip
@@ -36,9 +34,13 @@ from datetime import date
 from contextlib import closing, contextmanager
 import os.path
 import socket
+import getpass
+
+import psycopg2
+import psycopg2.extensions
 
 from reahl.component.dbutils import DatabaseControl
-from reahl.component.exceptions import DomainException
+from reahl.component.exceptions import DomainException, ProgrammerError
 from reahl.component.shelltools import Executable, ExecutableNotInstalledException
 
 
@@ -47,53 +49,65 @@ def as_domain_exception(exception_to_translate):
     try:
         yield
     except exception_to_translate as e:
-        raise DomainException(message=six.text_type(e))
+        raise DomainException(message=str(e))
 
 
 class PostgresqlControl(DatabaseControl):
     """A DatabaseControl implementation for PostgreSQL."""
     control_matching_regex = r'^postgres(ql)?:'
 
+    def execute(self, sql, login_username=None, password=None, database_name=None):
+        login_args = {}
+        if not (database_name or self.database_name):
+            raise ProgrammerError('no database name specified')
+        login_args['dbname'] = database_name or self.database_name
+        if self.host:
+            login_args['host'] = self.host
+        if self.port:
+            login_args['port'] = self.port
+        login_args['user'] = login_username or getpass.getuser()
+        if password:
+            login_args['password'] = password
+            
+        with psycopg2.connect(**login_args) as connection:
+            connection.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
+            with connection.cursor() as cursor:
+                return cursor.execute(sql)
+
+
+    def get_superuser_password(self):
+        return os.environ.get('PGPASSWORD', None)
+    
     def login_args(self, login_username=None):
         args = []
         if self.host:
             args += ['-h', self.host]
         if self.port:
-            args += ['-p', six.text_type(self.port)]
+            args += ['-p', str(self.port)]
         if login_username:
             args += ['-U', login_username]
         return args
 
     def create_db_user(self, super_user_name=None, create_with_password=True):
-        create_password_option = 'P' if create_with_password else ''
-        with as_domain_exception(ExecutableNotInstalledException):
-            Executable('createuser').check_call(['-DSRl%s' % create_password_option]
-                                                + self.login_args(login_username=super_user_name)
-                                                + [self.user_name])
+        create_password_option = 'PASSWORD \'%s\'' % self.password if create_with_password and self.password else ''
+        self.execute('create user %s %s;' % (self.user_name or getpass.getuser(), create_password_option),
+                     login_username=super_user_name, password=self.get_superuser_password(), database_name='postgres')
         return 0
-
+    
     def drop_db_user(self, super_user_name=None):
-        with as_domain_exception(ExecutableNotInstalledException):
-            Executable('dropuser').check_call(self.login_args(login_username=super_user_name) + [self.user_name])
+        self.execute('drop user %s;' % self.user_name, login_username=super_user_name, password=self.get_superuser_password(), database_name='postgres')
         return 0
 
-    def drop_database(self, super_user_name=None, yes=False):
-        cmd_args = self.login_args(login_username=super_user_name) + ['--if-exists']
-        last_part = ['-i', self.database_name]
-        if yes:
-            last_part = [self.database_name]
+    def drop_database(self, super_user_name=None):
+        self.execute('drop database if exists %s;' % self.database_name,
+                     login_username=super_user_name, password=self.get_superuser_password(), database_name='postgres')
 
-        with as_domain_exception(ExecutableNotInstalledException):
-            Executable('dropdb').check_call(cmd_args + last_part)
         return 0
 
     def create_database(self, super_user_name=None):
-        owner_option = ['-O', self.user_name] if self.user_name else []
-        with as_domain_exception(ExecutableNotInstalledException):
-            Executable('createdb').check_call(['-Eunicode']
-                                              + self.login_args(login_username=super_user_name)
-                                              + ['-T', 'template0']
-                                              + owner_option + [self.database_name])
+        owner_option = 'owner %s' % self.user_name if self.user_name else ''
+        self.execute('create database %s with %s template template0 encoding UTF8;' \
+                     % (self.database_name, owner_option), login_username=super_user_name, password=self.get_superuser_password(), database_name='postgres')
         return 0
 
     def backup_database(self, directory, super_user_name=None):

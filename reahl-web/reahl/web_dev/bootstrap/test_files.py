@@ -1,5 +1,4 @@
 # Copyright 2016, 2017, 2018 Reahl Software Services (Pty) Ltd. All rights reserved.
-#-*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
 #
@@ -15,7 +14,6 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 
 import os
 import threading 
@@ -43,7 +41,7 @@ class FileInputButtonFixture(Fixture):
         return 'focus' in element.get_attribute('class')
 
     def new_domain_object(self):
-        class DomainObject(object):
+        class DomainObject:
             files = []
             @exposed
             def fields(self, fields):
@@ -59,7 +57,7 @@ class FileInputButtonFixture(Fixture):
         fixture = self
         class FileUploadForm(Form):
             def __init__(self, view):
-                super(FileUploadForm, self).__init__(view, 'test')
+                super().__init__(view, 'test')
                 self.add_child(FileInputButton(self, fixture.domain_object.fields.files))
                 self.define_event_handler(fixture.domain_object.events.submit)
                 self.add_child(Button(self, fixture.domain_object.events.submit))
@@ -103,16 +101,21 @@ def test_file_upload_button_focus(web_fixture, file_input_button_fixture):
     assert browser.wait_for(fixture.upload_button_indicates_focus) 
 
 
-#def test_select_file_dialog_opens(fixture):
-#    """Clicking on the FileInputButton opens up the browser choose file dialog."""
-#
-#    fixture.reahl_server.set_app(fixture.new_wsgi_app(enable_js=True))
-#    browser = fixture.driver_browser
-#    browser.open('/')
-#
-#    browser.click(fixture.upload_button_xpath)
-#    # We can't dismiss the local file dialog with selenium: one day we would be able to when firefox
-#    # selenium is implemented differently
+# @with_fixtures(WebFixture, FileInputButtonFixture)
+# def test_select_file_dialog_opens(web_fixture, file_input_button_fixture):
+#     """Clicking on the FileInputButton opens up the browser choose file dialog."""
+
+#     fixture = file_input_button_fixture
+
+#     wsgi_app = web_fixture.new_wsgi_app(child_factory=file_input_button_fixture.FileUploadForm.factory(), enable_js=True)
+#     web_fixture.reahl_server.set_app(wsgi_app)
+#     browser = web_fixture.driver_browser
+#     browser.open('/')
+
+#     import pdb; pdb.set_trace()
+#     browser.click(XPath.span().with_text('Choose file(s)'))
+#     browser.click(fixture.upload_button_xpath)
+#     # We can't dismiss the local file dialog with selenium: yet?
 
 
 class FileInputFixture(FileInputButtonFixture):
@@ -120,11 +123,11 @@ class FileInputFixture(FileInputButtonFixture):
         fixture = self
         class FileUploadForm(Form):
             def __init__(self, view):
-                super(FileUploadForm, self).__init__(view, 'test')
+                super().__init__(view, 'test')
                 self.add_child(FileInput(self, fixture.domain_object.fields.files))
         return FileUploadForm   
 
-    message_span_xpath = '//div[contains(@class, "reahl-bootstrapfileinput")]//span[2]'
+    message_span_xpath = '//div[contains(@class, "reahl-bootstrapfileinput")]/span'
     def message_displayed_is(self, message):
         return message == self.web_fixture.driver_browser.get_inner_html_for(self.message_span_xpath)
 
@@ -147,11 +150,13 @@ def test_file_input_basics(web_fixture, file_input_fixture):
     browser = web_fixture.driver_browser
     browser.open('/')
 
+    file1 = temp_file_with('', name='file1.txt')
+    file2 = temp_file_with('', name='file2.txt')
     browser.wait_for(fixture.message_displayed_is, 'No files chosen')
-    browser.type(XPath.input_labelled('Choose file(s)'), '/tmp/koos.html')
-    browser.wait_for(fixture.message_displayed_is, 'koos.html')
+    browser.type(XPath.input_labelled('Choose file(s)'), file1.name)
+    browser.wait_for(fixture.message_displayed_is, os.path.basename(file1.name))
 
-    browser.type(XPath.input_labelled('Choose file(s)'), '/tmp/koos.html\n/tmp/jannie.html')
+    browser.type(XPath.input_labelled('Choose file(s)'), file2.name)
     browser.wait_for(fixture.message_displayed_is, '2 files chosen')
 
 
@@ -165,10 +170,13 @@ def test_i18n(web_fixture, file_input_fixture):
     browser = web_fixture.driver_browser
     browser.open('/af/')
 
+    file1 = temp_file_with('', name='file1.txt')
+    file2 = temp_file_with('', name='file2.txt')
     browser.wait_for(fixture.message_displayed_is, 'Geen lêers gekies')
     browser.wait_for_element_present(XPath.input_labelled('Kies lêer(s)'))
 
-    browser.type(XPath.input_labelled('Kies lêer(s)'), '/tmp/koos.html\n/tmp/jannie.html')
+    browser.type(XPath.input_labelled('Kies lêer(s)'), file1.name)
+    browser.type(XPath.input_labelled('Kies lêer(s)'), file2.name)
     browser.wait_for(fixture.message_displayed_is, '2 gekose lêers')
 
 
@@ -211,8 +219,8 @@ class FileUploadInputFixture(Fixture):
     def new_file_to_upload2(self):
         return temp_file_with(self.file_to_upload2_content, name=self.file_to_upload2_name, mode='w+b')
 
-    def new_domain_object(self):
-        class DomainObject(object):
+    def new_domain_object(self): 
+        class DomainObject:
             def __init__(self):
                 self.throws_exception = False
                 self.files = []
@@ -242,9 +250,11 @@ class FileUploadInputFixture(Fixture):
         fixture = self
         class FileUploadForm(Form):
             def __init__(self, view):
-                super(FileUploadForm, self).__init__(view, 'test')
+                super().__init__(view, 'test')
                 self.set_attribute('novalidate','novalidate')
                 self.use_layout(FormLayout())
+                if self.exception:
+                    self.layout.add_alert_for_domain_exception(self.exception)
                 self.layout.add_input(FileUploadInput(self, fixture.domain_object.fields.files))
                 self.define_event_handler(fixture.domain_object.events.submit)
                 self.add_child(Button(self, fixture.domain_object.events.submit))
@@ -264,7 +274,7 @@ class FileUploadInputFixture(Fixture):
 class ConstrainedFileUploadInputFixture(FileUploadInputFixture):
     def new_domain_object(self):
         fixture = self
-        class DomainObject(object):
+        class DomainObject:
             @exposed
             def fields(self, fields):
                 fields.files = fixture.file_field
@@ -300,7 +310,7 @@ class MaxNumberOfFilesFileUploadInputFixture(ConstrainedFileUploadInputFixture):
 
 class ToggleableConstraint(ValidationConstraint):
     def __init__(self, fixture=None):
-        super(ToggleableConstraint, self).__init__(error_message='test validation message')
+        super().__init__(error_message='test validation message')
         self.fixture = fixture
         
     def validate_input(self, unparsed_input):
@@ -308,7 +318,7 @@ class ToggleableConstraint(ValidationConstraint):
             raise self
 
     def __reduce__(self):
-        reduced = super(ToggleableConstraint, self).__reduce__()
+        reduced = super().__reduce__()
         pickle_dict = reduced[2]
         del pickle_dict['fixture']
         return reduced
@@ -318,7 +328,7 @@ class ToggleValidationFixture(FileUploadInputFixture):
     make_validation_fail = False
     def new_domain_object(self):
         fixture = self
-        class DomainObject(object):
+        class DomainObject:
             @exposed
             def fields(self, fields):
                 fields.files = FileField(allow_multiple=True, label='Attached files')
@@ -353,13 +363,16 @@ class StubbedFileUploadInputFixture(FileUploadInputFixture):
             def upload_file(self):
                 if fixture.run_hook_before:
                     fixture.file_upload_hook()
-                super(FileUploadPanelStub, self).upload_file()
+                super().upload_file()
                 if fixture.run_hook_after:
                     fixture.file_upload_hook()
 
         class FileUploadForm(Form):
             def __init__(self, view):
-                super(FileUploadForm, self).__init__(view, 'test')
+                super().__init__(view, 'test')
+                if self.exception:
+                    self.use_layout(FormLayout())
+                    self.layout.add_alert_for_domain_exception(self.exception)
                 self.add_child(FileUploadInputStub(self, fixture.domain_object.fields.files))
                 self.define_event_handler(fixture.domain_object.events.submit)
                 self.add_child(Button(self, fixture.domain_object.events.submit))
@@ -376,10 +389,6 @@ class LargeFileUploadInputFixture(StubbedFileUploadInputFixture):
 
     def simulate_large_file_upload_done(self):
         self.upload_done.set()
-
-    @property
-    def web_driver(self):  
-        return self.web_fixture.chrome_driver  # These tests only work on chrome
 
     def new_upload_done(self):
         return threading.Event()
@@ -447,8 +456,7 @@ def test_file_upload_input_basics(web_fixture, file_upload_input_fixture):
 
 @with_fixtures(WebFixture, FileUploadInputFixture)
 def test_file_upload_input_list_files(web_fixture, file_upload_input_fixture):
-    """The FileUploadInput displays a list of files that were uploaded so far, but is cleared 
-       once the Form is submitted."""
+    """The FileUploadInput displays a list of files that were uploaded so far."""
 
     fixture = file_upload_input_fixture
 
@@ -472,18 +480,42 @@ def test_file_upload_input_list_files(web_fixture, file_upload_input_fixture):
     assert fixture.uploaded_file_is_listed( fixture.file_to_upload1.name ) 
     assert fixture.uploaded_file_is_listed( fixture.file_to_upload2.name ) 
 
-    # Submit the form:
-    # If an exception is raised, the list is NOT cleared
-    fixture.domain_object.throws_exception = True
-    browser.click( XPath.button_labelled('Submit') )
-    assert fixture.uploaded_file_is_listed( fixture.file_to_upload1.name ) 
-    assert fixture.uploaded_file_is_listed( fixture.file_to_upload2.name ) 
 
-    # Upon successful submit, the list IS cleared
-    fixture.domain_object.throws_exception = False
+@uses(file_upload_input_fixture=FileUploadInputFixture)
+class ExceptionScenarios(Fixture):
+    @scenario
+    def no_exception(self):
+        self.file_upload_input_fixture.domain_object.throws_exception = False
+
+    @scenario
+    def exception(self):
+        self.file_upload_input_fixture.domain_object.throws_exception = True
+
+
+@with_fixtures(WebFixture, FileUploadInputFixture, ExceptionScenarios)
+def test_file_upload_input_list_files_clearing(web_fixture, file_upload_input_fixture, exception_scenario):
+    """The list of uploaded files displayed by the FileUploadInput is cleared 
+       once the Form is successfully submitted."""
+
+    fixture = file_upload_input_fixture
+
+    web_fixture.reahl_server.set_app(fixture.wsgi_app)
+
+    browser = web_fixture.driver_browser
+    browser.open('/')
+
+    # Upload one file
+    browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload1.name)
+    browser.click(XPath.button_labelled('Upload'))
+
+    assert fixture.uploaded_file_is_listed( fixture.file_to_upload1.name ) 
+
+    # Submit the form:
     browser.click( XPath.button_labelled('Submit') )
-    assert not fixture.uploaded_file_is_listed( fixture.file_to_upload1.name ) 
-    assert not fixture.uploaded_file_is_listed( fixture.file_to_upload2.name ) 
+    if fixture.domain_object.throws_exception:
+        assert fixture.uploaded_file_is_listed( fixture.file_to_upload1.name ) 
+    else:
+        assert not fixture.uploaded_file_is_listed( fixture.file_to_upload1.name ) 
 
 
 @with_fixtures(WebFixture, FileUploadInputFixture)
@@ -675,7 +707,7 @@ def test_prevent_form_submit(web_fixture, large_file_upload_input_fixture):
 
     with browser.no_page_load_expected():
         browser.click( XPath.button_labelled('Submit'), wait=False, wait_for_ajax=False)
-        alert = fixture.web_driver.switch_to.alert
+        alert = browser.web_driver.switch_to.alert
         assert alert.text == 'Please try again when all files have finished uploading.' 
         alert.accept()
 
@@ -722,7 +754,6 @@ def test_async_upload_error(web_fixture, broken_file_upload_input_fixture):
     fixture = broken_file_upload_input_fixture
 
     web_fixture.reahl_server.set_app(fixture.new_wsgi_app(enable_js=True))
-    web_fixture.config.reahlsystem.debug = False # So that we don't see the exception output while testing
     browser = web_fixture.driver_browser
     browser.open('/')
 
@@ -775,7 +806,6 @@ def test_queueing_async_uploads(web_fixture, large_file_upload_input_fixture):
     """Asynchronous uploads do not happen concurrently, they are queued one after another.
     """
     fixture = large_file_upload_input_fixture
-
 
     fixture.run_hook_after = True
     web_fixture.reahl_server.set_app(fixture.new_wsgi_app(enable_js=True))

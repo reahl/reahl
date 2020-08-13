@@ -15,19 +15,20 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 
-from reahl.tofu import Fixture, expected
+import urllib.parse
+
+from reahl.tofu import Fixture, expected, scenario
 from reahl.tofu.pytestsupport import with_fixtures
 from reahl.stubble import easter_egg
 
+from reahl.component.exceptions import ProgrammerError
 from reahl.component.dbutils import DatabaseControl, SystemControl, CouldNotFindDatabaseControlException
 from reahl.component.config import Configuration, ReahlSystemConfig
 
 
 class StubDatabaseControl(DatabaseControl):
     control_matching_regex = r'^myprefix://'
-    uri_regex_string = r'myprefix://(?P<database>.*):(?P<user>.*):(?P<password>.*):(?P<host>.*):(?P<port>.*)$'
 
 
 class DBControlFixture(Fixture):
@@ -57,20 +58,86 @@ def test_finding_database_control(dbcontrol_fixture):
         SystemControl(fixture.config)
 
 
-@with_fixtures(DBControlFixture)
-def test_database_control_settings(dbcontrol_fixture):
+class URIScenarios(Fixture):
+
+    @scenario
+    def all_settings_given(self):
+        self.uri = 'myprefix://theuser:thepasswd@thehost:123/thedb'
+        self.database_name = 'thedb'
+        self.user_name = 'theuser'
+        self.password = 'thepasswd'
+        self.host = 'thehost'
+        self.port = 123
+
+    @scenario
+    def not_all_settings_given(self):
+        self.uri = 'myprefix://theuser@thehost/thedb'
+        self.database_name = 'thedb'
+        self.user_name = 'theuser'
+        self.password = None
+        self.host = 'thehost'
+        self.port = None
+
+    @scenario
+    def minimal(self):
+        self.uri = 'myprefix:///:memory:'
+        self.database_name = ':memory:'
+        self.user_name = None
+        self.password = None
+        self.host = None
+        self.port = None
+
+
+@with_fixtures(DBControlFixture, URIScenarios)
+def test_database_control_settings(dbcontrol_fixture, uri_scenario):
     """DatabaseControl settings are read from the
        reahlsystem.connection_uri config setting parsed as an RFC1808 URI
     """
     fixture = dbcontrol_fixture
-    fixture.config.reahlsystem.connection_uri = 'myprefix://theuser:thepasswd@thehost:123/thedb'
+    fixture.config.reahlsystem.connection_uri = uri_scenario.uri
     system_control = SystemControl(fixture.config)
 
-    assert system_control.db_control.database_name == 'thedb' 
-    assert system_control.db_control.user_name == 'theuser' 
-    assert system_control.db_control.password == 'thepasswd' 
-    assert system_control.db_control.host == 'thehost' 
-    assert system_control.db_control.port == 123 
+    assert system_control.db_control.database_name == uri_scenario.database_name
+    assert system_control.db_control.user_name == uri_scenario.user_name
+    assert system_control.db_control.password == uri_scenario.password
+    assert system_control.db_control.host == uri_scenario.host
+    assert system_control.db_control.port == uri_scenario.port
+
+
+@with_fixtures(DBControlFixture)
+def test_minimum_required_database_control_settings(dbcontrol_fixture):
+    """The minimum an uri should contain is a database name.
+    """
+    fixture = dbcontrol_fixture
+    fixture.config.reahlsystem.connection_uri = 'myprefix:///'
+    with expected(ProgrammerError, test='Please specify a database name in reahlsystem.connection_uri'):
+        SystemControl(fixture.config)
+
+
+@with_fixtures(DBControlFixture)
+def test_database_control_url_safe_parts(dbcontrol_fixture):
+    """URL parts are unquoted, as they may contain URL quoted characters.
+    """
+    fixture = dbcontrol_fixture
+
+    def quote(values):
+        return [urllib.parse.quote(i) for i in values]
+
+    expected_parts \
+        = [expected_user_name, expected_password, expected_host, expected_db] \
+        = ['usêrname', 'p#=sword', 'hõst', 'd~t∀b^s∊']
+    uri = 'myprefix://%s:%s@%s:456/%s' % tuple(quote(expected_parts))
+    assert not set(expected_parts).intersection(quote(expected_parts))
+
+    fixture.config.reahlsystem.connection_uri = uri
+
+    system_control = SystemControl(fixture.config)
+
+    assert system_control.db_control.user_name == expected_user_name
+    assert system_control.db_control.password == expected_password
+    assert system_control.db_control.host == expected_host
+    assert system_control.db_control.port == 456
+    assert system_control.db_control.database_name == expected_db
 
 
 

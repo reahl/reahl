@@ -1,5 +1,4 @@
 # Copyright 2016, 2017, 2018 Reahl Software Services (Pty) Ltd. All rights reserved.
-#-*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
 #
@@ -15,9 +14,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 
-import six
 
 from reahl.tofu import Fixture
 from reahl.tofu.pytestsupport import with_fixtures
@@ -36,7 +33,7 @@ class CueInputFixture(Fixture):
     cue_element_xpath = "//p"
 
     def new_domain_object(self):
-        class DomainObject(object):
+        class DomainObject:
             @exposed
             def fields(self, fields):
                 fields.field = Field(label='MyField')
@@ -50,7 +47,7 @@ def test_cue_input_display_basics(web_fixture, cue_input_fixture):
 
     class FormWithCueInput(Form):
             def __init__(self, view):
-                super(FormWithCueInput, self).__init__(view, 'test')
+                super().__init__(view, 'test')
                 self.use_layout(FormLayout())
                 cue_input = CueInput(TextInput(self, fixture.domain_object.fields.field), P(view, 'this is your cue'))
                 self.layout.add_input(cue_input)
@@ -80,7 +77,7 @@ def test_cue_is_visible_when_js_disabled(web_fixture, cue_input_fixture):
 
     class FormWithCueInput(Form):
             def __init__(self, view):
-                super(FormWithCueInput, self).__init__(view, 'test')
+                super().__init__(view, 'test')
                 self.use_layout(FormLayout())
                 cue_input = CueInput(TextInput(self, fixture.domain_object.fields.field), P(view, 'this is your cue'))
                 self.layout.add_input(cue_input)

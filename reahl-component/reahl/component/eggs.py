@@ -16,7 +16,6 @@
 
 """Classes that aid in dealing with Eggs and setting them up."""
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 import os
 import os.path
 import re
@@ -45,7 +44,7 @@ class CircularDependencyDetected(Exception):
         return ' -> '.join([str(i) for i in self.cycle])
 
 
-class DependencyGraph(object):
+class DependencyGraph:
     @classmethod
     def from_vertices(cls, vertices, find_dependencies):
         graph = {}
@@ -106,7 +105,7 @@ class DependencyGraph(object):
 
 
 class VersionTree(object):
-    @classmethod 
+    @classmethod
     def from_root_egg(cls, root_egg_name):
         instance = cls()
         egg = ReahlEgg(get_distribution(root_egg_name))
@@ -124,7 +123,7 @@ class VersionTree(object):
 
     def build_tree_for(self, version):
         if version not in self.dep_dict:
-            self.dep_dict[version] = [dependency.get_best_version() for dependency in version.get_dependencies() 
+            self.dep_dict[version] = [dependency.get_best_version() for dependency in version.get_dependencies()
                                       if dependency.type == 'egg' and dependency.distribution]
             dep_versions = [v for dependency in version.get_dependencies()
                               if dependency.type == 'egg'  and dependency.distribution
@@ -151,7 +150,7 @@ class Dependency(object):
     def get_best_version(self):
         all_versions = self.get_versions()
         matching_versions = sorted([v for v in all_versions
-                                    if v.matches_versions(self.min_version, self.max_version)], 
+                                    if v.matches_versions(self.min_version, self.max_version)],
                                    key=lambda x: x.version_number)
         return matching_versions[-1]
 
@@ -170,7 +169,7 @@ class Dependency(object):
 class Version(object):
     def __init__(self, egg, version_number_string):
         self.egg = egg
-        self.version_number_string = version_number_string 
+        self.version_number_string = version_number_string
 
     @property
     def version_number(self):
@@ -198,7 +197,7 @@ class Version(object):
         return self.egg.get_dependencies(self.version_number_string)
 
 
-class ReahlEgg(object):
+class ReahlEgg:
     interface_cache = {}
 
     def __init__(self, distribution):
@@ -316,7 +315,6 @@ class ReahlEgg(object):
         for translation_entry_point in iter_entry_points('reahl.translations'):
             requirement = translation_entry_point.dist.as_requirement()
             egg_internal_path = cls.get_egg_internal_path_for(translation_entry_point)
-
             if resource_isdir(requirement, egg_internal_path):
                 languages = [d for d in resource_listdir(requirement, egg_internal_path)
                              if (resource_isdir(requirement, '%s/%s' % (egg_internal_path, d)) and not d.startswith('__'))]

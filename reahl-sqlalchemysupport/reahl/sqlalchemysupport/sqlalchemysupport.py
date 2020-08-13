@@ -19,10 +19,8 @@
 Run 'reahl componentinfo reahl-sqlalchemysupport' for configuration information.
 """
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 
 from abc import ABCMeta
-import six
 import weakref
 from contextlib import contextmanager
 import logging
@@ -114,7 +112,7 @@ class DeclarativeABCMeta(DeclarativeMeta, ABCMeta):
 Base = declarative_base(class_registry=weakref.WeakValueDictionary(), metadata=metadata, metaclass=DeclarativeABCMeta)    #: A Base for using with declarative
 
 
-class QueryAsSequence(object):
+class QueryAsSequence:
     """Used to adapt a SqlAlchemy Query to behave like a normal
       `Python sequence type <https://docs.python.org/3/glossary.html#term-sequence>`_.
 
@@ -199,8 +197,13 @@ def session_scoped(cls):
     return cls
 
 
-class TransactionVeto(object):
-    should_commit = None
+class TransactionVeto:
+    """An object that can be used to force the transaction to be committed or not.
+
+    .. versionadded: 5.0
+
+    """
+    should_commit = None  #: Set this to True to force a commit or False to force a rollback
     @property
     def has_voted(self):
         return self.should_commit is not None
@@ -231,10 +234,11 @@ class SqlAlchemyControl(ORMControl):
         finally:
             if transaction_veto.has_voted:
                 commit = transaction_veto.should_commit
-            if commit:
-                self.commit()
-            else:
-                self.rollback()
+            if transaction.is_active:# some sqlalchemy exceptions automatically rollback the current transaction
+                if commit:
+                    transaction.commit()
+                else:
+                    transaction.rollback()
 
     @contextmanager
     def managed_transaction(self):
@@ -242,10 +246,11 @@ class SqlAlchemyControl(ORMControl):
         try:
             yield transaction
         except:
-            self.rollback()
+            if transaction.is_active: # some sqlalchemy exceptions automatically rollback the current transaction
+                transaction.rollback()
             raise
         else:
-            self.commit()
+            transaction.commit()
         
     def connect(self):
         """Creates the SQLAlchemy Engine, bind it to the metadata and instrument the persisted classes 
@@ -349,7 +354,7 @@ class SqlAlchemyControl(ORMControl):
         opts = {'as_sql': output_sql, 'target_metadata': metadata}
         with Operations.context(MigrationContext.configure(connection=Session.connection(), opts=opts)) as op:
             self.op = op
-            return super(SqlAlchemyControl, self).migrate_db(eggs_in_order, dry_run=dry_run, output_sql=output_sql)
+            return super().migrate_db(eggs_in_order, dry_run=dry_run, output_sql=output_sql)
 
     def diff_db(self, output_sql=False):
         if output_sql:
@@ -414,7 +419,7 @@ class PersistedField(Field):
     """
     def __init__(self, class_to_query, default=None, required=False, required_message=None, label=None, readable=None, writable=None):
         label = label or _('')
-        super(PersistedField, self).__init__(default=default, required=required, required_message=required_message, label=label, readable=readable, writable=writable)
+        super().__init__(default=default, required=required, required_message=required_message, label=label, readable=readable, writable=writable)
         self.class_to_query = class_to_query
         self.add_validation_constraint(IntegerConstraint())
 
@@ -425,7 +430,7 @@ class PersistedField(Field):
     def unparse_input(self, parsed_value):
         instance = parsed_value
         if instance:
-            return six.text_type(instance.id)
+            return str(instance.id)
         return ''
 
 
@@ -434,8 +439,5 @@ class SchemaVersion(Base):
     id = Column(Integer, primary_key=True)
     version = Column(String(50))
     egg_name = Column(String(80))
-
-
-
 
 

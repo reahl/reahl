@@ -15,13 +15,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 
-import six
 import warnings
 import contextlib
 import platform
-from six.moves import zip_longest
+import itertools
 
 import pkg_resources
 
@@ -38,16 +36,16 @@ def expected_deprecation_warnings(expected_warnings):
         warnings.simplefilter('always')
         yield
 
-    warning_messages = [six.text_type(i.message) for i in caught_warnings]
+    warning_messages = [str(i.message) for i in caught_warnings]
     assert len(warning_messages) == len(expected_warnings) 
-    for caught, expected_message in zip_longest(warning_messages, expected_warnings):
+    for caught, expected_message in itertools.zip_longest(warning_messages, expected_warnings):
         assert expected_message in caught 
 
 
 class ClassDeprecationScenarios(Fixture):
     @scenario
     def plain_usage(self):
-        class ASuperClassWithAnInit(object):
+        class ASuperClassWithAnInit:
             def __init__(self): pass
         @deprecated('this test deprecated class is deprecated', '1.2')
         class ADeprecatedClass(ASuperClassWithAnInit):
@@ -61,7 +59,7 @@ class ClassDeprecationScenarios(Fixture):
     @scenario
     def used_with_arg_checks(self):
         @deprecated('this test deprecated class is deprecated', '2.3')
-        class ADeprecatedClass(object):
+        class ADeprecatedClass:
             @arg_checks()
             def __init__(self):
                 pass
@@ -97,7 +95,7 @@ def test_deprecating_a_class_docstring():
     """When @deprecated is used, the docstring (if present) of the deprecated class or method is changed to indicate deprecation."""
     
     @deprecated('this is deprecated', '1.2')
-    class ClassWithDocstring(object):
+    class ClassWithDocstring:
         """A docstring."""
         @deprecated('this also', '0.0')
         def do_something(self):
@@ -109,7 +107,7 @@ def test_deprecating_a_class_docstring():
     assert not high_python_version or (ClassWithDocstring().do_something.__doc__ == 'another\n\n.. deprecated:: 0.0\n   this also') 
 
     @deprecated('this is deprecated', '1.2')
-    class ClassWithoutDocstring(object):
+    class ClassWithoutDocstring:
         pass
 
     assert not ClassWithoutDocstring.__doc__ 
@@ -118,7 +116,7 @@ def test_deprecating_a_class_docstring():
 class MethodDeprecationScenarios(Fixture):
     @scenario
     def plain_usage(self):
-        class NonDeprecatedClass(object):
+        class NonDeprecatedClass:
             @deprecated('this class method is deprecated', '1.1')
             @classmethod
             def some_deprecated_class_method(cls):
@@ -135,7 +133,7 @@ class MethodDeprecationScenarios(Fixture):
 
     @scenario
     def used_with_arg_checks(self):
-        class NonDeprecatedClass(object):
+        class NonDeprecatedClass:
             @deprecated('this class method is deprecated', '1.2')
             @arg_checks()
             @classmethod
@@ -175,7 +173,7 @@ def test_deprecating_a_method(method_deprecation_scenarios):
 class MemoizeScenarios(Fixture):
     @scenario
     def a_method(self):
-        class SomeClass(object):
+        class SomeClass:
             @memoized
             def some_method(self):
               return EmptyStub()
@@ -185,7 +183,7 @@ class MemoizeScenarios(Fixture):
 
     @scenario
     def a_class_method(self):
-        class SomeClass(object):
+        class SomeClass:
             @memoized
             @classmethod
             def some_class_method(cls):
@@ -195,7 +193,7 @@ class MemoizeScenarios(Fixture):
 
     @scenario
     def a_class_method_called_via_instance(self):
-        class SomeClass(object):
+        class SomeClass:
             @memoized
             @classmethod
             def some_class_method(cls):
@@ -227,7 +225,7 @@ def test_memoize_caches_call_results(memoize_scenarios):
 def test_memoize_considers_method_args():
     """The results are cached based on the arguments passed to calls."""
 
-    class SomeClass(object):
+    class SomeClass:
         @memoized
         def method_with_args(self, an_arg, a_kwarg=None):
           return EmptyStub()

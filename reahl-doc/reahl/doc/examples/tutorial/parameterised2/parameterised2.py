@@ -1,15 +1,15 @@
 
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 
 
-from reahl.web.fw import UserInterface, Widget, CannotCreate, UrlBoundView
+from reahl.web.fw import UserInterface, CannotCreate, UrlBoundView
 from reahl.web.layout import PageLayout
-from reahl.web.bootstrap.ui import HTML5Page, TextNode, Div, H, P, A
+from reahl.web.bootstrap.page import HTML5Page
+from reahl.web.bootstrap.ui import Div, H, P
 from reahl.web.bootstrap.navbar import Navbar, ResponsiveLayout
 from reahl.web.bootstrap.navs import Nav
 from reahl.web.bootstrap.grid import Container, ColumnLayout, ColumnOptions, ResponsiveSize
-from reahl.web.bootstrap.forms import TextInput, Form, FormLayout, Button, ButtonLayout, FieldSet
+from reahl.web.bootstrap.forms import TextInput, Form, FormLayout, Button, FieldSet
 from reahl.component.modelinterface import exposed, Field, EmailField, Action, Event, IntegerField
 from reahl.sqlalchemysupport import Session, Base
 from sqlalchemy.orm.exc import NoResultFound
@@ -18,7 +18,7 @@ from sqlalchemy import Column, Integer, UnicodeText
 
 class AddressBookPage(HTML5Page):
     def __init__(self, view, bookmarks):
-        super(AddressBookPage, self).__init__(view)
+        super().__init__(view)
         self.use_layout(PageLayout(document_layout=Container()))
         contents_layout = ColumnLayout(ColumnOptions('main', size=ResponsiveSize())).with_slots()
         self.layout.contents.use_layout(contents_layout)
@@ -44,20 +44,19 @@ class EditView(UrlBoundView):
 
 class EditAddressForm(Form):
     def __init__(self, view, address):
-        super(EditAddressForm, self).__init__(view, 'edit_form')
+        super().__init__(view, 'edit_form')
 
         grouped_inputs = self.add_child(FieldSet(view, legend_text='Edit address'))
         grouped_inputs.use_layout(FormLayout())
         grouped_inputs.layout.add_input(TextInput(self, address.fields.name))
         grouped_inputs.layout.add_input(TextInput(self, address.fields.email_address))
 
-        button = grouped_inputs.add_child(Button(self, address.events.update))
-        button.use_layout(ButtonLayout(style='primary'))
+        grouped_inputs.add_child(Button(self, address.events.update, style='primary'))
 
 
 class AddressForm(Form):
     def __init__(self, view):
-        super(AddressForm, self).__init__(view, 'address_form')
+        super().__init__(view, 'address_form')
 
         new_address = Address()
         grouped_inputs = self.add_child(FieldSet(view, legend_text='Add an address'))
@@ -65,13 +64,12 @@ class AddressForm(Form):
         grouped_inputs.layout.add_input(TextInput(self, new_address.fields.name))
         grouped_inputs.layout.add_input(TextInput(self, new_address.fields.email_address))
 
-        button = grouped_inputs.add_child(Button(self, new_address.events.save))
-        button.use_layout(ButtonLayout(style='primary'))
+        grouped_inputs.add_child(Button(self, new_address.events.save, style='primary'))
 
 
 class AddressBookPanel(Div):
     def __init__(self, view):
-        super(AddressBookPanel, self).__init__(view)
+        super().__init__(view)
 
         self.add_child(H(view, 1, text='Addresses'))
 
@@ -82,7 +80,7 @@ class AddressBookPanel(Div):
 class AddressBox(Form):
     def __init__(self, view, address):
         form_name = 'address_%s' % address.id  # Forms need unique names!
-        super(AddressBox, self).__init__(view, form_name)
+        super().__init__(view, form_name)
         paragraph = self.add_child(P(view, text='%s: %s ' % (address.name, address.email_address)))
         paragraph.add_child(Button(self, address.events.edit.with_arguments(address_id=address.id)))
 

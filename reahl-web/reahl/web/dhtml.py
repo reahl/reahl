@@ -18,11 +18,10 @@
 
 Static pages that are included on the fly inside Views.
 """
-from __future__ import print_function, unicode_literals, absolute_import, division
 
 import os.path
 import io
-from six.moves import html_parser
+import html.parser
 import logging
 
 from bs4 import BeautifulSoup, SoupStrainer
@@ -38,9 +37,9 @@ _ = Catalogue('reahl-web')
 
 class DJHTMLWidget(LiteralHTML):
     def __init__(self, view, html_content):
-        super(DJHTMLWidget, self).__init__(view, html_content)
+        super().__init__(view, html_content)
 
-class DHTMLFile(object):
+class DHTMLFile:
     def __init__(self, filename, ids):
         self.filename = filename
         self.ids = ids
@@ -57,7 +56,7 @@ class DHTMLFile(object):
                     return True
                 return False
             soup = BeautifulSoup(dhtml_file, "lxml", parse_only=SoupStrainer(strain))
-            parser = html_parser.HTMLParser()
+            parser = html.parser.HTMLParser()
             self.title = parser.unescape(soup.title.decode_contents()) if soup.title else _('Untitled')
             for an_id in self.ids:
                 found_elements = soup.find_all(id=an_id)

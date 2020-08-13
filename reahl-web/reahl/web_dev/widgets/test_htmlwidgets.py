@@ -1,5 +1,4 @@
 # Copyright 2013-2018 Reahl Software Services (Pty) Ltd. All rights reserved.
-#-*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
 #
@@ -16,7 +15,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 
 
 from reahl.tofu import scenario, Fixture, expected, uses
@@ -71,12 +69,12 @@ def test_handy_methods(web_fixture):
     tester = WidgetTester(widget)
 
     widget.set_title('the title')
-    widget.set_id('the id')
+    widget.set_id('the_id')
     widget.append_class('two')
     widget.append_class('one')
 
     rendered = tester.render_html()
-    assert rendered == '<x id="the id" title="the title" class="one two">'
+    assert rendered == '<x id="the_id" title="the title" class="one two">'
 
 
 @with_fixtures(WebFixture)
@@ -87,7 +85,7 @@ def test_dynamically_determining_attributes(web_fixture):
         state = '1'
         @property
         def attributes(self):
-            attributes = super(WidgetWithDynamicAttributes, self).attributes
+            attributes = super().attributes
             attributes.set_to('dynamic', self.state)
             attributes.add_to('dynamiclist', [self.state])
             attributes.add_to('not-there', ['a value'])
@@ -504,7 +502,7 @@ def test_body(web_fixture):
     assert reahl_footer_slot.name == 'reahl_footer'
 
     rendered_html = tester.render_html()
-    assert rendered_html == '<body><div id="_reahl_out_of_bound_forms"></div><p></p></body>'
+    assert rendered_html == '<body><div id="_reahl_out_of_bound_container"></div><p></p></body>'
 
 
 @with_fixtures(WebFixture)
@@ -519,7 +517,7 @@ def test_html5_page(web_fixture):
 
     rendered_html = tester.render_html()
     head = '<head><title>It: %s</title></head>' % fixture.view.title
-    expected_regex = '^<!DOCTYPE html><html.*class="no-js"><script>.*</script>%s<body><div id="_reahl_out_of_bound_forms"></div></body></html>$' % head
+    expected_regex = '^<!DOCTYPE html><html.*class="no-js"><script>.*</script>%s<body><div id="_reahl_out_of_bound_container"></div></body></html>$' % head
     assert re.match(expected_regex, rendered_html.replace('\n', ''))
 
     assert list(widget.default_slot_definitions.keys()) == ['slot1']

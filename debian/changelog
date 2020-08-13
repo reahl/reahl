@@ -1,4 +1,4 @@
-python-reahl (5.0) unstable; urgency=low
+python-reahl (5.0.0a1) unstable; urgency=low
 
  * Added the ability for onchange events to cause Widgets to be refreshed via ajax (responsive-disclosure #132).
  * Added the ability for refreshed Widgets to be able to recalculate their domain before rendering again.
@@ -19,8 +19,26 @@ python-reahl (5.0) unstable; urgency=low
  * Renamed is_checked, check, and uncheck methods on DriverBrowser to work for radio buttons too.
  * Removed Browser.location_path, location_scheme, location_query_string in favour of .current_url.
  * Changed Table and Column to allow for table footer content in Columns.
+ * Changed the names of Inputs to include their form names so they can be unique in JS state (#154).
+ * Added unique IDs to all HTML input controls (#154).
+ * Added Field.with_namespace() (and removed name kwarg to PrimitiveInputs) for distinguishing same-named inputs.
+ * Removed the in_production kwarg for StoredConfiguration (#174). Rather use strict_checking.
+ * Moved reahl.web.bootstrap.ui.HTML5Page to reahl.web.bootstrap.page to resolve dependency issues.
+ * Added a way to render customised error pages.
+ * Added an optimistic concurrency check to form submits (#251).
+ * Deal with forms that are no longer on a page due to concurrent changes in the backend (#251).
+ * Added FormLayout.add_alert_for_domain_exception.
+ * Added ignore_concurrent_changes kwarg to PrimitiveInputs.
+ * Changed @exposed so that it takes super methods into account automatically.
+ * Added start_on_first_request kwarg to ReahlWSGIApplication and related methods to make the application start itself when needed.
+ * Removed python2 support (#178).
+ * Changed ButtonInput to have a layout upon construction because that's what Bootstrap requires.
+ * Upgraded all dependencies to latest current versions, including Bootstrap (#265).
+ * Examples can be checked out and renamed.
+ * Added ability to add config, in a guided manner, to an existing project.
+ * Upgrade to Bootstrap 4.5.0 and jquery 3.5.1
 
- -- Iwan Vosloo <iwan@reahl.org>  Thu, 13 Dec 2018 15:15:00 +0200
+ -- Iwan Vosloo <iwan@reahl.org>  Thu, 30 Jul 2020 15:15:00 +0200
 
 
 python-reahl (4.0.5) unstable; urgency=low

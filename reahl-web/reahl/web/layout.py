@@ -1,5 +1,4 @@
 # Copyright 2015-2018 Reahl Software Services (Pty) Ltd. All rights reserved.
-# -*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
 #
@@ -22,7 +21,6 @@ Utilities to deal with layout.
 
 """
 
-import six
 
 from reahl.component.exceptions import arg_checks, IsInstance
 from reahl.web.fw import Layout
@@ -59,7 +57,7 @@ class PageLayout(Layout):
     @arg_checks(document_layout=IsInstance(Layout, allow_none=True), contents_layout=IsInstance(Layout, allow_none=True),
                 header_layout=IsInstance(Layout, allow_none=True), footer_layout=IsInstance(Layout, allow_none=True))
     def __init__(self, document_layout=None, contents_layout=None, header_layout=None, footer_layout=None):
-        super(PageLayout, self).__init__()
+        super().__init__()
         self.header = None    #: The :class:`reahl.web.ui.Header` of the page.
         self.contents = None  #: The :class:`reahl.web.ui.Div` containing the contents.
         self.footer = None    #: The :class:`reahl.web.ui.Footer` of the page.
@@ -71,7 +69,7 @@ class PageLayout(Layout):
 
     @arg_checks(widget=IsInstance(HTML5Page))
     def apply_to_widget(self, widget):
-        super(PageLayout, self).apply_to_widget(widget)
+        super().apply_to_widget(widget)
 
     def customise_widget(self):
         self.document = self.widget.body.add_child(Div(self.view))

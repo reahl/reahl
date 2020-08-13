@@ -1,5 +1,4 @@
 # Copyright 2015-2018 Reahl Software Services (Pty) Ltd. All rights reserved.
-#-*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
 #
@@ -15,9 +14,9 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 
-import six
+
+from sqlalchemy import Column, String, Integer
 
 from reahl.tofu import scenario, Fixture, uses, expected
 from reahl.tofu.pytestsupport import with_fixtures
@@ -26,6 +25,7 @@ from reahl.webdev.tools import XPath, Browser
 from reahl.webdev.tools import WidgetTester
 from reahl.component.modelinterface import exposed, Field, BooleanField, Event, Choice, ChoiceField,\
     MultiChoiceField, IntegerField, Action
+from reahl.component.exceptions import DomainException
 from reahl.web.fw import Url
 from reahl.web.bootstrap.ui import A, Div, FieldSet
 from reahl.web.bootstrap.forms import Button, FormLayout, InlineFormLayout, GridFormLayout, Form, ChoicesLayout,\
@@ -33,6 +33,8 @@ from reahl.web.bootstrap.forms import Button, FormLayout, InlineFormLayout, Grid
 from reahl.web.bootstrap.grid import ResponsiveSize
 
 from reahl.web_dev.fixtures import WebFixture
+from reahl.sqlalchemysupport import Session, Base
+from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
 
 
 @uses(web_fixture=WebFixture)
@@ -71,7 +73,7 @@ class FormLayoutFixture(Fixture):
     form_group_xpath = '//form/div[contains(@class, "form-group")]'
 
     def new_domain_object(self):
-        class StubDomainObject(object):
+        class StubDomainObject:
             @exposed
             def fields(self, fields):
                 fields.an_attribute = Field(label='Some input', required=True)
@@ -117,7 +119,7 @@ def test_adding_basic_input(web_fixture, form_layout_fixture):
 
     class FormWithInputAddedUsingDefaults(Form):
         def __init__(self, view):
-            super(FormWithInputAddedUsingDefaults, self).__init__(view, 'aform')
+            super().__init__(view, 'aform')
             self.use_layout(FormLayout())
             self.layout.add_input(TextInput(self, fixture.domain_object.fields.an_attribute))
 
@@ -145,7 +147,7 @@ def test_grid_form_layouts(web_fixture, form_layout_fixture):
 
     class FormWithGridFormLayout(Form):
         def __init__(self, view):
-            super(FormWithGridFormLayout, self).__init__(view, 'aform')
+            super().__init__(view, 'aform')
             self.use_layout(GridFormLayout(ResponsiveSize(lg=4), ResponsiveSize(lg=8)))
             self.layout.add_input(TextInput(self, fixture.domain_object.fields.an_attribute), help_text='some help')
 
@@ -177,7 +179,7 @@ def test_inline_form_layouts(web_fixture, form_layout_fixture):
 
     class FormWithInlineFormLayout(Form):
         def __init__(self, view):
-            super(FormWithInlineFormLayout, self).__init__(view, 'aform')
+            super().__init__(view, 'aform')
             self.use_layout(InlineFormLayout())
             self.layout.add_input(TextInput(self, fixture.domain_object.fields.an_attribute), help_text='some help')
 
@@ -203,7 +205,7 @@ def test_specifying_help_text(web_fixture, form_layout_fixture):
 
     class FormWithInputAndHelp(Form):
         def __init__(self, view):
-            super(FormWithInputAndHelp, self).__init__(view, 'aform')
+            super().__init__(view, 'aform')
             self.use_layout(FormLayout())
             self.layout.add_input(TextInput(self, fixture.domain_object.fields.an_attribute), help_text='some help')
 
@@ -225,7 +227,7 @@ def test_omitting_label(web_fixture, form_layout_fixture):
 
     class FormWithInputNoLabel(Form):
         def __init__(self, view):
-            super(FormWithInputNoLabel, self).__init__(view, 'aform')
+            super().__init__(view, 'aform')
             self.use_layout(FormLayout())
             self.layout.add_input(TextInput(self, fixture.domain_object.fields.an_attribute), hide_label=True)
 
@@ -242,7 +244,7 @@ def test_omitting_label(web_fixture, form_layout_fixture):
 def test_adding_checkboxes(web_fixture, form_layout_fixture):
     """CheckboxInputs are added non-inlined, and by default without labels."""
 
-    class DomainObjectWithBoolean(object):
+    class DomainObjectWithBoolean:
         @exposed
         def fields(self, fields):
             fields.an_attribute = BooleanField(label='Some input', required=True)
@@ -253,7 +255,7 @@ def test_adding_checkboxes(web_fixture, form_layout_fixture):
 
     class FormWithInputWithCheckbox(Form):
         def __init__(self, view):
-            super(FormWithInputWithCheckbox, self).__init__(view, 'aform')
+            super().__init__(view, 'aform')
             self.use_layout(FormLayout())
             self.layout.add_input(CheckboxInput(self, fixture.domain_object.fields.an_attribute))
 
@@ -269,8 +271,13 @@ def test_adding_checkboxes(web_fixture, form_layout_fixture):
 
 
 class ValidationScenarios(FormLayoutFixture):
-    def new_domain_object(self):
-        class ModelObject(object):
+    def new_ModelObject(self):
+        class ModelObject(Base):
+            __tablename__ = 'model_object'
+            id = Column(Integer, primary_key=True)
+            an_attribute = Column(String)
+            another_attribute = Column(String)
+            
             @exposed
             def fields(self, fields):
                 fields.an_attribute = Field(label='Some input', required=True)
@@ -278,13 +285,13 @@ class ValidationScenarios(FormLayoutFixture):
             @exposed
             def events(self, events):
                 events.submit = Event(label='Submit')
-        return ModelObject()
+        return ModelObject
 
     def new_Form(self):
         fixture = self
         class FormWithInput(Form):
             def __init__(self, view):
-                super(FormWithInput, self).__init__(view, 'aform')
+                super().__init__(view, 'aform')
                 self.set_attribute('novalidate', 'novalidate')
                 self.use_layout(FormLayout())
                 self.layout.add_input(TextInput(self, fixture.domain_object.fields.an_attribute))
@@ -303,70 +310,78 @@ class ValidationScenarios(FormLayoutFixture):
         self.browser = Browser(self.web_fixture.new_wsgi_app(child_factory=self.Form.factory()))
 
 
-@with_fixtures(ValidationScenarios)
-def test_input_validation_cues(validation_scenarios):
+@with_fixtures(SqlAlchemyFixture, ValidationScenarios)
+def test_input_validation_cues(sql_alchemy_fixture, validation_scenarios):
     """Visible cues are inserted to indicate the current validation state
        and possible validation error messages to a user. """
     fixture = validation_scenarios
 
     browser = fixture.browser
-    browser.open('/')
 
-    assert not fixture.get_form_group_highlight_marks(browser, index=0)
-    assert not fixture.get_form_group_errors(browser, index=0)
+    with sql_alchemy_fixture.persistent_test_classes(fixture.ModelObject):
+        fixture.domain_object = fixture.ModelObject()
+        Session.add(fixture.domain_object)
+        browser.open('/')
 
-    browser.type(XPath.input_labelled('Some input'), '')
-    browser.click(XPath.button_labelled('Submit'))
+        assert not fixture.get_form_group_highlight_marks(browser, index=0)
+        assert not fixture.get_form_group_errors(browser, index=0)
 
-    assert ['is-invalid'] == fixture.get_form_group_highlight_marks(browser, index=0)
-    [error] = fixture.get_form_group_errors(browser, index=0)
-    assert error.text == 'Some input is required'
+        browser.type(XPath.input_labelled('Some input'), '')
+        browser.click(XPath.button_labelled('Submit'))
 
-    browser.type(XPath.input_labelled('Some input'), 'valid value')
-    browser.click(XPath.button_labelled('Submit'))
+        assert ['is-invalid'] == fixture.get_form_group_highlight_marks(browser, index=0)
+        [error] = fixture.get_form_group_errors(browser, index=0)
+        assert error.text == 'Some input is required'
 
-    assert ['is-valid'] == fixture.get_form_group_highlight_marks(browser, index=0)
-    assert not fixture.get_form_group_errors(browser, index=0)
+        browser.type(XPath.input_labelled('Some input'), 'valid value')
+        browser.click(XPath.button_labelled('Submit'))
 
-    browser.type(XPath.input_labelled('Another input'), 'valid value')
-    browser.click(XPath.button_labelled('Submit'))
+        assert ['is-valid'] == fixture.get_form_group_highlight_marks(browser, index=0)
+        assert not fixture.get_form_group_errors(browser, index=0)
 
-    assert not fixture.get_form_group_highlight_marks(browser, index=0)
-    assert not fixture.get_form_group_errors(browser, index=0)
+        browser.type(XPath.input_labelled('Another input'), 'valid value')
+        browser.click(XPath.button_labelled('Submit'))
+
+        assert not fixture.get_form_group_highlight_marks(browser, index=0)
+        assert not fixture.get_form_group_errors(browser, index=0)
 
 
-@with_fixtures(WebFixture, ValidationScenarios.with_javascript)
-def test_input_validation_cues_javascript_interaction(web_fixture, javascript_validation_scenario):
+@with_fixtures(WebFixture, SqlAlchemyFixture, ValidationScenarios.with_javascript)
+def test_input_validation_cues_javascript_interaction(web_fixture, sql_alchemy_fixture, javascript_validation_scenario):
     """The visual cues rendered server-side can subsequently be manipulated via javascript."""
     fixture = javascript_validation_scenario
 
     web_fixture.reahl_server.set_app(web_fixture.new_wsgi_app(child_factory=fixture.Form.factory(), enable_js=False))
 
     browser = fixture.browser
-    browser.open('/')
-    browser.type(XPath.input_labelled('Some input'), '')
-    browser.click(XPath.button_labelled('Submit'))
 
-    assert ['is-invalid'] == fixture.get_form_group_highlight_marks(browser, index=0)
-    [error] = fixture.get_form_group_errors(browser, index=0)
-    assert error.text == 'Some input is required'
+    with sql_alchemy_fixture.persistent_test_classes(fixture.ModelObject):
+        fixture.domain_object = fixture.ModelObject()
+        Session.add(fixture.domain_object)
+        browser.open('/')
+        browser.type(XPath.input_labelled('Some input'), '')
+        browser.click(XPath.button_labelled('Submit'))
 
-    web_fixture.reahl_server.set_app(web_fixture.new_wsgi_app(child_factory=fixture.Form.factory(), enable_js=True))
-    browser.open('/')
+        assert ['is-invalid'] == fixture.get_form_group_highlight_marks(browser, index=0)
+        [error] = fixture.get_form_group_errors(browser, index=0)
+        assert error.text == 'Some input is required'
 
-    browser.click(XPath.button_labelled('Submit'))
+        web_fixture.reahl_server.set_app(web_fixture.new_wsgi_app(child_factory=fixture.Form.factory(), enable_js=True))
+        browser.open('/')
 
-    assert ['is-invalid'] == fixture.get_form_group_highlight_marks(browser, index=0)
-    [error] = fixture.get_form_group_errors(browser, index=0)
-    assert error.text == 'Some input is required'
+        browser.click(XPath.button_labelled('Submit'))
 
-    browser.type(XPath.input_labelled('Some input'), 'valid value', trigger_blur=False, wait_for_ajax=False)
-    browser.press_tab()
+        assert ['is-invalid'] == fixture.get_form_group_highlight_marks(browser, index=0)
+        [error] = fixture.get_form_group_errors(browser, index=0)
+        assert error.text == 'Some input is required'
 
-    def form_group_is_marked_success(index):
-        return ['is-valid'] == fixture.get_form_group_highlight_marks(browser, index=index)
-    assert web_fixture.driver_browser.wait_for(form_group_is_marked_success, 0)
-    assert not fixture.get_form_group_errors(browser, index=0)
+        browser.type(XPath.input_labelled('Some input'), 'valid value', trigger_blur=False, wait_for_ajax=False)
+        browser.press_tab()
+
+        def form_group_is_marked_success(index):
+            return ['is-valid'] == fixture.get_form_group_highlight_marks(browser, index=index)
+        assert web_fixture.driver_browser.wait_for(form_group_is_marked_success, 0)
+        assert not fixture.get_form_group_errors(browser, index=0)
 
 
 class CheckboxFixture(Fixture):
@@ -375,7 +390,7 @@ class CheckboxFixture(Fixture):
 
     def new_domain_object(self):
         fixture = self
-        class ModelObject(object):
+        class ModelObject:
             @exposed
             def fields(self, fields):
                 fields.an_attribute = fixture.field
@@ -388,7 +403,7 @@ class CheckboxFixture(Fixture):
         fixture = self
         class FormWithInput(Form):
             def __init__(self, view):
-                super(FormWithInput, self).__init__(view, 'aform')
+                super().__init__(view, 'aform')
                 self.use_layout(FormLayout())
                 self.layout.add_input(CheckboxInput(self, fixture.domain_object.fields.an_attribute))
                 self.define_event_handler(fixture.domain_object.events.submit)
@@ -608,11 +623,11 @@ def test_radio_button_label_as_legend(radio_button_fixture):
     inlined_radio = RadioButtonSelectInput(form, fixture.field)
     fixture.form.layout.add_input(inlined_radio)
 
-    field_set = form.children[0]
+    field_set = form.children[-1]
     assert isinstance(field_set, FieldSet)
     assert 'form-group' in field_set.get_attribute('class').split(' ')
 
-    [label_widget, radio_input_in_form] = form.children[0].children
+    [label_widget, radio_input_in_form] = field_set.children
     assert label_widget.tag_name == 'legend'
     assert 'col-form-label' in label_widget.get_attribute('class')
     assert radio_input_in_form is inlined_radio
@@ -628,20 +643,20 @@ def test_button_layouts(web_fixture):
     form.define_event_handler(event)
 
     # Case: the defaults
-    button = Button(form, event).use_layout(ButtonLayout())
+    button = Button(form, event)
 
     tester = WidgetTester(button)
     [button] = tester.xpath(XPath.button_labelled('click me'))
-    assert button.attrib['class'] == 'btn reahl-primitiveinput'
+    assert button.attrib['class'] == 'btn btn-secondary reahl-primitiveinput'
 
     # Case: possible effects
     form = Form(web_fixture.view, 'test')
     form.define_event_handler(event)
-    button = Button(form, event).use_layout(ButtonLayout(style='secondary', size='sm', active=True, wide=True))
+    button = Button(form, event, style='secondary', outline=True, size='sm', active=True, wide=True, text_wrap=False)
 
     tester = WidgetTester(button)
     [button] = tester.xpath(XPath.button_labelled('click me'))
-    assert button.attrib['class'] == 'active btn btn-block btn-secondary btn-sm reahl-primitiveinput'
+    assert button.attrib['class'] == 'active btn btn-block btn-outline-secondary btn-sm reahl-primitiveinput text-nowrap'
 
 
 @with_fixtures(WebFixture)
@@ -651,20 +666,83 @@ def test_button_layouts_on_anchors(web_fixture):
     anchor = A(web_fixture.view, href=Url('/an/href'), description='link text').use_layout(ButtonLayout())
     tester = WidgetTester(anchor)
     [rendered_anchor] = tester.xpath(XPath.link().with_text('link text'))
-    assert rendered_anchor.attrib['class'] == 'btn'
+    assert rendered_anchor.attrib['class'] == 'btn btn-secondary'
+    assert 'aria-disabled' not in rendered_anchor.attrib
+    assert 'tabindex' not in rendered_anchor.attrib
+
+    anchor = A(web_fixture.view, href=Url('/an/href'), description='link text', write_check=lambda: False).use_layout(ButtonLayout())
+    tester = WidgetTester(anchor)
+    [rendered_anchor] = tester.xpath(XPath.link().with_text('link text'))
+    assert rendered_anchor.attrib['class'] == 'btn btn-secondary disabled'
+    assert rendered_anchor.attrib['aria-disabled'] == 'true'
+    assert rendered_anchor.attrib['tabindex'] == '-1'
 
 
 @with_fixtures(WebFixture)
 def test_button_layouts_on_disabled_anchors(web_fixture):
-    """Disabled A's are marked with a class so Bootstap can style them appropriately."""
+    """Disabled A's are marked with a class so Bootstrap can style them appropriately."""
     def can_write():
         return False
-
 
     anchor = A(web_fixture.view, href=Url('/an/href'), description='link text', write_check=can_write)
     anchor.use_layout(ButtonLayout())
 
     tester = WidgetTester(anchor)
     [rendered_anchor] = tester.xpath(XPath.link().with_text('link text'))
-    assert rendered_anchor.attrib['class'] == 'btn disabled'
+    assert rendered_anchor.attrib['class'] == 'btn btn-secondary disabled'
+
+
+
+@with_fixtures(WebFixture)
+def test_alert_for_domain_exception(web_fixture):
+    """FormLayout can be used to add an Alert with error messages to a form. This includes a 'Reset input'
+       button which clears the form input.
+    """
+
+    class ModelObject:
+        @exposed
+        def fields(self, fields):
+            fields.some_field = Field(label='Some field', default='not changed')
+
+        @exposed
+        def events(self, events):
+            events.submit_break = Event(label='Submit', action=Action(self.always_break))
+
+        def always_break(self):
+            raise DomainException('designed to break')
+
+    class MyForm(Form):
+        def __init__(self, view):
+            super().__init__(view, 'myform')
+            self.use_layout(FormLayout())
+            model_object = ModelObject()
+
+            if self.exception:
+                self.layout.add_alert_for_domain_exception(self.exception)
+
+            self.layout.add_input(TextInput(self, model_object.fields.some_field))
+
+            self.define_event_handler(model_object.events.submit_break)
+            self.add_child(Button(self, model_object.events.submit_break))
+
+
+    wsgi_app = web_fixture.new_wsgi_app(child_factory=MyForm.factory())
+    web_fixture.reahl_server.set_app(wsgi_app)
+    browser = web_fixture.driver_browser
+
+    browser.open('/')
+
+    browser.type(XPath.input_labelled('Some field'), 'some input given')
+    browser.click(XPath.button_labelled('Submit'))
+
+    alert = XPath.div().including_class('alert')
+    
+    assert browser.is_element_present(alert)
+    assert browser.get_text(alert) == 'An error occurred: DomainException'
+
+    assert browser.get_value(XPath.input_labelled('Some field')) == 'some input given'
+    browser.click(XPath.button_labelled('Reset input'))
+
+    assert not browser.is_element_present(alert)
+    assert browser.get_value(XPath.input_labelled('Some field')) == 'not changed'
 

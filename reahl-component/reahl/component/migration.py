@@ -16,7 +16,6 @@
 
 """Support for database schema migration."""
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 from pkg_resources import parse_version
 import logging
 import warnings
@@ -26,7 +25,7 @@ import traceback
 from reahl.component.exceptions import ProgrammerError
 
 
-class MigrationRun(object):
+class MigrationRun:
     def __init__(self, orm_control, eggs_in_order):
         self.orm_control = orm_control
         self.changes = MigrationSchedule('drop_fk', 'drop_pk', 'pre_alter', 'alter', 
@@ -66,7 +65,7 @@ class MigrationRun(object):
                 self.orm_control.update_schema_version_for(egg)
 
 
-class MigrationSchedule(object):
+class MigrationSchedule:
     def __init__(self, *phases):
         self.phases_in_order = phases
         self.phases = dict([(i, []) for i in phases])
@@ -100,7 +99,7 @@ class MigrationSchedule(object):
             self.execute(phase)
 
 
-class Migration(object):
+class Migration:
     """Represents one logical change that can be made to an existing database schema.
     
        You should extend this class to build your own domain-specific database schema migrations. Set the

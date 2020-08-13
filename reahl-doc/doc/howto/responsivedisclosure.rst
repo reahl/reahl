@@ -65,7 +65,7 @@ Changing the `new_or_existing_radio` |RadioButtonSelectInput| refreshes the NewI
 Since you have made a selection using the |RadioButtonSelectInput|, `investment_order.new_or_existing`
 now has a value and the refreshed version of NewInvestmentForm includes the InvestorDetailSection.
 
-.. note:: The :doc:`dynamic content <dynamiccontent>` example explains how to make an |HTMLElement| refresh.
+.. note:: The :doc:`dynamic content <../tutorial/whathappenedtoajax>` example explains how to make an |HTMLElement| refresh.
 
 .. literalinclude:: ../../reahl/doc/examples/howtos/responsivedisclosure/responsivedisclosure.py
    :pyobject: NewInvestmentForm

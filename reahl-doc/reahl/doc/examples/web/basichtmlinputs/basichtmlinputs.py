@@ -15,16 +15,16 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 
 from reahl.component.modelinterface import exposed, Field, BooleanField, ChoiceField, Choice, ChoiceGroup, \
     IntegerField, Event, MultiChoiceField, DateField
 from reahl.web.fw import UserInterface
-from reahl.web.bootstrap.ui import HTML5Page, P
+from reahl.web.bootstrap.page import HTML5Page
+from reahl.web.bootstrap.ui import P
 from reahl.web.layout import PageLayout
 from reahl.web.bootstrap.grid import ColumnLayout, ColumnOptions, Container, ResponsiveSize
 from reahl.web.bootstrap.forms import Form, FormLayout, ButtonInput, CueInput, TextArea, SelectInput, \
-    RadioButtonSelectInput, CheckboxInput, TextInput, PasswordInput, ButtonLayout, ChoicesLayout
+    RadioButtonSelectInput, CheckboxInput, TextInput, PasswordInput, ChoicesLayout
 
 
 class BasicHTMLInputsUI(UserInterface):
@@ -36,7 +36,7 @@ class BasicHTMLInputsUI(UserInterface):
         home.set_slot('main', ExampleForm.factory('myform'))
 
 
-class ModelObject(object):
+class ModelObject:
     multi_choice_field = [1, 3]
     choice_field = 2
     @exposed
@@ -77,7 +77,7 @@ class ModelObject(object):
 
 class ExampleForm(Form):
     def __init__(self, view, event_channel_name):
-        super(ExampleForm, self).__init__(view, event_channel_name)
+        super().__init__(view, event_channel_name)
         self.use_layout(FormLayout())
         model_object = ModelObject()
         self.layout.add_input(TextInput(self, model_object.fields.text_input_field))
@@ -95,6 +95,5 @@ class ExampleForm(Form):
         self.layout.add_input(CueInput(TextInput(self, model_object.fields.cue_field), P(view, text='This is a cue')))
         self.define_event_handler(model_object.events.do_something)
 
-        btn = self.add_child(ButtonInput(self, model_object.events.do_something))
-        btn.use_layout(ButtonLayout(style='primary'))
+        self.add_child(ButtonInput(self, model_object.events.do_something, style='primary'))
 

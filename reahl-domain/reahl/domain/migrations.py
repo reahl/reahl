@@ -13,7 +13,6 @@
 #
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-from __future__ import print_function, unicode_literals, absolute_import, division
 
 from alembic import op
 from sqlalchemy import Column, String, Integer, ForeignKey, UnicodeText, Unicode
@@ -195,7 +194,7 @@ class GenesisMigration(Migration):
 
 class ElixirToDeclarativeDomainChanges(MigrateElixirToDeclarative):
     def schedule_upgrades(self):
-        super(ElixirToDeclarativeDomainChanges, self).schedule_upgrades()
+        super().schedule_upgrades()
 
         self.change_task()
         self.rename_link_table()

@@ -14,8 +14,6 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import print_function, unicode_literals, absolute_import, division
-import six
 import sys
 import pkg_resources
 import os
@@ -63,14 +61,14 @@ class EasterEgg(pkg_resources.Distribution):
     """
     def __init__(self, name='test', location=None):
         self.metadata_provider = FileSystemResourceProvider(self)
-        super(EasterEgg, self).__init__(location=location or os.getcwd(),
+        super().__init__(location=location or os.getcwd(),
                                         project_name=name,
                                         version = '1.0',
                                         metadata=self.metadata_provider)
         self.entry_points = {}
 
     def as_requirement_string(self):
-        return six.text_type(self.as_requirement())
+        return str(self.as_requirement())
 
     def add_dependency(self, spec):
         requirement = pkg_resources.Requirement.parse(spec)
@@ -114,11 +112,11 @@ class EasterEgg(pkg_resources.Distribution):
 
     def activate(self, **kwargs):
         saved_path = sys.path[:]
-        super(EasterEgg, self).activate(**kwargs)
+        super().activate(**kwargs)
         self.added_paths = set(sys.path) - set(saved_path)
 
     def contains(self, module):
-        return hasattr(module, '__file__') and module.__file__.startswith(self.location)
+        return hasattr(module, '__file__') and module.__file__ and module.__file__.startswith(self.location)
 
     def deactivate(self):
         for i in self.added_paths:

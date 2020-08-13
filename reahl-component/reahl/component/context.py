@@ -14,7 +14,6 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 
 import inspect
 
@@ -23,7 +22,7 @@ class NoContextFound(Exception):
     pass
 
 
-class ExecutionContext(object):
+class ExecutionContext:
     """Most code execute "in the scope of" some ExecutionContext. Such code can obtain
        the current ExecutionContext by calling ExecutionContext.get_context. The ExecutionContext
        of code comprises of: the current Configuration for all components, the current UserSession,
@@ -102,6 +101,6 @@ class ExecutionContext(object):
     def __str__(self):
         if self.name:
             return '%s named \'%s\'' % (self.__class__.__name__, self.name)
-        return super(ExecutionContext, self).__str__()
+        return super().__str__()
 
         

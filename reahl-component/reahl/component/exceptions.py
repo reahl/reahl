@@ -16,20 +16,16 @@
 
 """Exceptions used throughout several Reahl components."""
 
-from __future__ import print_function, unicode_literals, absolute_import, division
-import six
 import sys
 import functools
 
 import wrapt
+from wrapt.wrappers import PartialCallableObjectProxy
 import inspect
 
 from reahl.component.i18n import Catalogue
 
-if six.PY2:
-    from collections import Callable
-else:
-    from collections.abc import Callable
+from collections.abc import Callable
 
 
 _ = Catalogue('reahl-component')
@@ -43,19 +39,19 @@ class DomainException(Exception):
                         should be committed. By default transactions are rolled back
                         when a DomainException is raised.
        :keyword message: Optional error message.
+       :keyword detail_messages: A list of error messages giving more detail about the exception.
+
+       .. versionchanged: 5.0
+          Added `detail_messages` kwarg.
     """
-    def __init__(self, commit=False, message=None):
-        super(DomainException, self).__init__(message)
+    def __init__(self, commit=False, message=None, detail_messages=[]):
+        super().__init__(message)
         self.commit = commit
         self.message = message
-
-#    __hash__ = None
-#    def __eq__(self, other):
-#        import pdb; pdb.set_trace()
-#        return isinstance(other, self.__class__) and self.commit == other.commit
+        self.detail_messages = detail_messages
     
     def __reduce__(self):
-        return (self.__class__, (self.commit, self.message))
+        return (self.__class__, (self.commit, self.message, self.detail_messages))
     
     def as_user_message(self):
         return self.message if self.message else _('An error occurred: %s' % self.__class__.__name__)
@@ -78,13 +74,13 @@ class IncorrectArgumentError(ProgrammerError):
         return '%s (%s)' % (self.explanation, self.cause)
 
 
-class NotYetAvailable(object):
+class NotYetAvailable:
     def __init__(self, name):
         self.name = name
     def __str__(self):
         return '<%s name=%s>' % (self.__class__.__name__, self.name)
 
-class DeferredImport(object):
+class DeferredImport:
     def __init__(self, value_or_string):
         self.value_or_string = value_or_string
 
@@ -106,7 +102,7 @@ class DeferredImport(object):
             raise ProgrammerError('Could not find %s in %s (from %s)' % (class_name, module_name, string_spec))
 
     def coerce_to_type(self, type_or_string):
-        if isinstance(type_or_string, six.string_types):
+        if isinstance(type_or_string, str):
             return self.import_string_spec(type_or_string)
         else:
             return type_or_string
@@ -141,7 +137,7 @@ class ArgumentCheck(Exception):
 
 class TypeBasedArgumentCheck(ArgumentCheck):
     def __init__(self, type_or_string, allow_none=False):
-        super(TypeBasedArgumentCheck, self).__init__(allow_none=allow_none)
+        super().__init__(allow_none=allow_none)
         self.type_ = DeferredImport(type_or_string)
 
     def is_marked_with_attribute(self, value):
@@ -164,12 +160,12 @@ class IsSubclass(TypeBasedArgumentCheck):
 
 class IsCallable(ArgumentCheck):
     def __init__(self, args=(), kwargs={}, allow_none=False):
-        super(IsCallable, self).__init__(allow_none=allow_none)
+        super().__init__(allow_none=allow_none)
         self.args = args
         self.kwargs = kwargs
 
     def check(self, func, name, value):
-        super(IsCallable, self).check(func, name, value)
+        super().check(func, name, value)
         if value:
             message = '%s will be called with %s' % (value, self.formatted_message())
             ArgumentCheckedCallable(value, explanation=message).checkargs(*self.args, **self.kwargs)
@@ -190,12 +186,9 @@ class IsCallable(ArgumentCheck):
     def __str__(self):
         return '%s: %s should be a callable object (got %s)' % (self.func, self.arg_name, self.value)
 
-class ArgumentCheckedCallable(object):
+class ArgumentCheckedCallable:
     def __init__(self, target, explanation=None):
-        if six.PY2 and isinstance(target, functools.partial):
-           self.target = target.func
-        else:
-           self.target = target
+        self.target = target
         self.explanation = explanation
 
     def __call__(self, *args, **kwargs):
@@ -203,7 +196,9 @@ class ArgumentCheckedCallable(object):
         return self.target(*args, **kwargs)
 
     def checkargs(self, *args, **kwargs):
-        if inspect.ismethod(self.target):
+        if isinstance(self.target, PartialCallableObjectProxy):
+            to_check = self.target.__call__
+        elif inspect.ismethod(self.target):
             to_check = self.target
         elif inspect.isfunction(self.target):
             to_check = self.target
@@ -229,7 +224,7 @@ class ArgumentCheckedCallable(object):
             if self.explanation:
                 _, _, tb = sys.exc_info()
                 new_ex = IncorrectArgumentError(self.explanation, ex)
-                six.reraise(new_ex.__class__, new_ex, tb)
+                raise new_ex.with_traceback(tb)
             else:
                 raise
 
@@ -242,9 +237,6 @@ def arg_checks(**checks):
             f.arg_checks = checks
         @wrapt.decorator
         def check_call(wrapped, instance, args, kwargs):
-            if six.PY2:
-                if isinstance(wrapped, functools.partial) and not wrapped.func.__self__ and instance:
-                    args = (instance,)+args
             return ArgumentCheckedCallable(wrapped)(*args, **kwargs)
         return check_call(f)
     return catch_wrapped

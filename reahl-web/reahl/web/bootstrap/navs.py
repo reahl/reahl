@@ -1,5 +1,4 @@
 # Copyright 2015-2018 Reahl Software Services (Pty) Ltd. All rights reserved.
-#-*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
 #
@@ -32,9 +31,7 @@ style Bootstrap Navs.
    Removed the .add_item and add_submenu methods in favour of .add_a,.add_bookmark,.add_dropdown methods.
 
 """
-from __future__ import print_function, unicode_literals, absolute_import, division
 
-import six
 
 import re
 
@@ -68,7 +65,7 @@ class Menu(HTMLWidget):
           Removed deprecated a_list and css_id
     """
     def __init__(self, view):
-        super(Menu, self).__init__(view)
+        super().__init__(view)
         self.menu_items = []
         self.create_html_representation()
 
@@ -160,7 +157,7 @@ class MenuItem(HTMLWidget):
           Removed from_bookmark and css_id keyword argument.
     """
     def __init__(self, view, a, active_regex=None, exact_match=False):
-        super(MenuItem, self).__init__(view)
+        super().__init__(view)
         self.view = view
         self.exact_match = exact_match
         self.a = a
@@ -200,14 +197,14 @@ class Nav(Menu):
     """
     def __init__(self, view):
         self.open_item = None
-        super(Nav, self).__init__(view)
+        super().__init__(view)
 
     @exposed
     def query_fields(self, fields):
         fields.open_item = Field(required=False, default=None)
 
     def create_html_representation(self):
-        ul = super(Nav, self).create_html_representation()
+        ul = super().create_html_representation()
         ul.append_class('nav')
         return ul
     
@@ -243,7 +240,7 @@ class Nav(Menu):
         return submenu
 
     def add_html_for_item(self, item):
-        li = super(Nav, self).add_html_for_item(item)
+        li = super().add_html_for_item(item)
         li.append_class('nav-item')
         item.a.append_class('nav-link')
         item.a.add_attribute_source(ActiveStateAttributes(item, active_value='active'))
@@ -253,14 +250,14 @@ class Nav(Menu):
 
 class DropdownMenuPosition(HTMLAttributeValueOption):
     def __init__(self, name):
-        super(DropdownMenuPosition, self).__init__(name, True, prefix='drop', delimiter='',
+        super().__init__(name, True, prefix='drop', delimiter='',
                                                    constrain_value_to=['up', 'down', 'left', 'right'])
 
 
 class ContentAlignment(HTMLAttributeValueOption):
     valid_options = ['center', 'end']
     def __init__(self, name):
-        super(ContentAlignment, self).__init__(name, name is not None, prefix='justify-content',
+        super().__init__(name, name is not None, prefix='justify-content',
                                                    constrain_value_to=self.valid_options)
 
 
@@ -268,13 +265,13 @@ class ContentJustification(HTMLAttributeValueOption):
     valid_options = ['fill', 'justified']
 
     def __init__(self, name):
-        super(ContentJustification, self).__init__(name, name is not None, prefix='nav',
+        super().__init__(name, name is not None, prefix='nav',
                                                    constrain_value_to=self.valid_options)
 
 
 class NavLayout(Layout):
     def __init__(self, key=None, content_alignment=None, content_justification=None):
-        super(NavLayout, self).__init__()
+        super().__init__()
         if content_alignment and content_justification:
             raise ProgrammerError('Cannot set content_alignment and content_justfication at the same time')
         self.content_alignment = ContentAlignment(content_alignment)
@@ -286,7 +283,7 @@ class NavLayout(Layout):
         return 'nav-%ss' % self.key
 
     def customise_widget(self):
-        super(NavLayout, self).customise_widget()
+        super().customise_widget()
         if self.key:
             self.widget.append_class(self.additional_css_class)
             self.widget.set_attribute('role', 'tablist')
@@ -307,13 +304,13 @@ class PillLayout(NavLayout):
 
     """
     def __init__(self, stacked=False, content_alignment=None, content_justification=None):
-        super(PillLayout, self).__init__(key='pill', content_alignment=content_alignment, content_justification=content_justification)
+        super().__init__(key='pill', content_alignment=content_alignment, content_justification=content_justification)
         if all([stacked, content_alignment or content_justification]):
             raise ProgrammerError('Pills must be stacked, aligned or justified, but you cannot give all options together')
         self.stacked = stacked
 
     def customise_widget(self):
-        super(PillLayout, self).customise_widget()
+        super().customise_widget()
         if self.stacked:
             self.widget.append_class('flex-column')
 
@@ -327,7 +324,7 @@ class TabLayout(NavLayout):
                                 (One of: fill, justified)
     """
     def __init__(self, content_alignment=None, content_justification=None):
-        super(TabLayout, self).__init__(key='tab', content_alignment=content_alignment, content_justification=content_justification)
+        super().__init__(key='tab', content_alignment=content_alignment, content_justification=content_justification)
 
 
 class DropdownMenu(Menu):
@@ -369,7 +366,7 @@ class DropdownMenuLayout(Layout):
     :keyword align_right: If True, align the dropdown to the right side of its parent item, else to the left.
     """
     def __init__(self, align_right=False):
-        super(DropdownMenuLayout, self).__init__()
+        super().__init__()
         self.align_right = align_right
 
     def customise_widget(self):

@@ -1,5 +1,4 @@
 # Copyright 2013-2018 Reahl Software Services (Pty) Ltd. All rights reserved.
-# -*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
 #
@@ -18,7 +17,6 @@
 Basic Widgets and related user interface elements.
 """
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 
 import time
 from string import Template
@@ -26,13 +24,11 @@ import json
 import collections
 import copy
 import re
-import six
+import hashlib
 import warnings
+import html
 from collections import OrderedDict
-if six.PY2:
-    from collections import Callable
-else:
-    from collections.abc import Callable
+from collections.abc import Callable
 
 
 from reahl.component.exceptions import IsInstance
@@ -40,11 +36,10 @@ from reahl.component.exceptions import ProgrammerError
 from reahl.component.exceptions import arg_checks
 from reahl.component.i18n import Catalogue
 from reahl.component.context import ExecutionContext
-from reahl.component.modelinterface import ValidationConstraintList, ValidationConstraint, ExpectedInputNotFound,\
-    Field, Event, BooleanField, Choice, UploadedFile, InputParseException, StandaloneFieldIndex, MultiChoiceField, ChoiceField
-from reahl.component.py3compat import html_escape
+from reahl.component.modelinterface import exposed, ValidationConstraintList, ValidationConstraint, ExpectedInputNotFound,\
+    Field, Event, BooleanField, Choice, UploadedFile, InputParseException, StandaloneFieldIndex, MultiChoiceField, ChoiceField, Action
 from reahl.web.fw import EventChannel, RemoteMethod, JsonResult, Widget, \
-    ValidationException, WidgetResult, WidgetFactory, Url
+    ValidationException, WidgetResult, WidgetFactory, Url, ErrorWidget, Layout
 from reahl.mailutil.rst import RestructuredText
 
 _ = Catalogue('reahl-web')
@@ -63,7 +58,7 @@ class LiteralHTML(Widget):
              The callable should return the final HTML to be rendered.
     """
     def __init__(self, view, contents, transform=(lambda i: i)):
-        super(LiteralHTML, self).__init__(view)
+        super().__init__(view)
         self.contents = contents
         self.transform = transform
 
@@ -75,7 +70,7 @@ class LiteralHTML(Widget):
         return cls(view, RestructuredText(text).as_HTML_fragment(header_start=heading_level_start))
     
 
-class HTMLAttributeValueOption(object):
+class HTMLAttributeValueOption:
     def __init__(self, option_string, is_set, prefix='', delimiter='-', constrain_value_to=None, map_values_using=None):
         if is_set and (constrain_value_to and option_string not in constrain_value_to):
             allowed_strings = ','.join(['"%s"' % i for i in constrain_value_to])
@@ -92,9 +87,9 @@ class HTMLAttributeValueOption(object):
         return '%s%s' % (prefix_with_delimiter, self.option_string)
 
 
-class HTMLAttribute(object):
+class HTMLAttribute:
     def __init__(self, name, values):
-        super(HTMLAttribute, self).__init__()
+        super().__init__()
         self.name = name
         self.value = set(values)
 
@@ -102,7 +97,7 @@ class HTMLAttribute(object):
         if not self.value:
             return ''
 #        return '''%s='%s\'''' % (self.name, self.as_html_value())
-        return '%s="%s"' % (self.name, html_escape(self.as_html_value()))
+        return '%s="%s"' % (self.name, html.escape(self.as_html_value()))
 
     def as_html_value(self):
         return ' '.join(sorted(self.value))
@@ -115,7 +110,7 @@ class HTMLAttribute(object):
         return values
 
 
-class HTMLAttributeValues(object):
+class HTMLAttributeValues:
     def __init__(self, wrapped):
         self.wrapped = wrapped
 
@@ -177,8 +172,7 @@ class HTMLAttributeDict(dict):
 class AjaxMethod(RemoteMethod):
     def __init__(self, widget):
         method_name = 'refresh_%s' % widget.css_id
-        super(AjaxMethod, self).__init__(method_name, self.fire_ajax_event, WidgetResult(widget, as_json_and_result=True), immutable=True, method='post')
-        self.view = widget.view
+        super().__init__(widget.view, method_name, self.fire_ajax_event, WidgetResult(widget, as_json_and_result=True), immutable=True, method='post')
         self.widget = widget
         
     def cleanup_after_exception(self, input_values, ex):
@@ -213,7 +207,7 @@ class AjaxMethod(RemoteMethod):
 
 
 # Uses: reahl/web/reahl.hashchange.js
-class HashChangeHandler(object):
+class HashChangeHandler:
     def __init__(self, widget, for_fields):
         self.error_message = _('An error occurred when contacting the server. Please try again later.')
         self.timeout_message = _('The server took too long to respond. Please try again later.')
@@ -236,6 +230,28 @@ class HashChangeHandler(object):
                (self.remote_method.get_url(), self.error_message, self.timeout_message, self.argument_defaults)
 
 
+class CssId:
+    invalid_char_re = re.compile(r'([^a-zA-Z0-9_-])')
+    @classmethod
+    def from_dirty_string(cls, dirty_string):
+        return cls(cls.invalid_char_re.sub(lambda m: '-%s-' % ord(m.group(1)), dirty_string))
+
+    def __init__(self, id_string):
+        invalid_characters = set(self.invalid_char_re.findall(id_string))
+        if invalid_characters:
+            raise ProgrammerError('"%s" contains characters that are not valid in a css id: %s' % (id_string, invalid_characters))
+        self.id_string = id_string
+
+    def __str__(self):
+        return self.id_string
+
+    def __eq__(self, other):
+        return self.id_string == other.id_string
+
+    def __hash__(self):
+        return hash(self.id_string)
+
+
 class HTMLElement(Widget):
     """A Widget that is represented by an HTML element.
 
@@ -252,7 +268,7 @@ class HTMLElement(Widget):
 
     tag_name = 'tag'
     def __init__(self, view, tag_name, children_allowed=False, css_id=None, read_check=None, write_check=None):
-        super(HTMLElement, self).__init__(view, read_check=read_check, write_check=write_check)
+        super().__init__(view, read_check=read_check, write_check=write_check)
         self.attribute_sources = []
         self.children_allowed = children_allowed
         self.tag_name = tag_name
@@ -304,7 +320,7 @@ class HTMLElement(Widget):
 
     def add_child(self, child):
         assert self.children_allowed, 'You cannot add children to a %s' % type(self)
-        return super(HTMLElement, self).add_child(child)
+        return super().add_child(child)
 
     def add_attribute_source(self, attribute_source):
         self.attribute_sources.append(attribute_source)
@@ -361,15 +377,15 @@ class HTMLElement(Widget):
     def get_css_id(self):
         if not self.css_id_is_set:
             raise ProgrammerError('%s needs a css_id to be set!' % self)
-        return self._css_id
+        return str(self._css_id)
     def set_css_id(self, value):
-        self._css_id = value
-        self.set_attribute('id', value)
+        self._css_id = CssId(value)
+        self.set_attribute('id', self.css_id)
     css_id = property(get_css_id, set_css_id)
 
     def generate_random_css_id(self):
         if not self.css_id_is_set:
-            self.set_css_id('tmpid-%s-%s' % (id(self), six.text_type(time.time()).replace('.', '-')))
+            self.set_css_id('tmpid-%s-%s' % (id(self), str(time.time()).replace('.', '-')))
         else:
             raise ProgrammerError('%s already has a css_id set, will not overwrite it!' % self)
         return self.css_id
@@ -395,7 +411,7 @@ class HTMLElement(Widget):
             js = ['$(%s).hashchange(%s);' % \
                   (self.contextualise_selector(self.jquery_selector, context),
                    self.ajax_handler.as_jquery_parameter())]
-        return super(HTMLElement, self).get_js(context=context) + js
+        return super().get_js(context=context) + js
 
     def set_title(self, title):
         """A convenience method to set the "title" attribute of this HTMLElement."""
@@ -423,7 +439,7 @@ class TextNode(Widget):
        :keyword html_escape: If True (default), the given `value` will first be HTML-escaped before rendered to the browser.
     """
     def __init__(self, view, value_or_getter, html_escape=True):
-        super(TextNode, self).__init__(view)
+        super().__init__(view)
         self.html_escape = html_escape
         if isinstance(value_or_getter, Callable):
             self.value_getter = value_or_getter
@@ -439,7 +455,7 @@ class TextNode(Widget):
     def render(self):
         # Un-escaped quotes are not harmful between tags, where TextNodes live,
         # and even make the HTML source make nicer
-        return html_escape(self.value, quote=False) if self.html_escape else self.value
+        return html.escape(self.value, quote=False) if self.html_escape else self.value
 
 
 class Title(HTMLElement):
@@ -458,7 +474,7 @@ class Title(HTMLElement):
 
     """
     def __init__(self, view, text, css_id=None):
-        super(Title, self).__init__(view, 'title', children_allowed=True, css_id=css_id)
+        super().__init__(view, 'title', children_allowed=True, css_id=css_id)
         self.text = Template(text)
         self.add_child(TextNode(view, self.get_current_title))
 
@@ -483,9 +499,9 @@ class Link(HTMLElement):
           Changed _type to be an optional, keyword argument instead of a positional argument.
     """
     def __init__(self, view, rel, href, _type=None, css_id=None):
-        super(Link, self).__init__(view, 'link', css_id=css_id)
+        super().__init__(view, 'link', css_id=css_id)
         self.set_attribute('rel', rel)
-        self.set_attribute('href', six.text_type(href))
+        self.set_attribute('href', str(href))
         if _type is not None:
             self.set_attribute('type', _type)
 
@@ -507,7 +523,7 @@ class Slot(Widget):
 
     """
     def __init__(self, view, name):
-        super(Slot, self).__init__(view)
+        super().__init__(view)
         self.name = name
 
     @property
@@ -521,7 +537,7 @@ class Slot(Widget):
 
 class Meta(HTMLElement):
     def __init__(self, view, name, content):
-        super(Meta, self).__init__(view, 'meta', children_allowed=False)
+        super().__init__(view, 'meta', children_allowed=False)
         self.set_attribute('name', name)
         self.set_attribute('content', content)
 
@@ -538,7 +554,7 @@ class Head(HTMLElement):
        :keyword css_id: (See :class:`reahl.web.ui.HTMLElement`)
     """
     def __init__(self, view, title, css_id=None):
-        super(Head, self).__init__(view, 'head', children_allowed=True, css_id=css_id)
+        super().__init__(view, 'head', children_allowed=True, css_id=css_id)
         self.title = self.add_child(Title(view, title))
         self.add_child(Slot(view, name='reahl_header'))
 
@@ -558,8 +574,8 @@ class Body(HTMLElement):
 
     """
     def __init__(self, view, css_id=None):
-        super(Body, self).__init__(view, 'body', children_allowed=True, css_id=css_id)
-        self.out_of_bound_forms = self.add_child(Div(self.view, css_id='_reahl_out_of_bound_forms'))
+        super().__init__(view, 'body', children_allowed=True, css_id=css_id)
+        self.out_of_bound_container = self.add_child(Div(self.view, css_id='_reahl_out_of_bound_container'))
         self.add_child(Slot(self.view, name='reahl_footer'))
 
     def footer_already_added(self):
@@ -572,16 +588,27 @@ class Body(HTMLElement):
         existing_footer = None
         if self.footer_already_added():
             existing_footer = self.children.pop()
-        super(Body, self).add_child(child)
+        super().add_child(child)
         if existing_footer:
             self.children.append(existing_footer)
         return child
 
-    def attach_out_of_bound_forms(self, forms):
-        self.out_of_bound_forms.add_children(forms)
+    def attach_out_of_bound_widgets(self, widgets):
+        self.out_of_bound_container.add_children(widgets)
 
-    def get_out_of_bounds_forms_widget(self):
-        return self.out_of_bound_forms
+    def get_out_of_bound_container(self):
+        return self.out_of_bound_container
+
+
+
+class PlainHTMLErrorPage(ErrorWidget):
+    def __init__(self, view, page_class, *widget_args, **widget_kwargs):
+        super().__init__(view)
+        page = self.add_child(page_class(view, *widget_args, **widget_kwargs))
+        error_div = page.body.insert_child(0, Div(view))
+        error_div.add_child(H(view, 1, text=_('An error occurred:')))
+        error_div.add_child(P(view, text=self.error_message))
+        error_div.add_child(A(view, Url(self.error_source_href), description=_('Ok')))
 
 
 class HTML5Page(HTMLElement):
@@ -599,9 +626,13 @@ class HTML5Page(HTMLElement):
        .. versionchanged:: 4.0
           Removed style= keyword
     """
-    @arg_checks(title=IsInstance(six.string_types))
+    @classmethod
+    def get_error_page_factory(cls, *widget_args, **widget_kwargs):
+        return PlainHTMLErrorPage.factory(cls, *widget_args, **widget_kwargs)
+
+    @arg_checks(title=IsInstance(str))
     def __init__(self, view, title='$current_title', css_id=None):
-        super(HTML5Page, self).__init__(view, 'html', children_allowed=True, css_id=css_id)
+        super().__init__(view, 'html', children_allowed=True, css_id=css_id)
         self.append_class('no-js')
         script = self.add_child(HTMLElement(self.view, 'script', children_allowed=True))
         script.add_child(TextNode(self.view, '''
@@ -617,7 +648,7 @@ class HTML5Page(HTMLElement):
         self.body = self.add_child(Body(view))         #: The Body HTMLElement of this page
 
     def render(self):
-        return '<!DOCTYPE html>' + super(HTML5Page, self).render()
+        return '<!DOCTYPE html>' + super().render()
 
 
 # Uses: reahl/web/reahl.ajaxlink.js
@@ -657,7 +688,7 @@ class A(HTMLElement):
     def __init__(self, view, href, description=None, ajax=False, read_check=None, write_check=None, css_id=None):
         self.href = href
         self.ajax = ajax
-        super(A, self).__init__(view, 'a', children_allowed=True, read_check=read_check, write_check=write_check, css_id=css_id)
+        super().__init__(view, 'a', children_allowed=True, read_check=read_check, write_check=write_check, css_id=css_id)
         if description:
             self.add_child(TextNode(self.view, description))
         if self.ajax:
@@ -666,9 +697,9 @@ class A(HTMLElement):
 
     @property
     def attributes(self):
-        attributes = super(A, self).attributes
+        attributes = super().attributes
         if self.active and (not self.disabled) and self.href is not None:
-            attributes.set_to('href', six.text_type(self.href))
+            attributes.set_to('href', str(self.href))
         return attributes
 
     def get_js(self, context=None):
@@ -695,7 +726,7 @@ class RunningOnBadge(A):
        :param view: (See :class:`reahl.web.fw.Widget`)
     """
     def __init__(self, view):
-        super(RunningOnBadge, self).__init__(view, Url('http://www.reahl.org'))
+        super().__init__(view, Url('http://www.reahl.org'))
         self.append_class('runningon')
         self.add_child(Img(view, Url('/static/runningon.png'), alt='Running on Reahl'))
 
@@ -714,14 +745,35 @@ class H(HTMLElement):
 
     """
     def __init__(self, view, priority, text=None, css_id=None):
-        super(H, self).__init__(view, 'h%s' % priority, children_allowed=True, css_id=css_id)
+        super().__init__(view, 'h%s' % priority, children_allowed=True, css_id=css_id)
         if text:
             self.add_child(TextNode(view, text))
 
 
 class Br(HTMLElement):
+    """A hard break.
+
+       .. admonition:: Styling
+
+          Renders as an HTML <br> element.
+
+       :param view: (See :class:`reahl.web.fw.Widget`)
+    """
     def __init__(self, view):
-        super(Br, self).__init__(view, 'br', children_allowed=False)
+        super().__init__(view, 'br', children_allowed=False)
+
+
+class Hr(HTMLElement):
+    """An horizontal rule.
+
+       .. admonition:: Styling
+
+          Renders as an HTML <hr> element.
+
+       :param view: (See :class:`reahl.web.fw.Widget`)
+    """
+    def __init__(self, view):
+        super().__init__(view, 'hr', children_allowed=False)
 
 
 class P(HTMLElement):
@@ -738,7 +790,7 @@ class P(HTMLElement):
 
     """
     def __init__(self, view, text=None, css_id=None, html_escape=True):
-        super(P, self).__init__(view, 'p', children_allowed=True, css_id=css_id)
+        super().__init__(view, 'p', children_allowed=True, css_id=css_id)
         if text:
             self.add_child(TextNode(view, text, html_escape=html_escape))
 
@@ -774,7 +826,7 @@ class P(HTMLElement):
             filled_p.add_child(child)
 
         for i in list(range(0, len(args))):
-            filled_p.set_slot(six.text_type(i), args[i])
+            filled_p.set_slot(str(i), args[i])
         for slot_name, widget in kwargs.items():
             filled_p.set_slot(slot_name, widget)
         return filled_p
@@ -798,7 +850,7 @@ class Small(HTMLElement):
        .. versionadded:: 4.0
     """
     def __init__(self, view, text=None, css_id=None, html_escape=True):
-        super(Small, self).__init__(view, 'small', children_allowed=True, css_id=css_id)
+        super().__init__(view, 'small', children_allowed=True, css_id=css_id)
         if text:
             self.add_child(TextNode(view, text, html_escape=html_escape))
 
@@ -815,7 +867,7 @@ class Div(HTMLElement):
 
     """
     def __init__(self, view, css_id=None):
-        super(Div, self).__init__(view, 'div', children_allowed=True, css_id=css_id)
+        super().__init__(view, 'div', children_allowed=True, css_id=css_id)
 
 
 
@@ -831,7 +883,7 @@ class Nav(HTMLElement):
 
     """
     def __init__(self, view, css_id=None):
-        super(Nav, self).__init__(view, 'nav', children_allowed=True, css_id=css_id)
+        super().__init__(view, 'nav', children_allowed=True, css_id=css_id)
 
 
 class Article(HTMLElement):
@@ -846,7 +898,7 @@ class Article(HTMLElement):
 
     """
     def __init__(self, view, css_id=None):
-        super(Article, self).__init__(view, 'article', children_allowed=True, css_id=css_id)
+        super().__init__(view, 'article', children_allowed=True, css_id=css_id)
 
 
 class Header(HTMLElement):
@@ -861,7 +913,7 @@ class Header(HTMLElement):
 
     """
     def __init__(self, view, css_id=None):
-        super(Header, self).__init__(view, 'header', children_allowed=True, css_id=css_id)
+        super().__init__(view, 'header', children_allowed=True, css_id=css_id)
 
 
 class Footer(HTMLElement):
@@ -876,7 +928,7 @@ class Footer(HTMLElement):
 
     """
     def __init__(self, view, css_id=None):
-        super(Footer, self).__init__(view, 'footer', children_allowed=True, css_id=css_id)
+        super().__init__(view, 'footer', children_allowed=True, css_id=css_id)
 
 
 class Li(HTMLElement):
@@ -891,7 +943,7 @@ class Li(HTMLElement):
 
     """
     def __init__(self, view, css_id=None):
-        super(Li, self).__init__(view, 'li', children_allowed=True, css_id=css_id)
+        super().__init__(view, 'li', children_allowed=True, css_id=css_id)
 
 
 class Ul(HTMLElement):
@@ -906,7 +958,7 @@ class Ul(HTMLElement):
 
     """
     def __init__(self, view, css_id=None):
-        super(Ul, self).__init__(view, 'ul', children_allowed=True, css_id=css_id)
+        super().__init__(view, 'ul', children_allowed=True, css_id=css_id)
 
 
 class Ol(HTMLElement):
@@ -921,7 +973,7 @@ class Ol(HTMLElement):
 
     """
     def __init__(self, view, css_id=None):
-        super(Ol, self).__init__(view, 'ol', children_allowed=True, css_id=css_id)
+        super().__init__(view, 'ol', children_allowed=True, css_id=css_id)
 
 
 class Img(HTMLElement):
@@ -939,9 +991,9 @@ class Img(HTMLElement):
 
     """
     def __init__(self, view, src=None, alt=None, css_id=None):
-        super(Img, self).__init__(view, 'img', css_id=css_id)
+        super().__init__(view, 'img', css_id=css_id)
         if src is not None:
-            self.set_attribute('src', six.text_type(src))
+            self.set_attribute('src', str(src))
         if alt:
             self.set_attribute('alt', alt)
 
@@ -960,9 +1012,30 @@ class Span(HTMLElement):
     """
 
     def __init__(self, view, text=None, html_escape=True, css_id=None):
-        super(Span, self).__init__(view, 'span', children_allowed=True, css_id=css_id)
+        super().__init__(view, 'span', children_allowed=True, css_id=css_id)
         if text:
             self.add_child(TextNode(view, text, html_escape=html_escape))
+
+
+class ConcurrentChange(ValidationConstraint):
+    def __init__(self, form):
+        super().__init__(error_message=_('Some data changed since you opened this page, please reset input to try again.'))
+        self.form = form
+        self.failed = False
+
+    @property
+    def passed(self):
+        return not self.failed
+
+    def validate_input(self, unparsed_input):
+        if unparsed_input != self.form.get_concurrency_hash_digest():
+            self.failed = True
+            #xxxxx
+#            from string import Template
+#            self.error_message = Template('Failing concurrency check: [%s] != [%s]' % (unparsed_input, self.form.get_concurrency_hash_digest()))
+            raise self
+
+
 
 
 # Uses: reahl/web/reahl.form.js
@@ -992,9 +1065,59 @@ class Form(HTMLElement):
         self.set_up_input_formatter('%s_format' % unique_name)
         self.rendered_form = rendered_form or self
         assert unique_name == self.event_channel.name
-        super(Form, self).__init__(view, 'form', children_allowed=True, css_id=unique_name)
-        self.set_attribute('data-formatter', six.text_type(self.input_formatter.get_url()))
+        super().__init__(view, 'form', children_allowed=True, css_id=unique_name)
+        self.set_attribute('data-formatter', str(self.input_formatter.get_url()))
 
+        class DelayedConcurrencyDigestValue(DelegatedAttributes):
+            def __init__(self, digest_input):
+                super().__init__()
+                self.digest_input = digest_input
+
+            def set_attributes(self, attributes):
+                super().set_attributes(attributes)
+                digest = self.digest_input.form.get_concurrency_hash_digest()
+                attributes.set_to('value', digest)
+
+        self.hash_inputs = self.add_child(Div(self.view, css_id='%s_hashes' % unique_name))
+
+        self.database_digest_input = self.hash_inputs.add_child(HiddenInput(self, self.fields._reahl_database_concurrency_digest.with_namespace(unique_name), ignore_concurrent_change=True))
+        # the digest input will have a value when:
+        #  (1) you're busy with an ajax call, after being internally redirected (because AjaxMethod.fire_ajax_event will have inputted the browser value); or
+        #  (2) you're busy submitting and you saved its value because of an validation exception (and prepare_input read the value from saved inputs due to the exception)
+        #
+        # If (1), we want to maintain the value it originally had, so we want to use the POSTed value (a)
+        # If (2), we want to update the value (b) to what it would have been if computed from the original database as if it displayed the 
+        #  set of inputs that were being displayed at the time of the exception (these could be different from what was there at initial 
+        #  rendering because of ajax that may have happened since then)
+        #
+        # If the digest does not have a value, its not ajax, so we update (as opposed to maintain the POSTed value)
+        # If there is an exception we know that we're in case (2), so we update (as opposed to maintain the POSTed value)
+        if self.exception or (not self.database_digest_input.value):
+            # (b)
+            self.database_digest_input.add_attribute_source(DelayedConcurrencyDigestValue(self.database_digest_input))
+        else:
+            # (a)
+            pass # maintain the POSTed value
+
+    @property
+    def ancestral_coactive_widgets(self):
+        return super().ancestral_coactive_widgets + [self.hash_inputs]
+
+    @property
+    def coactive_widgets(self):
+        return super().coactive_widgets + [self.hash_inputs]
+
+    @exposed
+    def fields(self, fields):
+        fields._reahl_database_concurrency_digest = Field().with_validation_constraint(ConcurrentChange(self))
+
+    @exposed
+    def events(self, events):
+        events.reset = Event(label=_('Reset input'), action=Action(self.clear_view_data))
+
+    def clear_view_data(self):
+        self.clear_all_saved_data()
+        
     def set_up_event_channel(self, event_channel_name):
         self.event_channel = EventChannel(self, self.controller, event_channel_name)
         self.view.add_resource(self.event_channel)
@@ -1002,7 +1125,8 @@ class Form(HTMLElement):
     def set_up_field_validator(self, field_validator_name):
         json_result = JsonResult(BooleanField(true_value='true', false_value='false'),
                                  catch_exception=ValidationConstraint)
-        self.field_validator = RemoteMethod(field_validator_name,
+        self.field_validator = RemoteMethod(self.view,
+                                          field_validator_name,
                                           self.validate_single_input,
                                           json_result,
                                           immutable=True)
@@ -1020,7 +1144,8 @@ class Form(HTMLElement):
             raise
 
     def set_up_input_formatter(self, input_formatter_name):
-        self.input_formatter = RemoteMethod(input_formatter_name,
+        self.input_formatter = RemoteMethod(self.view,
+                                            input_formatter_name,
                                             self.format_single_input,
                                             JsonResult(Field()),
                                             immutable=True)
@@ -1048,7 +1173,7 @@ class Form(HTMLElement):
 
     @property
     def attributes(self):
-        attributes = super(Form, self).attributes
+        attributes = super().attributes
         attributes.add_to('class', ['reahl-form'])
         attributes.set_to('action', self.action)
         attributes.set_to('method', 'POST')
@@ -1063,7 +1188,7 @@ class Form(HTMLElement):
         action = self.event_channel.get_url()
         action.query = request.query_string
         action.make_network_relative()
-        return six.text_type(action)
+        return str(action)
 
     def register_input(self, input_widget):
         assert input_widget not in self.inputs.values(), 'Cannot register the same input twice to this form' 
@@ -1138,16 +1263,16 @@ class Form(HTMLElement):
         self.clear_uploaded_files()
 
     def handle_form_input(self, input_values):
-        exception = None
+        exceptions = []
         events = set()
         for input_widget in self.inputs.values():
             try:
                 input_widget.accept_input(input_values)
             except ValidationConstraint as ex:
-                exception = ex
+                exceptions.append(ex)
             events.add(input_widget.get_ocurred_event())
-        if exception:
-            raise ValidationException()
+        if exceptions:
+            raise ValidationException.for_failed_validations(exceptions)
         events -= {None}
         input_detail = 'Inputs submitted: %s Events detected: %s' % (list(input_values.keys()), list(events))
         if len(events) == 0:
@@ -1159,7 +1284,7 @@ class Form(HTMLElement):
     javascript_widget_name = 'form'
     def get_js(self, context=None):
         js = ['$(%s).%s(%s);' % (self.jquery_selector, self.javascript_widget_name, self.get_js_options())]
-        return super(Form, self).get_js(context=context) + js
+        return super().get_js(context=context) + js
 
     def get_js_options(self):
         return ''
@@ -1184,14 +1309,14 @@ class NestedForm(Div):
     """
     def __init__(self, view, unique_name):
         self.out_of_bound_form = self.create_out_of_bound_form(view, unique_name)
-        super(NestedForm, self).__init__(view, css_id='%s_nested' % self.out_of_bound_form.css_id)
+        super().__init__(view, css_id='%s_nested' % self.out_of_bound_form.css_id)
         self.add_to_attribute('class', ['reahl-nested-form'])
         self.set_id(self.css_id)
-        view.add_out_of_bound_form(self.out_of_bound_form)
+        view.add_out_of_bound_widget(self.out_of_bound_form)
 
     @property
     def coactive_widgets(self):
-        return super(NestedForm, self).coactive_widgets + [self.view.page.get_out_of_bounds_forms_widget()]
+        return super().coactive_widgets + [self.view.page.get_out_of_bound_container()]
 
     @property
     def form(self):
@@ -1199,6 +1324,48 @@ class NestedForm(Div):
 
     def create_out_of_bound_form(self, view, unique_name):
         return Form(view, unique_name, rendered_form=self)
+
+
+class FormLayout(Layout):
+    """A simple Layout for adding inputs to Forms or elements inside Forms.
+
+       .. versionadded:: 5.0
+    """
+    def add_input(self, html_input):
+        """Adds an input to the Form.
+
+           :param html_input: The Input to add.
+        """
+        input_container = self.widget.add_child(Div(self.view))
+
+        if not html_input.includes_label:
+            input_container.add_child(Label(self.view, for_input=html_input))
+        input_container.add_child(html_input)
+
+        if html_input.get_input_status() == 'invalidly_entered':
+            input_container.add_child(P(self.view, text=html_input.validation_error.message))
+
+        return html_input
+
+    def add_alert_for_domain_exception(self, exception, form=None, unique_name=''):
+        """Adds a formatted error message to the Form.
+
+           :param exception: The Exception that should be displayed.
+           :keyword form: The Form to which this exception relates (default is this Layout's .widget).
+           :keyword unique_name: If more than one alert is added to the same Form, unique_name distinguishes between them.
+        """
+        form = form or self.widget
+        alert = self.widget.add_child(Div(self.widget.view))
+        alert.append_class('errors')
+        alert.add_child(P(self.view, text=exception.as_user_message()))
+        if exception.detail_messages:
+            alert.add_child(Hr(self.widget.view))
+            ul = alert.add_child(Ul(self.widget.view))
+            for detail_message in exception.detail_messages:
+                ul.add_child(Li(self.widget.view)).add_child(TextNode(self.widget.view, detail_message))
+            reset_form = alert.add_child(NestedForm(self.widget.view, 'reset_%s%s' % (form.channel_name, unique_name)))
+            reset_form.form.define_event_handler(form.events.reset)
+            reset_form.add_child(ButtonInput(reset_form.form, form.events.reset))
 
 
 class FieldSet(HTMLElement):
@@ -1219,7 +1386,7 @@ class FieldSet(HTMLElement):
           Removed label_text that was deprecated.
     """
     def __init__(self, view, legend_text=None, css_id=None):
-        super(FieldSet, self).__init__(view, 'fieldset', children_allowed=True, css_id=css_id)
+        super().__init__(view, 'fieldset', children_allowed=True, css_id=css_id)
         self.legend = None
         if legend_text:
             self.legend = self.add_child(Legend(view, text=legend_text))
@@ -1240,19 +1407,19 @@ class Legend(HTMLElement):
 
     """
     def __init__(self, view, text=None, css_id=None):
-        super(Legend, self).__init__(view, 'legend', children_allowed=True, css_id=css_id)
+        super().__init__(view, 'legend', children_allowed=True, css_id=css_id)
         if text:
             self.text_node = self.add_child(TextNode(view, text))
 
 
-class DelegatedAttributes(object):
+class DelegatedAttributes:
     def set_attributes(self, attributes):
         pass
 
 
 class AccessRightAttributes(DelegatedAttributes):
     def __init__(self, widget, disabled_class='disabled'):
-        super(AccessRightAttributes, self).__init__()
+        super().__init__()
         self.widget = widget
         self.disabled_class = disabled_class
 
@@ -1261,7 +1428,7 @@ class AccessRightAttributes(DelegatedAttributes):
         return self.widget.disabled
 
     def set_attributes(self, attributes):
-        super(AccessRightAttributes, self).set_attributes(attributes)
+        super().set_attributes(attributes)
 
         if self.disabled and self.disabled_class:
             attributes.add_to('class', [self.disabled_class])
@@ -1269,7 +1436,7 @@ class AccessRightAttributes(DelegatedAttributes):
 
 class ValidationStateAttributes(DelegatedAttributes):
     def __init__(self, input_widget, error_class='error', success_class='valid'):
-        super(ValidationStateAttributes, self).__init__()
+        super().__init__()
         self.input_widget = input_widget
         self.error_class = error_class
         self.success_class = success_class
@@ -1291,7 +1458,7 @@ class ValidationStateAttributes(DelegatedAttributes):
         return self.input_widget.view
 
     def set_attributes(self, attributes):
-        super(ValidationStateAttributes, self).set_attributes(attributes)
+        super().set_attributes(attributes)
 
         if self.has_validation_error and self.error_class:
             attributes.add_to('class', [self.error_class])
@@ -1301,7 +1468,7 @@ class ValidationStateAttributes(DelegatedAttributes):
 
 class HTMLWidget(Widget):
     def __init__(self, view, read_check=None, write_check=None):
-        super(HTMLWidget, self).__init__(view, read_check=read_check, write_check=write_check)
+        super().__init__(view, read_check=read_check, write_check=write_check)
         self.html_representation = None
 
     def enable_refresh(self, *for_fields):
@@ -1366,7 +1533,7 @@ class Input(HTMLWidget):
     def __init__(self, form, bound_field):
         self.form = form
         self.bound_field = bound_field
-        super(Input, self).__init__(form.view, read_check=bound_field.can_read, write_check=bound_field.can_write)
+        super().__init__(form.view, read_check=bound_field.can_read, write_check=bound_field.can_write)
 
     def can_write(self):
         return (not self.write_check) or self.write_check()
@@ -1382,6 +1549,17 @@ class Input(HTMLWidget):
     @property
     def value(self):
         return self.bound_field.as_user_input_value(self.get_input_status())
+
+    @property
+    def original_value(self):
+        return self.bound_field.as_user_input_value('defaulted')
+
+    @property
+    def original_database_value(self):
+        if self.bound_field.has_changed_model:
+            return self.bound_field.get_initial_value_as_user_input()
+        else:
+            return self.original_value
 
     def get_input_status(self):
         return self.bound_field.input_status
@@ -1399,7 +1577,7 @@ class Input(HTMLWidget):
 
 class WrappedInput(Input):
     def __init__(self, input_widget):
-        super(WrappedInput, self).__init__(input_widget.form, input_widget.bound_field)
+        super().__init__(input_widget.form, input_widget.bound_field)
         self.input_widget = input_widget
 
     @property
@@ -1420,21 +1598,23 @@ class PrimitiveInput(Input):
 
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
-       :keyword name: An optional name for this input (overrides the default).
        :keyword registers_with_form: (for internal use)
        :keyword refresh_widget: An :class:`HTMLElement` that will be refreshed when the value of this input changes.
+       :keyword ignore_concurrent_change: If True, don't check for possible concurrent changes by others to this input (just override such changes).
 
        .. versionchanged:: 5.0
           Added `refresh_widget`
-
+          Added `ignore_concurrent_change`
+          Removed `name` kwarg.
     """
     is_for_file = False
     is_contained = False
 
-    def __init__(self, form, bound_field, name=None, registers_with_form=True, refresh_widget=None):
-        super(PrimitiveInput, self).__init__(form, bound_field)
-        if name:
-            bound_field.override_unqualified_name_in_input(name)
+    def __init__(self, form, bound_field, registers_with_form=True, refresh_widget=None, ignore_concurrent_change=False):
+        super().__init__(form, bound_field)
+
+        self.ignore_concurrent_change = ignore_concurrent_change
+
         if refresh_widget:
             if not refresh_widget.is_refresh_enabled:
                 raise ProgrammerError('%s is not set to refresh. You can only refresh widgets on which enable_refresh() was called.' % refresh_widget)
@@ -1446,12 +1626,17 @@ class PrimitiveInput(Input):
             self.prepare_input()
 
         self.set_html_representation(self.add_child(self.create_html_widget()))
+        if self.html_control:
+            self.html_control.set_id(self.make_html_control_css_id()) 
 
         if not self.is_contained:
             self.add_to_attribute('class', ['reahl-primitiveinput'])
             self.add_input_data_attributes()
         if self.refresh_widget:
             self.set_attribute('data-refresh-widget-id', self.refresh_widget.css_id)
+
+    def make_html_control_css_id(self):
+        return str(CssId.from_dirty_string('id-%s-%s' % (self.channel_name, self.name)))
 
     def add_input_data_attributes(self):
         if isinstance(self.bound_field, BooleanField):
@@ -1465,6 +1650,14 @@ class PrimitiveInput(Input):
     @property
     def name(self):
         return self.bound_field.name_in_input
+
+    def get_concurrency_hash_strings(self):
+        if not self.ignore_concurrent_change:
+            yield self.original_database_value
+
+    def xxxget_concurrency_hash_strings(self):
+        if not self.ignore_concurrent_change:
+            yield '%s[%s]' % (self.name, self.original_database_value)
 
     @property
     def html_control(self):
@@ -1487,7 +1680,7 @@ class PrimitiveInput(Input):
 
     def get_js(self, context=None):
         js = ['$(%s).primitiveinput();' % self.html_representation.contextualise_selector('".reahl-primitiveinput"', context)]
-        return super(PrimitiveInput, self).get_js(context=context) + js
+        return super().get_js(context=context) + js
 
     @property
     def validation_constraints(self):
@@ -1509,15 +1702,14 @@ class PrimitiveInput(Input):
         self.bound_field.from_input(value)
 
     def accept_disambiguated_input(self, disambiguated_input):
-        super(PrimitiveInput, self).accept_disambiguated_input(disambiguated_input)
+        super().accept_disambiguated_input(disambiguated_input)
         if self.registers_with_form:
             self.bound_field.from_disambiguated_input(disambiguated_input, ignore_validation=True)
 
     def update_construction_state(self, disambiguated_input):
-        super(PrimitiveInput, self).update_construction_state(disambiguated_input)
+        super().update_construction_state(disambiguated_input)
         if self.registers_with_form:
             self.bound_field.update_valid_value_in_disambiguated_input(disambiguated_input)
-
 
     def get_ocurred_event(self):
         return None
@@ -1542,9 +1734,12 @@ class PrimitiveInput(Input):
         return self.form.persisted_userinput_class
 
     def prepare_input(self):
+        value_store = ExecutionContext.get_context().initial_field_values = getattr(ExecutionContext.get_context(), 'initial_field_values', {})
+        self.bound_field.activate_initial_value_store(value_store)
+        
         construction_state = self.view.get_construction_state()
         if construction_state:
-            self.bound_field.from_disambiguated_input(construction_state, ignore_validation=True)
+            self.bound_field.from_disambiguated_input(construction_state, ignore_validation=True, ignore_access=True)
 
         previously_entered_value = self.persisted_userinput_class.get_previously_entered_for_form(self.form, self.name, self.bound_field.entered_input_type)
 
@@ -1570,7 +1765,7 @@ class HTMLInputElement(HTMLElement):
     def __init__(self, input_widget, input_type, render_value_attribute=True):
         self.input_type = input_type
         self.render_value_attribute = render_value_attribute
-        super(HTMLInputElement, self).__init__(input_widget.view, 'input')
+        super().__init__(input_widget.view, 'input')
         self.set_attributes(input_widget)
 
     def set_attributes(self, input_widget):
@@ -1598,7 +1793,7 @@ class HTMLInputElement(HTMLElement):
 
         def jquery_validate_parameters_for(validation_constraint):
             if validation_constraint.is_remote:
-                return six.text_type(input_widget.form.field_validator.get_url())
+                return str(input_widget.form.field_validator.get_url())
             elif validation_constraint.name in html5_validations:
                 return validation_constraint.parameters
             return validation_constraint.parameters or 'true'
@@ -1610,7 +1805,7 @@ class HTMLInputElement(HTMLElement):
                 validation_message_name = 'data-msg-%s' % validation_constraint.name
                 self.set_attribute(validation_message_name, validation_constraint.message)
             if validation_constraint.name == 'pattern':
-                self.set_attribute('title', html_escape(validation_constraint.message))
+                self.set_attribute('title', html.escape(validation_constraint.message))
 
 
 class TextArea(PrimitiveInput):
@@ -1622,18 +1817,18 @@ class TextArea(PrimitiveInput):
 
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
-       :keyword name: An optional name for this input (overrides the default).
        :keyword rows: The number of rows that this Input should have.
        :keyword columns: The number of columns that this Input should have.
        :keyword refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
+       :keyword ignore_concurrent_change: (See :class:`~reahl.web.ui.PrimitiveInput`)
 
        .. versionchanged:: 5.0
-          Added `name` and `refresh_widget`.      
+          Added `ignore_concurrent_change`
     """
-    def __init__(self, form, bound_field, name=None, rows=None, columns=None, refresh_widget=None):
+    def __init__(self, form, bound_field, rows=None, columns=None, refresh_widget=None, ignore_concurrent_change=False):
         self.rows = rows
         self.columns = columns
-        super(TextArea, self).__init__(form, bound_field, name=name, refresh_widget=refresh_widget)
+        super().__init__(form, bound_field, refresh_widget=refresh_widget, ignore_concurrent_change=ignore_concurrent_change)
 
     def create_html_widget(self):
         html_text_area = HTMLElement(self.view, 'textarea', children_allowed=True)
@@ -1645,9 +1840,9 @@ class TextArea(PrimitiveInput):
         self.text = html_text_area.add_child(TextNode(self.view, self.get_value))
 
         if self.rows:
-            html_text_area.set_attribute('rows', six.text_type(self.rows))
+            html_text_area.set_attribute('rows', str(self.rows))
         if self.columns:
-            html_text_area.set_attribute('cols', six.text_type(self.columns))
+            html_text_area.set_attribute('cols', str(self.columns))
 
         return html_text_area
 
@@ -1657,12 +1852,13 @@ class TextArea(PrimitiveInput):
 
 class ContainedInput(PrimitiveInput):
     is_contained = True
-    def __init__(self, containing_input, choice, name=None, refresh_widget=None):
+    def __init__(self, containing_input, choice, refresh_widget=None):
         self.choice = choice
         self.containing_input = containing_input
-        super(ContainedInput, self).__init__(containing_input.form, choice.field,
-                                             name=name,
-                                             registers_with_form=False, refresh_widget=refresh_widget)
+        super().__init__(containing_input.form, choice.field, registers_with_form=False, refresh_widget=refresh_widget)
+
+    def make_html_control_css_id(self):
+        return str(CssId.from_dirty_string('id-%s-%s-%s' % (self.channel_name, self.containing_input.name, self.value)))
 
     def get_input_status(self):
         return 'defaulted'
@@ -1704,7 +1900,7 @@ class Option(ContainedInput):
     def __init__(self, containing_input, choice):
         self.choice = choice
         self.containing_input = containing_input
-        super(Option, self).__init__(containing_input, choice)
+        super().__init__(containing_input, choice)
 
     @property
     def selected(self):
@@ -1726,7 +1922,7 @@ class Option(ContainedInput):
 
 class OptGroup(HTMLElement):
     def __init__(self, view, label, options, css_id=None):
-        super(OptGroup, self).__init__(view, 'optgroup', children_allowed=True, css_id=css_id)
+        super().__init__(view, 'optgroup', children_allowed=True, css_id=css_id)
         self.set_attribute('label', label)
         for option in options:
             self.add_child(option)
@@ -1741,12 +1937,8 @@ class SelectInput(PrimitiveInput):
           Represented in HTML as a <select> element which can contain <option> and <optgroup> children.
 
        :param form: (See :class:`~reahl.web.ui.Input`)
-       :param bound_field: (See :class:`~reahl.web.ui.Input`)
-       :keyword name: An optional name for this input (overrides the default).
        :keyword refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
 
-       .. versionchanged:: 5.0
-          Added `name` and `refresh_widget`
     """
     def create_html_widget(self):
         html_select = HTMLElement(self.view, 'select', children_allowed=True)
@@ -1777,15 +1969,18 @@ class SelectInput(PrimitiveInput):
         if self.bound_field.allows_multiple_selections:
             return input_values.get(self.name, [])
         else:
-            return super(SelectInput, self).get_value_from_input(input_values)
+            return super().get_value_from_input(input_values)
 
 
 class SingleChoice(ContainedInput):
     def __init__(self, containing_input, choice):
         self.choice = choice
         self.containing_input = containing_input
-        super(SingleChoice, self).__init__(containing_input, choice,
-                                           name=containing_input.name)
+        super().__init__(containing_input, choice)
+
+    @property
+    def name(self):
+        return self.containing_input.name
 
     @property
     def choice_type(self):
@@ -1824,21 +2019,23 @@ class RadioButtonSelectInput(PrimitiveInput):
 
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
-       :keyword name: An optional name for this input (overrides the default).
        :keyword refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
+       :keyword ignore_concurrent_change: (See :class:`~reahl.web.ui.PrimitiveInput`)
 
        .. versionchanged:: 4.0
           Renamed from RadioButtonInput
 
        .. versionchanged:: 5.0
-          Added `name` and `refresh_widget`
+          Added `refresh_widget`
+          Added `ignore_concurrent_change`
+
     """
 
     choice_type = 'radio'
 
     @arg_checks(bound_field=IsInstance(ChoiceField))
-    def __init__(self, form, bound_field, name=None, refresh_widget=None):
-        super(RadioButtonSelectInput, self).__init__(form, bound_field, name=name, refresh_widget=refresh_widget)
+    def __init__(self, form, bound_field, refresh_widget=None, ignore_concurrent_change=False):
+        super().__init__(form, bound_field, refresh_widget=refresh_widget, ignore_concurrent_change=ignore_concurrent_change)
 
     def is_choice_selected(self, value):
         if self.bound_field.allows_multiple_selections:
@@ -1876,7 +2073,6 @@ class TextInput(PrimitiveInput):
 
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
-       :keyword name: An optional name for this input (overrides the default).
        :keyword fuzzy: If True, the typed input will be dealt with as "fuzzy input". Fuzzy input is
                      when a user is allowed to type almost free-form input for structured types of input,
                      such as a date. The assumption is that the `bound_field` used should be able to parse
@@ -1887,15 +2083,18 @@ class TextInput(PrimitiveInput):
                      is empty in order to provide a hint to the user of what may be entered into the TextInput.
                      If given True instead of a string, the label of the TextInput is used.
        :keyword refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
+       :keyword ignore_concurrent_change: (See :class:`~reahl.web.ui.PrimitiveInput`)
 
        .. versionchanged:: 3.2
           Added `placeholder`.
 
        .. versionchanged:: 5.0
-          Added `name` and `refresh_widget`
+          Added `refresh_widget`
+          Added `ignore_concurrent_change`
+
     """
-    def __init__(self, form, bound_field, name=None, fuzzy=False, placeholder=False, refresh_widget=None):
-        super(TextInput, self).__init__(form, bound_field, name=name, refresh_widget=refresh_widget)
+    def __init__(self, form, bound_field, fuzzy=False, placeholder=False, refresh_widget=None, ignore_concurrent_change=False):
+        super().__init__(form, bound_field, refresh_widget=refresh_widget, ignore_concurrent_change=ignore_concurrent_change)
         self.append_class('reahl-textinput')
         if placeholder:
             placeholder_text = self.label if placeholder is True else placeholder
@@ -1907,7 +2106,7 @@ class TextInput(PrimitiveInput):
 
     def get_js(self, context=None):
         js = ['$(%s).textinput();' % self.html_representation.contextualise_selector('".reahl-textinput"', context)]
-        return super(TextInput, self).get_js(context=context) + js
+        return super().get_js(context=context) + js
 
     def create_html_widget(self):
         return HTMLInputElement(self, 'text')
@@ -1922,22 +2121,23 @@ class PasswordInput(PrimitiveInput):
 
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
-       :keyword name: An optional name for this input (overrides the default).
        :keyword refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
+       :keyword ignore_concurrent_change: (See :class:`~reahl.web.ui.PrimitiveInput`)
 
        .. versionchanged:: 5.0
-          Added `name` and `refresh_widget`
+          Added `refresh_widget`
+          Added `ignore_concurrent_change`
     """
-    def __init__(self, form, bound_field, name=None, refresh_widget=None):
-        super(PasswordInput, self).__init__(form, bound_field, name=name, refresh_widget=refresh_widget)
+    def __init__(self, form, bound_field, refresh_widget=None, ignore_concurrent_change=False):
+        super().__init__(form, bound_field, refresh_widget=refresh_widget, ignore_concurrent_change=ignore_concurrent_change)
 
     def create_html_widget(self):
         return HTMLInputElement(self, 'password', render_value_attribute=False)
 
 
 class HiddenInput(PrimitiveInput):
-    def __init__(self, form, bound_field, name=None):
-        super(HiddenInput, self).__init__(form, bound_field, name=name)
+    def __init__(self, form, bound_field, ignore_concurrent_change=False):
+        super().__init__(form, bound_field, ignore_concurrent_change=ignore_concurrent_change)
 
     def create_html_widget(self):
         return HTMLInputElement(self, 'hidden')
@@ -1952,17 +2152,19 @@ class CheckboxInput(PrimitiveInput):
 
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
-       :keyword name: An optional name for this input (overrides the default).
+       :keyword name: An optional name for this input (overrides the default)
        :keyword refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
+       :keyword ignore_concurrent_change: (See :class:`~reahl.web.ui.PrimitiveInput`)
 
        .. versionchanged:: 5.0
           Added `name` and `refresh_widget`
+          Added `ignore_concurrent_change`
     """
     choice_type = 'checkbox'
 
     @arg_checks(bound_field=IsInstance(BooleanField))
-    def __init__(self, form, bound_field, name=None, refresh_widget=None):
-        super(CheckboxInput, self).__init__(form, bound_field, name=name, refresh_widget=refresh_widget)
+    def __init__(self, form, bound_field, refresh_widget=None, ignore_concurrent_change=False):
+        super().__init__(form, bound_field, refresh_widget=refresh_widget, ignore_concurrent_change=ignore_concurrent_change)
 
     @property
     def checked(self):
@@ -1978,7 +2180,7 @@ class CheckboxInput(PrimitiveInput):
     def validation_constraints(self):
         applicable_constraints = ValidationConstraintList()
         if self.required:
-            validation_constraints = super(CheckboxInput, self).validation_constraints
+            validation_constraints = super().validation_constraints
             validation_constraint = validation_constraints.get_constraint_named('required')
             applicable_constraints.append(validation_constraint)
         return applicable_constraints
@@ -1995,23 +2197,23 @@ class CheckboxSelectInput(PrimitiveInput):
 
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
-       :keyword name: An optional name for this input (overrides the default).
        :keyword refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
+       :keyword ignore_concurrent_change: (See :class:`~reahl.web.ui.PrimitiveInput`)
 
        .. versionadded:: 4.0
 
        .. versionchanged:: 5.0
-          Added `name` and `refresh_widget`
+          Added `refresh_widget`
+          Added `ignore_concurrent_change`
     """
     choice_type = 'checkbox'
     allowed_field_types = [MultiChoiceField]
 
-    def __init__(self, form, bound_field, name=None, refresh_widget=None):
+    def __init__(self, form, bound_field, refresh_widget=None, ignore_concurrent_change=False):
         if not isinstance(bound_field, *self.allowed_field_types):
             raise ProgrammerError('%s is not allowed to be used with %s' % (bound_field.__class__, self.__class__))
         self.added_choices = []
-        super(CheckboxSelectInput, self).__init__(form, bound_field, name=name, refresh_widget=refresh_widget)
-
+        super().__init__(form, bound_field, refresh_widget=refresh_widget, ignore_concurrent_change=ignore_concurrent_change)
 
     @property
     def html_control(self):
@@ -2057,8 +2259,22 @@ class CheckboxSelectInput(PrimitiveInput):
 
 
 class ButtonInput(PrimitiveInput):
-    def __init__(self, form, event, name=None):
-        super(ButtonInput, self).__init__(form, event, name=name)
+    """A button on a Form.
+
+       .. admonition:: Styling
+
+          Rendered as an HTML <input type="submit"> element.
+
+       :param form: (See :class:`reahl.web.ui.PrimitiveInput`)
+       :param event: The :class:`reahl.component.modelinterface.Event` that will be triggered server-side when the user clicks on the button.
+       :keyword ignore_concurrent_change: (See :class:`~reahl.web.ui.PrimitiveInput`)
+
+       .. versionchanged:: 5.0
+          Added `ignore_concurrent_change`
+
+    """
+    def __init__(self, form, event, ignore_concurrent_change=False):
+        super().__init__(form, event, ignore_concurrent_change=ignore_concurrent_change)
         if not self.controller.has_event_named(event.name):
             raise ProgrammerError('no Event/Transition available for name %s' % event.name)
         try:
@@ -2070,7 +2286,7 @@ class ButtonInput(PrimitiveInput):
 
     @property
     def name(self):
-        return 'event.%s%s' % (super(ButtonInput, self).name, self.query_encoded_arguments)
+        return 'event.%s%s' % (super().name, self.query_encoded_arguments)
 
     @property
     def validation_constraints(self):
@@ -2138,10 +2354,8 @@ class Label(HTMLElement):
           Added the for_input keyword argument.
     """
     def __init__(self, view, text=None, for_input=None, css_id=None):
-        super(Label, self).__init__(view, 'label', children_allowed=True, css_id=css_id)
+        super().__init__(view, 'label', children_allowed=True, css_id=css_id)
         self.for_input = for_input
-        if self.for_input and self.for_input.html_control and not self.for_input.html_control.css_id_is_set:
-            self.for_input.html_control.generate_random_css_id()
         if text or for_input:
             self.text_node = self.add_child(TextNode(view, text or for_input.label))
 
@@ -2150,11 +2364,11 @@ class Label(HTMLElement):
         if self.for_input:
             return self.for_input.visible
         else:
-            return super(Label, self).visible
+            return super().visible
 
     @property
     def attributes(self):
-        attributes = super(Label, self).attributes
+        attributes = super().attributes
         if self.for_input and self.for_input.html_control:
             attributes.set_to('for', self.for_input.html_control.css_id)
         return attributes
@@ -2162,14 +2376,14 @@ class Label(HTMLElement):
 
 class ActiveStateAttributes(DelegatedAttributes):
     def __init__(self, widget, attribute_name='class', active_value='active', inactive_value=None):
-        super(ActiveStateAttributes, self).__init__()
+        super().__init__()
         self.widget = widget
         self.attribute_name = attribute_name
         self.active_value = active_value
         self.inactive_value = inactive_value
 
     def set_attributes(self, attributes):
-        super(ActiveStateAttributes, self).set_attributes(attributes)
+        super().set_attributes(attributes)
 
         if self.widget.is_active and self.active_value:
             attributes.add_to(self.attribute_name, [self.active_value])
@@ -2196,8 +2410,8 @@ class SimpleFileInput(PrimitiveInput):
     """
     is_for_file = True
 
-    def __init__(self, form, bound_field, name=None, refresh_widget=None):
-        super(SimpleFileInput, self).__init__(form, bound_field, name=name, refresh_widget=refresh_widget)
+    def __init__(self, form, bound_field, refresh_widget=None):
+        super().__init__(form, bound_field, refresh_widget=refresh_widget)
 
     def create_html_widget(self):
         file_input = HTMLInputElement(self, 'file')
@@ -2208,7 +2422,7 @@ class SimpleFileInput(PrimitiveInput):
     def get_value_from_input(self, input_values):
         field_storages = input_values.get(self.name, [])
 
-        return [UploadedFile(six.text_type(field_storage.filename), field_storage.file.read(), six.text_type(field_storage.type))
+        return [UploadedFile(str(field_storage.filename), field_storage.file.read(), str(field_storage.type))
                  for field_storage in field_storages
                  if field_storage not in ('', b'')]
 
@@ -2239,7 +2453,7 @@ class UniqueFilesConstraint(ValidationConstraint):
     name = 'uniquefiles'
     def __init__(self, form=None, input_name=None, error_message=None):
         error_message = error_message or _('uploaded files should all have different names')
-        super(UniqueFilesConstraint, self).__init__(error_message=error_message)
+        super().__init__(error_message=error_message)
         self.form = form
         self.input_name = input_name
 
@@ -2252,7 +2466,7 @@ class UniqueFilesConstraint(ValidationConstraint):
                 raise self
 
     def __reduce__(self):
-        reduced = super(UniqueFilesConstraint, self).__reduce__()
+        reduced = super().__reduce__()
         pickle_dict = reduced[2]
         del pickle_dict['form']
         return reduced
@@ -2271,7 +2485,7 @@ class Caption(HTMLElement):
 
     """
     def __init__(self, view, text=None, css_id=None):
-        super(Caption, self).__init__(view, 'caption', children_allowed=True, css_id=css_id)
+        super().__init__(view, 'caption', children_allowed=True, css_id=css_id)
         if text is not None:
             self.add_child(TextNode(view, text))
 
@@ -2285,7 +2499,7 @@ class Col(HTMLElement):
 
     """
     def __init__(self, view, span=None, css_id=None):
-        super(Col, self).__init__(view, 'col', children_allowed=False, css_id=css_id)
+        super().__init__(view, 'col', children_allowed=False, css_id=css_id)
         if span:
             self.set_attribute('span', span)
 
@@ -2299,7 +2513,7 @@ class ColGroup(HTMLElement):
 
     """
     def __init__(self, view, span=None, css_id=None):
-        super(ColGroup, self).__init__(view, 'colgroup', children_allowed=True, css_id=css_id)
+        super().__init__(view, 'colgroup', children_allowed=True, css_id=css_id)
         if span:
             self.set_attribute('span', span)
 
@@ -2313,7 +2527,7 @@ class Thead(HTMLElement):
 
     """
     def __init__(self, view, css_id=None):
-        super(Thead, self).__init__(view, 'thead', children_allowed=True, css_id=css_id)
+        super().__init__(view, 'thead', children_allowed=True, css_id=css_id)
 
 
 class Tfoot(HTMLElement):
@@ -2324,7 +2538,7 @@ class Tfoot(HTMLElement):
 
     """
     def __init__(self, view, css_id=None):
-        super(Tfoot, self).__init__(view, 'tfoot', children_allowed=True, css_id=css_id)
+        super().__init__(view, 'tfoot', children_allowed=True, css_id=css_id)
 
 
 class Tbody(HTMLElement):
@@ -2335,7 +2549,7 @@ class Tbody(HTMLElement):
 
     """
     def __init__(self, view, css_id=None):
-        super(Tbody, self).__init__(view, 'tbody', children_allowed=True, css_id=css_id)
+        super().__init__(view, 'tbody', children_allowed=True, css_id=css_id)
 
 
 class Tr(HTMLElement):
@@ -2346,16 +2560,16 @@ class Tr(HTMLElement):
 
     """
     def __init__(self, view, css_id=None):
-        super(Tr, self).__init__(view, 'tr',children_allowed=True, css_id=css_id)
+        super().__init__(view, 'tr',children_allowed=True, css_id=css_id)
 
 
 class Cell(HTMLElement):
     def __init__(self, view, html_tag_name, rowspan=None, colspan=None, css_id=None):
-        super(Cell, self).__init__(view, html_tag_name, children_allowed=True, css_id=css_id)
+        super().__init__(view, html_tag_name, children_allowed=True, css_id=css_id)
         if rowspan:
-            self.set_attribute('rowspan', six.text_type(rowspan))
+            self.set_attribute('rowspan', str(rowspan))
         if colspan:
-            self.set_attribute('colspan', six.text_type(colspan))
+            self.set_attribute('colspan', str(colspan))
 
 
 class Th(Cell):
@@ -2368,7 +2582,7 @@ class Th(Cell):
 
     """
     def __init__(self, view,  rowspan=None, colspan=None, css_id=None):
-        super(Th, self).__init__(view, 'th', rowspan=rowspan, colspan=colspan, css_id=css_id)
+        super().__init__(view, 'th', rowspan=rowspan, colspan=colspan, css_id=css_id)
 
 
 class Td(Cell):
@@ -2381,10 +2595,10 @@ class Td(Cell):
 
     """
     def __init__(self, view, rowspan=None, colspan=None, css_id=None):
-        super(Td, self).__init__(view, 'td', rowspan=rowspan, colspan=colspan, css_id=css_id)
+        super().__init__(view, 'td', rowspan=rowspan, colspan=colspan, css_id=css_id)
 
 
-class DynamicColumn(object):
+class DynamicColumn:
     """DynamicColumn defines a logical column of a table, specifying how its heading will be
        rendered, and how the cell in this column will be displayed for each data item in the
        table.
@@ -2404,7 +2618,7 @@ class DynamicColumn(object):
             Added `make_footer_widget`.
     """
     def __init__(self, make_heading_or_string, make_widget, make_footer_widget=None, sort_key=None):
-        if isinstance(make_heading_or_string, six.string_types):
+        if isinstance(make_heading_or_string, str):
             def make_span(view):
                 return Span(view, text=make_heading_or_string)
             self.make_heading_widget = make_span
@@ -2453,7 +2667,7 @@ class StaticColumn(DynamicColumn):
     """
     def __init__(self, field, attribute_name, footer_label=None, sort_key=None):
         make_footer_widget = self.make_footer if footer_label else None
-        super(StaticColumn, self).__init__(field.label, self.make_text_node, make_footer_widget=make_footer_widget, sort_key=sort_key)
+        super().__init__(field.label, self.make_text_node, make_footer_widget=make_footer_widget, sort_key=sort_key)
         self.field = field
         self.attribute_name = attribute_name
         self.footer_label = footer_label
@@ -2478,7 +2692,7 @@ class Table(HTMLElement):
 
     """
     def __init__(self, view, caption_text=None, summary=None, css_id=None):
-        super(Table, self).__init__(view, 'table', children_allowed=True, css_id=css_id)
+        super().__init__(view, 'table', children_allowed=True, css_id=css_id)
         self.has_data = False
         if caption_text:
             self.add_child(Caption(view, text=caption_text))

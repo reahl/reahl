@@ -15,7 +15,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 
 
 from sqlalchemy import Column, String, UnicodeText, Integer, Text, PrimaryKeyConstraint, DateTime, Boolean, \
@@ -93,16 +92,16 @@ class RenameRegionToUi(Migration):
     version = '2.1'
     @classmethod
     def is_applicable(cls, current_schema_version, new_version):
-        if super(cls, cls).is_applicable(current_schema_version, new_version):
+        if super().is_applicable(current_schema_version, new_version):
             # reahl-declarative is new, and replaces reahl-elixir-impl. Therefore it thinks it is migrating from version 0 always.
             # We need to manually check that it's not coming from reahl-web-elixirimpl 2.0 or 2.1 instead.
             orm_control = ExecutionContext.get_context().system_control.orm_control
 
-            class FakeElixirEgg(object):
+            class FakeElixirEgg:
                 name = 'reahl-web-declarative'
             previous_elixir_version = orm_control.schema_version_for(FakeElixirEgg(), default='0.0')
 
-            return previous_elixir_version != '0.0' and super(cls, cls).is_applicable(current_schema_version, previous_elixir_version)
+            return previous_elixir_version != '0.0' and super().is_applicable(current_schema_version, previous_elixir_version)
         else:
             return False
 
@@ -112,7 +111,7 @@ class RenameRegionToUi(Migration):
 
 class ElixirToDeclarativeWebDeclarativeChanges(MigrateElixirToDeclarative):
     def schedule_upgrades(self):
-        super(ElixirToDeclarativeWebDeclarativeChanges, self).schedule_upgrades()
+        super().schedule_upgrades()
         self.replace_elixir()
 
     def rename_primary_key_constraints(self):

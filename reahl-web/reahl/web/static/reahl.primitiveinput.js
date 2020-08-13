@@ -22,29 +22,77 @@
     $.widget("reahl.primitiveinput", {
         options: {
         },
-        
+
         _create: function() {
             var o = this.options;
             var _this = this;
+            this.clearTabStatus();
             this.element.addClass("reahl-primitiveinput");
     
             this.getAllRelatedFormInputs().data('reahlPrimitiveinput', this);
 
             if (this.getRefreshWidgetId()) {
-                this.element.on('change', function(e) {
-                    var currentInput = $(_this.getAllRelatedFormInputs()[0]);
-                    var inputName = currentInput.attr('name');
-                    var formId = _this.getForm().attr('id');
-                    var selectorForFocus = '#'+formId+' [name="'+inputName+'"]';
+                this.element.on('keydown', function(e) {
+                    if ( e.which == 9 ) {;
+                        _this.saveTabStatus(e.shiftKey)
+                        e.preventDefault();
+                        setTimeout(function() {_this.element.change() }, 0);
+                    } 
+                });
 
+                this.element.on('keypress', function(e) {
+                    if ( _this.busyTabbing ) {
+                        e.preventDefault();
+                    }
+                });
+
+                this.element.on('change', function(e) {
                     if (_this.isValid()) { 
-                        $(currentInput).focus();
-                        $('#'+_this.getRefreshWidgetId()).data('reahlHashchange').forceReload(function(){ 
-                            $(selectorForFocus).focus();
+                        $('#'+_this.getRefreshWidgetId()).data('reahlHashchange').forceReload(function(){
+                            _this.resetFocus(_this.lastFocussedElementOnTab || $(e.target));
+                            _this.clearTabStatus();
                         });
+                    } else {
+                        _this.clearTabStatus();
                     }
                 })
             };
+        },
+
+        resetFocus: function(lastFocussedElement){ 
+            var newFocussedElement = this.getRefreshedElementWithSameIdAs(lastFocussedElement);
+            if (this.busyTabbing) {
+                newFocussedElement = this.calculateNextTabFocus(newFocussedElement);
+            }
+            newFocussedElement.focus();
+        },
+
+        saveTabStatus: function(shiftKey) {
+            this.busyTabbing = true;
+            this.shift = shiftKey;
+            this.lastFocussedElementOnTab = $(':focus');
+        },
+
+        clearTabStatus: function() {
+            this.busyTabbing = false;
+            this.shift = false;
+            this.lastFocussedElementOnTab = undefined;
+        },
+
+        getRefreshedElementWithSameIdAs: function(oldElement) {
+            return $('#'+oldElement.attr('id'));
+        },
+
+        calculateNextTabFocus: function(fromElement) {
+            var tabbables = $(":tabbable"); // Jquery UI
+            var current = tabbables.index(fromElement);
+            var next;
+            if (this.shift) {
+                next = current-1 < 0 ? tabbables.length-1 : current-1;
+            } else {
+               next = current+1 > tabbables.length-1 ? 0 : current+1;
+            }
+            return tabbables.eq(next);
         },
 
         getForm: function() {

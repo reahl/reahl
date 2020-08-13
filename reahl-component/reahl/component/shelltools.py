@@ -16,8 +16,6 @@
 
 """A basic framework for writing commandline utilities."""
 
-from __future__ import print_function, unicode_literals, absolute_import, division
-import six
 import sys
 import os.path
 import logging
@@ -42,7 +40,7 @@ class ExecutableNotInstalledException(Exception):
         return 'Executable not found: %s' % self.executable_name
 
 
-class Executable(object):
+class Executable:
     def __init__(self, name, verbose=False):
         self.name = name
         self.verbose = verbose
@@ -55,10 +53,7 @@ class Executable(object):
         #on windows os, some entrypoints installed in the virtualenv
         #need their full path(with extension) to be able to be used as a spawn command.
         #Python 3 now offers shutil.which() - see also http://stackoverflow.com/questions/377017/test-if-executable-exists-in-python
-        if six.PY2:
-            executable = distutils.spawn.find_executable(program)
-        else:
-            executable = shutil.which(program)
+        executable = shutil.which(program)
         if executable:
             return executable
         raise ExecutableNotInstalledException(program)
@@ -77,12 +72,14 @@ class Executable(object):
     def check_output(self, commandline_arguments, *args, **kwargs):
         return self.execute(subprocess.check_output, commandline_arguments, *args, **kwargs)
 
+    def run(self, commandline_arguments, *args, **kwargs):
+        return self.execute(subprocess.run, commandline_arguments, *args, **kwargs)
 
 class CommandNotFound(Exception):
     pass
 
 
-class Command(object):
+class Command:
     """This is the superclass of all Commands executed from the commandline.
 
     New commands are implemented by subclassing this one and overriding its 
@@ -130,11 +127,11 @@ class ReahlCommandlineConfig(Configuration):
 
 class CompositeCommand(Command):
     def __init__(self):
-        super(CompositeCommand, self).__init__()
+        super().__init__()
         self.parser.epilog = '"%s help-commands" gives a list of available commands' % self.parser.prog
 
     def assemble(self):
-        super(CompositeCommand, self).assemble()
+        super().assemble()
         self.parser.add_argument('command', help='a command')
         self.parser.add_argument('command_args', nargs=argparse.REMAINDER)
 
@@ -152,7 +149,7 @@ class CompositeCommand(Command):
         raise CommandNotFound(name)
 
     def parse_commandline(self, argv):
-        args = super(CompositeCommand, self).parse_commandline(argv)
+        args = super().parse_commandline(argv)
         if argv[1:] and argv[1] == '--':
             args.command_args.insert(0, '--')
         return args
@@ -180,10 +177,7 @@ class CompositeCommand(Command):
 
     def print_command(self, keyword, description, max_len, out_stream):
         keyword_column = ('{0: <%s}  ' % max_len).format(keyword)
-        if six.PY3:
-            width = shutil.get_terminal_size().columns or 80
-        else:
-            width = 80
+        width = shutil.get_terminal_size().columns or 80
         output = textwrap.fill(description, width=width, initial_indent=keyword_column, subsequent_indent=' '*(max_len+2))
         print(output, file=out_stream)
         
@@ -194,10 +188,10 @@ class ReahlCommandline(CompositeCommand):
 
     def __init__(self, config=None):
         self.config = config or ReahlCommandlineConfig()
-        super(ReahlCommandline, self).__init__()
+        super().__init__()
 
     def assemble(self):
-        super(ReahlCommandline, self).assemble()
+        super().assemble()
         self.parser.add_argument('-l', '--loglevel', default='WARNING', choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG'], help='set log level to this')
 
     @property
@@ -216,13 +210,7 @@ class ReahlCommandline(CompositeCommand):
 
     @property
     def aliasses(self):
-        if six.PY2:
-            aliasses = {}
-            aliasses.update(AliasFile.get_file(local=True).aliasses)
-            aliasses.update(AliasFile.get_file(local=False).aliasses)
-            return aliasses
-        else:
-            return dict(collections.ChainMap(AliasFile.get_file(local=True).aliasses, AliasFile.get_file(local=False).aliasses))
+        return dict(collections.ChainMap(AliasFile.get_file(local=True).aliasses, AliasFile.get_file(local=False).aliasses))
         
     def set_log_level(self, log_level):
         log_level = getattr(logging, log_level)
@@ -234,10 +222,10 @@ class ReahlCommandline(CompositeCommand):
         if args.command in self.aliasses:
             return self.do(shlex.split(self.aliasses[args.command]))
         else:
-            return super(ReahlCommandline, self).execute(args)
+            return super().execute(args)
 
     def print_help(self, out_stream):
-        super(ReahlCommandline, self).print_help(out_stream)
+        super().print_help(out_stream)
 
         if self.aliasses:
             max_len = max([len(alias_name) for alias_name in self.aliasses.keys()])
@@ -261,7 +249,7 @@ class AddAlias(Command):
                                  help='the command (and arguments) to remember')
 
     def execute(self, args):
-        super(AddAlias, self).execute(args)
+        super().execute(args)
         alias_file = AliasFile.get_file(local=args.local)
         alias_file.add_alias(args.alias, ' '.join(args.aliassed_command))
         alias_file.write()
@@ -276,7 +264,7 @@ class RemoveAlias(Command):
         self.parser.add_argument('alias', type=str,  help='which alias to remove')
 
     def execute(self, args):
-        super(RemoveAlias, self).execute(args)
+        super().execute(args)
         alias_file = AliasFile.get_file(local=args.local)
         if args.alias in alias_file.aliasses:
             alias_file.remove_alias(args.alias)
@@ -287,7 +275,7 @@ class RemoveAlias(Command):
             return 1
 
 
-class AliasFile(object):
+class AliasFile:
     @classmethod
     def get_file(cls, local=False):
         filename = '.reahlalias' if local else os.path.expanduser('~/.reahlalias')

@@ -15,7 +15,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     
-from __future__ import print_function, unicode_literals, absolute_import, division
 import os
 import os.path
 
@@ -54,9 +53,11 @@ from reahl.doc.examples.tutorial.addressbook2bootstrap import addressbook2bootst
 from reahl.doc.examples.tutorial.bootstrapgrids import bootstrapgrids
 from reahl.doc.examples.tutorial.pageflow1 import pageflow1
 from reahl.doc.examples.tutorial.parameterised1 import parameterised1
+from reahl.doc.examples.tutorial.dynamiccontent import dynamiccontent
 
 from reahl.doc.examples.howtos.responsivedisclosure import responsivedisclosure
-from reahl.doc.examples.howtos.dynamiccontent import dynamiccontent
+from reahl.doc.examples.howtos.optimisticconcurrency import optimisticconcurrency
+
 
 from reahl.web_dev.fixtures import WebFixture
 
@@ -195,6 +196,10 @@ class ExampleFixture(Fixture):
     def responsivedisclosure(self):
         self.wsgi_app = self.web_fixture.new_wsgi_app(site_root=responsivedisclosure.ResponsiveUI, enable_js=True)
 
+    @scenario
+    def optimisticconcurrency(self):
+        self.wsgi_app = self.web_fixture.new_wsgi_app(site_root=optimisticconcurrency.OptimisticConcurrencyUI, enable_js=True)
+
 
 @with_fixtures(WebFixture, ExampleFixture)
 def test_hit_home_page(web_fixture, example_fixture):
@@ -252,6 +257,7 @@ def test_slots(web_fixture, slots_scenario):
     fixture = slots_scenario
     fixture.start_example_app()
     web_fixture.driver_browser.open('/')
+    web_fixture.driver_browser.set_window_size('xs')
 
     expected_main_contents = 'In this slot will be some main content for the view on /'
     expected_secondary_contents = 'Some secondary content related to /'
@@ -283,6 +289,8 @@ def test_widgets_using_factories(web_fixture, tabbed_panel_scenario):
     fixture = tabbed_panel_scenario
     fixture.start_example_app()
     web_fixture.driver_browser.open('/')
+    web_fixture.driver_browser.set_window_size('xs')
+    
     assert web_fixture.driver_browser.wait_for(fixture.tab_is_active, 'Tab 1')
     assert web_fixture.driver_browser.wait_for(fixture.tab_contents_equals, 'A paragraph to give content to the first tab.')
     web_fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path('tabbedpanel1.png'))
@@ -308,21 +316,23 @@ def test_validation(web_fixture, validation_scenario):
     
     fixture.start_example_app()
     web_fixture.driver_browser.open('/')
+    web_fixture.driver_browser.set_window_size('xs')
+    
     assert web_fixture.driver_browser.wait_for_not(fixture.error_is_visible) 
-    assert web_fixture.driver_browser.is_element_present('//input') 
+    assert web_fixture.driver_browser.is_element_present(XPath.input_labelled('Email address')) 
     web_fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path('validation1.png'))
     
-    web_fixture.driver_browser.type('//input', 'johndoe')
+    web_fixture.driver_browser.type(XPath.input_labelled('Email address'), 'johndoe')
     assert web_fixture.driver_browser.wait_for(fixture.error_is_visible)
     assert fixture.is_error_text('Email address should be a valid email address') 
     web_fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path('validation2.png'))
 
-    web_fixture.driver_browser.type('//input', '')
+    web_fixture.driver_browser.type(XPath.input_labelled('Email address'), '')
     assert web_fixture.driver_browser.wait_for(fixture.error_is_visible) 
     assert fixture.is_error_text('Email address is required') 
     web_fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path('validation3.png'))
 
-    web_fixture.driver_browser.type('//input', 'johndoe@some.org')
+    web_fixture.driver_browser.type(XPath.input_labelled('Email address'), 'johndoe@some.org')
 
 @with_fixtures(WebFixture, ExampleFixture.layout)
 def test_layout(web_fixture, layout_scenario):
@@ -366,6 +376,7 @@ def test_persistence(web_fixture, persistence_scenario):
 
     fixture.start_example_app()
     web_fixture.driver_browser.open('/')
+    web_fixture.driver_browser.set_window_size('xs')
 
     assert not web_fixture.driver_browser.is_element_present('//h1') 
     assert web_fixture.driver_browser.is_element_present('//form') 
@@ -389,6 +400,8 @@ def test_access(web_fixture, access_control_scenario):
     fixture = access_control_scenario
     fixture.start_example_app()
     web_fixture.driver_browser.open('/')
+    web_fixture.driver_browser.set_window_size('xs')
+
     assert web_fixture.driver_browser.is_element_present(XPath.input_labelled('Some data') )
     assert not web_fixture.driver_browser.is_editable(XPath.input_labelled('Some data')) 
     assert web_fixture.driver_browser.is_element_present(XPath.button_labelled('Greyed out button')) 
@@ -418,7 +431,8 @@ def test_i18n(web_fixture, i18n_scenario):
 def test_model_examples():
     # These examples are built to run outside of our infrastructure, hence have to be run like this:
     for example in ['test_model1', 'test_model2', 'test_model3']:
-        pytest.main(['reahl.doc.examples.tutorial.%s' % example])
+        result = pytest.main(['reahl/doc/examples/tutorial/%s.py' % example])
+        assert result == 0
 
 @with_fixtures(WebFixture, ExampleFixture.addressbook1)
 def test_addressbook1(web_fixture, addressbook1_scenario):
@@ -450,6 +464,7 @@ def test_addressbook2bootstrap(web_fixture, addressbook2bootstrap_scenario):
     fixture = addressbook2bootstrap_scenario
     fixture.start_example_app()
     web_fixture.driver_browser.open('/')
+    web_fixture.driver_browser.set_window_size('xs')
 
     web_fixture.driver_browser.type(XPath.input_labelled('Name'), 'John')
     web_fixture.driver_browser.type(XPath.input_labelled('Email'), 'johndoe@some.org')
@@ -474,7 +489,7 @@ def test_pageflow1(web_fixture, pageflow1_scenario):
     assert browser.is_element_present('//ul[contains(@class,"nav")]') 
 
     browser.click(XPath.link().with_text('Add'))
-    assert browser.current_url.path == '/add'
+    assert browser.current_url.path == '/add' 
 
     browser.type(XPath.input_labelled('Name'), 'John') 
     browser.type(XPath.input_labelled('Email'), 'johndoe@some.org')
@@ -495,16 +510,16 @@ def test_parameterised1(web_fixture, parameterised1_scenario):
     browser.type(XPath.input_labelled('Email'), 'johndoe@some.org')
     browser.click(XPath.button_labelled('Save'))
 
-    assert browser.current_url.path == '/'
+    assert browser.current_url.path == '/' 
     browser.click(XPath.link().with_text('edit'))
 
     john = Session.query(parameterised1.Address).one()
-    assert browser.current_url.path == '/edit/%s' % john.id
+    assert browser.current_url.path == '/edit/%s' % john.id 
     browser.type(XPath.input_labelled('Name'), 'Johnny') 
     browser.type(XPath.input_labelled('Email'), 'johnny@walker.org')
     browser.click(XPath.button_labelled('Update'))
 
-    assert browser.current_url.path == '/'
+    assert browser.current_url.path == '/' 
     assert browser.is_element_present(XPath.paragraph().including_text('Johnny: johnny@walker.org')) 
 
 
@@ -540,3 +555,20 @@ def test_responsivedisclosure(web_fixture, responsivedisclosure_scenario):
 
     browser.set_selected(XPath.input_labelled('New'))
     browser.capture_cropped_screenshot(fixture.new_screenshot_path('responsivedisclosure_3.png'))
+
+@with_fixtures(WebFixture, ExampleFixture.optimisticconcurrency)
+def test_optimisticconcurrency(web_fixture, optimisticconcurrency_scenario):
+    fixture = optimisticconcurrency_scenario
+    browser = web_fixture.driver_browser
+
+    fixture.start_example_app()
+    browser.open('/')
+    with browser.new_tab_closed():
+       browser.click(XPath.link().with_text('Open another tab...'))
+       browser.switch_to_different_tab()
+       browser.click(XPath.button_labelled('Increment'))
+
+    browser.click(XPath.button_labelled('Submit'))
+    error_alert = XPath.div().including_class('alert').including_text('Some data changed since you opened this page')
+    assert browser.is_element_present(error_alert)
+    browser.capture_cropped_screenshot(fixture.new_screenshot_path('optimisticconcurrency.png'))

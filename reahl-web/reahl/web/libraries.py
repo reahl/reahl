@@ -1,5 +1,4 @@
 # Copyright 2015-2018 Reahl Software Services (Pty) Ltd. All rights reserved.
-# -*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
 #
@@ -45,7 +44,7 @@ from collections import OrderedDict
 from reahl.web.fw import PackagedFile, ConcatenatedFile
 
 
-class LibraryIndex(object):
+class LibraryIndex:
     """An ordered collection of :class:`Library` instances.
 
     A LibraryIndex instance is available in the configuration as
@@ -93,7 +92,7 @@ class LibraryIndex(object):
             self.add(library)
 
 
-class Library(object):
+class Library:
     """A frontend-library: a collection of CSS and JavaScript code that can be used with Reahl.
 
     To create your own Library, subclass from this class and set its
@@ -151,27 +150,26 @@ class Library(object):
 
     
 class JQuery(Library):
-    """Version 3.3.1 of `JQuery <https://jquery.com>`_.
+    """Version 3.5.1 of `JQuery <https://jquery.com>`_.
 
     This Library also includes a number of plugins we use internally:
 
     =================== ==================================
      Plugin              Version
     =================== ==================================
-     jquery.cookie       1.0
-     jquery.validate     1.17.0 (a heavily modified version)
+     jquery.cookie       1.4.1
+     jquery.validate     1.19.1 (a heavily modified version)
      jquery.ba-bbq       1.3pre
      jquery.blockUI      2.70.0
      jquery.form         4.2.2
     =================== ==================================
     """
     def __init__(self):
-        super(JQuery, self).__init__('jquery')
-        self.files = ['jquery-3.3.1/jquery-3.3.1.js',
-                      'jquery-3.3.1/jquery-3.3.1.min.map']
-        self.shipped_in_directory = '/reahl/web/static'
-        for i in ['jquery.cookie-1.0.js',
-                  'jquery.validate-1.17.0.modified.js',
+        super().__init__('jquery')
+        self.files = ['jquery-3.5.1/jquery-3.5.1.js',
+                      'jquery-3.5.1/jquery-3.5.1.min.map']
+        self.shipped_in_directory = 'reahl/web/static'
+        for i in ['jquery.validate-1.19.1.modified.js',
                   'jquery.ba-bbq-1.3pre.js',
                   'jquery.blockUI-2.70.0.js',
                   'jquery.form-4.2.2.js']:
@@ -194,7 +192,7 @@ class JQuery(Library):
         return result
 
     def footer_only_material(self, rendered_page):
-        result = super(JQuery, self).footer_only_material(rendered_page)
+        result = super().footer_only_material(rendered_page)
         #from http://ryanpricemedia.com/2008/03/19/jquery-broken-in-internet-explorer-put-your-documentready-at-the-bottom/
         result += self.document_ready_material(rendered_page)
         return result
@@ -203,11 +201,11 @@ class JQuery(Library):
 class JQueryUI(Library):
     """A heavily customised subset of version 1.12.1 of `JQuery UI <https://jqueryui.com>`_.
     
-   Only contains the `Widget Factory <http://api.jqueryui.com/jQuery.widget/>`_.
+   Only contains the `Widget Factory <http://api.jqueryui.com/jQuery.widget/>`_ and :tabbable, :focusable Selector.
     """
     def __init__(self):
-        super(JQueryUI, self).__init__('jqueryui')
-        self.shipped_in_directory = '/reahl/web/static'
+        super().__init__('jqueryui')
+        self.shipped_in_directory = 'reahl/web/static'
         self.files = ['jquery-ui-1.12.1.custom/jquery-ui.js']
 
 
@@ -216,14 +214,14 @@ class HTML5Shiv(Library):
     
     """
     def __init__(self):
-        super(HTML5Shiv, self).__init__('html5shiv')
-        self.shipped_in_directory = '/reahl/web/static'
+        super().__init__('html5shiv')
+        self.shipped_in_directory = 'reahl/web/static'
         self.files = ['html5shiv-printshiv-3.7.3.js']
 
     def footer_only_material(self, rendered_page):
         # From: http://remysharp.com/2009/01/07/html5-enabling-script/ 
         result  = '\n<!--[if lt IE 9]>'
-        result  += super(HTML5Shiv, self).footer_only_material(rendered_page)
+        result  += super().footer_only_material(rendered_page)
         result  += '<![endif]-->'
         return result
 
@@ -232,15 +230,15 @@ class IE9(Library):
     """Version 2.1(beta4) of `IE9.js <https://code.google.com/archive/p/ie7-js/>`_.
     """
     def __init__(self):
-        super(IE9, self).__init__('IE9')
-        self.shipped_in_directory = '/reahl/web/static'
+        super().__init__('IE9')
+        self.shipped_in_directory = 'reahl/web/static'
         self.files = ['IE9.js']
 
     def footer_only_material(self, rendered_page):
         # From: http://code.google.com/p/ie7-js/ 
         # Not sure if this does not perhaps interfere with Normalize reset stuff? 
         result  = '\n<!--[if lte IE 9]>'
-        result  += super(IE9, self).footer_only_material(rendered_page)
+        result  += super().footer_only_material(rendered_page)
         result  += '<![endif]-->'
         return result
 
@@ -249,8 +247,8 @@ class Reahl(Library):
     """JavaScript and CSS that is part of Reahl itself.
     """
     def __init__(self):
-        super(Reahl, self).__init__('reahl')
-        self.shipped_in_directory = '/reahl/web/static'
+        super().__init__('reahl')
+        self.shipped_in_directory = 'reahl/web/static'
         self.files = ['reahl.hashchange.js',
                       'reahl.ajaxlink.js',
                       'reahl.primitiveinput.js',
@@ -264,36 +262,36 @@ class Reahl(Library):
 
 
 class Holder(Library):
-    """Version 2.9.0 of `Holder <http://imsky.github.io/holder/>`_.
+    """Version 2.9.7 of `Holder <http://imsky.github.io/holder/>`_.
     """
     def __init__(self):
-        super(Holder, self).__init__('holder')
-        self.shipped_in_directory = '/reahl/web/holder'
-        self.files = ['holder-2.9.0.js']
+        super().__init__('holder')
+        self.shipped_in_directory = 'reahl/web/holder'
+        self.files = ['holder-2.9.7.js']
 
 
 class Bootstrap4(Library):
-    """Version 4.1.1 of `Bootstrap <http://getbootstrap.com/>`_.
+    """Version 4.5.0 of `Bootstrap <http://getbootstrap.com/>`_.
     """
     def __init__(self):
-        super(Bootstrap4, self).__init__('bootstrap4')
-        self.shipped_in_directory = '/reahl/web/static'
+        super().__init__('bootstrap4')
+        self.shipped_in_directory = 'reahl/web/static'
         self.files = [
-                      'bootstrap-4.1.1/css/bootstrap.css',
-                      'bootstrap-4.1.1/css/reahl-patch.css',
-                      'bootstrap-4.1.1/css/bootstrap.css.map',
-                      # 'bootstrap-4.1.1/css/bootstrap-grid.css',
-                      # 'bootstrap-4.1.1/css/bootstrap-grid.css.map',
-                      # 'bootstrap-4.1.1/css/bootstrap-reboot.css',
-                      # 'bootstrap-4.1.1/css/bootstrap-reboot.css.map',
-                      'bootstrap-4.1.1/js/bootstrap.js'
+                      'bootstrap-4.5.0/css/bootstrap.css',
+                      'bootstrap-4.5.0/css/reahl-patch.css',
+                      'bootstrap-4.5.0/css/bootstrap.css.map',
+                      # 'bootstrap-4.5.0/css/bootstrap-grid.css',
+                      # 'bootstrap-4.5.0/css/bootstrap-grid.css.map',
+                      # 'bootstrap-4.5.0/css/bootstrap-reboot.css',
+                      # 'bootstrap-4.5.0/css/bootstrap-reboot.css.map',
+                      'bootstrap-4.5.0/js/bootstrap.js'
                       ]
 
 
     def header_only_material(self, rendered_page):
         return '<meta charset="utf-8">'\
                '<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">' +\
-               super(Bootstrap4, self).header_only_material(rendered_page) 
+               super().header_only_material(rendered_page) 
 
 
 
@@ -301,8 +299,8 @@ class ReahlBootstrap4Additions(Library):
     """Reahl specific JavaScript and CSS for use with :class:`Bootstrap4`.
     """
     def __init__(self):
-        super(ReahlBootstrap4Additions, self).__init__('bootstrap4.reahladditions')
-        self.shipped_in_directory = '/reahl/web/bootstrap'
+        super().__init__('bootstrap4.reahladditions')
+        self.shipped_in_directory = 'reahl/web/bootstrap'
         self.files = [
                       'reahl.bootstrapform.js',
                       'reahl.pagination.js',
@@ -313,27 +311,38 @@ class ReahlBootstrap4Additions(Library):
                       'reahl.bootstrapcueinput.js',
                       'reahl.bootstrapfileuploadli.js',
                       'reahl.bootstrapfileuploadpanel.js',
-                      'reahl.datatable.css'                      
+                      'reahl.datatable.css'
                       ]
 
 
 class Popper(Library):
-    """Version 1.12.9 (umd) of `Popper <https://popper.js.org/>`_.
+    """Version 1.16.0 (umd) of `Popper <https://popper.js.org/>`_.
     """
     def __init__(self):
-        super(Popper, self).__init__('popper')
-        self.shipped_in_directory = '/reahl/web/static'
+        super().__init__('popper')
+        self.shipped_in_directory = 'reahl/web/static'
         self.files = [
-            'popper-1.12.9/popper.js' #make sure it is the umd edition
+            'popper-1.16.0/popper.js' #make sure it is the umd edition
         ]
 
 
 class Underscore(Library):
-    """Version 1.9.1 of `Underscore.js <https://underscorejs.org>`_.
+    """Version 1.10.2 of `Underscore.js <https://underscorejs.org>`_.
     """
     def __init__(self):
-        super(Underscore, self).__init__('underscore')
-        self.shipped_in_directory = '/reahl/web/static'
+        super().__init__('underscore')
+        self.shipped_in_directory = 'reahl/web/static'
         self.files = [
-            'underscore-min-1.9.1.js'
+            'underscore-min-1.10.2.js'
+        ]
+
+
+class JsCookie(Library):
+    """Version 2.2.1 of `js-cookie <https://github.com/js-cookie/js-cookie>`_.
+    """
+    def __init__(self):
+        super().__init__('js-cookie')
+        self.shipped_in_directory = 'reahl/web/static'
+        self.files = [
+            'js-cookie-2.2.1/js.cookie.js' #this is the UMD version
         ]

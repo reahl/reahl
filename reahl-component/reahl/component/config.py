@@ -26,9 +26,7 @@ component's Configuration is bound to a variable name.
 
 """
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 import sys
-import six
 import os.path
 import logging
 import locale
@@ -47,11 +45,11 @@ class ConfigurationException(Exception):
     pass
 
 
-class ExplicitSettingRequired(object):
+class ExplicitSettingRequired:
     pass
 
 
-class ConfigSetting(object):
+class ConfigSetting:
     """Used to define one configuration setting on a :class:`Configuration`.
     
     
@@ -130,7 +128,7 @@ class ConfigSetting(object):
         return self.dangerous and not self.is_set(obj)
 
 
-class DeferredDefault(object):
+class DeferredDefault:
     """Sometimes the default value for a :class:`ConfigSetting` cannot be set when the :class:`Configuration`
        is declared. An instance of DeferredDefault can be passed as default in such a scenario.
 
@@ -155,7 +153,7 @@ class EntryPointClassList(ConfigSetting):
        :keyword description: (See :class:`ConfigSetting`)
     """
     def __init__(self, name, description='Description not supplied'):
-        super(EntryPointClassList, self).__init__(default=[], description=description)
+        super().__init__(default=[], description=description)
         self.name = name
         
     def __get__(self, instance, owner):
@@ -172,12 +170,12 @@ class EntryPointClassList(ConfigSetting):
         return classes
 
 
-class MissingValue(object):
+class MissingValue:
     def __repr__(self):
         return 'MISSING!!'
 
     
-class Configuration(object):
+class Configuration:
     """A collection of ConfigSettings for a component. To supply configuration for your component,
        subclass from this class and assign each wanted ConfigSetting as a class attribute. Assign
        the required `filename` and `config_key` class attributes in your subclass as well. The resultant
@@ -247,7 +245,7 @@ class Configuration(object):
         pass
         
 
-class NullORMControl(object):
+class NullORMControl:
     def do_nothing(self, *args, **kwargs):
         pass
 
@@ -274,7 +272,7 @@ class ReahlSystemConfig(Configuration):
 
 class ConfigAsDict(dict):
     def __init__(self, config):
-        super(ConfigAsDict, self).__init__()
+        super().__init__()
         self.config = config
         self['config'] = config
 
@@ -294,11 +292,9 @@ class ConfigAsDict(dict):
 
 
 class StoredConfiguration(Configuration):
-    def __init__(self, config_directory_name, strict_checking=False, in_production=None):
-        if in_production is not None:
-            warnings.warn('DEPRECATED: in_production has been renamed to strict_checking', DeprecationWarning, stacklevel=2)            
+    def __init__(self, config_directory_name, strict_checking=False):
         self.config_directory = config_directory_name
-        self.strict_checking = in_production or strict_checking
+        self.strict_checking = strict_checking
 
     def check_for_python_issue_18378(self):
         try:
@@ -417,7 +413,7 @@ class StoredConfiguration(Configuration):
 
 class CodedConfiguration(StoredConfiguration, dict):
     def __init__(self):
-        super(CodedConfiguration, self).__init__('<in memory>')
+        super().__init__('<in memory>')
 
     def read(self, configuration_class):
         filename = configuration_class.filename

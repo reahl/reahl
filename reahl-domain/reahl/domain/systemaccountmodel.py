@@ -21,8 +21,6 @@ Run 'reahl componentinfo reahl-domain' for information on configuration.
 
 """
 
-from __future__ import print_function, unicode_literals, absolute_import, division
-import six
 from datetime import datetime, timedelta
 import passlib.context
 import re
@@ -141,7 +139,7 @@ class EmailAndPasswordSystemAccount(SystemAccount):
     email = Column(Unicode(254), nullable=False, unique=True, index=True) #: The email address of this account
 
     def __init__(self, **kwargs):
-        super(EmailAndPasswordSystemAccount, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.init_on_load()
 
     @reconstructor
@@ -233,8 +231,6 @@ class EmailAndPasswordSystemAccount(SystemAccount):
                 self.disable()
             raise InvalidPasswordException(commit=True)
         if new_hash:
-            if six.PY2:
-                new_hash = new_hash.decode('utf-8')
             self.password_hash = new_hash
 
     def send_activation_notification(self):
@@ -258,8 +254,6 @@ class EmailAndPasswordSystemAccount(SystemAccount):
             raise InvalidEmailException()
 
         new_hash = self.crypt_context.hash(password)
-        if six.PY2:
-            new_hash = new_hash.decode('utf-8')
         self.password_hash = new_hash
 
     def request_email_change(self, new_email):
@@ -381,7 +375,7 @@ class AccountManagementInterface(Base):
 class RepeatPasswordField(PasswordField):
     def __init__(self, other_field, default=None, required=False, required_message=None, label=None):
         label = label or _('')
-        super(RepeatPasswordField, self).__init__(default, required, required_message, label)
+        super().__init__(default, required, required_message, label)
         self.add_validation_constraint(EqualToConstraint(other_field))
         
         
@@ -474,7 +468,7 @@ class VerificationRequest(Requirement):
 
     def __init__(self, **kwargs):
         self.generate_salt()
-        super(VerificationRequest, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     def generate_salt(self):
         alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZqwertyuiopasdfghjklzxcvbnm0123456789'
@@ -565,7 +559,7 @@ class ActivateAccount(DeferredAction):
         config = ExecutionContext.get_context().config
         deadline = datetime.now() + timedelta(days=config.accounts.request_verification_timeout)
         self.system_account = system_account
-        super(ActivateAccount, self).__init__(deadline=deadline, **kwargs)
+        super().__init__(deadline=deadline, **kwargs)
 
     def success_action(self):
         self.system_account.activate()
@@ -590,7 +584,7 @@ class ChangeAccountEmail(DeferredAction):
         config = ExecutionContext.get_context().config
         deadline = datetime.now() + timedelta(days=config.accounts.request_verification_timeout)
         self.system_account = system_account
-        super(ChangeAccountEmail, self).__init__(requirements=requirements,
+        super().__init__(requirements=requirements,
                                                  deadline=deadline)
 
     @property
@@ -646,7 +640,7 @@ class LoginSession(Base):
         self.account = None
 
 
-class SystemAccountStatus(object):
+class SystemAccountStatus:
     def as_user_message(self):
         return _('Unknown status')
     def is_active(self):

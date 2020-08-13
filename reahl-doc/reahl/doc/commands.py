@@ -13,29 +13,27 @@
 #
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-
-from __future__ import print_function, unicode_literals, absolute_import, division
-
-import six
-
 import os
 import shutil
 import pkg_resources
 import codecs
 import re
+import pathlib
+import collections
 
 from reahl.dev.devshell import WorkspaceCommand
 
 
-class CheckoutChanges(object):
+class CheckoutChanges:
     def __init__(self, example):
         self.example = example
-        self.source_text_replacements = {}
+        self.source_text_replacements = collections.OrderedDict()
         self.files_to_rename = {}
-        
+
         full_module_name = 'reahl.doc.examples.%s' % self.example.name
         self.add_replace_text('%s.' % full_module_name, '')
+        if self.example.new_name:
+            self.add_replace_text(self.example.name, self.example.new_name)
 
     def add_replace_text(self, from_text, to_text):
         self.source_text_replacements[from_text] = to_text
@@ -47,7 +45,10 @@ class CheckoutChanges(object):
 
     def get_output_filename(self, source_file_path, dest_dirname):
         filename = os.path.basename(source_file_path)
-        return os.path.join(dest_dirname, self.files_to_rename.get(filename, filename))
+        filename = self.files_to_rename.get(filename, filename)
+        if self.example.new_name:
+            filename.replace(self.example.name, self.example.new_name)
+        return os.path.join(dest_dirname, filename)
 
     def get_output_line(self, source_line):
         output_line = source_line
@@ -56,7 +57,7 @@ class CheckoutChanges(object):
         return output_line
 
 
-class Example(object):
+class Example:
     @classmethod
     def get_all(cls):
         parent = pkg_resources.resource_filename('reahl.doc', 'examples')
@@ -76,8 +77,9 @@ class Example(object):
                     examples.append(Example('reahl.doc.examples', module_path))
         return examples
 
-    def __init__(self, containing_package, name):
+    def __init__(self, containing_package, name, new_name=None):
         self.name = name
+        self.new_name = new_name
         self.containing_package = containing_package
 
     def is_package(self):
@@ -103,26 +105,20 @@ class Example(object):
     @property
     def relative_path(self):
         root_path = pkg_resources.resource_filename(self.containing_package, '')
-        return self.absolute_path[len(root_path):]
-
-    @property
-    def checkout_directory_name(self):
-        return self.module_name
+        return str(pathlib.Path(self.absolute_path).relative_to(pathlib.Path(root_path)))
 
     @property
     def exists(self):
         try:
             return pkg_resources.resource_exists(self.containing_package, self.relative_path.replace(os.sep, '/'))
         except ImportError as ex:
-            if six.PY2 and str(ex).endswith(self.name):
-                return False
-            elif six.PY3 and ex.name == '.'.join([self.containing_package, self.name]):
+            if ex.name == '.'.join([self.containing_package, self.name]):
                 return False
             raise
 
     @property
     def checkout_dest(self):
-        return os.path.join(os.getcwd(), os.path.basename(self.absolute_path))
+        return os.path.join(os.getcwd(), self.new_name or os.path.basename(self.absolute_path))
 
     @property
     def is_checked_out(self):
@@ -135,21 +131,23 @@ class Example(object):
             self.sed_file_to(self.absolute_path, self.checkout_dest)
 
     @property
-    def checkout_changes(self):    
+    def checkout_changes(self):
+        changes = CheckoutChanges(self)
+        changes.add_replace_text("reahlsystem.root_egg = 'reahl-doc'", '')
         if self.name == 'tutorial.i18nexamplebootstrap':
-            changes = CheckoutChanges(self)
-            changes.add_replace_text('Catalogue(\'reahl-doc\')', 'Catalogue(\'i18nexamplebootstrap\')')
-            changes.add_file_rename('reahl-doc.po', 'i18nexamplebootstrap.po')
-            changes.add_file_rename('reahl-doc', 'i18nexamplebootstrap')
-            return changes        
+            catalogue_name = 'i18nexamplebootstrap' or self.new_name
+            changes.add_replace_text('Catalogue(\'reahl-doc\')', 'Catalogue(\'%s\')' % catalogue_name)
+            changes.add_file_rename('reahl-doc.po', '%s.po' % catalogue_name)
+            changes.add_file_rename('reahl-doc', '%s' % catalogue_name)
         elif self.name == 'features.i18nexample':
-            changes = CheckoutChanges(self)
-            changes.add_replace_text('Catalogue(\'reahl-doc\')', 'Catalogue(\'i18nexample\')')
-            changes.add_file_rename('reahl-doc.po', 'i18nexample.po')
-            changes.add_file_rename('reahl-doc', 'i18nexample')
-            return changes        
-        else:
-            return CheckoutChanges(self)
+            catalogue_name = 'i18nexample' or self.new_name
+            changes.add_replace_text('Catalogue(\'reahl-doc\')', 'Catalogue(\'%s\')' % catalogue_name)
+            changes.add_file_rename('reahl-doc.po', '%s.po' % catalogue_name)
+            changes.add_file_rename('reahl-doc', '%s' % catalogue_name)
+        if self.new_name:
+            changes.add_replace_text(self.module_name, self.new_name)
+            changes.add_replace_text('#: reahl/doc/examples/%s/' % self.name.split('.')[0], '#: ')
+        return changes
 
     def checkout_dir(self, source, dest):
         for dirpath, dirnames, filenames in os.walk(source):
@@ -157,12 +155,16 @@ class Example(object):
             if re.match('.idea$', relative_dirpath):
                 dirnames[:] = []
             else:
+                if self.new_name:
+                    relative_dirpath = relative_dirpath.replace(self.module_name, self.new_name)
                 dest_dirname = os.path.join(dest, relative_dirpath)
                 os.mkdir(dest_dirname)
-                for filename in [f for f in filenames if not re.match('.*(.pyc|~|.mo|.noseids)$', f)]:
+                for filename in [f for f in filenames if not re.match('.*(.pyc|~|.mo|.noseids|.db)$', f)]:
                     source_file_path = os.path.join(dirpath, filename)
                     if source_file_path != os.path.join(source, '__init__.py'):
                         dest_file_path = self.checkout_changes.get_output_filename(source_file_path, dest_dirname)
+                        if self.new_name:
+                            dest_file_path = dest_file_path.replace(self.module_name, self.new_name)
                         self.sed_file_to(source_file_path, dest_file_path)
 
     def sed_file_to(self, source_file_path, dest_file_path):
@@ -192,18 +194,18 @@ class GetExample(WorkspaceCommand):
     keyword = 'example'
 
     def assemble(self):
-        super(GetExample, self).assemble()
+        super().assemble()
         self.parser.add_argument('-f', '--force-overwrite', action='store_true', dest='force', default=False,
                                  help='overwrite an existing example if in the way')
+        self.parser.add_argument('-n', '--new-app-name', default=None, help='choose a new name for the example')
         self.parser.add_argument('example_name', help='the name of the wanted example')
-
 
     def verify_commandline(self, args):
         if not self.create_example(args.example_name).exists:
             self.parser.error('Could not find example %s' % args.example_name)
 
     def execute(self, args):
-        example = self.create_example(args.example_name)
+        example = self.create_example(args.example_name, new_name=args.new_app_name)
 
         if example.is_checked_out:
             if args.force:
@@ -215,11 +217,6 @@ class GetExample(WorkspaceCommand):
         print('Checking out to %s' % os.path.abspath(example.checkout_dest))
         example.check_out()
 
-    def create_example(self, name):
-        return Example('reahl.doc.examples', name)
-        
-        
-        
-        
-        
-        
+    def create_example(self, name, new_name=None):
+        return Example('reahl.doc.examples', name, new_name=new_name)
+

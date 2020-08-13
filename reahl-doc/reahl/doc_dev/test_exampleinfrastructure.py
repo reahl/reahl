@@ -14,8 +14,9 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-    
-from __future__ import print_function, unicode_literals, absolute_import, division
+import contextlib
+import os
+import pathlib 
 
 from reahl.tofu import Fixture, scenario, expected, temp_dir, NoException
 from reahl.tofu.pytestsupport import with_fixtures
@@ -30,6 +31,7 @@ from reahl.doc.commands import Example, GetExample
 "Certain files and directories are ignored when checking out the example."
 
 "Some examples are whole packages, some are single modules."
+
 
 
 class ExampleFixture(Fixture):
@@ -58,10 +60,10 @@ class ExampleFixture(Fixture):
     def new_GetExample(self):
         @stubclass(GetExample)
         class GetExampleStub(GetExample):
-            def create_example(self, name):
+            def create_example(self, name, new_name=None):
                 return Example('testexamples', name)
         return GetExampleStub
-    
+
 
 class ImportErrorScenarios(ExampleFixture):
     @scenario
@@ -95,3 +97,46 @@ def test_handling_import_errors(import_error_scenarios):
         command = import_error_scenarios.GetExample()
         with expected(import_error_scenarios.expected_exception):
             command.do(import_error_scenarios.command_line)
+
+
+@contextlib.contextmanager
+def in_directory(temp_working_directory):
+    cwd = os.getcwd()
+    try:
+        os.chdir(temp_working_directory)
+        yield
+    finally:
+        os.chdir(cwd)
+
+
+def test_example_renames():
+    "When checking out an example with another name, the relevant parts of the code is changed and files are renamed to the new name."
+
+    cwd = temp_dir()
+    with in_directory(cwd.name):
+        GetExample().do(['-n', 'newname', 'tutorial.i18nexamplebootstrap' ])
+
+    root = pathlib.Path(cwd.name).joinpath('newname')
+    assert root.is_dir()
+    assert root.joinpath('newname_dev').is_dir()
+    test_file = root.joinpath('newname_dev').joinpath('test_newname.py')
+    assert test_file.is_file()
+    messages_path = root.joinpath('newnamemessages')
+    assert messages_path.is_dir()
+    po_file = messages_path.joinpath('af').joinpath('LC_MESSAGES').joinpath('newname.po')
+    assert po_file.is_file()
+    template = messages_path.joinpath('newname')
+    assert template.is_file()
+    module_file = root.joinpath('newname.py')
+    assert module_file.is_file()
+
+    web_config = root.joinpath('etc').joinpath('web.config.py')
+    assert 'from newname import AddressBookUI' in web_config.read_text().splitlines()
+
+    assert 'from newname import AddressBookUI, Address' in test_file.read_text().splitlines()
+
+    assert any([line.startswith('#: newname/newname.py:') for line in po_file.read_text().splitlines()])
+    assert any([line.startswith('#: newname/newname.py:') for line in template.read_text().splitlines()])
+
+    assert '_ = Catalogue(\'newname\')' in module_file.read_text().splitlines()
+    assert '    __tablename__ = \'newname_address\'' in module_file.read_text().splitlines()

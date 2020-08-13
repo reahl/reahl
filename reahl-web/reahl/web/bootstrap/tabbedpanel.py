@@ -1,5 +1,4 @@
 # Copyright 2015-2018 Reahl Software Services (Pty) Ltd. All rights reserved.
-# -*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
 #
@@ -23,10 +22,8 @@ top panel is visible, thus taking up visual space of only one such
 panel.
 
 """
-from __future__ import print_function, unicode_literals, absolute_import, division
 
 # noinspection PyUnresolvedReferences
-import six
 
 from reahl.component.modelinterface import exposed, Field
 from reahl.web.fw import Widget
@@ -51,7 +48,7 @@ class TabbedPanel(Widget):
                   displayed.
     """
     def __init__(self, view, nav_layout=None):
-        super(TabbedPanel, self).__init__(view)
+        super().__init__(view)
         self.tabs = []
         self.nav = self.add_child(Nav(view).use_layout(nav_layout or TabLayout()))
         self.content_panel = self.add_child(Div(view))
@@ -90,11 +87,11 @@ class TabbedPanel(Widget):
 
 class TabContentAttributes(DelegatedAttributes):
     def __init__(self, tab):
-        super(TabContentAttributes, self).__init__()
+        super().__init__()
         self.tab = tab
 
     def set_attributes(self, attributes):
-        super(TabContentAttributes, self).set_attributes(attributes)
+        super().set_attributes(attributes)
 
         attributes.set_to('data-toggle', self.tab.data_toggle)
         attributes.set_to('data-target', '#%s' % self.tab.css_id)
@@ -102,7 +99,7 @@ class TabContentAttributes(DelegatedAttributes):
         attributes.set_to('role', 'tab')
 
 
-class Tab(object):
+class Tab:
     """
     One Tab in a :class:`TabbedPanel`, including the contents that should be displayed for it.
 
@@ -195,7 +192,7 @@ class MultiTab(Tab):
     def __init__(self, view, title, tab_key):
         self.tabs = []
         self.menu = DropdownMenu(view)
-        super(MultiTab, self).__init__(view, title, tab_key, None)
+        super().__init__(view, title, tab_key, None)
         
     def add_tab(self, tab):
         tab.add_to_menu(self.menu)
@@ -224,7 +221,7 @@ class MultiTab(Tab):
             self.add_contents_of_tab_to(content_panel, tab)
 
     def set_panel(self, tabbed_panel):
-        super(MultiTab, self).set_panel(tabbed_panel)
+        super().set_panel(tabbed_panel)
         for tab in self.tabs:
             tab.set_panel(tabbed_panel)
 

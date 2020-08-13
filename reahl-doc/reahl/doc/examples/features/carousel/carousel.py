@@ -1,15 +1,15 @@
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 from reahl.web.fw import UserInterface
 from reahl.web.holder.holder import PlaceholderImage
-from reahl.web.bootstrap.ui import HTML5Page, P
+from reahl.web.bootstrap.page import HTML5Page
+from reahl.web.bootstrap.ui import P
 from reahl.web.bootstrap.grid import Container
 from reahl.web.bootstrap.carousel import Carousel
 
 
 class MyPage(HTML5Page):
     def __init__(self, view):
-        super(MyPage, self).__init__(view)
+        super().__init__(view)
         self.body.use_layout(Container())
 
         carousel = Carousel(view, 'my_example_carousel_id', show_indicators=True)

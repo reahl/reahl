@@ -1,5 +1,4 @@
 # Copyright 2013-2018 Reahl Software Services (Pty) Ltd. All rights reserved.
-#-*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
 #
@@ -16,8 +15,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from __future__ import print_function, unicode_literals, absolute_import, division
-import six
 from reahl.stubble import stubclass
 from reahl.tofu import Fixture, scenario, uses
 from reahl.tofu.pytestsupport import with_fixtures
@@ -42,7 +39,7 @@ class PageMenuFixture(Fixture):
         @stubclass(PageIndex)
         class PageIndexStub(PageIndex):
             def __init__(self, max_page_links, number_of_pages):
-                super(PageIndexStub, self).__init__(max_page_links=max_page_links)
+                super().__init__(max_page_links=max_page_links)
                 self.number_of_pages = number_of_pages
 
             @property
@@ -60,7 +57,7 @@ class PageMenuFixture(Fixture):
     def new_PageContainer(self):
         class PageContainer(PagedPanel):
             def __init__(self, parent, page_index):
-                super(PageContainer, self).__init__(parent, page_index, 'container')
+                super().__init__(parent, page_index, 'container')
                 self.add_child(P(self.view, text=self.current_contents))
 
         return PageContainer
@@ -69,7 +66,7 @@ class PageMenuFixture(Fixture):
         fixture = self
         class MainWidget(Div):
             def __init__(self, view):
-                super(MainWidget, self).__init__(view)
+                super().__init__(view)
                 page_index = fixture.PageIndexStub(fixture.max_page_links, fixture.number_of_pages)
                 page_container = self.add_child(fixture.PageContainer(self.view, page_index))
                 self.add_child(PageMenu(self.view, 'page_menu_widget', page_index, page_container))
@@ -175,7 +172,7 @@ def test_active_state_on_multiple_menus(web_fixture, page_menu_fixture):
 
     class MainWidget(Div):
         def __init__(self, view):
-            super(MainWidget, self).__init__(view)
+            super().__init__(view)
             page_index = fixture.PageIndexStub(fixture.max_page_links, fixture.number_of_pages)
             page_container = self.add_child(fixture.PageContainer(self.view, page_index))
             self.add_child(PageMenu(self.view, 'page_menu_widget', page_index, page_container))
@@ -340,7 +337,7 @@ def test_sequential_page_index(sequential_scenarios):
 
     assert fixture.page_index.total_number_of_pages == fixture.expected_pages
     page = fixture.page_index.get_page_number(fixture.expected_pages)
-    assert page.description == six.text_type(fixture.expected_pages)
+    assert page.description == str(fixture.expected_pages)
     assert page.contents == fixture.last_page_contents
     assert fixture.page_index.max_page_links == 12
 

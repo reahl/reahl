@@ -1,5 +1,4 @@
 # Copyright 2013-2018 Reahl Software Services (Pty) Ltd. All rights reserved.
-# -*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
 #
@@ -16,7 +15,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 
 from reahl.tofu.pytestsupport import with_fixtures
 from reahl.stubble import stubclass
@@ -24,8 +22,8 @@ from reahl.stubble import stubclass
 from reahl.component.modelinterface import Field, ValidationConstraint, RequiredConstraint, MinLengthConstraint, \
                              MaxLengthConstraint, PatternConstraint, AllowedValuesConstraint, \
                              EqualToConstraint, RemoteConstraint, exposed
-from reahl.web.ui import PrimitiveInput, HTMLInputElement, Form, TextInput, ButtonInput
-from reahl.webdev.tools import WidgetTester
+from reahl.web.ui import PrimitiveInput, HTMLInputElement, Form, TextInput, ButtonInput, FormLayout
+from reahl.webdev.tools import WidgetTester, XPath
 
 from reahl.web_dev.inputandvalidation.test_input import SimpleInputFixture2
 from reahl.web_dev.fixtures import WebFixture
@@ -33,12 +31,12 @@ from reahl.web_dev.fixtures import WebFixture
 
 class ConstraintRenderingFixture(SimpleInputFixture2):
     def new_field(self, name='an_attribute', label='an attribute'):
-        field = super(ConstraintRenderingFixture, self).new_field(label=label)
+        field = super().new_field(label=label)
         field.bind(name, self.model_object)
         return field
 
     def new_error_xpath(self):
-        return '//form/label[@class="error"]'
+        return '//form//label[@class="error"]'
 
     def is_error_text(self, text):
         return text == self.web_fixture.driver_browser.get_text(self.error_xpath)
@@ -83,7 +81,7 @@ def test_rendering_of_constraints(web_fixture, constraint_rendering_fixture):
     tester = WidgetTester(fixture.input)
 
     actual = tester.render_html()
-    expected_html = '''<input name="an_attribute" data-msg-one="validation_constraint 1 message" data-msg-two="validation_constraint 2 message with apostrophe&#x27;s and quotes&quot;" data-rule-one="true" data-rule-two="a parameter" form="test" type="inputtype" value="field value" class="reahl-primitiveinput">'''
+    expected_html = '''<input name="an_attribute" id="id-test-an_attribute" data-msg-one="validation_constraint 1 message" data-msg-two="validation_constraint 2 message with apostrophe&#x27;s and quotes&quot;" data-rule-one="true" data-rule-two="a parameter" form="test" type="inputtype" value="field value" class="reahl-primitiveinput">'''
     assert actual == expected_html
 
 
@@ -107,7 +105,7 @@ def test_remote_constraints(web_fixture, constraint_rendering_fixture):
 
     class MyForm(Form):
         def __init__(self, view, name):
-            super(MyForm, self).__init__(view, name)
+            super().__init__(view, name)
             field = model_object.fields.an_attribute
             self.add_child(TextInput(self, model_object.fields.an_attribute))
             self.define_event_handler(model_object.events.an_event)
@@ -148,20 +146,22 @@ def test_required_constraint_js(web_fixture, constraint_rendering_fixture):
 
     class MyForm(Form):
         def __init__(self, view, name):
-            super(MyForm, self).__init__(view, name)
+            super().__init__(view, name)
+            self.use_layout(FormLayout())
             field = fixture.model_object.fields.an_attribute.with_validation_constraint(constraint)
-            self.add_child(TextInput(self, field))
+            self.layout.add_input(TextInput(self, field))
     wsgi_app = web_fixture.new_wsgi_app(child_factory=MyForm.factory('myform'), enable_js=True)
     web_fixture.reahl_server.set_app(wsgi_app)
 
     web_fixture.driver_browser.open('/')
 
-    web_fixture.driver_browser.type('//input[@type="text"]', 'something', trigger_blur=False, wait_for_ajax=False)
+    web_fixture.driver_browser.type(XPath.input_labelled('an attribute'), 'something', trigger_blur=False, wait_for_ajax=False)
     web_fixture.driver_browser.press_tab()
     web_fixture.driver_browser.wait_for_element_not_visible(fixture.error_xpath)
 
-    web_fixture.driver_browser.type('//input[@type="text"]', '')
-    web_fixture.driver_browser.press_backspace('//input')  # To trigger validation on the field
+    web_fixture.driver_browser.type(XPath.input_labelled('an attribute'), '')
+    
+    web_fixture.driver_browser.press_keys(web_fixture.driver_browser.Keys.BACK_SPACE, locator=XPath.input_labelled('an attribute'))  # To trigger validation on the field
 
     web_fixture.driver_browser.wait_for_element_visible(fixture.error_xpath)
 
@@ -174,7 +174,7 @@ def test_min_length_constraint_js(web_fixture, constraint_rendering_fixture):
     constraint = MinLengthConstraint(min_length=min_required_length)
     class MyForm(Form):
         def __init__(self, view, name):
-            super(MyForm, self).__init__(view, name)
+            super().__init__(view, name)
             field = fixture.model_object.fields.an_attribute.with_validation_constraint(constraint)
             self.add_child(TextInput(self, field))
 
@@ -196,7 +196,7 @@ def test_max_length_constraint_js(web_fixture, constraint_rendering_fixture):
     constraint = MaxLengthConstraint(max_length=max_allowed_length)
     class MyForm(Form):
         def __init__(self, view, name):
-            super(MyForm, self).__init__(view, name)
+            super().__init__(view, name)
             field = fixture.model_object.fields.an_attribute.with_validation_constraint(constraint)
             self.add_child(TextInput(self, field))
 
@@ -219,7 +219,7 @@ def test_pattern_constraint_js(web_fixture, constraint_rendering_fixture):
 
     class MyForm(Form):
         def __init__(self, view, name):
-            super(MyForm, self).__init__(view, name)
+            super().__init__(view, name)
             field = fixture.model_object.fields.an_attribute.with_validation_constraint(constraint)
             self.add_child(TextInput(self, field))
 
@@ -246,7 +246,7 @@ def test_allowed_values_constraint_js(web_fixture, constraint_rendering_fixture)
 
     class MyForm(Form):
         def __init__(self, view, name):
-            super(MyForm, self).__init__(view, name)
+            super().__init__(view, name)
             field = fixture.model_object.fields.an_attribute.with_validation_constraint(constraint)
             self.add_child(TextInput(self, field))
 
@@ -263,7 +263,7 @@ def test_allowed_values_constraint_js(web_fixture, constraint_rendering_fixture)
 def test_equal_to_constraint_js(web_fixture, constraint_rendering_fixture):
     fixture = constraint_rendering_fixture
 
-    class ModelObject(object):
+    class ModelObject:
         @exposed
         def fields(self, fields):
             fields.an_attribute = Field(label='an attribute')
@@ -275,7 +275,7 @@ def test_equal_to_constraint_js(web_fixture, constraint_rendering_fixture):
 
     class MyForm(Form):
         def __init__(self, view, name):
-            super(MyForm, self).__init__(view, name)
+            super().__init__(view, name)
             field = fixture.model_object.fields.an_attribute.with_validation_constraint(constraint)
             other_input = self.add_child(TextInput(self, model_object.fields.other))
             other_input.set_id('other')

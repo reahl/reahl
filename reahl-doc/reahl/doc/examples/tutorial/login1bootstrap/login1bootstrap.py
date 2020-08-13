@@ -1,12 +1,12 @@
 
 
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 
 from reahl.web.fw import UserInterface
 from reahl.web.layout import PageLayout
-from reahl.web.bootstrap.ui import HTML5Page, P, Alert
-from reahl.web.bootstrap.forms import Form, TextInput, Button, FormLayout, ButtonLayout, PasswordInput
+from reahl.web.bootstrap.page import HTML5Page
+from reahl.web.bootstrap.ui import P
+from reahl.web.bootstrap.forms import Form, TextInput, Button, FormLayout, PasswordInput
 from reahl.web.bootstrap.navs import Nav, TabLayout
 from reahl.web.bootstrap.grid import ColumnLayout, ColumnOptions, ResponsiveSize, Container
 from reahl.domain.systemaccountmodel import AccountManagementInterface, LoginSession
@@ -15,7 +15,7 @@ from reahl.domain.systemaccountmodel import AccountManagementInterface, LoginSes
 
 class MenuPage(HTML5Page):
     def __init__(self, view, main_bookmarks):
-        super(MenuPage, self).__init__(view)
+        super().__init__(view)
         self.use_layout(PageLayout(document_layout=Container()))
         contents_layout = ColumnLayout(ColumnOptions('main', size=ResponsiveSize(md=4))).with_slots()
         self.layout.contents.use_layout(contents_layout)
@@ -24,19 +24,18 @@ class MenuPage(HTML5Page):
 
 class LoginForm(Form):
     def __init__(self, view):
-        super(LoginForm, self).__init__(view, 'login')
+        super().__init__(view, 'login')
         self.use_layout(FormLayout())
         accounts = AccountManagementInterface.for_current_session()
 
         if self.exception:
-            self.add_child(Alert(view, self.exception.as_user_message(), 'warning'))
+            self.layout.add_alert_for_domain_exception(self.exception)
 
         self.layout.add_input(TextInput(self, accounts.fields.email))
         self.layout.add_input(PasswordInput(self, accounts.fields.password))
 
         self.define_event_handler(accounts.events.login_event)
-        btn = self.add_child(Button(self, accounts.events.login_event))
-        btn.use_layout(ButtonLayout(style='primary'))
+        self.add_child(Button(self, accounts.events.login_event, style='primary'))
 
 
 class LoginUI(UserInterface):

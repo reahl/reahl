@@ -15,8 +15,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from __future__ import print_function, unicode_literals, absolute_import, division
-import six
 import json
 
 from webob import Request
@@ -36,7 +34,7 @@ from reahl.webdeclarative.webdeclarative import PersistedException, UserInput
 from reahl.sqlalchemysupport import Base, Session
 from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
 from reahl.web.fw import Url, UserInterface, ValidationException
-from reahl.web.ui import HTML5Page, Div, Form, TextInput, ButtonInput, NestedForm, SelectInput
+from reahl.web.ui import HTML5Page, Div, Form, TextInput, ButtonInput, NestedForm, SelectInput, FormLayout, P
 
 from reahl.dev.fixtures import ReahlSystemFixture
 from reahl.web_dev.fixtures import WebFixture, BasicPageLayout
@@ -50,7 +48,7 @@ def test_basic_event_linkup(web_fixture):
     """
     fixture = web_fixture
 
-    class ModelObject(object):
+    class ModelObject:
         handled_event = False
         def handle_event(self):
             self.handled_event = True
@@ -63,7 +61,7 @@ def test_basic_event_linkup(web_fixture):
 
     class MyForm(Form):
         def __init__(self, view, name, other_view):
-            super(MyForm, self).__init__(view, name)
+            super().__init__(view, name)
             self.define_event_handler(model_object.events.an_event, target=other_view)
             self.add_child(ButtonInput(self, model_object.events.an_event))
 
@@ -95,7 +93,7 @@ def test_button_submits_only_once(web_fixture):
     fixture.click_count = 0
     class MyForm(Form):
         def __init__(self, view):
-            super(MyForm, self).__init__(view, 'myform')
+            super().__init__(view, 'myform')
             self.set_attribute('target', '_blank')  # We want to make sure the initial page is not refreshed so we can check the button status
             self.define_event_handler(self.events.an_event)
             self.add_child(TextInput(self, self.fields.field_name))
@@ -152,7 +150,7 @@ def test_arguments_to_actions(web_fixture):
     fixture = web_fixture
 
     # how you link everything up in code
-    class ModelObject(object):
+    class ModelObject:
         def handle_event(self, *args):
             self.args = args
 
@@ -167,7 +165,7 @@ def test_arguments_to_actions(web_fixture):
 
     class MyForm(Form):
         def __init__(self, view, name):
-            super(MyForm, self).__init__(view, name)
+            super().__init__(view, name)
             self.add_child(ButtonInput(self, model_object.events.an_event.with_arguments(one_argument=1, another_argument='another')))
 
     class MainUI(UserInterface):
@@ -193,7 +191,7 @@ def test_validation_of_event_arguments(web_fixture):
 
     fixture = web_fixture
 
-    class ModelObject(object):
+    class ModelObject:
         @exposed
         def events(self, events):
             events.an_event = Event(label='Click me', argument=Field(required=True))
@@ -223,7 +221,7 @@ def test_basic_field_linkup(web_fixture):
 
     fixture = web_fixture
 
-    class ModelObject(object):
+    class ModelObject:
         def handle_event(self):
             pass
 
@@ -239,7 +237,7 @@ def test_basic_field_linkup(web_fixture):
 
     class MyForm(Form):
         def __init__(self, view, name):
-            super(MyForm, self).__init__(view, name)
+            super().__init__(view, name)
             self.define_event_handler(model_object.events.an_event)
             self.add_child(ButtonInput(self, model_object.events.an_event))
             self.add_child(TextInput(self, model_object.fields.field_name))
@@ -268,11 +266,12 @@ def test_basic_field_linkup(web_fixture):
 @with_fixtures(WebFixture)
 def test_distinguishing_identical_field_names(web_fixture):
     """A programmer can add different Inputs on the same Form even if their respective Fields are bound
-       to identically named attributes of different objects by overriding the name of the second input."""
+       to identically named attributes of different objects by specifying a name_discriminator that is
+       different for different inputs."""
 
     fixture = web_fixture
 
-    class ModelObject(object):
+    class ModelObject:
         @exposed
         def fields(self, fields):
             fields.field_name = IntegerField()
@@ -286,12 +285,12 @@ def test_distinguishing_identical_field_names(web_fixture):
             events.an_event = Event(label='click me')
 
         def __init__(self, view, name):
-            super(MyForm, self).__init__(view, name)
+            super().__init__(view, name)
             self.define_event_handler(self.events.an_event)
             self.add_child(ButtonInput(self, self.events.an_event))
 
             self.add_child(TextInput(self, model_object1.fields.field_name))
-            self.add_child(TextInput(self, model_object2.fields.field_name, name='field_name_2'))
+            self.add_child(TextInput(self, model_object2.fields.field_name.with_namespace('object2')))
 
     wsgi_app = fixture.new_wsgi_app(child_factory=MyForm.factory('form'))
     fixture.reahl_server.set_app(wsgi_app)
@@ -313,7 +312,7 @@ def test_wrong_arguments_to_define_event_handler(web_fixture):
 
     class MyForm(Form):
         def __init__(self, view, name):
-            super(MyForm, self).__init__(view, name)
+            super().__init__(view, name)
             self.define_event_handler(EmptyStub())
 
     wsgi_app = fixture.new_wsgi_app(child_factory=MyForm.factory('form'))
@@ -328,7 +327,7 @@ def test_define_event_handler_not_called(web_fixture):
     """."""
     fixture = web_fixture
 
-    class ModelObject(object):
+    class ModelObject:
         @exposed
         def events(self, events):
             events.an_event = Event()
@@ -337,7 +336,7 @@ def test_define_event_handler_not_called(web_fixture):
 
     class MyForm(Form):
         def __init__(self, view, name):
-            super(MyForm, self).__init__(view, name)
+            super().__init__(view, name)
             self.add_child(ButtonInput(self, model_object.events.an_event))
 
     wsgi_app = fixture.new_wsgi_app(child_factory=MyForm.factory('form'))
@@ -378,7 +377,7 @@ def test_exception_handling(reahl_system_fixture, web_fixture, sql_alchemy_fixtu
 
         class MyForm(Form):
             def __init__(self, view, name, other_view):
-                super(MyForm, self).__init__(view, name)
+                super().__init__(view, name)
                 self.define_event_handler(model_object.events.an_event, target=other_view)
                 self.add_child(ButtonInput(self, model_object.events.an_event))
                 self.add_child(TextInput(self, model_object.fields.field_name))
@@ -420,7 +419,7 @@ def test_form_preserves_user_input_after_validation_exceptions_multichoice(web_f
 
     fixture = web_fixture
 
-    class ModelObject(object):
+    class ModelObject:
         @exposed
         def events(self, events):
             events.an_event = Event(label='click me')
@@ -436,7 +435,7 @@ def test_form_preserves_user_input_after_validation_exceptions_multichoice(web_f
 
     class MyForm(Form):
         def __init__(self, view):
-            super(MyForm, self).__init__(view, 'my_form')
+            super().__init__(view, 'my_form')
             self.define_event_handler(model_object.events.an_event)
             self.add_child(ButtonInput(self, model_object.events.an_event))
             input = self.add_child(SelectInput(self, model_object.fields.no_validation_exception_field))
@@ -487,7 +486,11 @@ def test_rendering_of_form(web_fixture):
     fixture.context.request = Request.blank('/a/b?x=y', charset='utf8')
     actual = tester.render_html()
 
-    expected = '<form id="test_channel" action="/a/b/_test_channel_method?x=y" data-formatter="/__test_channel_format_method" method="POST" class="reahl-form"></form>'
+    expected = '''<form id="test_channel" action="/a/b/_test_channel_method?x=y" data-formatter="/__test_channel_format_method" method="POST" class="reahl-form">''' \
+               '''<div id="test_channel_hashes">'''\
+               '''<input name="test_channel-_reahl_database_concurrency_digest" id="id-test_channel-test_channel-_reahl_database_concurrency_digest" form="test_channel" type="hidden" value="" class="reahl-primitiveinput">''' \
+               '''</div>''' \
+               '''</form>'''
     assert actual == expected
 
     # Case: without querystring
@@ -524,14 +527,14 @@ def test_check_missing_form(web_fixture):
 
     fixture = web_fixture
 
-    class ModelObject(object):
+    class ModelObject:
         @exposed
         def fields(self, fields):
             fields.name = Field()
 
     class MyPanel(Div):
         def __init__(self, view):
-            super(MyPanel, self).__init__(view)
+            super().__init__(view)
             model_object = ModelObject()
             forgotten_form = Form(view, 'myform')
             self.add_child(TextInput(forgotten_form, model_object.fields.name))
@@ -555,7 +558,7 @@ def test_nested_forms(web_fixture):
 
     fixture = web_fixture
 
-    class NestedModelObject(object):
+    class NestedModelObject:
         handled_event = False
         def handle_event(self):
             self.handled_event = True
@@ -569,12 +572,12 @@ def test_nested_forms(web_fixture):
     nested_model_object = NestedModelObject()
     class MyNestedForm(NestedForm):
         def __init__(self, view, name):
-            super(MyNestedForm, self).__init__(view, name)
+            super().__init__(view, name)
             self.define_event_handler(nested_model_object.events.nested_event)
             self.add_child(ButtonInput(self.form, nested_model_object.events.nested_event))
             self.add_child(TextInput(self.form, nested_model_object.fields.nested_field))
 
-    class OuterModelObject(object):
+    class OuterModelObject:
         handled_event = False
         def handle_event(self):
             self.handled_event = True
@@ -584,7 +587,7 @@ def test_nested_forms(web_fixture):
     outer_model_object = OuterModelObject()
     class OuterForm(Form):
         def __init__(self, view, name):
-            super(OuterForm, self).__init__(view, name)
+            super().__init__(view, name)
             self.add_child(MyNestedForm(view, 'my_nested_form'))
             self.define_event_handler(outer_model_object.events.outer_event)
             self.add_child(ButtonInput(self, outer_model_object.events.outer_event))
@@ -612,7 +615,7 @@ def test_form_input_validation(web_fixture):
 
     fixture = web_fixture
 
-    class ModelObject(object):
+    class ModelObject:
         def handle_event(self):
             pass
         @exposed
@@ -626,7 +629,9 @@ def test_form_input_validation(web_fixture):
 
     class MyForm(Form):
         def __init__(self, view, name, other_view):
-            super(MyForm, self).__init__(view, name)
+            super().__init__(view, name)
+            if self.exception:
+                 self.add_child(P(view, ','.join(self.exception.detail_messages)))
             self.define_event_handler(model_object.events.an_event, target=other_view)
             self.add_child(ButtonInput(self, model_object.events.an_event))
             text_input = self.add_child(TextInput(self, model_object.fields.field_name))
@@ -658,6 +663,10 @@ def test_form_input_validation(web_fixture):
 
     error_text = fixture.driver_browser.get_text(error_xpath)
     assert error_text == 'field_name should be a valid email address'
+
+    # .. but the error is removed again upon valid input
+    fixture.driver_browser.type('//input[@type="text"]', 'valid@home.org')
+    fixture.driver_browser.wait_for_element_not_visible(error_xpath)
 
     # Case: form validation fails on the server (assuming no JS on the client to block submission)
     #  - ValidationException is raised (which is dealt with as any DomainException)
@@ -692,6 +701,7 @@ def test_form_input_validation(web_fixture):
     # Case: form validation passes (js)
     #  - no ValidationException
     #  - all input is translated to python and set as values on the model objects
+    fixture.driver_browser.open('/')
     fixture.driver_browser.type('//input[@type="text"]', 'valid@home.org')
     fixture.driver_browser.wait_for_element_not_visible(error_xpath)
     fixture.driver_browser.click("//input[@value='click me']")
@@ -750,7 +760,7 @@ def test_propagation_of_querystring(web_fixture, query_string_scenarios):
     """
     fixture = query_string_scenarios
 
-    class ModelObject(object):
+    class ModelObject:
         def handle_event(self):
             if fixture.break_on_submit:
                 raise DomainException()
@@ -762,7 +772,7 @@ def test_propagation_of_querystring(web_fixture, query_string_scenarios):
 
     class MyForm(Form):
         def __init__(self, view, name, other_view):
-            super(MyForm, self).__init__(view, name)
+            super().__init__(view, name)
             if fixture.target_is_other_view:
                 target = other_view
             else:
@@ -795,7 +805,7 @@ def test_event_names_are_canonicalised(web_fixture):
 
     fixture = web_fixture
 
-    class ModelObject(object):
+    class ModelObject:
         def handle_event(self, some_argument):
             self.received_argument = some_argument
 
@@ -809,7 +819,7 @@ def test_event_names_are_canonicalised(web_fixture):
 
     class MyForm(Form):
         def __init__(self, view, name):
-            super(MyForm, self).__init__(view, name)
+            super().__init__(view, name)
             self.define_event_handler(model_object.events.an_event)
             self.add_child(ButtonInput(self, model_object.events.an_event.with_arguments(some_argument='f~nnystuff')))
 
@@ -823,7 +833,7 @@ def test_event_names_are_canonicalised(web_fixture):
     browser = Browser(wsgi_app)
 
     # when the Action is executed, the correct arguments are passed
-    browser.post('/__myform_method', {'event.an_event?some_argument=f~nnystuff': ''})
+    browser.post('/__myform_method', {'event.an_event?some_argument=f~nnystuff': '', 'myform-_reahl_database_concurrency_digest':''})
     assert model_object.received_argument == 'f~nnystuff'
 
 
@@ -836,7 +846,7 @@ def test_alternative_event_trigerring(web_fixture):
 
     fixture = web_fixture
 
-    class ModelObject(object):
+    class ModelObject:
         def handle_event(self):
             self.handled_event = True
 
@@ -849,7 +859,7 @@ def test_alternative_event_trigerring(web_fixture):
 
     class MyForm(Form):
         def __init__(self, view, name, other_view):
-            super(MyForm, self).__init__(view, name)
+            super().__init__(view, name)
             self.define_event_handler(model_object.events.an_event, target=other_view)
             self.add_child(ButtonInput(self, model_object.events.an_event))
 
@@ -864,7 +874,7 @@ def test_alternative_event_trigerring(web_fixture):
     browser = Browser(wsgi_app)
 
     # when POSTing with _noredirect, the Action is executed, but the browser is not redirected to /page2 as usual
-    browser.post('/__myform_method', {'event.an_event?': '', '_noredirect': ''})
+    browser.post('/__myform_method', {'event.an_event?': '', '_noredirect': '', 'myform-_reahl_database_concurrency_digest':''})
     browser.follow_response()  # Needed to make the test break should a HTTPTemporaryRedirect response be sent
     assert model_object.handled_event
     assert browser.current_url.path != '/page2'
@@ -886,7 +896,7 @@ def test_remote_field_validation(web_fixture):
 
     fixture = web_fixture
 
-    class ModelObject(object):
+    class ModelObject:
         @exposed
         def fields(self, fields):
             fields.a_field = EmailField()
@@ -895,7 +905,7 @@ def test_remote_field_validation(web_fixture):
 
     class MyForm(Form):
         def __init__(self, view, name):
-            super(MyForm, self).__init__(view, name)
+            super().__init__(view, name)
             self.add_child(TextInput(self, model_object.fields.a_field))
 
     wsgi_app = fixture.new_wsgi_app(child_factory=MyForm.factory('myform'))
@@ -915,7 +925,7 @@ def test_remote_field_formatting(web_fixture):
 
     fixture = web_fixture
 
-    class ModelObject(object):
+    class ModelObject:
         @exposed
         def fields(self, fields):
             fields.a_field = DateField()
@@ -924,7 +934,7 @@ def test_remote_field_formatting(web_fixture):
 
     class MyForm(Form):
         def __init__(self, view, name):
-            super(MyForm, self).__init__(view, name)
+            super().__init__(view, name)
             self.add_child(TextInput(self, model_object.fields.a_field))
 
     wsgi_app = fixture.new_wsgi_app(child_factory=MyForm.factory('myform'))

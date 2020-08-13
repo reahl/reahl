@@ -14,8 +14,6 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import print_function, unicode_literals, absolute_import, division
-import six
 
 import os
 import time
@@ -33,7 +31,7 @@ import logging
 import functools
 import pkg_resources
 
-from six.moves.http_client import CannotSendRequest
+from http.client import CannotSendRequest
 
 from webob import Request
 from webob.exc import HTTPInternalServerError
@@ -44,12 +42,11 @@ from watchdog.events import PatternMatchingEventHandler
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.context import ExecutionContext, NoContextFound
 from reahl.component.config import StoredConfiguration
-from reahl.component.py3compat import ascii_as_bytes_or_str
 from reahl.component.shelltools import Executable
 from reahl.web.fw import ReahlWSGIApplication
 
 
-class WrappedApp(object):
+class WrappedApp:
     """A class in which to wrap a WSGI app, allowing catching of exceptions in the wrapped app.
     """
     def __init__(self, wrapped):
@@ -74,8 +71,8 @@ class WrappedApp(object):
         except:
             to_return = b''
             (_, self.exception, self.traceback) = sys.exc_info()
-            traceback_html = six.text_type(traceback.format_exc())
-            for i in HTTPInternalServerError(content_type=ascii_as_bytes_or_str('text/plain'), charset=ascii_as_bytes_or_str('utf-8'), unicode_body=traceback_html)(environ, start_response):
+            traceback_html = str(traceback.format_exc())
+            for i in HTTPInternalServerError(content_type='text/plain', charset='utf-8', unicode_body=traceback_html)(environ, start_response):
                 to_return += i
         yield to_return
 
@@ -90,13 +87,13 @@ class WrappedApp(object):
 
     def report_exception(self):
         if self.exception:
-            six.reraise(self.exception.__class__, self.exception, self.traceback)
-            
+            raise self.exception.with_traceback(self.traceback)
+
     def clear_exception(self):
         self.exception = None
 
 
-class NoopApp(object):
+class NoopApp:
     def __init__(self, config=None):
         pass
     def start(self): pass
@@ -121,12 +118,8 @@ class PatchedServerHandler(ServerHandler):
         # we want to fail silently and give up. This often happens in tests where the
         # browser may want to request embedded links (like stylesheets) too, yet the
         # test has already clicked on the next link.
-        if six.PY3:
-            ssl_eof_error = ssl.SSLEOFError
-            broken_pipe_error = BrokenPipeError
-        else:
-            ssl_eof_error = ssl.SSLError
-            broken_pipe_error = socket.error
+        ssl_eof_error = ssl.SSLEOFError
+        broken_pipe_error = BrokenPipeError
             
         try:
             ServerHandler.finish_response(self)
@@ -237,31 +230,11 @@ class SSLCapableWSGIServer(ReahlWSGIServer):
 
     def server_bind(self):
         self.socket = ssl.wrap_socket(self.socket, server_side=True, certfile=self.certfile)
-        if six.PY2:
-            #This method is shamelessly copied from WerkZeug (and changed)
-            class _SSLConnectionFix(object):
-                #This class is shamelessly copied from WerkZeug
-                """Wrapper around SSL connection to provide a working makefile()."""
-
-                def __init__(self, con):
-                    self._con = con
-
-                def makefile(self, mode, bufsize):
-                    return socket._fileobject(self._con, mode, bufsize)
-
-                def __getattr__(self, attrib):
-                    return getattr(self._con, attrib)
-                
-            old_accept = self.socket.accept
-            def patched_accept():
-                con, info = old_accept()
-                return _SSLConnectionFix(con), info
-            self.socket.accept = patched_accept
-        ReahlWSGIServer.server_bind(self)
+        super().server_bind()
 
 
 
-class WebDriverHandler(object):
+class WebDriverHandler:
     def __init__(self, command_executor):
         self.command_executor = command_executor
         self.original_execute = command_executor.execute
@@ -311,7 +284,7 @@ class WebDriverHandler(object):
 class Py2TimeoutExpired(Exception):
     pass
 
-class SlaveProcess(object):
+class SlaveProcess:
     def __init__(self, command, args):
         self.process = None
         self.args = args
@@ -323,21 +296,10 @@ class SlaveProcess(object):
         self.wait_to_die(timeout=timeout)
 
     def wait_to_die(self, timeout):
-        TimeoutExpired = Py2TimeoutExpired if six.PY2 else subprocess.TimeoutExpired
         try:
-            if six.PY2:
-                self.py2_process_wait_within_timeout(timeout)
-            else:
-                self.process.wait(timeout=timeout)
-        except TimeoutExpired:
+            self.process.wait(timeout=timeout)
+        except subprocess.TimeoutExpired:
             self.process.kill()
-
-    def py2_process_wait_within_timeout(self, timeout):
-        thread = Thread(target=self.process.wait)
-        thread.start()
-        thread.join(timeout)
-        if thread.isAlive():
-            raise Py2TimeoutExpired()
 
     def spawn_new_process(self):
         return self.executable.Popen(self.args, env=os.environ.copy())
@@ -356,7 +318,7 @@ class SlaveProcess(object):
             try:
                 possible_orphan_process.kill()
                 logging.getLogger(__name__).debug('Had to kill process(orphan) with PID[%s]' % possible_orphan_process.pid)
-            except (OSError if six.PY2 else ProcessLookupError):
+            except (ProcessLookupError):
                 logging.getLogger(__name__).debug('Process with PID[%s] seems terminated already, no need to kill it' % possible_orphan_process.pid)
         return functools.partial(kill_orphan_on_exit, process)
 
@@ -370,7 +332,7 @@ class SlaveProcess(object):
 
 class ServerSupervisor(PatternMatchingEventHandler):
     def __init__(self, slave_process_args, max_seconds_between_restarts, directories_to_monitor=['.']):
-        super(ServerSupervisor, self).__init__(ignore_patterns=['.git', '.floo', '*.pyc', '*.pyo', '*/__pycache__/*', '*.db-*', '*.db'], ignore_directories=True)
+        super().__init__(ignore_patterns=['.git', '.floo', '*.pyc', '*.pyo', '*/__pycache__/*', '*.db-*', '*.db'], ignore_directories=True)
         self.serving_process = SlaveProcess(sys.argv[0], slave_process_args)
         self.max_seconds_between_restarts = max_seconds_between_restarts
         self.directories_to_monitor = directories_to_monitor
@@ -426,7 +388,7 @@ class ServerSupervisor(PatternMatchingEventHandler):
         self.stop_serving()
 
 
-class ReahlWebServer(object):
+class ReahlWebServer:
     """A web server for testing purposes. This web server runs both an HTTP and HTTPS server. It can 
        be configured to handle requests in the same thread as the test itself, but it can also be run in a
        separate thread. The ReahlWebServer requires a certificate for use with HTTPS upon startup. A self signed
@@ -454,7 +416,7 @@ class ReahlWebServer(object):
         self.set_app(NoopApp())
 
     def __init__(self, config, port):
-        super(ReahlWebServer, self).__init__()
+        super().__init__()
         self.in_separate_thread = None
         self.running = False
         self.handlers = {}
@@ -514,7 +476,6 @@ class ReahlWebServer(object):
         """Starts the webserver and web application.
         
            :keyword in_separate_thread: If False, the server handles requests in the same thread as your tests.
-           :keyword in_seperate_thread: Deprecated: rather use in_separate_thread keyword argument
            :keyword connect: If True, also connects to the database.
         """
         self.reahl_wsgi_app.start(connect=connect)
