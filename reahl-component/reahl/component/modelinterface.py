@@ -1239,15 +1239,14 @@ class SecuredFunction(FunctionWrapper):
             return True
 
     def check_method_signature(self, check_method, original_method):
-        check_signature = inspect.getfullargspec(check_method)
-        expected_signature = inspect.getfullargspec(original_method)
-
+        check_signature = inspect.signature(check_method)
+        expected_signature = inspect.signature(original_method)
         if check_signature != expected_signature:
-            messages = [repr(method) + inspect.formatargspec(*signature)
+            messages = [repr(method) + str(signature)
                         for signature, method in [(check_signature, check_method),
                                                   (expected_signature, original_method)]]
-            raise ProgrammerError('signature of %s does not match expected signature of %s' % \
-                                  tuple(messages))
+            message = 'signature of %s does not match expected signature of %s' % tuple(messages)
+            raise ProgrammerError(message)
 
     def get_declared_argument_names(self):
         arg_spec = inspect.getfullargspec(self.__wrapped__)
