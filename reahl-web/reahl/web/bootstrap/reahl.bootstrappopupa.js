@@ -37,7 +37,7 @@ $.widget("reahl.bootstrappopupa", {
            modal_dialog_class += ' modal-dialog-centered';
         };
 
-        this_.$dialog = $("<div class='modal fade' data-backdrop='static' tabindex='-1' role='dialog'> "+
+        this_.$dialog = $("<div class='modal fade' data-backdrop='static' tabindex='-1'> "+
                         "  <div class='"+modal_dialog_class+"' role='document'>"+
                         "    <div class='modal-content'>"+
                         "      <div class='modal-header'>"+
