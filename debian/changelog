@@ -36,7 +36,7 @@ python-reahl (5.0.0a1) unstable; urgency=low
  * Upgraded all dependencies to latest current versions, including Bootstrap (#265).
  * Examples can be checked out and renamed.
  * Added ability to add config, in a guided manner, to an existing project.
- * Upgrade to Bootstrap 4.5.0 and jquery 3.5.1
+ * Upgrade to Bootstrap 4.5.2 and jquery 3.5.1
 
  -- Iwan Vosloo <iwan@reahl.org>  Thu, 30 Jul 2020 15:15:00 +0200
 
