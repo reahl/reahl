@@ -4,7 +4,7 @@
   </namespaces>
   
   <deps purpose="build">
-    <thirdpartyegg name="setuptools-git" minversion="1.1" maxversion="1.1.999"/>
+    <thirdpartyegg name="setuptools-git" minversion="1.1"/>
     <thirdpartyegg name="pytest-runner"/>
   </deps>
 
@@ -14,15 +14,15 @@
 
   <export entrypoint="reahl.component.databasecontrols" name="MysqlControl" locator="reahl.mysqlsupport:MysqlControl"/>
 
-  <version number='5.0.0'>
+  <version number="5.0.0">
     <deps purpose="run">
         <egg name="reahl-component" versionlocked="True"/>
         <egg name="reahl-commands" versionlocked="True"/>
-        <thirdpartyegg name="mysqlclient" minversion="1.3" maxversion="1.3.9999"/>
+        <thirdpartyegg name="mysqlclient" minversion="1.3" maxversion="1.4.9999"/>
     </deps>
   </version>
 
-  <version number='4.0.5'>
+  <version number="4.0.5">
     <deps purpose="run">
       <egg name="reahl-component" versionlocked="True"/>
       <egg name="reahl-commands" versionlocked="True"/>

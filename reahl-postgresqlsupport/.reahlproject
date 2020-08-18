@@ -4,7 +4,7 @@
   </namespaces>
   
   <deps purpose="build">
-    <thirdpartyegg name="setuptools-git" minversion="1.1" maxversion="1.1.999"/>
+    <thirdpartyegg name="setuptools-git" minversion="1.1"/>
     <thirdpartyegg name="pytest-runner"/>
   </deps>
 
@@ -15,15 +15,15 @@
 
   <export entrypoint="reahl.component.databasecontrols" name="PostgresqlControl" locator="reahl.postgresqlsupport:PostgresqlControl"/>
 
-  <version number='5.0.0'>
+  <version number="5.0.0">
       <deps purpose="run">
         <egg name="reahl-component" versionlocked="True"/>
         <egg name="reahl-commands" versionlocked="True"/>
-        <thirdpartyegg name="psycopg2-binary" minversion="2.7" maxversion="2.7.9999"/>
+        <thirdpartyegg name="psycopg2-binary" minversion="2.8" maxversion="2.8.9999"/>
       </deps>
   </version>
 
-  <version number='4.0.5'>
+  <version number="4.0.5">
     <deps purpose="run">
       <egg name="reahl-component" versionlocked="True"/>
       <egg name="reahl-commands" versionlocked="True"/>
@@ -31,35 +31,35 @@
     </deps>
   </version>
 
-  <version number='3.2.0'>
+  <version number="3.2.0">
     <deps purpose="run">
       <egg name="reahl-component" versionlocked="True"/>
       <thirdpartyegg name="psycopg2" minversion="2.5" maxversion="2.5.9999"/>
     </deps>
   </version>
 
-  <version number='3.1.1'>
+  <version number="3.1.1">
     <deps purpose="run">
       <egg name="reahl-component" versionlocked="True"/>
       <thirdpartyegg name="psycopg2" minversion="2.5" maxversion="2.5.9999"/>
     </deps>
   </version>
 
-  <version number='3.0.0'>
+  <version number="3.0.0">
     <deps purpose="run">
       <egg name="reahl-component" versionlocked="True"/>
       <thirdpartyegg name="psycopg2" minversion="2.5" maxversion="2.5.9999"/>
     </deps>
   </version>
 
-  <version number='2.1.2'>
+  <version number="2.1.2">
       <deps purpose="run">
           <egg name="reahl-component" versionlocked="True"/>
           <thirdpartyegg name="psycopg2" minversion="2.4" maxversion="2.5"/>
       </deps>
   </version>
 
-  <version number='2.0.2'>
+  <version number="2.0.2">
       <deps purpose="run">
           <egg name="reahl-component" versionlocked="True"/>
           <thirdpartyegg name="psycopg2" minversion="2.4" maxversion="2.5"/>

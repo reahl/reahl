@@ -3,42 +3,47 @@
     <package name="reahl"/>
   </namespaces>
 
+  <translations locator="reahl.messages"/>
+
   <deps purpose="build">
-    <thirdpartyegg name="setuptools-git" minversion="1.1" maxversion="1.1.999"/>
+    <thirdpartyegg name="setuptools-git" minversion="1.1"/>
     <thirdpartyegg name="pytest-runner"/>
   </deps>
 
   <deps purpose="test">
     <thirdpartyegg name="pytest" minversion="3.0"/>
+    <egg name="reahl-doc"/>
     <egg name="reahl-tofu"/>
     <egg name="reahl-postgresqlsupport"/>
     <egg name="reahl-stubble"/>
   </deps>
 
   <extras name="pillow">
-    <thirdpartyegg name="pillow" minversion="2.5" maxversion="2.5.999"/>
+    <thirdpartyegg name="Pillow" minversion="2.5" maxversion="7.1.999"/>
   </extras>
 
   <export entrypoint="reahl.component.commands" name="ServeCurrentProject" locator="reahl.webdev.commands:ServeCurrentProject"/>
   <export entrypoint="reahl.component.commands" name="SyncFiles" locator="reahl.webdev.commands:SyncFiles"/>
+  <export entrypoint="reahl.component.commands" name="CreateConfig" locator="reahl.webdev.commands:CreateConfig"/>
 
-  <version number='5.0.0'>
+  <version number="5.0.0">
       <deps purpose="run">
         <egg name="reahl-web" versionlocked="True"/>
         <egg name="reahl-dev" versionlocked="True"/>
         <egg name="reahl-component" versionlocked="True"/>
         <egg name="reahl-tofu" versionlocked="True"/>
         <egg name="reahl-domain" versionlocked="True"/>
-        <thirdpartyegg name="lxml" minversion="4.2" maxversion="4.2.999"/>
+        <thirdpartyegg name="lxml" minversion="4.2" maxversion="4.5.999"/>
         <thirdpartyegg name="WebTest" minversion="2.0" maxversion="2.0.999"/>
-        <thirdpartyegg name="selenium" minversion="2.42" maxversion="2.9999"/>
-        <thirdpartyegg name="watchdog" minversion="0.8.3" maxversion="0.8.3.999"/>
+        <thirdpartyegg name="selenium" minversion="2.42" maxversion="3.141.9999"/>
+        <thirdpartyegg name="watchdog" minversion="0.8.3" maxversion="0.10.999"/>
         <thirdpartyegg name="setuptools" minversion="32.3.1"/>
-        <thirdpartyegg name="webob" minversion="1.4" maxversion="1.4.999"/>
+        <thirdpartyegg name="WebOb" minversion="1.8" maxversion="1.8.999"/>
+        <thirdpartyegg name="prompt_toolkit" minversion="2.0.10" maxversion="2.0.999"/>
       </deps>
   </version>
 
-  <version number='4.0.5'>
+  <version number="4.0.5">
     <deps purpose="run">
       <egg name="reahl-web" versionlocked="True"/>
       <egg name="reahl-dev" versionlocked="True"/>
@@ -54,7 +59,7 @@
     </deps>
   </version>
 
-  <version number='3.2.0'>
+  <version number="3.2.0">
     <deps purpose="run">
       <egg name="reahl-web" versionlocked="True"/>
       <egg name="reahl-dev" versionlocked="True"/>
@@ -68,7 +73,7 @@
     </deps>
   </version>
 
-  <version number='3.1.1'>
+  <version number="3.1.1">
     <deps purpose="run">
       <egg name="reahl-web" versionlocked="True"/>
       <egg name="reahl-dev" versionlocked="True"/>
@@ -81,7 +86,7 @@
     </deps>
   </version>
 
-  <version number='3.0.0'>
+  <version number="3.0.0">
     <deps purpose="run">
       <egg name="reahl-web" versionlocked="True"/>
       <egg name="reahl-dev" versionlocked="True"/>
@@ -93,7 +98,7 @@
     </deps>
   </version>
 
-  <version number='2.1.2'>
+  <version number="2.1.2">
     <deps purpose="run">
         <egg name="reahl-web" versionlocked="True"/>
         <egg name="reahl-dev" versionlocked="True"/>
@@ -105,7 +110,7 @@
     </deps>
   </version>
 
-  <version number='2.0.2'>
+  <version number="2.0.2">
     <deps purpose="run">
       <egg name="reahl-web" versionlocked="True"/>
       <egg name="reahl-dev" versionlocked="True"/>

@@ -4,7 +4,7 @@
   </namespaces>
 
   <deps purpose="build">
-    <thirdpartyegg name="setuptools-git" minversion="1.1" maxversion="1.1.999"/>
+    <thirdpartyegg name="setuptools-git" minversion="1.1"/>
     <thirdpartyegg name="pytest-runner"/>
   </deps>
 
@@ -18,14 +18,13 @@
   <export entrypoint="reahl.component.commands" name="Xpra" locator="reahl.workstation.xprasupport:ControlXpra"/>
   <export entrypoint="reahl.component.commands" name="Ngrok" locator="reahl.workstation.ngroksupport:Ngrok"/>
 
-  <version number='5.0.0'>
+  <version number="5.0.0">
     <deps purpose="run">
       <egg name="reahl-component" versionlocked="True"/>
-      <thirdpartyegg name="six"/>
     </deps>
   </version>
 
-  <version number='4.0.5'>
+  <version number="4.0.5">
    <deps purpose="run">
       <egg name="reahl-component" versionlocked="True"/>
       <thirdpartyegg name="six"/>

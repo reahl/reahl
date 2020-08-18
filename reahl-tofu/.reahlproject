@@ -4,7 +4,7 @@
   </namespaces>
 
   <deps purpose="build">
-    <thirdpartyegg name="setuptools-git" minversion="1.1" maxversion="1.1.999"/>
+    <thirdpartyegg name="setuptools-git" minversion="1.1"/>
     <thirdpartyegg name="pytest-runner"/>
   </deps>
 
@@ -12,54 +12,53 @@
     <thirdpartyegg name="pytest" minversion="3.0"/>
   </deps>
 
-    <version number='5.0.0'>
+  <version number="5.0.0">
+    <deps purpose="run">
+      <egg name="reahl-component" versionlocked="True"/>
+      <thirdpartyegg name="wrapt" minversion="1.11.0" maxversion="1.12.999"/>
+    </deps>
+  </version>
+
+  <version number="4.0.5">
+    <deps purpose="run">
+      <egg name="reahl-component" versionlocked="True"/>
+      <thirdpartyegg name="six"/>
+      <thirdpartyegg name="wrapt" minversion="1.10.2" maxversion="1.10.999"/>
+    </deps>
+  </version>
+
+  <version number="3.2.0">
+    <deps purpose="run">
+      <thirdpartyegg name="six"/>
+    </deps>
+  </version>
+
+  <version number="3.1.1">
+    <deps purpose="run">
+      <thirdpartyegg name="six"/>
+    </deps>
+  </version>
+
+  <version number="3.0.0">
       <deps purpose="run">
-        <egg name="reahl-component" versionlocked="True"/>
-        <thirdpartyegg name="six"/>
-        <thirdpartyegg name="wrapt" minversion="1.10.2" maxversion="1.10.999"/>
+          <egg name="reahl-component" versionlocked="True"/>
+          <thirdpartyegg name="nose"/>
       </deps>
-    </version>
+  </version>
 
-    <version number='4.0.5'>
+  <version number="2.1.2">
       <deps purpose="run">
-        <egg name="reahl-component" versionlocked="True"/>
-        <thirdpartyegg name="six"/>
-        <thirdpartyegg name="wrapt" minversion="1.10.2" maxversion="1.10.999"/>
+          <egg name="reahl-component" versionlocked="True"/>
+          <thirdpartyegg name="nose"/>
       </deps>
-    </version>
+  </version>
 
-    <version number='3.2.0'>
+  <version number="2.0.2">
       <deps purpose="run">
-        <thirdpartyegg name="six"/>
+          <egg name="reahl-component" versionlocked="True"/>
+          <thirdpartyegg name="nose"/>
       </deps>
-    </version>
-
-    <version number='3.1.1'>
-      <deps purpose="run">
-        <thirdpartyegg name="six"/>
-      </deps>
-    </version>
-
-    <version number='3.0.0'>
-        <deps purpose="run">
-            <egg name="reahl-component" versionlocked="True"/>
-            <thirdpartyegg name="nose"/>
-        </deps>
-    </version>
-
-    <version number='2.1.2'>
-        <deps purpose="run">
-            <egg name="reahl-component" versionlocked="True"/>
-            <thirdpartyegg name="nose"/>
-        </deps>
-    </version>
-
-    <version number='2.0.2'>
-        <deps purpose="run">
-            <egg name="reahl-component" versionlocked="True"/>
-            <thirdpartyegg name="nose"/>
-        </deps>
-    </version>
+  </version>
 
 
   <distpackage type="wheel">

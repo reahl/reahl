@@ -603,7 +603,7 @@ class VersionNumber:
         return not re.match('^\d+$', self.patch)
 
     def upper_version(self):
-        return Version('.'.join([self.major, str(int(self.minor)+1)]))
+        return VersionNumber('.'.join([self.major, str(int(self.minor)+1)]))
 
     def lower_deb_version(self):
         return self.truncated()

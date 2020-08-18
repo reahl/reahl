@@ -166,7 +166,7 @@ class AllowNullUserInputValue(Migration):
 
 
 class AddViewPathToSessionData(Migration):
-    version = '5.0.0a1'
+    version = '5.0.0'
     def schedule_upgrades(self):
         self.schedule('alter', op.alter_column, 'sessiondata', 'channel_name', existing_nullable=False, nullable=True)
         self.schedule('alter', op.add_column, 'sessiondata', Column('view_path', UnicodeText, nullable=False))

@@ -4,7 +4,7 @@
   </namespaces>
 
   <deps purpose="build">
-    <thirdpartyegg name="setuptools-git" minversion="1.1" maxversion="1.1.999"/>
+    <thirdpartyegg name="setuptools-git" minversion="1.1"/>
     <thirdpartyegg name="pytest-runner"/>
   </deps>
 
@@ -14,21 +14,20 @@
     <egg name="reahl-stubble"/>
   </deps>
 
-  <version number='5.0.0'>
+  <version number="5.0.0">
+    <deps purpose="run">
+      <egg name="reahl-component" versionlocked="True"/>
+    </deps>
+  </version>
+
+  <version number="4.0.5">
     <deps purpose="run">
       <thirdpartyegg name="six"/> 
       <egg name="reahl-component" versionlocked="True"/>
     </deps>
   </version>
 
-  <version number='4.0.5'>
-    <deps purpose="run">
-      <thirdpartyegg name="six"/> 
-      <egg name="reahl-component" versionlocked="True"/>
-    </deps>
-  </version>
-
-  <version number='4.0.0'>
+  <version number="4.0.0">
     <deps purpose="run">
       <thirdpartyegg name="six"/> 
       <egg name="reahl-component" versionlocked="True"/>

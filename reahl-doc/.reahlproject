@@ -30,40 +30,40 @@
   </deps>
 
   <persisted>
-        <class locator="reahl.doc.examples.features.persistence.persistence:Comment"/>
-        <class locator="reahl.doc.examples.web.fileupload.fileupload:Comment"/>
-        <class locator="reahl.doc.examples.web.fileupload.fileupload:AttachedFile"/>
-        <class locator="reahl.doc.examples.tutorial.test_model2:Address"/>
-        <class locator="reahl.doc.examples.tutorial.addressbook2.addressbook2:Address"/>
-        <class locator="reahl.doc.examples.tutorial.addressbook2bootstrap.addressbook2bootstrap:Address"/>
-        <class locator="reahl.doc.examples.tutorial.addressbook1.addressbook1:Address"/>
-        <class locator="reahl.doc.examples.tutorial.pageflow1.pageflow1:Address"/>
-        <class locator="reahl.doc.examples.tutorial.parameterised1.parameterised1:Address"/>
-        <class locator="reahl.doc.examples.tutorial.parameterised2.parameterised2:Address"/>
-        <class locator="reahl.doc.examples.tutorial.sessionscopebootstrap.sessionscopebootstrap:User"/>
-        <class locator="reahl.doc.examples.tutorial.sessionscopebootstrap.sessionscopebootstrap:LoginSession"/>
-        <class locator="reahl.doc.examples.tutorial.accessbootstrap.accessbootstrap:AddressBook"/>
-        <class locator="reahl.doc.examples.tutorial.accessbootstrap.accessbootstrap:Collaborator"/>
-        <class locator="reahl.doc.examples.tutorial.accessbootstrap.accessbootstrap:Address"/>
-        <class locator="reahl.doc.examples.tutorial.i18nexamplebootstrap.i18nexamplebootstrap:Address"/>
-        <class locator="reahl.doc.examples.tutorial.componentconfigbootstrap.componentconfigbootstrap:Address"/>
-        <class locator="reahl.doc.examples.tutorial.migrationexamplebootstrap.migrationexamplebootstrap:Address"/>
-        <class locator="reahl.doc.examples.tutorial.jobsbootstrap.jobsbootstrap:Address"/>
-        <class locator="reahl.doc.examples.tutorial.tablebootstrap.tablebootstrap:Address"/>
-        <class locator="reahl.doc.examples.tutorial.datatablebootstrap.datatablebootstrap:Address"/>
-        <class locator="reahl.doc.examples.howtos.responsivedisclosure.responsivedisclosure:InvestmentOrder"/>
-        <class locator="reahl.doc.examples.howtos.responsivedisclosure.responsivedisclosure:Allocation"/>
-        <class locator="reahl.doc.examples.howtos.responsivedisclosure.responsivedisclosure:IDDocument"/>
-        <class locator="reahl.doc.examples.tutorial.dynamiccontent.dynamiccontent:InvestmentOrder"/>
-        <class locator="reahl.doc.examples.tutorial.dynamiccontent.dynamiccontent:Allocation"/>
-       </persisted>
+    <class locator="reahl.doc.examples.features.persistence.persistence:Comment"/>
+    <class locator="reahl.doc.examples.web.fileupload.fileupload:Comment"/>
+    <class locator="reahl.doc.examples.web.fileupload.fileupload:AttachedFile"/>
+    <class locator="reahl.doc.examples.tutorial.test_model2:Address"/>
+    <class locator="reahl.doc.examples.tutorial.addressbook2.addressbook2:Address"/>
+    <class locator="reahl.doc.examples.tutorial.addressbook2bootstrap.addressbook2bootstrap:Address"/>
+    <class locator="reahl.doc.examples.tutorial.addressbook1.addressbook1:Address"/>
+    <class locator="reahl.doc.examples.tutorial.pageflow1.pageflow1:Address"/>
+    <class locator="reahl.doc.examples.tutorial.parameterised1.parameterised1:Address"/>
+    <class locator="reahl.doc.examples.tutorial.parameterised2.parameterised2:Address"/>
+    <class locator="reahl.doc.examples.tutorial.sessionscopebootstrap.sessionscopebootstrap:User"/>
+    <class locator="reahl.doc.examples.tutorial.sessionscopebootstrap.sessionscopebootstrap:LoginSession"/>
+    <class locator="reahl.doc.examples.tutorial.accessbootstrap.accessbootstrap:AddressBook"/>
+    <class locator="reahl.doc.examples.tutorial.accessbootstrap.accessbootstrap:Collaborator"/>
+    <class locator="reahl.doc.examples.tutorial.accessbootstrap.accessbootstrap:Address"/>
+    <class locator="reahl.doc.examples.tutorial.i18nexamplebootstrap.i18nexamplebootstrap:Address"/>
+    <class locator="reahl.doc.examples.tutorial.componentconfigbootstrap.componentconfigbootstrap:Address"/>
+    <class locator="reahl.doc.examples.tutorial.migrationexamplebootstrap.migrationexamplebootstrap:Address"/>
+    <class locator="reahl.doc.examples.tutorial.jobsbootstrap.jobsbootstrap:Address"/>
+    <class locator="reahl.doc.examples.tutorial.tablebootstrap.tablebootstrap:Address"/>
+    <class locator="reahl.doc.examples.tutorial.datatablebootstrap.datatablebootstrap:Address"/>
+    <class locator="reahl.doc.examples.howtos.responsivedisclosure.responsivedisclosure:InvestmentOrder"/>
+    <class locator="reahl.doc.examples.howtos.responsivedisclosure.responsivedisclosure:Allocation"/>
+    <class locator="reahl.doc.examples.howtos.responsivedisclosure.responsivedisclosure:IDDocument"/>
+    <class locator="reahl.doc.examples.tutorial.dynamiccontent.dynamiccontent:InvestmentOrder"/>
+    <class locator="reahl.doc.examples.tutorial.dynamiccontent.dynamiccontent:Allocation"/>
+  </persisted>
 
   <schedule locator="reahl.doc.examples.tutorial.jobsbootstrap.jobsbootstrap:Address.clear_added_flags"/>
 
   <export entrypoint="reahl.component.commands" name="GetExample" locator="reahl.doc.commands:GetExample"/>
   <export entrypoint="reahl.component.commands" name="ListExamples" locator="reahl.doc.commands:ListExamples"/>
 
-  <version number='5.0.0'>
+  <version number="5.0.0">
     <deps purpose="run">
       <egg name="reahl-web" versionlocked="True"/>
       <egg name="reahl-component" versionlocked="True"/>
@@ -77,7 +77,7 @@
     </deps>
   </version>
   
-  <version number='4.0.5'>
+  <version number="4.0.5">
     <deps purpose="run">
       <egg name="reahl-web" versionlocked="True"/>
       <egg name="reahl-component" versionlocked="True"/>
@@ -91,7 +91,7 @@
     </deps>
   </version>
 
-  <version number='3.2.0'>
+  <version number="3.2.0">
     <deps purpose="run">
       <egg name="reahl-web" versionlocked="True"/>
       <egg name="reahl-component" versionlocked="True"/>
@@ -103,7 +103,7 @@
     </deps>
   </version>
 
-  <version number='3.1.1'>
+  <version number="3.1.1">
       <deps purpose="run">
         <egg name="reahl-web" versionlocked="True"/>
         <egg name="reahl-component" versionlocked="True"/>
@@ -114,7 +114,7 @@
       </deps>
   </version>
 
-  <version number='3.0.0'>
+  <version number="3.0.0">
     <deps purpose="run">
         <egg name="reahl-web" versionlocked="True"/>
         <egg name="reahl-component" versionlocked="True"/>
@@ -125,7 +125,7 @@
     </deps>
   </version>
 
-  <version number='2.1.2'>
+  <version number="2.1.2">
       <deps purpose="run">
           <egg name="reahl-web" versionlocked="True"/>
           <egg name="reahl-component" versionlocked="True"/>
@@ -136,7 +136,7 @@
       </deps>
   </version>
 
-  <version number='2.0.2'>
+  <version number="2.0.2">
       <deps purpose="run">
           <egg name="reahl-web" versionlocked="True"/>
           <egg name="reahl-component" versionlocked="True"/>

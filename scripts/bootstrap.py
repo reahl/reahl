@@ -115,14 +115,17 @@ def install_prerequisites(missing):
     return install_with_pip(missing, upgrade=True) == 0
 
 
+def get_common_version():
+    from reahl.dev.devdomain import DebianChangelog
+    return DebianChangelog('debian/changelog').version
+
+
 def make_core_projects_importable(core_project_dirs):
     for d in core_project_dirs:
         project_path = os.path.join(os.getcwd(), d)
         pkg_resources.working_set.add_entry(project_path)
         sys.path.append(project_path)
-    from reahl.dev.devdomain import DebianChangelog
-    common_version = DebianChangelog('debian/changelog').version
- 
+    common_version = get_common_version()
     for egg_dir in egg_dirs_for(core_project_dirs):
         pkg_filename = os.path.join(egg_dir, 'PKG-INFO')
         if not os.path.exists(pkg_filename):
@@ -197,10 +200,10 @@ remove_versions_from_requirements(reahl_dev_requires_file)
 fake_distributions_into_existence(core_project_dirs)
 
 
-
 def parse_prerequisites_from(dot_project_file):
     root = xml.etree.ElementTree.parse(dot_project_file).getroot()
-    for node in root.iter('thirdpartyegg'):
+    deps_for_common_version = root.findall('.//version[@number="%s"]//thirdpartyegg' % get_common_version())
+    for node in deps_for_common_version:
         requirement_string = node.attrib['name']
         min_version = node.attrib.get('minversion', None)
         max_version = node.attrib.get('maxversion', None)

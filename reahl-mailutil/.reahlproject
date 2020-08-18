@@ -5,7 +5,7 @@
   </namespaces>
   
   <deps purpose="build">
-    <thirdpartyegg name="setuptools-git" minversion="1.1" maxversion="1.1.999"/>
+    <thirdpartyegg name="setuptools-git" minversion="1.1"/>
     <thirdpartyegg name="pytest-runner"/>
   </deps>
 
@@ -16,15 +16,15 @@
     <egg name="reahl-stubble"/>
   </deps>
 
-  <version number='5.0.0'>
+  <version number="5.0.0">
       <deps purpose="run">
         <egg name="reahl-component" versionlocked="True"/>
-        <thirdpartyegg name="docutils" minversion="0.14" maxversion="0.14.999"/>
-        <thirdpartyegg name="Pygments" minversion="2.1.0" maxversion="2.1.999"/>
+        <thirdpartyegg name="docutils" minversion="0.14" maxversion="0.16.999"/>
+        <thirdpartyegg name="Pygments" minversion="2.1.0" maxversion="2.6.999"/>
       </deps>
   </version>
 
-  <version number='4.0.5'>
+  <version number="4.0.5">
     <deps purpose="run">
       <egg name="reahl-component" versionlocked="True"/>
       <thirdpartyegg name="docutils" minversion="0.12" maxversion="0.12.999"/>
@@ -32,7 +32,7 @@
     </deps>
   </version>
 
-  <version number='3.2.0'>
+  <version number="3.2.0">
     <deps purpose="run">
       <egg name="reahl-component" versionlocked="True"/>
       <thirdpartyegg name="docutils" minversion="0.12" maxversion="0.12.999"/>
@@ -40,28 +40,28 @@
     </deps>
   </version>
 
-  <version number='3.1.1'>
+  <version number="3.1.1">
     <deps purpose="run">
       <egg name="reahl-component" versionlocked="True"/>
       <thirdpartyegg name="docutils" minversion="0.12" maxversion="0.12.999"/>
     </deps>
   </version>
 
-  <version number='3.0.0'>
+  <version number="3.0.0">
     <deps purpose="run">
       <egg name="reahl-component" versionlocked="True"/>
       <thirdpartyegg name="docutils" minversion="0.12" maxversion="0.12"/>
     </deps>
   </version>
 
-  <version number='2.1.2'>
+  <version number="2.1.2">
       <deps purpose="run">
           <egg name="reahl-component" versionlocked="True"/>
           <thirdpartyegg name="docutils" minversion="0.8" maxversion="0.9"/>
       </deps>
   </version>
 
-  <version number='2.0.2'>
+  <version number="2.0.2">
       <deps purpose="run">
           <egg name="reahl-component" versionlocked="True"/>
           <thirdpartyegg name="docutils" minversion="0.8" maxversion="0.9"/>

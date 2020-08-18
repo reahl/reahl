@@ -41,17 +41,18 @@
 
   <schedule locator="reahl.workflowmodel:DeferredAction.check_deadline"/>
 
-  <version number='5.0.0'>
+  <version number="5.0.0">
     <deps purpose="run">
       <egg name="reahl-component" versionlocked="True"/>
       <egg name="reahl-mailutil" versionlocked="True"/>
       <egg name="reahl-sqlalchemysupport" versionlocked="True"/>
+      <egg name="reahl-web-declarative" versionlocked="True"/>
       <thirdpartyegg name="passlib" minversion="1.7.1" maxversion="1.7.9999"/>
     </deps>
 
   </version>
   
-  <version number='4.0.5'>
+  <version number="4.0.5">
     <deps purpose="run">
       <egg name="reahl-component" versionlocked="True"/>
       <egg name="reahl-mailutil" versionlocked="True"/>
@@ -66,7 +67,7 @@
     </migrations>
   </version>
 
-  <version number='3.2.0'>
+  <version number="3.2.0">
     <deps purpose="run">
       <egg name="reahl-component" versionlocked="True"/>
       <egg name="reahl-mailutil" versionlocked="True"/>
@@ -75,7 +76,7 @@
     </deps>
   </version>
 
-  <version number='3.1.1'>
+  <version number="3.1.1">
     <deps purpose="run">
       <egg name="reahl-component" versionlocked="True"/>
       <egg name="reahl-mailutil" versionlocked="True"/>
@@ -87,7 +88,7 @@
     </migrations>
   </version>
 
-  <version number='3.0.0'>
+  <version number="3.0.0">
     <deps purpose="run">
       <egg name="reahl-component" versionlocked="True"/>
       <egg name="reahl-mailutil" versionlocked="True"/>
@@ -99,7 +100,7 @@
     </migrations>
   </version>
 
-  <version number='2.1.2'>
+  <version number="2.1.2">
     <deps purpose="run">
       <egg name="reahl-component" versionlocked="True"/>
       <egg name="reahl-mailutil" versionlocked="True"/>
@@ -109,7 +110,7 @@
     </deps>
   </version>
 
-  <version number='2.0.2'>
+  <version number="2.0.2">
     <deps purpose="run">
       <egg name="reahl-component" versionlocked="True"/>
       <egg name="reahl-mailutil" versionlocked="True"/>
