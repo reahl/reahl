@@ -18,7 +18,7 @@
 Reahl uses CSS and JavaScript from other projects. The CSS and JavaScript world
 has its own ecosystem of tools that allow you to do various things, for example:
 
- - Compile your own customised CSS using a CSS preprocessor like `Sass <http://sass-lang.com/>`_\.
+ - Compile your own customised CSS using a CSS preprocessor like `Sass <http://sass-lang.com/>`_
  - Manage the versions and interdependencies of such projects.
  - Some code is hosted on Content Delivery Networks (CDNs).
  - Some code is minified.
