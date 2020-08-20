@@ -293,7 +293,7 @@ Updated dependencies
 Some included thirdparty JavaScript and CSS libraries were updated:
 
 - JQuery to 3.5.1
-- Bootstrap to 4.5.0
+- Bootstrap to 4.5.2
 - JQueryUI to 1.12.1 - but our distribution includes *only* the widget factory with :focusable and :tabbable, nothing else.
 - JQuery.validate was updated to 1.19.1 (and patched).
 - JQuery.form to 4.2.2

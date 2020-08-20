@@ -435,9 +435,11 @@ class FormLayout(reahl.web.fw.Layout):
 
     def add_validation_error_to(self, form_group, html_input):
         error_text = form_group.add_child(Span(self.view, text=html_input.validation_error.message))
+        error_text.generate_random_css_id()
         error_text.append_class('invalid-feedback')
         error_text.set_attribute('data-generated-for', html_input.name) # need for our custom bootstrapfileuploadpanel.js
         error_text.set_attribute('generated', 'true')
+        html_input.set_attribute('aria-describedby', error_text.css_id)
         return error_text
 
     def create_help_text_widget(self, help_text):
