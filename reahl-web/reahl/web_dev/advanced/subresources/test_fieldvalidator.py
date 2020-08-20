@@ -31,7 +31,7 @@ class ValidationScenarios(Fixture):
     @scenario
     def valid_field(self):
         # - a field that passes validation
-        self.url = Url('/__some_form_validate_method?field_name=valid@email.org')
+        self.url = Url('/__some_form_validate_method?some_form-field_name=valid@email.org')
         self.expected_body = 'true'
         self.expected_status = '200 OK' 
         self.expected_content_type = 'application/json'
@@ -40,7 +40,7 @@ class ValidationScenarios(Fixture):
     @scenario
     def failing_field(self):
         # - a field that fails one or more? constraints
-        self.url = Url('/__some_form_validate_method?field_name=invalidaddress')
+        self.url = Url('/__some_form_validate_method?some_form-field_name=invalidaddress')
         self.expected_body = '"field_name should be a valid email address"'
         self.expected_status = '200 OK' 
         self.expected_content_type = 'application/json'

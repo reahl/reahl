@@ -23,7 +23,7 @@ What changed in version 5.0
 .. |exposed| replace:: :class:`~reahl.component.modelinterface.exposed`
 .. |FieldIndex| replace:: :class:`~reahl.component.modelinterface.FieldIndex`
 .. |Field| replace:: :class:`~reahl.component.modelinterface.Field`
-.. |with_namespace| replace:: :meth:`~reahl.component.modelinterface.Field.with_namespace`
+.. |with_discriminator| replace:: :meth:`~reahl.component.modelinterface.Field.with_discriminator`
 .. |Layout| replace:: :class:`~reahl.web.fw.Layout`
 .. |HTML5Page| replace:: :class:`~reahl.web.bootstrap.page.HTML5Page`
 .. |ReahlWSGIApplication| replace:: :class:`~reahl.web.fw.ReahlWSGIApplication`
@@ -73,14 +73,12 @@ ButtonInput
 
 Unique input names and IDs
    The name of an |Input| is derived from the name of its |Field|. Previously |Input| names used to be adapted
-   automatically as to prevent name clashes between different |Input|\s on a form. This is no 
+   automatically so as to prevent name clashes between different |Input|\s on a |Form|. This is no 
    longer the case: an Input that has a name clash with another is now explicitly disambiguated by passing 
-   it a |Field| that is placed in a distinct namespace (see |with_namespace|).
+   it a |Field| with a modified name (see |with_descriminator|).
 
-   Every Input now also is generated with an ID that is unique on the page.
-
-   All distinct |Field|\s on a page also have to have distinct names. |with_namespace| is used to disambiguate
-   different |Field|\s with the name as well.
+   Every Input is also now generated with a name and an ID that include the |Form|\'s ID and hence are both 
+   unique on the entire page.
 
 Changes to nested_transaction
    |nested_transaction| used to yield the transaction object. It now yields a |TransactionVeto| object which

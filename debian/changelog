@@ -21,7 +21,7 @@ python-reahl (5.0.0a1) unstable; urgency=low
  * Changed Table and Column to allow for table footer content in Columns.
  * Changed the names of Inputs to include their form names so they can be unique in JS state (#154).
  * Added unique IDs to all HTML input controls (#154).
- * Added Field.with_namespace() (and removed name kwarg to PrimitiveInputs) for distinguishing same-named inputs.
+ * Added Field.with_discriminator (and removed name kwarg to PrimitiveInputs) for distinguishing same-named inputs.
  * Removed the in_production kwarg for StoredConfiguration (#174). Rather use strict_checking.
  * Moved reahl.web.bootstrap.ui.HTML5Page to reahl.web.bootstrap.page to resolve dependency issues.
  * Added a way to render customised error pages.

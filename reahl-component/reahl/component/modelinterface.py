@@ -677,7 +677,14 @@ class InputParseException(Exception):
 class ExpectedInputNotFound(Exception):
     def __init__(self, input_name, searched_inputs):
         super().__init__('Expected to find %s in %s' % (input_name, str(searched_inputs)))
-    
+
+class FieldData:
+    def __init__(self):
+        self.initial_value = None
+        self.input_status = None
+        self.validation_error = None
+        self.user_input = None
+        self.parsed_input = None
        
 class Field:
     """A Field represents something which can be input by a User.
@@ -717,7 +724,7 @@ class Field:
                  readable=None, writable=None, disallowed_message=None,
                  min_length=None, max_length=None):
         self._name = None
-        self.namespace = ''
+        self.namespace = []
         self.storage_object = None
         self.default = default
         self.label = label or ''
@@ -730,29 +737,33 @@ class Field:
             self.add_validation_constraint(MinLengthConstraint(min_length))
         if max_length:
             self.add_validation_constraint(MaxLengthConstraint(max_length))
-        self.initial_value = None
-        self.has_changed_model = False
-        self.initial_value_store = {}
+        self.data = FieldData()
         self.clear_user_input()
 
-    def set_namespace(self, namespace):
-        self.namespace = namespace
+    def get_data(name, self):
+        return getattr(self.data, name)
+    def set_data(name, self, value):
+        return setattr(self.data, name, value)
 
-    def activate_initial_value_store(self, initial_value_store):
-        self.initial_value_store = initial_value_store
-        self.restore_initial_value()
+    initial_value = property(functools.partial(get_data, 'initial_value'), functools.partial(set_data, 'initial_value'))
+    input_status = property(functools.partial(get_data, 'input_status'), functools.partial(set_data, 'input_status'))
+    validation_error = property(functools.partial(get_data, 'validation_error'), functools.partial(set_data, 'validation_error'))
+    user_input = property(functools.partial(get_data, 'user_input'), functools.partial(set_data, 'user_input'))
+    parsed_input = property(functools.partial(get_data, 'parsed_input'), functools.partial(set_data, 'parsed_input'))
 
-    def save_initial_value(self):
-        self.initial_value_store[self.name_in_input] = self.initial_value
+    def push_namespace(self, namespace):
+        self.namespace.append(namespace)
 
-    def restore_initial_value(self):
+    def pop_namespace(self):
+        self.namespace.pop()
+
+    def activate_global_field_data_store(self, global_field_data_store):
         try:
-            self.initial_value = self.initial_value_store[self.name_in_input]
+            self.data = global_field_data_store[self.name_in_input]
         except KeyError:
-            pass
-        else:
-            self.has_changed_model = True
-        
+            global_field_data_store[self.name_in_input] = self.data
+            self.initial_value = self.get_model_value()
+
     def validate_default(self):
         unparsed_input = self.as_input()
         self.validate_input(unparsed_input, ignore=AccessRightsConstraint)
@@ -803,6 +814,8 @@ class Field:
         new_version = copy.copy(self)
         new_version.validation_constraints = self.validation_constraints.copy_for_field(new_version)
         new_version.access_rights = self.access_rights.copy()
+        new_version.namespace = self.namespace.copy()
+        new_version.data = copy.copy(self.data)
         return new_version
 
     def unbound_copy(self):
@@ -842,16 +855,28 @@ class Field:
         new_version.label = label
         return new_version
 
-    def with_namespace(self, namespace):
+    def with_discriminator(self, discriminator):
         """Returns a new Field which is exactly like this one, except that its name is mangled to 
            include the given text as to prevent name clashes.
 
         .. versionadded:: 5.0
         """
         new_field = self.copy()
-        new_field.set_namespace(namespace)
+        new_field.push_namespace(discriminator)
         return new_field
 
+    def in_namespace(self, namespace):
+        new_field = self.copy()
+        new_field.push_namespace(namespace)
+        new_field.data = self.data
+        return new_field
+
+    def out_of_namespace(self):
+        new_field = self.copy()
+        new_field.pop_namespace()
+        new_field.data = self.data
+        return new_field
+        
     def clear_user_input(self):
         self.input_status = 'defaulted'
         self.validation_error = None
@@ -910,7 +935,7 @@ class Field:
     def name(self):
         if not self._name:
             raise AssertionError('field %s with label "%s" is not yet bound' % (self, self.label))
-        return '-'.join([i for i in [self.namespace, self._name] if i])
+        return '-'.join(reversed([self._name] + self.namespace))
 
     @property
     def variable_name(self):
@@ -929,10 +954,6 @@ class Field:
         return getattr(self.storage_object, self.variable_name, self.default)
         
     def set_model_value(self):
-        if not self.has_changed_model:
-            self.initial_value = self.get_model_value()
-            self.has_changed_model = True
-            self.save_initial_value()
         setattr(self.storage_object, self.variable_name, self.parsed_input)
 
     def validate_input(self, unparsed_input, ignore=None):
@@ -1100,7 +1121,7 @@ class Event(Field):
        :keyword readable: (See :class:`Field`)
        :keyword writable: (See :class:`Field`)
        :keyword disallowed_message: (See :class:`Field`)
-       :keyword event_argument_fields: Keyword arguments given in order to specify the names of the arguments 
+       :keyword event_argument_fields: Keyword arguments given in order to specify the names of the auirguments 
                         this Event should have. The value to each keyword argument is a Field
                         governing input to that Event argument.
     """
@@ -1151,7 +1172,7 @@ class Event(Field):
 
     def copy(self):
         new_field = super().copy()
-        new_field.bind(new_field.name, new_field)
+        new_field.bind(new_field._name, new_field)
         return new_field
     
     def with_arguments(self, **event_arguments):

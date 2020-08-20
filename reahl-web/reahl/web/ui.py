@@ -1030,9 +1030,8 @@ class ConcurrentChange(ValidationConstraint):
     def validate_input(self, unparsed_input):
         if unparsed_input != self.form.get_concurrency_hash_digest():
             self.failed = True
-            #xxxxx
-#            from string import Template
-#            self.error_message = Template('Failing concurrency check: [%s] != [%s]' % (unparsed_input, self.form.get_concurrency_hash_digest()))
+            if ExecutionContext.get_context().config.web.debug_concurrency_hash:
+                self.error_message = Template('Failing concurrency check: submitted[%s] != calculated[%s]' % (unparsed_input, self.form.get_concurrency_hash_digest()))
             raise self
 
 
@@ -1079,8 +1078,7 @@ class Form(HTMLElement):
                 attributes.set_to('value', digest)
 
         self.hash_inputs = self.add_child(Div(self.view, css_id='%s_hashes' % unique_name))
-
-        self.database_digest_input = self.hash_inputs.add_child(HiddenInput(self, self.fields._reahl_database_concurrency_digest.with_namespace(unique_name), ignore_concurrent_change=True))
+        self.database_digest_input = self.hash_inputs.add_child(HiddenInput(self, self.fields._reahl_database_concurrency_digest, ignore_concurrent_change=True))
         # the digest input will have a value when:
         #  (1) you're busy with an ajax call, after being internally redirected (because AjaxMethod.fire_ajax_event will have inputted the browser value); or
         #  (2) you're busy submitting and you saved its value because of an validation exception (and prepare_input read the value from saved inputs due to the exception)
@@ -1551,15 +1549,8 @@ class Input(HTMLWidget):
         return self.bound_field.as_user_input_value(self.get_input_status())
 
     @property
-    def original_value(self):
-        return self.bound_field.as_user_input_value('defaulted')
-
-    @property
     def original_database_value(self):
-        if self.bound_field.has_changed_model:
-            return self.bound_field.get_initial_value_as_user_input()
-        else:
-            return self.original_value
+        return self.bound_field.get_initial_value_as_user_input()
 
     def get_input_status(self):
         return self.bound_field.input_status
@@ -1611,7 +1602,7 @@ class PrimitiveInput(Input):
     is_contained = False
 
     def __init__(self, form, bound_field, registers_with_form=True, refresh_widget=None, ignore_concurrent_change=False):
-        super().__init__(form, bound_field)
+        super().__init__(form, bound_field.in_namespace(form.channel_name) if registers_with_form else bound_field)
 
         self.ignore_concurrent_change = ignore_concurrent_change
 
@@ -1636,7 +1627,7 @@ class PrimitiveInput(Input):
             self.set_attribute('data-refresh-widget-id', self.refresh_widget.css_id)
 
     def make_html_control_css_id(self):
-        return str(CssId.from_dirty_string('id-%s-%s' % (self.channel_name, self.name)))
+        return str(CssId.from_dirty_string('id-%s' % (self.name)))
 
     def add_input_data_attributes(self):
         if isinstance(self.bound_field, BooleanField):
@@ -1653,11 +1644,10 @@ class PrimitiveInput(Input):
 
     def get_concurrency_hash_strings(self):
         if not self.ignore_concurrent_change:
-            yield self.original_database_value
-
-    def xxxget_concurrency_hash_strings(self):
-        if not self.ignore_concurrent_change:
-            yield '%s[%s]' % (self.name, self.original_database_value)
+            if ExecutionContext.get_context().config.web.debug_concurrency_hash:
+                yield '%s[%s]' % (self.name, self.original_database_value)
+            else:
+                yield self.original_database_value
 
     @property
     def html_control(self):
@@ -1734,8 +1724,8 @@ class PrimitiveInput(Input):
         return self.form.persisted_userinput_class
 
     def prepare_input(self):
-        value_store = ExecutionContext.get_context().initial_field_values = getattr(ExecutionContext.get_context(), 'initial_field_values', {})
-        self.bound_field.activate_initial_value_store(value_store)
+        field_data_store = ExecutionContext.get_context().global_field_values = getattr(ExecutionContext.get_context(), 'global_field_values', {})
+        self.bound_field.activate_global_field_data_store(field_data_store)
         
         construction_state = self.view.get_construction_state()
         if construction_state:
@@ -1858,7 +1848,7 @@ class ContainedInput(PrimitiveInput):
         super().__init__(containing_input.form, choice.field, registers_with_form=False, refresh_widget=refresh_widget)
 
     def make_html_control_css_id(self):
-        return str(CssId.from_dirty_string('id-%s-%s-%s' % (self.channel_name, self.containing_input.name, self.value)))
+        return str(CssId.from_dirty_string('id-%s-%s' % (self.containing_input.name, self.value)))
 
     def get_input_status(self):
         return 'defaulted'
@@ -2326,7 +2316,7 @@ class ButtonInput(PrimitiveInput):
 
     def get_ocurred_event(self):
         if self.bound_field.occurred:
-            return self.bound_field
+            return self.bound_field.out_of_namespace()
         return None
 
     def create_html_widget(self):

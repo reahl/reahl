@@ -137,7 +137,7 @@ def test_adding_basic_input(web_fixture, form_layout_fixture):
 
     # form-group has an input, correctly set up for bootstrap
     assert input_widget.tag == 'input'
-    assert input_widget.attrib['name'] == 'an_attribute'
+    assert input_widget.attrib['name'] == 'aform-an_attribute'
 
 
 @with_fixtures(WebFixture, FormLayoutFixture)

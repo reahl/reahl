@@ -72,6 +72,8 @@ class WebConfig(Configuration):
                                       description='The time in seconds after which a user session will be considered idle - "forever" setting')
     idle_secure_lifetime = ConfigSetting(default=60*60,
                                          description='The time in seconds after which a secure session will be considered expired')
+    debug_concurrency_hash = ConfigSetting(default=False,
+                                   description='If True, replaces the concurrency hash with a long string indicating the values used in calculating the hash')
                                        
     @property
     def secure_key_name(self):
