@@ -190,7 +190,7 @@ def test_invalid_schedule_name_raises():
     valid_schedule_names = ['a', 'b']
     migration_schedule = MigrationSchedule(*valid_schedule_names)
 
-    with expected(ProgrammerError, test='A phase with name<wrong_name> does not exist\.'):
+    with expected(ProgrammerError, test=r'A phase with name<wrong_name> does not exist\.'):
         migration_schedule.schedule('wrong_name', None)
 
 
@@ -232,7 +232,7 @@ def test_version_of_migration_not_set_error(migrate_fixture):
     egg = ReahlEggStub('my_egg', '1.0', [TestMigration])
     migrate_fixture.orm_control.set_currently_installed_version_for(egg, '0.0')
 
-    with expected(ProgrammerError, test='Migration <class \'reahl\.component_dev\.test_migration\..*TestMigration\'> does not have a version set'):
+    with expected(ProgrammerError, test=r'Migration <class \'reahl\.component_dev\.test_migration\..*TestMigration\'> does not have a version set'):
         migrate_fixture.orm_control.migrate_db([egg])
 
 
