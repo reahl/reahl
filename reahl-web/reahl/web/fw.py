@@ -1247,19 +1247,15 @@ class Widget:
     def check_form_related_programmer_errors(self):
         inputs = []
         forms = []
-        unique_fields = set()
 
         for widget in itertools.chain([self], self.contained_widgets()):
             if widget.is_Form:
                 forms.append(widget)
             elif widget.is_Input:
                 inputs.append(widget)
-                if not getattr(widget, 'is_contained', False) and not isinstance(widget.bound_field, Event):
-                    unique_fields.add(widget.bound_field)
 
         self.check_forms_unique(forms)
         self.check_all_inputs_forms_exist(forms, inputs)
-        self.check_fields_uniquely_named(unique_fields)
 
     def check_all_inputs_forms_exist(self, forms_found_on_page, inputs_on_page):
         for i in inputs_on_page:
@@ -1277,16 +1273,6 @@ class Widget:
                 existing_form = checked_forms[form.css_id]
                 message = 'More than one form was added using the same unique_name: %s and %s' % (form, existing_form)
                 raise ProgrammerError(message)
-
-    def check_fields_uniquely_named(self, fields):
-        names = {}
-        for i in fields:
-            names.setdefault(i.name, []).append(i)
-        
-        problem_names = {name:fields_for_name for name, fields_for_name in names.items()
-                         if len(fields_for_name) > 1}
-        if problem_names:
-            raise ProgrammerError('There is more than one Field with the same name on this page: %s' % problem_names)
 
     def plug_in(self, view):
         self.check_slots(view)

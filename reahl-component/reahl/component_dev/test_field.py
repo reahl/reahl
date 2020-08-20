@@ -239,6 +239,90 @@ def test_getting_modified_copy(fixture):
     assert differently_labelled_field.label == 'new label'
     
 
+def test_global_state():
+    """A Field can store its data in a global dict so that it can be recreated later with the same underlying data."""
+    ExecutionContext().install()
+    state_dict = {}
+    a = Field()
+    a.bind('x', a)
+
+    a.input_status = EmptyStub()
+    a.validation_error = EmptyStub()
+    a.user_input = EmptyStub()
+    a.parsed_input = EmptyStub()
+
+    a.activate_global_field_data_store(state_dict)
+
+    a.initial_value = EmptyStub()
+
+    b = Field()
+    b.bind('x', b)
+
+    assert a.initial_value is not b.initial_value
+    assert a.input_status  is not b.input_status
+    assert a.validation_error is not b.validation_error
+    assert a.user_input  is not b.user_input
+    assert a.parsed_input is not b.parsed_input
+
+    b.activate_global_field_data_store(state_dict)
+
+    assert a.initial_value is b.initial_value
+    assert a.input_status  is b.input_status
+    assert a.validation_error is b.validation_error
+    assert a.user_input  is b.user_input
+    assert a.parsed_input is b.parsed_input
+
+
+def test_when_initial_value_is_read():
+    """The initial_value of a Field is set upon first activate_global_field_data_store"""
+    ExecutionContext().install()
+    state_dict = {}
+    a = Field()
+    a.bind('x', a)
+    a.x = 'initial value for a'
+
+    assert not a.initial_value
+
+    a.activate_global_field_data_store(state_dict)
+
+    assert a.initial_value == a.x
+
+    a.x = 'changed value'
+    a.activate_global_field_data_store(state_dict)
+
+    assert a.initial_value != a.x
+
+
+def test_namespaces():
+    ExecutionContext().install()
+    state_dict = {}
+    a = Field()
+    a.bind('x', a)
+
+    # Case: namespaces change the name of the Field
+    b = a.in_namespace('deeper')
+
+    assert a.name == 'x'
+    assert b.name == 'deeper-x'
+
+    # Case: namespaces can be nested 
+    c = b.in_namespace('even')
+    assert c.name == 'even-deeper-x'
+
+    # Case: a Field *in* different namespace, but made from another share the same data
+    a.initial_value = EmptyStub()
+    a.input_status = EmptyStub()
+    a.validation_error = EmptyStub()
+    a.user_input = EmptyStub()
+    a.parsed_input = EmptyStub()
+
+    assert a.initial_value is b.initial_value is c.initial_value
+    assert a.input_status  is b.input_status is c.input_status
+    assert a.validation_error is b.validation_error is c.validation_error
+    assert a.user_input  is b.user_input is c.user_input
+    assert a.parsed_input is b.parsed_input is c.parsed_input
+
+
 @with_fixtures(FieldFixture)
 def test_helpers_for_fields(fixture):
     """The @exposed decorator makes it simpler to bind Fields to an object."""

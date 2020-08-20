@@ -27,9 +27,9 @@ jQuery.validator.addMethod("equalTo2", function(value, element, param) {
     // Bind to the blur event of the target in order to revalidate whenever the target field is updated
     var target = null;
     if (element.form && element.form.elements) {
-        target = $($(element.form.elements).filter("input[name='"+param+"']")[0]);
+        target = $($(element.form.elements).filter("input[name='"+$(element.form).attr('id')+"-"+param+"']")[0]);
     } else {
-        target = $(element).closest("form").find("input[name='"+param+"']");
+        target = $(element).closest("form").find("input[name='"+$(element.form).attr('id')+"-"+param+"']");
     }
     if ( this.settings.onfocusout && target.not( ".validate-equalTo-blur" ).length ) {
         target.addClass( "validate-equalTo-blur" ).on( "blur.validate-equalTo", function() {

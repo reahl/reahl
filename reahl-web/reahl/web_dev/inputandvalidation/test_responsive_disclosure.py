@@ -256,7 +256,7 @@ def test_overridden_names(web_fixture, query_string_fixture, responsive_disclosu
     fixture.ModelObject = ModelObject
 
     def create_trigger_input(form, an_object):
-        the_input = CheckboxSelectInput(form, an_object.fields.choice.in_namespace('first'), refresh_widget=form)
+        the_input = CheckboxSelectInput(form, an_object.fields.choice.with_discriminator('first'), refresh_widget=form)
         the_input.set_id('marvin')
         return the_input
     fixture.create_trigger_input = create_trigger_input
@@ -274,7 +274,7 @@ def test_overridden_names(web_fixture, query_string_fixture, responsive_disclosu
     browser = web_fixture.driver_browser
     browser.open('/')
 
-    browser.click('//input[@name="first-choice[]" and @value="3"]')
+    browser.click('//input[@name="myform-first-choice[]" and @value="3"]')
     assert browser.wait_for(query_string_fixture.is_state_now, [1,3])
 
 
@@ -1098,7 +1098,7 @@ def test_invalid_trigger_inputs(web_fixture, query_string_fixture, sql_alchemy_f
         assert browser.wait_for(query_string_fixture.is_state_labelled_now, 'My calculated state', '5')
 
         # Case: Entering an invalid value does not trigger a refresh of the input doing the triggering
-        with web_fixture.driver_browser.no_load_expected_for('input[name="choice"]'):
+        with web_fixture.driver_browser.no_load_expected_for('input[name="myform-choice"]'):
             browser.type(XPath.input_labelled('Choice'), 'invalid value')
 
         # Case: Entering an valid value in a different trigger, triggers a refresh, but last valid value of choice is used
@@ -1192,3 +1192,8 @@ def test_invalid_non_trigger_input_corner_case(web_fixture, query_string_fixture
         assert browser.is_element_present(XPath.paragraph().including_text('An exception happened on submit'))
         assert browser.is_element_value(XPath.input_labelled('Choice3'), '8')
 
+
+# TODO: What about when you have multiple Forms on a page, with an input on both Forms that uses a Field bound to the same name on the same domain object?
+#       Upon Ajax, all form inputs are submitted, not just one. It may be that their processing is ordered such that the one that never refreshes always happens last.
+#       Because it happens last, it always overwrites the value to the old non-refreshed value and nothing ever changes?
+#       One idea: first accept_input for all inputs outside of the widget being refreshed. Then the inputs in that Widget. Then the actual input which triggered the change. ?

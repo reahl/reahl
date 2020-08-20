@@ -70,7 +70,7 @@ class AllocationDetailForm(Form):
 
     def make_allocation_input(self, allocation, field):
         div = Div(self.view).use_layout(FormLayout())
-        div.layout.add_input(TextInput(self, field.in_namespace(allocation.fund_code), refresh_widget=self), hide_label=True)
+        div.layout.add_input(TextInput(self, field.with_discriminator(allocation.fund_code), refresh_widget=self), hide_label=True)
         return div
 
     def make_total_widget(self, total_value):

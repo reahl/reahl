@@ -855,17 +855,28 @@ class Field:
         new_version.label = label
         return new_version
 
-    def in_namespace(self, namespace):
-        """Returns a new Field which shares this one's underlying data, but its name is mangled to 
+    def with_discriminator(self, discriminator):
+        """Returns a new Field which is exactly like this one, except that its name is mangled to 
            include the given text as to prevent name clashes.
 
         .. versionadded:: 5.0
         """
         new_field = self.copy()
+        new_field.push_namespace(discriminator)
+        return new_field
+
+    def in_namespace(self, namespace):
+        new_field = self.copy()
         new_field.push_namespace(namespace)
         new_field.data = self.data
         return new_field
 
+    def out_of_namespace(self):
+        new_field = self.copy()
+        new_field.pop_namespace()
+        new_field.data = self.data
+        return new_field
+        
     def clear_user_input(self):
         self.input_status = 'defaulted'
         self.validation_error = None
@@ -924,7 +935,7 @@ class Field:
     def name(self):
         if not self._name:
             raise AssertionError('field %s with label "%s" is not yet bound' % (self, self.label))
-        return '-'.join(self.namespace + [self._name])
+        return '-'.join(reversed([self._name] + self.namespace))
 
     @property
     def variable_name(self):

@@ -1078,8 +1078,7 @@ class Form(HTMLElement):
                 attributes.set_to('value', digest)
 
         self.hash_inputs = self.add_child(Div(self.view, css_id='%s_hashes' % unique_name))
-
-        self.database_digest_input = self.hash_inputs.add_child(HiddenInput(self, self.fields._reahl_database_concurrency_digest.in_namespace(unique_name), ignore_concurrent_change=True))
+        self.database_digest_input = self.hash_inputs.add_child(HiddenInput(self, self.fields._reahl_database_concurrency_digest, ignore_concurrent_change=True))
         # the digest input will have a value when:
         #  (1) you're busy with an ajax call, after being internally redirected (because AjaxMethod.fire_ajax_event will have inputted the browser value); or
         #  (2) you're busy submitting and you saved its value because of an validation exception (and prepare_input read the value from saved inputs due to the exception)
@@ -1603,7 +1602,7 @@ class PrimitiveInput(Input):
     is_contained = False
 
     def __init__(self, form, bound_field, registers_with_form=True, refresh_widget=None, ignore_concurrent_change=False):
-        super().__init__(form, bound_field)
+        super().__init__(form, bound_field.in_namespace(form.channel_name) if registers_with_form else bound_field)
 
         self.ignore_concurrent_change = ignore_concurrent_change
 
@@ -1628,7 +1627,7 @@ class PrimitiveInput(Input):
             self.set_attribute('data-refresh-widget-id', self.refresh_widget.css_id)
 
     def make_html_control_css_id(self):
-        return str(CssId.from_dirty_string('id-%s-%s' % (self.channel_name, self.name)))
+        return str(CssId.from_dirty_string('id-%s' % (self.name)))
 
     def add_input_data_attributes(self):
         if isinstance(self.bound_field, BooleanField):
@@ -1849,7 +1848,7 @@ class ContainedInput(PrimitiveInput):
         super().__init__(containing_input.form, choice.field, registers_with_form=False, refresh_widget=refresh_widget)
 
     def make_html_control_css_id(self):
-        return str(CssId.from_dirty_string('id-%s-%s-%s' % (self.channel_name, self.containing_input.name, self.value)))
+        return str(CssId.from_dirty_string('id-%s-%s' % (self.containing_input.name, self.value)))
 
     def get_input_status(self):
         return 'defaulted'
@@ -2317,7 +2316,7 @@ class ButtonInput(PrimitiveInput):
 
     def get_ocurred_event(self):
         if self.bound_field.occurred:
-            return self.bound_field
+            return self.bound_field.out_of_namespace()
         return None
 
     def create_html_widget(self):
