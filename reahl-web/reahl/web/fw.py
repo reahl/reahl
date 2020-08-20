@@ -1035,6 +1035,9 @@ class Widget:
         if not self.visible:
             return ''
 
+        if ExecutionContext.get_context().config.web.debug_concurrency_hash:
+            return self.get_concurrency_hash_digest_debug()
+
         concurrency_hash = hashlib.md5()
         is_empty = True
         for value in self.get_concurrency_hash_strings():
@@ -1046,10 +1049,7 @@ class Widget:
             concurrency_hash.update(str(self.disabled).encode('utf-8'))
             return concurrency_hash.hexdigest()
 
-    def xxget_concurrency_hash_digest(self):
-        if not self.visible:
-            return ''
-
+    def get_concurrency_hash_digest_debug(self):
         concurrency_hash = self.get_concurrency_hash_strings()
 
         if not concurrency_hash:

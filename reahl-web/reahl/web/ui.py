@@ -1030,9 +1030,8 @@ class ConcurrentChange(ValidationConstraint):
     def validate_input(self, unparsed_input):
         if unparsed_input != self.form.get_concurrency_hash_digest():
             self.failed = True
-            #xxxxx
-#            from string import Template
-#            self.error_message = Template('Failing concurrency check: [%s] != [%s]' % (unparsed_input, self.form.get_concurrency_hash_digest()))
+            if ExecutionContext.get_context().config.web.debug_concurrency_hash:
+                self.error_message = Template('Failing concurrency check: submitted[%s] != calculated[%s]' % (unparsed_input, self.form.get_concurrency_hash_digest()))
             raise self
 
 
@@ -1646,11 +1645,10 @@ class PrimitiveInput(Input):
 
     def get_concurrency_hash_strings(self):
         if not self.ignore_concurrent_change:
-            yield self.original_database_value
-
-    def xxxget_concurrency_hash_strings(self):
-        if not self.ignore_concurrent_change:
-            yield '%s[%s]' % (self.name, self.original_database_value)
+            if ExecutionContext.get_context().config.web.debug_concurrency_hash:
+                yield '%s[%s]' % (self.name, self.original_database_value)
+            else:
+                yield self.original_database_value
 
     @property
     def html_control(self):
@@ -1727,7 +1725,7 @@ class PrimitiveInput(Input):
         return self.form.persisted_userinput_class
 
     def prepare_input(self):
-        field_data_store = ExecutionContext.get_context().initial_field_values = getattr(ExecutionContext.get_context(), 'global_field_values', {})
+        field_data_store = ExecutionContext.get_context().global_field_values = getattr(ExecutionContext.get_context(), 'global_field_values', {})
         self.bound_field.activate_global_field_data_store(field_data_store)
         
         construction_state = self.view.get_construction_state()
