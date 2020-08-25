@@ -65,7 +65,7 @@ def test_default_behaviour(web_fixture, popup_a_fixture):
     browser.wait_for(popup_a_fixture.is_popped_up)
 
     #check some bootstrap attributes
-    dialog_xpath = "//div[@class='modal fade show' and @tabindex='-1' and @role='dialog']/div[@class='modal-dialog']/div[@class='modal-content']"
+    dialog_xpath = "//div[@class='modal fade show' and @tabindex='-1']/div[@class='modal-dialog']/div[@class='modal-content']"
     assert browser.is_element_present(dialog_xpath)
 
     browser.click(XPath.button_labelled('Close'))
@@ -153,5 +153,5 @@ def test_centering_dialog_vertically(web_fixture, popup_a_fixture):
     browser.click(XPath.link().with_text('Home page'))
     browser.wait_for(popup_a_fixture.is_popped_up)
 
-    dialog_xpath = "//div[@class='modal fade show' and @tabindex='-1' and @role='dialog']/div[@class='modal-dialog modal-dialog-centered']/div[@class='modal-content']"
+    dialog_xpath = "//div[@class='modal fade show' and @tabindex='-1']/div[@class='modal-dialog modal-dialog-centered']/div[@class='modal-content']"
     assert browser.is_element_present(dialog_xpath)

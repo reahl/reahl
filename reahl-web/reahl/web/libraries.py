@@ -18,7 +18,7 @@
 Reahl uses CSS and JavaScript from other projects. The CSS and JavaScript world
 has its own ecosystem of tools that allow you to do various things, for example:
 
- - Compile your own customised CSS using a CSS preprocessor like `Sass <http://sass-lang.com/>`_\.
+ - Compile your own customised CSS using a CSS preprocessor like `Sass <http://sass-lang.com/>`_
  - Manage the versions and interdependencies of such projects.
  - Some code is hosted on Content Delivery Networks (CDNs).
  - Some code is minified.
@@ -271,20 +271,20 @@ class Holder(Library):
 
 
 class Bootstrap4(Library):
-    """Version 4.5.0 of `Bootstrap <http://getbootstrap.com/>`_.
+    """Version 4.5.2 of `Bootstrap <http://getbootstrap.com/>`_.
     """
     def __init__(self):
         super().__init__('bootstrap4')
         self.shipped_in_directory = 'reahl/web/static'
         self.files = [
-                      'bootstrap-4.5.0/css/bootstrap.css',
-                      'bootstrap-4.5.0/css/reahl-patch.css',
-                      'bootstrap-4.5.0/css/bootstrap.css.map',
-                      # 'bootstrap-4.5.0/css/bootstrap-grid.css',
-                      # 'bootstrap-4.5.0/css/bootstrap-grid.css.map',
-                      # 'bootstrap-4.5.0/css/bootstrap-reboot.css',
-                      # 'bootstrap-4.5.0/css/bootstrap-reboot.css.map',
-                      'bootstrap-4.5.0/js/bootstrap.js'
+                      'bootstrap-4.5.2/css/bootstrap.css',
+                      'bootstrap-4.5.2/css/reahl-patch.css',
+                      'bootstrap-4.5.2/css/bootstrap.css.map',
+                      # 'bootstrap-4.5.2/css/bootstrap-grid.css',
+                      # 'bootstrap-4.5.2/css/bootstrap-grid.css.map',
+                      # 'bootstrap-4.5.2/css/bootstrap-reboot.css',
+                      # 'bootstrap-4.5.2/css/bootstrap-reboot.css.map',
+                      'bootstrap-4.5.2/js/bootstrap.js'
                       ]
 
 

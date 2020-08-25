@@ -81,7 +81,7 @@ def test_rendering_of_constraints(web_fixture, constraint_rendering_fixture):
     tester = WidgetTester(fixture.input)
 
     actual = tester.render_html()
-    expected_html = '''<input name="an_attribute" id="id-test-an_attribute" data-msg-one="validation_constraint 1 message" data-msg-two="validation_constraint 2 message with apostrophe&#x27;s and quotes&quot;" data-rule-one="true" data-rule-two="a parameter" form="test" type="inputtype" value="field value" class="reahl-primitiveinput">'''
+    expected_html = '''<input name="test-an_attribute" id="id-test-an_attribute" data-msg-one="validation_constraint 1 message" data-msg-two="validation_constraint 2 message with apostrophe&#x27;s and quotes&quot;" data-rule-one="true" data-rule-two="a parameter" form="test" type="inputtype" value="field value" class="reahl-primitiveinput">'''
     assert actual == expected_html
 
 

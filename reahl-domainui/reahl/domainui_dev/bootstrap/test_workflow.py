@@ -29,7 +29,7 @@ from reahl.domainui.bootstrap.accounts import AccountUI
 from reahl.domainuiegg import DomainUiConfig
 from reahl.domainui_dev.fixtures import BookmarkStub
 
-from reahl.webdev.tools import Browser
+from reahl.webdev.tools import Browser, XPath
 
 from reahl.web.fw import UserInterface, Url
 from reahl.web.layout import PageLayout
@@ -107,9 +107,9 @@ def test_detour_to_login(web_fixture, party_account_fixture, workflow_web_fixtur
 
     browser.open('/inbox/')
     assert browser.current_url.path == '/accounts/login'
-    browser.type('//input[@name="email"]', party_account_fixture.system_account.email)
-    browser.type('//input[@name="password"]', party_account_fixture.system_account.password)
-    browser.click('//input[@value="Log in"]')
+    browser.type(XPath.input_labelled('Email'), party_account_fixture.system_account.email)
+    browser.type(XPath.input_labelled('Password'), party_account_fixture.system_account.password)
+    browser.click(XPath.button_labelled('Log in'))
     assert browser.current_url.path == '/inbox/'
 
 
@@ -120,10 +120,10 @@ def test_take_and_release_task(web_fixture, task_queue_fixture, workflow_web_fix
     browser = Browser(fixture.wsgi_app)
     task = task_queue_fixture.task
 
-    take_task_button = '//input[@value="Take"]'
-    defer_task_button = '//input[@value="Defer"]'
-    release_task_button = '//input[@value="Release"]'
-    go_to_task_button = '//input[@value="Go to"]'
+    take_task_button = XPath.button_labelled('Take')
+    defer_task_button = XPath.button_labelled('Defer')
+    release_task_button = XPath.button_labelled('Release')
+    go_to_task_button = XPath.button_labelled('Go to')
 
     web_fixture.log_in(browser=browser)
     browser.open('/inbox/')

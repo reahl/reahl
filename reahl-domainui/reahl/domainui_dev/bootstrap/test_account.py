@@ -21,7 +21,7 @@ from reahl.tofu.pytestsupport import with_fixtures
 from reahl.sqlalchemysupport import Session
 from reahl.web.fw import Url, UserInterface
 from reahl.web.layout import PageLayout
-from reahl.webdev.tools import Browser
+from reahl.webdev.tools import Browser, XPath
 from reahl.web.bootstrap.page import HTML5Page
 from reahl.web.bootstrap.grid import ResponsiveSize, ColumnLayout, ColumnOptions, Container
 from reahl.domain.systemaccountmodel import VerifyEmailRequest, NewPasswordRequest, ActivateAccount
@@ -73,19 +73,19 @@ def test_login_with_detour(web_fixture, party_account_fixture, accounts_web_fixt
 
     account = party_account_fixture.system_account
 
-    fixture.browser.open('/a_ui/register?a=b&name=kitty')
+    fixture.browser.open('/a_ui/register?a=b&login_form-name=kitty')
     assert fixture.browser.current_url.path == '/a_ui/register'
-    assert fixture.browser.current_url.query == 'a=b&name=kitty'
+    assert fixture.browser.current_url.query == 'a=b&login_form-name=kitty'
 
     fixture.browser.open(str(fixture.new_login_bookmark(request=fixture.browser.last_request).href))
     fixture.browser.click('//a[text()="Forgot your password?"]')
     fixture.browser.go_back()
-    fixture.browser.type('//input[@name="email"]', account.email)
-    fixture.browser.type('//input[@name="password"]', account.password)
-    fixture.browser.click('//input[@value="Log in"]')
+    fixture.browser.type(XPath.input_labelled('Email'), account.email)
+    fixture.browser.type(XPath.input_labelled('Password'), account.password)
+    fixture.browser.click(XPath.button_labelled('Log in'))
 
     assert fixture.browser.current_url.path == '/a_ui/register'
-    assert fixture.browser.current_url.query == 'a=b&name=kitty'
+    assert fixture.browser.current_url.query == 'a=b&login_form-name=kitty'
 
 
 @with_fixtures(WebFixture, AccountsWebFixture)
@@ -95,15 +95,15 @@ def test_register(web_fixture, accounts_web_fixture):
     verification_requests = Session.query(VerifyEmailRequest)
     fixture.browser.open('/a_ui/register')
 
-    fixture.browser.type('//form[@id="register"]//*[@name="email"]', 'a@b.org')
-    fixture.browser.type('//form[@id="register"]//*[@name="password"]', '111111')
-    fixture.browser.type('//form[@id="register"]//*[@name="repeat_password"]', '111111')
-    fixture.browser.click('//form[@id="register"]//*[@name="accept_terms"]')
+    fixture.browser.type(XPath.input_labelled('Email'), 'a@b.org')
+    fixture.browser.type(XPath.input_labelled('Password'), '111111')
+    fixture.browser.type(XPath.input_labelled('Re-type password'), '111111')
+    fixture.browser.click(XPath.input_labelled('I accept the terms of service'))
 
     assert verification_requests.count() == 0
     # This will not work in selenium, see:
     #  http://forum.jquery.com/topic/validate-possible-bug-for-corner-case-usage-of-remote
-    fixture.browser.click('//form[@id="register"]//*[@value="Register"]')
+    fixture.browser.click(XPath.button_labelled('Register'))
     assert verification_requests.count() == 1
 
 
@@ -112,11 +112,11 @@ def test_register_help_duplicate(web_fixture, party_account_fixture, accounts_we
     fixture = accounts_web_fixture
     fixture.browser.open('/a_ui/registerHelp')
 
-    fixture.browser.type('//input[@name="email"]', party_account_fixture.system_account.email)
-    fixture.browser.click('//input[@value="Investigate"]')
+    fixture.browser.type(XPath.input_labelled('Email'), party_account_fixture.system_account.email)
+    fixture.browser.click(XPath.button_labelled('Investigate'))
 
     assert fixture.browser.current_url.path == '/a_ui/registerHelp/duplicate'
-    fixture.browser.click('//a[text()=" password reset procedure"]')
+    fixture.browser.click(XPath.link().including_text('password reset procedure'))
 
     assert fixture.browser.current_url.path == '/a_ui/resetPassword'
 
@@ -127,11 +127,11 @@ def test_register_help_not_found(web_fixture, party_account_fixture, accounts_we
 
     fixture.browser.open('/a_ui/registerHelp')
 
-    fixture.browser.type('//input[@name="email"]', 'another_%s' % party_account_fixture.system_account.email)
-    fixture.browser.click('//input[@value="Investigate"]')
+    fixture.browser.type(XPath.input_labelled('Email'), 'another_%s' % party_account_fixture.system_account.email)
+    fixture.browser.click(XPath.button_labelled('Investigate'))
 
     assert fixture.browser.current_url.path == '/a_ui/registerHelp/reregister'
-    fixture.browser.click('//a[text()="register again"]')
+    fixture.browser.click(XPath.link().including_text('register again'))
 
     assert fixture.browser.current_url.path == '/a_ui/register'
 
@@ -150,13 +150,13 @@ def test_register_help_pending(web_fixture, party_account_fixture, accounts_web_
     Session.add(deferred_activation)
 
     fixture.browser.open('/a_ui/registerHelp')
-    fixture.browser.type('//input[@name="email"]', unactivated_account.email)
-    fixture.browser.click('//input[@value="Investigate"]')
+    fixture.browser.type(XPath.input_labelled('Email'), unactivated_account.email)
+    fixture.browser.click(XPath.button_labelled('Investigate'))
 
     assert fixture.browser.current_url.path == '/a_ui/registerHelp/pending'
     assert verification_requests.count() == 1
     party_account_fixture.mailer.reset()
-    fixture.browser.click('//input[@value="Send"]')
+    fixture.browser.click(XPath.button_labelled('Send'))
 
     assert verification_requests.count() == 1
     assert party_account_fixture.mailer.mail_sent
@@ -179,10 +179,10 @@ def test_verify_from_menu(web_fixture, party_account_fixture, accounts_web_fixtu
     assert not account.status.is_active()
     fixture.browser.open('/a_ui/verify')
 
-    fixture.browser.type('//form[@id="verify"]//*[@name="email"]', account.email)
-    fixture.browser.type('//form[@id="verify"]//*[@name="secret"]', secret_key)
-    fixture.browser.type('//form[@id="verify"]//*[@name="password"]', account.password)
-    fixture.browser.click('//form[@id="verify"]//*[@value="Verify"]')
+    fixture.browser.type(XPath.input_labelled('Email'), account.email)
+    fixture.browser.type(XPath.input_labelled('Secret key'), secret_key)
+    fixture.browser.type(XPath.input_labelled('Password'), account.password)
+    fixture.browser.click(XPath.button_labelled('Verify'))
 
     assert fixture.browser.current_url.path == '/a_ui/thanks'
     assert account.status.is_active()
@@ -196,18 +196,18 @@ def test_reset_password(web_fixture, party_account_fixture, accounts_web_fixture
     account = party_account_fixture.system_account
 
     fixture.browser.open('/a_ui/resetPassword')
-    fixture.browser.type('//input[@name="email"]', account.email)
-    fixture.browser.click('//input[@value="Reset password"]')
+    fixture.browser.type(XPath.input_labelled('Email'), account.email)
+    fixture.browser.click(XPath.button_labelled('Reset password'))
     assert fixture.browser.current_url.path == '/a_ui/choosePassword'
 
     reset_request = Session.query(NewPasswordRequest).filter_by(system_account=party_account_fixture.system_account).one()
     fixture.browser.open('/a_ui/choosePassword')
-    fixture.browser.type('//input[@name="email"]', account.email )
-    fixture.browser.type('//input[@name="secret"]', reset_request.as_secret_key() )
+    fixture.browser.type(XPath.input_labelled('Email'), account.email )
+    fixture.browser.type(XPath.input_labelled('Secret key'), reset_request.as_secret_key() )
     new_password = '111111'
-    fixture.browser.type('//input[@name="password"]', new_password )
-    fixture.browser.type('//input[@name="repeat_password"]', new_password )
-    fixture.browser.click('//input[@value="Set new password"]')
+    fixture.browser.type(XPath.input_labelled('Password'), new_password )
+    fixture.browser.type(XPath.input_labelled('Re-type password'), new_password )
+    fixture.browser.click(XPath.button_labelled('Set new password'))
 
     assert fixture.browser.current_url.path == '/a_ui/passwordChanged'
 
@@ -219,12 +219,12 @@ def test_reset_password_from_url(web_fixture, party_account_fixture, accounts_we
     new_password_request = NewPasswordRequest(system_account=account)
     Session.add(new_password_request)
 
-    fixture.browser.open('/a_ui/choosePassword?email=%s&secret=%s' % \
+    fixture.browser.open('/a_ui/choosePassword?choose_password-email=%s&choose_password-secret=%s' % \
                          (account.email, new_password_request.as_secret_key()))
     new_password = '111111'
-    fixture.browser.type('//input[@name="password"]', new_password )
-    fixture.browser.type('//input[@name="repeat_password"]', new_password )
-    fixture.browser.click('//input[@value="Set new password"]')
+    fixture.browser.type(XPath.input_labelled('Password'), new_password )
+    fixture.browser.type(XPath.input_labelled('Re-type password'), new_password )
+    fixture.browser.click(XPath.button_labelled('Set new password'))
 
     assert fixture.browser.current_url.path == '/a_ui/passwordChanged'
 
