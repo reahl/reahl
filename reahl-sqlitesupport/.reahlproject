@@ -14,7 +14,7 @@
 
   <export entrypoint="reahl.component.databasecontrols" name="SQLiteControl" locator="reahl.sqlitesupport:SQLiteControl"/>
 
-  <version number="5.0.0">
+  <version number="5.0.0a1">
     <deps purpose="run">
       <egg name="reahl-component" versionlocked="True"/>
       <egg name="reahl-commands" versionlocked="True"/>

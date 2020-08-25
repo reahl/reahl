@@ -31,56 +31,56 @@ Egg = reahl.component.eggs:ReahlEgg
 
 [reahl.versiondeps.2.0.2]
 Babel = thirdpartyegg:0.9 [0.10]
-reahl-bzrsupport = egg:2.0
-reahl-component = egg:2.0
-reahl-tofu = egg:2.0
+reahl-bzrsupport = egg:2.0.2
+reahl-component = egg:2.0.2
+reahl-tofu = egg:2.0.2
 
 [reahl.versiondeps.2.1.2]
 Babel = thirdpartyegg:0.9 [0.10]
-reahl-bzrsupport = egg:2.1
-reahl-component = egg:2.1
-reahl-tofu = egg:2.1
+reahl-bzrsupport = egg:2.1.2
+reahl-component = egg:2.1.2
+reahl-tofu = egg:2.1.2
 
 [reahl.versiondeps.3.0.0]
 Babel = thirdpartyegg:1.3 [1.3.9999]
-reahl-bzrsupport = egg:3.0
-reahl-component = egg:3.0
-reahl-tofu = egg:3.0
+reahl-bzrsupport = egg:3.0.0
+reahl-component = egg:3.0.0
+reahl-tofu = egg:3.0.0
 
 [reahl.versiondeps.3.1.1]
 Babel = thirdpartyegg:2.1 [2.1.999]
-reahl-bzrsupport = egg:3.1
-reahl-component = egg:3.1
-reahl-tofu = egg:3.1
+reahl-bzrsupport = egg:3.1.1
+reahl-component = egg:3.1.1
+reahl-tofu = egg:3.1.1
 twine = thirdpartyegg:1.4.0 [1.4.9999]
 wheel = thirdpartyegg:0.24.0 [0.24.9999]
 
 [reahl.versiondeps.3.2.0]
 Babel = thirdpartyegg:2.1 [2.1.999]
-reahl-bzrsupport = egg:3.2
-reahl-component = egg:3.2
-reahl-tofu = egg:3.2
+reahl-bzrsupport = egg:3.2.0
+reahl-component = egg:3.2.0
+reahl-tofu = egg:3.2.0
 twine = thirdpartyegg:1.4.0 [1.4.9999]
 wheel = thirdpartyegg:0.24.0 [0.24.9999]
 
 [reahl.versiondeps.4.0.5]
 Babel = thirdpartyegg:2.1 [2.1.999]
 pip = thirdpartyegg:10.0.0
-reahl-component = egg:4.0
-reahl-stubble = egg:4.0
-reahl-tofu = egg:4.0
+reahl-component = egg:4.0.5
+reahl-stubble = egg:4.0.5
+reahl-tofu = egg:4.0.5
 setuptools = thirdpartyegg:32.3.1
 six = thirdpartyegg:_
 twine = thirdpartyegg:1.11.0 [1.11.9999]
 tzlocal = thirdpartyegg:1.2.0 [1.2.9999]
 wheel = thirdpartyegg:0.29.0 [0.29.9999]
 
-[reahl.versiondeps.5.0.0]
+[reahl.versiondeps.5.0.0a1]
 Babel = thirdpartyegg:2.1 [2.8.999]
 pip = thirdpartyegg:10.0.0
-reahl-component = egg:5.0
-reahl-stubble = egg:5.0
-reahl-tofu = egg:5.0
+reahl-component = egg:5.0.0a1
+reahl-stubble = egg:5.0.0a1
+reahl-tofu = egg:5.0.0a1
 setuptools = thirdpartyegg:32.3.1
 twine = thirdpartyegg:1.15.0 [3.1.9999]
 tzlocal = thirdpartyegg:2.0.0 [2.0.9999]
@@ -93,5 +93,5 @@ wheel = thirdpartyegg:0.34.0 [0.34.9999]
 3.1.1 = 3.1.1
 3.2.0 = 3.2.0
 4.0.5 = 4.0.5
-5.0.0 = 5.0.0
+5.0.0a1 = 5.0.0a1
 

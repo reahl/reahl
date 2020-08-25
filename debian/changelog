@@ -1,4 +1,4 @@
-python-reahl (5.0) unstable; urgency=low
+python-reahl (5.0.0a1) unstable; urgency=low
 
  * Added the ability for onchange events to cause Widgets to be refreshed via ajax (responsive-disclosure #132).
  * Added the ability for refreshed Widgets to be able to recalculate their domain before rendering again.
