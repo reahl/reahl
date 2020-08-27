@@ -164,7 +164,7 @@ class SystemControl:
         return 0
 
     def diff_db(self, output_sql=False):
-        """Computes the changes in schema iwetween the current database and what the current system expects."""
+        """Computes the changes in schema between the current database and what the current system expects."""
         return self.orm_control.diff_db(output_sql=output_sql)
 
     def do_daily_maintenance(self):

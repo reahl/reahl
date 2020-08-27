@@ -759,8 +759,13 @@ class XMLDependencyList(list):
     def inflate_child(self, reader, child, tag, parent):
         assert isinstance(child, Dependency), 'Got %s, expected a dependency' % child
         if self.version_entry and child.is_version_locked:
-            child.override_version(str(self.version_entry.version.as_major_minor()))
+            if self.version_entry.version.is_alpha_version():
+                child_version = self.version_entry.version
+            else:
+                child_version = self.version_entry.version.as_major_minor()
+            child.override_version(str(child_version))
         self.append(child)
+
 
 
 class VersionDependencyEntryPointEntry(EntryPointExport):
