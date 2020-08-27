@@ -578,6 +578,8 @@ class ExcludedPackage:
 class VersionNumber:
     def __init__(self, version_string):
         match = re.match('^(?P<major>\d+)\.(?P<minor>\d+)(\.(?P<patch>[0-9a-zA-Z]+)((?P<other>[^-]+)?)(-(?P<debian_rev>.*))?)?$', version_string)
+        if not match:
+            raise ProgrammerError('Could not parse version string "%s"' % version_string)
         self.major = match.group('major')
         self.minor = match.group('minor')
         self.patch = match.group('patch')
@@ -905,7 +907,7 @@ class MigrationList(OrderedClassesList):
         self.version_entry = version_entry
 
     def inflate_attributes(self, reader, attributes, parent):
-        assert isinstance(parent, VersionEntry), 'Located in %s, expected to be in a %s' % (parent, VersionEntry)
+        assert isinstance(parent, VersionEntry), '%s is located in %s, expected to be in a %s' % (self.__class__.__name__, parent, VersionEntry)
         self.__init__(parent)
 
     @property
@@ -1089,31 +1091,31 @@ class HardcodedMetadata(ProjectMetadata):
 
     @property
     def version(self):
-        return VersionNumber(self.info['version'].contents)
+        return VersionNumber(self.info['version'].contents.strip())
 
     @property
     def project_name(self):
         try:
-            return self.info['project_name'].contents
+            return self.info['project_name'].contents.strip()
         except KeyError:
             return super().project_name
 
     def get_long_description_for(self, project):
-        return self.info['long_description'].contents
+        return self.info['long_description'].contents.strip()
 
     def get_description_for(self, project):
-        return self.info['description'].contents
+        return self.info['description'].contents.strip()
 
     def get_url_for(self, project):
-        return self.info['url'].contents
+        return self.info['url'].contents.strip()
 
     @property
     def maintainer_name(self):
-        return self.info['maintainer_name'].contents
+        return self.info['maintainer_name'].contents.strip()
 
     @property
     def maintainer_email(self):
-        return self.info['maintainer_email'].contents
+        return self.info['maintainer_email'].contents.strip()
 
     def info_readable(self):
         return self.info_completed()
