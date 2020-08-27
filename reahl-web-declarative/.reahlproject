@@ -17,6 +17,7 @@
     <egg name="reahl-stubble"/>
     <egg name="reahl-dev"/>
     <egg name="reahl-webdev"/>
+    <egg name="reahl-domain"/>
     <egg name="reahl-postgresqlsupport"/>
   </deps>
 
@@ -37,7 +38,6 @@
       <egg name="reahl-sqlalchemysupport" versionlocked="True"/>
       <egg name="reahl-web" versionlocked="True"/>
       <egg name="reahl-component" versionlocked="True"/>
-      <egg name="reahl-domain" versionlocked="True"/>
     </deps>
     <migrations>
       <class locator="reahl.webdeclarative.migrations:AddViewPathToSessionData"/>
