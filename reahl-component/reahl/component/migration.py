@@ -28,12 +28,12 @@ from reahl.component.exceptions import ProgrammerError
 class MigrationRun:
     def __init__(self, orm_control, eggs_in_order):
         self.orm_control = orm_control
-        self.changes = MigrationSchedule('drop_fk', 'drop_pk', 'pre_alter', 'alter', 
+        self.migration_schedule = MigrationSchedule('drop_fk', 'drop_pk', 'pre_alter', 'alter', 
                                          'create_pk', 'indexes', 'data', 'create_fk', 'cleanup')
         self.eggs_in_order = eggs_in_order
 
     def migrations_to_run_for(self, egg):
-        return [migration(self.changes) 
+        return [migration(self.migration_schedule) 
                 for migration in egg.compute_migrations(self.orm_control.schema_version_for(egg, default='0.0'))]
 
     def schedule_migrations(self):
@@ -55,7 +55,7 @@ class MigrationRun:
                     getattr(migration, method_name)()
 
     def execute_migrations(self):
-        self.changes.execute_all()
+        self.migration_schedule.execute_all()
         self.update_schema_versions()
         
     def update_schema_versions(self):
@@ -120,7 +120,7 @@ class Migration:
                parse_version(cls.version) <= parse_version(new_version)
 
     def __init__(self, changes):
-        self.changes = changes
+        self.migration_schedule = changes
 
     def schedule(self, phase, to_call, *args, **kwargs):
         """Call this method to schedule a method call for execution later during the specified migration phase.
@@ -147,7 +147,7 @@ class Migration:
                     relevant_frames.append(frame)
 
             return reversed(relevant_frames)
-        self.changes.schedule(phase, get_scheduling_context(), to_call, *args, **kwargs)
+        self.migration_schedule.schedule(phase, get_scheduling_context(), to_call, *args, **kwargs)
 
     def schedule_upgrades(self):
         """Override this method in a subclass in order to supply custom logic for changing the database schema. This
