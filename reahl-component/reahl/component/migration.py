@@ -25,37 +25,43 @@ import traceback
 from reahl.component.exceptions import ProgrammerError
 
 
+class NoRunFound(Exception):
+    def __init__(self, run, cluster):
+        super().__init__('Could not find a nested run for %s in %s' % (cluster, run))
+
 class MigrationRun:
-    def __init__(self, orm_control, eggs_in_order):
+    @classmethod
+    def migrate(cls, root_egg):
+        version_tree = VersionTree.from_root_egg(root_egg)
+        clusters = version_tree.create_clusters()
+        cluster_graph = DependencyGraph.from_vertices(clusters, lambda c: c.dependencies(clusters))
+        sorted_clusters = cluster_graph.topological_sort()
+        runs = cls.create_runs_for_clusters(sorted_clusters)
+        for run in runs:
+            run.execute_all()
+
+    def create_runs_for_clusters(cls, clusters_in_tolological_order):
+        passxxx
+
+    def for_cluster(cls, cluster):
+        return MigrationRun(cluster)
+
+    def __init__(self, orm_control, cluster):
+        self.cluster = cluster
         self.orm_control = orm_control
-        self.migration_schedule = MigrationSchedule('drop_fk', 'drop_pk', 'pre_alter', 'alter', 
-                                         'create_pk', 'indexes', 'data', 'create_fk', 'cleanup')
+        self.phases_in_order = ['drop_pk', 'pre_alter', 'alter', 
+                                'create_pk', 'indexes', 'data', 'create_fk', 'cleanup']
+        self.phases = dict([(i, []) for i in self.phases_in_order])
+        self.before_nesting_phase = []
+        self.last_phase = []
+        self.nested_runs = []
         self.eggs_in_order = eggs_in_order
 
-    def migrations_to_run_for(self, egg):
-        return [migration(self.migration_schedule) 
-                for migration in egg.compute_migrations(self.orm_control.schema_version_for(egg, default='0.0'))]
-
     def schedule_migrations(self):
-        migrations_per_egg = [(egg, self.migrations_to_run_for(egg))
-                              for egg in self.eggs_in_order]
-
-        self.schedule_migration_changes(migrations_per_egg, 'schedule_upgrades')
-
-    def schedule_migration_changes(self, migrations_per_egg, method_name):
-        for egg, migration_list in migrations_per_egg:
-            current_schema_version = self.orm_control.schema_version_for(egg, default='0.0')
-            message = 'Scheduling %s %s migrations for %s - from version %s to %s' % \
-                          (len(migration_list), method_name, egg.name, 
-                           current_schema_version, egg.version)
-            logging.getLogger(__name__).info(message)
-            for migration in migration_list:
-                if hasattr(migration, method_name):
-                    logging.getLogger(__name__).info('Scheduling %s for %s' % (method_name, migration))
-                    getattr(migration, method_name)()
+        pass
 
     def execute_migrations(self):
-        self.migration_schedule.execute_all()
+        self.execute_all()
         self.update_schema_versions()
         
     def update_schema_versions(self):
@@ -64,21 +70,33 @@ class MigrationRun:
                 logging.getLogger(__name__).info('Migrating %s - updating schema version to %s' % (egg.name, egg.version))
                 self.orm_control.update_schema_version_for(egg)
 
-
-class MigrationSchedule:
-    def __init__(self, *phases):
-        self.phases_in_order = phases
-        self.phases = dict([(i, []) for i in phases])
+    def add_nested(self, run):
+        try:
+            previously_added_run = self.nested_run_for(run.cluster)
+            raise ProgrammerError('Trying to add %s, but there is already a nested run for %s: %s' % (run, run.cluster, previously_added_run))
+        except NoRunFound:
+            self.nested_runs.append(run)
+        
+    def nested_run_for(self, cluster):
+        matching_runs = [run for run in self.nested_runs if run.cluster is cluster]
+        if not matching_runs:
+            raise NoRunFound()
+        return matching_runs[0]
 
     def schedule(self, phase, scheduling_context, to_call, *args, **kwargs):
-        try:
-            self.phases[phase].append((to_call, scheduling_context, args, kwargs))
-        except KeyError as e:
-            raise ProgrammerError('A phase with name<%s> does not exist.' % phase)
+        if phase == 'drop_fk':
+            if scheduling_egg.previous_version.cluster.visited:
+                self.before_nesting_phase.append((to_call, scheduling_context, args, kwargs))
+            else:
+                self.nested_run_for(scheduling_egg.previous_version.cluster).last_phase.append((to_call, scheduling_context, args, kwargs))
+        else:
+            try:
+                self.phases[phase].append((to_call, scheduling_context, args, kwargs))
+            except KeyError as e:
+                raise ProgrammerError('A phase with name<%s> does not exist.' % phase)
 
-    def execute(self, phase):
-        logging.getLogger(__name__).info('Executing schema change phase %s' % phase)
-        for to_call, scheduling_context, args, kwargs in self.phases[phase]:
+    def execute(self, scheduled_changes):
+        for to_call, scheduling_context, args, kwargs in scheduled_changes:
             logging.getLogger(__name__).debug(' change: %s(%s, %s)' % (to_call.__name__, args, kwargs))
             try:
                 to_call(*args, **kwargs)
@@ -94,10 +112,21 @@ class MigrationSchedule:
                         return '%s\n\n%s\n\n%s' % (message, 'The above Exception happened for the migration that was scheduled here:', ''.join(formatted_context))
                 raise ExceptionDuringMigration(scheduling_context)
 
-    def execute_all(self):
-        for phase in self.phases_in_order:
-            self.execute(phase)
+    def execute_nested_runs(self):
+        for run in self.nested_runs:
+            run.execute_all()
 
+    def execute_all(self):
+        self.execute(self.before_nesting_phase)
+        self.execute_nested_runs()
+        for phase in self.phases_in_order:
+            self.execute(self.phases[phase])
+        self.execute(self.last_phase)
+
+# TO TEST:
+#  - migrations can schedule changes on a MigrationRun
+#  - you can nest MigrationRuns on a MigrationRun
+#  - Scheduling drop_fk is handled differently, depending...(see pic)
 
 class Migration:
     """Represents one logical change that can be made to an existing database schema.
@@ -119,8 +148,8 @@ class Migration:
         return parse_version(cls.version) > parse_version(current_schema_version) and \
                parse_version(cls.version) <= parse_version(new_version)
 
-    def __init__(self, changes):
-        self.migration_schedule = changes
+    def __init__(self, migration_run):
+        self.migration_run = migration_run
 
     def schedule(self, phase, to_call, *args, **kwargs):
         """Call this method to schedule a method call for execution later during the specified migration phase.
@@ -147,7 +176,7 @@ class Migration:
                     relevant_frames.append(frame)
 
             return reversed(relevant_frames)
-        self.migration_schedule.schedule(phase, get_scheduling_context(), to_call, *args, **kwargs)
+        self.migration_run.schedule(phase, get_scheduling_context(), to_call, *args, **kwargs)
 
     def schedule_upgrades(self):
         """Override this method in a subclass in order to supply custom logic for changing the database schema. This

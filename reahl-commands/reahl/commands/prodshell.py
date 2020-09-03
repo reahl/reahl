@@ -387,7 +387,7 @@ class ListVersionDependencies(ProductionCommand):
 #        for c in clusters:
 #            print('%s: %s' % (c, [str(i) for i in c.elements]) )
 #            print('%s: %s' % (c, [str(i) for i in c.dependencies(clusters)]) )
-#        return 0
+        return 0
         cluster_graph = DependencyGraph.from_vertices(clusters, lambda c: c.dependencies(clusters))
         for c in cluster_graph.topological_sort():
             print(str(c))
