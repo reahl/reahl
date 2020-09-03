@@ -31,7 +31,7 @@ from reahl.component.dbutils import SystemControl
 from reahl.component.shelltools import Command, ReahlCommandline, AliasFile
 from reahl.component.context import ExecutionContext
 from reahl.component.config import ConfigSetting, StoredConfiguration, MissingValue
-from reahl.component.eggs import ReahlEgg, VersionTree
+from reahl.component.eggs import ReahlEgg, VersionTree, DependencyGraph
 from reahl.component.exceptions import DomainException
 
 
@@ -375,7 +375,22 @@ class ListVersionDependencies(ProductionCommand):
     def execute(self, args):
         super(ListVersionDependencies, self).execute(args)
         self.context.install()
-        VersionTree.from_root_egg(self.config.reahlsystem.root_egg).show()
+        tree = VersionTree.from_root_egg(self.config.reahlsystem.root_egg)
+        #tree.show()
+        #return 0
+#        for c in tree.as_dependency_graph().find_disconnected_components():
+#            print('%s --------------------------------------' % c)
+#            g = tree.as_dependency_graph()
+#            print([str(i) for i in g.get_all_reachable_from(c)])
+#        return 0
+        clusters = tree.create_clusters()
+#        for c in clusters:
+#            print('%s: %s' % (c, [str(i) for i in c.elements]) )
+#            print('%s: %s' % (c, [str(i) for i in c.dependencies(clusters)]) )
+#        return 0
+        cluster_graph = DependencyGraph.from_vertices(clusters, lambda c: c.dependencies(clusters))
+        for c in cluster_graph.topological_sort():
+            print(str(c))
         return 0
 
 

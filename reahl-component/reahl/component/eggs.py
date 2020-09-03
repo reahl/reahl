@@ -20,6 +20,7 @@ import os
 import os.path
 import re
 import logging
+import itertools
 
 from pkg_resources import Requirement, get_distribution, iter_entry_points, require, resource_isdir, \
                           resource_listdir, working_set, parse_version, DistributionNotFound
@@ -61,6 +62,9 @@ class DependencyGraph:
     
     def __init__(self, graph):
         self.graph = graph
+        self.clear_state()
+
+    def clear_state(self):
         self.discovered = {}
         self.entered = {}
         self.exited = {}
@@ -98,10 +102,40 @@ class DependencyGraph:
         self.topological_order.append(from_vertex)
 
     def topological_sort(self):
+        self.clear_state()
         for i in self.graph.keys():
             if i not in self.discovered:
                 self.search(i)
         return reversed(self.topological_order)
+
+    def find_disconnected_components(self):
+        all_dependencies = set(itertools.chain(*self.graph.values()))
+        return [vertex for vertex in self.graph.keys() if not vertex in all_dependencies]
+
+    def get_all_reachable_from(self, vertex):
+        self.clear_state()
+        self.search(vertex)
+        return self.topological_order
+
+
+class DependencyCluster:
+    def __init__(self, cluster_root, elements):
+        self.root = cluster_root
+        self.elements = elements
+
+    def is_dependent_on(self, other):
+        deps = []
+        for e in self.elements:
+            for other_e in other.elements:
+                if other_e.is_previous_version_of(e):
+                    deps.append((e, other_e))
+        return bool(deps)
+
+    def dependencies(self, all_clusters):
+        return [other for other in all_clusters if self.is_dependent_on(other)]
+
+    def __str__(self):
+        return str(self.root)
 
 
 class VersionTree(object):
@@ -130,6 +164,13 @@ class VersionTree(object):
                               for v in dependency.get_versions()]
             for dep_version in dep_versions:
                 self.build_tree_for(dep_version)
+
+    def as_dependency_graph(self):
+        return DependencyGraph(self.dep_dict)
+
+    def create_clusters(self):
+        graph = self.as_dependency_graph()
+        return [DependencyCluster(i, graph.get_all_reachable_from(i)) for i in graph.find_disconnected_components()]
 
 
 class Dependency(object):
@@ -196,6 +237,11 @@ class Version(object):
     def get_dependencies(self):
         return self.egg.get_dependencies(self.version_number_string)
 
+    def is_previous_version_of(self, other):
+        if self.egg.name == other.egg.name:
+            previous_versions = [i for i in sorted(other.egg.get_versions(), key=lambda x: x.version_number) if i.version_number < other.version_number]
+            return len(previous_versions) and previous_versions[-1] == self
+        return False
 
 class ReahlEgg:
     interface_cache = {}
