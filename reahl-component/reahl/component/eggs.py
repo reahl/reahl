@@ -234,6 +234,9 @@ class Version(object):
         max_version = parse_version(max_version or '%s.%s.%s' % (major, minor, '9999'))
         return min_version <= candidate_version < max_version
 
+    def get_migration_classes(self):
+        return self.egg.get_migration_classes_for_version(self)
+
     def get_dependencies(self):
         return self.egg.get_dependencies(self.version_number_string)
 
@@ -290,13 +293,8 @@ class ReahlEgg:
     def get_persisted_classes_in_order(self):
         return self.get_ordered_classes_exported_on('reahl.persistlist')
 
-    @property
-    def migrations_in_order(self):
-        return self.get_ordered_classes_exported_on('reahl.migratelist')
-
-    def compute_migrations(self, current_schema_version):
-        return [cls for cls in self.migrations_in_order
-                if cls.is_applicable(current_schema_version, self.version)]
+    def get_migration_classes_for_version(self, version):
+        return self.get_ordered_classes_exported_on('reahl.migratelist.%s' % version.version_number)
 
     def get_ordered_classes_exported_on(self, entry_point):
         entry_point_dict = self.distribution.get_entry_map().get(entry_point, {})
