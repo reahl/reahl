@@ -23,6 +23,8 @@ import inspect
 import traceback
 
 from reahl.component.exceptions import ProgrammerError
+from reahl.component.eggs import VersionTree, DependencyGraph
+from reahl.component.context import ExecutionContext
 
 
 class NoRunFound(Exception):
@@ -34,19 +36,45 @@ class MigrationRun:
     def migrate(cls, root_egg):
         version_tree = VersionTree.from_root_egg(root_egg)
         clusters = version_tree.create_clusters()
-        cluster_graph = DependencyGraph.from_vertices(clusters, lambda c: c.dependencies(clusters))
-        sorted_clusters = cluster_graph.topological_sort()
-        runs = cls.create_runs_for_clusters(sorted_clusters)
+        cluster_graph = DependencyGraph.from_vertices(clusters, lambda c: c.get_dependencies(clusters))
+        clusters_smallest_first = list(reversed(list(cluster_graph.topological_sort())))
+        runs = cls.create_runs_for_clusters(clusters_smallest_first, clusters_smallest_first)
+        import pdb; pdb.set_trace()
+        a = 1
+        return
         for run in runs:
             run.execute_all()
 
-    def create_runs_for_clusters(cls, clusters_in_tolological_order):
-        passxxx
+    @classmethod
+    def create_runs_for_clusters(cls, clusters_in_smallest_first_topological_order, all_clusters):
+        runs = []
+        for cluster in clusters_in_smallest_first_topological_order:
+            if not cluster.is_up_to_date and not cluster.visited:
+                cluster.visited = True 
+                cluster_children = cluster.get_dependencies(clusters_in_smallest_first_topological_order)
+                next_cluster = cls.find_highest_parent_of(cluster_children, clusters_in_smallest_first_topological_order) if cluster_children else cluster
+                runs.append(MigrationRun.for_cluster(next_cluster, clusters_in_smallest_first_topological_order, all_clusters))
+        return runs
 
-    def for_cluster(cls, cluster):
-        return MigrationRun(cluster)
+    @classmethod
+    def find_highest_parent_of(cls, clusters, clusters_in_smallest_first_topological_order):
+        immediate_ancestors = [a for a in clusters_in_smallest_first_topological_order
+                                if any([c in a.get_dependencies(clusters_in_smallest_first_topological_order) for c in clusters])]
+        return immediate_ancestors[-1]
 
-    def __init__(self, orm_control, cluster):
+    @classmethod
+    def for_cluster(cls, cluster, clusters_in_smallest_first_topological_order, all_clusters):
+        orm_control = ExecutionContext.get_context().system_control.orm_control
+        run = MigrationRun(orm_control, cluster, all_clusters)
+        unhandled_decendants_in_smallest_first_topological_order = [c for c in clusters_in_smallest_first_topological_order
+                                                                    if clusters_in_smallest_first_topological_order.index(c) < clusters_in_smallest_first_topological_order.index(cluster)
+                                                                        and not c.visited or not c.is_up_to_date]
+        for nested_run in cls.create_runs_for_clusters(unhandled_decendants_in_smallest_first_topological_order, all_clusters):
+            run.add_nested(nested_run)
+        run.schedule_migrations()
+        return run
+
+    def __init__(self, orm_control, cluster, all_clusters):
         self.cluster = cluster
         self.orm_control = orm_control
         self.phases_in_order = ['drop_pk', 'pre_alter', 'alter', 
@@ -55,10 +83,33 @@ class MigrationRun:
         self.before_nesting_phase = []
         self.last_phase = []
         self.nested_runs = []
-        self.eggs_in_order = eggs_in_order
+        self.all_clusters = all_clusters
+        self.current_drop_fk_phase = self.before_nesting_phase
+
+    def get_previous_cluster_for_version(self, version):
+        clusters_containing_previous_version = [c for c in self.all_clusters
+                                                if any([v.is_previous_version_of(version) for v in c.versions])]
+        previous_cluster = None
+        if clusters_containing_previous_version:
+            if len(clusters_containing_previous_version) != 1:
+                import pdb;pdb.set_trace()
+            assert len(clusters_containing_previous_version) == 1
+            [previous_cluster] = clusters_containing_previous_version
+
+        return previous_cluster
 
     def schedule_migrations(self):
-        pass
+        for version in self.cluster.get_versions_biggest_first():
+            previous_cluster = self.get_previous_cluster_for_version(version)
+
+            if previous_cluster and not previous_cluster.visited:
+                self.current_drop_fk_phase = self.nested_run_for(previous_cluster).last_phase
+            else:
+                self.current_drop_fk_phase = self.before_nesting_phase
+
+            for migration_class in version.get_migration_classes():
+                migration = migration_class(self)
+                migration.schedule_upgrades()
 
     def execute_migrations(self):
         self.execute_all()
@@ -85,10 +136,7 @@ class MigrationRun:
 
     def schedule(self, phase, scheduling_context, to_call, *args, **kwargs):
         if phase == 'drop_fk':
-            if scheduling_egg.previous_version.cluster.visited:
-                self.before_nesting_phase.append((to_call, scheduling_context, args, kwargs))
-            else:
-                self.nested_run_for(scheduling_egg.previous_version.cluster).last_phase.append((to_call, scheduling_context, args, kwargs))
+            self.current_drop_fk_phase.append((to_call, scheduling_context, args, kwargs))
         else:
             try:
                 self.phases[phase].append((to_call, scheduling_context, args, kwargs))

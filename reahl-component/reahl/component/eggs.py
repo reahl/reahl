@@ -26,7 +26,7 @@ from pkg_resources import Requirement, get_distribution, iter_entry_points, requ
                           resource_listdir, working_set, parse_version, DistributionNotFound
 
 from reahl.component.decorators import memoized
-
+from reahl.component.context import ExecutionContext
 
 class NoDependencyPathFound(Exception):
     def __init__(self, from_vertex, to_vertex):
@@ -119,23 +119,39 @@ class DependencyGraph:
 
 
 class DependencyCluster:
-    def __init__(self, cluster_root, elements):
+    def __init__(self, cluster_root, versions):
         self.root = cluster_root
-        self.elements = elements
+        self.versions = versions
+        self.visited = False
 
     def is_dependent_on(self, other):
         deps = []
-        for e in self.elements:
-            for other_e in other.elements:
+        for e in self.versions:
+            for other_e in other.versions:
                 if other_e.is_previous_version_of(e):
                     deps.append((e, other_e))
         return bool(deps)
 
-    def dependencies(self, all_clusters):
+    @property
+    def is_up_to_date(self):
+        return all([version.is_up_to_date for version in self.versions])
+
+    def get_dependencies(self, all_clusters):
         return [other for other in all_clusters if self.is_dependent_on(other)]
+
+    def get_versions_biggest_first(self):
+        def version_dependencies(version):
+            return [v for v in self.versions
+                    if any([d.name == v.name for d in v.get_dependencies()])]
+        version_graph = DependencyGraph.from_vertices(self.versions, version_dependencies)
+        versions_biggest_first = version_graph.topological_sort()
+        return versions_biggest_first
 
     def __str__(self):
         return str(self.root)
+
+    def __repr__(self):
+        return '<%s %s>' % (self.__class__.__name__, self)
 
 
 class VersionTree(object):
@@ -169,6 +185,7 @@ class VersionTree(object):
         return DependencyGraph(self.dep_dict)
 
     def create_clusters(self):
+        import pdb; pdb.set_trace()
         graph = self.as_dependency_graph()
         return [DependencyCluster(i, graph.get_all_reachable_from(i)) for i in graph.find_disconnected_components()]
 
@@ -199,6 +216,16 @@ class Dependency(object):
         dep_egg = ReahlEgg(self.distribution)
         return dep_egg.get_versions()
 
+    def __repr__(self):
+        version_spec = ''
+        if self.min_version:
+            version_spec += '>= %s' % self.min_version
+        if self.max_version:
+            if version_spec:
+                versio_spec += ','
+            version_spec += '< %s' % self.max_version
+
+        return '<%s %s %s>' % (self.__class__.__name__, self.name, version_spec)
     @property
     def distribution(self):
         try:
@@ -213,6 +240,10 @@ class Version(object):
         self.version_number_string = version_number_string
 
     @property
+    def name(self):
+        return self.egg.name
+
+    @property
     def version_number(self):
         return parse_version(self.version_number_string)
 
@@ -224,6 +255,9 @@ class Version(object):
 
     def __str__(self):
         return '%s[%s]' % (self.egg.name, self.version_number)
+
+    def __repr__(self):
+        return '<%s %s>' % (self.__class__.__name__, self)
 
     def matches_versions(self, min_version, max_version):
         if not min_version:
@@ -245,6 +279,13 @@ class Version(object):
             previous_versions = [i for i in sorted(other.egg.get_versions(), key=lambda x: x.version_number) if i.version_number < other.version_number]
             return len(previous_versions) and previous_versions[-1] == self
         return False
+
+    @property
+    def is_up_to_date(self):
+        orm_control = ExecutionContext.get_context().system_control.orm_control
+        installed_version_number = parse_version(orm_control.schema_version_for(self.egg, default='0.0'))
+        return installed_version_number >= self.version_number
+
 
 class ReahlEgg:
     interface_cache = {}

@@ -391,6 +391,9 @@ class SqlAlchemyControl(ORMControl):
         Session.delete(schema_version_for_egg)
 
     def schema_version_for(self, egg, default=None):
+        if not Session.get_bind().has_table(SchemaVersion.__tablename__):
+            return default
+
         existing_versions = Session.query(SchemaVersion).filter_by(egg_name=egg.name)
         number_versions_found = existing_versions.count()
         assert number_versions_found <= 1, 'More than one existing schema version found for egg %s' % egg.name

@@ -20,7 +20,7 @@ import logging
 
 from alembic import op
 
-from reahl.component.migration import Migration, MigrationUnit
+from reahl.component.migration import Migration
 from sqlalchemy import UnicodeText, Unicode, Column, Integer, String, PrimaryKeyConstraint
 
 
