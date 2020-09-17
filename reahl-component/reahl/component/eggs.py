@@ -109,8 +109,28 @@ class DependencyGraph:
         return reversed(self.topological_order)
 
     def find_disconnected_components(self):
+        components = {}
         all_dependencies = set(itertools.chain(*self.graph.values()))
-        return [vertex for vertex in self.graph.keys() if not vertex in all_dependencies]
+        for vertex in self.graph.keys():
+            if vertex not in all_dependencies:
+                new_component_contents = self.get_all_reachable_from(vertex)
+                found = False
+                done = False
+                component_iterator = iter(components.items())
+                while not found and not done:
+                    try:
+                        existing_component, existing_contents = next(component_iterator)
+                    except StopIteration:
+                        done = True
+                    else:
+                        new_component_contents_set = set(new_component_contents)
+                        existing_component_contents_set = set(existing_contents)
+                        if new_component_contents_set & existing_component_contents_set:
+                            existing_contents.extend(new_component_contents_set - existing_component_contents_set)
+                            found = True
+                if not found:
+                    components[vertex] = new_component_contents
+        return list(components.items())
 
     def get_all_reachable_from(self, vertex):
         self.clear_state()
@@ -172,22 +192,22 @@ class VersionTree(object):
             print('%s depends on: %s' % (key, [str(i) for i in self.dep_dict[key]]))
 
     def build_tree_for(self, version):
+        if not version:
+            return
         if version not in self.dep_dict:
-            self.dep_dict[version] = [dependency.get_best_version() for dependency in version.get_dependencies()
-                                      if dependency.type == 'egg' and dependency.distribution]
-            dep_versions = [v for dependency in version.get_dependencies()
-                              if dependency.type == 'egg'  and dependency.distribution
-                              for v in dependency.get_versions()]
-            for dep_version in dep_versions:
-                self.build_tree_for(dep_version)
+            self.build_tree_for(version.get_previous_version())
+            children = self.dep_dict[version] = [dependency.get_best_version() for dependency in version.get_dependencies()
+                                                 if dependency.type == 'egg' and dependency.distribution]
+            for v in children:
+                self.build_tree_for(v)
+                self.build_tree_for(v.get_previous_version())
 
     def as_dependency_graph(self):
         return DependencyGraph(self.dep_dict)
 
     def create_clusters(self):
-        import pdb; pdb.set_trace()
         graph = self.as_dependency_graph()
-        return [DependencyCluster(i, graph.get_all_reachable_from(i)) for i in graph.find_disconnected_components()]
+        return [DependencyCluster(root, contents) for root, contents in graph.find_disconnected_components()]
 
 
 class Dependency(object):
@@ -226,6 +246,7 @@ class Dependency(object):
             version_spec += '< %s' % self.max_version
 
         return '<%s %s %s>' % (self.__class__.__name__, self.name, version_spec)
+
     @property
     def distribution(self):
         try:
@@ -274,10 +295,14 @@ class Version(object):
     def get_dependencies(self):
         return self.egg.get_dependencies(self.version_number_string)
 
+    def get_previous_version(self):
+        # TODO: cater for is_replacement_of in VersionEntry
+        previous_versions = [i for i in sorted(self.egg.get_versions(), key=lambda x: x.version_number) if i.version_number < self.version_number]
+        return previous_versions[-1] if len(previous_versions) else None
+
     def is_previous_version_of(self, other):
         if self.egg.name == other.egg.name:
-            previous_versions = [i for i in sorted(other.egg.get_versions(), key=lambda x: x.version_number) if i.version_number < other.version_number]
-            return len(previous_versions) and previous_versions[-1] == self
+            return other.get_previous_version() == self
         return False
 
     @property

@@ -20,14 +20,7 @@
     </deps>
   </version>
 
-  <version number="4.0.5">
-    <deps purpose="run">
-      <thirdpartyegg name="six"/> 
-      <egg name="reahl-component" versionlocked="True"/>
-    </deps>
-  </version>
-
-  <version number="4.0.0">
+  <version number="4.0">
     <deps purpose="run">
       <thirdpartyegg name="six"/> 
       <egg name="reahl-component" versionlocked="True"/>

@@ -376,19 +376,25 @@ class ListVersionDependencies(ProductionCommand):
         super(ListVersionDependencies, self).execute(args)
         self.context.install()
         tree = VersionTree.from_root_egg(self.config.reahlsystem.root_egg)
+
+        def show_graph(filename, graph_input):
+            from graphviz import Digraph
+            graph = Digraph()
+            for node in graph_input.keys():
+                graph.node(str(node))
+            for node, deps in graph_input.items():
+                for dep in deps:
+                    graph.edge(str(node), str(dep))
+            graph.render(filename, view=True)
+        show_graph('versions', tree.dep_dict)
         #tree.show()
-        #return 0
-#        for c in tree.as_dependency_graph().find_disconnected_components():
-#            print('%s --------------------------------------' % c)
-#            g = tree.as_dependency_graph()
-#            print([str(i) for i in g.get_all_reachable_from(c)])
-#        return 0
         clusters = tree.create_clusters()
 #        for c in clusters:
-#            print('%s: %s' % (c, [str(i) for i in c.elements]) )
-#            print('%s: %s' % (c, [str(i) for i in c.dependencies(clusters)]) )
-        return 0
-        cluster_graph = DependencyGraph.from_vertices(clusters, lambda c: c.dependencies(clusters))
+#            print('%s: %s' % (c, [str(i) for i in c.versions]) )
+#            print('%s: %s' % (c, [str(i) for i in c.get_dependencies(clusters)]) )
+#        return 0
+        cluster_graph = DependencyGraph.from_vertices(clusters, lambda c: c.get_dependencies(clusters))
+        show_graph('clusters', cluster_graph.graph)
         for c in cluster_graph.topological_sort():
             print(str(c))
         return 0

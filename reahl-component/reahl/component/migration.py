@@ -28,8 +28,8 @@ from reahl.component.context import ExecutionContext
 
 
 class NoRunFound(Exception):
-    def __init__(self, run, cluster):
-        super().__init__('Could not find a nested run for %s in %s' % (cluster, run))
+    def __init__(self, cluster):
+        super().__init__('Could not find nested runs for %s' % cluster)
 
 class MigrationRun:
     @classmethod
@@ -39,9 +39,6 @@ class MigrationRun:
         cluster_graph = DependencyGraph.from_vertices(clusters, lambda c: c.get_dependencies(clusters))
         clusters_smallest_first = list(reversed(list(cluster_graph.topological_sort())))
         runs = cls.create_runs_for_clusters(clusters_smallest_first, clusters_smallest_first)
-        import pdb; pdb.set_trace()
-        a = 1
-        return
         for run in runs:
             run.execute_all()
 
@@ -67,8 +64,8 @@ class MigrationRun:
         orm_control = ExecutionContext.get_context().system_control.orm_control
         run = MigrationRun(orm_control, cluster, all_clusters)
         unhandled_decendants_in_smallest_first_topological_order = [c for c in clusters_in_smallest_first_topological_order
-                                                                    if clusters_in_smallest_first_topological_order.index(c) < clusters_in_smallest_first_topological_order.index(cluster)
-                                                                        and not c.visited or not c.is_up_to_date]
+                                                                    if (clusters_in_smallest_first_topological_order.index(c) < clusters_in_smallest_first_topological_order.index(cluster))
+                                                                        and (not c.visited or not c.is_up_to_date)]
         for nested_run in cls.create_runs_for_clusters(unhandled_decendants_in_smallest_first_topological_order, all_clusters):
             run.add_nested(nested_run)
         run.schedule_migrations()
@@ -85,6 +82,9 @@ class MigrationRun:
         self.nested_runs = []
         self.all_clusters = all_clusters
         self.current_drop_fk_phase = self.before_nesting_phase
+
+    def __repr__(self):
+        return '<%s %s>' % (self.__class__.__name__, self.cluster)
 
     def get_previous_cluster_for_version(self, version):
         clusters_containing_previous_version = [c for c in self.all_clusters
@@ -131,7 +131,7 @@ class MigrationRun:
     def nested_run_for(self, cluster):
         matching_runs = [run for run in self.nested_runs if run.cluster is cluster]
         if not matching_runs:
-            raise NoRunFound()
+            raise NoRunFound(cluster)
         return matching_runs[0]
 
     def schedule(self, phase, scheduling_context, to_call, *args, **kwargs):

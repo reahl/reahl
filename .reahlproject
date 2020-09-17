@@ -70,22 +70,22 @@
   <version number="5.0.0a1">
   </version>
   
-  <version number="4.0.5">
+  <version number="4.0">
   </version>
 
-  <version number="3.2.0">
+  <version number="3.2">
   </version>
 
-  <version number="3.1.1">
+  <version number="3.1">
   </version>
 
-  <version number="3.0.0">
+  <version number="3.0">
   </version>
 
-  <version number="2.1.2">
+  <version number="2.1">
   </version>
 
-  <version number="2.0.2">
+  <version number="2.0">
   </version>
 
   <distpackage type="wheel">

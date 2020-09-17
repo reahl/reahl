@@ -44,9 +44,10 @@ class GenesisMigration(Migration):
                       Column('idle_lifetime', Integer(), nullable=False),
                       Column('last_activity', DateTime(), nullable=False),
                       Column('row_type', String(length=40), nullable=True),
-                      ForeignKeyConstraint(['account_id'], ['systemaccount.id'], name='usersession_account_id_fk'),
                       PrimaryKeyConstraint('id', name='usersession_pkey')
                       )
+        self.schedule('create_fk', op.create_foreign_key, 'usersession_account_id_fk', 'usersession',
+                      'systemaccount', ['account_id'], ['id'])
         # self.schedule('indexes', op.create_index, 'usersession_id_seq', 'usersession', ['id'])
         self.schedule('indexes', op.create_index, 'ix_usersession_account_id', 'usersession', ['account_id'], unique=False)
 
@@ -61,21 +62,20 @@ class GenesisMigration(Migration):
         self.schedule('alter', op.create_table, 'verificationrequest',
                       Column('requirement_id', Integer(), nullable=False),
                       Column('salt', String(length=10), nullable=False),
-                      ForeignKeyConstraint(['requirement_id'], ['requirement.id'],
-                                           name='verificationrequest_requirement_id_fkey', ondelete='CASCADE'),
                       PrimaryKeyConstraint('requirement_id', name='verificationrequest_pkey')
                       )
+        self.schedule('create_fk', op.create_foreign_key, 'verificationrequest_requirement_id_fkey', 'verificationrequest',
+                      'requirement', ['requirement_id'], ['id'], ondelete='CASCADE')
 
         self.schedule('alter', op.create_table, 'accountmanagementinterface',
                       Column('id', Integer(), nullable=False),
                       Column('email', Text(), nullable=True),
                       Column('session_id', Integer(), nullable=True),
-                      ForeignKeyConstraint(['session_id'], [u'usersession.id'],
-                                           name='accountmanagementinterface_session_id_fk',
-                                           ondelete=u'CASCADE'),
                       PrimaryKeyConstraint('id', name='accountmanagementinterface_pkey')
                       )
         # self.schedule('indexes', op.create_index, 'accountmanagementinterface_id_seq', 'accountmanagementinterface', ['id'])
+        self.schedule('create_fk', op.create_foreign_key, 'accountmanagementinterface_session_id_fk', 'accountmanagementinterface',
+                      'usersession', ['session_id'], ['id'], ondelete='CASCADE')
         self.schedule('indexes', op.create_index, 'ix_accountmanagementinterface_email', 'accountmanagementinterface', ['email'], unique=False)
         self.schedule('indexes', op.create_index, 'ix_accountmanagementinterface_session_id', 'accountmanagementinterface', ['session_id'], unique=False)
 
@@ -98,69 +98,64 @@ class GenesisMigration(Migration):
         self.schedule('alter', op.create_table, 'activateaccount',
                       Column('deferredaction_id', Integer(), nullable=False),
                       Column('system_account_id', Integer(), nullable=True),
-                      ForeignKeyConstraint(['deferredaction_id'], ['deferredaction.id'],
-                                           name='activateaccount_deferredaction_id_fkey', ondelete='CASCADE'),
-                      ForeignKeyConstraint(['system_account_id'], ['systemaccount.id'],
-                                           name='activateaccount_system_account_id_fk',
-                                           initially='DEFERRED', deferrable=True),
                       PrimaryKeyConstraint('deferredaction_id', name='activateaccount_pkey')
                       )
+        self.schedule('create_fk', op.create_foreign_key, 'activateaccount_deferredaction_id_fkey', 'activateaccount',
+                      'deferredaction', ['deferredaction_id'], ['id'], ondelete='CASCADE')
+        self.schedule('create_fk', op.create_foreign_key, 'activateaccount_system_account_id_fk', 'activateaccount',
+                      'systemaccount', ['system_account_id'], ['id'], initially='DEFERRED', deferrable=True)
         self.schedule('indexes', op.create_index, 'ix_activateaccount_system_account_id', 'activateaccount', ['system_account_id'], unique=False)
         self.schedule('alter', op.create_table, 'changeaccountemail',
                       Column('deferredaction_id', Integer(), nullable=False),
                       Column('system_account_id', Integer(), nullable=True),
-                      ForeignKeyConstraint(['deferredaction_id'], ['deferredaction.id'],
-                                           name='changeaccountemail_deferredaction_id_fkey',
-                                           ondelete='CASCADE'),
-                      ForeignKeyConstraint(['system_account_id'], ['systemaccount.id'],
-                                           name='changeaccountemail_system_account_id_fk',
-                                           initially='DEFERRED', deferrable=True),
                       PrimaryKeyConstraint('deferredaction_id', name='changeaccountemail_pkey')
                       )
+        self.schedule('create_fk', op.create_foreign_key, 'changeaccountemail_deferredaction_id_fkey', 'changeaccountemail',
+                      'deferredaction', ['deferredaction_id'], ['id'], ondelete='CASCADE')
+        self.schedule('create_fk', op.create_foreign_key, 'changeaccountemail_system_account_id_fk', 'changeaccountemail',
+                      'systemaccount', ['system_account_id'], ['id'], initially='DEFERRED', deferrable=True)
         self.schedule('indexes', op.create_index, 'ix_changeaccountemail_system_account_id', 'changeaccountemail', ['system_account_id'], unique=False)
         self.schedule('alter', op.create_table, 'emailandpasswordsystemaccount',
                       Column('systemaccount_id', Integer(), nullable=False),
                       Column('password_md5', String(length=32), nullable=False),
                       Column('email', Text(), nullable=False),
                       Column('apache_digest', String(length=32), nullable=False),
-                      ForeignKeyConstraint(['systemaccount_id'], ['systemaccount.id'],
-                                           name='emailandpasswordsystemaccount_systemaccount_id_fkey',
-                                           ondelete='CASCADE'),
                       PrimaryKeyConstraint('systemaccount_id', name='emailandpasswordsystemaccount_pkey'),
                       #UniqueConstraint('email')
                       )
+        self.schedule('create_fk', op.create_foreign_key, 'emailandpasswordsystemaccount_systemaccount_id_fkey', 'emailandpasswordsystemaccount',
+                      'systemaccount', ['systemaccount_id'], ['id'], ondelete='CASCADE')
         self.schedule('indexes', op.create_index, 'ix_emailandpasswordsystemaccount_email', 'emailandpasswordsystemaccount', ['email'], unique=True)
 
         self.schedule('alter', op.create_table, 'party',
                       Column('id', Integer(), nullable=False),
                       Column('system_account_id', Integer(), nullable=True),
-                      ForeignKeyConstraint(['system_account_id'], ['systemaccount.id'],
-                                           name='party_system_account_id_fk'),
                       PrimaryKeyConstraint('id', name='party_pkey')
                       )
+        self.schedule('create_fk', op.create_foreign_key, 'party_system_account_id_fk', 'party',
+                      'systemaccount', ['system_account_id'], ['id'])
         # self.schedule('indexes', op.create_index, 'party_id_seq', 'party', ['id'])
         self.schedule('indexes', op.create_index, 'ix_party_system_account_id', 'party', ['system_account_id'], unique=False)
         self.schedule('alter', op.create_table, 'requirement_deferred_actions__deferredaction_requirements',
                       Column('requirement_id', Integer(), nullable=False),
                       Column('deferredaction_id', Integer(), nullable=False),
-                      ForeignKeyConstraint(['deferredaction_id'], ['deferredaction.id'],
-                                           name='requirement_deferred_actions_fk'),
-                      ForeignKeyConstraint(['requirement_id'], ['requirement.id'],
-                                           name='deferredaction_requirements_fk'),
                       PrimaryKeyConstraint('requirement_id', 'deferredaction_id',
                                            name='requirement_deferred_actions__deferredaction_requirements_pkey')
                       )
+        self.schedule('create_fk', op.create_foreign_key, 'requirement_deferred_actions_fk', 'requirement_deferred_actions__deferredaction_requirements',
+                      'deferredaction', ['deferredaction_id'], ['id'])
+        self.schedule('create_fk', op.create_foreign_key, 'deferredaction_requirements_fk', 'requirement_deferred_actions__deferredaction_requirements',
+                      'requirement', ['requirement_id'], ['id'])
+
         self.schedule('alter', op.create_table, 'newpasswordrequest',
                       Column('system_account_id', Integer(), nullable=False),
                       Column('verificationrequest_requirement_id', Integer(), nullable=False),
-                      ForeignKeyConstraint(['system_account_id'], ['systemaccount.id'],
-                                           name='newpasswordrequest_system_account_id_fk',
-                                           initially='DEFERRED', deferrable=True),
-                      ForeignKeyConstraint(['verificationrequest_requirement_id'], ['verificationrequest.requirement_id'],
-                                           name='newpasswordrequest_verificationrequest_requirement_id_fkey',
-                                           ondelete='CASCADE'),
                       PrimaryKeyConstraint('system_account_id', 'verificationrequest_requirement_id', name='newpasswordrequest_pkey')
                       )
+        self.schedule('create_fk', op.create_foreign_key, 'newpasswordrequest_system_account_id_fk', 'newpasswordrequest',
+                      'systemaccount', ['system_account_id'], ['id'], initially='DEFERRED', deferrable=True)
+        self.schedule('create_fk', op.create_foreign_key, 'newpasswordrequest_verificationrequest_requirement_id_fkey', 'newpasswordrequest',
+                      'verificationrequest', ['verificationrequest_requirement_id'], ['requirement_id'], ondelete='CASCADE')
         self.schedule('indexes', op.create_index, 'ix_newpasswordrequest_system_account_id', 'newpasswordrequest', ['system_account_id'], unique=False)
 
         self.schedule('alter', op.create_table, 'task',
@@ -168,10 +163,13 @@ class GenesisMigration(Migration):
                       Column('queue_id', Integer(), nullable=True),
                       Column('title', Text(), nullable=False),
                       Column('reserved_by_id', Integer(), nullable=True),
-                      ForeignKeyConstraint(['queue_id'], ['queue.id'], name='task_queue_id_fk'),
-                      ForeignKeyConstraint(['reserved_by_id'], ['party.id'], name='task_reserved_by_id_fk'),
                       PrimaryKeyConstraint('id', name='task_pkey')
                       )
+        self.schedule('create_fk', op.create_foreign_key, 'task_queue_id_fk', 'task',
+                      'queue', ['queue_id'], ['id'])
+        self.schedule('create_fk', op.create_foreign_key, 'task_reserved_by_id_fk', 'task',
+                      'party', ['reserved_by_id'], ['id'])
+
         self.schedule('indexes', op.create_index, 'ix_task_queue_id', 'task', ['queue_id'], unique=False)
         self.schedule('indexes', op.create_index, 'ix_task_reserved_by_id', 'task', ['reserved_by_id'], unique=False)
 
@@ -180,13 +178,11 @@ class GenesisMigration(Migration):
                       Column('email', Text(), nullable=False),
                       Column('subject_config', Text(), nullable=False),
                       Column('email_config', Text(), nullable=False),
-                      ForeignKeyConstraint(['verificationrequest_requirement_id'],
-                                           ['verificationrequest.requirement_id'],
-                                           name='verifyemailrequest_verificationrequest_requirement_id_fkey',
-                                           ondelete='CASCADE'),
                       PrimaryKeyConstraint('verificationrequest_requirement_id', name='verifyemailrequest_pkey'),
                       #UniqueConstraint('email', name='ix_verifyemailrequest_email')
                       )
+        self.schedule('create_fk', op.create_foreign_key, 'verifyemailrequest_verificationrequest_requirement_id_fkey', 'verifyemailrequest',
+                      'verificationrequest', ['verificationrequest_requirement_id'], ['requirement_id'])
         self.schedule('indexes', op.create_index, 'ix_verifyemailrequest_email', 'verifyemailrequest', ['email'], unique=True)
 
 

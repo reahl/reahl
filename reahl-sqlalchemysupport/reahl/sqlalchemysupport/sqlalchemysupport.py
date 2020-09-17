@@ -383,12 +383,14 @@ class SqlAlchemyControl(ORMControl):
             (egg_name, existing_versions.one().version)
         Session.add(SchemaVersion(version=egg_version, egg_name=egg_name))
 
-    def remove_schema_version_for(self, egg=None, egg_name=None):
+    def remove_schema_version_for(self, egg=None, egg_name=None, fail_if_not_found=True):
         assert egg or egg_name
         if egg:
             egg_name = egg.name
-        schema_version_for_egg = Session.query(SchemaVersion).filter_by(egg_name=egg_name).one()
-        Session.delete(schema_version_for_egg)
+        versions_to_delete = Session.query(SchemaVersion).filter_by(egg_name=egg_name)
+        if fail_if_not_found or versions_to_delete.count() > 0:
+            schema_version_for_egg = versions_to_delete.one()
+            Session.delete(schema_version_for_egg)
 
     def schema_version_for(self, egg, default=None):
         if not Session.get_bind().has_table(SchemaVersion.__tablename__):

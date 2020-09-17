@@ -33,7 +33,7 @@
 
   </version>
 
-  <version number="4.0.5">
+  <version number="4.0">
     <deps purpose="run">
       <egg name="reahl-component" versionlocked="True"/>
       <egg name="reahl-commands" versionlocked="True"/>
@@ -45,7 +45,7 @@
     </migrations>
   </version>
 
-  <version number="3.2.0">
+  <version number="3.2">
     <deps purpose="run">
       <egg name="reahl-component" versionlocked="True"/>
       <thirdpartyegg name="sqlalchemy" minversion="0.9.2" maxversion="0.9.999"/>
@@ -53,7 +53,7 @@
     </deps>
   </version>
 
-  <version number="3.1.1">
+  <version number="3.1">
     <deps purpose="run">
       <egg name="reahl-component" versionlocked="True"/>
       <thirdpartyegg name="sqlalchemy" minversion="0.9.2" maxversion="0.9.999"/>
@@ -61,7 +61,7 @@
     </deps>
   </version>
 
-  <version number="3.0.0">
+  <version number="3.0">
     <deps purpose="run">
       <egg name="reahl-component" versionlocked="True"/>
       <thirdpartyegg name="sqlalchemy" minversion="0.9.2" maxversion="0.9.999"/>
@@ -72,7 +72,7 @@
     </migrations>
   </version>
 
-  <version number="2.1.2">
+  <version number="2.1">
     <deps purpose="run">
       <egg name="reahl-component" versionlocked="True"/>
       <thirdpartyegg name="sqlalchemy" minversion="0.7" maxversion="0.7.999"/>
@@ -80,7 +80,7 @@
     </deps>
   </version>
 
-  <version number="2.0.2">
+  <version number="2.0">
     <deps purpose="run">
       <egg name="reahl-component"  versionlocked="True"/>
       <thirdpartyegg name="sqlalchemy" minversion="0.7" maxversion="0.7.999"/>

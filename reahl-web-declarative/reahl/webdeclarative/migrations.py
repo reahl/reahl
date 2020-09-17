@@ -39,11 +39,11 @@ class GenesisMigration(Migration):
                       Column('region_name', Text(), nullable=False),
                       Column('channel_name', Text(), nullable=False),
                       Column('row_type', String(length=40), nullable=True),
-                      ForeignKeyConstraint(['web_session_id'], ['usersession.id'],
-                                           name='sessiondata_web_session_id_fk',
-                                           ondelete='CASCADE'),
                       PrimaryKeyConstraint('id', name='sessiondata_pkey')
                       )
+        self.schedule('create_fk', op.create_foreign_key, 'sessiondata_web_session_id_fk', 'sessiondata',
+                      'usersession', ['web_session_id'], ['id'], ondelete='CASCADE')
+
         # self.schedule('indexes', op.create_index, 'sessiondata_id_seq', 'sessiondata', ['id'])
         self.schedule('indexes', op.create_index, 'ix_sessiondata_web_session_id', 'sessiondata', ['web_session_id'], unique=False)
 
@@ -51,20 +51,20 @@ class GenesisMigration(Migration):
                       Column('usersession_id', Integer(), nullable=False),
                       Column('salt', String(length=40), nullable=False),
                       Column('secure_salt', String(length=40), nullable=False),
-                      ForeignKeyConstraint(['usersession_id'], ['usersession.id'],
-                                           name='webusersession_usersession_id_fkey',
-                                           ondelete='CASCADE'),
                       PrimaryKeyConstraint('usersession_id', name='webusersession_pkey')
                       )
+        self.schedule('create_fk', op.create_foreign_key, 'webusersession_usersession_id_fkey', 'webusersession',
+                      'usersession', ['usersession_id'], ['id'], ondelete='CASCADE')
+
         self.schedule('alter', op.create_table, 'persistedexception',
                       Column('sessiondata_id', Integer(), nullable=False),
                       Column('exception', LargeBinary(), nullable=False),
                       Column('input_name', Text(), nullable=True),
-                      ForeignKeyConstraint(['sessiondata_id'], ['sessiondata.id'],
-                                           name='persistedexception_sessiondata_id_fkey',
-                                           ondelete='CASCADE'),
                       PrimaryKeyConstraint('sessiondata_id', name='persistedexception_pkey')
                       )
+        self.schedule('create_fk', op.create_foreign_key, 'persistedexception_sessiondata_id_fkey', 'persistedexception',
+                      'sessiondata', ['sessiondata_id'], ['id'], ondelete='CASCADE')
+
         self.schedule('alter', op.create_table, 'persistedfile',
                       Column('sessiondata_id', Integer(), nullable=False),
                       Column('input_name', Text(), nullable=False),
@@ -72,20 +72,19 @@ class GenesisMigration(Migration):
                       Column('file_data', LargeBinary(), nullable=False),
                       Column('content_type', Text(), nullable=False),
                       Column('size', BigInteger(), nullable=False),
-                      ForeignKeyConstraint(['sessiondata_id'], ['sessiondata.id'],
-                                           name='persistedfile_sessiondata_id_fkey',
-                                           ondelete='CASCADE'),
                       PrimaryKeyConstraint('sessiondata_id', name='persistedfile_pkey')
                       )
+        self.schedule('create_fk', op.create_foreign_key, 'persistedfile_sessiondata_id_fkey', 'persistedfile',
+                      'sessiondata', ['sessiondata_id'], ['id'], ondelete='CASCADE')
+
         self.schedule('alter', op.create_table, 'userinput',
                       Column('sessiondata_id', Integer(), nullable=False),
                       Column('key', Text(), nullable=False),
                       Column('value', Text(), nullable=False),
-                      ForeignKeyConstraint(['sessiondata_id'], ['sessiondata.id'],
-                                           name='userinput_sessiondata_id_fkey',
-                                           ondelete='CASCADE'),
                       PrimaryKeyConstraint('sessiondata_id', name='userinput_pkey')
                       )
+        self.schedule('create_fk', op.create_foreign_key, 'userinput_sessiondata_id_fkey', 'userinput',
+                      'sessiondata', ['sessiondata_id'], ['id'], ondelete='CASCADE')
 
 
 class RenameRegionToUi(Migration):
@@ -133,7 +132,7 @@ class ElixirToDeclarativeWebDeclarativeChanges(MigrateElixirToDeclarative):
         # reahl-declarative is new, and replaces reahl-elixir-impl
         orm_control = ExecutionContext.get_context().system_control.orm_control
         self.schedule('cleanup', orm_control.initialise_schema_version_for, egg_name='reahl-web-declarative', egg_version=self.version)
-        self.schedule('cleanup', orm_control.remove_schema_version_for, egg_name='reahl-web-elixirimpl')
+        self.schedule('cleanup', orm_control.remove_schema_version_for, egg_name='reahl-web-elixirimpl', fail_if_not_found=False)
 
 
 class MergeWebUserSessionToUserSession(Migration):
