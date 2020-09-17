@@ -23,7 +23,7 @@ import inspect
 import traceback
 
 from reahl.component.exceptions import ProgrammerError
-from reahl.component.eggs import VersionTree, DependencyGraph
+from reahl.component.eggs import VersionTree, DependencyGraph, ReahlEgg
 from reahl.component.context import ExecutionContext
 
 
@@ -41,6 +41,16 @@ class MigrationRun:
         runs = cls.create_runs_for_clusters(clusters_smallest_first, clusters_smallest_first)
         for run in runs:
             run.execute_all()
+        if runs:
+            cls.update_schema_versions(root_egg)
+
+    @classmethod
+    def update_schema_versions(cls, root_egg):
+        orm_control = ExecutionContext.get_context().system_control.orm_control
+        for egg in ReahlEgg.compute_all_relevant_interfaces(root_egg):
+            if orm_control.schema_version_for(egg, default='0.0') != egg.version:
+                logging.getLogger(__name__).info('Migrating %s - updating schema version to %s' % (egg.name, egg.version))
+                orm_control.set_schema_version_for(egg)
 
     @classmethod
     def create_runs_for_clusters(cls, clusters_in_smallest_first_topological_order, all_clusters):
@@ -110,17 +120,7 @@ class MigrationRun:
             for migration_class in version.get_migration_classes():
                 migration = migration_class(self)
                 migration.schedule_upgrades()
-
-    def execute_migrations(self):
-        self.execute_all()
-        self.update_schema_versions()
         
-    def update_schema_versions(self):
-        for egg in self.eggs_in_order:
-            if self.orm_control.schema_version_for(egg, default='0.0') != egg.version:
-                logging.getLogger(__name__).info('Migrating %s - updating schema version to %s' % (egg.name, egg.version))
-                self.orm_control.update_schema_version_for(egg)
-
     def add_nested(self, run):
         try:
             previously_added_run = self.nested_run_for(run.cluster)
