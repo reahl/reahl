@@ -131,7 +131,6 @@ class ElixirToDeclarativeWebDeclarativeChanges(MigrateElixirToDeclarative):
     def replace_elixir(self):
         # reahl-declarative is new, and replaces reahl-elixir-impl
         orm_control = ExecutionContext.get_context().system_control.orm_control
-        self.schedule('cleanup', orm_control.initialise_schema_version_for, egg_name='reahl-web-declarative', egg_version=self.version)
         self.schedule('cleanup', orm_control.remove_schema_version_for, egg_name='reahl-web-elixirimpl', fail_if_not_found=False)
 
 

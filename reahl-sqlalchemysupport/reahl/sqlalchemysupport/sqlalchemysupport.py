@@ -209,11 +209,6 @@ class TransactionVeto:
         return self.should_commit is not None
 
 
-class NoSchemaVersion(Exception):
-    def __init__(self, egg):
-        super().__init__('No version found for %s' % egg.name)
-
-                         
 class SqlAlchemyControl(ORMControl):
     """An ORMControl for dealing with SQLAlchemy."""
     def __init__(self, echo=False):
@@ -412,18 +407,19 @@ class SqlAlchemyControl(ORMControl):
             
     def update_schema_version_for(self, egg):
         current_versions = Session.query(SchemaVersion).filter_by(egg_name=egg.name)
-        if current_versions.count() < 1:
-            raise NoSchemaVersion(egg)
         assert current_versions.count() == 1, 'Found %s versions for %s, expected exactly 1' % (current_versions.count(), egg.name)
         current_version = current_versions.one()
         current_version.version = egg.version
 
-    def set_schema_version_for(self, egg):
-        try:
-            self.update_schema_version_for(egg)
-        except NoSchemaVersion:
-            self.initialise_schema_version_for(egg=egg)
-                         
+    def set_schema_version_for(self, version):
+        current_versions = Session.query(SchemaVersion).filter_by(egg_name=version.name)
+        versions_count = current_versions.count()
+        assert versions_count <= 1, 'Expected 0 or 1 SchemaVersions for %s, found %s' % (version.name, versions_count)
+        if versions_count < 1:
+            Session.add(SchemaVersion(version=str(version.version_number), egg_name=version.name))
+        elif versions_count == 1:
+            current_version = current_versions.one()
+            current_version.version = str(version.version_number)
 
                          
 class PersistedField(Field):

@@ -41,16 +41,6 @@ class MigrationRun:
         runs = cls.create_runs_for_clusters(clusters_smallest_first, clusters_smallest_first)
         for run in runs:
             run.execute_all()
-        if runs:
-            cls.update_schema_versions(root_egg)
-
-    @classmethod
-    def update_schema_versions(cls, root_egg):
-        orm_control = ExecutionContext.get_context().system_control.orm_control
-        for egg in ReahlEgg.compute_all_relevant_interfaces(root_egg):
-            if orm_control.schema_version_for(egg, default='0.0') != egg.version:
-                logging.getLogger(__name__).info('Migrating %s - updating schema version to %s' % (egg.name, egg.version))
-                orm_control.set_schema_version_for(egg)
 
     @classmethod
     def create_runs_for_clusters(cls, clusters_in_smallest_first_topological_order, all_clusters):
@@ -84,8 +74,7 @@ class MigrationRun:
     def __init__(self, orm_control, cluster, all_clusters):
         self.cluster = cluster
         self.orm_control = orm_control
-        self.phases_in_order = ['drop_pk', 'pre_alter', 'alter', 
-                                'create_pk', 'indexes', 'data', 'create_fk', 'cleanup']
+        self.phases_in_order = ['drop_pk', 'pre_alter', 'alter', 'create_pk', 'indexes', 'data', 'create_fk', 'cleanup']
         self.phases = dict([(i, []) for i in self.phases_in_order])
         self.before_nesting_phase = []
         self.last_phase = []
@@ -101,8 +90,6 @@ class MigrationRun:
                                                 if any([v.is_previous_version_of(version) for v in c.versions])]
         previous_cluster = None
         if clusters_containing_previous_version:
-            if len(clusters_containing_previous_version) != 1:
-                import pdb;pdb.set_trace()
             assert len(clusters_containing_previous_version) == 1
             [previous_cluster] = clusters_containing_previous_version
 
@@ -120,7 +107,8 @@ class MigrationRun:
             for migration_class in version.get_migration_classes():
                 migration = migration_class(self)
                 migration.schedule_upgrades()
-        
+            UpdateSchemaVersion(self, version).schedule_upgrades()
+
     def add_nested(self, run):
         try:
             previously_added_run = self.nested_run_for(run.cluster)
@@ -137,6 +125,8 @@ class MigrationRun:
     def schedule(self, phase, scheduling_context, to_call, *args, **kwargs):
         if phase == 'drop_fk':
             self.current_drop_fk_phase.append((to_call, scheduling_context, args, kwargs))
+        elif phase == 'last':
+            self.last_phase.append((to_call, scheduling_context, args, kwargs))
         else:
             try:
                 self.phases[phase].append((to_call, scheduling_context, args, kwargs))
@@ -242,3 +232,12 @@ class Migration:
 
     def __str__(self):
         return '%s %s' % (self.name, self.version)
+
+
+class UpdateSchemaVersion(Migration):
+    def __init__(self, migration_run, version):
+        super().__init__(migration_run)
+        self.version = version
+
+    def schedule_upgrades(self):
+        self.schedule('last', self.migration_run.orm_control.set_schema_version_for, self.version)
