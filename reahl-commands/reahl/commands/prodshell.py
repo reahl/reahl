@@ -397,6 +397,17 @@ class ListVersionDependencies(ProductionCommand):
         show_graph('clusters', cluster_graph.graph)
         for c in cluster_graph.topological_sort():
             print(str(c))
+        clusters_smallest_first = list(reversed(list(cluster_graph.topological_sort())))
+        from reahl.component.migration import MigrationRun
+        self.context.install()
+        runs = MigrationRun.create_runs_for_clusters(clusters_smallest_first, clusters_smallest_first)
+        def find_runs(runs):
+            all_runs = runs[:]
+            for run in runs:
+                all_runs.extend(find_runs(run.nested_runs))
+            return all_runs
+        run_graph = DependencyGraph.from_vertices(find_runs(runs), lambda r: r.nested_runs)
+        show_graph('runs', run_graph.graph)
         return 0
 
 

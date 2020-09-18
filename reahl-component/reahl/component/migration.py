@@ -47,9 +47,9 @@ class MigrationRun:
         runs = []
         for cluster in clusters_in_smallest_first_topological_order:
             if not cluster.is_up_to_date and not cluster.visited:
-                cluster.visited = True 
                 cluster_children = cluster.get_dependencies(clusters_in_smallest_first_topological_order)
                 next_cluster = cls.find_highest_parent_of(cluster_children, clusters_in_smallest_first_topological_order) if cluster_children else cluster
+                next_cluster.visited = True 
                 runs.append(MigrationRun.for_cluster(next_cluster, clusters_in_smallest_first_topological_order, all_clusters))
         return runs
 
@@ -65,7 +65,7 @@ class MigrationRun:
         run = MigrationRun(orm_control, cluster, all_clusters)
         unhandled_decendants_in_smallest_first_topological_order = [c for c in clusters_in_smallest_first_topological_order
                                                                     if (clusters_in_smallest_first_topological_order.index(c) < clusters_in_smallest_first_topological_order.index(cluster))
-                                                                        and (not c.visited or not c.is_up_to_date)]
+                                                                        and not (c.visited or c.is_up_to_date)]
         for nested_run in cls.create_runs_for_clusters(unhandled_decendants_in_smallest_first_topological_order, all_clusters):
             run.add_nested(nested_run)
         run.schedule_migrations()
@@ -122,20 +122,20 @@ class MigrationRun:
             raise NoRunFound(cluster)
         return matching_runs[0]
 
-    def schedule(self, phase, scheduling_context, to_call, *args, **kwargs):
+    def schedule(self, phase, scheduling_migration, scheduling_context, to_call, *args, **kwargs):
         if phase == 'drop_fk':
-            self.current_drop_fk_phase.append((to_call, scheduling_context, args, kwargs))
+            self.current_drop_fk_phase.append((to_call, scheduling_migration, scheduling_context, args, kwargs))
         elif phase == 'last':
-            self.last_phase.append((to_call, scheduling_context, args, kwargs))
+            self.last_phase.append((to_call, scheduling_migration, scheduling_context, args, kwargs))
         else:
             try:
-                self.phases[phase].append((to_call, scheduling_context, args, kwargs))
+                self.phases[phase].append((to_call, scheduling_migration, scheduling_context, args, kwargs))
             except KeyError as e:
                 raise ProgrammerError('A phase with name<%s> does not exist.' % phase)
 
     def execute(self, scheduled_changes):
-        for to_call, scheduling_context, args, kwargs in scheduled_changes:
-            logging.getLogger(__name__).debug(' change: %s(%s, %s)' % (to_call.__name__, args, kwargs))
+        for to_call, scheduling_migration, scheduling_context, args, kwargs in scheduled_changes:
+            logging.getLogger(__name__).debug('[%s in %s] change: %s(%s, %s)' % (scheduling_migration, self.cluster, to_call.__name__, args, kwargs))
             try:
                 to_call(*args, **kwargs)
             except Exception as e:
@@ -214,7 +214,7 @@ class Migration:
                     relevant_frames.append(frame)
 
             return reversed(relevant_frames)
-        self.migration_run.schedule(phase, get_scheduling_context(), to_call, *args, **kwargs)
+        self.migration_run.schedule(phase, self, get_scheduling_context(), to_call, *args, **kwargs)
 
     def schedule_upgrades(self):
         """Override this method in a subclass in order to supply custom logic for changing the database schema. This
