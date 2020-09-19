@@ -41,6 +41,9 @@ class MigrationRun:
         runs = cls.create_runs_for_clusters(clusters_smallest_first, clusters_smallest_first)
         for run in runs:
             run.execute_all()
+        if runs:
+            orm_control = ExecutionContext.get_context().system_control.orm_control
+            orm_control.remove_dead_schemas(runs[-1].cluster.versions)
 
     @classmethod
     def create_runs_for_clusters(cls, clusters_in_smallest_first_topological_order, all_clusters):

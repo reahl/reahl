@@ -356,6 +356,42 @@ class SqlAlchemyControl(ORMControl):
             self.op = op
             return super().migrate_db(eggs_in_order, dry_run=dry_run, output_sql=output_sql)
 
+    def remove_dead_schemas(self, live_versions):
+        output_sql = False
+        opts = {'as_sql': output_sql, 'target_metadata': metadata}
+        with Operations.context(MigrationContext.configure(connection=Session.connection(), opts=opts)) as op:
+            self.op = op
+            to_remove = [i for i in self.get_outstanding_migrations() if i[0].startswith('remove_')]
+            tables_to_drop = []
+            unhandled = []
+            for migration in to_remove:
+                name = migration[0]
+                if name == 'remove_table':
+                    table = migration[1]
+                    tables_to_drop.append(table)
+                    for foreign_key in table.foreign_key_constraints:
+                        op.drop_constraint(foreign_key.name, table.name)
+                elif name == 'remove_index':
+                    op.drop_index(migration[1].name)
+                else:
+                    unhandled.append(migration)
+            for table in tables_to_drop:
+                op.drop_table(table.name)
+
+            if unhandled:
+                print('These migrations have not been automatically done, please effect them by other means:')
+                for migration in unhandled:
+                    print(migration)
+
+        installed_version_names = [version.name for version in live_versions]
+        for created_schema_version in Session.query(SchemaVersion).all():
+            if created_schema_version.egg_name not in installed_version_names:
+                Session.delete(created_schema_version)
+            
+
+    def get_outstanding_migrations(self):
+        return compare_metadata(MigrationContext.configure(connection=Session.connection()), metadata)
+        
     def diff_db(self, output_sql=False):
         if output_sql:
             migrations = produce_migrations(MigrationContext.configure(connection=Session.connection()), metadata)
@@ -367,7 +403,7 @@ class SqlAlchemyControl(ORMControl):
                 exec(source_code, globals(), locals())
             return uncommented_source_code
         else:
-            migrations_required = compare_metadata(MigrationContext.configure(connection=Session.connection()), metadata)
+            migrations_required = self.get_outstanding_migrations()
             if migrations_required:
                 pprint.pprint(migrations_required, indent=2, width=20)
             return migrations_required
