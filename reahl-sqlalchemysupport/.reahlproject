@@ -87,7 +87,7 @@
       <thirdpartyegg name="alembic" minversion="0.5" maxversion="0.5.999"/>
     </deps>
     <migrations>
-      <class locator="reahl.sqlalchemysupport.migrations:GenesisMigration"/>
+      <class locator="reahl.sqlalchemysupport.migrations:CreateDatabase"/>
     </migrations>
   </version>
 

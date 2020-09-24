@@ -28,7 +28,7 @@ from reahl.component.migration import Migration
 from reahl.component.context import ExecutionContext
 
 
-class GenesisMigration(Migration):
+class CreateDatabase(Migration):
     version = '2.0'
 
     def schedule_upgrades(self):

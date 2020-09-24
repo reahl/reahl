@@ -26,7 +26,7 @@ from sqlalchemy import UnicodeText, Unicode, Column, Integer, String, PrimaryKey
 
 
 
-class GenesisMigration(Migration):
+class CreateDatabase(Migration):
     version = '2.0'
 
     def schedule_upgrades(self):

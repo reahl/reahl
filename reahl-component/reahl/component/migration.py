@@ -16,69 +16,111 @@
 
 """Support for database schema migration."""
 
-from pkg_resources import parse_version
+from pkg_resources import parse_version, get_distribution
 import logging
 import warnings
 import inspect
 import traceback
 
 from reahl.component.exceptions import ProgrammerError
-from reahl.component.eggs import VersionTree, DependencyGraph, ReahlEgg
+from reahl.component.eggs import DependencyGraph, DependencyCluster, ReahlEgg
 from reahl.component.context import ExecutionContext
 
 
-class NoRunFound(Exception):
-    def __init__(self, cluster):
-        super().__init__('Could not find nested runs for %s' % cluster)
-
-class MigrationRun:
-    @classmethod
-    def migrate(cls, root_egg):
-        version_tree = VersionTree.from_root_egg(root_egg)
-        clusters = version_tree.create_clusters()
-        cluster_graph = DependencyGraph.from_vertices(clusters, lambda c: c.get_dependencies(clusters))
-        clusters_smallest_first = list(reversed(list(cluster_graph.topological_sort())))
-        runs = cls.create_runs_for_clusters(clusters_smallest_first, clusters_smallest_first)
-        for run in runs:
-            run.execute_all()
-        if runs:
-            orm_control = ExecutionContext.get_context().system_control.orm_control
-            orm_control.remove_dead_schemas(runs[-1].cluster.versions)
+class MigrationPlan:
+    def __init__(self, root_egg, orm_control):
+        self.root_egg = root_egg
+        self.orm_control = orm_control
+        self.version_graph = self.create_version_graph_for(root_egg)
+        self.cluster_graph = self.create_cluster_graph(self.version_graph)
+        self.cluster_graph.render('clusters')
+        self.all_clusters_in_smallest_first_topological_order = list(reversed(list(self.cluster_graph.topological_sort())))
+        self.schedules = self.create_schedules_for_clusters(self.all_clusters_in_smallest_first_topological_order)
 
     @classmethod
-    def create_runs_for_clusters(cls, clusters_in_smallest_first_topological_order, all_clusters):
-        runs = []
+    def create_version_graph_for(cls, root_egg_name):
+        graph = {}
+        egg = ReahlEgg(get_distribution(root_egg_name))
+        versions = egg.get_versions()
+        for version in versions:
+            cls.discover_version_graph_for(version, graph)
+        return DependencyGraph(graph)
+
+    @classmethod
+    def discover_version_graph_for(cls, version, graph):
+        if not version:
+            return
+        if version not in graph:
+            cls.discover_version_graph_for(version.get_previous_version(), graph)
+            children = graph[version] = [dependency.get_best_version() for dependency in version.get_dependencies()
+                                                 if dependency.type == 'egg' and dependency.distribution]
+            for v in children:
+                cls.discover_version_graph_for(v, graph)
+                cls.discover_version_graph_for(v.get_previous_version(), graph)
+
+    @classmethod
+    def create_cluster_graph(cls, version_graph):
+        clusters = [DependencyCluster(root, contents) for root, contents in version_graph.find_components()]
+        return DependencyGraph.from_vertices(clusters, lambda c: c.get_dependencies(clusters))
+
+    def execute(self):
+        for schedule in self.schedules:
+            schedule.execute_all()
+        if self.schedules:
+            self.orm_control.prune_schemas_to_only(self.schedules[-1].cluster.versions)
+
+    def explain(self):
+        print('Rendering version graph to: versions.svg')
+        self.version_graph.render('versions')
+        print('Rendering cluster graph to: clusters.svg')
+        self.cluster_graph.render('clusters')
+        def find_schedules(schedules):
+            all_schedules = schedules[:]
+            for schedule in schedules:
+                all_schedules.extend(find_schedules(schedule.nested_schedules))
+            return all_schedules
+        schedule_graph = DependencyGraph.from_vertices(find_schedules(self.schedules), lambda r: r.nested_schedules)
+        print('Rendering schedule graph to: schedules.svg')
+        schedule_graph.render('schedules')
+        
+    def create_schedules_for_clusters(self, clusters_in_smallest_first_topological_order):
+        schedules = []
         for cluster in clusters_in_smallest_first_topological_order:
-            if not cluster.is_up_to_date and not cluster.visited:
+            if not cluster.is_up_to_date(self.orm_control) and not cluster.visited:
                 cluster_children = cluster.get_dependencies(clusters_in_smallest_first_topological_order)
-                next_cluster = cls.find_highest_parent_of(cluster_children, clusters_in_smallest_first_topological_order) if cluster_children else cluster
+                next_cluster = self.find_highest_parent_of(cluster_children, clusters_in_smallest_first_topological_order) if cluster_children else cluster
                 next_cluster.visited = True 
-                runs.append(MigrationRun.for_cluster(next_cluster, clusters_in_smallest_first_topological_order, all_clusters))
-        return runs
+                schedules.append(self.create_migration_schedule_for(next_cluster, clusters_in_smallest_first_topological_order))
+        return schedules
 
-    @classmethod
-    def find_highest_parent_of(cls, clusters, clusters_in_smallest_first_topological_order):
+    def find_highest_parent_of(self, clusters, clusters_in_smallest_first_topological_order):
         immediate_ancestors = [a for a in clusters_in_smallest_first_topological_order
                                 if any([c in a.get_dependencies(clusters_in_smallest_first_topological_order) for c in clusters])]
         return immediate_ancestors[-1]
 
-    @classmethod
-    def for_cluster(cls, cluster, clusters_in_smallest_first_topological_order, all_clusters):
-        logging.getLogger(__name__).debug('Creating MigrationRun for cluster %s' % cluster)
-        orm_control = ExecutionContext.get_context().system_control.orm_control
-        run = MigrationRun(orm_control, cluster, all_clusters)
+    def create_migration_schedule_for(self, cluster, clusters_in_smallest_first_topological_order):
+        logging.getLogger(__name__).debug('Creating MigrationSchedule for cluster %s' % cluster)
+        schedule = MigrationSchedule(self.orm_control, cluster, self.all_clusters_in_smallest_first_topological_order) 
         unhandled_decendants_in_smallest_first_topological_order = [c for c in clusters_in_smallest_first_topological_order
                                                                     if (clusters_in_smallest_first_topological_order.index(c) < clusters_in_smallest_first_topological_order.index(cluster))
-                                                                        and not (c.visited or c.is_up_to_date)]
+                                                                        and not (c.visited or c.is_up_to_date(self.orm_control))]
         if unhandled_decendants_in_smallest_first_topological_order:
-            logging.getLogger(__name__).debug('Adding nested MigrationRuns for clusters: %s' % unhandled_decendants_in_smallest_first_topological_order)
-        for nested_run in cls.create_runs_for_clusters(unhandled_decendants_in_smallest_first_topological_order, all_clusters):
-            run.add_nested(nested_run)
+            logging.getLogger(__name__).debug('Adding nested MigrationSchedules for clusters: %s' % unhandled_decendants_in_smallest_first_topological_order)
+        for nested_schedule in self.create_schedules_for_clusters(unhandled_decendants_in_smallest_first_topological_order):
+            schedule.add_nested(nested_schedule)
         if unhandled_decendants_in_smallest_first_topological_order:
-            logging.getLogger(__name__).debug('Done adding nested MigrationRuns for clusters: %s' % unhandled_decendants_in_smallest_first_topological_order)
-        run.schedule_migrations()
-        return run
+            logging.getLogger(__name__).debug('Done adding nested MigrationSchedules for clusters: %s' % unhandled_decendants_in_smallest_first_topological_order)
+        schedule.schedule_migrations()
+        return schedule
 
+
+
+class NoMigrationScheduleFound(Exception):
+    def __init__(self, cluster):
+        super().__init__('Could not find nested schedules for %s' % cluster)
+
+class MigrationSchedule:
+    """A schedule stating in which order migration operations should be performed to bring the database up to date with the given DependencyCluster"""
     def __init__(self, orm_control, cluster, all_clusters):
         self.cluster = cluster
         self.orm_control = orm_control
@@ -86,7 +128,7 @@ class MigrationRun:
         self.phases = dict([(i, []) for i in self.phases_in_order])
         self.before_nesting_phase = []
         self.last_phase = []
-        self.nested_runs = []
+        self.nested_schedules = []
         self.all_clusters = all_clusters
         self.current_drop_fk_phase = self.before_nesting_phase
 
@@ -108,7 +150,7 @@ class MigrationRun:
             previous_cluster = self.get_previous_cluster_for_version(version)
 
             if previous_cluster and not previous_cluster.visited:
-                self.current_drop_fk_phase = self.nested_run_for(previous_cluster).last_phase
+                self.current_drop_fk_phase = self.nested_schedule_for(previous_cluster).last_phase
             else:
                 self.current_drop_fk_phase = self.before_nesting_phase
 
@@ -118,18 +160,18 @@ class MigrationRun:
                 migration.schedule_upgrades()
             UpdateSchemaVersion(self, version).schedule_upgrades()
 
-    def add_nested(self, run):
+    def add_nested(self, schedule):
         try:
-            previously_added_run = self.nested_run_for(run.cluster)
-            raise ProgrammerError('Trying to add %s, but there is already a nested run for %s: %s' % (run, run.cluster, previously_added_run))
-        except NoRunFound:
-            self.nested_runs.append(run)
+            previously_added_schedule = self.nested_schedule_for(schedule.cluster)
+            raise ProgrammerError('Trying to add %s, but there is already a nested schedule for %s: %s' % (schedule, schedule.cluster, previously_added_schedule))
+        except NoMigrationScheduleFound:
+            self.nested_schedules.append(schedule)
         
-    def nested_run_for(self, cluster):
-        matching_runs = [run for run in self.nested_runs if run.cluster is cluster]
-        if not matching_runs:
-            raise NoRunFound(cluster)
-        return matching_runs[0]
+    def nested_schedule_for(self, cluster):
+        matching_schedules = [schedule for schedule in self.nested_schedules if schedule.cluster is cluster]
+        if not matching_schedules:
+            raise NoMigrationScheduleFound(cluster)
+        return matching_schedules[0]
 
     def schedule(self, phase, scheduling_migration, scheduling_context, to_call, *args, **kwargs):
         if phase == 'drop_fk':
@@ -159,20 +201,22 @@ class MigrationRun:
                         return '%s\n\n%s\n\n%s' % (message, 'The above Exception happened for the migration that was scheduled here:', ''.join(formatted_context))
                 raise ExceptionDuringMigration(scheduling_context)
 
-    def execute_nested_runs(self):
-        for run in self.nested_runs:
-            run.execute_all()
+    def execute_nested_schedules(self):
+        for schedule in self.nested_schedules:
+            schedule.execute_all()
 
     def execute_all(self):
         self.execute(self.before_nesting_phase)
-        self.execute_nested_runs()
+        self.execute_nested_schedules()
         for phase in self.phases_in_order:
             self.execute(self.phases[phase])
         self.execute(self.last_phase)
 
+# TODO:
+# cleanup dead versions on Migrations
 # TO TEST:
-#  - migrations can schedule changes on a MigrationRun
-#  - you can nest MigrationRuns on a MigrationRun
+#  - migrations can schedule changes on a MigrationSchedule
+#  - you can nest MigrationSchedules on a MigrationSchedule
 #  - Scheduling drop_fk is handled differently, depending...(see pic)
 
 class Migration:
@@ -195,8 +239,8 @@ class Migration:
         return parse_version(cls.version) > parse_version(current_schema_version) and \
                parse_version(cls.version) <= parse_version(new_version)
 
-    def __init__(self, migration_run):
-        self.migration_run = migration_run
+    def __init__(self, migration_schedule):
+        self.migration_schedule = migration_schedule
 
     def schedule(self, phase, to_call, *args, **kwargs):
         """Call this method to schedule a method call for execution later during the specified migration phase.
@@ -223,7 +267,7 @@ class Migration:
                     relevant_frames.append(frame)
 
             return reversed(relevant_frames)
-        self.migration_run.schedule(phase, self, get_scheduling_context(), to_call, *args, **kwargs)
+        self.migration_schedule.schedule(phase, self, get_scheduling_context(), to_call, *args, **kwargs)
 
     def schedule_upgrades(self):
         """Override this method in a subclass in order to supply custom logic for changing the database schema. This
@@ -244,9 +288,9 @@ class Migration:
 
 
 class UpdateSchemaVersion(Migration):
-    def __init__(self, migration_run, version):
-        super().__init__(migration_run)
+    def __init__(self, migration_schedule, version):
+        super().__init__(migration_schedule)
         self.version = version
 
     def schedule_upgrades(self):
-        self.schedule('last', self.migration_run.orm_control.set_schema_version_for, self.version)
+        self.schedule('last', self.migration_schedule.orm_control.set_schema_version_for, self.version)

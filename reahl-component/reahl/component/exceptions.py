@@ -23,12 +23,10 @@ import wrapt
 from wrapt.wrappers import PartialCallableObjectProxy
 import inspect
 
-from reahl.component.i18n import Catalogue
 
 from collections.abc import Callable
 
 
-_ = Catalogue('reahl-component')
 
 
 class DomainException(Exception):
@@ -54,6 +52,9 @@ class DomainException(Exception):
         return (self.__class__, (self.commit, self.message, self.detail_messages))
     
     def as_user_message(self):
+        # To ensure this module can be imported at a very low level
+        from reahl.component.i18n import Catalogue
+        _ = Catalogue('reahl-component')
         return self.message if self.message else _('An error occurred: %s' % self.__class__.__name__)
 
 

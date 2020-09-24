@@ -119,7 +119,7 @@
       <thirdpartyegg name="elixir" minversion="0.7" maxversion="0.8"/>
     </deps>
     <migrations>
-        <class locator="reahl.domain.migrations:GenesisMigration"/>
+        <class locator="reahl.domain.migrations:CreateDatabase"/>
     </migrations>
   </version>
 

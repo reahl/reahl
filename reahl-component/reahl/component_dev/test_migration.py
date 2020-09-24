@@ -28,7 +28,7 @@ from reahl.stubble import CallMonitor, EmptyStub
 
 from reahl.component.dbutils import ORMControl
 from reahl.component.eggs import ReahlEgg
-from reahl.component.migration import Migration, MigrationSchedule, MigrationRun
+from reahl.component.migration import Migration, MigrationSchedule, MigrationSchedule
 from reahl.component.exceptions import ProgrammerError
 
 
@@ -198,7 +198,7 @@ def test_invalid_schedule_name_raises():
 def test_version_dictates_execution_of_migration_(migrate_fixture):
     """Each Migration should have a class attribute `version` that states which version of the component
        it upgrades the database schema to. Only the Migrations with versions greater than the current 
-       schema version are included in a MigrationRun for a given egg.
+       schema version are included in a MigrationSchedule for a given egg.
     """
     
     class PreviousVersionMigration(Migration):
@@ -217,7 +217,7 @@ def test_version_dictates_execution_of_migration_(migrate_fixture):
                                          NewerVersionMigration, EvenNewerVersionMigration])
     migrate_fixture.orm_control.set_currently_installed_version_for(egg, '2.0')
 
-    migration_run = MigrationRun(migrate_fixture.orm_control, [egg])
+    migration_run = MigrationSchedule(migrate_fixture.orm_control, [egg])
     migrations_to_run = migration_run.migrations_to_run_for(egg)
     classes_to_run = [m.__class__ for m in migrations_to_run]
     assert classes_to_run == [NewerVersionMigration, EvenNewerVersionMigration]
@@ -254,9 +254,9 @@ def test_missing_schedule_upgrades_warns():
 
 @with_fixtures(MigrateFixture)
 def test_available_migration_phases(migrate_fixture):
-    """These are the phases, and order of the phases in a MigrationRun."""
+    """These are the phases, and order of the phases in a MigrationSchedule."""
 
-    migration_run = MigrationRun(migrate_fixture.orm_control, [])
+    migration_run = MigrationSchedule(migrate_fixture.orm_control, [])
     
     expected_order = ('drop_fk', 'drop_pk', 'pre_alter', 'alter', 'create_pk', 'indexes', 'data', 'create_fk', 'cleanup')
     assert migration_run.changes.phases_in_order == expected_order
@@ -270,6 +270,6 @@ def test_schema_version_housekeeping(migrate_fixture):
     
     egg = ReahlEggStub('my_egg', '2.0', [])
     migrate_fixture.orm_control.set_currently_installed_version_for(egg, '1.0')
-    migration_run = MigrationRun(migrate_fixture.orm_control, [egg])
+    migration_run = MigrationSchedule(migrate_fixture.orm_control, [egg])
     migration_run.execute_migrations()
     assert migrate_fixture.orm_control.schema_version_for(egg) == '2.0'

@@ -28,7 +28,7 @@ import logging
 
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.eggs import ReahlEgg
-from reahl.component.migration import MigrationRun
+from reahl.component.migration import MigrationPlan
 
 
 class CouldNotFindDatabaseControlException(Exception):
@@ -157,9 +157,9 @@ class SystemControl:
         finally:
             self.disconnect()
 
-    def migrate_db(self, dry_run=False, output_sql=False):
+    def migrate_db(self, dry_run=False, output_sql=False, explain=False):
         """Runs the database migrations relevant to the current system."""
-        self.orm_control.migrate_db(self.config.reahlsystem.root_egg, dry_run=dry_run, output_sql=output_sql)
+        self.orm_control.migrate_db(self.config.reahlsystem.root_egg, dry_run=dry_run, output_sql=output_sql, explain=explain)
         return 0
 
     def diff_db(self, output_sql=False):
@@ -285,12 +285,16 @@ class ORMControl():
     .. versionchanged: 5.0.0
        Signature changed from taking eggs_in_order to taking root_egg.
     """
-    def migrate_db(self, root_egg, dry_run=False, output_sql=False):
+    def migrate_db(self, root_egg, dry_run=False, output_sql=False, explain=False):
         try:
-            with self.managed_transaction():
-                MigrationRun.migrate(root_egg)
-                if dry_run:
-                    raise DryRunException()
+            plan = MigrationPlan(root_egg, self)
+            if explain:
+                plan.explain()
+            else:
+                with self.managed_transaction():
+                    plan.execute()
+                    if dry_run:
+                        raise DryRunException()
         except DryRunException:
             logging.getLogger(__name__).info('Migration: only a dry run, rolling changes back')
 

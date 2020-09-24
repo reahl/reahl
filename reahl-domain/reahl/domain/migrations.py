@@ -23,7 +23,7 @@ from reahl.sqlalchemysupport import fk_name, ix_name, Text, ForeignKeyConstraint
     PrimaryKeyConstraint
 
 
-class GenesisMigration(Migration):
+class CreateDatabase(Migration):
     version = '2.0'
 
     def schedule_upgrades(self):

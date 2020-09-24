@@ -350,13 +350,13 @@ class SqlAlchemyControl(ORMControl):
     def execute_one(self, sql):
         return Session.execute(sql).fetchone()
 
-    def migrate_db(self, eggs_in_order, dry_run=False, output_sql=False):
+    def migrate_db(self, eggs_in_order, dry_run=False, output_sql=False, explain=False):
         opts = {'as_sql': output_sql, 'target_metadata': metadata}
         with Operations.context(MigrationContext.configure(connection=Session.connection(), opts=opts)) as op:
             self.op = op
-            return super().migrate_db(eggs_in_order, dry_run=dry_run, output_sql=output_sql)
+            return super().migrate_db(eggs_in_order, dry_run=dry_run, output_sql=output_sql, explain=explain)
 
-    def remove_dead_schemas(self, live_versions):
+    def prune_schemas_to_only(self, live_versions):
         output_sql = False
         opts = {'as_sql': output_sql, 'target_metadata': metadata}
         with Operations.context(MigrationContext.configure(connection=Session.connection(), opts=opts)) as op:

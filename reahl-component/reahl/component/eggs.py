@@ -27,6 +27,8 @@ from pkg_resources import Requirement, get_distribution, iter_entry_points, requ
 
 from reahl.component.decorators import memoized
 from reahl.component.context import ExecutionContext
+from reahl.component.exceptions import DomainException
+
 
 class NoDependencyPathFound(Exception):
     def __init__(self, from_vertex, to_vertex):
@@ -108,7 +110,7 @@ class DependencyGraph:
                 self.search(i)
         return reversed(self.topological_order)
 
-    def find_disconnected_components(self):
+    def find_components(self):
         components = {}
         all_dependencies = set(itertools.chain(*self.graph.values()))
         for vertex in self.graph.keys():
@@ -137,6 +139,20 @@ class DependencyGraph:
         self.search(vertex)
         return self.topological_order
 
+    def render(self, filename, format='svg'):
+        try:
+            from graphviz import Digraph
+        except ImportError:
+            raise DomainException('To use this, you have to install graphviz')
+        else:
+            graph = Digraph()
+            for node in self.graph.keys():
+                graph.node(str(node))
+            for node, deps in self.graph.items():
+                for dep in deps:
+                    graph.edge(str(node), str(dep))
+            graph.render(filename, cleanup=True, format=format)
+
 
 class DependencyCluster:
     def __init__(self, cluster_root, versions):
@@ -152,9 +168,8 @@ class DependencyCluster:
                     deps.append((e, other_e))
         return bool(deps)
 
-    @property
-    def is_up_to_date(self):
-        return all([version.is_up_to_date for version in self.versions])
+    def is_up_to_date(self, orm_control):
+        return all([version.is_up_to_date(orm_control) for version in self.versions])
 
     def get_dependencies(self, all_clusters):
         return [other for other in all_clusters if self.is_dependent_on(other)]
@@ -172,42 +187,6 @@ class DependencyCluster:
 
     def __repr__(self):
         return '<%s %s>' % (self.__class__.__name__, self)
-
-
-class VersionTree(object):
-    @classmethod
-    def from_root_egg(cls, root_egg_name):
-        instance = cls()
-        egg = ReahlEgg(get_distribution(root_egg_name))
-        versions = egg.get_versions()
-        for version in versions:
-            instance.build_tree_for(version)
-        return instance
-
-    def __init__(self):
-        self.dep_dict = {}
-
-    def show(self):
-        for key in self.dep_dict:
-            print('%s depends on: %s' % (key, [str(i) for i in self.dep_dict[key]]))
-
-    def build_tree_for(self, version):
-        if not version:
-            return
-        if version not in self.dep_dict:
-            self.build_tree_for(version.get_previous_version())
-            children = self.dep_dict[version] = [dependency.get_best_version() for dependency in version.get_dependencies()
-                                                 if dependency.type == 'egg' and dependency.distribution]
-            for v in children:
-                self.build_tree_for(v)
-                self.build_tree_for(v.get_previous_version())
-
-    def as_dependency_graph(self):
-        return DependencyGraph(self.dep_dict)
-
-    def create_clusters(self):
-        graph = self.as_dependency_graph()
-        return [DependencyCluster(root, contents) for root, contents in graph.find_disconnected_components()]
 
 
 class Dependency(object):
@@ -305,9 +284,7 @@ class Version(object):
             return other.get_previous_version() == self
         return False
 
-    @property
-    def is_up_to_date(self):
-        orm_control = ExecutionContext.get_context().system_control.orm_control
+    def is_up_to_date(self, orm_control):
         installed_version_number = parse_version(orm_control.schema_version_for(self.egg, default='0.0'))
         return installed_version_number >= self.version_number
 

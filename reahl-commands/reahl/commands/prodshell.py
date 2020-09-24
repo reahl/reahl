@@ -31,8 +31,9 @@ from reahl.component.dbutils import SystemControl
 from reahl.component.shelltools import Command, ReahlCommandline, AliasFile
 from reahl.component.context import ExecutionContext
 from reahl.component.config import ConfigSetting, StoredConfiguration, MissingValue
-from reahl.component.eggs import ReahlEgg, VersionTree, DependencyGraph
+from reahl.component.eggs import ReahlEgg, DependencyGraph
 from reahl.component.exceptions import DomainException
+from reahl.component.migration import MigrationPlan
 
 
 class ComponentInfo(Command):
@@ -299,20 +300,23 @@ class DropDBTables(ProductionCommand):
 
 
 class MigrateDB(ProductionCommand):
-    """Runs all necessary database migrations."""
+    """schedules all necessary database migrations."""
     keyword = 'migratedb'
     def assemble(self):
         super(MigrateDB, self).assemble()
-        self.parser.add_argument('-d', '--dryrun', action='store_true', dest='dry_run',
-                                 help='apply the migration, but do not commit(rollback changes)')
-        self.parser.add_argument('-s', '--output-sql', action='store_true', dest='output_sql',
-                                 help='don\'t migrate, only output the sql that would be executed when migrating')
+        simulate_group = self.parser.add_mutually_exclusive_group(required=False)
+        simulate_group.add_argument('-d', '--dryrun', action='store_true', dest='dry_run',
+                                    help='apply the migration, but do not commit(rollback changes)')
+        simulate_group.add_argument('-s', '--output-sql', action='store_true', dest='output_sql',
+                                    help='don\'t migrate, only output the sql that would be executed when migrating')
+        simulate_group.add_argument('-e', '--explain-plan', action='store_true', dest='explain',
+                                    help='don\'t migrate, show graphs explaining intermediate steps of the plan (requires graphviz to be installed)')
 
     def execute(self, args):
         super().execute(args)
         self.context.install()
         with self.sys_control.auto_connected():
-            return self.sys_control.migrate_db(dry_run=args.dry_run, output_sql=args.output_sql)
+            return self.sys_control.migrate_db(dry_run=args.dry_run, output_sql=args.output_sql, explain=args.explain)
 
 
 class DiffDB(ProductionCommand):
@@ -333,7 +337,7 @@ class DiffDB(ProductionCommand):
 
 
 class ListDependencies(ProductionCommand):
-    """List all dependency eggs in dependency order."""
+    """List all dependent eggs in dependency order."""
     keyword = 'listdeps'
     def assemble(self):
         super().assemble()
@@ -351,68 +355,23 @@ class ListDependencies(ProductionCommand):
         return 0
 
 
-class ListVersions(ProductionCommand):
-    """List all declared versions."""
-    keyword = 'listversions'
+class ListVersionHistory(ProductionCommand):
+    """List full version history."""
+    keyword = 'listversionhistory'
     def assemble(self):
-        super(ListVersions, self).assemble()
+        super().assemble()
 
     def execute(self, args):
-        super(ListVersions, self).execute(args)
-        self.context.install()
-        versions = ReahlEgg(get_distribution(self.config.reahlsystem.root_egg)).get_versions()
-        for version in versions:
-            print(f'{version}')
-        return 0
+        super().execute(args)
+        version_graph = MigrationPlan.create_version_graph_for(self.config.reahlsystem.root_egg)
+        for key in version_graph.graph:
+            print('%s [%s]' % (key, ' | '.join([str(i) for i in version_graph.graph[key]])))
 
-
-class ListVersionDependencies(ProductionCommand):
-    """List dependencies."""
-    keyword = 'listversiondeps'
-    def assemble(self):
-        super(ListVersionDependencies, self).assemble()
-
-    def execute(self, args):
-        super(ListVersionDependencies, self).execute(args)
-        self.context.install()
-        tree = VersionTree.from_root_egg(self.config.reahlsystem.root_egg)
-
-        def show_graph(filename, graph_input):
-            from graphviz import Digraph
-            graph = Digraph()
-            for node in graph_input.keys():
-                graph.node(str(node))
-            for node, deps in graph_input.items():
-                for dep in deps:
-                    graph.edge(str(node), str(dep))
-            graph.render(filename, view=True)
-        show_graph('versions', tree.dep_dict)
-        #tree.show()
-        clusters = tree.create_clusters()
-#        for c in clusters:
-#            print('%s: %s' % (c, [str(i) for i in c.versions]) )
-#            print('%s: %s' % (c, [str(i) for i in c.get_dependencies(clusters)]) )
-#        return 0
-        cluster_graph = DependencyGraph.from_vertices(clusters, lambda c: c.get_dependencies(clusters))
-        show_graph('clusters', cluster_graph.graph)
-        for c in cluster_graph.topological_sort():
-            print(str(c))
-        clusters_smallest_first = list(reversed(list(cluster_graph.topological_sort())))
-        from reahl.component.migration import MigrationRun
-        self.context.install()
-        runs = MigrationRun.create_runs_for_clusters(clusters_smallest_first, clusters_smallest_first)
-        def find_runs(runs):
-            all_runs = runs[:]
-            for run in runs:
-                all_runs.extend(find_runs(run.nested_runs))
-            return all_runs
-        run_graph = DependencyGraph.from_vertices(find_runs(runs), lambda r: r.nested_runs)
-        show_graph('runs', run_graph.graph)
         return 0
 
 
 class RunJobs(ProductionCommand):
-    """Runs all registered scripts."""
+    """schedules all registered scripts."""
     keyword = 'runjobs'
     def execute(self, args):
         super().execute(args)

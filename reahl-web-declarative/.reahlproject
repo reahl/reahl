@@ -110,7 +110,7 @@
       <egg name="reahl-domain" versionlocked="True"/>
     </deps>
     <migrations>
-      <class locator="reahl.webdeclarative.migrations:GenesisMigration"/>
+      <class locator="reahl.webdeclarative.migrations:CreateDatabase"/>
     </migrations>
   </version>
 
