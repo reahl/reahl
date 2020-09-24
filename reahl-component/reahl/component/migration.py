@@ -64,13 +64,18 @@ class MigrationRun:
 
     @classmethod
     def for_cluster(cls, cluster, clusters_in_smallest_first_topological_order, all_clusters):
+        logging.getLogger(__name__).debug('Creating MigrationRun for cluster %s' % cluster)
         orm_control = ExecutionContext.get_context().system_control.orm_control
         run = MigrationRun(orm_control, cluster, all_clusters)
         unhandled_decendants_in_smallest_first_topological_order = [c for c in clusters_in_smallest_first_topological_order
                                                                     if (clusters_in_smallest_first_topological_order.index(c) < clusters_in_smallest_first_topological_order.index(cluster))
                                                                         and not (c.visited or c.is_up_to_date)]
+        if unhandled_decendants_in_smallest_first_topological_order:
+            logging.getLogger(__name__).debug('Adding nested MigrationRuns for clusters: %s' % unhandled_decendants_in_smallest_first_topological_order)
         for nested_run in cls.create_runs_for_clusters(unhandled_decendants_in_smallest_first_topological_order, all_clusters):
             run.add_nested(nested_run)
+        if unhandled_decendants_in_smallest_first_topological_order:
+            logging.getLogger(__name__).debug('Done adding nested MigrationRuns for clusters: %s' % unhandled_decendants_in_smallest_first_topological_order)
         run.schedule_migrations()
         return run
 
@@ -109,6 +114,7 @@ class MigrationRun:
 
             for migration_class in version.get_migration_classes():
                 migration = migration_class(self)
+                logging.getLogger(__name__).info('Scheduling Migrations for migration %s in cluster %s' % (migration_class, self.cluster))
                 migration.schedule_upgrades()
             UpdateSchemaVersion(self, version).schedule_upgrades()
 
@@ -138,7 +144,7 @@ class MigrationRun:
 
     def execute(self, scheduled_changes):
         for to_call, scheduling_migration, scheduling_context, args, kwargs in scheduled_changes:
-            logging.getLogger(__name__).debug('[%s in %s] change: %s(%s, %s)' % (scheduling_migration, self.cluster, to_call.__name__, args, kwargs))
+            logging.getLogger(__name__).info('[%s in %s] change: %s(%s, %s)' % (scheduling_migration, self.cluster, to_call.__name__, args, kwargs))
             try:
                 to_call(*args, **kwargs)
             except Exception as e:
