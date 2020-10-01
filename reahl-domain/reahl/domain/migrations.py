@@ -26,7 +26,7 @@ from reahl.sqlalchemysupport import fk_name, ix_name, Text, ForeignKeyConstraint
 class CreateDatabase(Migration):
 
     def schedule_upgrades(self):
-
+        self.orm_control.assert_dialect(self, 'postgresql')
         self.schedule('alter', op.create_table, 'systemaccount',
                       Column('id', Integer(), nullable=False),
                       Column('registration_date', DateTime(), nullable=True),
@@ -300,6 +300,7 @@ class ElixirToDeclarativeDomainChanges(MigrateElixirToDeclarative):
 
 class AddLoginSession(Migration):
     def schedule_upgrades(self):
+        self.orm_control.assert_dialect(self, 'postgresql')
         self.schedule('alter', op.create_table, 'loginsession', 
                       Column('id', Integer(), primary_key=True, nullable=False),
                       Column('row_type', String(length=40)),
@@ -311,6 +312,7 @@ class AddLoginSession(Migration):
 
 class ChangeSchemaToBeMySqlCompatible(Migration):
     def schedule_upgrades(self):
+        self.orm_control.assert_dialect(self, 'postgresql')
         #the fk's were defined as DEFERRABLE INITIALLY deferred. Since MySQL does not cater for it, we need to remove it.
         other_table_name = 'systemaccount'
         for table_name in ['newpasswordrequest', 'changeaccountemail', 'activateaccount']:
@@ -327,8 +329,8 @@ class ChangeSchemaToBeMySqlCompatible(Migration):
 
 
 class ChangePasswordHash(Migration):
-
     def schedule_upgrades(self):
+        self.orm_control.assert_dialect(self, 'postgresql')
         self.schedule('alter', op.alter_column, 'emailandpasswordsystemaccount',
                                                 'password_md5', new_column_name='password_hash',
                                                 existing_type=String(32), type_=Unicode(1024),
@@ -336,6 +338,6 @@ class ChangePasswordHash(Migration):
 
 
 class RemoveDeadApacheDigestColumn(Migration):
-
     def schedule_upgrades(self):
+        self.orm_control.assert_dialect(self, 'postgresql')
         self.schedule('cleanup', op.drop_column, 'emailandpasswordsystemaccount', 'apache_digest')

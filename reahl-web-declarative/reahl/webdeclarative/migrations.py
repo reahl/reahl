@@ -29,9 +29,8 @@ from reahl.component.context import ExecutionContext
 
 
 class CreateDatabase(Migration):
-
     def schedule_upgrades(self):
-
+        self.orm_control.assert_dialect(self, 'postgresql')
         self.schedule('alter', op.create_table, 'sessiondata',
                       Column('id', Integer(), nullable=False),
                       Column('web_session_id', Integer(), nullable=True),
@@ -103,6 +102,7 @@ class RenameRegionToUi(Migration):
             return False
 
     def schedule_upgrades(self):
+        self.orm_control.assert_dialect(self, 'postgresql')
         self.schedule('alter', op.alter_column, 'sessiondata', 'region_name', new_column_name='ui_name')
 
 
@@ -134,6 +134,7 @@ class ElixirToDeclarativeWebDeclarativeChanges(MigrateElixirToDeclarative):
 
 class MergeWebUserSessionToUserSession(Migration):
     def schedule_upgrades(self):
+        self.orm_control.assert_dialect(self, 'postgresql')
         self.schedule('drop_pk', op.drop_index, ix_name('usersession', 'account_id'))
         self.schedule('alter', op.drop_column, 'usersession', 'account_id')
         self.schedule('alter', op.add_column, 'usersession', Column('salt', String(40), nullable=False))
@@ -148,6 +149,7 @@ class MergeWebUserSessionToUserSession(Migration):
 
 class RenameContentType(Migration):
     def schedule_upgrades(self):
+        self.orm_control.assert_dialect(self, 'postgresql')
         self.schedule('alter', op.add_column, 'persistedfile', Column('mime_type', UnicodeText, nullable=False))
         self.schedule('data', op.execute, 'update persistedfile set mime_type=content_type')
         self.schedule('cleanup', op.drop_column, 'persistedfile', 'content_type')
@@ -155,11 +157,13 @@ class RenameContentType(Migration):
 
 class AllowNullUserInputValue(Migration):
     def schedule_upgrades(self):
+        self.orm_control.assert_dialect(self, 'postgresql')
         self.schedule('alter', op.alter_column, 'userinput', 'value', existing_nullable=False, nullable=True)
 
 
 class AddViewPathToSessionData(Migration):
     def schedule_upgrades(self):
+        self.orm_control.assert_dialect(self, 'postgresql', 'mysql')
         self.schedule('alter', op.alter_column, 'sessiondata', 'channel_name', existing_nullable=False, nullable=True)
         self.schedule('alter', op.add_column, 'sessiondata', Column('view_path', UnicodeText, nullable=False))
 

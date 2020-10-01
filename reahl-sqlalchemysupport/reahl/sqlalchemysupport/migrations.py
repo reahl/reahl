@@ -27,8 +27,8 @@ from sqlalchemy import UnicodeText, Unicode, Column, Integer, String, PrimaryKey
 
 
 class CreateDatabase(Migration):
-
     def schedule_upgrades(self):
+        self.orm_control.assert_dialect(self, 'postgresql')
         self.schedule('alter', op.create_table, 'reahl_schema_version',
                       Column('id', Integer(), nullable=False),
                       Column('version', String(length=50), nullable=True),
@@ -39,8 +39,8 @@ class CreateDatabase(Migration):
 
 
 class ChangesToBeMySqlCompatible(Migration):
-
     def schedule_upgrades(self):
+        self.orm_control.assert_dialect(self, 'postgresql')
         self.schedule('alter', op.alter_column, 'reahl_schema_version', 'egg_name',
                       existing_type=UnicodeText, type_=Unicode(80), existing_nullable=False)
 

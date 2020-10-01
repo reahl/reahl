@@ -40,7 +40,7 @@ from reahl.component.eggs import ReahlEgg
 from reahl.component.dbutils import ORMControl
 from reahl.component.context import ExecutionContext, NoContextFound
 from reahl.component.modelinterface import Field, IntegerConstraint
-from reahl.component.exceptions import ProgrammerError
+from reahl.component.exceptions import ProgrammerError, DomainException
 from reahl.component.config import Configuration
 
 _ = Catalogue('reahl-sqlalchemysupport')
@@ -451,6 +451,11 @@ class SqlAlchemyControl(ORMControl):
         elif versions_count == 1:
             current_version = current_versions.one()
             current_version.version = str(version.version_number)
+
+    def assert_dialect(self, migration, *supported_dialects):
+        dialect_name = self.engine.dialect.name
+        if dialect_name not in supported_dialects:
+            raise DomainException(message='Migration %s does not support the database dialect you are running on (%s), only one of %s' % (migration, dialect_name, supported_dialects))
 
 
 class PersistedField(Field):

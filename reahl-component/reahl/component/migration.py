@@ -244,6 +244,10 @@ class Migration:
     def __init__(self, migration_schedule):
         self.migration_schedule = migration_schedule
 
+    @property
+    def orm_control(self):
+        return self.migration_schedule.orm_control
+
     def schedule(self, phase, to_call, *args, **kwargs):
         """Call this method to schedule a method call for execution later during the specified migration phase.
 

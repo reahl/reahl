@@ -25,6 +25,7 @@ class MigrateElixirToDeclarative(Migration):
        help with migrating common changes between Elixir and Declarative"""
 
     def schedule_upgrades(self):
+        self.orm_control.assert_dialect(self, 'postgresql')
         self.rename_primary_key_constraints()
         self.rename_foreign_keys_constraints()
         self.change_inheriting_table_ids()
