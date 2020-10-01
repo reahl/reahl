@@ -23,7 +23,6 @@ from reahl.sqlalchemysupport import fk_name, ix_name
 class MigrateElixirToDeclarative(Migration):
     """Inherit your own Migrations from this class in order to get access to a number of methods that 
        help with migrating common changes between Elixir and Declarative"""
-    version = '3.0'
 
     def schedule_upgrades(self):
         self.rename_primary_key_constraints()

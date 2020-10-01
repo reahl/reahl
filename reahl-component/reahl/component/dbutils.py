@@ -76,9 +76,9 @@ class SystemControl:
         self.orm_control = self.config.reahlsystem.orm_control
         self.orm_control.system_control = self
 
-    def connect(self):
+    def connect(self, auto_commit=False):
         """Connects and logs into the database."""
-        self.orm_control.connect()
+        self.orm_control.connect(auto_commit=auto_commit)
         if self.db_control.is_in_memory:
             self.create_db_tables()
 
@@ -157,9 +157,9 @@ class SystemControl:
         finally:
             self.disconnect()
 
-    def migrate_db(self, dry_run=False, output_sql=False, explain=False):
+    def migrate_db(self, explain=False):
         """Runs the database migrations relevant to the current system."""
-        self.orm_control.migrate_db(self.config.reahlsystem.root_egg, dry_run=dry_run, output_sql=output_sql, explain=explain)
+        self.orm_control.migrate_db(self.config.reahlsystem.root_egg, explain=explain)
         return 0
 
     def diff_db(self, output_sql=False):
@@ -263,10 +263,6 @@ class NullDatabaseControl(DatabaseControl):
         return self.donothing
 
 
-class DryRunException(Exception):
-    pass
-
-
 class ORMControl():
     """An interface to higher-level database operations that may be dependent on the ORM technology used.
 
@@ -285,18 +281,15 @@ class ORMControl():
     .. versionchanged: 5.0.0
        Signature changed from taking eggs_in_order to taking root_egg.
     """
-    def migrate_db(self, root_egg, dry_run=False, output_sql=False, explain=False):
-        try:
-            plan = MigrationPlan(root_egg, self)
-            if explain:
-                plan.explain()
-            else:
-                with self.managed_transaction():
-                    plan.execute()
-                    if dry_run:
-                        raise DryRunException()
-        except DryRunException:
-            logging.getLogger(__name__).info('Migration: only a dry run, rolling changes back')
+    def migrate_db(self, root_egg, explain=False):
+        plan = MigrationPlan(root_egg, self)
+        if explain:
+            plan.explain()
+        else:
+            plan.execute()
+            # with self.managed_transaction():
+            #     plan.execute()
+                   
 
 
 

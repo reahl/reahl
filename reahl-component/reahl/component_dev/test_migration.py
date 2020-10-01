@@ -76,8 +76,8 @@ class ORMControlStub(ORMControl):
     def managed_transaction(self):
         yield
 
-    def update_schema_version_for(self, egg):
-        self.versions[egg.name] = egg.version
+    def set_schema_version_for(self, version):
+        self.versions[egg.name] = version.version_number
 
     # noinspection PyUnusedLocal
     def schema_version_for(self, egg, default=None):
@@ -112,7 +112,6 @@ def test_how_migration_works(migrate_fixture):
     some_object = SomeObject()
     
     class Migration1(Migration):
-        version = '2.0'
 
         def schedule_upgrades(self):
             self.schedule('drop_fk', some_object.do_something, 'drop_fk_1')
@@ -120,7 +119,6 @@ def test_how_migration_works(migrate_fixture):
             self.schedule('drop_fk', some_object.do_something, 'drop_fk_2')
 
     class Migration2(Migration):
-        version = '3.0'
 
         def schedule_upgrades(self):
             self.schedule('drop_fk', some_object.do_something, 'drop_fk_3')
@@ -202,16 +200,16 @@ def test_version_dictates_execution_of_migration_(migrate_fixture):
     """
     
     class PreviousVersionMigration(Migration):
-        version = '1.0'
+        pass
 
     class MatchingCurrentVersionMigration(Migration):
-        version = '2.0'
+        pass
 
     class NewerVersionMigration(Migration):
-        version = '3.0'
+        pass
 
     class EvenNewerVersionMigration(Migration):
-        version = '4.0'
+        pass
 
     egg = ReahlEggStub('my_egg', '4.0', [PreviousVersionMigration, MatchingCurrentVersionMigration, 
                                          NewerVersionMigration, EvenNewerVersionMigration])

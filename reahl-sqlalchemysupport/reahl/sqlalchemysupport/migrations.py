@@ -27,7 +27,6 @@ from sqlalchemy import UnicodeText, Unicode, Column, Integer, String, PrimaryKey
 
 
 class CreateDatabase(Migration):
-    version = '2.0'
 
     def schedule_upgrades(self):
         self.schedule('alter', op.create_table, 'reahl_schema_version',
@@ -40,7 +39,6 @@ class CreateDatabase(Migration):
 
 
 class ChangesToBeMySqlCompatible(Migration):
-    version = '4.0.0a1'
 
     def schedule_upgrades(self):
         self.schedule('alter', op.alter_column, 'reahl_schema_version', 'egg_name',

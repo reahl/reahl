@@ -29,7 +29,6 @@ from reahl.component.context import ExecutionContext
 
 
 class CreateDatabase(Migration):
-    version = '2.0'
 
     def schedule_upgrades(self):
 
@@ -88,7 +87,6 @@ class CreateDatabase(Migration):
 
 
 class RenameRegionToUi(Migration):
-    version = '2.1'
     @classmethod
     def is_applicable(cls, current_schema_version, new_version):
         if super().is_applicable(current_schema_version, new_version):
@@ -135,7 +133,6 @@ class ElixirToDeclarativeWebDeclarativeChanges(MigrateElixirToDeclarative):
 
 
 class MergeWebUserSessionToUserSession(Migration):
-    version = '3.1'
     def schedule_upgrades(self):
         self.schedule('drop_pk', op.drop_index, ix_name('usersession', 'account_id'))
         self.schedule('alter', op.drop_column, 'usersession', 'account_id')
@@ -150,7 +147,6 @@ class MergeWebUserSessionToUserSession(Migration):
 
 
 class RenameContentType(Migration):
-    version = '3.1'
     def schedule_upgrades(self):
         self.schedule('alter', op.add_column, 'persistedfile', Column('mime_type', UnicodeText, nullable=False))
         self.schedule('data', op.execute, 'update persistedfile set mime_type=content_type')
@@ -158,13 +154,11 @@ class RenameContentType(Migration):
 
 
 class AllowNullUserInputValue(Migration):
-    version = '4.0.0a1'
     def schedule_upgrades(self):
         self.schedule('alter', op.alter_column, 'userinput', 'value', existing_nullable=False, nullable=True)
 
 
 class AddViewPathToSessionData(Migration):
-    version = '5.0.0a1'
     def schedule_upgrades(self):
         self.schedule('alter', op.alter_column, 'sessiondata', 'channel_name', existing_nullable=False, nullable=True)
         self.schedule('alter', op.add_column, 'sessiondata', Column('view_path', UnicodeText, nullable=False))

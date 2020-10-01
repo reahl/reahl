@@ -18,7 +18,6 @@ from reahl.component.migration import Migration
 
 
 class AddDate(Migration):
-    version = '0.1'
     def schedule_upgrades(self):
         print('scheduling upgrades for AddDate')
         self.schedule('alter', op.add_column, 'migrationbootstrap_address', Column('added_date', DateTime))

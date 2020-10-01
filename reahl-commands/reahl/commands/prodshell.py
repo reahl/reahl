@@ -305,18 +305,17 @@ class MigrateDB(ProductionCommand):
     def assemble(self):
         super(MigrateDB, self).assemble()
         simulate_group = self.parser.add_mutually_exclusive_group(required=False)
-        simulate_group.add_argument('-d', '--dryrun', action='store_true', dest='dry_run',
-                                    help='apply the migration, but do not commit(rollback changes)')
-        simulate_group.add_argument('-s', '--output-sql', action='store_true', dest='output_sql',
-                                    help='don\'t migrate, only output the sql that would be executed when migrating')
         simulate_group.add_argument('-e', '--explain-plan', action='store_true', dest='explain',
                                     help='don\'t migrate, show graphs explaining intermediate steps of the plan (requires graphviz to be installed)')
 
     def execute(self, args):
         super().execute(args)
         self.context.install()
-        with self.sys_control.auto_connected():
-            return self.sys_control.migrate_db(dry_run=args.dry_run, output_sql=args.output_sql, explain=args.explain)
+        try:
+            self.sys_control.connect(auto_commit=True)
+            return self.sys_control.migrate_db(explain=args.explain)
+        finally:
+            self.sys_control.disconnect()
 
 
 class DiffDB(ProductionCommand):

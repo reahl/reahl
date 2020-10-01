@@ -24,7 +24,6 @@ from reahl.sqlalchemysupport import fk_name, ix_name, Text, ForeignKeyConstraint
 
 
 class CreateDatabase(Migration):
-    version = '2.0'
 
     def schedule_upgrades(self):
 
@@ -300,7 +299,6 @@ class ElixirToDeclarativeDomainChanges(MigrateElixirToDeclarative):
 
 
 class AddLoginSession(Migration):
-    version = '3.1'
     def schedule_upgrades(self):
         self.schedule('alter', op.create_table, 'loginsession', 
                       Column('id', Integer(), primary_key=True, nullable=False),
@@ -312,7 +310,6 @@ class AddLoginSession(Migration):
 
 
 class ChangeSchemaToBeMySqlCompatible(Migration):
-    version = '4.0.0a1'
     def schedule_upgrades(self):
         #the fk's were defined as DEFERRABLE INITIALLY deferred. Since MySQL does not cater for it, we need to remove it.
         other_table_name = 'systemaccount'
@@ -330,7 +327,6 @@ class ChangeSchemaToBeMySqlCompatible(Migration):
 
 
 class ChangePasswordHash(Migration):
-    version = '4.0.0a1'
 
     def schedule_upgrades(self):
         self.schedule('alter', op.alter_column, 'emailandpasswordsystemaccount',
@@ -340,7 +336,6 @@ class ChangePasswordHash(Migration):
 
 
 class RemoveDeadApacheDigestColumn(Migration):
-    version = '4.0.0a1'
 
     def schedule_upgrades(self):
         self.schedule('cleanup', op.drop_column, 'emailandpasswordsystemaccount', 'apache_digest')

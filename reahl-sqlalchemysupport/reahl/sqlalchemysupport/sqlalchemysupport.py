@@ -252,7 +252,7 @@ class SqlAlchemyControl(ORMControl):
         else:
             transaction.commit()
         
-    def connect(self):
+    def connect(self, auto_commit=False):
         """Creates the SQLAlchemy Engine, bind it to the metadata and instrument the persisted classes 
            for the current reahlsystem.root_egg."""
         assert not self.connected
@@ -262,6 +262,8 @@ class SqlAlchemyControl(ORMControl):
         db_api_connection_creator = context.system_control.db_control.get_dbapi_connection_creator()
 
         create_args = {'pool_pre_ping': True}
+        if auto_commit:
+            create_args['isolation_level'] = 'AUTOCOMMIT'
         if db_api_connection_creator:
             create_args['creator']=db_api_connection_creator
 
@@ -350,18 +352,17 @@ class SqlAlchemyControl(ORMControl):
     def execute_one(self, sql):
         return Session.execute(sql).fetchone()
 
-    def migrate_db(self, eggs_in_order, dry_run=False, output_sql=False, explain=False):
-        opts = {'as_sql': output_sql, 'target_metadata': metadata}
+    def migrate_db(self, eggs_in_order, explain=False):
+        opts = {'target_metadata': metadata}
         with Operations.context(MigrationContext.configure(connection=Session.connection(), opts=opts)) as op:
             self.op = op
-            return super().migrate_db(eggs_in_order, dry_run=dry_run, output_sql=output_sql, explain=explain)
+            return super().migrate_db(eggs_in_order, explain=explain)
 
     def prune_schemas_to_only(self, live_versions):
-        output_sql = False
-        opts = {'as_sql': output_sql, 'target_metadata': metadata}
+        opts = {'target_metadata': metadata}
         with Operations.context(MigrationContext.configure(connection=Session.connection(), opts=opts)) as op:
             self.op = op
-            to_remove = [i for i in self.get_outstanding_migrations() if i[0].startswith('remove_')]
+            to_remove = [i for i in self.get_outstanding_migrations().upgrade_ops.as_diffs() if i[0].startswith('remove_')]
             tables_to_drop = []
             unhandled = []
             for migration in to_remove:
@@ -390,11 +391,11 @@ class SqlAlchemyControl(ORMControl):
             
 
     def get_outstanding_migrations(self):
-        return compare_metadata(MigrationContext.configure(connection=Session.connection()), metadata)
+        return produce_migrations(MigrationContext.configure(connection=Session.connection()), metadata)
         
     def diff_db(self, output_sql=False):
+        migrations = self.get_outstanding_migrations()
         if output_sql:
-            migrations = produce_migrations(MigrationContext.configure(connection=Session.connection()), metadata)
             commented_source_code = render_python_code(migrations.upgrade_ops, alembic_module_prefix='op2.', sqlalchemy_module_prefix="sqlalchemy.")
             uncommented_source_code = [i.strip() for i in commented_source_code.split('\n') if not i.strip().startswith('#')]
             source_code = '\n'.join(['import sqlalchemy']+uncommented_source_code)
@@ -403,7 +404,7 @@ class SqlAlchemyControl(ORMControl):
                 exec(source_code, globals(), locals())
             return uncommented_source_code
         else:
-            migrations_required = self.get_outstanding_migrations()
+            migrations_required = migrations.upgrade_ops.as_diffs()
             if migrations_required:
                 pprint.pprint(migrations_required, indent=2, width=20)
             return migrations_required
@@ -440,12 +441,6 @@ class SqlAlchemyControl(ORMControl):
         else:
             assert default, 'No existing schema version found for egg %s, and you did not specify a default version' % egg.name
             return default
-            
-    def update_schema_version_for(self, egg):
-        current_versions = Session.query(SchemaVersion).filter_by(egg_name=egg.name)
-        assert current_versions.count() == 1, 'Found %s versions for %s, expected exactly 1' % (current_versions.count(), egg.name)
-        current_version = current_versions.one()
-        current_version.version = egg.version
 
     def set_schema_version_for(self, version):
         current_versions = Session.query(SchemaVersion).filter_by(egg_name=version.name)
@@ -457,7 +452,7 @@ class SqlAlchemyControl(ORMControl):
             current_version = current_versions.one()
             current_version.version = str(version.version_number)
 
-                         
+
 class PersistedField(Field):
     """A :class:`reahl.component.modelinterface.Field` which takes an integer as input, and
        yields an instance of `class_to_query` as parsed Python object. The Python object returned

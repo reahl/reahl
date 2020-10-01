@@ -33,7 +33,6 @@ class MigrationPlan:
         self.orm_control = orm_control
         self.version_graph = self.create_version_graph_for(root_egg)
         self.cluster_graph = self.create_cluster_graph(self.version_graph)
-        self.cluster_graph.render('clusters')
         self.all_clusters_in_smallest_first_topological_order = list(reversed(list(self.cluster_graph.topological_sort())))
         self.schedules = self.create_schedules_for_clusters(self.all_clusters_in_smallest_first_topological_order)
 
@@ -156,7 +155,7 @@ class MigrationSchedule:
 
             for migration_class in version.get_migration_classes():
                 migration = migration_class(self)
-                logging.getLogger(__name__).info('Scheduling Migrations for migration %s in cluster %s' % (migration_class, self.cluster))
+                logging.getLogger(__name__).debug('Scheduling Migrations for migration %s in cluster %s' % (migration_class, self.cluster))
                 migration.schedule_upgrades()
             UpdateSchemaVersion(self, version).schedule_upgrades()
 
@@ -174,6 +173,8 @@ class MigrationSchedule:
         return matching_schedules[0]
 
     def schedule(self, phase, scheduling_migration, scheduling_context, to_call, *args, **kwargs):
+        if not scheduling_context:
+            import pdb; pdb.set_trace()
         if phase == 'drop_fk':
             self.current_drop_fk_phase.append((to_call, scheduling_migration, scheduling_context, args, kwargs))
         elif phase == 'last':
@@ -186,7 +187,7 @@ class MigrationSchedule:
 
     def execute(self, scheduled_changes):
         for to_call, scheduling_migration, scheduling_context, args, kwargs in scheduled_changes:
-            logging.getLogger(__name__).info('[%s in %s] change: %s(%s, %s)' % (scheduling_migration, self.cluster, to_call.__name__, args, kwargs))
+            logging.getLogger(__name__).info('Executing for %s in %s: %s(%s, %s)' % (scheduling_migration, self.cluster, to_call.__name__, args, kwargs))
             try:
                 to_call(*args, **kwargs)
             except Exception as e:
@@ -214,6 +215,9 @@ class MigrationSchedule:
 
 # TODO:
 # cleanup dead versions on Migrations
+# write alembic cleanup in terms of produce_migrations, not the older compare_metadata
+# upgrade only up to version
+# update migration example and whatchanged
 # TO TEST:
 #  - migrations can schedule changes on a MigrationSchedule
 #  - you can nest MigrationSchedules on a MigrationSchedule
@@ -229,8 +233,6 @@ class Migration:
        Never use code imported from your component in a Migration, since Migration code is kept around in
        future versions of a component and may be run to migrate a schema with different versions of the code in your component.
     """
-
-    version = None
 
     @classmethod
     def is_applicable(cls, current_schema_version, new_version):
@@ -263,10 +265,10 @@ class Migration:
             while not found_framework_code:
                 frame = next(frames)
                 found_framework_code = frame.filename.endswith(__file__)
-                if not found_framework_code:
+                if (not found_framework_code) or frame.function == 'schedule_upgrades':
                     relevant_frames.append(frame)
 
-            return reversed(relevant_frames)
+            return list(reversed(relevant_frames))
         self.migration_schedule.schedule(phase, self, get_scheduling_context(), to_call, *args, **kwargs)
 
     def schedule_upgrades(self):
@@ -284,7 +286,7 @@ class Migration:
         return '%s.%s' % (inspect.getmodule(self).__name__, self.__class__.__name__)
 
     def __str__(self):
-        return '%s %s' % (self.name, self.version)
+        return self.name
 
 
 class UpdateSchemaVersion(Migration):
