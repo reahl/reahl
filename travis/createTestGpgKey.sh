@@ -42,10 +42,11 @@ if [ "$TRAVIS_SECURE_ENV_VARS" == 'true' ]; then
   i="0"
   while ! gpg --keyserver $GPG_KEYSERVER --recv $GPG_KEY_ID && [ $i -lt 5 ]
   do
-    sleep 5
+    sleep 10
     i=$[$i+1]
     echo "Trying to get key again again[$i]"
   done
+  [ $i -lt 5 ] || exit 1
   pip install awscli
   aws s3 cp s3://$AWS_BUCKET/keys.tgz.enc /tmp/keys.tgz.enc
   set +x
