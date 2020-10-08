@@ -335,6 +335,8 @@ class Underscore(Library):
         self.files = [
             'underscore-min-1.10.2.js'
         ]
+    def footer_only_material(self, rendered_page):
+        return super().footer_only_material(rendered_page) + '<script>var underscore = _;</script>'
 
 
 class JsCookie(Library):
