@@ -789,6 +789,9 @@ class VersionEntry(object):
         super(VersionEntry, self).__init__()
         self.project = project
         self.version = VersionNumber(version)
+        if not self.version.is_alpha_version() and self.version != self.version.as_major_minor():
+            raise ProgrammerError('Patch version %s specified for %s. You can only register versions of the form major.minor' % (version, project.project_name))
+
         self.run_dependencies = []
         self.migrations = []
 

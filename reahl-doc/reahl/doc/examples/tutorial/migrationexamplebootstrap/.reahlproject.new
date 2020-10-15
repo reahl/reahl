@@ -1,0 +1,57 @@
+<project type="egg">
+ <metadata type="reahlproject">
+  <info name="version">
+   0.1
+  </info>
+  <info name="description">
+   Migration example
+  </info>
+  <info name="long_description">
+   An example to show how migration works in Reahl
+  </info>
+  <info name="maintainer_name">
+   Reahl (Pty) Ltd
+  </info>
+  <info name="maintainer_email">
+   info@reahl.org
+  </info>
+  <info name="url">
+   http://www.reahl.org
+  </info>
+ </metadata>
+ <version number="0.1">
+  <deps purpose="run">
+   <egg name="reahl-web"/>
+   <egg name="reahl-component"/>
+   <egg name="reahl-sqlalchemysupport"/>
+   <egg name="reahl-web-declarative"/>
+  </deps>
+  <migrations>
+    <class locator="migrationexamplebootstrap:AddDate"/>
+  </migrations>
+ </version>
+ <version number="0.0">
+  <deps purpose="run">
+   <egg name="reahl-web"/>
+   <egg name="reahl-component"/>
+   <egg name="reahl-sqlalchemysupport"/>
+   <egg name="reahl-web-declarative"/>
+  </deps>
+ </version>
+ <deps purpose="build">
+  <thirdpartyegg name="pytest-runner"/>
+ </deps>
+ <deps purpose="test">
+  <thirdpartyegg minversion="3.0" name="pytest"/>
+  <egg name="reahl-tofu"/>
+  <egg name="reahl-stubble"/>
+  <egg name="reahl-dev"/>
+  <egg name="reahl-webdev"/>
+ </deps>
+ <persisted>
+  <class locator="reahl.doc.examples.tutorial.migrationexamplebootstrap.migrationexamplebootstrap:Address"/>
+ </persisted>
+ <migrations>
+  <class locator="reahl.doc.examples.tutorial.migrationexamplebootstrap.migrationexamplebootstrap:AddDate"/>
+ </migrations>
+</project>

@@ -85,7 +85,7 @@ class MigrationPlan:
             self.cluster_graph.render('clusters')
         else: 
             print('Could not compute cluster graph')
-        if self.schedules:
+        if self.schedules is not None:
             def find_schedules(schedules):
                 all_schedules = schedules[:]
                 for schedule in schedules:

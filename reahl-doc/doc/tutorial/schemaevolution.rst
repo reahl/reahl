@@ -69,12 +69,35 @@ To try it out, do:
 Doing all of this simulates an application that ran somewhere for a
 while, with some data in its database.
 
-Now change the application:
+Now change the application to a newer version:
 
 - comment out the 'TODO' version of `added_date`, and uncomment the
   version with the Column
-- edit the `.reahlproject` file and increase the version of the
-  :ref:`component <create-component>` to 0.1
+- edit the `.reahlproject` file and add a new version entry which
+  includes a migration (see also :ref:`component <create-component>`):
+
+.. code-block:: xml
+
+    <version number="0.1">
+      <deps purpose="run">
+        <egg name="reahl-web"/>
+        <egg name="reahl-component"/>
+        <egg name="reahl-sqlalchemysupport"/>
+        <egg name="reahl-web-declarative"/>
+      </deps>
+      <migrations>
+        <class locator="migrationexamplebootstrap:AddDate"/>
+      </migrations>
+    </version>
+
+- edit the `.reahlproject` file and increase the version of the 
+  :ref:`component <create-component>` to 0.1:
+
+.. code-block:: xml
+
+   <info name="version">
+     0.1
+   </info>
 
 .. note::
 
@@ -104,25 +127,22 @@ following in order to migrate the old database:
 Migration basics
 ^^^^^^^^^^^^^^^^
 
-Create a |Migration| subclass for each change that needs to be made to
+Create a |Migration| subclass for each logical change that needs to be made to
 the schema (and perhaps data) of the previous version.
 
 In your AddDate |Migration|, override
 :meth:`~reahl.component.migration.Migration.schedule_upgrades` with
-code that makes the schema changes.  AddDate needs a class attribute
-:attr:`~reahl.component.migration.Migration.version` which states
-which version of your component it is for:
+code that makes the schema changes:
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/migrationexamplebootstrap/migrationexamplebootstrap.py
    :pyobject: AddDate
 
-Register all your |Migration|\s in the `.reahlproject` file:
+Register each of your |Migration|\s in the `.reahlproject` file, with the version each one is for:
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/migrationexamplebootstrap/.reahlproject
-   :start-after:   <migrations>
-   :end-before:   </migrations>
-   :prepend:   <migrations>
-   :append:   </migrations>
+.. literalinclude:: ../../reahl/doc/examples/tutorial/migrationexamplebootstrap/.reahlproject.new
+   :start-after:   <version number="0.1">
+   :end-before:   <version number="0.0">
+   :prepend:   <version number="0.1">
 
 The `migratedb` command checks to see which version of your component
 the current database schema corresponds with. It then runs only those
