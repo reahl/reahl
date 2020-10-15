@@ -31,7 +31,12 @@ class MigrationPlan:
     def __init__(self, root_egg, orm_control):
         self.root_egg = root_egg
         self.orm_control = orm_control
-        self.version_graph = self.create_version_graph_for(root_egg, self.orm_control)
+        self.version_graph = None
+        self.cluster_graph = None
+        self.schedules = None
+
+    def do_planning(self):
+        self.version_graph = self.create_version_graph_for(self.root_egg, self.orm_control)
         self.cluster_graph = self.create_cluster_graph(self.version_graph)
         self.all_clusters_in_smallest_first_topological_order = list(reversed(list(self.cluster_graph.topological_sort())))
         self.schedules = self.create_schedules_for_clusters(self.all_clusters_in_smallest_first_topological_order)
@@ -70,18 +75,27 @@ class MigrationPlan:
             self.orm_control.prune_schemas_to_only(self.schedules[-1].cluster.versions)
 
     def explain(self):
-        print('Rendering version graph to: versions.svg')
-        self.version_graph.render('versions')
-        print('Rendering cluster graph to: clusters.svg')
-        self.cluster_graph.render('clusters')
-        def find_schedules(schedules):
-            all_schedules = schedules[:]
-            for schedule in schedules:
-                all_schedules.extend(find_schedules(schedule.nested_schedules))
-            return all_schedules
-        schedule_graph = DependencyGraph.from_vertices(find_schedules(self.schedules), lambda r: r.nested_schedules)
-        print('Rendering schedule graph to: schedules.svg')
-        schedule_graph.render('schedules')
+        if self.version_graph:
+            print('Rendering version graph to: versions.svg')
+            self.version_graph.render('versions')
+        else: 
+            print('Could not compute version graph')
+        if self.cluster_graph:
+            print('Rendering cluster graph to: clusters.svg')
+            self.cluster_graph.render('clusters')
+        else: 
+            print('Could not compute cluster graph')
+        if self.schedules:
+            def find_schedules(schedules):
+                all_schedules = schedules[:]
+                for schedule in schedules:
+                    all_schedules.extend(find_schedules(schedule.nested_schedules))
+                return all_schedules
+            schedule_graph = DependencyGraph.from_vertices(find_schedules(self.schedules), lambda r: r.nested_schedules)
+            print('Rendering schedule graph to: schedules.svg')
+            schedule_graph.render('schedules')
+        else: 
+            print('Could not compute schedule graph')
         
     def create_schedules_for_clusters(self, clusters_in_smallest_first_topological_order):
         schedules = []

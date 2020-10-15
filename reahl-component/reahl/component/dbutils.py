@@ -284,11 +284,13 @@ class ORMControl():
     def migrate_db(self, root_egg, explain=False):
         plan = MigrationPlan(root_egg, self)
         if explain:
-            plan.explain()
+            try:
+                plan.do_planning()
+            finally:
+                plan.explain()
         else:
+            plan.do_planning()
             plan.execute()
-            # with self.managed_transaction():
-            #     plan.execute()
                    
 
 
