@@ -143,7 +143,7 @@ class DependencyGraph:
         try:
             from graphviz import Digraph
         except ImportError:
-            raise DomainException('To use this, you have to install graphviz')
+            raise DomainException(message='To use this, you have to install graphviz')
         else:
             graph = Digraph()
             for node in self.graph.keys():
@@ -167,9 +167,6 @@ class DependencyCluster:
                 if other_e.is_previous_version_of(e):
                     deps.append((e, other_e))
         return bool(deps)
-
-    def is_up_to_date(self, orm_control):
-        return all([version.is_up_to_date(orm_control) for version in self.versions])
 
     def get_dependencies(self, all_clusters):
         return [other for other in all_clusters if self.is_dependent_on(other)]

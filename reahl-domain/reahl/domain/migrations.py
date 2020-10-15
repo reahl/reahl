@@ -305,7 +305,7 @@ class AddLoginSession(Migration):
                       Column('id', Integer(), primary_key=True, nullable=False),
                       Column('row_type', String(length=40)),
                       Column('account_id', Integer(), ForeignKey('systemaccount.id')), 
-                      Column('user_session_id', Integer(), ForeignKey('usersession.id')))
+                      Column('user_session_id', Integer(), ForeignKey('usersession.id', ondelete='CASCADE')))
         self.schedule('indexes', op.create_index, ix_name('loginsession', 'account_id'), 'loginsession', ['account_id'])
         self.schedule('indexes', op.create_index, ix_name('loginsession', 'user_session_id'), 'loginsession', ['user_session_id'])
 

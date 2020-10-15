@@ -31,31 +31,32 @@ class MigrationPlan:
     def __init__(self, root_egg, orm_control):
         self.root_egg = root_egg
         self.orm_control = orm_control
-        self.version_graph = self.create_version_graph_for(root_egg)
+        self.version_graph = self.create_version_graph_for(root_egg, self.orm_control)
         self.cluster_graph = self.create_cluster_graph(self.version_graph)
         self.all_clusters_in_smallest_first_topological_order = list(reversed(list(self.cluster_graph.topological_sort())))
         self.schedules = self.create_schedules_for_clusters(self.all_clusters_in_smallest_first_topological_order)
 
     @classmethod
-    def create_version_graph_for(cls, root_egg_name):
+    def create_version_graph_for(cls, root_egg_name, orm_control):
         graph = {}
         egg = ReahlEgg(get_distribution(root_egg_name))
         versions = egg.get_versions()
         for version in versions:
-            cls.discover_version_graph_for(version, graph)
+            cls.discover_version_graph_for(version, graph, orm_control)
         return DependencyGraph(graph)
 
     @classmethod
-    def discover_version_graph_for(cls, version, graph):
+    def discover_version_graph_for(cls, version, graph, orm_control):
         if not version:
             return
-        if version not in graph:
-            cls.discover_version_graph_for(version.get_previous_version(), graph)
-            children = graph[version] = [dependency.get_best_version() for dependency in version.get_dependencies()
-                                                 if dependency.type == 'egg' and dependency.distribution]
+        if version not in graph and not version.is_up_to_date(orm_control):
+            cls.discover_version_graph_for(version.get_previous_version(), graph, orm_control)
+            all_versions = [dependency.get_best_version() for dependency in version.get_dependencies()
+                            if dependency.type == 'egg' and dependency.distribution]
+            children = graph[version] = all_versions
             for v in children:
-                cls.discover_version_graph_for(v, graph)
-                cls.discover_version_graph_for(v.get_previous_version(), graph)
+                cls.discover_version_graph_for(v, graph, orm_control)
+                cls.discover_version_graph_for(v.get_previous_version(), graph, orm_control)
 
     @classmethod
     def create_cluster_graph(cls, version_graph):
@@ -85,7 +86,7 @@ class MigrationPlan:
     def create_schedules_for_clusters(self, clusters_in_smallest_first_topological_order):
         schedules = []
         for cluster in clusters_in_smallest_first_topological_order:
-            if not cluster.is_up_to_date(self.orm_control) and not cluster.visited:
+            if not cluster.visited:
                 cluster_children = cluster.get_dependencies(clusters_in_smallest_first_topological_order)
                 next_cluster = self.find_highest_parent_of(cluster_children, clusters_in_smallest_first_topological_order) if cluster_children else cluster
                 next_cluster.visited = True 
@@ -102,7 +103,7 @@ class MigrationPlan:
         schedule = MigrationSchedule(self.orm_control, cluster, self.all_clusters_in_smallest_first_topological_order) 
         unhandled_decendants_in_smallest_first_topological_order = [c for c in clusters_in_smallest_first_topological_order
                                                                     if (clusters_in_smallest_first_topological_order.index(c) < clusters_in_smallest_first_topological_order.index(cluster))
-                                                                        and not (c.visited or c.is_up_to_date(self.orm_control))]
+                                                                        and not c.visited]
         if unhandled_decendants_in_smallest_first_topological_order:
             logging.getLogger(__name__).debug('Adding nested MigrationSchedules for clusters: %s' % unhandled_decendants_in_smallest_first_topological_order)
         for nested_schedule in self.create_schedules_for_clusters(unhandled_decendants_in_smallest_first_topological_order):
@@ -173,8 +174,6 @@ class MigrationSchedule:
         return matching_schedules[0]
 
     def schedule(self, phase, scheduling_migration, scheduling_context, to_call, *args, **kwargs):
-        if not scheduling_context:
-            import pdb; pdb.set_trace()
         if phase == 'drop_fk':
             self.current_drop_fk_phase.append((to_call, scheduling_migration, scheduling_context, args, kwargs))
         elif phase == 'last':

@@ -164,6 +164,6 @@ class AllowNullUserInputValue(Migration):
 class AddViewPathToSessionData(Migration):
     def schedule_upgrades(self):
         self.orm_control.assert_dialect(self, 'postgresql', 'mysql')
-        self.schedule('alter', op.alter_column, 'sessiondata', 'channel_name', existing_nullable=False, nullable=True)
+        self.schedule('alter', op.alter_column, 'sessiondata', 'channel_name', existing_nullable=False, nullable=True, existing_type=UnicodeText)
         self.schedule('alter', op.add_column, 'sessiondata', Column('view_path', UnicodeText, nullable=False))
 

@@ -611,7 +611,7 @@ class LoginSession(Base):
     __tablename__ = 'loginsession'
 
     id = Column(Integer, primary_key=True)
-    discriminator = Column('row_type', String(40))
+    discriminator = Column('row_type', String(length=40))
     __mapper_args__ = {'polymorphic_on': discriminator}
 
     account_id = Column(Integer, ForeignKey('systemaccount.id'), index=True)
