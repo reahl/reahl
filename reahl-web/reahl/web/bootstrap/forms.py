@@ -24,12 +24,13 @@ Bootstrap-styled versions of Forms, Inputs and related Layouts.
 """
 
 
-from reahl.component.exceptions import arg_checks, IsInstance
+from reahl.component.exceptions import arg_checks, IsInstance, ProgrammerError
 from reahl.component.i18n import Catalogue
 from reahl.component.modelinterface import BooleanField, MultiChoiceField, Choice, Field, ChoiceField
 from reahl.component.modelinterface import exposed, Event, Action
 
 import reahl.web.ui
+from reahl.web.fw import Layout
 from reahl.web.ui import Label, HTMLAttributeValueOption, HTMLElement
 from reahl.web.bootstrap.ui import Div, P, WrappedInput, A, TextNode, Span, Legend, FieldSet, Alert, Ul, Li, Hr
 from reahl.web.bootstrap.grid import ColumnLayout
@@ -566,6 +567,33 @@ class InlineFormLayout(FormLayout):
         help_text = super().add_help_text_to(parent_element, html_input, help_text)
         help_text.append_class('ml-2')
         return help_text
+
+
+class MarginLayout(Layout):
+    """
+        Adds margin spacing to widgets.
+
+        :param size: a Boostrap defined value for spacing. Value ranging from 0 to 5, or auto.
+        :param left: Boolean to indicate if margin spacing should be added to the left of the widget.
+        :param right: Boolean to indicate if margin spacing should be added to the right of the widget.
+
+     .. versionadded:: 5.0
+
+    """
+    def __init__(self, size, left=False, right=False):
+        super().__init__()
+        self.size = size
+        if left and right:
+            self.side = 'x'
+        elif left:
+            self.side = 'l'
+        elif right:
+            self.side = 'r'
+        else:
+            raise ProgrammerError('Left and right are both False: Set at least one')
+
+    def customise_widget(self):
+        self.widget.append_class('m%s-%s' % (self.side, self.size) )
 
 
 class InputGroup(reahl.web.ui.WrappedInput):
