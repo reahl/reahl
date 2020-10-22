@@ -68,7 +68,7 @@ def test_wsgi_interface(web_fixture, wsgi_fixture):
 
 @stubclass(SystemControl)
 class SystemControlStub(SystemControl):
-    def connect(self):
+    def connect(self, auto_commit=False):
         pass
 
     def disconnect(self):

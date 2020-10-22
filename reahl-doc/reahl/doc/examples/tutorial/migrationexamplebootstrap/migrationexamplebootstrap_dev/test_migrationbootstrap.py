@@ -45,11 +45,3 @@ def test_add_address(web_fixture, migrate_fixture):
     assert migrate_fixture.address_is_listed_as('John', 'johndoe@some.org')
 
 
-@with_fixtures(SqlAlchemyFixture)
-def demo_setup(sql_alchemy_fixture):
-    sql_alchemy_fixture.commit = True
-    
-    Session.add(Address(name='John Doe', email_address='johndoe@some.org'))
-    Session.add(Address(name='Jane Johnson', email_address='janejohnson@some.org'))
-    Session.add(Address(name='Jack Black', email_address='jackblack@some.org'))
-

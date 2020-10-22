@@ -40,7 +40,4 @@
  <persisted>
   <class locator="reahl.doc.examples.tutorial.migrationexamplebootstrap.migrationexamplebootstrap:Address"/>
  </persisted>
- <migrations>
-  <class locator="reahl.doc.examples.tutorial.migrationexamplebootstrap.migrationexamplebootstrap:AddDate"/>
- </migrations>
 </project>

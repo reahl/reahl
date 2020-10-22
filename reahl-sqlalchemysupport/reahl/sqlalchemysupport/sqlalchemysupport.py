@@ -313,7 +313,7 @@ class SqlAlchemyControl(ORMControl):
             # eventually be rolled back.  This is done so that this method can use the
             # nested state of the transaction to detect that it is called during a test.
             # If called during a test, this method should NOT commit, and it should NOT
-            # nnuke the session 
+            # nuke the session
             return
 
         self.commit()
@@ -413,7 +413,7 @@ class SqlAlchemyControl(ORMControl):
         assert egg or (egg_name and egg_version)
         if egg:
             egg_name = egg.name
-            egg_version = egg.version
+            egg_version = str(egg.installed_version.version_number)
         existing_versions = Session.query(SchemaVersion).filter_by(egg_name=egg_name)
         already_created = existing_versions.count() > 0
         assert not already_created, 'The schema for the "%s" egg has already been created previously at version %s' % \

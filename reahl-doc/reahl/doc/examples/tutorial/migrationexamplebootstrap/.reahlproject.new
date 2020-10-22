@@ -27,7 +27,7 @@
    <egg name="reahl-web-declarative"/>
   </deps>
   <migrations>
-    <class locator="migrationexamplebootstrap:AddDate"/>
+    <class locator="reahl.doc.examples.tutorial.migrationexamplebootstrap.migrationexamplebootstrap:AddDate"/>
   </migrations>
  </version>
  <version number="0.0">
@@ -51,7 +51,4 @@
  <persisted>
   <class locator="reahl.doc.examples.tutorial.migrationexamplebootstrap.migrationexamplebootstrap:Address"/>
  </persisted>
- <migrations>
-  <class locator="reahl.doc.examples.tutorial.migrationexamplebootstrap.migrationexamplebootstrap:AddDate"/>
- </migrations>
 </project>

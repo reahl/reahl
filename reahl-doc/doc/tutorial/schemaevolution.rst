@@ -30,10 +30,11 @@ Database schema evolution
 .. note::
    
    The Sqlite database itself does not support migration of existing
-   data very well, and as a result migration is only possible on
-   PostgreSQL databases. See these posts for more information on
+   data very well, and as a result migration is restricted to
+   PostgreSQL and MySQL databases, even though MySQL also has some migration quirks.
+   See these posts for more information on
    the issue: `one of the last bullets of goals of alembic
-   <https://bitbucket.org/zzzeek/alembic>`_ and `Christopher Webber's
+   <https://github.com/sqlalchemy/alembic>`_ and `Christopher Webber's
    rant about the issue <https://dustycloud.org/blog/sqlite-alter-pain/>`_.
 
 
@@ -53,6 +54,9 @@ possible to run the application with a database schema that does not
 include `added_date` at first. A new schema will be needed when the
 actual `added_date` is uncommented.
 
+The example migration is quite elementary so the default sqlite database can be used
+to illustrate the concept.
+
 .. literalinclude:: ../../reahl/doc/examples/tutorial/migrationexamplebootstrap/migrationexamplebootstrap.py
    :pyobject: Address
 
@@ -64,7 +68,7 @@ To try it out, do:
    cd migrationexamplebootstrap
    reahl setup -- develop -N
    reahl createdbtables etc
-   reahl demosetup
+   python migrationexamplebootstrap_dev/create_demo_data.py etc/
 
 Doing all of this simulates an application that ran somewhere for a
 while, with some data in its database.
@@ -76,28 +80,19 @@ Now change the application to a newer version:
 - edit the `.reahlproject` file and add a new version entry which
   includes a migration (see also :ref:`component <create-component>`):
 
-.. code-block:: xml
-
-    <version number="0.1">
-      <deps purpose="run">
-        <egg name="reahl-web"/>
-        <egg name="reahl-component"/>
-        <egg name="reahl-sqlalchemysupport"/>
-        <egg name="reahl-web-declarative"/>
-      </deps>
-      <migrations>
-        <class locator="migrationexamplebootstrap:AddDate"/>
-      </migrations>
-    </version>
+.. literalinclude:: ../../reahl/doc/examples/tutorial/migrationexamplebootstrap/.reahlproject.new
+   :start-after:   <version number="0.1">
+   :end-before:   <version number="0.0">
+   :prepend:   <version number="0.1">
 
 - edit the `.reahlproject` file and increase the version of the 
   :ref:`component <create-component>` to 0.1:
 
-.. code-block:: xml
-
-   <info name="version">
-     0.1
-   </info>
+.. literalinclude:: ../../reahl/doc/examples/tutorial/migrationexamplebootstrap/.reahlproject.new
+   :start-after:   <info name="version">
+   :end-before:   </info>
+   :prepend:   <info name="version">
+   :append:   </info>
 
 .. note::
 
@@ -155,10 +150,9 @@ Writing a :meth:`~reahl.component.migration.Migration.schedule_upgrades`
 
 .. sidebar:: Pitfalls
 
-  |Migration|\s should not use the code in your component, because all
-  the |Migration|\s you write will stay in your component forever, as
-  is, even if the code of the actual component itself changes over
-  time.
+  The code of a |Migration| should never call your domain code. The |Migration|
+  will stay in your component forever, but the code of the actual component itself
+  might diverge with each new version.
 
 Schema changes are written using the `alembic.op` module of
 SqlAlchemy's migration tool: `Alembic

@@ -76,8 +76,8 @@ class Address(Base):
     id            = Column(Integer, primary_key=True)
     email_address = Column(UnicodeText)
     name          = Column(UnicodeText)
-#    added_date    = Column(DateTime)
     added_date    = 'TODO'
+#    added_date    = Column(DateTime)
 
     @exposed
     def fields(self, fields):

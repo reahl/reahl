@@ -24,7 +24,6 @@ import traceback
 
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.eggs import DependencyGraph, DependencyCluster, ReahlEgg
-from reahl.component.context import ExecutionContext
 
 
 class MigrationPlan:
@@ -36,7 +35,7 @@ class MigrationPlan:
         self.schedules = None
 
     def do_planning(self):
-        self.version_graph = self.create_version_graph_for(self.root_egg, self.orm_control)
+        self.version_graph = self.create_version_graph_for(self.root_egg.name, self.orm_control)
         self.cluster_graph = self.create_cluster_graph(self.version_graph)
         self.all_clusters_in_smallest_first_topological_order = list(reversed(list(self.cluster_graph.topological_sort())))
         self.schedules = self.create_schedules_for_clusters(self.all_clusters_in_smallest_first_topological_order)
@@ -58,7 +57,7 @@ class MigrationPlan:
             cls.discover_version_graph_for(version.get_previous_version(), graph, orm_control)
             all_versions = [dependency.get_best_version() for dependency in version.get_dependencies()
                             if dependency.type == 'egg' and dependency.distribution]
-            children = graph[version] = all_versions
+            children = graph[version] = [v for v in all_versions if not v.is_up_to_date(orm_control)]
             for v in children:
                 cls.discover_version_graph_for(v, graph, orm_control)
                 cls.discover_version_graph_for(v.get_previous_version(), graph, orm_control)

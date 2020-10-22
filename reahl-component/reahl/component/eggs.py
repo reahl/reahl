@@ -27,7 +27,7 @@ from pkg_resources import Requirement, get_distribution, iter_entry_points, requ
 
 from reahl.component.decorators import memoized
 from reahl.component.context import ExecutionContext
-from reahl.component.exceptions import DomainException
+from reahl.component.exceptions import DomainException, ProgrammerError
 
 
 class NoDependencyPathFound(Exception):
@@ -139,11 +139,11 @@ class DependencyGraph:
         self.search(vertex)
         return self.topological_order
 
-    def render(self, filename, format='svg'):
+    def render(self, filename, render_format='svg'):
         try:
             from graphviz import Digraph
         except ImportError:
-            raise DomainException(message='To use this, you have to install graphviz')
+            raise DomainException(message='To use this, you have to install graphviz (pip install graphviz)')
         else:
             graph = Digraph()
             for node in self.graph.keys():
@@ -151,7 +151,7 @@ class DependencyGraph:
             for node, deps in self.graph.items():
                 for dep in deps:
                     graph.edge(str(node), str(dep))
-            graph.render(filename, cleanup=True, format=format)
+            graph.render(filename, cleanup=True, format=render_format)
 
 
 class DependencyCluster:
@@ -297,8 +297,13 @@ class ReahlEgg:
         return self.distribution.key
 
     @property
-    def version(self):
-        return self.distribution.version
+    def installed_version(self):
+        latest_declared_version = self.get_versions()[-1]
+        installed_version_string = self.distribution.version
+        if str(latest_declared_version.version_number) != installed_version_string:
+            raise ProgrammerError('Installed version %s of %s, does not match the latest declared version %s'
+                                  % (installed_version_string, self.name, latest_declared_version))
+        return latest_declared_version
 
     @property
     def configuration_spec(self):
@@ -323,7 +328,7 @@ class ReahlEgg:
         entry_point_dict = self.distribution.get_entry_map().get('reahl.versions', {})
         all_versions = [Version(self, version_string) for version_string in entry_point_dict.keys()]
 
-        return sorted([v for v in all_versions], key=lambda x: x.version_number)
+        return list(sorted([v for v in all_versions], key=lambda x: x.version_number))
 
     def get_dependencies(self, version):
         entry_point_dict = self.distribution.get_entry_map().get('reahl.versiondeps.%s' % version, {})

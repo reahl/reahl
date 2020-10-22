@@ -18,6 +18,7 @@
 
 from sqlalchemy import Column, String
 
+from reahl.component.eggs import Version
 from reahl.tofu import Fixture, uses
 from reahl.tofu.pytestsupport import with_fixtures
 from reahl.sqlalchemysupport import SqlAlchemyControl, QueryAsSequence, Session, Base
@@ -36,15 +37,15 @@ def test_egg_schema_version_changes(reahl_system_fixture):
 
     orm_control.initialise_schema_version_for(old_version_egg)
     current_version = orm_control.schema_version_for(old_version_egg)
-    assert current_version == old_version_egg.version
+    assert current_version == str(old_version_egg.installed_version.version_number)
 
     new_version_egg = ReahlEggStub('anegg', '0.1', [])
-    orm_control.update_schema_version_for(new_version_egg)
+    orm_control.set_schema_version_for(new_version_egg.installed_version)
     current_version = orm_control.schema_version_for(new_version_egg)
-    assert current_version == new_version_egg.version
-    assert not current_version == old_version_egg.version
+    assert current_version == str(new_version_egg.installed_version.version_number)
+    assert not current_version == str(old_version_egg.installed_version.version_number)
     current_version = orm_control.schema_version_for(old_version_egg)
-    assert current_version == new_version_egg.version
+    assert current_version == str(new_version_egg.installed_version.version_number)
 
 
 @with_fixtures(ReahlSystemFixture)
@@ -54,7 +55,7 @@ def test_egg_schema_version_init(reahl_system_fixture):
     egg = ReahlEggStub('initegg', '0.0', [])
     orm_control.create_db_tables(None, [egg])
     current_version = orm_control.schema_version_for(egg)
-    assert current_version == egg.version
+    assert current_version == str(egg.installed_version.version_number)
 
 
 @uses(sql_alchemy_fixture=SqlAlchemyFixture)

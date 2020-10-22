@@ -27,7 +27,7 @@ from reahl.stubble import CallMonitor, EmptyStub
 
 
 from reahl.component.dbutils import ORMControl
-from reahl.component.eggs import ReahlEgg
+from reahl.component.eggs import ReahlEgg, Version
 from reahl.component.migration import Migration, MigrationSchedule, MigrationSchedule
 from reahl.component.exceptions import ProgrammerError
 
@@ -57,12 +57,16 @@ class ReahlEggStub(ReahlEgg):
         return self._name
 
     @property
-    def version(self):
-        return self._version
+    def installed_version(self):
+        return Version(self, self._version)
 
     @property
     def migrations_in_order(self):
         return self.migrations
+
+    def get_ordered_classes_exported_on(self, entry_point):
+        return []
+
 
 
 @stubclass(ORMControl)

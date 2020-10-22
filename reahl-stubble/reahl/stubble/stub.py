@@ -89,9 +89,10 @@ class StubClass:
         stub_arg_dict = stub_arguments._asdict()
 
         def assert_same(key):
-            orig = orig_arg_dict[key]
-            stub = stub_arg_dict[key]
-            assert orig == stub, 'signature mismatch for %s: orig(%s) != stub(%s)' % (key, orig, stub)
+            orig_declaration = orig_arg_dict[key]
+            stub_declaration = stub_arg_dict[key]
+
+            assert orig_declaration == stub_declaration, 'signature mismatch on %s for %s: orig(%s) != stub(%s)' % (getattr(stubbed, '__name__', repr(stubbed)), key, orig_declaration, stub_declaration)
         for key in compare_in_signature:
             assert_same(key)
             
