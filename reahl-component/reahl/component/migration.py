@@ -231,6 +231,39 @@ class MigrationSchedule:
 #  - you can nest MigrationSchedules on a MigrationSchedule
 #  - Scheduling drop_fk is handled differently, depending...(see pic)
 
+# test create_version_graph_for with egg and faked versions and some of them being up to date
+#    - migrationexample bootstrap where reahl versions stayed the same, but the example upped a version
+#    - write test for example- see google docs (https://docs.google.com/drawings/d/1WGFBuSg4za6C6oig2NC1dk8KGgWT1fzW8SAR-cdFIbk/edit)
+# test create_cluster_graph: create more than one cluster, some clusters depending on others(dual root)
+# test migration schedule create: create a MigrationPlan with self.all_clusters_in_smallest_first_topological_order set
+#    - scheduling of sequential scenarios
+#    - scheduling of multiple root
+#    - scheduling fk test this code (
+#...........................
+#             if previous_cluster and not previous_cluster.visited:
+#                 self.current_drop_fk_phase = self.nested_schedule_for(previous_cluster).last_phase
+#             else:
+#                 self.current_drop_fk_phase = self.before_nesting_phase
+#                 )
+#...........................
+#    - be able to migrate even if deps are reversed between versions
+#       - if so, and dep not in db anymore, the tables etc need to be removed automagically
+#    - migrations can be started from a certain version (no need fo genesis)
+#    - migrations from scratch (needs genesis migration)
+#    - scenario of google docs pic clusters for sqlachemy 3.5 (has already been visited)
+#             MyThing 2.0: Cluster -> sqlalc 3.5: Cluster
+#             MyThing 2.0: Cluster -> domain 3.1: Cluster
+#             sqlalc 3.5: Cluster -> domain 3.1: Cluster
+#    - handling invalid dependency graph ( intra and inter cluster circular dep? ( flip dependencies between versions))
+#    - handling of patch versions for (someone edits the requirements.txt) - need to break
+#    - test - how to create migration (order of schedule not in same order as you scheduled them(phases)) - already have such test - extend scope?
+#    - test to show which migration broke - exception reporting
+#    - migations only support for postgres (dialect)
+#    - explain a plan (needs graphviz)
+
+
+
+
 class Migration:
     """Represents one logical change that can be made to an existing database schema.
     
