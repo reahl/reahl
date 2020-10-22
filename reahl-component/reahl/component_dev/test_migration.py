@@ -33,7 +33,6 @@ from reahl.component.exceptions import ProgrammerError
 
 
 class FakeStubClass:
-    # noinspection PyUnusedLocal
     def __init__(self, cls):
         pass
 
@@ -83,7 +82,6 @@ class ORMControlStub(ORMControl):
     def set_schema_version_for(self, version):
         self.versions[egg.name] = version.version_number
 
-    # noinspection PyUnusedLocal
     def schema_version_for(self, egg, default=None):
         return self.versions[egg.name]
 
@@ -130,7 +128,7 @@ def test_how_migration_works(migrate_fixture):
     egg = ReahlEggStub('my_egg', '4.0', [Migration1, Migration2])
     migrate_fixture.orm_control.set_currently_installed_version_for(egg, '1.0')
 
-    migrate_fixture.orm_control.migrate_db([egg])
+    migrate_fixture.orm_control.migrate_db(egg)
 
     expected_order = ['drop_fk_1', 'drop_fk_2', 'drop_fk_3', 'data_1']
     assert some_object.calls_made == expected_order
@@ -196,48 +194,6 @@ def test_invalid_schedule_name_raises():
         migration_schedule.schedule('wrong_name', None)
 
 
-@with_fixtures(MigrateFixture)
-def test_version_dictates_execution_of_migration_(migrate_fixture):
-    """Each Migration should have a class attribute `version` that states which version of the component
-       it upgrades the database schema to. Only the Migrations with versions greater than the current 
-       schema version are included in a MigrationSchedule for a given egg.
-    """
-    
-    class PreviousVersionMigration(Migration):
-        pass
-
-    class MatchingCurrentVersionMigration(Migration):
-        pass
-
-    class NewerVersionMigration(Migration):
-        pass
-
-    class EvenNewerVersionMigration(Migration):
-        pass
-
-    egg = ReahlEggStub('my_egg', '4.0', [PreviousVersionMigration, MatchingCurrentVersionMigration, 
-                                         NewerVersionMigration, EvenNewerVersionMigration])
-    migrate_fixture.orm_control.set_currently_installed_version_for(egg, '2.0')
-
-    migration_run = MigrationSchedule(migrate_fixture.orm_control, [egg])
-    migrations_to_run = migration_run.migrations_to_run_for(egg)
-    classes_to_run = [m.__class__ for m in migrations_to_run]
-    assert classes_to_run == [NewerVersionMigration, EvenNewerVersionMigration]
-
-
-@with_fixtures(MigrateFixture)
-def test_version_of_migration_not_set_error(migrate_fixture):
-    """If the version to which a Migration is applicable is not set, an error is raised."""
-    class TestMigration(Migration):
-        pass
-
-    egg = ReahlEggStub('my_egg', '1.0', [TestMigration])
-    migrate_fixture.orm_control.set_currently_installed_version_for(egg, '0.0')
-
-    with expected(ProgrammerError, test=r'Migration <class \'reahl\.component_dev\.test_migration\..*TestMigration\'> does not have a version set'):
-        migrate_fixture.orm_control.migrate_db([egg])
-
-
 def test_missing_schedule_upgrades_warns():
     """If a programmer does not override schedule_upgrades, a warning is raised."""
     class TestMigration(Migration):
@@ -263,15 +219,3 @@ def test_available_migration_phases(migrate_fixture):
     expected_order = ('drop_fk', 'drop_pk', 'pre_alter', 'alter', 'create_pk', 'indexes', 'data', 'create_fk', 'cleanup')
     assert migration_run.changes.phases_in_order == expected_order
 
-
-@with_fixtures(MigrateFixture)
-def test_schema_version_housekeeping(migrate_fixture):
-    """The database keeps track of the schema for each installed component. After a migration run
-       the currently installed versions are updated.
-    """
-    
-    egg = ReahlEggStub('my_egg', '2.0', [])
-    migrate_fixture.orm_control.set_currently_installed_version_for(egg, '1.0')
-    migration_run = MigrationSchedule(migrate_fixture.orm_control, [egg])
-    migration_run.execute_migrations()
-    assert migrate_fixture.orm_control.schema_version_for(egg) == '2.0'

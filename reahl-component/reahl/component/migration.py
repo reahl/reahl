@@ -16,14 +16,14 @@
 
 """Support for database schema migration."""
 
-from pkg_resources import parse_version, get_distribution
+from pkg_resources import parse_version
 import logging
 import warnings
 import inspect
 import traceback
 
 from reahl.component.exceptions import ProgrammerError
-from reahl.component.eggs import DependencyGraph, DependencyCluster, ReahlEgg
+from reahl.component.eggs import DependencyGraph, DependencyCluster
 
 
 class MigrationPlan:
@@ -35,15 +35,14 @@ class MigrationPlan:
         self.schedules = None
 
     def do_planning(self):
-        self.version_graph = self.create_version_graph_for(self.root_egg.name, self.orm_control)
+        self.version_graph = self.create_version_graph_for(self.root_egg, self.orm_control)
         self.cluster_graph = self.create_cluster_graph(self.version_graph)
         self.all_clusters_in_smallest_first_topological_order = list(reversed(list(self.cluster_graph.topological_sort())))
         self.schedules = self.create_schedules_for_clusters(self.all_clusters_in_smallest_first_topological_order)
 
     @classmethod
-    def create_version_graph_for(cls, root_egg_name, orm_control):
+    def create_version_graph_for(cls, egg, orm_control):
         graph = {}
-        egg = ReahlEgg(get_distribution(root_egg_name))
         versions = egg.get_versions()
         for version in versions:
             cls.discover_version_graph_for(version, graph, orm_control)
@@ -226,10 +225,7 @@ class MigrationSchedule:
         self.execute(self.last_phase)
 
 # TODO:
-# cleanup dead versions on Migrations
-# write alembic cleanup in terms of produce_migrations, not the older compare_metadata
-# upgrade only up to version
-# update migration example and whatchanged
+# update migration whatchanged
 # TO TEST:
 #  - migrations can schedule changes on a MigrationSchedule
 #  - you can nest MigrationSchedules on a MigrationSchedule

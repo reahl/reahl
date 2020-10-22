@@ -476,12 +476,19 @@ class ReahlEgg:
         interfaces = []
 
         for i in cls.compute_ordered_dependent_distributions(main_egg):
-            entry_map = i.get_entry_map('reahl.eggs')
-            if entry_map:
-                classes = list(entry_map.values())
-                assert len(classes) == 1, 'Only one eggdeb class per egg allowed'
-                interfaces.append(classes[0].load()(i))
-
+            interface = cls.interface_for(i)
+            if interface:
+                interfaces.append(interface)
 
         return interfaces
+
+    @classmethod
+    def interface_for(cls, distribution):
+        entry_map = distribution.get_entry_map('reahl.eggs')
+        if entry_map:
+            classes = list(entry_map.values())
+            assert len(classes) == 1, 'Only one eggdeb class per egg allowed'
+            return classes[0].load()(distribution)
+        else:
+            return None
 
