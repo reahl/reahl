@@ -56,7 +56,7 @@ function WidgetArgument(name, defaultValue) {
     this.value = defaultValue;
     this.changed = false;
     this.changeValue = function(value) {
-        if (!_.isEqual(this.value, value)) {
+        if (!underscore.isEqual(this.value, value)) {
             this.changed = true;
             this.value = value;
         }
@@ -67,7 +67,7 @@ function WidgetArgument(name, defaultValue) {
     }
 
     this.getIsEmptyList = function() {
-        return this.getIsList() && (_.isEqual(this.value, []));
+        return this.getIsList() && (underscore.isEqual(this.value, []));
     }
 
     this.getEmptyListSentinelName = function() {

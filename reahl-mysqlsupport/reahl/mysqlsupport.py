@@ -114,7 +114,7 @@ class MysqlControl(DatabaseControl):
         filename = '%s.%s.sql.gz' % (self.database_name, today.strftime('%A'))
         full_path = os.path.join(directory, filename)
         with closing(gzip.open(full_path, 'wb')) as zipped_file:
-            proc = Executable('mysqldump').Popen(self.login_args(login_username=super_user_name) + [self.database_name],
+            proc = Executable('mysqldump').Popen(self.login_args(login_username=super_user_name) + ['--databases', self.database_name],
                                                   stdout=subprocess.PIPE)
             for line in proc.stdout:
                 zipped_file.write(line)
