@@ -113,6 +113,7 @@ class MigrationPlan:
     def create_migration_schedule_for(self, cluster, clusters_in_smallest_first_topological_order):
         logging.getLogger(__name__).debug('Creating MigrationSchedule for cluster %s' % cluster)
         schedule = MigrationSchedule(self.orm_control, cluster, self.all_clusters_in_smallest_first_topological_order) 
+        schedule.schedule_migrations()
         unhandled_decendants_in_smallest_first_topological_order = [c for c in clusters_in_smallest_first_topological_order
                                                                     if (clusters_in_smallest_first_topological_order.index(c) < clusters_in_smallest_first_topological_order.index(cluster))
                                                                         and not c.visited]
@@ -122,7 +123,6 @@ class MigrationPlan:
             schedule.add_nested(nested_schedule)
         if unhandled_decendants_in_smallest_first_topological_order:
             logging.getLogger(__name__).debug('Done adding nested MigrationSchedules for clusters: %s' % unhandled_decendants_in_smallest_first_topological_order)
-        schedule.schedule_migrations()
         return schedule
 
 
@@ -140,6 +140,7 @@ class MigrationSchedule:
         self.phases = dict([(i, []) for i in self.phases_in_order])
         self.before_nesting_phase = []
         self.last_phase = []
+        self.after_nested_schedule_phases = {}
         self.nested_schedules = []
         self.all_clusters = all_clusters
         self.current_drop_fk_phase = self.before_nesting_phase
@@ -162,7 +163,7 @@ class MigrationSchedule:
             previous_cluster = self.get_previous_cluster_for_version(version)
 
             if previous_cluster and not previous_cluster.visited:
-                self.current_drop_fk_phase = self.nested_schedule_for(previous_cluster).last_phase
+                self.current_drop_fk_phase = self.after_nested_phase_for(previous_cluster)
             else:
                 self.current_drop_fk_phase = self.before_nesting_phase
 
@@ -173,23 +174,16 @@ class MigrationSchedule:
             UpdateSchemaVersion(self, version).schedule_upgrades()
 
     def add_nested(self, schedule):
-        try:
-            previously_added_schedule = self.nested_schedule_for(schedule.cluster)
+        if any([s.cluster is schedule.cluster for s in self.nested_schedules]):
             raise ProgrammerError('Trying to add %s, but there is already a nested schedule for %s: %s' % (schedule, schedule.cluster, previously_added_schedule))
-        except NoMigrationScheduleFound:
-            self.nested_schedules.append(schedule)
+        self.nested_schedules.append(schedule)
         
-    def nested_schedule_for(self, cluster):
-        matching_schedules = [schedule for schedule in self.nested_schedules if schedule.cluster is cluster]
-        if not matching_schedules:
-            raise NoMigrationScheduleFound(cluster)
-        return matching_schedules[0]
+    def after_nested_phase_for(self, cluster):
+        return self.after_nested_schedule_phases.setdefault(cluster, [])
 
     def schedule(self, phase, scheduling_migration, scheduling_context, to_call, *args, **kwargs):
         if phase == 'drop_fk':
             self.current_drop_fk_phase.append((to_call, scheduling_migration, scheduling_context, args, kwargs))
-        elif phase == 'last':
-            self.last_phase.append((to_call, scheduling_migration, scheduling_context, args, kwargs))
         else:
             try:
                 self.phases[phase].append((to_call, scheduling_migration, scheduling_context, args, kwargs))
@@ -216,52 +210,13 @@ class MigrationSchedule:
     def execute_nested_schedules(self):
         for schedule in self.nested_schedules:
             schedule.execute_all()
+            self.execute(self.after_nested_schedule_phases[schedule.cluster])
 
     def execute_all(self):
         self.execute(self.before_nesting_phase)
         self.execute_nested_schedules()
         for phase in self.phases_in_order:
             self.execute(self.phases[phase])
-        self.execute(self.last_phase)
-
-# TODO:
-# update migration whatchanged
-# TO TEST:
-#  - migrations can schedule changes on a MigrationSchedule
-#  - you can nest MigrationSchedules on a MigrationSchedule
-#  - Scheduling drop_fk is handled differently, depending...(see pic)
-
-# test create_version_graph_for with egg and faked versions and some of them being up to date
-#    - migrationexample bootstrap where reahl versions stayed the same, but the example upped a version
-#    - write test for example- see google docs (https://docs.google.com/drawings/d/1WGFBuSg4za6C6oig2NC1dk8KGgWT1fzW8SAR-cdFIbk/edit)
-# test create_cluster_graph: create more than one cluster, some clusters depending on others(dual root)
-# test migration schedule create: create a MigrationPlan with self.all_clusters_in_smallest_first_topological_order set
-#    - scheduling of sequential scenarios
-#    - scheduling of multiple root
-#    - scheduling fk test this code (
-#...........................
-#             if previous_cluster and not previous_cluster.visited:
-#                 self.current_drop_fk_phase = self.nested_schedule_for(previous_cluster).last_phase
-#             else:
-#                 self.current_drop_fk_phase = self.before_nesting_phase
-#                 )
-#...........................
-#    - be able to migrate even if deps are reversed between versions
-#       - if so, and dep not in db anymore, the tables etc need to be removed automagically
-#    - migrations can be started from a certain version (no need fo genesis)
-#    - migrations from scratch (needs genesis migration)
-#    - scenario of google docs pic clusters for sqlachemy 3.5 (has already been visited)
-#             MyThing 2.0: Cluster -> sqlalc 3.5: Cluster
-#             MyThing 2.0: Cluster -> domain 3.1: Cluster
-#             sqlalc 3.5: Cluster -> domain 3.1: Cluster
-#    - handling invalid dependency graph ( intra and inter cluster circular dep? ( flip dependencies between versions))
-#    - handling of patch versions for (someone edits the requirements.txt) - need to break
-#    - test - how to create migration (order of schedule not in same order as you scheduled them(phases)) - already have such test - extend scope?
-#    - test to show which migration broke - exception reporting
-#    - migations only support for postgres (dialect)
-#    - explain a plan (needs graphviz)
-
-
 
 
 class Migration:
@@ -308,10 +263,13 @@ class Migration:
             found_framework_code = False
             frames = iter(inspect.stack()[2:]) #remove this function from the stack
             while not found_framework_code:
-                frame = next(frames)
-                found_framework_code = frame.filename.endswith(__file__)
-                if (not found_framework_code) or frame.function == 'schedule_upgrades':
-                    relevant_frames.append(frame)
+                try:
+                    frame = next(frames)
+                    found_framework_code = frame.filename.endswith(__file__)
+                    if (not found_framework_code) or frame.function == 'schedule_upgrades':
+                        relevant_frames.append(frame)
+                except StopIteration:
+                    found_framework_code = True
 
             return list(reversed(relevant_frames))
         self.migration_schedule.schedule(phase, self, get_scheduling_context(), to_call, *args, **kwargs)
@@ -340,4 +298,4 @@ class UpdateSchemaVersion(Migration):
         self.version = version
 
     def schedule_upgrades(self):
-        self.schedule('last', self.migration_schedule.orm_control.set_schema_version_for, self.version)
+        self.schedule('cleanup', self.migration_schedule.orm_control.set_schema_version_for, self.version)
