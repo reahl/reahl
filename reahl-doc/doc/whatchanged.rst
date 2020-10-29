@@ -54,7 +54,8 @@ Backwards-incompatible changes
                                 
 Since this version is a major version update it is not
 backwards-compatible with previous versions.  Everything that was
-deprecated in older versions is removed now.
+deprecated in older versions is removed, and some new backwards-incompatible
+changes have been added.
 
 @exposed
   Previously, if you marked a method with |exposed|, its returned |FieldIndex| did not take into account
@@ -77,7 +78,7 @@ Unique input names and IDs
    longer the case: an Input that has a name clash with another is now explicitly disambiguated by passing 
    it a |Field| with a modified name (see |with_descriminator|).
 
-   Every Input is also now generated with a name and an ID that include the |Form|\'s ID and hence are both 
+   Every Input is also now generated with a name and an ID that include the |Form|\'s ID and hence are 
    unique on the entire page.
 
 Changes to nested_transaction
@@ -87,7 +88,12 @@ Changes to nested_transaction
 Moved |HTML5Page|
    |HTML5Page| used to be in :mod:`reahl.web.bootstrap.ui`, but now resides in :mod:`reahl.web.bootstrap.page` 
    due to unavoidable dependency issues. Code need to be changed to import it from the new module.
-   
+
+Project metadata changes
+   In a `.reahlproject` file, the runtime dependencies of a project used to be declared at the top-level
+   with a ```<deps purpose="run">``` tag. The format of this file has now changed. Each released minor version
+   of the project is now listed in a ```<version>``` tag, and the runtime dependencies are now stated inside
+   such a ```version``` tag for each version.
 
 
 Changing contents in response to a changing Input
@@ -160,6 +166,39 @@ levels of your application.
 For more info, see the HOWTO:
 
 - :doc:`howto/customisingerrorpages`
+
+
+Database schema evolution
+-------------------------
+
+Previously, if you had a database with schema for a particular version
+of Reahl components (and your own), you could migrate said schema (and
+your data) to the next new version of Reahl components. For example,
+if you were using Reahl 3.0, you could upgrade to 3.1.
+
+You could not do an upgrade that jumped versions. For example if your
+app's version 1.0 depended on Reahl 3.0, you could not migrate
+successfully to a version 2.0 of your app which used Reahl 5.0.
+
+The database migration machinery in this version was extensively
+overhauled to be able to handle any upgrade scenario we could
+imagine. (This includes scenarios where, for example, dependencies of
+components change amongst different versions of a component.)
+
+Each Reahl component still only carries knowledge of its own
+|Migration|\s so that a diverse set of components can be used together
+in the same database without knowledge of one another. |Migration|\s
+are still written the exact same way they always have been.
+
+What has changed is what metadata is kept of a project. Instead of
+only stating a project's current version and its dependencies, you now
+have to list all released versions of the form major.minor. For each
+such version also state its dependencies and migrations.
+
+For more info, see the tutorial example:
+
+- :doc:`tutorial/schemaevolution.rst`
+
 
 Widget changes
 --------------
