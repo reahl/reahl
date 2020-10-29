@@ -39,6 +39,7 @@ from reahl.doc.examples.features.layout.layout import LayoutUI
 from reahl.doc.examples.features.pageflow.pageflow import PageFlowUI
 from reahl.doc.examples.features.persistence.persistence import PersistenceUI
 from reahl.doc.examples.features.access.access import AccessUI
+from reahl.doc.examples.features.dynamiccontent.dynamiccontent import DynamicContentUI
 from reahl.doc.examples.features.i18nexample.i18nexample import TranslatedUI
 
 
@@ -143,6 +144,10 @@ class ExampleFixture(Fixture):
     @scenario
     def access_control(self):
         self.wsgi_app = self.web_fixture.new_wsgi_app(site_root=AccessUI, enable_js=True)
+
+    @scenario
+    def dynamic_content(self):
+        self.wsgi_app = self.web_fixture.new_wsgi_app(site_root=DynamicContentUI, enable_js=True)
 
     @scenario
     def i18n(self):
