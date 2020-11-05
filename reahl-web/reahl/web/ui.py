@@ -20,12 +20,8 @@ Basic Widgets and related user interface elements.
 
 import time
 from string import Template
-import json
-import collections
 import copy
 import re
-import hashlib
-import warnings
 import html
 from collections import OrderedDict
 from collections.abc import Callable

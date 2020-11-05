@@ -18,19 +18,19 @@
 
 import threading
 
-from sqlalchemy import Column, Integer, Boolean
+from sqlalchemy import Column, Integer
 
-from reahl.tofu import Fixture, expected, scenario, uses
+from reahl.tofu import Fixture, scenario, uses
 from reahl.tofu.pytestsupport import with_fixtures
 
-from reahl.web_dev.fixtures import WebFixture, BasicPageLayout
-from reahl.webdev.tools import XPath, Browser
-from reahl.web.fw import Widget, UserInterface
+from reahl.web_dev.fixtures import WebFixture
+from reahl.webdev.tools import XPath
+from reahl.web.fw import Widget
 from reahl.web.ui import Form, Div, SelectInput, Label, P, RadioButtonSelectInput, CheckboxSelectInput, \
-    CheckboxInput, ButtonInput, TextInput, HTML5Page, FormLayout
+    CheckboxInput, ButtonInput, TextInput, FormLayout
 from reahl.component.modelinterface import Field, BooleanField, MultiChoiceField, ChoiceField, Choice, exposed, \
     IntegerField, EmailField, Event, Action, Allowed
-from reahl.component.exceptions import ProgrammerError, DomainException
+from reahl.component.exceptions import DomainException
 from reahl.web_dev.inputandvalidation.test_widgetqueryargs import QueryStringFixture
 from reahl.sqlalchemysupport import Base, Session
 from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture

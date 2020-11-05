@@ -15,15 +15,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-
-from reahl.tofu import Fixture, expected, uses
+from reahl.tofu import expected
 from reahl.tofu.pytestsupport import with_fixtures
 from reahl.stubble import EmptyStub, stubclass
 
 from reahl.webdev.tools import WidgetTester, Browser
 
 from reahl.component.exceptions import IncorrectArgumentError, IsInstance
-from reahl.web.fw import UrlBoundView, UserInterface, Widget
+from reahl.web.fw import UserInterface, Widget
 from reahl.web.ui import Div, P, Slot
 
 

@@ -95,8 +95,8 @@ def test_separate_address_books(sql_alchemy_fixture, access_domain_fixture):
     other_address_book = access_domain_fixture.other_address_book
 
     # AddressBooks are owned
-    address_book.owner is account
-    other_address_book.owner is access_domain_fixture.other_account
+    assert address_book.owner is account
+    assert other_address_book.owner is access_domain_fixture.other_account
 
     # Addresses live in specific AddressBooks
     assert address_book.addresses == []

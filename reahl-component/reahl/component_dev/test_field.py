@@ -20,7 +20,7 @@ import functools
 
 from reahl.tofu import Fixture, scenario, expected, NoException, uses
 from reahl.tofu.pytestsupport import with_fixtures
-from reahl.stubble import EmptyStub, stubclass
+from reahl.stubble import EmptyStub
 
 from reahl.component.context import ExecutionContext
 from reahl.component.exceptions import ProgrammerError, IsInstance, IsCallable, IncorrectArgumentError

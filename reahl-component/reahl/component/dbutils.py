@@ -24,7 +24,6 @@
 import re
 from contextlib import contextmanager
 import urllib.parse
-import logging
 
 from pkg_resources import get_distribution
 

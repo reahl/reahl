@@ -24,9 +24,7 @@ import glob
 import os.path
 import shutil
 import subprocess
-import shlex
 import logging
-import time
 import email.utils
 from contextlib import contextmanager
 import datetime
@@ -1223,7 +1221,7 @@ class DebianPackageMetadata(ProjectMetadata):
         if self.project.workspace.dh_make_directory:
             dh_make_params[0] += ' --templates %s' % self.project.workspace.dh_make_directory
 
-        Executable('dh_make').check_call(dh_make_params.split(' '), cwd=deb_dir, shell=True)
+        Executable('dh_make').check_call(dh_make_params, cwd=deb_dir, shell=True)
 
         shutil.move(os.path.join(deb_dir, 'debian'), os.path.join(self.project.directory, 'debian'))
         shutil.rmtree(deb_dir)
@@ -2356,9 +2354,9 @@ class SubstvarsFile(list):
     def items(self):
         return [i for i in self]
 
-all_xml_classes = [MetaInfo, HardcodedMetadata, DebianPackageMetadata, GitSourceControl, Project, \
-                   ChickenProject, EggProject, DebianPackage, SshRepository, PythonSourcePackage, \
-                   PythonWheelPackage, PackageIndex, Dependency, ThirdpartyDependency, XMLDependencyList, \
-                   ExtrasList, EntryPointExport, ScriptExport, NamespaceList, NamespaceEntry, PersistedClassesList, \
-                   OrderedPersistedClass, MigrationList, ConfigurationSpec, ScheduledJobSpec, \
+all_xml_classes = [MetaInfo, HardcodedMetadata, DebianPackageMetadata, GitSourceControl, Project,
+                   ChickenProject, EggProject, DebianPackage, SshRepository, PythonSourcePackage,
+                   PythonWheelPackage, PackageIndex, Dependency, ThirdpartyDependency, XMLDependencyList,
+                   ExtrasList, EntryPointExport, ScriptExport, NamespaceList, NamespaceEntry, PersistedClassesList,
+                   OrderedPersistedClass, MigrationList, ConfigurationSpec, ScheduledJobSpec,
                    ExcludedPackage, TranslationPackage, ExtraPath, ProjectTag, VersionEntry]

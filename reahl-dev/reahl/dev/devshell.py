@@ -22,13 +22,11 @@ import os.path
 import subprocess
 import shutil
 import argparse
-import string
 from subprocess import CalledProcessError
 from contextlib import contextmanager
 import traceback
-import shlex
 
-from reahl.component.shelltools import Command, ReahlCommandline, Executable
+from reahl.component.shelltools import Command, Executable
 
 from reahl.dev.devdomain import Workspace, Project, ProjectList, ProjectNotFound, LocalAptRepository, SetupCommandFailed
 from reahl.dev.exceptions import StatusException, AlreadyUploadedException, \

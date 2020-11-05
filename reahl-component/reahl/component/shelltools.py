@@ -21,7 +21,6 @@ import os.path
 import logging
 import subprocess
 import os
-import distutils.spawn
 import collections
 import argparse 
 import shlex

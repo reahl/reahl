@@ -19,7 +19,7 @@ import os
 import time
 import subprocess
 import atexit
-from threading import Event, Thread, Timer
+from threading import Event, Thread
 import select
 from wsgiref import simple_server
 import sys

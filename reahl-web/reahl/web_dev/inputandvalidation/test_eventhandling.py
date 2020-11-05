@@ -22,19 +22,19 @@ from sqlalchemy import Column, Integer
 
 from reahl.tofu import Fixture, scenario, NoException, expected, uses
 from reahl.tofu.pytestsupport import with_fixtures
-from reahl.stubble import CallMonitor, EmptyStub
+from reahl.stubble import EmptyStub
 
 from reahl.webdev.tools import WidgetTester, XPath, Browser
 
 from reahl.component.exceptions import DomainException, ProgrammerError, IsInstance
 from reahl.component.modelinterface import IntegerField, EmailField, DateField, \
-    exposed, Field, Event, Action, MultiChoiceField, Choice, AllowedValuesConstraint
+    exposed, Field, Event, Action, MultiChoiceField, Choice
 from reahl.webdeclarative.webdeclarative import PersistedException, UserInput
 
 from reahl.sqlalchemysupport import Base, Session
 from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
 from reahl.web.fw import Url, UserInterface, ValidationException
-from reahl.web.ui import HTML5Page, Div, Form, TextInput, ButtonInput, NestedForm, SelectInput, FormLayout, P
+from reahl.web.ui import HTML5Page, Div, Form, TextInput, ButtonInput, NestedForm, SelectInput, P
 
 from reahl.dev.fixtures import ReahlSystemFixture
 from reahl.web_dev.fixtures import WebFixture, BasicPageLayout

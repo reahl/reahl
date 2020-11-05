@@ -14,21 +14,16 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
-
 from contextlib import contextmanager
 import warnings
-import re
-
 
 from reahl.tofu import Fixture, expected
 from reahl.tofu.pytestsupport import with_fixtures
 from reahl.stubble import CallMonitor, EmptyStub
 
-
 from reahl.component.dbutils import ORMControl
 from reahl.component.eggs import ReahlEgg, Version, Dependency
-from reahl.component.migration import Migration, MigrationSchedule, MigrationSchedule
+from reahl.component.migration import Migration, MigrationSchedule
 from reahl.component.exceptions import ProgrammerError
 
 

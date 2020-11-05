@@ -19,13 +19,10 @@ import os
 import re
 import tempfile
 import argparse
-import getpass
 import shlex
 import contextlib
 import itertools
 import collections
-import subprocess
-
 
 from reahl.component.shelltools import Command, Executable, CompositeCommand
 from reahl.workstation.dockersupport import DockerContainer

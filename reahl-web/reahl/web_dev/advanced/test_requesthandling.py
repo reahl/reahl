@@ -22,7 +22,7 @@ from webob import Request, Response
 from webob.exc import HTTPNotFound
 
 from reahl.component.dbutils import SystemControl
-from reahl.tofu import expected, Fixture, scenario
+from reahl.tofu import expected, Fixture
 from reahl.tofu.pytestsupport import with_fixtures, uses
 from reahl.stubble import stubclass, CallMonitor, exempt, replaced
 

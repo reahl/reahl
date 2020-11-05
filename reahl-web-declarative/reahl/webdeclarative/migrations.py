@@ -17,8 +17,7 @@
 
 
 
-from sqlalchemy import Column, String, UnicodeText, Integer, Text, PrimaryKeyConstraint, DateTime, Boolean, \
-    ForeignKeyConstraint, UniqueConstraint, LargeBinary, BigInteger
+from sqlalchemy import Column, String, UnicodeText, Integer, Text, PrimaryKeyConstraint, LargeBinary, BigInteger
 from alembic import op
 
 from reahl.sqlalchemysupport.elixirmigration import MigrateElixirToDeclarative

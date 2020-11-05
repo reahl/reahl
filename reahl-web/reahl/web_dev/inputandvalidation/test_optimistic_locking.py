@@ -18,13 +18,13 @@
 
 from sqlalchemy import Column, Integer, UnicodeText
 
-from reahl.stubble import stubclass, EmptyStub
+from reahl.stubble import stubclass
 from reahl.tofu import Fixture, scenario
 from reahl.tofu.pytestsupport import with_fixtures, uses
 from reahl.component.modelinterface import exposed, Field, Event, PatternConstraint, Action
 from reahl.component.exceptions import DomainException
 from reahl.web.fw import Widget
-from reahl.web.ui import Form, ButtonInput, TextInput, Label, FormLayout, PrimitiveInput, HTMLElement, Div, P
+from reahl.web.ui import Form, ButtonInput, TextInput, FormLayout, PrimitiveInput, HTMLElement, Div
 from reahl.web_dev.fixtures import WebFixture
 from reahl.web_dev.inputandvalidation.test_input import SimpleInputFixture
 from reahl.webdev.tools import Browser, XPath

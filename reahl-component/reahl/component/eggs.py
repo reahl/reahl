@@ -18,15 +18,13 @@
 
 import os
 import os.path
-import re
 import logging
 import itertools
 
 from pkg_resources import Requirement, get_distribution, iter_entry_points, require, resource_isdir, \
-                          resource_listdir, working_set, parse_version, DistributionNotFound
+                          resource_listdir, working_set, parse_version
 
 from reahl.component.decorators import memoized
-from reahl.component.context import ExecutionContext
 from reahl.component.exceptions import DomainException, ProgrammerError
 
 
@@ -218,7 +216,7 @@ class Dependency(object):
             version_spec += '>= %s' % self.min_version
         if self.max_version:
             if version_spec:
-                versio_spec += ','
+                version_spec += ','
             version_spec += '< %s' % self.max_version
 
         return '<%s %s %s>' % (self.__class__.__name__, self.name, version_spec)

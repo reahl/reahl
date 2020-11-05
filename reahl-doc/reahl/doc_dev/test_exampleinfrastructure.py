@@ -20,7 +20,7 @@ import pathlib
 
 from reahl.tofu import Fixture, scenario, expected, temp_dir, NoException
 from reahl.tofu.pytestsupport import with_fixtures
-from reahl.stubble import EasterEgg, EmptyStub, stubclass, SystemOutStub
+from reahl.stubble import EasterEgg, stubclass, SystemOutStub
 
 from reahl.doc.commands import Example, GetExample
 

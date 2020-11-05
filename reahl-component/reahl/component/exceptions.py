@@ -17,7 +17,6 @@
 """Exceptions used throughout several Reahl components."""
 
 import sys
-import functools
 
 import wrapt
 from wrapt.wrappers import PartialCallableObjectProxy

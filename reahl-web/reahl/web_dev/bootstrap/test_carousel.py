@@ -18,11 +18,9 @@
 
 import webob
 
-from reahl.stubble import stubclass
 from reahl.tofu import Fixture
 from reahl.tofu.pytestsupport import with_fixtures
 
-from reahl.component.context import ExecutionContext
 from reahl.web.fw import Widget
 from reahl.web.ui import Img
 from reahl.web.bootstrap.carousel import Carousel

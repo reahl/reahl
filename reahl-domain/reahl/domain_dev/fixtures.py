@@ -17,8 +17,6 @@
 
 
 
-import os
-
 from reahl.tofu import Fixture, set_up, uses
 from reahl.stubble import stubclass, exempt
 from reahl.mailutil.mail import Mailer

@@ -33,7 +33,7 @@ from sqlalchemy.exc import InvalidRequestError
 from sqlalchemy import Column, Integer, ForeignKey
 from alembic.migration import MigrationContext
 from alembic.operations import Operations
-from alembic.autogenerate import compare_metadata, produce_migrations, render_python_code
+from alembic.autogenerate import produce_migrations, render_python_code
 
 from reahl.component.i18n import Catalogue
 from reahl.component.eggs import ReahlEgg

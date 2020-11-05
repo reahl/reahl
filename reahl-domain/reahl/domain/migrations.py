@@ -19,8 +19,7 @@ from sqlalchemy import Column, String, Integer, ForeignKey, UnicodeText, Unicode
 
 from reahl.component.migration import Migration
 from reahl.sqlalchemysupport.elixirmigration import MigrateElixirToDeclarative
-from reahl.sqlalchemysupport import fk_name, ix_name, Text, ForeignKeyConstraint, DateTime, UniqueConstraint, Boolean, \
-    PrimaryKeyConstraint
+from reahl.sqlalchemysupport import fk_name, ix_name, Text, DateTime, Boolean, PrimaryKeyConstraint
 
 
 class CreateDatabase(Migration):

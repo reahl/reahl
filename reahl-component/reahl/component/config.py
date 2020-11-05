@@ -31,7 +31,6 @@ import os.path
 import logging
 import locale
 import inspect
-import warnings
 from logging import config
 from contextlib import contextmanager
 

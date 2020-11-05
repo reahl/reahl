@@ -18,7 +18,6 @@
 import sys
 import inspect
 import types
-import logging
 import atexit
 import contextlib
 from collections import OrderedDict 

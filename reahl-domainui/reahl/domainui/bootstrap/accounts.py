@@ -279,7 +279,7 @@ class CongratsWidget(TitledWidget):
         super().__init__(view)
         self.add_child(P(view, text=_('You have successfully registered.')))
         self.add_child(P(view, text=_('Before we can allow you to log in, however, you need to prove to us that you are indeed the owner of %s.') % account_management_interface.email))
-        p = P(view, text=_('In order to do this, an email was sent to {email} containing a secret code. '\
+        p = P(view, text=_('In order to do this, an email was sent to {email} containing a secret code. '
                            'Please check your email, retrieve the code and then enter it on {verify}.'))
         self.add_child(p.format(verify=A.from_bookmark(view, verify_bookmark.with_description(_('the verification page'))),
                                 email=TextNode(view, account_management_interface.email)))

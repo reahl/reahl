@@ -15,7 +15,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from reahl.component.migration import Migration
-from reahl.component.context import ExecutionContext
 
 
 class ReahlCommandsReahlSchemaInitialise(Migration):

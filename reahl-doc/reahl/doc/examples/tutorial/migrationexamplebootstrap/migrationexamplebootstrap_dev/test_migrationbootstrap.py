@@ -5,12 +5,10 @@ from reahl.tofu import Fixture, uses
 from reahl.tofu.pytestsupport import with_fixtures
 
 from reahl.webdev.tools import Browser, XPath
-from reahl.sqlalchemysupport import Session
+from reahl.web_dev.fixtures import WebFixture
 
 from reahl.doc.examples.tutorial.migrationexamplebootstrap.migrationexamplebootstrap import AddressBookUI, Address
 
-from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
-from reahl.web_dev.fixtures import WebFixture
 
 
 @uses(web_fixture=WebFixture)

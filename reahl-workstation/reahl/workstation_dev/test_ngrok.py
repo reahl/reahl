@@ -14,13 +14,11 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import sys
 import textwrap
 
-import pytest
 from reahl.component.shelltools import Executable
 from reahl.workstation.ngroksupport import Ngrok
-from reahl.stubble import stubclass, exempt, replaced
+from reahl.stubble import stubclass
 from reahl.tofu import Fixture, scenario
 from reahl.tofu.pytestsupport import with_fixtures
 from reahl.dev.fixtures import ExecutableStub

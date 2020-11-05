@@ -17,11 +17,10 @@
 
 from reahl.tofu import Fixture, set_up, temp_dir
 from reahl.tofu.pytestsupport import with_fixtures
-from reahl.stubble import stubclass, replaced
+from reahl.stubble import replaced
 
 from reahl.webdev.tools import Browser
 
-from reahl.component.context import ExecutionContext
 from reahl.web.dhtml import DhtmlUI, DHTMLFile
 from reahl.web.fw import UserInterface
 from reahl.web.ui import HTML5Page

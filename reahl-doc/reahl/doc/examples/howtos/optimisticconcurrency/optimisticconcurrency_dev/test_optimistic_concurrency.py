@@ -1,4 +1,3 @@
-import contextlib
 
 from reahl.tofu.pytestsupport import with_fixtures
 from reahl.tofu import Fixture, uses

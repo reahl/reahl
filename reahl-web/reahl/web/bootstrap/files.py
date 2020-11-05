@@ -27,7 +27,7 @@ from reahl.component.i18n import Catalogue
 from reahl.component.modelinterface import exposed, Action, Event, Field, UploadedFile
 from reahl.component.context import ExecutionContext
 import reahl.web.ui
-from reahl.web.ui import PrimitiveInput, UniqueFilesConstraint
+from reahl.web.ui import UniqueFilesConstraint
 from reahl.web.bootstrap.ui import Div, Span, Li, Ul
 from reahl.web.bootstrap.forms import Button, NestedForm, FormLayout, Label
 

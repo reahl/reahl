@@ -19,7 +19,7 @@
 import pkg_resources
 
 from reahl.tofu import expected, NoException
-from reahl.stubble import easter_egg, EmptyStub
+from reahl.stubble import easter_egg
 
 from reahl.component.eggs import ReahlEgg
 

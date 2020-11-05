@@ -26,9 +26,6 @@ import logging
 from smtpd import DebuggingServer, SMTPServer
 from threading import Thread
 import email
-import platform
-
-from pkg_resources import parse_version
 
 from reahl.dev.devshell import WorkspaceCommand
 

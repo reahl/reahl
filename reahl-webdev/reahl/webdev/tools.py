@@ -19,9 +19,6 @@ import io
 import re
 import contextlib
 import itertools
-import tempfile
-import webbrowser
-import time
 import json
 import urllib.parse
 import logging
@@ -33,9 +30,7 @@ from lxml import html
 from selenium.webdriver.support.ui import WebDriverWait, Select
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
-from selenium.common.exceptions import StaleElementReferenceException
 
-from reahl.component.decorators import deprecated
 from reahl.web.fw import Url
 
 
@@ -392,8 +387,8 @@ class Browser(BasicBrowser):
         domain_set = domain != ''
         secure = cookie_dict.get('secure', False)
         expires = cookie_dict.get('expiry', None)
-        cookie = Cookie(0, name, value, None, False, domain, domain_set, None, path, path_set,
-                        secure, expires, None, None, None, None)
+        cookie = Cookie(0, name, value, None, False, domain, domain_set, False, path, path_set,
+                        secure, expires, False, None, None, {})
         self.testapp.cookiejar.set_cookie(cookie)
 
     def is_element_enabled(self, locator):
