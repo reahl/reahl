@@ -29,7 +29,7 @@ menu on which a user can choose to navigate to another section (or page) of the 
 
 
 from functools import partial
-from abc import ABCMeta, abstractproperty, abstractmethod
+from abc import ABCMeta, abstractmethod
 
 from reahl.component.i18n import Catalogue
 from reahl.component.modelinterface import exposed, IntegerField
@@ -43,23 +43,32 @@ _ = Catalogue('reahl-web')
 
 
 class PageIndexProtocol(object, metaclass=ABCMeta):
-    @abstractproperty
+    @property
+    @abstractmethod
     def pages_in_range(self): pass
-    @abstractproperty
+    @property
+    @abstractmethod
     def current_page(self): pass
-    @abstractproperty
+    @property
+    @abstractmethod
     def start_page(self): pass
-    @abstractproperty
+    @property
+    @abstractmethod
     def end_page(self): pass
-    @abstractproperty
+    @property
+    @abstractmethod
     def previous_page(self): pass
-    @abstractproperty
+    @property
+    @abstractmethod
     def next_page(self): pass
-    @abstractproperty
+    @property
+    @abstractmethod
     def last_page(self): pass
-    @abstractproperty
+    @property
+    @abstractmethod
     def has_next_page(self): pass
-    @abstractproperty
+    @property
+    @abstractmethod
     def has_previous_page(self): pass
 
 
@@ -130,7 +139,8 @@ class PageIndex(PageIndexProtocol):
     def get_contents_for_page(self, page_number):
         """Override this method in subclasses to obtain the correct list of items for the given `page_number`."""
 
-    @abstractproperty
+    @property
+    @abstractmethod
     def total_number_of_pages(self):
         """Override this @property in subclasses to state what the total number of pages is."""
 
