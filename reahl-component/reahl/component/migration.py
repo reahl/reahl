@@ -126,10 +126,10 @@ class MigrationPlan:
         return schedule
 
 
-
 class NoMigrationScheduleFound(Exception):
     def __init__(self, cluster):
         super().__init__('Could not find nested schedules for %s' % cluster)
+
 
 class MigrationSchedule:
     """A schedule stating in which order migration operations should be performed to bring the database up to date with the given DependencyCluster"""
@@ -175,7 +175,7 @@ class MigrationSchedule:
 
     def add_nested(self, schedule):
         if any([s.cluster is schedule.cluster for s in self.nested_schedules]):
-            raise ProgrammerError('Trying to add %s, but there is already a nested schedule for %s: %s' % (schedule, schedule.cluster, previously_added_schedule))
+            raise ProgrammerError('Trying to add %s, but there is already a nested schedule for %s' % (schedule, schedule.cluster))
         self.nested_schedules.append(schedule)
         
     def after_nested_phase_for(self, cluster):
@@ -229,13 +229,6 @@ class Migration:
        Never use code imported from your component in a Migration, since Migration code is kept around in
        future versions of a component and may be run to migrate a schema with different versions of the code in your component.
     """
-
-    @classmethod
-    def is_applicable(cls, current_schema_version, new_version):
-        if not cls.version:
-            raise ProgrammerError('Migration %s does not have a version set' % cls)
-        return parse_version(cls.version) > parse_version(current_schema_version) and \
-               parse_version(cls.version) <= parse_version(new_version)
 
     def __init__(self, migration_schedule):
         self.migration_schedule = migration_schedule

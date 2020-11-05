@@ -112,9 +112,6 @@ class SystemControl:
     def finalise_session(self):
         self.orm_control.finalise_session()
 
-    def set_transaction_and_connection(self, transaction):
-        self.orm_control.set_transaction_and_connection(transaction)
-
     def commit(self):
         """Commits the database."""
         self.orm_control.commit()
@@ -264,7 +261,7 @@ class NullDatabaseControl(DatabaseControl):
         return self.donothing
 
 
-class ORMControl():
+class ORMControl:
     """An interface to higher-level database operations that may be dependent on the ORM technology used.
 
     This class has the responsibility to manage the higher-level
@@ -294,6 +291,53 @@ class ORMControl():
             plan.execute()
                    
 
+    @contextmanager
+    def nested_transaction(self):
+        """A context manager for code that needs to run in a nested transaction.
+
+        .. versionchanged:: 5.0
+           Changed to yield a TransactionVeto which can be used to override when the transaction will be committed or not.
+        """
+        pass
+
+    @contextmanager
+    def managed_transaction(self):
+        pass
+    def connect(self, auto_commit=False):
+        pass
+    @property
+    def connected(self):
+        pass
+    def finalise_session(self):
+        pass
+    def disconnect(self):
+        pass
+    def commit(self):
+        """Commits the current transaction. Programmers should not need to deal with such transaction
+           management explicitly, since the framework already manages transactions itself."""
+        pass
+    def rollback(self):
+        """Rolls back the current transaction. Programmers should not need to deal with such transaction
+           management explicitly, since the framework already manages transactions itself."""
+        pass
+    def create_db_tables(self, transaction, eggs_in_order):
+        pass
+    def drop_db_tables(self, transaction):
+        pass
+    def execute_one(self, sql):
+        pass
+    def prune_schemas_to_only(self, live_versions):
+        pass
+    def diff_db(self, output_sql=False):
+        pass
+    def initialise_schema_version_for(self, egg=None, egg_name=None, egg_version=None):
+        pass
+    def remove_schema_version_for(self, egg=None, egg_name=None, fail_if_not_found=True):
+        pass
+    def schema_version_for(self, egg, default=None):
+        pass
+    def set_schema_version_for(self, version):
+        pass
 
 
 

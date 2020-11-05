@@ -301,9 +301,6 @@ class SqlAlchemyControl(ORMControl):
     def get_or_initiate_transaction(self):
         assert self.connected
         return Session().transaction
-
-    def set_transaction_and_connection(self, transaction):
-        pass
     
     def finalise_session(self):
         nested = Session().transaction.nested
@@ -388,7 +385,6 @@ class SqlAlchemyControl(ORMControl):
         for created_schema_version in Session.query(SchemaVersion).all():
             if created_schema_version.egg_name not in installed_version_names:
                 Session.delete(created_schema_version)
-            
 
     def get_outstanding_migrations(self):
         return produce_migrations(MigrationContext.configure(connection=Session.connection()), metadata)

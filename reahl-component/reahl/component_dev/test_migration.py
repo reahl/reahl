@@ -19,7 +19,7 @@ import warnings
 
 from reahl.tofu import Fixture, expected
 from reahl.tofu.pytestsupport import with_fixtures
-from reahl.stubble import CallMonitor, EmptyStub
+from reahl.stubble import CallMonitor, EmptyStub, stubclass
 
 from reahl.component.dbutils import ORMControl
 from reahl.component.eggs import ReahlEgg, Version, Dependency
@@ -27,29 +27,16 @@ from reahl.component.migration import Migration, MigrationSchedule
 from reahl.component.exceptions import ProgrammerError
 
 
-class FakeStubClass:
-    def __init__(self, cls):
-        pass
-
-    def __call__(self, cls):
-        warnings.warn('This needs to become stubble.stubclass, but stubble does not deal with this scenario - it needs to be fixed')
-        return cls
-
-stubclass = FakeStubClass
-
 @stubclass(Dependency)
 class StubDependency:
     type = 'egg'
     distribution = EmptyStub()
     def __init__(self, version):
         self.version = version
+        self.name = self.version.name
 
     def get_best_version(self):
         return self.version
-
-    @property 
-    def name(self):
-        return self.version.name
 
 
 @stubclass(ReahlEgg)
@@ -102,7 +89,7 @@ class ORMControlStub(ORMControl):
     def schema_version_for(self, egg, default=None):
         return self.versions.get(egg.name, '0.0')
 
-    def initialise_schema_version_for(self, egg):
+    def initialise_schema_version_for(self, egg=None, egg_name=None, egg_version=None):
         self.versions[egg.name] = str(egg.version.version_number)
 
     def prune_schemas_to_only(self, live_versions):
