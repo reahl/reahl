@@ -44,6 +44,12 @@ class CircularDependencyDetected(Exception):
     def __str__(self):
         return ' -> '.join([str(i) for i in self.cycle])
 
+class InvalidDependencySpecification(DomainException):
+    def __init__(self, versions, duplicates):
+        self.versions = versions
+        self.duplicates = duplicates
+        detail = ','.join(['%s -> [%s]' % (version, '; '.join([str(i) for i in version.get_dependencies()])) for version in versions if version.get_dependencies()])
+        super().__init__(message='Dependencies result in installing more than one version of: %s. Dependencies: %s' % (','.join(duplicates), detail))
 
 class InvalidDependencySpecification(DomainException):
     def __init__(self, versions, duplicates):

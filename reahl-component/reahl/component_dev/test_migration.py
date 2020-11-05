@@ -403,7 +403,7 @@ def test_intra_cluster_circular_dependency(fixture):
     """
 
     some_object = fixture.some_object
-    
+
     orm_control = fixture.orm_control
     main_egg = ReahlEggStub('main_egg', {'1.0': []})
     dependency_egg = ReahlEggStub('dependency_egg', {'5.0': []})
@@ -424,7 +424,7 @@ def test_dependencies_resulting_in_duplicates_in_cluster(fixture):
     """
 
     some_object = fixture.some_object
-    
+
     orm_control = fixture.orm_control
     main_egg = ReahlEggStub('main_egg', {'1.0': [], '1.1': []})
     dependency_egg = ReahlEggStub('dependency_egg', {'5.0': [], '5.1': []})
@@ -526,7 +526,7 @@ def test_error_reporting_on_breaking_migrations():
         def please_call_me(self):
             raise Exception('breaking intentionally')
     some_object = SomeObject()
-    
+
     migration_schedule = MigrationSchedule(EmptyStub(), EmptyStub(), [])
     migration = Migration(migration_schedule)
 
@@ -544,7 +544,7 @@ def test_planning(fixture):
     """
 
     some_object = fixture.some_object
-    
+
     egg = ReahlEggStub('my_egg', {'1.0': [], '1.1': []})
 
     plan = MigrationPlan(egg, fixture.orm_control)
@@ -557,5 +557,5 @@ def test_planning(fixture):
         assert os.path.isfile(os.path.join(dir_name, 'schedules.svg'))
 
 
-    
+
 
