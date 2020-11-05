@@ -5,29 +5,29 @@
 
 title Migrating Schema structure and data
 
-
+package reahl-dev{
+    class VersionEntry
+    class "Dependency" as Dependency1
+    VersionEntry -- "*" Dependency1
+}
 class Migration <<class>>
-class "Dependency" as Dependency1
 class "Dependency" as Dependency2
 class "Migration" as Migration2
+class "<b>MigrationPlan</b>" as MigrationPlan
 
-EggProject -right- "*" VersionEntry
-VersionEntry -right- "*" Migration
-VersionEntry --- "*" Dependency1
-Dependency1 <|-- ThirdPartyDependency
 
 Migration .right. Version
 VersionEntry .right. Version
 
 Version "*" -right- "1" DependencyCluster
 Version "*" -- ReahlEgg
-ReahlEgg -- "*" Dependency2
+Version --- "*" Dependency2
 Dependency1 .right. Dependency2 : "                    "
 
 Version "*" --right--  MigrationPlan : "{as dependecy graph}"
 DependencyCluster --right--  MigrationPlan : "{as dependecy graph}"
 
-MigrationPlan -- "*" MigrationSchedule
+MigrationPlan -right- "*" MigrationSchedule
 MigrationSchedule -- "*" Migration2
 MigrationSchedule --  Phase : "last_phase"
 MigrationSchedule --- "*" Phase : "phase <<b>name</b>>"
