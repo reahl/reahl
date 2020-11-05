@@ -14,7 +14,7 @@
 
   <export entrypoint="reahl.component.databasecontrols" name="MysqlControl" locator="reahl.mysqlsupport:MysqlControl"/>
 
-  <version number="5.0.0a1">
+  <version number="5.0">
     <deps purpose="run">
         <egg name="reahl-component" versionlocked="True"/>
         <egg name="reahl-commands" versionlocked="True"/>

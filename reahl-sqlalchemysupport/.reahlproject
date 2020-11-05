@@ -23,7 +23,7 @@
     <class locator="reahl.sqlalchemysupport:SchemaVersion"/>
   </persisted>
 
-  <version number="5.0.0a1">
+  <version number="5.0">
     <deps purpose="run">
       <egg name="reahl-component" versionlocked="True"/>
       <egg name="reahl-commands" versionlocked="True"/>

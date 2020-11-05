@@ -64,7 +64,7 @@
   <export entrypoint="reahl.component.commands" name="GetExample" locator="reahl.doc.commands:GetExample"/>
   <export entrypoint="reahl.component.commands" name="ListExamples" locator="reahl.doc.commands:ListExamples"/>
 
-  <version number="5.0.0a1">
+  <version number="5.0">
     <deps purpose="run">
       <egg name="reahl-web" versionlocked="True"/>
       <egg name="reahl-component" versionlocked="True"/>

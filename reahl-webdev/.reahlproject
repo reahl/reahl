@@ -26,7 +26,7 @@
   <export entrypoint="reahl.component.commands" name="SyncFiles" locator="reahl.webdev.commands:SyncFiles"/>
   <export entrypoint="reahl.component.commands" name="CreateConfig" locator="reahl.webdev.commands:CreateConfig"/>
 
-  <version number="5.0.0a1">
+  <version number="5.0">
       <deps purpose="run">
         <egg name="reahl-web" versionlocked="True"/>
         <egg name="reahl-dev" versionlocked="True"/>
