@@ -24,10 +24,8 @@ class TranslationExampleFixture(Fixture):
 @with_fixtures(WebFixture, TranslationExampleFixture)
 def demo_setup(sql_alchemy_fixture, translation_example_fixture):
     sql_alchemy_fixture.commit = True
-    
-    data_table_example_fixture.create_addresses()
-    translation_example_fixture.create_addresses()
 
+    translation_example_fixture.create_addresses()
 
 
 @with_fixtures(WebFixture, TranslationExampleFixture)
