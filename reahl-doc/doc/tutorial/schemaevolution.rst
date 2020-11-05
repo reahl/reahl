@@ -41,18 +41,11 @@ Database schema evolution
 Once your application is running in production you may want to
 develop a new version. If code changes in the new version require
 changes to the database schema, you need to migrate the current
-database to preserve its data.
+database to preserve its data while matching the new schema.
 
 
 A migration example
 ^^^^^^^^^^^^^^^^^^^
-
-In order to simulate a program that changes over time, the
-`tutorial.migrationexamplebootstrap` example contains an extra
-`added_date` column in Address. This code is commented out to make it
-possible to run the application with a database schema that does not
-include `added_date` at first. A new schema will be needed when the
-actual `added_date` is uncommented.
 
 The example migration is quite elementary so the default sqlite database can be used
 to illustrate the concept.
@@ -75,8 +68,8 @@ while, with some data in its database.
 
 Now change the application to a newer version:
 
-- comment out the 'TODO' version of `added_date`, and uncomment the
-  version with the Column
+- comment out the 'TODO' version of `added_date` in the Address class, and uncomment the
+  version with the Column (this simulates a change in schema)
 - edit the `.reahlproject` file and add a new version entry which
   includes a migration (see also :ref:`component <create-component>`):
 
@@ -202,4 +195,14 @@ Execution of these calls happen in a number of predefined
    Use this phase if any cleanup is needed of temporary tables, etc.
 
 
+Dependency management
+^^^^^^^^^^^^^^^^^^^^^
+
+Declare a dependency on component B in the `.reahlproject` of component A:
+
+- If component A delares a foreign key to a table that belongs to component B
+- If component A imports code from component B
+
+The migration machinery computes a complicated order in which |Migration|\s are scheduled 
+and run. This ordering relies on correct dependencies among components.
 

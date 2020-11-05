@@ -93,7 +93,8 @@ Project metadata changes
    In a `.reahlproject` file, the runtime dependencies of a project used to be declared at the top-level
    with a ```<deps purpose="run">``` tag. The format of this file has now changed. Each released minor version
    of the project is now listed in a separate ```<version>``` tag, and the runtime dependencies are now stated inside
-   the ```version``` tag for which those dependencies hold.
+   the ```version``` tag for which those dependencies hold. In keepoing with this change, |Migration|\s no longer have 
+   a ```version``` attribute to indicate which version they are for.
 
 
 Changing contents in response to a changing Input

@@ -14,16 +14,18 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
 from contextlib import contextmanager
 import warnings
+import re
 
-from reahl.tofu import Fixture, expected
+from reahl.tofu import Fixture, expected, temp_dir
 from reahl.tofu.pytestsupport import with_fixtures
 from reahl.stubble import CallMonitor, EmptyStub, stubclass
 
 from reahl.component.dbutils import ORMControl
-from reahl.component.eggs import ReahlEgg, Version, Dependency
-from reahl.component.migration import Migration, MigrationSchedule
+from reahl.component.eggs import ReahlEgg, Version, Dependency, CircularDependencyDetected, InvalidDependencySpecification
+from reahl.component.migration import Migration, MigrationPlan, MigrationSchedule, ExceptionDuringMigration
 from reahl.component.exceptions import ProgrammerError
 
 
@@ -37,6 +39,9 @@ class StubDependency:
 
     def get_best_version(self):
         return self.version
+
+    def __str__(self):
+        return str(self.version)
 
 
 @stubclass(ReahlEgg)
@@ -392,6 +397,48 @@ def test_migrating_changing_dependencies(fixture):
     assert dv22 not in fixture.orm_control.pruned_schemas_to # dv22 is not live anymore, and its schema is cleaned up
     assert all([i in fixture.orm_control.pruned_schemas_to for i in [mv2, dv12]]) # These schemas are still live
 
+@with_fixtures(MigrateFixture)
+def test_intra_cluster_circular_dependency(fixture):
+    """Circular dependencies within a cluster are not allowed.
+    """
+
+    some_object = fixture.some_object
+    
+    orm_control = fixture.orm_control
+    main_egg = ReahlEggStub('main_egg', {'1.0': []})
+    dependency_egg = ReahlEggStub('dependency_egg', {'5.0': []})
+
+    [mv1] = main_egg.get_versions()
+    [dv1] = dependency_egg.get_versions()
+
+    main_egg.dependencies = {str(mv1.version_number): [StubDependency(dv1)]}
+    dependency_egg.dependencies = {str(dv1.version_number): [StubDependency(mv1)]}
+
+    with expected(CircularDependencyDetected, test=r'main_egg\[1\.0\] -> dependency_egg\[5\.0\] -> main_egg\[1\.0\]'):
+        fixture.orm_control.migrate_db(main_egg)
+
+
+@with_fixtures(MigrateFixture)
+def test_dependencies_resulting_in_duplicates_in_cluster(fixture):
+    """Dependencies resulting in installing more than one version of the same package are not allowed.
+    """
+
+    some_object = fixture.some_object
+    
+    orm_control = fixture.orm_control
+    main_egg = ReahlEggStub('main_egg', {'1.0': [], '1.1': []})
+    dependency_egg = ReahlEggStub('dependency_egg', {'5.0': [], '5.1': []})
+
+    [mv1, mv2] = main_egg.get_versions()
+    [dv1, dv2] = dependency_egg.get_versions()
+
+    main_egg.dependencies = {str(mv1.version_number): [StubDependency(dv1)],
+                             str(mv2.version_number): [StubDependency(dv2)]}
+    dependency_egg.dependencies = {str(dv2.version_number): [StubDependency(mv1)]}
+
+    with expected(InvalidDependencySpecification, test=r'Dependencies result in installing more than one version of: dependency_egg,main_egg\. Dependencies: main_egg\[1\.0\] -> \[dependency_egg\[5\.0\]\],dependency_egg\[5\.1\] -> \[main_egg\[1.0\]\],main_egg\[1\.1\] -> \[dependency_egg\[5\.1\]\]'):
+        fixture.orm_control.migrate_db(main_egg)
+
 
 def test_schedule_executes_in_order():
     """A MigrationSchedule is used internally to schedule calls in different phases. The calls 
@@ -472,50 +519,43 @@ def test_missing_schedule_upgrades_warns():
                        '(method name typo perhaps?)'
     assert str(warning.message) == expected_message
 
+def test_error_reporting_on_breaking_migrations():
+    """When there is an error during execution of a Migration, the code where it was scheduled is reported."""
+
+    class SomeObject:
+        def please_call_me(self):
+            raise Exception('breaking intentionally')
+    some_object = SomeObject()
+    
+    migration_schedule = MigrationSchedule(EmptyStub(), EmptyStub(), [])
+    migration = Migration(migration_schedule)
+
+    migration.schedule('alter', some_object.please_call_me)
+
+    def is_please_call_me_on_stack(ex):
+        return re.match(".*The above Exception happened for the migration that was scheduled here:.*    migration.schedule\('alter', some_object.please_call_me\)", str(ex), re.MULTILINE|re.S)
+    with expected(ExceptionDuringMigration, test=is_please_call_me_on_stack):
+        migration_schedule.execute_all()
 
 
+@with_fixtures(MigrateFixture)
+def test_planning(fixture):
+    """A plan can be explained by generating graphs used by the migration algorithm.
+    """
 
-# TODO:
-# more reference docs for migration (Whole migration API needs to be checked)
-# perhaps add docs for what a setup.py would look like without a .reahlproject
-# DONE    - test - how to create migration (order of schedule not in same order as you scheduled them(phases)) - already have such test - extend scope?
-# DONE   - migrations from scratch (needs genesis migration)
-# DONE   - migrations can be started from a certain version (no need fo genesis)
-# DONE   - be able to migrate even if deps are reversed between versions
-# DONE      - if so, and dep not in db anymore, the tables etc need to be removed automagically
-# DONE   - scenario of google docs pic clusters for sqlachemy 3.5 (has already been visited)
-#             MyThing 2.0: Cluster -> sqlalc 3.5: Cluster
-#             MyThing 2.0: Cluster -> domain 3.1: Cluster
-#             sqlalc 3.5: Cluster -> domain 3.1: Cluster
+    some_object = fixture.some_object
+    
+    egg = ReahlEggStub('my_egg', {'1.0': [], '1.1': []})
 
-#    - handling invalid dependency graph ( intra and inter cluster circular dep? ( flip dependencies between versions))
-#    - handling of patch versions for (someone edits the requirements.txt) - need to break
-#    - test to show which migration broke - exception reporting
-#    - migations only support for postgres (dialect)
-#    - explain a plan (needs graphviz)
+    plan = MigrationPlan(egg, fixture.orm_control)
+    plan.do_planning()
+
+    with temp_dir().as_cwd() as dir_name:
+        plan.explain()
+        assert os.path.isfile(os.path.join(dir_name, 'clusters.svg'))
+        assert os.path.isfile(os.path.join(dir_name, 'versions.svg'))
+        assert os.path.isfile(os.path.join(dir_name, 'schedules.svg'))
 
 
-
-# TO TEST?:
-#  - migrations can schedule changes on a MigrationSchedule
-#  - you can nest MigrationSchedules on a MigrationSchedule
-#  - Scheduling drop_fk is handled differently, depending...(see pic)
-
-# test create_version_graph_for with egg and faked versions and some of them being up to date
-#    - migrationexample bootstrap where reahl versions stayed the same, but the example upped a version
-#    - write test for example- see google docs (https://docs.google.com/drawings/d/1WGFBuSg4za6C6oig2NC1dk8KGgWT1fzW8SAR-cdFIbk/edit)
-# test create_cluster_graph: create more than one cluster, some clusters depending on others(dual root)
-# test migration schedule create: create a MigrationPlan with self.all_clusters_in_smallest_first_topological_order set
-#    - scheduling of sequential scenarios
-#    - scheduling of multiple root
-#    - scheduling fk test this code (
-#...........................
-#             if previous_cluster and not previous_cluster.visited:
-#                 self.current_drop_fk_phase = self.nested_schedule_for(previous_cluster).last_phase
-#             else:
-#                 self.current_drop_fk_phase = self.before_nesting_phase
-#                 )
-#...........................
-
-
+    
 

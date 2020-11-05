@@ -45,6 +45,14 @@ class CircularDependencyDetected(Exception):
         return ' -> '.join([str(i) for i in self.cycle])
 
 
+class InvalidDependencySpecification(DomainException):
+    def __init__(self, versions, duplicates):
+        self.versions = versions
+        self.duplicates = duplicates
+        detail = ','.join(['%s -> [%s]' % (version, '; '.join([str(i) for i in version.get_dependencies()])) for version in versions if version.get_dependencies()])
+        super().__init__(message='Dependencies result in installing more than one version of: %s. Dependencies: %s' % (','.join(duplicates), detail))
+
+
 class DependencyGraph:
     @classmethod
     def from_vertices(cls, vertices, find_dependencies):
@@ -76,10 +84,10 @@ class DependencyGraph:
         path = []
         i = to_vertex
         path.append(i)
-        while i in self.parents and i is not from_vertex:
+        while i in self.parents and i != from_vertex:
             i = self.parents[i]
             path.append(i)
-        if i is not from_vertex:
+        if i != from_vertex:
             raise NoDependencyPathFound(from_vertex, to_vertex)
         path.reverse()
         return path
@@ -154,6 +162,14 @@ class DependencyGraph:
 
 class DependencyCluster:
     def __init__(self, cluster_root, versions):
+        duplicates = []
+        for i in range(len(versions)):
+            current_version = versions[i]
+            if any([current_version.name == other_version.name for other_version in versions[i+1:]]):
+                 duplicates.append(current_version.name)
+        if duplicates:
+            raise InvalidDependencySpecification(versions, duplicates)
+
         self.root = cluster_root
         self.versions = versions
         self.visited = False
@@ -233,6 +249,9 @@ class Version(object):
     def __init__(self, egg, version_number_string):
         self.egg = egg
         self.version_number_string = version_number_string
+        as_major_minor = '.'.join(version_number_string.split('.')[:2])
+        if not self.version_number.is_prerelease and str(self.version_number) != as_major_minor:
+            raise ProgrammerError('Patch version %s specified for %s. You can only register versions of the form major.minor (unless the patch version includes an alpha indicator)' % (self.version_number, egg.project_name))
 
     @property
     def name(self):

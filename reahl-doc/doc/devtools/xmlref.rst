@@ -27,9 +27,12 @@ Project basics and dependencies
 
   Each released minor version of the project is listed using a <version> tag inside a <project> tag. It requires
   the `version_number` attribute which should be a string of the form major.minor where major and minor are
-  integer numbers.
+  integer numbers.  (Alpha versions can include a patch, and are handled as if they are the next minor version.)
 
   Inside this tag, there should be a <deps purpose="run"> to declare the dependencies of this version of the project.
+
+  This tag is used mainly for computing migrations and dependencies. A database or dependency change thus counts
+  as at least a minor version change.
   
 <deps>
 """"""
@@ -169,14 +172,14 @@ Development and packaging
     the name of the current directory
 
   version
-    0.0
+    0.0    (This can include a patch version, eg. 1.0.3)
 
   ... with `'No {} provided'.format(name)` for all the others.
 
 <info>
 """"""
 
-  Use an `<info>' element inside a <metadata> element to supply one piece of metadata for a project. The 
+  Use an `<info>` element inside a <metadata> element to supply one piece of metadata for a project. The 
   `<info>` element requires a `name` attribute which indicates which bit of information it supplies. The 
   text contents of the `<info>` element contains the actual information.
 
