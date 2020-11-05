@@ -24,6 +24,7 @@ reahl/dev_dev/test_context.py
 reahl/dev_dev/test_domain.py
 reahl/dev_dev/test_git.py
 reahl/dev_dev/test_xmlreader.py
+reahl/dev_dev/versioning_and_dependency_meta_data.puml
 reahl_dev.egg-info/PKG-INFO
 reahl_dev.egg-info/SOURCES.txt
 reahl_dev.egg-info/dependency_links.txt

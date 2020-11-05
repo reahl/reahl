@@ -36,6 +36,8 @@ class MigrationPlan:
 
     def do_planning(self):
         self.version_graph = self.create_version_graph_for(self.root_egg, self.orm_control)
+        self.version_graph.topological_sort() # to detect circular dependencies
+
         self.cluster_graph = self.create_cluster_graph(self.version_graph)
         self.all_clusters_in_smallest_first_topological_order = list(reversed(list(self.cluster_graph.topological_sort())))
         self.schedules = self.create_schedules_for_clusters(self.all_clusters_in_smallest_first_topological_order)
@@ -131,6 +133,17 @@ class NoMigrationScheduleFound(Exception):
         super().__init__('Could not find nested schedules for %s' % cluster)
 
 
+class ExceptionDuringMigration(Exception):
+    def __init__(self, scheduling_context):
+        super(ExceptionDuringMigration, self).__init__()
+        self.scheduling_context = scheduling_context
+    def __str__(self):
+        message = super(ExceptionDuringMigration, self).__str__()
+        formatted_context = traceback.format_list([(frame_info.filename, frame_info.lineno, frame_info.function, frame_info.code_context[frame_info.index])
+                                                    for frame_info in self.scheduling_context])
+        return '%s\n\n%s\n\n%s' % (message, 'The above Exception happened for the migration that was scheduled here:', ''.join(formatted_context))
+
+
 class MigrationSchedule:
     """A schedule stating in which order migration operations should be performed to bring the database up to date with the given DependencyCluster"""
     def __init__(self, orm_control, cluster, all_clusters):
@@ -196,15 +209,6 @@ class MigrationSchedule:
             try:
                 to_call(*args, **kwargs)
             except Exception as e:
-                class ExceptionDuringMigration(Exception):
-                    def __init__(self, scheduling_context):
-                        super(ExceptionDuringMigration, self).__init__()
-                        self.scheduling_context = scheduling_context
-                    def __str__(self):
-                        message = super(ExceptionDuringMigration, self).__str__()
-                        formatted_context = traceback.format_list([(frame_info.filename, frame_info.lineno, frame_info.function, frame_info.code_context[frame_info.index])
-                                                                   for frame_info in self.scheduling_context])
-                        return '%s\n\n%s\n\n%s' % (message, 'The above Exception happened for the migration that was scheduled here:', ''.join(formatted_context))
                 raise ExceptionDuringMigration(scheduling_context)
 
     def execute_nested_schedules(self):
