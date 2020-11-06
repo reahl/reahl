@@ -47,6 +47,8 @@ addons:
         - libmysqlclient-dev
 
         # - phantomjs  # for reference... not allowed in apt addon
+       # For testing of reahl-component
+        - graphviz
 
 services:
   - xvfb
