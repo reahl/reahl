@@ -115,7 +115,29 @@ class MigrateFixture(Fixture):
 
         return SomeObject()
 
+    def check_order(self, operations):
+        keys = list(set([i.split('-')[-1] for i in operations]))
+        for key in keys:
+            try:
+                drop_pk_index = operations.index('drop_pk-%s' % key)
+            except ValueError:
+                drop_pk_index = -1
+            try:
+                create_pk_index = operations.index('create_pk-%s' % key)
+            except ValueError:
+                create_pk_index = -1
 
+            create_fk_indexes = [i for i in range(len(operations)) if operations[i] == 'create_fk-%s' % key]
+            drop_fk_indexes = [i for i in range(len(operations)) if operations[i] == 'drop_fk-%s' % key]
+
+            assert all([i > create_pk_index for i in create_fk_indexes])   # creating a pk happens before creating a fk to it
+            assert drop_pk_index < 0 or drop_pk_index > create_pk_index    # dropping a pk happens after creating it
+
+            for i in range(len(create_fk_indexes)):                        # dropping an fk happens after creating it (multiple times)
+                if len(drop_fk_indexes) > i:
+                    assert create_fk_indexes[i] < drop_fk_indexes[i]
+
+        
 @with_fixtures(MigrateFixture)
 def test_how_migration_works(fixture):
     """A logical change to the database is coded in a Migration. In a Migration, override
@@ -127,21 +149,21 @@ def test_how_migration_works(fixture):
     class Migration1(Migration):
 
         def schedule_upgrades(self):
-            self.schedule('drop_fk', some_object.do_something, 'drop_fk_1')
-            self.schedule('data', some_object.do_something, 'data_1')
-            self.schedule('drop_fk', some_object.do_something, 'drop_fk_2')
+            self.schedule('drop_fk', some_object.do_something, 'drop_fk-1')
+            self.schedule('data', some_object.do_something, 'data-1')
+            self.schedule('drop_fk', some_object.do_something, 'drop_fk-2')
 
     class Migration2(Migration):
 
         def schedule_upgrades(self):
-            self.schedule('drop_fk', some_object.do_something, 'drop_fk_3')
+            self.schedule('drop_fk', some_object.do_something, 'drop_fk-3')
 
     egg = ReahlEggStub('my_egg', {'1.0': [], '1.1': [Migration1, Migration2]})
     fixture.orm_control.set_schema_version_for(egg.get_versions()[0])
 
     fixture.orm_control.migrate_db(egg)
 
-    expected_order = ['drop_fk_1', 'drop_fk_2', 'drop_fk_3', 'data_1']
+    expected_order = ['drop_fk-1', 'drop_fk-2', 'drop_fk-3', 'data-1']
     assert some_object.calls_made == expected_order
 
 
@@ -154,12 +176,12 @@ def test_migrating_dependencies(fixture):
     
     class MainMigration1(Migration):
         def schedule_upgrades(self):
-            self.schedule('create_fk', some_object.do_something, 'create_fk_1')
+            self.schedule('create_fk', some_object.do_something, 'create_fk-1')
 
     class MainMigration2(Migration):
         def schedule_upgrades(self):
-            self.schedule('drop_fk', some_object.do_something, 'drop_fk_1')
-            self.schedule('create_fk', some_object.do_something, 'create_fk_2')
+            self.schedule('drop_fk', some_object.do_something, 'drop_fk-1')
+            self.schedule('create_fk', some_object.do_something, 'create_fk-2')
 
 
     orm_control = fixture.orm_control
@@ -168,12 +190,12 @@ def test_migrating_dependencies(fixture):
 
     class DependencyMigration1(Migration):
         def schedule_upgrades(self):
-            self.schedule('create_pk', some_object.do_something, 'create_pk_1')
+            self.schedule('create_pk', some_object.do_something, 'create_pk-1')
 
     class DependencyMigration2(Migration):
         def schedule_upgrades(self):
-            self.schedule('drop_pk', some_object.do_something, 'drop_pk_1')
-            self.schedule('create_pk', some_object.do_something, 'create_pk_2')
+            self.schedule('drop_pk', some_object.do_something, 'drop_pk-1')
+            self.schedule('create_pk', some_object.do_something, 'create_pk-2')
 
     dependency_egg = ReahlEggStub('dependency_egg', {'5.0': [DependencyMigration1], '5.1': [DependencyMigration2]})
 
@@ -185,7 +207,7 @@ def test_migrating_dependencies(fixture):
 
     fixture.orm_control.migrate_db(main_egg)
 
-    expected_order = ['create_pk_1', 'create_fk_1', 'drop_fk_1', 'drop_pk_1', 'create_pk_2', 'create_fk_2']
+    expected_order = ['create_pk-1', 'create_fk-1', 'drop_fk-1', 'drop_pk-1', 'create_pk-2', 'create_fk-2']
     assert some_object.calls_made == expected_order
 
 
@@ -199,50 +221,50 @@ def test_migrating_dependencies_with_intermediate_versions(fixture):
     
     class MainMigration1(Migration):
         def schedule_upgrades(self):
-            self.schedule('create_fk', some_object.do_something, 'MainMigration1 create_fk_1')
+            self.schedule('create_fk', some_object.do_something, 'MainMigration1 create_fk-1')
 
     class MainMigration2(Migration):
         def schedule_upgrades(self):
-            self.schedule('drop_fk', some_object.do_something, 'MainMigration2 drop_fk_1')
-            self.schedule('create_fk', some_object.do_something, 'MainMigration2 create_fk_4')
+            self.schedule('drop_fk', some_object.do_something, 'MainMigration2 drop_fk-1')
+            self.schedule('create_fk', some_object.do_something, 'MainMigration2 create_fk-4')
 
     orm_control = fixture.orm_control
     main_egg = ReahlEggStub('main_egg', {'1.0': [MainMigration1], '1.1': [MainMigration2]})
 
     class DependencyMigration11(Migration):
         def schedule_upgrades(self):
-            self.schedule('create_fk', some_object.do_something, 'DependencyMigration11 create_fk_1')
+            self.schedule('create_fk', some_object.do_something, 'DependencyMigration11 create_fk-1')
 
     class DependencyMigration12(Migration):
         def schedule_upgrades(self):
-            self.schedule('drop_fk', some_object.do_something, 'DependencyMigration12 drop_fk_1')
-            self.schedule('create_fk', some_object.do_something, 'DependencyMigration12 create_fk_2')
+            self.schedule('drop_fk', some_object.do_something, 'DependencyMigration12 drop_fk-1')
+            self.schedule('create_fk', some_object.do_something, 'DependencyMigration12 create_fk-2')
 
     class DependencyMigration13(Migration):
         def schedule_upgrades(self):
-            self.schedule('drop_fk', some_object.do_something, 'DependencyMigration13 drop_fk_2')
-            self.schedule('create_fk', some_object.do_something, 'DependencyMigration13 create_fk_4')
+            self.schedule('drop_fk', some_object.do_something, 'DependencyMigration13 drop_fk-2')
+            self.schedule('create_fk', some_object.do_something, 'DependencyMigration13 create_fk-4')
 
     dependency_egg1 = ReahlEggStub('dependency_egg1', {'1.1': [DependencyMigration11], '1.2': [DependencyMigration12], '1.3': [DependencyMigration13]})
 
     class DependencyMigration21(Migration):
         def schedule_upgrades(self):
-            self.schedule('create_pk', some_object.do_something, 'DependencyMigration21 create_pk_1')
+            self.schedule('create_pk', some_object.do_something, 'DependencyMigration21 create_pk-1')
 
     class DependencyMigration22(Migration):
         def schedule_upgrades(self):
-            self.schedule('drop_pk', some_object.do_something, 'DependencyMigration22 drop_pk_1')
-            self.schedule('create_pk', some_object.do_something, 'DependencyMigration22 create_pk_2')
+            self.schedule('drop_pk', some_object.do_something, 'DependencyMigration22 drop_pk-1')
+            self.schedule('create_pk', some_object.do_something, 'DependencyMigration22 create_pk-2')
 
     class DependencyMigration23(Migration):
         def schedule_upgrades(self):
-            self.schedule('drop_pk', some_object.do_something, 'DependencyMigration23 drop_pk_2')
-            self.schedule('create_pk', some_object.do_something, 'DependencyMigration23 create_pk_3')
+            self.schedule('drop_pk', some_object.do_something, 'DependencyMigration23 drop_pk-2')
+            self.schedule('create_pk', some_object.do_something, 'DependencyMigration23 create_pk-3')
 
     class DependencyMigration24(Migration):
         def schedule_upgrades(self):
-            self.schedule('drop_pk', some_object.do_something, 'DependencyMigration24 drop_pk_3')
-            self.schedule('create_pk', some_object.do_something, 'DependencyMigration24 create_pk_4')
+            self.schedule('drop_pk', some_object.do_something, 'DependencyMigration24 drop_pk-3')
+            self.schedule('create_pk', some_object.do_something, 'DependencyMigration24 create_pk-4')
 
     dependency_egg2 = ReahlEggStub('dependency_egg2', {'2.1': [DependencyMigration21], '2.2': [DependencyMigration22], '2.3': [DependencyMigration23], '2.4': [DependencyMigration24]})
 
@@ -260,29 +282,29 @@ def test_migrating_dependencies_with_intermediate_versions(fixture):
     fixture.orm_control.migrate_db(main_egg)
 
     expected_order = [
-         'DependencyMigration21 create_pk_1',
-         'MainMigration1 create_fk_1', 
-         'DependencyMigration11 create_fk_1',
-         'MainMigration2 drop_fk_1', 
-         'DependencyMigration12 drop_fk_1',
+         'create_pk-1',
+         'create_fk-1', 
+         'create_fk-1',
+         'drop_fk-1', 
+         'drop_fk-1',
          
-         'DependencyMigration22 drop_pk_1',
+         'drop_pk-1',
          
-         'DependencyMigration22 create_pk_2',
+         'create_pk-2',
          
-         'DependencyMigration12 create_fk_2',
+         'create_fk-2',
          
-         'DependencyMigration13 drop_fk_2',
+         'drop_fk-2',
          
-         'DependencyMigration23 drop_pk_2',
+         'drop_pk-2',
          
-         'DependencyMigration23 create_pk_3',
-         'DependencyMigration24 drop_pk_3',
-         'DependencyMigration24 create_pk_4',
-         'MainMigration2 create_fk_4',
-         'DependencyMigration13 create_fk_4']
+         'create_pk-3',
+         'drop_pk-3',
+         'create_pk-4',
+         'create_fk-4',
+         'create_fk-4']
 
-    assert some_object.calls_made == expected_order
+    assert [i.split()[1] for i in some_object.calls_made] == expected_order
 
 
 @with_fixtures(MigrateFixture)
@@ -343,37 +365,37 @@ def test_migrating_changing_dependencies(fixture):
 
     class MainMigration1(Migration):
         def schedule_upgrades(self):
-            self.schedule('create_fk', some_object.do_something, 'create_fk_1-21')
-            self.schedule('create_fk', some_object.do_something, 'create_fk_1-11')
+            self.schedule('create_fk', some_object.do_something, '1 create_fk-21')
+            self.schedule('create_fk', some_object.do_something, '1 create_fk-11')
 
     class MainMigration2(Migration):
         def schedule_upgrades(self):
-            self.schedule('drop_fk', some_object.do_something, 'drop_fk_2-21')
-            self.schedule('drop_fk', some_object.do_something, 'drop_fk_2-11')
-            self.schedule('create_fk', some_object.do_something, 'create_fk_2-12')
+            self.schedule('drop_fk', some_object.do_something, '2 drop_fk-21')
+            self.schedule('drop_fk', some_object.do_something, '2 drop_fk-11')
+            self.schedule('create_fk', some_object.do_something, '2 create_fk-12')
 
     main_egg = ReahlEggStub('main_egg', {'1.0': [MainMigration1], '1.1': [MainMigration2]})
 
     class DependencyMigration11(Migration):
         def schedule_upgrades(self):
-            self.schedule('create_fk', some_object.do_something, 'create_fk_11-21')
-            self.schedule('create_pk', some_object.do_something, 'create_pk_11-11')
+            self.schedule('create_fk', some_object.do_something, '11 create_fk-21')
+            self.schedule('create_pk', some_object.do_something, '11 create_pk-11')
 
     class DependencyMigration12(Migration):
         def schedule_upgrades(self):
-            self.schedule('drop_fk', some_object.do_something, 'drop_fk_12-21')
-            self.schedule('drop_pk', some_object.do_something, 'drop_pk_12-11')
-            self.schedule('create_pk', some_object.do_something, 'create_pk_12-12')
+            self.schedule('drop_fk', some_object.do_something, '12 drop_fk-21')
+            self.schedule('drop_pk', some_object.do_something, '12 drop_pk-11')
+            self.schedule('create_pk', some_object.do_something, '12 create_pk-12')
 
     dependency_egg1 = ReahlEggStub('dependency_egg1', {'5.0': [DependencyMigration11], '5.1': [DependencyMigration12]})
 
     class DependencyMigration21(Migration):
         def schedule_upgrades(self):
-            self.schedule('create_pk', some_object.do_something, 'create_pk_21-21')
+            self.schedule('create_pk', some_object.do_something, '21 create_pk-21')
 
     class DependencyMigration22(Migration):
         def schedule_upgrades(self):
-            self.schedule('create_fk', some_object.do_something, 'create_fk_22-12')
+            self.schedule('create_fk', some_object.do_something, '22 create_fk-12')
 
     dependency_egg2 = ReahlEggStub('dependency_egg2', {'3.2': [DependencyMigration21], '3.3': [DependencyMigration22]})
 
@@ -390,10 +412,9 @@ def test_migrating_changing_dependencies(fixture):
 
     fixture.orm_control.migrate_db(main_egg)
 
-    expected_order = ['create_pk_11-11', 'create_pk_21-21', 'create_fk_1-21', 'create_fk_1-11', 'create_fk_11-21', 'drop_fk_2-21', 'drop_fk_2-11', 'drop_fk_12-21', 'drop_pk_12-11', 'create_pk_12-12', 'create_fk_2-12']
-    assert some_object.calls_made == expected_order
+    fixture.check_order([i.split()[1] for i in some_object.calls_made])
 
-    assert 'create_fk_22-12' not in some_object.calls_made # Migrations of previously used, but now-dead components are not run
+    assert '22 create_fk-12' not in some_object.calls_made # Migrations of previously used, but now-dead components are not run
     assert dv22 not in fixture.orm_control.pruned_schemas_to # dv22 is not live anymore, and its schema is cleaned up
     assert all([i in fixture.orm_control.pruned_schemas_to for i in [mv2, dv12]]) # These schemas are still live
 
@@ -414,7 +435,8 @@ def test_intra_cluster_circular_dependency(fixture):
     main_egg.dependencies = {str(mv1.version_number): [StubDependency(dv1)]}
     dependency_egg.dependencies = {str(dv1.version_number): [StubDependency(mv1)]}
 
-    with expected(CircularDependencyDetected, test=r'main_egg\[1\.0\] -> dependency_egg\[5\.0\] -> main_egg\[1\.0\]'):
+    
+    with expected(CircularDependencyDetected, test=r'(dependency_egg\[5\.0\] -> main_egg\[1\.0\] -> dependency_egg\[5\.0\]|main_egg\[1\.0\] -> dependency_egg\[5\.0\] -> main_egg\[1\.0\])'):
         fixture.orm_control.migrate_db(main_egg)
 
 
