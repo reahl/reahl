@@ -34,7 +34,6 @@ from wrapt import FunctionWrapper, BoundFunctionWrapper
 
 
 from reahl.component.i18n import Catalogue
-from reahl.component.context import ExecutionContext
 from reahl.component.exceptions import AccessRestricted, ProgrammerError, arg_checks, IsInstance, IsCallable, NotYetAvailable
 from collections.abc import Callable
 
@@ -1783,7 +1782,7 @@ class MaxFilesConstraint(ValidationConstraint):
     
     def __reduce__(self):
         reduced = super().__reduce__()
-        return (reduced[0], (self.self.max_files,))+reduced[2:]
+        return (reduced[0], (self.max_files,))+reduced[2:]
 
     @property
     def parameters(self):

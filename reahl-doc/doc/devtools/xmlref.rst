@@ -22,6 +22,18 @@ Project basics and dependencies
   The project element is the top-level element in a .reahlproject file. It requires one attribute: `type`, which 
   should be the string "egg". 
 
+<version>
+"""""""""
+
+  Each released minor version of the project is listed using a <version> tag inside a <project> tag. It requires
+  the `version_number` attribute which should be a string of the form major.minor where major and minor are
+  integer numbers.  (Alpha versions can include a patch, and are handled as if they are the next minor version.)
+
+  Inside this tag, there should be a <deps purpose="run"> to declare the dependencies of this version of the project.
+
+  This tag is used mainly for computing migrations and dependencies. A database or dependency change thus counts
+  as at least a minor version change.
+  
 <deps>
 """"""
 
@@ -30,6 +42,8 @@ Project basics and dependencies
   are only needed for testing. (Runtime dependencies are available when testing too.)
   
   Each dependency is listed as a child of a `<deps>` element, using the `<egg>` or `<thirdpartyegg>` elements.
+
+  <deps purpose="run"> is treated specially. It can only occur inside a <version> tag.
   
 <egg>
 """""
@@ -88,7 +102,6 @@ locator attribute
   Used to list one class in this component as part of either the `<persisted>` list of classes,
   or the `<migrations>` list. It requires a :ref:`locator-attribute`.
 
-
 <translations>
 """"""""""""""
 
@@ -99,8 +112,8 @@ locator attribute
 <migrations>
 """"""""""""
 
-  Used to list all the :class:`~reahl.component.migration.Migration` classes in this component.
-  Each class is listed in-order using a `<class>` element.
+  Used to list all the :class:`~reahl.component.migration.Migration` classes for a specific <version> of
+  this component. Each class is listed in-order using a `<class>` element.
 
 <schedule>
 """"""""""
@@ -159,14 +172,14 @@ Development and packaging
     the name of the current directory
 
   version
-    0.0
+    0.0    (This can include a patch version, eg. 1.0.3)
 
   ... with `'No {} provided'.format(name)` for all the others.
 
 <info>
 """"""
 
-  Use an `<info>' element inside a <metadata> element to supply one piece of metadata for a project. The 
+  Use an `<info>` element inside a <metadata> element to supply one piece of metadata for a project. The 
   `<info>` element requires a `name` attribute which indicates which bit of information it supplies. The 
   text contents of the `<info>` element contains the actual information.
 

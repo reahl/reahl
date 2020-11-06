@@ -14,10 +14,8 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import sys
 import textwrap
 
-import pytest
 from reahl.workstation.xprasupport import ControlXpra, Xpra
 from reahl.tofu import Fixture, scenario, uses
 from reahl.tofu.pytestsupport import with_fixtures

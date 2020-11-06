@@ -27,10 +27,9 @@ from reahl.tofu.pytestsupport import with_fixtures
 from reahl.stubble import exempt
 from reahl.stubble import stubclass
 
-from reahl.component.shelltools import Executable
 from reahl.dev.devdomain import DebianPackage, SshRepository, LocalAptRepository, RepositoryLocalState, Workspace, \
-    Version, ProjectMetadata, EggProject, ChickenProject, Project, SubstvarsFile, \
-    Dependency, ThirdpartyDependency, DebianChangelog, DebianControl
+    ProjectMetadata, EggProject, ChickenProject, Project, SubstvarsFile, \
+    Dependency, ThirdpartyDependency, DebianChangelog, DebianControl, VersionNumber
 from reahl.dev.exceptions import AlreadyUploadedException, NotBuiltException, NotAValidProjectException, \
     InvalidProjectFileException
 
@@ -346,7 +345,7 @@ def test_setup_project_file_queries():
 
     @stubclass(Project)
     class ProjectStub:
-        version = Version('1.2.5')
+        version = VersionNumber('1.2.5')
 
     @stubclass(Workspace)
     class WorkspaceStub:
@@ -383,9 +382,11 @@ def test_setup_project_file_queries():
 <sshdirectory host="localhost1" destination="/a/b"/>
 </distpackage>
 
-<deps purpose="run">
-<egg name="reahl-xmlreader-run"/>
-</deps>
+<version number="0.0">
+  <deps purpose="run">
+    <egg name="reahl-xmlreader-run"/>
+  </deps>
+</version>
 
 <deps purpose="test">
 <egg name="reahl-xmlreader-test"/>
@@ -418,7 +419,7 @@ def test_setup_project_file_queries():
     class MetadataStub:
         @property
         def version(self):
-            return Version('3.1.2a1-ubuntu1')
+            return VersionNumber('3.1.2a1-ubuntu1')
         @property
         def project_name(self):
             return 'test-proj'
@@ -450,7 +451,9 @@ def test_setup_project_file_queries():
     expected_value = {'console_scripts':   ['script1 = some script', 'script2 = some other script'],
                 'entrypoint name 2': ['name2 = locator2'],
                 'reahl.eggs':        ['Egg = reahl.component.eggs:ReahlEgg'],
-                'entrypoint name 1': ['name1 = locator1']
+                'entrypoint name 1': ['name1 = locator1'],
+                'reahl.versiondeps.0.0': ['reahl-xmlreader-run = egg:_'],
+                'reahl.versions': ['0.0 = 0.0']
                 }
 
     assert project.entry_points_for_setup() == expected_value
@@ -554,7 +557,7 @@ def test_types_of_dependencies():
     class ProjectStub:
         def __init__(self, name, version, in_same_chicken=False, also_in_workspace=False):
             self.project_name = name
-            self.version = Version(version)
+            self.version = VersionNumber(version)
             self.in_same_chicken = in_same_chicken
             self.workspace = WorkspaceStub(also_in_workspace)
         @property

@@ -5,12 +5,10 @@ from reahl.tofu import Fixture, uses
 from reahl.tofu.pytestsupport import with_fixtures
 
 from reahl.webdev.tools import Browser, XPath
-from reahl.sqlalchemysupport import Session
+from reahl.web_dev.fixtures import WebFixture
 
 from reahl.doc.examples.tutorial.migrationexamplebootstrap.migrationexamplebootstrap import AddressBookUI, Address
 
-from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
-from reahl.web_dev.fixtures import WebFixture
 
 
 @uses(web_fixture=WebFixture)
@@ -44,12 +42,4 @@ def test_add_address(web_fixture, migrate_fixture):
 
     assert migrate_fixture.address_is_listed_as('John', 'johndoe@some.org')
 
-
-@with_fixtures(SqlAlchemyFixture)
-def demo_setup(sql_alchemy_fixture):
-    sql_alchemy_fixture.commit = True
-    
-    Session.add(Address(name='John Doe', email_address='johndoe@some.org'))
-    Session.add(Address(name='Jane Johnson', email_address='janejohnson@some.org'))
-    Session.add(Address(name='Jack Black', email_address='jackblack@some.org'))
 

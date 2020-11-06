@@ -12,18 +12,6 @@
     <thirdpartyegg name="pytest-runner"/>
   </deps>
 
-  <deps purpose="run">
-    <egg name="reahl-web"/>
-    <egg name="reahl-component"/>
-    <egg name="reahl-sqlalchemysupport"/>
-    <egg name="reahl-web-declarative"/>
-    <egg name="reahl-domain"/>
-    <egg name="reahl-domainui"/>
-    <egg name="reahl-commands"/>
-    <thirdpartyegg name="pytest" minversion="3.0"/>
-    <thirdpartyegg name="setuptools" minversion="32.3.1"/>
-  </deps>
-
   <extras name="pillow">
     <thirdpartyegg name="Pillow" minversion="2.5" maxversion="7.1.999"/>
   </extras>
@@ -76,6 +64,89 @@
   <export entrypoint="reahl.component.commands" name="GetExample" locator="reahl.doc.commands:GetExample"/>
   <export entrypoint="reahl.component.commands" name="ListExamples" locator="reahl.doc.commands:ListExamples"/>
 
+  <version number="5.0">
+    <deps purpose="run">
+      <egg name="reahl-web" versionlocked="True"/>
+      <egg name="reahl-component" versionlocked="True"/>
+      <egg name="reahl-sqlalchemysupport" versionlocked="True"/>
+      <egg name="reahl-web-declarative" versionlocked="True"/>
+      <egg name="reahl-domain" versionlocked="True"/>
+      <egg name="reahl-domainui" versionlocked="True"/>
+      <egg name="reahl-commands" versionlocked="True"/>
+      <thirdpartyegg name="pytest" minversion="3.0"/>
+      <thirdpartyegg name="setuptools" minversion="32.3.1"/>
+    </deps>
+  </version>
+
+  <version number="4.0">
+    <deps purpose="run">
+      <egg name="reahl-web" versionlocked="True"/>
+      <egg name="reahl-component" versionlocked="True"/>
+      <egg name="reahl-sqlalchemysupport" versionlocked="True"/>
+      <egg name="reahl-web-declarative" versionlocked="True"/>
+      <egg name="reahl-domain" versionlocked="True"/>
+      <egg name="reahl-domainui" versionlocked="True"/>
+      <egg name="reahl-commands" versionlocked="True"/>
+      <thirdpartyegg name="pytest" minversion="3.0"/>
+      <thirdpartyegg name="setuptools" minversion="32.3.1"/>
+    </deps>
+  </version>
+
+  <version number="3.2">
+    <deps purpose="run">
+      <egg name="reahl-web" versionlocked="True"/>
+      <egg name="reahl-component" versionlocked="True"/>
+      <egg name="reahl-sqlalchemysupport" versionlocked="True"/>
+      <egg name="reahl-web-declarative" versionlocked="True"/>
+      <egg name="reahl-domain" versionlocked="True"/>
+      <egg name="reahl-domainui" versionlocked="True"/>
+      <thirdpartyegg name="nose" versionlocked="True"/>
+    </deps>
+  </version>
+
+  <version number="3.1">
+      <deps purpose="run">
+        <egg name="reahl-web" versionlocked="True"/>
+        <egg name="reahl-component" versionlocked="True"/>
+        <egg name="reahl-sqlalchemysupport" versionlocked="True"/>
+        <egg name="reahl-web-declarative" versionlocked="True"/>
+        <egg name="reahl-domain" versionlocked="True"/>
+        <egg name="reahl-domainui" versionlocked="True"/>
+      </deps>
+  </version>
+
+  <version number="3.0">
+    <deps purpose="run">
+        <egg name="reahl-web" versionlocked="True"/>
+        <egg name="reahl-component" versionlocked="True"/>
+        <egg name="reahl-sqlalchemysupport" versionlocked="True"/>
+        <egg name="reahl-web-declarative" versionlocked="True"/>
+        <egg name="reahl-domain" versionlocked="True"/>
+        <egg name="reahl-domainui" versionlocked="True"/>
+    </deps>
+  </version>
+
+  <version number="2.1">
+      <deps purpose="run">
+          <egg name="reahl-web" versionlocked="True"/>
+          <egg name="reahl-component" versionlocked="True"/>
+          <egg name="reahl-sqlalchemysupport" versionlocked="True"/>
+          <egg name="reahl-web-elixirimpl" versionlocked="True"/>
+          <egg name="reahl-domain" versionlocked="True"/>
+          <egg name="reahl-domainui" versionlocked="True"/>
+      </deps>
+  </version>
+
+  <version number="2.0">
+      <deps purpose="run">
+          <egg name="reahl-web" versionlocked="True"/>
+          <egg name="reahl-component" versionlocked="True"/>
+          <egg name="reahl-sqlalchemysupport" versionlocked="True"/>
+          <egg name="reahl-web-elixirimpl" versionlocked="True"/>
+          <egg name="reahl-domain" versionlocked="True"/>
+          <egg name="reahl-domainui" versionlocked="True"/>
+      </deps>
+  </version>
 
   <distpackage type="wheel">
     <packageindex repository="pypi"/>

@@ -115,14 +115,40 @@ def install_prerequisites(missing):
     return install_with_pip(missing, upgrade=True) == 0
 
 
+def get_common_version():
+    #from reahl.dev.devdomain import DebianChangelog
+    class DebianChangelog:
+        package_name_regex = '(?P<package_name>[a-z][a-z0-9\-]*)'
+        version_regex = '\((?P<version>[a-zA-Z\.0-9\-]+)\)'
+        heading_regex = '^%s\s+%s.*$' % (package_name_regex, version_regex)
+
+        def __init__(self, filename):
+            self.filename = filename
+
+        def parse_heading_for(self, element):
+            with io.open(self.filename) as changelog_file:
+                for line in changelog_file:
+                    if line.strip():
+                        match = re.match(self.heading_regex, line)
+                        assert match, 'Cannot parse changelog file: %s' % self.filename
+                        return match.group(element)
+
+        @property
+        def package_name(self):
+            return self.parse_heading_for('package_name')
+
+        @property
+        def version_major_minor(self):
+            return self.parse_heading_for('version').split('.')[:2]
+    return '.'.join(DebianChangelog('debian/changelog').version_major_minor)
+
+
 def make_core_projects_importable(core_project_dirs):
     for d in core_project_dirs:
         project_path = os.path.join(os.getcwd(), d)
         pkg_resources.working_set.add_entry(project_path)
         sys.path.append(project_path)
-    from reahl.dev.devdomain import DebianChangelog
-    common_version = DebianChangelog('debian/changelog').version
- 
+    common_version = get_common_version()
     for egg_dir in egg_dirs_for(core_project_dirs):
         pkg_filename = os.path.join(egg_dir, 'PKG-INFO')
         if not os.path.exists(pkg_filename):
@@ -197,10 +223,10 @@ remove_versions_from_requirements(reahl_dev_requires_file)
 fake_distributions_into_existence(core_project_dirs)
 
 
-
 def parse_prerequisites_from(dot_project_file):
     root = xml.etree.ElementTree.parse(dot_project_file).getroot()
-    for node in root.iter('thirdpartyegg'):
+    deps_for_common_version = root.findall('.//version[@number="%s"]//thirdpartyegg' % get_common_version())
+    for node in deps_for_common_version:
         requirement_string = node.attrib['name']
         min_version = node.attrib.get('minversion', None)
         max_version = node.attrib.get('maxversion', None)

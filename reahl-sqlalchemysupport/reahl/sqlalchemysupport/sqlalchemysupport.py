@@ -24,6 +24,7 @@ from abc import ABCMeta
 import weakref
 from contextlib import contextmanager
 import logging
+import pprint
 
 from sqlalchemy import *
 from sqlalchemy.orm import sessionmaker, scoped_session, relationship
@@ -32,14 +33,14 @@ from sqlalchemy.exc import InvalidRequestError
 from sqlalchemy import Column, Integer, ForeignKey
 from alembic.migration import MigrationContext
 from alembic.operations import Operations
-from alembic.autogenerate import compare_metadata
+from alembic.autogenerate import produce_migrations, render_python_code
 
 from reahl.component.i18n import Catalogue
 from reahl.component.eggs import ReahlEgg
 from reahl.component.dbutils import ORMControl
 from reahl.component.context import ExecutionContext, NoContextFound
 from reahl.component.modelinterface import Field, IntegerConstraint
-from reahl.component.exceptions import ProgrammerError
+from reahl.component.exceptions import ProgrammerError, DomainException
 from reahl.component.config import Configuration
 
 _ = Catalogue('reahl-sqlalchemysupport')
@@ -251,7 +252,7 @@ class SqlAlchemyControl(ORMControl):
         else:
             transaction.commit()
         
-    def connect(self):
+    def connect(self, auto_commit=False):
         """Creates the SQLAlchemy Engine, bind it to the metadata and instrument the persisted classes 
            for the current reahlsystem.root_egg."""
         assert not self.connected
@@ -261,6 +262,8 @@ class SqlAlchemyControl(ORMControl):
         db_api_connection_creator = context.system_control.db_control.get_dbapi_connection_creator()
 
         create_args = {'pool_pre_ping': True}
+        if auto_commit:
+            create_args['isolation_level'] = 'AUTOCOMMIT'
         if db_api_connection_creator:
             create_args['creator']=db_api_connection_creator
 
@@ -298,9 +301,6 @@ class SqlAlchemyControl(ORMControl):
     def get_or_initiate_transaction(self):
         assert self.connected
         return Session().transaction
-
-    def set_transaction_and_connection(self, transaction):
-        pass
     
     def finalise_session(self):
         nested = Session().transaction.nested
@@ -310,7 +310,7 @@ class SqlAlchemyControl(ORMControl):
             # eventually be rolled back.  This is done so that this method can use the
             # nested state of the transaction to detect that it is called during a test.
             # If called during a test, this method should NOT commit, and it should NOT
-            # nnuke the session 
+            # nuke the session
             return
 
         self.commit()
@@ -349,33 +349,86 @@ class SqlAlchemyControl(ORMControl):
     def execute_one(self, sql):
         return Session.execute(sql).fetchone()
 
-    def migrate_db(self, eggs_in_order):
-        with Operations.context(MigrationContext.configure(Session.connection())) as op:
+    def migrate_db(self, eggs_in_order, explain=False):
+        opts = {'target_metadata': metadata}
+        with Operations.context(MigrationContext.configure(connection=Session.connection(), opts=opts)) as op:
             self.op = op
-            return super().migrate_db(eggs_in_order)
+            return super().migrate_db(eggs_in_order, explain=explain)
 
-    def diff_db(self):
-        return compare_metadata(MigrationContext.configure(Session.connection()), metadata)
+    def prune_schemas_to_only(self, live_versions):
+        opts = {'target_metadata': metadata}
+        with Operations.context(MigrationContext.configure(connection=Session.connection(), opts=opts)) as op:
+            self.op = op
+            to_remove = [i for i in self.get_outstanding_migrations().upgrade_ops.as_diffs() if i[0].startswith('remove_')]
+            tables_to_drop = []
+            unhandled = []
+            for migration in to_remove:
+                name = migration[0]
+                if name == 'remove_table':
+                    table = migration[1]
+                    tables_to_drop.append(table)
+                    for foreign_key in table.foreign_key_constraints:
+                        op.drop_constraint(foreign_key.name, table.name)
+                elif name == 'remove_index':
+                    op.drop_index(migration[1].name)
+                else:
+                    unhandled.append(migration)
+            for table in tables_to_drop:
+                op.drop_table(table.name)
+
+            if unhandled:
+                print('These migrations have not been automatically done, please effect them by other means:')
+                for migration in unhandled:
+                    print(migration)
+
+        installed_version_names = [version.name for version in live_versions]
+        for created_schema_version in Session.query(SchemaVersion).all():
+            if created_schema_version.egg_name not in installed_version_names:
+                Session.delete(created_schema_version)
+
+    def get_outstanding_migrations(self):
+        return produce_migrations(MigrationContext.configure(connection=Session.connection()), metadata)
+        
+    def diff_db(self, output_sql=False):
+        migrations = self.get_outstanding_migrations()
+        if output_sql:
+            commented_source_code = render_python_code(migrations.upgrade_ops, alembic_module_prefix='op2.', sqlalchemy_module_prefix="sqlalchemy.")
+            uncommented_source_code = [i.strip() for i in commented_source_code.split('\n') if not i.strip().startswith('#')]
+            source_code = '\n'.join(['import sqlalchemy']+uncommented_source_code)
+            opts = {'as_sql': output_sql, 'target_metadata': metadata}
+            with Operations.context(MigrationContext.configure(connection=Session.connection(), opts=opts)) as op2:
+                exec(source_code, globals(), locals())
+            return uncommented_source_code
+        else:
+            migrations_required = migrations.upgrade_ops.as_diffs()
+            if migrations_required:
+                pprint.pprint(migrations_required, indent=2, width=20)
+            return migrations_required
 
     def initialise_schema_version_for(self, egg=None, egg_name=None, egg_version=None):
         assert egg or (egg_name and egg_version)
         if egg:
             egg_name = egg.name
-            egg_version = egg.version
+            egg_version = str(egg.installed_version.version_number)
         existing_versions = Session.query(SchemaVersion).filter_by(egg_name=egg_name)
         already_created = existing_versions.count() > 0
         assert not already_created, 'The schema for the "%s" egg has already been created previously at version %s' % \
             (egg_name, existing_versions.one().version)
         Session.add(SchemaVersion(version=egg_version, egg_name=egg_name))
 
-    def remove_schema_version_for(self, egg=None, egg_name=None):
+    def remove_schema_version_for(self, egg=None, egg_name=None, fail_if_not_found=True):
         assert egg or egg_name
         if egg:
             egg_name = egg.name
-        schema_version_for_egg = Session.query(SchemaVersion).filter_by(egg_name=egg_name).one()
-        Session.delete(schema_version_for_egg)
+        versions_to_delete = Session.query(SchemaVersion).filter_by(egg_name=egg_name)
+        if fail_if_not_found or versions_to_delete.count() > 0:
+            schema_version_for_egg = versions_to_delete.one()
+            Session.delete(schema_version_for_egg)
 
     def schema_version_for(self, egg, default=None):
+        if not Session.get_bind().has_table(SchemaVersion.__tablename__):
+            return default
+
         existing_versions = Session.query(SchemaVersion).filter_by(egg_name=egg.name)
         number_versions_found = existing_versions.count()
         assert number_versions_found <= 1, 'More than one existing schema version found for egg %s' % egg.name
@@ -384,12 +437,21 @@ class SqlAlchemyControl(ORMControl):
         else:
             assert default, 'No existing schema version found for egg %s, and you did not specify a default version' % egg.name
             return default
-            
-    def update_schema_version_for(self, egg):
-        current_versions = Session.query(SchemaVersion).filter_by(egg_name=egg.name)
-        assert current_versions.count() == 1, 'Found %s versions for %s, expected exactly 1' % (current_versions.count(), egg.name)
-        current_version = current_versions.one()
-        current_version.version = egg.version
+
+    def set_schema_version_for(self, version):
+        current_versions = Session.query(SchemaVersion).filter_by(egg_name=version.name)
+        versions_count = current_versions.count()
+        assert versions_count <= 1, 'Expected 0 or 1 SchemaVersions for %s, found %s' % (version.name, versions_count)
+        if versions_count < 1:
+            Session.add(SchemaVersion(version=str(version.version_number), egg_name=version.name))
+        elif versions_count == 1:
+            current_version = current_versions.one()
+            current_version.version = str(version.version_number)
+
+    def assert_dialect(self, migration, *supported_dialects):
+        dialect_name = self.engine.dialect.name
+        if dialect_name not in supported_dialects:
+            raise DomainException(message='Migration %s does not support the database dialect you are running on (%s), only one of %s' % (migration, dialect_name, supported_dialects))
 
 
 class PersistedField(Field):
@@ -422,7 +484,7 @@ class PersistedField(Field):
 class SchemaVersion(Base):
     __tablename__ = 'reahl_schema_version'
     id = Column(Integer, primary_key=True)
-    version =  Column(String(50))
+    version = Column(String(50))
     egg_name = Column(String(80))
 
 

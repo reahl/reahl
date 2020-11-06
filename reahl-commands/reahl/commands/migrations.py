@@ -15,12 +15,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from reahl.component.migration import Migration
-from reahl.component.context import ExecutionContext
 
 
 class ReahlCommandsReahlSchemaInitialise(Migration):
-    version = '4.0.0a1'
     def schedule_upgrades(self):
-        orm_control = ExecutionContext.get_context().system_control.orm_control
-        self.schedule('data', orm_control.initialise_schema_version_for, egg_name='reahl-commands', egg_version=self.version)
+        self.orm_control.assert_dialect(self, 'postgresql')
+        self.schedule('data', self.orm_control.initialise_schema_version_for, egg_name='reahl-commands', egg_version='4.0.0a1')
 

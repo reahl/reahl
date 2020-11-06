@@ -12,11 +12,11 @@ env:
     - PATH=$HOME/bin:$PATH
 
   matrix:
-#    - TOX_ENV=py34
     - TOX_ENV=py35
     - TOX_ENV=py36
 #    - TOX_ENV=py37
 #    - TOX_ENV=py38
+#    - TOX_ENV=py39
 
 addons:
   postgresql: "10"
@@ -47,6 +47,8 @@ addons:
         - libmysqlclient-dev
 
         # - phantomjs  # for reference... not allowed in apt addon
+       # For testing of reahl-component
+        - graphviz
 
 services:
   - xvfb
@@ -99,4 +101,4 @@ deploy:
   script: reahl upload -rusdX
   on:
     tags: true
-    condition: "$TOX_ENV = py34"
+    condition: "$TOX_ENV = py36"

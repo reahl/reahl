@@ -16,9 +16,6 @@
 
 import re
 import sys
-import inspect
-import token
-import tokenize
 import datetime
 import contextlib
 

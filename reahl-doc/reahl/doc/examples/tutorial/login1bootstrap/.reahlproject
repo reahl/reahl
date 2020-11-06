@@ -1,23 +1,21 @@
 <project type="egg">
+ <version number="0.0">
   <deps purpose="run">
-    <egg name="reahl-web"/>
-    <egg name="reahl-component"/>
-    <egg name="reahl-sqlalchemysupport"/>
-    <egg name="reahl-web-declarative"/>
-    <egg name="reahl-domain"/>
+   <egg name="reahl-web"/>
+   <egg name="reahl-component"/>
+   <egg name="reahl-sqlalchemysupport"/>
+   <egg name="reahl-web-declarative"/>
+   <egg name="reahl-domain"/>
   </deps>
-
-  <deps purpose="build">
-    <thirdpartyegg name="pytest-runner"/>
-  </deps>
-
-  <deps purpose="test">
-    <thirdpartyegg name="pytest" minversion="3.0"/>
-    <egg name="reahl-tofu"/>
-    <egg name="reahl-stubble"/>
-    <egg name="reahl-dev"/>
-    <egg name="reahl-webdev"/>
-  </deps>
-
-
+ </version>
+ <deps purpose="build">
+  <thirdpartyegg name="pytest-runner"/>
+ </deps>
+ <deps purpose="test">
+  <thirdpartyegg minversion="3.0" name="pytest"/>
+  <egg name="reahl-tofu"/>
+  <egg name="reahl-stubble"/>
+  <egg name="reahl-dev"/>
+  <egg name="reahl-webdev"/>
+ </deps>
 </project>

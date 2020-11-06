@@ -16,7 +16,6 @@
 
 
 import io
-import warnings
 import tempfile
 
 import pytest

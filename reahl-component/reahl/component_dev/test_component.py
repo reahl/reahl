@@ -19,7 +19,7 @@
 import pkg_resources
 
 from reahl.tofu import expected, NoException
-from reahl.stubble import easter_egg, EmptyStub
+from reahl.stubble import easter_egg
 
 from reahl.component.eggs import ReahlEgg
 
@@ -66,8 +66,14 @@ def test_interface_with_meta_info():
     assert interface.configuration_spec is None
 
     assert interface.get_persisted_classes_in_order() == []
-    assert interface.migrations_in_order == []
 
+    easter_egg.add_entry_point_from_line('reahl.versions', '1.0 = 1.0')
+    versions = interface.get_versions()
+    assert versions[-1] == interface.installed_version
+
+    easter_egg.add_entry_point_from_line('reahl.translations', '%s = reahl.messages' % easter_egg.project_name)
+    assert interface.translation_package.__name__ == 'reahl.messages'
+    
     # Hooks for allowing a component to do its own housekeeping
     with expected(NoException):
         interface.do_daily_maintenance()

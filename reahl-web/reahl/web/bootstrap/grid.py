@@ -46,7 +46,7 @@ import copy
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.exceptions import arg_checks, IsInstance
 from reahl.web.fw import Layout
-from reahl.web.ui import Div, Slot
+from reahl.web.ui import Div, Slot, HTMLAttributeValueOption
 
 
 class Container(Layout):
@@ -72,7 +72,7 @@ class Container(Layout):
         if self.fluid is True:
             container_class = 'container-fluid'
         elif self.fluid:
-            container_class = HTMLAttributeValue(self.fluid, True, prefix='container', constrain_value_to=DeviceClass.device_classes).as_html_snippet()
+            container_class = HTMLAttributeValueOption(self.fluid, True, prefix='container', constrain_value_to=DeviceClass.device_classes).as_html_snippet()
 
         self.widget.append_class(container_class)
 

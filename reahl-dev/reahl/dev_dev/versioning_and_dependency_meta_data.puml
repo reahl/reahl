@@ -1,0 +1,27 @@
+' Copyright 2020 Reahl Software Services (Pty) Ltd. All rights reserved.
+
+@startuml
+!include base.iuml
+
+title Versioning and dependency meta data
+
+
+class Migration <<class>>
+class "Dependency" as Dependency1
+
+package reahl-component{
+    class Version
+    class "Dependency" as Dependency2
+}
+Dependency1 .right. Dependency2 : "                    "
+EggProject -right- "*" VersionEntry
+VersionEntry -right- "*" Migration
+VersionEntry -- "*" Dependency1
+Dependency1 <|-- ThirdPartyDependency
+
+Migration .right. Version
+VersionEntry .right. Version
+
+
+
+@enduml

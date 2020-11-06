@@ -13,19 +13,6 @@
     <thirdpartyegg name="pytest-runner"/>
   </deps>
 
-  <deps purpose="run">
-    <egg name="reahl-component"/>
-    <egg name="reahl-mailutil"/>
-    <thirdpartyegg name="ply" minversion="3.8" maxversion="3.11.999"/>
-    <thirdpartyegg name="slimit" minversion="0.8" maxversion="0.8.999"/>
-    <thirdpartyegg name="cssmin" minversion="0.2" maxversion="0.2.999"/>
-    <thirdpartyegg name="beautifulsoup4" minversion="4.6" maxversion="4.9.999"/>
-    <thirdpartyegg name="WebOb" minversion="1.8" maxversion="1.8.999"/>
-    <thirdpartyegg name="Babel" minversion="2.1" maxversion="2.8.999"/>
-    <thirdpartyegg name="setuptools" minversion="32.3.1"/>
-    <thirdpartyegg name="lxml" minversion="4.2" maxversion="4.5.999"/>
-  </deps>
-
   <deps purpose="test">
     <thirdpartyegg name="pytest" minversion="3.0"/>
     <egg name="reahl-tofu"/>
@@ -38,8 +25,95 @@
     <egg name="reahl-dev"/>
   </deps>
 
-  <persisted>
-  </persisted>
+  <version number="5.0">
+      <deps purpose="run">
+        <egg name="reahl-component" versionlocked="True"/>
+        <egg name="reahl-mailutil" versionlocked="True"/>
+        <thirdpartyegg name="ply" minversion="3.8" maxversion="3.11.999"/>
+        <thirdpartyegg name="slimit" minversion="0.8" maxversion="0.8.999"/>
+        <thirdpartyegg name="cssmin" minversion="0.2" maxversion="0.2.999"/>
+        <thirdpartyegg name="beautifulsoup4" minversion="4.6" maxversion="4.6.999"/>
+        <thirdpartyegg name="WebOb" minversion="1.8" maxversion="1.8.999"/>
+        <thirdpartyegg name="Babel" minversion="2.1" maxversion="2.8.999"/>
+        <thirdpartyegg name="setuptools" minversion="32.3.1"/>
+        <thirdpartyegg name="lxml" minversion="4.2" maxversion="4.5.999"/>
+      </deps>
+  </version>
+
+  <version number="4.0">
+    <deps purpose="run">
+      <egg name="reahl-component" versionlocked="True"/>
+      <egg name="reahl-mailutil" versionlocked="True"/>
+      <thirdpartyegg name="ply" minversion="3.8" maxversion="3.8.999"/>
+      <thirdpartyegg name="slimit" minversion="0.8" maxversion="0.8.999"/>
+      <thirdpartyegg name="cssmin" minversion="0.2" maxversion="0.2.999"/>
+      <thirdpartyegg name="BeautifulSoup4" minversion="4.6" maxversion="4.6.999"/>
+      <thirdpartyegg name="webob" minversion="1.4" maxversion="1.4.999"/>
+      <thirdpartyegg name="Babel" minversion="2.1" maxversion="2.1.999"/>
+      <thirdpartyegg name="setuptools" minversion="32.3.1"/>
+      <thirdpartyegg name="lxml" minversion="4.2" maxversion="4.2.999"/>
+    </deps>
+  </version>
+
+  <version number="3.2">
+    <deps purpose="run">
+      <egg name="reahl-component" versionlocked="True"/>
+      <thirdpartyegg name="ply" minversion="3.8" maxversion="3.8.999"/>
+      <thirdpartyegg name="slimit" minversion="0.8" maxversion="0.8.999"/>
+      <thirdpartyegg name="cssmin" minversion="0.2" maxversion="0.2.999"/>
+      <thirdpartyegg name="BeautifulSoup4" minversion="4.3" maxversion="4.3.999"/>
+      <thirdpartyegg name="webob" minversion="1.4" maxversion="1.4.999"/>
+      <thirdpartyegg name="Babel" minversion="2.1" maxversion="2.1.999"/>
+      </deps>
+  </version>
+
+  <version number="3.1">
+    <deps purpose="run">
+      <egg name="reahl-component" versionlocked="True"/>
+      <thirdpartyegg name="ply" minversion="3.8" maxversion="3.8.999"/>
+      <thirdpartyegg name="slimit" minversion="0.8" maxversion="0.8.999"/>
+      <thirdpartyegg name="cssmin" minversion="0.2" maxversion="0.2.999"/>
+      <thirdpartyegg name="BeautifulSoup4" minversion="4.3" maxversion="4.3.999"/>
+      <thirdpartyegg name="webob" minversion="1.4" maxversion="1.4.999"/>
+      <thirdpartyegg name="Babel" minversion="2.1" maxversion="2.1.999"/>
+    </deps>
+  </version>
+
+  <version number="3.0">
+      <deps purpose="run">
+        <egg name="reahl-component" versionlocked="True"/>
+        <egg name="reahl-interfaces" versionlocked="True"/>
+        <thirdpartyegg name="slimit" minversion="0.8" maxversion="0.8.999"/>
+        <thirdpartyegg name="cssmin" minversion="0.2" maxversion="0.2.999"/>
+        <thirdpartyegg name="BeautifulSoup4" minversion="4.3" maxversion="4.3.999"/>
+        <thirdpartyegg name="webob" minversion="1.4" maxversion="1.4.999"/>
+        <thirdpartyegg name="Babel" minversion="1.3" maxversion="1.3.999"/>
+      </deps>
+  </version>
+
+  <version number="2.1">
+      <deps purpose="run">
+        <egg name="reahl-component" versionlocked="True"/>
+        <egg name="reahl-interfaces" versionlocked="True"/>
+        <thirdpartyegg name="slimit" minversion="0.8" maxversion="0.9"/>
+        <thirdpartyegg name="cssmin" minversion="0.1" maxversion="0.2"/>
+        <thirdpartyegg name="BeautifulSoup" minversion="3.2" maxversion="3.3"/>
+        <thirdpartyegg name="webob" minversion="1.2" maxversion="1.3"/>
+        <thirdpartyegg name="Babel" minversion="0.9" maxversion="0.10"/>
+      </deps>
+  </version>
+
+  <version number="2.0">
+      <deps purpose="run">
+          <egg name="reahl-component" versionlocked="True"/>
+          <egg name="reahl-interfaces" versionlocked="True"/>
+          <thirdpartyegg name="slimit" minversion="0.8" maxversion="0.9"/>
+          <thirdpartyegg name="cssmin" minversion="0.1" maxversion="0.2"/>
+          <thirdpartyegg name="BeautifulSoup" minversion="3.2" maxversion="3.3"/>
+          <thirdpartyegg name="webob" minversion="1.2" maxversion="1.3"/>
+          <thirdpartyegg name="Babel" minversion="0.9" maxversion="0.10"/>
+      </deps>
+  </version>
 
 
   <distpackage type="wheel">

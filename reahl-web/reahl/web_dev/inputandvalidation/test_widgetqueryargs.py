@@ -15,8 +15,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-
-
 from reahl.tofu import Fixture, expected, scenario, uses
 from reahl.tofu.pytestsupport import with_fixtures
 
@@ -24,9 +22,9 @@ from reahl.component.exceptions import ProgrammerError
 
 from reahl.webdev.tools import Browser, XPath
 
-from reahl.component.modelinterface import Field, exposed, IntegerField, MultiChoiceField, Choice, Action, Event
+from reahl.component.modelinterface import exposed, IntegerField, MultiChoiceField, Choice, Action, Event
 from reahl.web.fw import Bookmark, Widget
-from reahl.web.ui import A, P, Form, TextInput, Div, CheckboxSelectInput, SelectInput, Label, NestedForm, ButtonInput, FormLayout
+from reahl.web.ui import A, P, Form, TextInput, Div, NestedForm, ButtonInput, FormLayout
 
 from reahl.web_dev.fixtures import WebFixture
 from reahl.dev.fixtures import ReahlSystemFixture

@@ -23,11 +23,13 @@
 
 import re
 from contextlib import contextmanager
-import urllib.parse 
+import urllib.parse
+
+from pkg_resources import get_distribution
 
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.eggs import ReahlEgg
-from reahl.component.migration import MigrationRun
+from reahl.component.migration import MigrationPlan
 
 
 class CouldNotFindDatabaseControlException(Exception):
@@ -75,9 +77,9 @@ class SystemControl:
         self.orm_control = self.config.reahlsystem.orm_control
         self.orm_control.system_control = self
 
-    def connect(self):
+    def connect(self, auto_commit=False):
         """Connects and logs into the database."""
-        self.orm_control.connect()
+        self.orm_control.connect(auto_commit=auto_commit)
         if self.db_control.is_in_memory:
             self.create_db_tables()
 
@@ -109,9 +111,6 @@ class SystemControl:
 
     def finalise_session(self):
         self.orm_control.finalise_session()
-
-    def set_transaction_and_connection(self, transaction):
-        self.orm_control.set_transaction_and_connection(transaction)
 
     def commit(self):
         """Commits the database."""
@@ -156,15 +155,14 @@ class SystemControl:
         finally:
             self.disconnect()
 
-    def migrate_db(self):
+    def migrate_db(self, explain=False):
         """Runs the database migrations relevant to the current system."""
-        eggs_in_order = ReahlEgg.get_all_relevant_interfaces(self.config.reahlsystem.root_egg)
-        self.orm_control.migrate_db(eggs_in_order)
+        self.orm_control.migrate_db(ReahlEgg.interface_for(get_distribution(self.config.reahlsystem.root_egg)), explain=explain)
         return 0
 
-    def diff_db(self):
-        """Computes the changes in schema iwetween the current database and what the current system expects."""
-        return self.orm_control.diff_db()
+    def diff_db(self, output_sql=False):
+        """Computes the changes in schema between the current database and what the current system expects."""
+        return self.orm_control.diff_db(output_sql=output_sql)
 
     def do_daily_maintenance(self):
         """Runs the all the scheduled jobs relevant to the current system."""
@@ -278,14 +276,68 @@ class ORMControl:
     :class:`ORMControl` and/or :class:`DatabaseControl` as
     appropriate.
 
+    .. versionchanged: 5.0.0
+       Signature changed from taking eggs_in_order to taking root_egg.
     """
-    def migrate_db(self, eggs_in_order):
-        with self.managed_transaction():
-            migration_run = MigrationRun(self, eggs_in_order)
-            migration_run.schedule_migrations()
-            migration_run.execute_migrations()
+    def migrate_db(self, root_egg, explain=False):
+        plan = MigrationPlan(root_egg, self)
+        if explain:
+            try:
+                plan.do_planning()
+            finally:
+                plan.explain()
+        else:
+            plan.do_planning()
+            plan.execute()
+                   
 
+    @contextmanager
+    def nested_transaction(self):
+        """A context manager for code that needs to run in a nested transaction.
 
+        .. versionchanged:: 5.0
+           Changed to yield a TransactionVeto which can be used to override when the transaction will be committed or not.
+        """
+        pass
+
+    @contextmanager
+    def managed_transaction(self):
+        pass
+    def connect(self, auto_commit=False):
+        pass
+    @property
+    def connected(self):
+        pass
+    def finalise_session(self):
+        pass
+    def disconnect(self):
+        pass
+    def commit(self):
+        """Commits the current transaction. Programmers should not need to deal with such transaction
+           management explicitly, since the framework already manages transactions itself."""
+        pass
+    def rollback(self):
+        """Rolls back the current transaction. Programmers should not need to deal with such transaction
+           management explicitly, since the framework already manages transactions itself."""
+        pass
+    def create_db_tables(self, transaction, eggs_in_order):
+        pass
+    def drop_db_tables(self, transaction):
+        pass
+    def execute_one(self, sql):
+        pass
+    def prune_schemas_to_only(self, live_versions):
+        pass
+    def diff_db(self, output_sql=False):
+        pass
+    def initialise_schema_version_for(self, egg=None, egg_name=None, egg_version=None):
+        pass
+    def remove_schema_version_for(self, egg=None, egg_name=None, fail_if_not_found=True):
+        pass
+    def schema_version_for(self, egg, default=None):
+        pass
+    def set_schema_version_for(self, version):
+        pass
 
 
 

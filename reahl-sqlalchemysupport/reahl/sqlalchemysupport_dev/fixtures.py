@@ -17,7 +17,7 @@
 
 from contextlib import contextmanager
 
-from reahl.tofu import Fixture, set_up, tear_down, Fixture, uses
+from reahl.tofu import set_up, tear_down, Fixture, uses
 from reahl.sqlalchemysupport import metadata, Session
 
 from reahl.dev.fixtures import ReahlSystemFixture

@@ -20,10 +20,10 @@ from reahl.tofu import Fixture, scenario
 
 from reahl.webdev.tools import Browser, XPath
 
-from reahl.web.fw import UserInterface, Widget, FactoryDict, UserInterfaceFactory, RegexPath, UrlBoundView, ErrorWidget, Url
-from reahl.web.ui import HTML5Page, H, P, A, Div, Slot
+from reahl.web.fw import UserInterface, Widget, UrlBoundView, ErrorWidget, Url
+from reahl.web.ui import HTML5Page, H, P, A
 
-from reahl.web_dev.fixtures import WebFixture, BasicPageLayout
+from reahl.web_dev.fixtures import WebFixture
 
 
 class ErrorLocationFixture(Fixture):

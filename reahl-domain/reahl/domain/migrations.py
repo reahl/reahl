@@ -19,7 +19,171 @@ from sqlalchemy import Column, String, Integer, ForeignKey, UnicodeText, Unicode
 
 from reahl.component.migration import Migration
 from reahl.sqlalchemysupport.elixirmigration import MigrateElixirToDeclarative
-from reahl.sqlalchemysupport import fk_name, ix_name
+from reahl.sqlalchemysupport import fk_name, ix_name, Text, DateTime, Boolean, PrimaryKeyConstraint
+
+
+class CreateDatabase(Migration):
+
+    def schedule_upgrades(self):
+        self.orm_control.assert_dialect(self, 'postgresql')
+        self.schedule('alter', op.create_table, 'systemaccount',
+                      Column('id', Integer(), nullable=False),
+                      Column('registration_date', DateTime(), nullable=True),
+                      Column('account_enabled', Boolean(), nullable=False),
+                      Column('failed_logins', Integer(), nullable=False),
+                      Column('row_type', String(length=40), nullable=True),
+                      PrimaryKeyConstraint('id', name='systemaccount_pkey')
+                      )
+        # self.schedule('indexes', op.create_index, 'systemaccount_id_seq', 'systemaccount', ['id'])
+
+        self.schedule('alter', op.create_table, 'usersession',
+                      Column('id', Integer(), nullable=False),
+                      Column('account_id', Integer(), nullable=True),
+                      Column('idle_lifetime', Integer(), nullable=False),
+                      Column('last_activity', DateTime(), nullable=False),
+                      Column('row_type', String(length=40), nullable=True),
+                      PrimaryKeyConstraint('id', name='usersession_pkey')
+                      )
+        self.schedule('create_fk', op.create_foreign_key, 'usersession_account_id_fk', 'usersession',
+                      'systemaccount', ['account_id'], ['id'])
+        # self.schedule('indexes', op.create_index, 'usersession_id_seq', 'usersession', ['id'])
+        self.schedule('indexes', op.create_index, 'ix_usersession_account_id', 'usersession', ['account_id'], unique=False)
+
+        self.schedule('alter', op.create_table, 'requirement',
+                      Column('id', Integer(), nullable=False),
+                      Column('fulfilled', Boolean(), nullable=False),
+                      Column('row_type', String(length=40), nullable=True),
+                      PrimaryKeyConstraint('id', name='requirement_pkey')
+                      )
+        # self.schedule('indexes', op.create_index, 'requirement_id_seq', 'requirement', ['id'])
+
+        self.schedule('alter', op.create_table, 'verificationrequest',
+                      Column('requirement_id', Integer(), nullable=False),
+                      Column('salt', String(length=10), nullable=False),
+                      PrimaryKeyConstraint('requirement_id', name='verificationrequest_pkey')
+                      )
+        self.schedule('create_fk', op.create_foreign_key, 'verificationrequest_requirement_id_fkey', 'verificationrequest',
+                      'requirement', ['requirement_id'], ['id'], ondelete='CASCADE')
+
+        self.schedule('alter', op.create_table, 'accountmanagementinterface',
+                      Column('id', Integer(), nullable=False),
+                      Column('email', Text(), nullable=True),
+                      Column('session_id', Integer(), nullable=True),
+                      PrimaryKeyConstraint('id', name='accountmanagementinterface_pkey')
+                      )
+        # self.schedule('indexes', op.create_index, 'accountmanagementinterface_id_seq', 'accountmanagementinterface', ['id'])
+        self.schedule('create_fk', op.create_foreign_key, 'accountmanagementinterface_session_id_fk', 'accountmanagementinterface',
+                      'usersession', ['session_id'], ['id'], ondelete='CASCADE')
+        self.schedule('indexes', op.create_index, 'ix_accountmanagementinterface_email', 'accountmanagementinterface', ['email'], unique=False)
+        self.schedule('indexes', op.create_index, 'ix_accountmanagementinterface_session_id', 'accountmanagementinterface', ['session_id'], unique=False)
+
+        self.schedule('alter', op.create_table, 'deferredaction',
+                      Column('id', Integer(), nullable=False),
+                      Column('deadline', DateTime(), nullable=False),
+                      Column('row_type', String(length=40), nullable=True),
+                      PrimaryKeyConstraint('id', name='deferredaction_pkey')
+                      )
+        # self.schedule('indexes', op.create_index, 'deferredaction_id_seq', 'deferredaction', ['id'])
+
+        self.schedule('alter', op.create_table, 'queue',
+                      Column('id', Integer(), nullable=False),
+                      Column('name', Text(), nullable=False),
+                      PrimaryKeyConstraint('id', name='queue_pkey'),
+                      #UniqueConstraint('name')
+                      )
+        self.schedule('indexes', op.create_index, 'ix_queue_name', 'queue', ['name'], unique=True)
+
+        self.schedule('alter', op.create_table, 'activateaccount',
+                      Column('deferredaction_id', Integer(), nullable=False),
+                      Column('system_account_id', Integer(), nullable=True),
+                      PrimaryKeyConstraint('deferredaction_id', name='activateaccount_pkey')
+                      )
+        self.schedule('create_fk', op.create_foreign_key, 'activateaccount_deferredaction_id_fkey', 'activateaccount',
+                      'deferredaction', ['deferredaction_id'], ['id'], ondelete='CASCADE')
+        self.schedule('create_fk', op.create_foreign_key, 'activateaccount_system_account_id_fk', 'activateaccount',
+                      'systemaccount', ['system_account_id'], ['id'], initially='DEFERRED', deferrable=True)
+        self.schedule('indexes', op.create_index, 'ix_activateaccount_system_account_id', 'activateaccount', ['system_account_id'], unique=False)
+        self.schedule('alter', op.create_table, 'changeaccountemail',
+                      Column('deferredaction_id', Integer(), nullable=False),
+                      Column('system_account_id', Integer(), nullable=True),
+                      PrimaryKeyConstraint('deferredaction_id', name='changeaccountemail_pkey')
+                      )
+        self.schedule('create_fk', op.create_foreign_key, 'changeaccountemail_deferredaction_id_fkey', 'changeaccountemail',
+                      'deferredaction', ['deferredaction_id'], ['id'], ondelete='CASCADE')
+        self.schedule('create_fk', op.create_foreign_key, 'changeaccountemail_system_account_id_fk', 'changeaccountemail',
+                      'systemaccount', ['system_account_id'], ['id'], initially='DEFERRED', deferrable=True)
+        self.schedule('indexes', op.create_index, 'ix_changeaccountemail_system_account_id', 'changeaccountemail', ['system_account_id'], unique=False)
+        self.schedule('alter', op.create_table, 'emailandpasswordsystemaccount',
+                      Column('systemaccount_id', Integer(), nullable=False),
+                      Column('password_md5', String(length=32), nullable=False),
+                      Column('email', Text(), nullable=False),
+                      Column('apache_digest', String(length=32), nullable=False),
+                      PrimaryKeyConstraint('systemaccount_id', name='emailandpasswordsystemaccount_pkey'),
+                      #UniqueConstraint('email')
+                      )
+        self.schedule('create_fk', op.create_foreign_key, 'emailandpasswordsystemaccount_systemaccount_id_fkey', 'emailandpasswordsystemaccount',
+                      'systemaccount', ['systemaccount_id'], ['id'], ondelete='CASCADE')
+        self.schedule('indexes', op.create_index, 'ix_emailandpasswordsystemaccount_email', 'emailandpasswordsystemaccount', ['email'], unique=True)
+
+        self.schedule('alter', op.create_table, 'party',
+                      Column('id', Integer(), nullable=False),
+                      Column('system_account_id', Integer(), nullable=True),
+                      PrimaryKeyConstraint('id', name='party_pkey')
+                      )
+        self.schedule('create_fk', op.create_foreign_key, 'party_system_account_id_fk', 'party',
+                      'systemaccount', ['system_account_id'], ['id'])
+        # self.schedule('indexes', op.create_index, 'party_id_seq', 'party', ['id'])
+        self.schedule('indexes', op.create_index, 'ix_party_system_account_id', 'party', ['system_account_id'], unique=False)
+        self.schedule('alter', op.create_table, 'requirement_deferred_actions__deferredaction_requirements',
+                      Column('requirement_id', Integer(), nullable=False),
+                      Column('deferredaction_id', Integer(), nullable=False),
+                      PrimaryKeyConstraint('requirement_id', 'deferredaction_id',
+                                           name='requirement_deferred_actions__deferredaction_requirements_pkey')
+                      )
+        self.schedule('create_fk', op.create_foreign_key, 'requirement_deferred_actions_fk', 'requirement_deferred_actions__deferredaction_requirements',
+                      'deferredaction', ['deferredaction_id'], ['id'])
+        self.schedule('create_fk', op.create_foreign_key, 'deferredaction_requirements_fk', 'requirement_deferred_actions__deferredaction_requirements',
+                      'requirement', ['requirement_id'], ['id'])
+
+        self.schedule('alter', op.create_table, 'newpasswordrequest',
+                      Column('system_account_id', Integer(), nullable=False),
+                      Column('verificationrequest_requirement_id', Integer(), nullable=False),
+                      PrimaryKeyConstraint('system_account_id', 'verificationrequest_requirement_id', name='newpasswordrequest_pkey')
+                      )
+        self.schedule('create_fk', op.create_foreign_key, 'newpasswordrequest_system_account_id_fk', 'newpasswordrequest',
+                      'systemaccount', ['system_account_id'], ['id'], initially='DEFERRED', deferrable=True)
+        self.schedule('create_fk', op.create_foreign_key, 'newpasswordrequest_verificationrequest_requirement_id_fkey', 'newpasswordrequest',
+                      'verificationrequest', ['verificationrequest_requirement_id'], ['requirement_id'], ondelete='CASCADE')
+        self.schedule('indexes', op.create_index, 'ix_newpasswordrequest_system_account_id', 'newpasswordrequest', ['system_account_id'], unique=False)
+
+        self.schedule('alter', op.create_table, 'task',
+                      Column('id', Integer(), nullable=False),
+                      Column('queue_id', Integer(), nullable=True),
+                      Column('title', Text(), nullable=False),
+                      Column('reserved_by_id', Integer(), nullable=True),
+                      PrimaryKeyConstraint('id', name='task_pkey')
+                      )
+        self.schedule('create_fk', op.create_foreign_key, 'task_queue_id_fk', 'task',
+                      'queue', ['queue_id'], ['id'])
+        self.schedule('create_fk', op.create_foreign_key, 'task_reserved_by_id_fk', 'task',
+                      'party', ['reserved_by_id'], ['id'])
+
+        self.schedule('indexes', op.create_index, 'ix_task_queue_id', 'task', ['queue_id'], unique=False)
+        self.schedule('indexes', op.create_index, 'ix_task_reserved_by_id', 'task', ['reserved_by_id'], unique=False)
+
+        self.schedule('alter', op.create_table, 'verifyemailrequest',
+                      Column('verificationrequest_requirement_id', Integer(), nullable=False),
+                      Column('email', Text(), nullable=False),
+                      Column('subject_config', Text(), nullable=False),
+                      Column('email_config', Text(), nullable=False),
+                      PrimaryKeyConstraint('verificationrequest_requirement_id', name='verifyemailrequest_pkey'),
+                      #UniqueConstraint('email', name='ix_verifyemailrequest_email')
+                      )
+        self.schedule('create_fk', op.create_foreign_key, 'verifyemailrequest_verificationrequest_requirement_id_fkey', 'verifyemailrequest',
+                      'verificationrequest', ['verificationrequest_requirement_id'], ['requirement_id'])
+        self.schedule('indexes', op.create_index, 'ix_verifyemailrequest_email', 'verifyemailrequest', ['email'], unique=True)
+
+
 
 
 class ElixirToDeclarativeDomainChanges(MigrateElixirToDeclarative):
@@ -134,20 +298,20 @@ class ElixirToDeclarativeDomainChanges(MigrateElixirToDeclarative):
 
 
 class AddLoginSession(Migration):
-    version='3.1'    
     def schedule_upgrades(self):
+        self.orm_control.assert_dialect(self, 'postgresql')
         self.schedule('alter', op.create_table, 'loginsession', 
                       Column('id', Integer(), primary_key=True, nullable=False),
                       Column('row_type', String(length=40)),
                       Column('account_id', Integer(), ForeignKey('systemaccount.id')), 
-                      Column('user_session_id', Integer(), ForeignKey('usersession.id')))
+                      Column('user_session_id', Integer(), ForeignKey('usersession.id', ondelete='CASCADE')))
         self.schedule('indexes', op.create_index, ix_name('loginsession', 'account_id'), 'loginsession', ['account_id'])
         self.schedule('indexes', op.create_index, ix_name('loginsession', 'user_session_id'), 'loginsession', ['user_session_id'])
 
 
 class ChangeSchemaToBeMySqlCompatible(Migration):
-    version = '4.0.0a1'
     def schedule_upgrades(self):
+        self.orm_control.assert_dialect(self, 'postgresql')
         #the fk's were defined as DEFERRABLE INITIALLY deferred. Since MySQL does not cater for it, we need to remove it.
         other_table_name = 'systemaccount'
         for table_name in ['newpasswordrequest', 'changeaccountemail', 'activateaccount']:
@@ -164,9 +328,8 @@ class ChangeSchemaToBeMySqlCompatible(Migration):
 
 
 class ChangePasswordHash(Migration):
-    version = '4.0.0a1'
-
     def schedule_upgrades(self):
+        self.orm_control.assert_dialect(self, 'postgresql')
         self.schedule('alter', op.alter_column, 'emailandpasswordsystemaccount',
                                                 'password_md5', new_column_name='password_hash',
                                                 existing_type=String(32), type_=Unicode(1024),
@@ -174,7 +337,6 @@ class ChangePasswordHash(Migration):
 
 
 class RemoveDeadApacheDigestColumn(Migration):
-    version = '4.0.0a1'
-
     def schedule_upgrades(self):
+        self.orm_control.assert_dialect(self, 'postgresql')
         self.schedule('cleanup', op.drop_column, 'emailandpasswordsystemaccount', 'apache_digest')

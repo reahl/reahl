@@ -15,9 +15,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-import time
-
-
 from reahl.tofu import scenario, expected, Fixture, uses
 from reahl.tofu.pytestsupport import with_fixtures
 

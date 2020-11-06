@@ -12,15 +12,6 @@
     <thirdpartyegg name="pytest-runner"/>
   </deps>
 
-  <deps purpose="run">
-    <egg name="reahl-component"/>
-    <egg name="reahl-sqlalchemysupport"/>
-    <egg name="reahl-web"/>
-    <egg name="reahl-web-declarative"/>
-    <egg name="reahl-domain"/>
-    <thirdpartyegg name="setuptools" minversion="32.3.1"/>
-  </deps>
-
   <deps purpose="test">
     <thirdpartyegg name="pytest" minversion="3.0"/>
     <egg name="reahl-tofu"/>
@@ -31,6 +22,75 @@
   </deps>
   
   <export entrypoint="reahl.workflowui.task_widgets" name="bootstrap.TaskWidget" locator="reahl.domainui.bootstrap.workflow:TaskWidget"/>
+
+  <version number="5.0">
+      <deps purpose="run">
+        <egg name="reahl-component" versionlocked="True"/>
+        <egg name="reahl-sqlalchemysupport" versionlocked="True"/>
+        <egg name="reahl-web" versionlocked="True"/>
+        <egg name="reahl-web-declarative" versionlocked="True"/>
+        <egg name="reahl-domain" versionlocked="True"/>
+        <thirdpartyegg name="setuptools" minversion="32.3.1"/>
+      </deps>
+  </version>
+
+  <version number="4.0">
+    <deps purpose="run">
+      <egg name="reahl-component" versionlocked="True"/>
+      <egg name="reahl-sqlalchemysupport" versionlocked="True"/>
+      <egg name="reahl-web" versionlocked="True"/>
+      <egg name="reahl-web-declarative" versionlocked="True"/>
+      <egg name="reahl-domain" versionlocked="True"/>
+      <thirdpartyegg name="setuptools" minversion="32.3.1"/>
+    </deps>
+  </version>
+
+  <version number="3.2">
+    <deps purpose="run">
+      <egg name="reahl-component" versionlocked="True"/>
+      <egg name="reahl-sqlalchemysupport" versionlocked="True"/>
+      <egg name="reahl-web" versionlocked="True"/>
+      <egg name="reahl-web-declarative" versionlocked="True"/>
+      <egg name="reahl-domain" versionlocked="True"/>
+    </deps>
+  </version>
+
+  <version number="3.1">
+    <deps purpose="run">
+      <egg name="reahl-component" versionlocked="True"/>
+      <egg name="reahl-sqlalchemysupport" versionlocked="True"/>
+      <egg name="reahl-web" versionlocked="True"/>
+      <egg name="reahl-web-declarative" versionlocked="True"/>
+      <egg name="reahl-domain" versionlocked="True"/>
+    </deps>
+  </version>
+
+  <version number="3.0">
+    <deps purpose="run">
+      <egg name="reahl-component" versionlocked="True"/>
+      <egg name="reahl-sqlalchemysupport" versionlocked="True"/>
+      <egg name="reahl-web" versionlocked="True"/>
+      <egg name="reahl-domain" versionlocked="True"/>
+    </deps>
+  </version>
+
+  <version number="2.1">
+    <deps purpose="run">
+        <egg name="reahl-component" versionlocked="True"/>
+        <egg name="reahl-sqlalchemysupport" versionlocked="True"/>
+        <egg name="reahl-web" versionlocked="True"/>
+        <egg name="reahl-domain" versionlocked="True"/>
+    </deps>
+  </version>
+
+  <version number="2.0">
+      <deps purpose="run">
+          <egg name="reahl-component" versionlocked="True"/>
+          <egg name="reahl-sqlalchemysupport" versionlocked="True"/>
+          <egg name="reahl-web" versionlocked="True"/>
+          <egg name="reahl-domain" versionlocked="True"/>
+      </deps>
+  </version>
 
 
   <distpackage type="wheel">

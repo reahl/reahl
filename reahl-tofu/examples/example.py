@@ -17,6 +17,7 @@
 
 
 from reahl.tofu import test, Fixture
+from unittest import TestSuite
 
 #
 # We declare the fixture classes here, so they could potentially be

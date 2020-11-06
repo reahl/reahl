@@ -27,7 +27,6 @@ URIs are as `defined by SqlAlchemy <http://docs.sqlalchemy.org/en/latest/core/en
 """
 
 
-import io
 import subprocess
 import gzip
 from datetime import date

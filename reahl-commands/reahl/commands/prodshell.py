@@ -17,23 +17,21 @@
 """The Reahl production commandline utility."""
 
 
-import sys
 import os.path
 import os
 import shutil
 
-import pprint
 import inspect
-import textwrap
 
 from pkg_resources import DistributionNotFound, get_distribution
 
 from reahl.component.dbutils import SystemControl
-from reahl.component.shelltools import Command, ReahlCommandline, AliasFile
+from reahl.component.shelltools import Command
 from reahl.component.context import ExecutionContext
 from reahl.component.config import ConfigSetting, StoredConfiguration, MissingValue
 from reahl.component.eggs import ReahlEgg
 from reahl.component.exceptions import DomainException
+from reahl.component.migration import MigrationPlan
 
 
 class ComponentInfo(Command):
@@ -196,7 +194,7 @@ class DropDB(ProductionCommand):
         if args.yes or (input('Are you sure? (y/N)? ').strip().lower().startswith('y')):
             return self.sys_control.drop_database(super_user_name=args.super_user_name)
         else:
-            return 
+            return
 
 
 class CreateDB(ProductionCommand):
@@ -300,27 +298,43 @@ class DropDBTables(ProductionCommand):
 
 
 class MigrateDB(ProductionCommand):
-    """Runs all necessary database migrations."""
+    """schedules all necessary database migrations."""
     keyword = 'migratedb'
+    def assemble(self):
+        super(MigrateDB, self).assemble()
+        simulate_group = self.parser.add_mutually_exclusive_group(required=False)
+        simulate_group.add_argument('-e', '--explain-plan', action='store_true', dest='explain',
+                                    help='don\'t migrate, show graphs explaining intermediate steps of the plan (requires graphviz to be installed)')
+
     def execute(self, args):
         super().execute(args)
         self.context.install()
-        with self.sys_control.auto_connected():
-            return self.sys_control.migrate_db()
+        try:
+            self.sys_control.connect(auto_commit=True)
+            return self.sys_control.migrate_db(explain=args.explain)
+        finally:
+            self.sys_control.disconnect()
 
 
 class DiffDB(ProductionCommand):
-    """Prints out a diff between the current database schema and what is expected by the current code."""
+    """Prints out a diff(required alembic operations) between the current database schema and what is expected by the current code."""
     keyword = 'diffdb'
+    def assemble(self):
+        super(DiffDB, self).assemble()
+        self.parser.add_argument('-s', '--output_sql', action='store_true', dest='output_sql',
+                                 help='show differences as sql')
+
     def execute(self, args):
         super().execute(args)
         self.context.install()
         with self.sys_control.auto_connected():
-            pprint.pprint(self.sys_control.diff_db(), indent=2, width=20)
+            changes = self.sys_control.diff_db(output_sql=args.output_sql)
+            if not changes:
+                print('No difference detected')
 
 
 class ListDependencies(ProductionCommand):
-    """List all dependency eggs in dependency order."""
+    """List all dependent eggs in dependency order."""
     keyword = 'listdeps'
     def assemble(self):
         super().assemble()
@@ -338,8 +352,23 @@ class ListDependencies(ProductionCommand):
         return 0
 
 
+class ListVersionHistory(ProductionCommand):
+    """List full version history."""
+    keyword = 'listversionhistory'
+    def assemble(self):
+        super().assemble()
+
+    def execute(self, args):
+        super().execute(args)
+        version_graph = MigrationPlan.create_version_graph_for(self.config.reahlsystem.root_egg)
+        for key in version_graph.graph:
+            print('%s [%s]' % (key, ' | '.join([str(i) for i in version_graph.graph[key]])))
+
+        return 0
+
+
 class RunJobs(ProductionCommand):
-    """Runs all registered scripts."""
+    """schedules all registered scripts."""
     keyword = 'runjobs'
     def execute(self, args):
         super().execute(args)

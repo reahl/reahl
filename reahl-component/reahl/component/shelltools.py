@@ -21,7 +21,6 @@ import os.path
 import logging
 import subprocess
 import os
-import distutils.spawn
 import collections
 import argparse 
 import shlex
@@ -204,7 +203,7 @@ class ReahlCommandline(CompositeCommand):
         try:
             result = cls().do(sys.argv[1:])
         except DomainException as ex:
-            print('Error: %s' % ex, file=sys.stderr)
+            print('\nError: %s\n' % ex, file=sys.stderr)
             result = 1
         exit(result)
 

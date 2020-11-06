@@ -124,7 +124,7 @@ class AutomaticallyDeletedDirectory(EmptyDirectory):
         pwd = os.getcwd()
         os.chdir(self.name)
         try:
-            yield
+            yield self.name
         finally:
             os.chdir(pwd)
         

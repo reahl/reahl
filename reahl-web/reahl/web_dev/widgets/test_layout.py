@@ -17,7 +17,6 @@
 
 from reahl.tofu import Fixture, expected, scenario, uses
 from reahl.tofu.pytestsupport import with_fixtures
-from reahl.stubble import stubclass, EmptyStub
 
 from reahl.webdev.tools import Browser
 

@@ -27,15 +27,12 @@ from datetime import datetime, timedelta
 
 
 from sqlalchemy import Column, Integer, BigInteger, LargeBinary, PickleType, String, UnicodeText, ForeignKey, DateTime
-from sqlalchemy.orm import relationship, deferred, backref
-#from sqlalchemy import Column, Integer, ForeignKey, UnicodeText, String, DateTime, Boolean
-
+from sqlalchemy.orm import relationship, deferred
 
 from reahl.sqlalchemysupport import Session, Base
 from reahl.component.eggs import ReahlEgg
 from reahl.component.config import Configuration
 from reahl.component.context import ExecutionContext
-from reahl.component.migration import Migration
 from reahl.web.interfaces import UserSessionProtocol, UserInputProtocol, PersistedExceptionProtocol, PersistedFileProtocol
 from reahl.web.fw import Url
 

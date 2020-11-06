@@ -18,14 +18,14 @@
 from reahl.tofu.pytestsupport import with_fixtures
 from reahl.tofu import Fixture, scenario
 
-from reahl.webdev.tools import Browser, XPath
+from reahl.webdev.tools import XPath
 
 from reahl.web.fw import UserInterface, Url
 from reahl.web.bootstrap.page import HTML5Page
 from reahl.web.bootstrap.ui import P
 from reahl.web.layout import PageLayout
 
-from reahl.web_dev.fixtures import WebFixture, BasicPageLayout
+from reahl.web_dev.fixtures import WebFixture
 
 
 

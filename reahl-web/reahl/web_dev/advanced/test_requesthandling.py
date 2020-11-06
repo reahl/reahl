@@ -22,7 +22,7 @@ from webob import Request, Response
 from webob.exc import HTTPNotFound
 
 from reahl.component.dbutils import SystemControl
-from reahl.tofu import expected, Fixture, scenario
+from reahl.tofu import expected, Fixture
 from reahl.tofu.pytestsupport import with_fixtures, uses
 from reahl.stubble import stubclass, CallMonitor, exempt, replaced
 
@@ -68,7 +68,7 @@ def test_wsgi_interface(web_fixture, wsgi_fixture):
 
 @stubclass(SystemControl)
 class SystemControlStub(SystemControl):
-    def connect(self):
+    def connect(self, auto_commit=False):
         pass
 
     def disconnect(self):

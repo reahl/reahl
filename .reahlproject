@@ -11,7 +11,7 @@
     <thirdpartyegg name="pytest" minversion="3.0"/>
   </deps>
 
-<extras name="all">
+  <extras name="all">
     <egg name="reahl-component"/>
     <egg name="reahl-web"/>
     <egg name="reahl-mailutil"/>
@@ -66,6 +66,27 @@
   </extras>
 
   <excludepackage name="reahl.doc.*"/>
+
+  <version number="5.0">
+  </version>
+  
+  <version number="4.0">
+  </version>
+
+  <version number="3.2">
+  </version>
+
+  <version number="3.1">
+  </version>
+
+  <version number="3.0">
+  </version>
+
+  <version number="2.1">
+  </version>
+
+  <version number="2.0">
+  </version>
 
   <distpackage type="wheel">
     <packageindex repository="pypi"/>

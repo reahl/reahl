@@ -13,17 +13,15 @@
 #
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 import queue
-import io
 import textwrap
-import filecmp
-import difflib
 
 from pathlib import Path
 from unittest.mock import patch
 
 from reahl.webdev.commands import CreateConfig
-from reahl.tofu import temp_dir, Fixture, temp_file_with, file_with
+from reahl.tofu import temp_dir, Fixture, file_with
 from reahl.tofu.pytestsupport import with_fixtures
 
 

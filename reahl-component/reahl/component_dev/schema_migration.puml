@@ -1,0 +1,39 @@
+' Copyright 2020 Reahl Software Services (Pty) Ltd. All rights reserved.
+
+@startuml
+!include base.iuml
+
+title Migrating Schema structure and data
+
+package reahl-dev{
+    class VersionEntry
+    class "Dependency" as Dependency1
+    VersionEntry -- "*" Dependency1
+}
+class Migration <<class>>
+class "Dependency" as Dependency2
+class "Migration" as Migration2
+class "<b>MigrationPlan</b>" as MigrationPlan
+
+
+Migration .right. Version
+VersionEntry .right. Version
+
+Version "*" -right- "1" DependencyCluster
+Version "*" -- ReahlEgg
+Version --- "*" Dependency2
+Dependency1 .right. Dependency2 : "                    "
+
+Version "*" --right--  MigrationPlan : "{as dependecy graph}"
+DependencyCluster --right--  MigrationPlan : "{as dependecy graph}"
+
+MigrationPlan -right- "*" MigrationSchedule
+MigrationSchedule -- "*" Migration2
+MigrationSchedule --  Phase : "last_phase"
+MigrationSchedule --- "*" Phase : "phase <<b>name</b>>"
+MigrationSchedule --  Phase : "before_nesting_phase"
+MigrationSchedule "*" --  MigrationSchedule : "nested_schedules"
+Phase -- "*" MethodCall
+
+
+@enduml

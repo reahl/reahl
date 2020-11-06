@@ -24,9 +24,7 @@ import glob
 import os.path
 import shutil
 import subprocess
-import shlex
 import logging
-import time
 import email.utils
 from contextlib import contextmanager
 import datetime
@@ -35,7 +33,7 @@ from tempfile import TemporaryFile
 
 import babel
 import tzlocal
-from pkg_resources import require, DistributionNotFound, VersionConflict, get_distribution
+from pkg_resources import require, DistributionNotFound, VersionConflict, get_distribution, parse_version
 from setuptools import find_packages, setup
 from xml.parsers.expat import ExpatError
 
@@ -575,9 +573,11 @@ class ExcludedPackage:
         self.__init__(attributes['name'])
 
 
-class Version:
+class VersionNumber:
     def __init__(self, version_string):
         match = re.match('^(?P<major>\d+)\.(?P<minor>\d+)(\.(?P<patch>[0-9a-zA-Z]+)((?P<other>[^-]+)?)(-(?P<debian_rev>.*))?)?$', version_string)
+        if not match:
+            raise ProgrammerError('Could not parse version string "%s"' % version_string)
         self.major = match.group('major')
         self.minor = match.group('minor')
         self.patch = match.group('patch')
@@ -595,7 +595,7 @@ class Version:
         return '.'.join([self.major, (self.minor+(self.other or ''))] + tail)
 
     def truncated(self):
-        return Version('.'.join([self.major, self.minor]))
+        return VersionNumber('.'.join([self.major, self.minor]))
 
     def is_alpha_version(self):
         if not self.patch:
@@ -603,7 +603,7 @@ class Version:
         return not re.match('^\d+$', self.patch)
 
     def upper_version(self):
-        return Version('.'.join([self.major, str(int(self.minor)+1)]))
+        return VersionNumber('.'.join([self.major, str(int(self.minor)+1)]))
 
     def lower_deb_version(self):
         return self.truncated()
@@ -614,24 +614,37 @@ class Version:
         return self.truncated()
 
     def as_upstream(self):
-        return Version('.'.join([self.major, self.minor]+([self.patch] if self.patch else [])))
+        return VersionNumber('.'.join([self.major, self.minor]+([self.patch] if self.patch else [])))
+
+    def as_major_minor(self):
+        return VersionNumber('.'.join([self.major, self.minor]))
 
 
 class Dependency:
-    def __init__(self, project, name, version=None, ignore_version=False):
+    egg_type = 'egg'
+
+    def __init__(self, project, name, version=None, ignore_version=False, version_locked=False):
         self.project = project
         self.name = name
         self.ignore_version = ignore_version
-        self.version = Version(version) if version else None
+        self.is_version_locked = version_locked
+        self.override_version(version)
+
+    def override_version(self, version_string):
+        self.version = VersionNumber(version_string) if version_string else None
 
     @classmethod
     def get_xml_registration_info(cls):
-        return ('egg', cls, None)
+        return (cls.egg_type, cls, None)
 
     def inflate_attributes(self, reader, attributes, parent):
         assert 'name' in attributes, 'No name specified'
         ignore_version = attributes.get('ignoreversion', False) == 'True'
-        self.__init__(parent.project, attributes['name'], attributes.get('version', None), ignore_version=ignore_version)
+        version_locked = attributes.get('versionlocked', False) == 'True'
+        if version_locked and not parent.purpose == 'run':
+            raise InvalidXMLException('<%s name="%s"> is versionlocked, but versionlocked is only allowed for purpose="run"' % \
+                                      (self.get_xml_registration_info()[0], attributes['name']))
+        self.__init__(parent.project, attributes['name'], attributes.get('version', None), ignore_version=ignore_version, version_locked=version_locked)
 
     def as_string_for_egg(self):
         if not self.ignore_version and self.version_is_available():
@@ -675,11 +688,14 @@ class Dependency:
     def exact_version(self):
         assert self.version_is_available(), 'No version can be determined for dependency %s' % self.name
         assert not self.ignore_version, 'Versions are ignored on dependency %s' % self.name
-        if self.is_internal:
-            return self.project.version
-
         if self.version:
             return self.version
+
+        if self.is_version_locked:
+            return self.version
+
+        if self.is_internal:
+            return self.project.version
 
         try:
             project = self.project.workspace.project_named(self.name)
@@ -689,9 +705,11 @@ class Dependency:
 
 
 class ThirdpartyDependency(Dependency):
+    egg_type = 'thirdpartyegg'
+
     def __init__(self, project, name, min_version=None, max_version=None):
         super().__init__(project, name, version=min_version)
-        self.max_version = Version(max_version) if max_version else None
+        self.max_version = VersionNumber(max_version) if max_version else None
 
     def inflate_attributes(self, reader, attributes, parent):
         assert 'name' in attributes, 'No name specified'
@@ -701,10 +719,6 @@ class ThirdpartyDependency(Dependency):
     @property
     def min_version(self):
         return self.version
-
-    @classmethod
-    def get_xml_registration_info(cls):
-        return ('thirdpartyegg', cls, None)
 
     def as_string_for_deb(self):
         return ''
@@ -721,11 +735,12 @@ class ThirdpartyDependency(Dependency):
 
 class XMLDependencyList(list):
     "Purely for reading related dependencies from XML."""
-    def __init__(self, project, purpose):
+    def __init__(self, project, purpose, version_entry=None):
         super().__init__()
         self.workspace = project.workspace
         self.project = project
         self.purpose = purpose
+        self.version_entry = version_entry
 
     @classmethod
     def get_xml_registration_info(cls):
@@ -733,11 +748,70 @@ class XMLDependencyList(list):
 
     def inflate_attributes(self, reader, attributes, parent):
         assert 'purpose' in attributes, 'No purpose specified'
-        self.__init__(parent, attributes['purpose'])
+        if isinstance(parent, VersionEntry):
+            version_entry = parent
+            project = version_entry.project
+        else:
+            version_entry = None
+            project = parent
+        self.__init__(project, attributes['purpose'], version_entry=version_entry)
 
     def inflate_child(self, reader, child, tag, parent):
         assert isinstance(child, Dependency), 'Got %s, expected a dependency' % child
+        if self.version_entry and child.is_version_locked:
+            if self.version_entry.version.is_alpha_version():
+                child_version = self.version_entry.version
+            else:
+                child_version = self.version_entry.version.as_major_minor()
+            child.override_version(str(child_version))
         self.append(child)
+
+
+
+class VersionDependencyEntryPointEntry(EntryPointExport):
+    def __init__(self, version, dependency):
+        encoded_max_version = ''
+        try:
+            if dependency.max_version:
+                encoded_max_version = ' [%s]' % dependency.max_version
+        except AttributeError:
+            pass
+
+        locator = '%s:%s%s' % (dependency.egg_type, dependency.version if dependency.version else '_', encoded_max_version )
+        super(VersionDependencyEntryPointEntry, self).__init__('reahl.versiondeps.%s' % version, dependency.name, locator)
+
+
+class VersionEntry(object):
+    "Dependencies and migrations for a version of a project."""
+    def __init__(self, project, version):
+        super(VersionEntry, self).__init__()
+        self.project = project
+        self.version = VersionNumber(version)
+        if not self.version.is_alpha_version() and self.version != self.version.as_major_minor():
+            raise ProgrammerError('Patch version %s specified for %s. You can only register versions of the form major.minor (unless the patch version includes an alpha indicator)' % (version, project.project_name))
+
+        self.run_dependencies = []
+        self.migrations = []
+
+    def as_entry_points(self):
+        return [EntryPointExport('reahl.versions', str(self.version), str(self.version))] + \
+               [VersionDependencyEntryPointEntry(self.version, d) for d in self.run_dependencies] + \
+               self.migrations
+
+    @classmethod
+    def get_xml_registration_info(cls):
+        return ('version', cls, None)
+
+    def inflate_attributes(self, reader, attributes, parent):
+        assert 'number' in attributes, 'No version number specified'
+        self.__init__(parent, attributes['number'])
+
+    def inflate_child(self, reader, child, tag, parent):
+        assert isinstance(child, XMLDependencyList) or isinstance(child, MigrationList), 'Got %s, expected deps or migrations' % child
+        if isinstance(child, XMLDependencyList) and child.purpose == 'run':
+            self.run_dependencies = child
+        if isinstance(child, MigrationList):
+            self.migrations = child
 
 
 class ExtrasList(list):
@@ -829,9 +903,17 @@ class PersistedClassesList(OrderedClassesList):
 
 class MigrationList(OrderedClassesList):
     "Purely for reading a list of migration classes XML."""
+    def __init__(self, version_entry):
+        super(MigrationList, self).__init__()
+        self.version_entry = version_entry
+
+    def inflate_attributes(self, reader, attributes, parent):
+        assert isinstance(parent, VersionEntry), '%s is located in %s, expected to be in a %s' % (self.__class__.__name__, parent, VersionEntry)
+        self.__init__(parent)
+
     @property
     def entry_point(self):
-        return 'reahl.migratelist'
+        return 'reahl.migratelist.%s' % self.version_entry.version
 
     @classmethod
     def get_xml_registration_info(cls):
@@ -932,7 +1014,7 @@ class ProjectMetadata:
     def version(self):
         if self.project.chicken_project:
             return self.project.chicken_project.version
-        return Version('0.0')
+        return VersionNumber('0.0')
 
     def info_readable(self):
         if self.project.chicken_project:
@@ -1010,31 +1092,31 @@ class HardcodedMetadata(ProjectMetadata):
 
     @property
     def version(self):
-        return Version(self.info['version'].contents)
+        return VersionNumber(self.info['version'].contents.strip())
 
     @property
     def project_name(self):
         try:
-            return self.info['project_name'].contents
+            return self.info['project_name'].contents.strip()
         except KeyError:
             return super().project_name
 
     def get_long_description_for(self, project):
-        return self.info['long_description'].contents
+        return self.info['long_description'].contents.strip()
 
     def get_description_for(self, project):
-        return self.info['description'].contents
+        return self.info['description'].contents.strip()
 
     def get_url_for(self, project):
-        return self.info['url'].contents
+        return self.info['url'].contents.strip()
 
     @property
     def maintainer_name(self):
-        return self.info['maintainer_name'].contents
+        return self.info['maintainer_name'].contents.strip()
 
     @property
     def maintainer_email(self):
-        return self.info['maintainer_email'].contents
+        return self.info['maintainer_email'].contents.strip()
 
     def info_readable(self):
         return self.info_completed()
@@ -1084,7 +1166,7 @@ class DebianPackageMetadata(ProjectMetadata):
 
     @property
     def version(self):
-        return Version(str(self.changelog.version))
+        return VersionNumber(str(self.changelog.version))
 
     def get_long_description_for(self, project):
         return self.debian_control.get_long_description_for('python-%s' % project.project_name).replace(' . ', '\n\n')
@@ -1139,7 +1221,7 @@ class DebianPackageMetadata(ProjectMetadata):
         if self.project.workspace.dh_make_directory:
             dh_make_params[0] += ' --templates %s' % self.project.workspace.dh_make_directory
 
-        Executable('dh_make').check_call(dh_make_params.split(' '), cwd=deb_dir, shell=True)
+        Executable('dh_make').check_call(dh_make_params, cwd=deb_dir, shell=True)
 
         shutil.move(os.path.join(deb_dir, 'debian'), os.path.join(self.project.directory, 'debian'))
         shutil.rmtree(deb_dir)
@@ -1308,6 +1390,9 @@ class Project:
     @classmethod
     def get_xml_registration_info(cls):
         return ('project', cls, None)
+
+    def __str__(self):
+        return '<%s>' % self.get_xml_registration_info()[0]
 
     @classmethod
     def from_file(cls, workspace, directory):
@@ -1583,14 +1668,13 @@ class EggProject(Project):
         self.include_package_data = include_package_data
 
         self.extras_required = {}
-        self.run_deps = []
         self.build_deps = []
         self.test_deps = []
 
         self.translation_package = None
 
         self.persist_list = []
-        self.migration_list = []
+        self.version_history = []
         self.scheduled_jobs = []
 
         self.static_files = []
@@ -1600,8 +1684,10 @@ class EggProject(Project):
     @property
     def entry_points(self):
         added_entry_points = [ReahlEggExport('reahl.component.eggs:ReahlEgg')]
-        return self.migration_list + \
-               self.persist_list + \
+        return self.persist_list + \
+               [entry_point
+                  for version_entry in self.version_history
+                  for entry_point in version_entry.as_entry_points()] + \
                self.static_files + \
                self.js_attach_list + \
                self.css_attach_list + \
@@ -1650,6 +1736,9 @@ class EggProject(Project):
         elif isinstance(child, ExtrasList):
             self.extras_required[child.name] = child
         elif isinstance(child, XMLDependencyList):
+            if child.purpose not in ['test', 'build']:
+                raise InvalidXMLException('<%s purpose="%s"> given inside a <%s>, only purpose="test" and purpose="build" are allowed in this context' % \
+                    (child.get_xml_registration_info()[0], child.purpose, self.get_xml_registration_info()[0]))
             list_to_use = getattr(self, '%s_deps' % child.purpose)
             list_to_use.extend(child)
         elif isinstance(child, NamespaceList):
@@ -1658,14 +1747,14 @@ class EggProject(Project):
             self.translation_package = child
         elif isinstance(child, ConfigurationSpec):
             if any([isinstance(i, ConfigurationSpec) for i in self.explicitly_specified_entry_points]):
-                raise ProgrammerError('%s is a duplicate <configuration> for egg %s. Each egg may only have one <configuration>.' % (child, self.project_name))
+                raise InvalidXMLException('%s is a duplicate <configuration> for egg %s. Each egg may only have one <configuration>.' % (child, self.project_name))
             self.explicitly_specified_entry_points.append(child)
         elif isinstance(child, EntryPointExport):
             self.explicitly_specified_entry_points.append(child)
         elif isinstance(child, PersistedClassesList):
             self.persist_list = child
-        elif isinstance(child, MigrationList):
-            self.migration_list = child
+        elif isinstance(child, VersionEntry):
+            self.version_history.append(child)
         elif isinstance(child, ExcludedPackage):
             self.excluded_packages.append(child)
         elif isinstance(child, ScheduledJobSpec):
@@ -1798,6 +1887,13 @@ class EggProject(Project):
 
     def version_for_setup(self):
         return str(self.version.as_upstream())
+
+    @property
+    def run_deps(self):
+        if self.version_history:
+            return list(sorted(self.version_history, key=lambda x : parse_version(str(x.version))))[-1].run_dependencies
+        else:
+            return []
 
     def run_deps_for_setup(self):
         return [dep.as_string_for_egg() for dep in self.run_deps]
@@ -2258,9 +2354,9 @@ class SubstvarsFile(list):
     def items(self):
         return [i for i in self]
 
-all_xml_classes = [MetaInfo, HardcodedMetadata, DebianPackageMetadata, GitSourceControl, Project, \
-                   ChickenProject, EggProject, DebianPackage, SshRepository, PythonSourcePackage, \
-                   PythonWheelPackage, PackageIndex, Dependency, ThirdpartyDependency, XMLDependencyList, \
-                   ExtrasList, EntryPointExport, ScriptExport, NamespaceList, NamespaceEntry, PersistedClassesList, \
-                   OrderedPersistedClass, MigrationList, ConfigurationSpec, ScheduledJobSpec, \
-                   ExcludedPackage, TranslationPackage, ExtraPath, ProjectTag]
+all_xml_classes = [MetaInfo, HardcodedMetadata, DebianPackageMetadata, GitSourceControl, Project,
+                   ChickenProject, EggProject, DebianPackage, SshRepository, PythonSourcePackage,
+                   PythonWheelPackage, PackageIndex, Dependency, ThirdpartyDependency, XMLDependencyList,
+                   ExtrasList, EntryPointExport, ScriptExport, NamespaceList, NamespaceEntry, PersistedClassesList,
+                   OrderedPersistedClass, MigrationList, ConfigurationSpec, ScheduledJobSpec,
+                   ExcludedPackage, TranslationPackage, ExtraPath, ProjectTag, VersionEntry]

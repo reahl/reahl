@@ -1,11 +1,13 @@
 <project type="egg">
+ <version number="0.0">
   <deps purpose="run">
-    <egg name="reahl-component"/>
-    <egg name="reahl-web"/>
-    <egg name="reahl-sqlalchemysupport"/>
-    <egg name="reahl-web-declarative"/>
+   <egg name="reahl-component"/>
+   <egg name="reahl-web"/>
+   <egg name="reahl-sqlalchemysupport"/>
+   <egg name="reahl-web-declarative"/>
   </deps>
-  <persisted>
-    <class locator="reahl.doc.examples.tutorial.pageflow1.pageflow1:Address"/>
-  </persisted>
+ </version>
+ <persisted>
+  <class locator="reahl.doc.examples.tutorial.pageflow1.pageflow1:Address"/>
+ </persisted>
 </project>
