@@ -13,6 +13,7 @@
 
   <deps purpose="test">
     <thirdpartyegg name="pytest" minversion="3.0"/>
+    <thirdpartyegg name="graphviz"/>
     <egg name="reahl-tofu"/>
     <egg name="reahl-stubble"/>
     <egg name="reahl-dev"/>
