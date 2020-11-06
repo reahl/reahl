@@ -116,8 +116,31 @@ def install_prerequisites(missing):
 
 
 def get_common_version():
-    from reahl.dev.devdomain import DebianChangelog
-    return DebianChangelog('debian/changelog').version
+    #from reahl.dev.devdomain import DebianChangelog
+    class DebianChangelog:
+        package_name_regex = '(?P<package_name>[a-z][a-z0-9\-]*)'
+        version_regex = '\((?P<version>[a-zA-Z\.0-9\-]+)\)'
+        heading_regex = '^%s\s+%s.*$' % (package_name_regex, version_regex)
+
+        def __init__(self, filename):
+            self.filename = filename
+
+        def parse_heading_for(self, element):
+            with io.open(self.filename) as changelog_file:
+                for line in changelog_file:
+                    if line.strip():
+                        match = re.match(self.heading_regex, line)
+                        assert match, 'Cannot parse changelog file: %s' % self.filename
+                        return match.group(element)
+
+        @property
+        def package_name(self):
+            return self.parse_heading_for('package_name')
+
+        @property
+        def version_major_minor(self):
+            return self.parse_heading_for('version').split('.')[:2]
+    return '.'.join(DebianChangelog('debian/changelog').version_major_minor)
 
 
 def make_core_projects_importable(core_project_dirs):
