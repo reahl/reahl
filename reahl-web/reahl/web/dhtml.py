@@ -56,8 +56,7 @@ class DHTMLFile:
                     return True
                 return False
             soup = BeautifulSoup(dhtml_file, "lxml", parse_only=SoupStrainer(strain))
-            parser = html.parser.HTMLParser()
-            self.title = parser.unescape(soup.title.decode_contents()) if soup.title else _('Untitled')
+            self.title = html.unescape(soup.title.decode_contents()) if soup.title else _('Untitled')
             for an_id in self.ids:
                 found_elements = soup.find_all(id=an_id)
                 if found_elements:
