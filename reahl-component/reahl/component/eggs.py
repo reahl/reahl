@@ -400,9 +400,9 @@ class ReahlEgg:
         paths = [p for p in paths if not p.startswith(os.path.join(translations_entry_point.dist.location, '.'))]
         unique_paths = [p.split('%s/' % dir_or_egg_name)[-1] for p in paths]
         unique_paths = set([p for p in unique_paths if '.egg' not in p])
-        assert len(unique_paths) <=1, \
+        assert len(unique_paths) <= 1, \
             'Only one translations package per component is allowed, found %s for %s' % (paths, translations_entry_point.dist)
-        assert len(unique_paths) >0, \
+        assert len(unique_paths) > 0, \
             'No translations found for %s, did you specify a translations package and forget to add locales in there?' % translations_entry_point.dist
         return unique_paths.pop()
 
