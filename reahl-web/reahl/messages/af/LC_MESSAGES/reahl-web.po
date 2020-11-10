@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: reahl-web 2.0.0a1\n"
 "Report-Msgid-Bugs-To: info@reahl.org\n"
-"POT-Creation-Date: 2020-11-10 09:04+0000\n"
+"POT-Creation-Date: 2020-11-10 12:06+0000\n"
 "PO-Revision-Date: 2012-04-22 10:40+0200\n"
 "Last-Translator: Iwan Vosloo <iwan@reahl.org>\n"
 "Language: af\n"
@@ -26,6 +26,10 @@ msgid "An error occurred"
 msgid_plural "Some errors occurred"
 msgstr[0] "'n Fout is begaan"
 msgstr[1] "Foute is begaan"
+
+#: reahl/web/fw.py:88
+msgid "Refresh"
+msgstr "Herlaai"
 
 #: reahl/web/fw.py:503
 msgid "Error"
@@ -63,8 +67,9 @@ msgstr "Ok"
 msgid ""
 "Some data changed since you opened this page, please reset input to try "
 "again."
-msgstr "Die data het verander vandat jy laas hierdie bladsy besoek het, herstel die "
-"insetdata, en probeer weer."
+msgstr ""
+"Die data het verander vandat jy laas hierdie bladsy besoek het, herstel "
+"die insetdata, en probeer weer."
 
 #: reahl/web/ui.py:1110
 msgid "Reset input"
@@ -135,5 +140,4 @@ msgstr "'n Oogpunt"
 #: reahl/web_dev/bootstrap/test_nav.py:251
 msgid "This is an English sentence."
 msgstr "Hierdie is 'n sin in Afrikaans."
-
 

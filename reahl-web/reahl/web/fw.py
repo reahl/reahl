@@ -85,7 +85,7 @@ class ValidationException(DomainException):
 
     @exposed
     def events(self, events):
-        events.refresh = Event(label='Refresh', action=Action(self.clear_view_data))
+        events.refresh = Event(label=_('Refresh'), action=Action(self.clear_view_data))
 
     def clear_view_data(self, form=None):
         form.clear_all_saved_data()
@@ -116,14 +116,14 @@ class Url:
     
     def __init__(self, url_string):
         split_url = urllib.parse.urlsplit(url_string)
-        self.scheme = split_url.scheme     #:
-        self.username = split_url.username #:
-        self.password = split_url.password #:
-        self.hostname = split_url.hostname #:
-        self.port = split_url.port         #:
-        self.path = split_url.path         #:
-        self.query = split_url.query       #:
-        self.fragment = split_url.fragment #:
+        self.scheme = split_url.scheme
+        self.username = split_url.username
+        self.password = split_url.password
+        self.hostname = split_url.hostname
+        self.port = split_url.port
+        self.path = split_url.path
+        self.query = split_url.query
+        self.fragment = split_url.fragment
 
     def set_scheme(self, scheme):
         """Sets the scheme part of the Url (the http or https before the :), ensuring that the
