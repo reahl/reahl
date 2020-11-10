@@ -152,10 +152,12 @@ class Browser(BasicBrowser):
            :param url_string: A string containing the URL to be opened.
            :keyword follow_redirects: If False, this method acts as a simple GET request. If True (the default),
                                       the method behaves like a browser would, by opening redirect responses.
-           :keyword relative: Set to True to indicate that `url_string` contains a path relative to the current location.
 
            Other keyword arguments are passed directly on to 
            `WebTest.get <http://webtest.readthedocs.org/en/latest/api.html#webtest.app.TestApp.get>`_.
+
+           .. versionchanged: 5.0
+             removed relative kwarg, which is now deduced from the url string
         """
         if self.last_response:
             self.history.append(self.last_response.request.url)
@@ -1082,7 +1084,6 @@ class DriverBrowser(BasicBrowser):
         """Finds the select element indicated by `locator` and deselects all options.
 
            :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
-           :param label_to_choose: The label of the option that should be selected.
            :keyword wait_for_ajax: If False, don't wait for ajax to finish before continuing (default is to wait).
 
            .. versionchanged:: 5.0

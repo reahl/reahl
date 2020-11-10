@@ -1232,10 +1232,10 @@ class Form(HTMLElement):
 
     def persist_invalid_input(self):
         self.clear_saved_inputs()
-        for input in self.inputs.values():
-            field = input.bound_field
+        for some_input in self.inputs.values():
+            field = some_input.bound_field
             if field.input_status == 'invalidly_entered':
-                input.enter_value(field.as_user_input_value())
+                some_input.enter_value(field.as_user_input_value())
 
     def clear_saved_inputs(self):
         self.persisted_userinput_class.clear_for_form(self)

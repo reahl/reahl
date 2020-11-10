@@ -449,7 +449,7 @@ information about which instance variables it will have.
 
 Some people use __slots__ as a way to specify instance variables for
 this reason.  *However*, that is **not** what __slots__ is intended
-for.  __slots__ is an optimisation feature which, if used for other
+for.  \__slots__ is an optimisation feature which, if used for other
 reasons will behave contrary to your expectations.
 
 Such as in this example originally posted on comp.lang.python

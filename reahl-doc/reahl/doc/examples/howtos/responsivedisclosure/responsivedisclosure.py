@@ -150,9 +150,9 @@ class AllocationDetailSection(Div):
         def make_amount_total(view, investment_order):
             return self.make_total_widget(investment_order.total_allocation_amount)
 
-        columns = [StaticColumn(Field(label='Fund'), 'fund', footer_label='Totals')]
-        columns.append(DynamicColumn('Percentage', make_percentage_input, make_footer_widget=make_percentage_total))
-        columns.append(DynamicColumn('Amount', make_amount_input, make_footer_widget=make_amount_total))
+        columns = [StaticColumn(Field(label='Fund'), 'fund', footer_label='Totals'),
+                   DynamicColumn('Percentage', make_percentage_input, make_footer_widget=make_percentage_total),
+                   DynamicColumn('Amount', make_amount_input, make_footer_widget=make_amount_total)]
         table = Table(self.view).with_data(columns, self.investment_order.allocations,
                                            footer_items=[self.investment_order])
         self.add_child(table)

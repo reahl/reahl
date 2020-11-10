@@ -23,10 +23,11 @@ import contextlib
 #----------------------------------------[ assertion functions ]
 
 class NoExceptionRaised(Exception):
-    def __init__(self, expected):
-        self.expected = expected
+    def __init__(self, expected_exception):
+        self.expected_exception = expected_exception
     def __str__(self):
-        return '%s was expected' % self.expected
+        return '%s was expected' % self.expected_exception
+
 
 class NoException(Exception):
     """A special exception class used with :func:`expected` to indicate that no exception is
@@ -75,9 +76,9 @@ def expected(exception, test=None):
 
     if test and not callable(test):
         test_regex = test
-        def check_message(ex):
-            assert re.match(test_regex, str(ex)), \
-                'Expected exception to match "%s", got "%s"' % (test_regex, str(ex))
+        def check_message(exc):
+            assert re.match(test_regex, str(exc)), \
+                'Expected exception to match "%s", got "%s"' % (test_regex, str(exc))
         test = check_message
 
     if exception is NoException:

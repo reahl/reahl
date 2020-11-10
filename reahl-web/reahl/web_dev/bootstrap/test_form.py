@@ -93,9 +93,9 @@ class FormLayoutFixture(Fixture):
         def is_form_control_element(element):
             return 'class' in element.attrib \
                    and 'form-control' in element.attrib['class']
-        [input] = [element for element in self.get_form_group_children(browser, index=index)
+        [some_input] = [element for element in self.get_form_group_children(browser, index=index)
                            if is_form_control_element(element)]
-        return [mark for mark in input.attrib['class'].split(' ')
+        return [mark for mark in some_input.attrib['class'].split(' ')
                      if mark.startswith('is-')]
 
     def get_form_group_errors(self, browser, index=0):
