@@ -1317,12 +1317,12 @@ class Widget:
 class ErrorWidget(Widget):
     @exposed
     def query_fields(self, fields):
-        fields.error_message=Field(default=_('An error occurred'))
-        fields.error_source_href=Field(default=_('#'))
+        fields.error_message = Field(default=_('An error occurred'))
+        fields.error_source_href = Field(default='#')
 
     @classmethod
     def get_widget_bookmark_for_error(cls, error_message, error_source_bookmark):
-        return Bookmark.for_widget('', query_arguments={'error_message':error_message, 'error_source_href':error_source_bookmark.href if error_source_bookmark else ''})
+        return Bookmark.for_widget('', query_arguments={'error_message': error_message, 'error_source_href': error_source_bookmark.href if error_source_bookmark else ''})
 
 
 class PlainErrorPage(ErrorWidget):
