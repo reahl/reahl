@@ -1,9 +1,11 @@
 <project type="egg">
-  <deps purpose="run">
-    <egg name="reahl-web"/>
-    <egg name="reahl-component"/>
-    <egg name="reahl-web-declarative"/>
-  </deps>
+  <version number="0.0">
+    <deps purpose="run">
+      <egg name="reahl-web"/>
+      <egg name="reahl-component"/>
+      <egg name="reahl-web-declarative"/>
+    </deps>
+  </version>
 
   <deps purpose="test">
     <egg name="reahl-tofu"/>
