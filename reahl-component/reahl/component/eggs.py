@@ -315,8 +315,8 @@ class ReahlEgg:
     @property
     def installed_version(self):
         latest_declared_version = self.get_versions()[-1]
-        installed_version_string = '.'.join(self.distribution.version.split('.')[:2])
-        if str(latest_declared_version.version_number) != installed_version_string:
+        installed_version_string = self.distribution.version
+        if str(latest_declared_version.version_number) != '.'.join(installed_version_string.split('.')[:2]):
             raise ProgrammerError('Installed version %s of %s, does not match the latest declared version %s'
                                   % (installed_version_string, self.name, latest_declared_version))
         return latest_declared_version
