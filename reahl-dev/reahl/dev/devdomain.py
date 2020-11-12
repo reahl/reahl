@@ -2140,7 +2140,7 @@ class ProjectList(list):
                             dirs.remove(i)
                         except ValueError:
                             pass
-                elif '.reahlproject' in files:
+                if '.reahlproject' in files:
                     project = Project.from_file(self.workspace, root)
                     self.append(project, ignore_duplicates=True)
                     if not project.has_children:
