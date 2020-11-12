@@ -11,7 +11,9 @@ env:
     - DISPLAY=:99.0
     - PATH=$HOME/bin:$PATH
 
-matrix:
+language: python
+
+jobs:
   include:
     - python: 3.5
       TOX_ENV=py35
@@ -60,10 +62,6 @@ services:
   - xvfb
   - postgresql
   #- mysql
-
-language: python
-python:
-  - 3.5
 
 cache: 
   pip: true
