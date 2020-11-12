@@ -156,8 +156,6 @@ class Browser(BasicBrowser):
            Other keyword arguments are passed directly on to 
            `WebTest.get <http://webtest.readthedocs.org/en/latest/api.html#webtest.app.TestApp.get>`_.
 
-           .. versionchanged: 5.0
-             removed relative kwarg, which is now deduced from the url string
         """
         if self.last_response:
             self.history.append(self.last_response.request.url)

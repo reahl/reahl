@@ -31,7 +31,7 @@ import os.path
 import logging
 import locale
 import inspect
-from logging import config
+import logging.config
 from contextlib import contextmanager
 
 from pkg_resources import require, iter_entry_points, DistributionNotFound, Requirement
@@ -328,7 +328,7 @@ class StoredConfiguration(Configuration):
     def configure_logging(self):
         logging_config_file = os.path.join(self.config_directory, 'logging.conf')
         if os.path.isfile(logging_config_file):
-            config.fileConfig(logging_config_file)
+            logging.config.fileConfig(logging_config_file)
         else:
             logging.basicConfig()
         logging.captureWarnings(True)

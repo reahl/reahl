@@ -18,7 +18,6 @@ msgstr ""
 "Generated-By: Babel 2.8.0\n"
 
 #: reahl/domainui/bootstrap/accounts.py:61
-#, fuzzy
 msgid "Please specify"
 msgstr "Spesifiseer asseblief:"
 
@@ -260,7 +259,7 @@ msgid ""
 "code. Please check your email, retrieve the code and then enter it on "
 "{verify}."
 msgstr ""
-"In orde om dit te doen, was 'n e-pos wat 'n gehime sleutelkode bevat, na {email} gestuur."
+"Om dit te doen, was 'n e-pos wat 'n geheime sleutelkode bevat, na {email} gestuur."
 " Spoor die e-pos op, kry die sleutelkode en voer dit in "
 "{verify}."
 

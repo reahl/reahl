@@ -24,12 +24,12 @@ msgstr "Ongetiteld"
 #: reahl/web/fw.py:84 reahl/web/fw.py:1320
 msgid "An error occurred"
 msgid_plural "Some errors occurred"
-msgstr[0] "'n Fout is begaan"
-msgstr[1] "Foute is begaan"
+msgstr[0] "'n Fout het gebeur"
+msgstr[1] "Foute het gebeur"
 
 #: reahl/web/fw.py:88
 msgid "Refresh"
-msgstr "Herlaai"
+msgstr "Verfris"
 
 #: reahl/web/fw.py:503
 msgid "Error"
@@ -57,7 +57,7 @@ msgstr ""
 
 #: reahl/web/bootstrap/page.py:43 reahl/web/ui.py:605
 msgid "An error occurred:"
-msgstr "'n Fout is begaan:"
+msgstr "'n Fout het gebeur:"
 
 #: reahl/web/ui.py:607
 msgid "Ok"
