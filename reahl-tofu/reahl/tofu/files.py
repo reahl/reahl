@@ -1,4 +1,4 @@
-# Copyright 2013-2018 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2020 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -100,7 +100,7 @@ class AutomaticallyDeletedDirectory(EmptyDirectory):
 
     def file_with(self, name, contents, mode='w+'):
         """Returns a file inside this directory with the given `name` and `contents`.""" 
-        if name == None:
+        if name is None:
             handle, full_name = tempfile.mkstemp(dir=self.name)
             name = os.path.basename(full_name)
         f = AutomaticallyDeletedFile('%s/%s' % (self.name, name), contents, mode)

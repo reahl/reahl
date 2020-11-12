@@ -1,4 +1,4 @@
-# Copyright 2013-2018 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2020 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -85,7 +85,7 @@ class ValidationException(DomainException):
 
     @exposed
     def events(self, events):
-        events.refresh = Event(label='Refresh', action=Action(self.clear_view_data))
+        events.refresh = Event(label=_('Refresh'), action=Action(self.clear_view_data))
 
     def clear_view_data(self, form=None):
         form.clear_all_saved_data()
@@ -116,14 +116,14 @@ class Url:
     
     def __init__(self, url_string):
         split_url = urllib.parse.urlsplit(url_string)
-        self.scheme = split_url.scheme     #:
-        self.username = split_url.username #:
-        self.password = split_url.password #:
-        self.hostname = split_url.hostname #:
-        self.port = split_url.port         #:
-        self.path = split_url.path         #:
-        self.query = split_url.query       #:
-        self.fragment = split_url.fragment #:
+        self.scheme = split_url.scheme
+        self.username = split_url.username
+        self.password = split_url.password
+        self.hostname = split_url.hostname
+        self.port = split_url.port
+        self.path = split_url.path
+        self.query = split_url.query
+        self.fragment = split_url.fragment
 
     def set_scheme(self, scheme):
         """Sets the scheme part of the Url (the http or https before the :), ensuring that the
@@ -1317,12 +1317,12 @@ class Widget:
 class ErrorWidget(Widget):
     @exposed
     def query_fields(self, fields):
-        fields.error_message=Field(default=_('An error occurred'))
-        fields.error_source_href=Field(default=_('#'))
+        fields.error_message = Field(default=_('An error occurred'))
+        fields.error_source_href = Field(default='#')
 
     @classmethod
     def get_widget_bookmark_for_error(cls, error_message, error_source_bookmark):
-        return Bookmark.for_widget('', query_arguments={'error_message':error_message, 'error_source_href':error_source_bookmark.href if error_source_bookmark else ''})
+        return Bookmark.for_widget('', query_arguments={'error_message': error_message, 'error_source_href': error_source_bookmark.href if error_source_bookmark else ''})
 
 
 class PlainErrorPage(ErrorWidget):

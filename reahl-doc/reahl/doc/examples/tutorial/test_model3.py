@@ -50,7 +50,7 @@ def test_reahl_additions():
             email_field.from_input('invalid email address')
 
         with expected(NoException):
-            assert address.email_address == None
+            assert address.email_address is None
             email_field.from_input('valid@email.com')
             assert address.email_address == 'valid@email.com'
 

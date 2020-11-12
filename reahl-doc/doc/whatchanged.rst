@@ -23,6 +23,7 @@ What changed in version 5.0
 .. |exposed| replace:: :class:`~reahl.component.modelinterface.exposed`
 .. |FieldIndex| replace:: :class:`~reahl.component.modelinterface.FieldIndex`
 .. |Field| replace:: :class:`~reahl.component.modelinterface.Field`
+.. |Migration| replace:: :class:`~reahl.component.migration.Migration`
 .. |with_discriminator| replace:: :meth:`~reahl.component.modelinterface.Field.with_discriminator`
 .. |Layout| replace:: :class:`~reahl.web.fw.Layout`
 .. |HTML5Page| replace:: :class:`~reahl.web.bootstrap.page.HTML5Page`
@@ -76,7 +77,7 @@ Unique input names and IDs
    The name of an |Input| is derived from the name of its |Field|. Previously |Input| names used to be adapted
    automatically so as to prevent name clashes between different |Input|\s on a |Form|. This is no 
    longer the case: an Input that has a name clash with another is now explicitly disambiguated by passing 
-   it a |Field| with a modified name (see |with_descriminator|).
+   it a |Field| with a modified name (see |with_discriminator|).
 
    Every Input is also now generated with a name and an ID that include the |Form|\'s ID and hence are 
    unique on the entire page.

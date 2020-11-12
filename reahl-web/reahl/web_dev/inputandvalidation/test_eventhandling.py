@@ -1,4 +1,4 @@
-# Copyright 2013-2018 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2020 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -438,12 +438,12 @@ def test_form_preserves_user_input_after_validation_exceptions_multichoice(web_f
             super().__init__(view, 'my_form')
             self.define_event_handler(model_object.events.an_event)
             self.add_child(ButtonInput(self, model_object.events.an_event))
-            input = self.add_child(SelectInput(self, model_object.fields.no_validation_exception_field))
-            if input.validation_error:
-                self.add_child(self.create_error_label(input))
-            input = self.add_child(SelectInput(self, model_object.fields.validation_exception_field))
-            if input.validation_error:
-                self.add_child(self.create_error_label(input))
+            select_input = self.add_child(SelectInput(self, model_object.fields.no_validation_exception_field))
+            if select_input.validation_error:
+                self.add_child(self.create_error_label(select_input))
+            select_input = self.add_child(SelectInput(self, model_object.fields.validation_exception_field))
+            if select_input.validation_error:
+                self.add_child(self.create_error_label(select_input))
 
     wsgi_app = web_fixture.new_wsgi_app(child_factory=MyForm.factory())
     browser = Browser(wsgi_app)

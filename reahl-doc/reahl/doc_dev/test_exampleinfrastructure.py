@@ -1,4 +1,4 @@
-# Copyright 2016, 2017, 2018 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2016-2020 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -110,7 +110,7 @@ def in_directory(temp_working_directory):
 
 
 def test_example_renames():
-    "When checking out an example with another name, the relevant parts of the code is changed and files are renamed to the new name."
+    """When checking out an example with another name, the relevant parts of the code is changed and files are renamed to the new name."""
 
     cwd = temp_dir()
     with in_directory(cwd.name):

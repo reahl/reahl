@@ -11,19 +11,22 @@ env:
     - DISPLAY=:99.0
     - PATH=$HOME/bin:$PATH
 
-  matrix:
-    - TOX_ENV=py35
-    - TOX_ENV=py36
-#    - TOX_ENV=py37
-#    - TOX_ENV=py38
-#    - TOX_ENV=py39
+language: python
+
+jobs:
+  include:
+    - python: 3.5
+    - python: 3.6
+    - python: 3.7
+    - python: 3.8
+    - python: 3.9
 
 addons:
   postgresql: "10"
   apt:
     packages:
        # Basic apt dependencies
-        - openssh-client 
+        - openssh-client
         - dpkg-dev
         - bzr
         - git
@@ -39,7 +42,7 @@ addons:
         - libxslt-dev
         - libsqlite3-0
         - sqlite3
-        - postgresql-server-dev-all 
+        - postgresql-server-dev-all
         - zlib1g-dev
         - libjpeg62-dev
         - libfreetype6-dev
@@ -55,17 +58,13 @@ services:
   - postgresql
   #- mysql
 
-language: python
-python:
-  - 3.5
-
-cache: 
+cache:
   pip: true
   directories:
     - $HOME/testinstalls
     - $HOME/.cache/pip
 
-before_install: 
+before_install:
   # Make git happy
   - "travis/setupTestGit.sh"
 
@@ -74,7 +73,7 @@ before_install:
   - firefox --version
   - geckodriver --version
   - gpg --version
-  
+
 install:
   - "python scripts/bootstrap.py --script-dependencies"
   - CFLAGS="-O0" python scripts/bootstrap.py --pip-installs
@@ -91,7 +90,7 @@ before_script:
   - "(reahl build -sdX || (EXITCODE=$?; shred -f $HOME/.gnupg/*; exit $EXITCODE))"
 
 script:
-  - "(reahl shell -sdXg tox -e $TOX_ENV && (EXITCODE=$?; shred -f $HOME/.gnupg/*; exit $EXITCODE))"
+  - "(reahl shell -sdXg tox && (EXITCODE=$?; shred -f $HOME/.gnupg/*; exit $EXITCODE))"
 
 before_deploy:
   - travis/configurePypi.sh
@@ -101,4 +100,4 @@ deploy:
   script: reahl upload -rusdX
   on:
     tags: true
-    condition: "$TOX_ENV = py36"
+    condition: "$TRAVIS_PYTHON_VERSION = 3.8"

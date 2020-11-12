@@ -1,4 +1,4 @@
-# Copyright 2013-2018 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2020 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -35,7 +35,7 @@ def test_monitor():
 
     with CallMonitor(s.foo) as monitor:
         assert s.foo(1, y='a') == 'a'
-        assert s.foo(2) == None
+        assert s.foo(2) is None
 
     assert s.foo.__func__ is original_method
     assert s.n == 2
@@ -46,7 +46,7 @@ def test_monitor():
 
     assert monitor.calls[1].args == (2,)
     assert monitor.calls[1].kwargs == {}
-    assert monitor.calls[1].return_value == None
+    assert monitor.calls[1].return_value is None
 
 
 def test_monitor_class_methods():
@@ -106,7 +106,7 @@ def test_replace():
 
     with replaced(s.foo, replacement):
         assert s.foo(1, y='a') == 'a'
-        assert s.foo(2) == None
+        assert s.foo(2) is None
 
     assert s.foo.__func__ is original_method
 
@@ -128,7 +128,7 @@ def test_replace():
 
     with replaced(SomethingElse.foo, replacement, on=SomethingElse):
         assert s.foo(1, y='a') == 'a'
-        assert s.foo(2) == None
+        assert s.foo(2) is None
 
     restored_method = SomethingElse.foo
     assert restored_method is original_method

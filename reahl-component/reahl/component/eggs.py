@@ -1,4 +1,4 @@
-# Copyright 2013-2018 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2020 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -315,8 +315,8 @@ class ReahlEgg:
     @property
     def installed_version(self):
         latest_declared_version = self.get_versions()[-1]
-        installed_version_string = '.'.join(self.distribution.version.split('.')[:2])
-        if str(latest_declared_version.version_number) != installed_version_string:
+        installed_version_string = self.distribution.version
+        if str(latest_declared_version.version_number) != '.'.join(installed_version_string.split('.')[:2]):
             raise ProgrammerError('Installed version %s of %s, does not match the latest declared version %s'
                                   % (installed_version_string, self.name, latest_declared_version))
         return latest_declared_version
@@ -400,9 +400,9 @@ class ReahlEgg:
         paths = [p for p in paths if not p.startswith(os.path.join(translations_entry_point.dist.location, '.'))]
         unique_paths = [p.split('%s/' % dir_or_egg_name)[-1] for p in paths]
         unique_paths = set([p for p in unique_paths if '.egg' not in p])
-        assert len(unique_paths) <=1, \
+        assert len(unique_paths) <= 1, \
             'Only one translations package per component is allowed, found %s for %s' % (paths, translations_entry_point.dist)
-        assert len(unique_paths) >0, \
+        assert len(unique_paths) > 0, \
             'No translations found for %s, did you specify a translations package and forget to add locales in there?' % translations_entry_point.dist
         return unique_paths.pop()
 

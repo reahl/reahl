@@ -1,4 +1,4 @@
-# Copyright 2013-2018 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2020 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -330,7 +330,7 @@ class PersistedException(SessionData, PersistedExceptionProtocol):
 
     @classmethod
     def clear_for_all_inputs(cls, form):
-        for e in super().find_for(form.view, form=form).filter(cls.input_name != None):
+        for e in super().find_for(form.view, form=form).filter(cls.input_name is not None):
             Session.delete(e)
 
     @classmethod

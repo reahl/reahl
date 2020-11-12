@@ -1,4 +1,4 @@
-# Copyright 2013-2018 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2020 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -43,7 +43,7 @@ class MailerStub:
             cls.instance = cls()
         return cls.instance
 
-    def __init__(self, smtpHost='localhost', smtpPort=8025, smtpUser=None, smtpPassword=None):
+    def __init__(self, smtp_host='localhost', smtp_port=8025, smtp_user=None, smtp_password=None):
         self.reset()
         
     def send_message(self, message):

@@ -1,4 +1,4 @@
-# Copyright 2015-2018 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2015-2020 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -317,7 +317,7 @@ def test_previous_device_class():
     # Case: when there is no class smaller than given
 
     device_class = DeviceClass('xs')
-    assert device_class.one_smaller == None
+    assert device_class.one_smaller is None
 
 
 def test_previous_device_classes():

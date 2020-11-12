@@ -1,4 +1,4 @@
-# Copyright 2014, 2017, 2018 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2014-2020 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -65,7 +65,7 @@ class MigrateElixirToDeclarative(Migration):
 
            :arg table_name: The name of the table to which the primary key belongs.
            :arg primary_key_columns: A list of strings (unicode in Py2, str in Py3) containing the names of the columns that should be included in the primary key.
-           :kwarg old_table_name: Specify old_table_name if the table is also renamed during this migration (even if for other reasons).
+           :keyword old_table_name: Specify old_table_name if the table is also renamed during this migration (even if for other reasons).
         """
         old_table_name = old_table_name or table_name
         self.schedule('drop_pk', op.drop_constraint, '%s_pkey' % old_table_name, old_table_name)

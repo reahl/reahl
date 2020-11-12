@@ -3,8 +3,6 @@
     <package name="reahl"/>
   </namespaces>
 
-  <translations locator="reahl.messages"/>
-
   <deps purpose="build">
     <thirdpartyegg name="setuptools-git" minversion="1.1"/>
     <thirdpartyegg name="pytest-runner"/>

@@ -1,99 +1,133 @@
 # Translations template for reahl-web.
-# Copyright (C) 2018 ORGANIZATION
+# Copyright (C) 2020 ORGANIZATION
 # This file is distributed under the same license as the reahl-web project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2018.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2020.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: reahl-web 4.0.0\n"
+"Project-Id-Version: reahl-web 5.0.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2018-05-10 08:29+0000\n"
+"POT-Creation-Date: 2020-11-10 12:06+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.1.1\n"
+"Generated-By: Babel 2.8.0\n"
 
-#: reahl/web/dhtml.py:61 reahl/web/fw.py:521
+#: reahl/web/dhtml.py:60 reahl/web/fw.py:556
 msgid "Untitled"
 msgstr ""
 
-#: reahl/web/fw.py:79
-msgid "Invalid data supplied"
+#: reahl/web/fw.py:84 reahl/web/fw.py:1320
+msgid "An error occurred"
+msgid_plural "Some errors occurred"
+msgstr[0] ""
+msgstr[1] ""
+
+#: reahl/web/fw.py:88
+msgid "Refresh"
 msgstr ""
 
-#: reahl/web/ui.py:176
+#: reahl/web/fw.py:503
+msgid "Error"
+msgstr ""
+
+#: reahl/web/fw.py:2849
+msgid ""
+"Something changed on the server while you were busy. You cannot perform "
+"this action anymore."
+msgstr ""
+
+#: reahl/web/ui.py:208
 msgid "An error occurred when contacting the server. Please try again later."
 msgstr ""
 
-#: reahl/web/ui.py:177
+#: reahl/web/ui.py:209
 msgid "The server took too long to respond. Please try again later."
 msgstr ""
 
-#: reahl/web/ui.py:2055
+#: reahl/web/bootstrap/page.py:43 reahl/web/ui.py:605
+msgid "An error occurred:"
+msgstr ""
+
+#: reahl/web/ui.py:607
+msgid "Ok"
+msgstr ""
+
+#: reahl/web/ui.py:1018
+msgid ""
+"Some data changed since you opened this page, please reset input to try "
+"again."
+msgstr ""
+
+#: reahl/web/ui.py:1110
+msgid "Reset input"
+msgstr ""
+
+#: reahl/web/ui.py:2441
 msgid "uploaded files should all have different names"
 msgstr ""
 
-#: reahl/web/bootstrap/carousel.py:144
+#: reahl/web/bootstrap/carousel.py:141
 msgid "Previous"
 msgstr ""
 
-#: reahl/web/bootstrap/carousel.py:144
+#: reahl/web/bootstrap/carousel.py:141
 msgid "Next"
 msgstr ""
 
-#: reahl/web/bootstrap/files.py:62
+#: reahl/web/bootstrap/files.py:59
 msgid "Choose file(s)"
 msgstr ""
 
-#: reahl/web/bootstrap/files.py:107 reahl/web/bootstrap/files.py:113
+#: reahl/web/bootstrap/files.py:103 reahl/web/bootstrap/files.py:109
 msgid "No files chosen"
 msgstr ""
 
-#: reahl/web/bootstrap/files.py:113
+#: reahl/web/bootstrap/files.py:109
 msgid "files chosen"
 msgstr ""
 
-#: reahl/web/bootstrap/files.py:182
+#: reahl/web/bootstrap/files.py:178
 msgid "Upload"
 msgstr ""
 
-#: reahl/web/bootstrap/files.py:183
+#: reahl/web/bootstrap/files.py:179
 msgid "Remove"
 msgstr ""
 
-#: reahl/web/bootstrap/files.py:191
+#: reahl/web/bootstrap/files.py:187
 msgid "Add file"
 msgstr ""
 
-#: reahl/web/bootstrap/files.py:210
+#: reahl/web/bootstrap/files.py:206
 msgid "an error occurred, please try again later."
 msgstr ""
 
-#: reahl/web/bootstrap/files.py:212
+#: reahl/web/bootstrap/files.py:208
 msgid "Cancel"
 msgstr ""
 
-#: reahl/web/bootstrap/files.py:214
+#: reahl/web/bootstrap/files.py:210
 msgid "Please try again when all files have finished uploading."
 msgstr ""
 
-#: reahl/web/bootstrap/navbar.py:52
+#: reahl/web/bootstrap/navbar.py:49
 msgid "Toggle navigation"
 msgstr ""
 
-#: reahl/web/bootstrap/popups.py:90 reahl/web/bootstrap/popups.py:92
+#: reahl/web/bootstrap/popups.py:87 reahl/web/bootstrap/popups.py:89
 msgid "Close"
 msgstr ""
 
-#: reahl/web_dev/test_i18n.py:38
+#: reahl/web_dev/test_i18n.py:37
 msgid "A View"
 msgstr ""
 
-#: reahl/web_dev/bootstrap/test_nav.py:254
+#: reahl/web_dev/bootstrap/test_nav.py:251
 msgid "This is an English sentence."
 msgstr ""
 

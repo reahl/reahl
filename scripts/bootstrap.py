@@ -1,4 +1,4 @@
-# Copyright 2013-2018 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2020 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -22,7 +22,6 @@ import os
 import shutil
 import glob
 import re
-import io
 import xml.etree.ElementTree
 
 
@@ -64,9 +63,9 @@ def clean_egg_info_dirs():
                 shutil.rmtree(os.path.join(current_directory, d))
 
 def remove_versions_from_requirements(requires_file):
-    with io.open(requires_file, 'r') as input_file:
+    with open(requires_file, 'r') as input_file:
         lines = input_file.readlines()
-    with io.open(requires_file, 'w') as output_file:
+    with open(requires_file, 'w') as output_file:
         for line in lines:
             version_stripped_line = re.match('([\w-]+)', line).group(0)
             output_file.write(version_stripped_line)
@@ -77,17 +76,20 @@ def egg_dirs_for(project_dirs):
         egg_info = '%s.egg-info' % project_dir.replace('-', '_')
         yield os.path.join(os.getcwd(), project_dir, egg_info)
 
+
 def fake_distributions_into_existence(project_dirs):
     for egg_dir in egg_dirs_for(project_dirs):
         if not os.path.exists(egg_dir):
             os.mkdir(egg_dir)
+
 
 def find_all_prerequisits_for(project_dirs):
     prerequisites = {'tox>=3.14,<3.14.999'} # Nothing depends on tox, but we use it in .travis.yml so it forms part of our basic infrastructure
     for project_dir in project_dirs:
         prerequisites.update(parse_prerequisites_from(os.path.join(os.getcwd(), project_dir, '.reahlproject')))
     return prerequisites
-    
+
+
 def find_missing_prerequisites(project_dirs):
     missing = set()
     for i in find_all_prerequisits_for(project_dirs):
@@ -97,9 +99,11 @@ def find_missing_prerequisites(project_dirs):
             missing.add(i.strip())
     return list(missing)
 
+
 def install_with_pip(package_list, upgrade=False):
     args = ['-U'] if upgrade else []
     return subprocess.call([sys.executable, '-m', 'pip', 'install'] + args + package_list)
+
 
 def install_prerequisites(missing):
     print('----------------------------------------------------------------------------------')
@@ -116,31 +120,23 @@ def install_prerequisites(missing):
 
 
 def get_common_version():
-    #from reahl.dev.devdomain import DebianChangelog
-    class DebianChangelog:
-        package_name_regex = '(?P<package_name>[a-z][a-z0-9\-]*)'
-        version_regex = '\((?P<version>[a-zA-Z\.0-9\-]+)\)'
-        heading_regex = '^%s\s+%s.*$' % (package_name_regex, version_regex)
+    def get_debian_changelog_src():
+        src_lines = []
+        src_line = False
+        with open('reahl-dev/reahl/dev/devdomain.py', 'r') as f:
+            for line in f:
+                if line.startswith('# bootstrap.py-begin'):
+                    src_line = True
+                if line.startswith('# bootstrap.py-end'):
+                    src_line = False
+                if src_line:
+                    src_lines.append(line)
+        return '\n'.join(src_lines)
+    tmp_locals = {}
+    exec(get_debian_changelog_src(), {'re': re}, tmp_locals)
+    DebianChangelog = tmp_locals['DebianChangelog']
 
-        def __init__(self, filename):
-            self.filename = filename
-
-        def parse_heading_for(self, element):
-            with io.open(self.filename) as changelog_file:
-                for line in changelog_file:
-                    if line.strip():
-                        match = re.match(self.heading_regex, line)
-                        assert match, 'Cannot parse changelog file: %s' % self.filename
-                        return match.group(element)
-
-        @property
-        def package_name(self):
-            return self.parse_heading_for('package_name')
-
-        @property
-        def version_major_minor(self):
-            return self.parse_heading_for('version').split('.')[:2]
-    return '.'.join(DebianChangelog('debian/changelog').version_major_minor)
+    return '.'.join(DebianChangelog('debian/changelog').version.split('.')[:2])
 
 
 def make_core_projects_importable(core_project_dirs):
@@ -206,23 +202,6 @@ def print_final_message(success=True):
     print('  '+' '.join(debs_needed_to_compile_python)) 
     print('')
 
-
-
-virtual_env = read_env_variable('VIRTUAL_ENV', 'You should develop on Reahl within a virtualenv.')
-reahl_workspace = read_env_variable('REAHLWORKSPACE', 
-                    'Please set the environment variable REAHLWORKSPACE to point to a parent directory of %s' \
-                          % (os.getcwd()))
-reahl_dev_requires_file = os.path.join(os.getcwd(), 'reahl-dev', 'reahl_dev.egg-info', 'requires.txt')
-core_project_dirs = ['reahl-component', 'reahl-stubble', 'reahl-tofu', 'reahl-dev']
-
-clean_virtual_env(virtual_env)
-clean_workspace(reahl_workspace)
-clean_egg_info_dirs()
-
-remove_versions_from_requirements(reahl_dev_requires_file)
-fake_distributions_into_existence(core_project_dirs)
-
-
 def parse_prerequisites_from(dot_project_file):
     root = xml.etree.ElementTree.parse(dot_project_file).getroot()
     deps_for_common_version = root.findall('.//version[@number="%s"]//thirdpartyegg' % get_common_version())
@@ -266,6 +245,20 @@ def ensure_reahl_project_dependencies_installed():
     return True
 
 
+virtual_env = read_env_variable('VIRTUAL_ENV', 'You should develop on Reahl within a virtualenv.')
+reahl_workspace = read_env_variable('REAHLWORKSPACE',
+                    'Please set the environment variable REAHLWORKSPACE to point to a parent directory of %s' \
+                          % (os.getcwd()))
+reahl_dev_requires_file = os.path.join(os.getcwd(), 'reahl-dev', 'reahl_dev.egg-info', 'requires.txt')
+core_project_dirs = ['reahl-component', 'reahl-stubble', 'reahl-tofu', 'reahl-dev']
+
+clean_virtual_env(virtual_env)
+clean_workspace(reahl_workspace)
+clean_egg_info_dirs()
+
+remove_versions_from_requirements(reahl_dev_requires_file)
+fake_distributions_into_existence(core_project_dirs)
+
 
 if "--script-dependencies" in sys.argv:
    still_missing = ensure_script_dependencies_installed()
@@ -275,7 +268,7 @@ if "--script-dependencies" in sys.argv:
        print('Successfully installed prerequisites - please re-run with --pip-installs')
        
 elif "--pip-installs" in sys.argv:
-   success=ensure_reahl_project_dependencies_installed()
+   success = ensure_reahl_project_dependencies_installed()
    print_final_message(success=success)
 else:
    print('Usage: %s [--script-dependencies|--pip-installs]' % sys.argv[0])
