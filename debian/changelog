@@ -39,7 +39,7 @@ python-reahl (5.0.0) unstable; urgency=low
  * Upgrade to Bootstrap 4.5.2 and jquery 3.5.1.
  * Changed Migration machinery to deal with more complex scenarios (#92).
 
- -- Iwan Vosloo <iwan@reahl.org>  Thu, 12 Nov 2020 13:36:00 +0200
+ -- Iwan Vosloo <iwan@reahl.org>  Thu, 19 Nov 2020 11:36:00 +0200
 
 
 python-reahl (4.0.5) unstable; urgency=low
