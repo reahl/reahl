@@ -276,7 +276,7 @@ class ORMControl:
     :class:`ORMControl` and/or :class:`DatabaseControl` as
     appropriate.
 
-    .. versionchanged: 5.0.0
+    .. versionchanged: 5.0
        Signature changed from taking eggs_in_order to taking root_egg.
     """
     def migrate_db(self, root_egg, explain=False):

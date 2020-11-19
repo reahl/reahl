@@ -407,27 +407,63 @@ class Browser(BasicBrowser):
 
 
 class XPath:
-    """An object representing an XPath expression for locating a particular element on a web page.
+    """An object to build an XPath expression for locating a particular element on a web page.
        A programmer is not supposed to instantiate an XPath directly. Use one of the descriptive
-       class methods to instantiate an XPath instance.
+       class methods to instantiate an XPath instance, then build more complex expressions using the instance methods.
 
        An XPath expression in a string is returned when an XPath object is cast to str.
 
+       Examples:
+           >>> str(XPath.div().including_class('alert'))
+           '//div[contains(concat(" ", @class, " "), " alert ")]
+
+           >>> XPath.button_labelled('Save').inside_of(XPath.div().including_class('myclass'))
+           XPath('//div[contains(concat(" ", @class, " "), " myclass ")]/.//button[normalize-space()=normalize-space("Save")]|//div[contains(concat(" ", @class, " "), " myclass ")]/.//input[normalize-space(@value)=normalize-space("Save")]')
+
+
        .. versionchanged:: 5.0
           Removed .checkbox_in_table_row() method.
+
+       .. versionchanged:: 5.0
           Made XPath instances composable (added .inside_of).
+
+       .. versionchanged:: 5.0
           Added __getitem__ so that something like .table()[5] gives you the 5th table in its parent.
+
+       .. versionchanged:: 5.0
           Removed .error_label_containing()
+
+       .. versionchanged:: 5.0
           Removed .span_containing()
+
+       .. versionchanged:: 5.0
           Removed .div_containing()
+
+       .. versionchanged:: 5.0
           Removed .paragraph_containing()
+
+       .. versionchanged:: 5.0
           Removed .legend_with_text()
+
+       .. versionchanged:: 5.0
           Removed .link_starting_with_text()
+
+       .. versionchanged:: 5.0
           Removed .link_with_text()
+
+       .. versionchanged:: 5.0
           Removed .table_cell_with_text()
+
+       .. versionchanged:: 5.0
           Removed .heading_with_text()
+
+       .. versionchanged:: 5.0
           Removed .label_with_text()
+
+       .. versionchanged:: 5.0
           Removed .caption_with_text()
+
+       .. versionchanged:: 5.0
           Removed .option_with_text()
     """
     def __init__(self, *xpaths):
@@ -1021,7 +1057,11 @@ class DriverBrowser(BasicBrowser):
 
            .. versionchanged:: 5.0
               Removed wait kwarg, since we don't ever need to wait_for_page_to_load after typing into an input
+
+           .. versionchanged:: 5.0
               Added trigger_blur to trigger possible onchange events automatically after typing.
+
+           .. versionchanged:: 5.0
               Added keyword wait_for_ajax
         """
         self.wait_for_element_interactable(locator)
@@ -1275,7 +1315,11 @@ class DriverBrowser(BasicBrowser):
 
            .. versionchanged:: 5.0
               Changed to break is locator is already checked.
+
+           .. versionchanged:: 5.0
               Added keyword wait_for_ajax.
+
+           .. versionchanged:: 5.0
               Renamed from check() to set_selected()
         """
         self.wait_for_element_enabled(locator) # Cant wait for interactable, since it may be display=none
@@ -1290,7 +1334,11 @@ class DriverBrowser(BasicBrowser):
 
            .. versionchanged:: 5.0
               Changed to break is locator is already unchecked.
+
+           .. versionchanged:: 5.0
               Added keyword wait_for_ajax
+
+           .. versionchanged:: 5.0
               Renamed from check() to set_deselected()
         """
         self.wait_for_element_enabled(locator) # Cant wait for interactable, since it may be display=none
@@ -1376,6 +1424,7 @@ class DriverBrowser(BasicBrowser):
 
         .. versionchanged:: 4.0
            Changed to operate on the currently focused element.
+
         .. versionchanged:: 5.0
            Added shift to be able to tab backwards
         """

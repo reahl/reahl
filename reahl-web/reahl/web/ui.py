@@ -1591,7 +1591,11 @@ class PrimitiveInput(Input):
 
        .. versionchanged:: 5.0
           Added `refresh_widget`
+
+       .. versionchanged:: 5.0
           Added `ignore_concurrent_change`
+
+       .. versionchanged:: 5.0
           Removed `name` kwarg.
     """
     is_for_file = False
@@ -2013,6 +2017,8 @@ class RadioButtonSelectInput(PrimitiveInput):
 
        .. versionchanged:: 5.0
           Added `refresh_widget`
+
+       .. versionchanged:: 5.0
           Added `ignore_concurrent_change`
 
     """
@@ -2076,6 +2082,8 @@ class TextInput(PrimitiveInput):
 
        .. versionchanged:: 5.0
           Added `refresh_widget`
+
+       .. versionchanged:: 5.0
           Added `ignore_concurrent_change`
 
     """
@@ -2112,6 +2120,8 @@ class PasswordInput(PrimitiveInput):
 
        .. versionchanged:: 5.0
           Added `refresh_widget`
+
+       .. versionchanged:: 5.0
           Added `ignore_concurrent_change`
     """
     def __init__(self, form, bound_field, refresh_widget=None, ignore_concurrent_change=False):
@@ -2144,6 +2154,8 @@ class CheckboxInput(PrimitiveInput):
 
        .. versionchanged:: 5.0
           Added `name` and `refresh_widget`
+
+       .. versionchanged:: 5.0
           Added `ignore_concurrent_change`
     """
     choice_type = 'checkbox'
@@ -2190,6 +2202,8 @@ class CheckboxSelectInput(PrimitiveInput):
 
        .. versionchanged:: 5.0
           Added `refresh_widget`
+
+       .. versionchanged:: 5.0
           Added `ignore_concurrent_change`
     """
     choice_type = 'checkbox'

@@ -2214,6 +2214,8 @@ class MethodResult:
             
        .. versionchanged:: 3.2
           Added the replay_request functionality.
+
+       .. versionchanged:: 3.2
           Set the default for catch_exception to DomainException
     """
     def __init__(self, catch_exception=DomainException, mime_type='text/html', encoding='utf-8', replay_request=False):
@@ -2403,6 +2405,8 @@ class RemoteMethod(SubResource):
 
         .. versionchanged:: 5.0
            idempotent and immutable kwargs split up into two and better defined.
+
+        .. versionchanged:: 5.0
            method keyword argument added to explicitly state http method.
 
     """
@@ -2892,6 +2896,8 @@ class ReahlWSGIApplication:
 
         .. versionchanged:: 5.0
            Added strict_checking kwarg.
+
+        .. versionchanged:: 5.0
            Added start_on_first_request.
 
         """
