@@ -106,7 +106,7 @@ class PostgresqlControl(DatabaseControl):
 
     def create_database(self, super_user_name=None):
         owner_option = 'owner %s' % self.user_name if self.user_name else ''
-        self.execute('create database %s with %s template template0 encoding UTF8;' \
+        self.execute('create database %s with %s template template0 encoding \'UTF8\';' \
                      % (self.database_name, owner_option), login_username=super_user_name, password=self.get_superuser_password(), database_name='postgres')
         return 0
 
