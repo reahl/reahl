@@ -27,7 +27,7 @@ infrastructure build using |Fixture|\s and some other testing tools.
    - `Pytest <https://docs.pytest.org/>`_ 
    - `WebTest <http://webtest.pythopaste.org>`_
    - `Selenium <https://pypi.python.org/pypi/selenium>`_ 
-   - `chromedriver <http://code.google.com/p/selenium/wiki/ChromeDriver>`_
+   - `geckodriver <https://github.com/mozilla/geckodriver>`_
 
       
 Fixtures
@@ -108,17 +108,11 @@ Testing JavaScript
    <install-reahl-itself>`, you should have all the necessary testing
    packages installed, including Selenium and WebTest.
 
-   Using Selenium's WebDriver module with Chromium takes a bit more
-   effort at the time of this writing. Since Chromium is the browser
-   used by the Reahl |Fixture|\s, this may trip you up when running the
-   test above.
-
-   In order to make it work, you will have to also install
-   `ChromeDriver
-   <http://code.google.com/p/selenium/wiki/ChromeDriver>`_ as per the
+   To use Selenium's WebDriver with Firefox also install
+   `geckodriver <https://github.com/mozilla/geckodriver>`_ as per the
    instructions for your platform. 
 
-   (:doc:`See our instructions for installing chromedriver in Ubuntu <../tutorial/install-ubuntu>`.)
+   (:doc:`See our instructions for installing geckodriver in Ubuntu <../tutorial/install-ubuntu>`.)
 
 
 The |Browser| class used above cannot be used for all tests, since it
@@ -133,9 +127,8 @@ WebDriver interface. It gives a programmer a similar set of methods
 to those provided by the |Browser|, as used above. An instance of it is
 available on the |WebFixture| via its `.driver_browser` attribute.
 
-The standard |Fixture|\s that form part of Reahl use Chromium by default
-in order to run tests, and they expect the executable for chromium to
-be in '/usr/lib/chromium-browser/chromium-browser'.
+The standard |Fixture|\s that form part of Reahl use Firefox by default
+in order to run tests.
 
 You can change which browser is used by creating a new |Fixture| that inherits
 from |WebFixture|, and overriding its `.new_driver_browser()` method.  

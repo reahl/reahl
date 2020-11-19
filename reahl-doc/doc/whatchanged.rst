@@ -76,7 +76,7 @@ ButtonInput
 Unique input names and IDs
    The name of an |Input| is derived from the name of its |Field|. Previously |Input| names used to be adapted
    automatically so as to prevent name clashes between different |Input|\s on a |Form|. This is no 
-   longer the case: an Input that has a name clash with another is now explicitly disambiguated by passing 
+   longer the case: you now have to explicitly disambiguate an Input that has a name clash with another by passing
    it a |Field| with a modified name (see |with_discriminator|).
 
    Every Input is also now generated with a name and an ID that include the |Form|\'s ID and hence are 
@@ -88,14 +88,14 @@ Changes to nested_transaction
 
 Moved |HTML5Page|
    |HTML5Page| used to be in :mod:`reahl.web.bootstrap.ui`, but now resides in :mod:`reahl.web.bootstrap.page` 
-   due to unavoidable dependency issues. Code need to be changed to import it from the new module.
+   due to unavoidable dependency issues. You need to change your code to import it from the new module.
 
 Project metadata changes
    In a `.reahlproject` file, the runtime dependencies of a project used to be declared at the top-level
    with a ```<deps purpose="run">``` tag. The format of this file has now changed. Each released minor version
    of the project is now listed in a separate ```<version>``` tag, and the runtime dependencies are now stated inside
    the ```version``` tag for which those dependencies hold. In keepoing with this change, |Migration|\s no longer have 
-   a ```version``` attribute to indicate which version they are for.
+   a ```version``` attribute to indicate which version they are for. See :doc:`devtools/xmlref`.
 
 
 Changing contents in response to a changing Input
@@ -190,16 +190,18 @@ components change amongst different versions of a component.)
 Each Reahl component still only carries knowledge of its own
 |Migration|\s so that a diverse set of components can be used together
 in the same database without knowledge of one another. |Migration|\s
-are still written the exact same way they always have been.
+are still written as before.
 
 What has changed is what metadata is kept of a project. Instead of
 only stating a project's current version and its dependencies, you now
 have to list all released versions of the form major.minor. For each
 such version also state its dependencies and migrations.
 
+|Migration|\s do not have a version class attribute anymore.
+
 For more info, see the tutorial example:
 
-- :doc:`tutorial/schemaevolution.rst`
+- :doc:`tutorial/schemaevolution`
 
 
 Widget changes
@@ -253,7 +255,7 @@ A more Ajax-friendly DriverBrowser
    
 When one generally tests an application, it is to be expected that
 user actions could trigger ajax refreshes or generally refer to
-elements that aren't visible on the page yet - hut that have to be
+elements that aren't visible on the page yet - but that have to be
 waited for to appear.
 
 Test code that continually triggers such events and waits for the
@@ -285,10 +287,10 @@ Help with configuration
   based on having answered a few questions interactively.
   (See `reahl createconfig -h`)
 
-Hosting static file
+Hosting static files
   Sometimes you need to host static files directly via a proxy such as nginx.
   You can now get to all those static files by running `reahl exportstatic`.
-  (See `reahl exportstatic`)
+  (See `reahl exportstatic -h`)
 
 
 Docker instead of Vagrant

@@ -855,8 +855,8 @@ class Field:
         return new_version
 
     def with_discriminator(self, discriminator):
-        """Returns a new Field which is exactly like this one, except that its name is mangled to 
-           include the given text as to prevent name clashes.
+        """Returns a new Field which is exactly like this one, except that its name is mangled
+        to include the given text as to prevent name clashes.
 
         .. versionadded:: 5.0
         """

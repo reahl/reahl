@@ -236,6 +236,8 @@ class FileUploadInput(reahl.web.ui.Input):
 
     .. versionchanged:: 5.0
        Subclass of :class:`~reahl.web.ui.Input` and not :class:`~reahl.web.ui.PrimitiveInput`
+
+    .. versionchanged:: 5.0
        Added `ignore_concurrency_change`
 
     """

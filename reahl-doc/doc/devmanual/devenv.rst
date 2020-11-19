@@ -9,7 +9,7 @@ tests consistently run the same way.
 
 To ensure things always work, and always work consistently, we employ
 `Docker <https://www.docker.com>`_\. The `Reahl dev Docker image
-<https://hub.docker.com/TODO/reahl-dev:5.0>`_ has all of these development tools
+<https://hub.docker.com/r/iwanvosloo/reahl-dev>`_ has all of these development tools
 pre-installed and configured as well as a clean venv with Reahl itself.
 
 If you just want to develop on your own project (even if it does not
@@ -33,8 +33,8 @@ Inside the Docker container, we have:
 
 - Projects installed that Reahl depends on;
 - A Python3 virtualenv prepared for Reahl development;
-- A version of firefox that works well with tests;
-- A matching version of geckodriver to enable selenium tests; 
+- A version of Firefox for tests;
+- A matching version of Geckodriver to enable Selenium tests;
 - Various ways to access the GUI on the Docker container; and
 - Configuration for pip to allow local installation of what is built (useful for tox tests).
 
@@ -47,7 +47,7 @@ Run the container:
 
    touch ~/.bash_history_docker
    touch ~/.ssh/authorized_keys_docker 
-   docker-compose up
+   docker-compose up -d
    docker exec -u developer -ti reahl bash -l
 
 .. note:: 

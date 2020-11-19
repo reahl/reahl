@@ -28,6 +28,8 @@ style Bootstrap Navs.
 
 .. versionchanged:: 4.0
    Moved Menu here from reahl.web.ui.
+
+.. versionchanged:: 4.0
    Removed the .add_item and add_submenu methods in favour of .add_a,.add_bookmark,.add_dropdown methods.
 
 """
@@ -57,10 +59,19 @@ class Menu(HTMLWidget):
 
        .. versionchanged:: 3.2
           Deprecated use of `a_list` and changed it temporarily to a keyword argument for backwards compatibility.
+
+       .. versionchanged:: 3.2
           Deprecated css_id keyword argument.
+
+       .. versionchanged:: 3.2
           Deprecated the `from_xxx` methods and added `with_xxx` replacements to be used after construction.
+
+       .. versionchanged:: 3.2
           Deprecated `add_item` and replaced it with `add_submenu`.
+
+       .. versionchanged:: 3.2
           Added a number of `add_xxx` methods for adding items from different sources.
+
        .. versionchanged:: 4.0
           Removed deprecated a_list and css_id
     """

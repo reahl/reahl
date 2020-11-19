@@ -83,6 +83,8 @@ class TextInput(reahl.web.ui.TextInput):
 
        .. versionchanged:: 5.0
           Added `refresh_widget`
+
+       .. versionchanged:: 5.0
           Added `ignore_concurrent_change`
     """
     def __init__(self, form, bound_field, fuzzy=False, placeholder=False, refresh_widget=None, ignore_concurrent_change=False):
@@ -100,6 +102,8 @@ class PasswordInput(reahl.web.ui.PasswordInput):
 
        .. versionchanged:: 5.0
           Added `refresh_widget`
+
+       .. versionchanged:: 5.0
           Added `ignore_concurrent_change`
     """
     def __init__(self, form, bound_field, refresh_widget=None, ignore_concurrent_change=False):
@@ -119,6 +123,8 @@ class TextArea(reahl.web.ui.TextArea):
 
        .. versionchanged:: 5.0
           Added `refresh_widget`
+
+       .. versionchanged:: 5.0
           Added `ignore_concurrent_change`
     """
     def __init__(self, form, bound_field, rows=None, columns=None, refresh_widget=None, ignore_concurrent_change=False):
@@ -137,6 +143,8 @@ class SelectInput(reahl.web.ui.SelectInput):
 
        .. versionchanged:: 5.0
           Added `refresh_widget`
+
+       .. versionchanged:: 5.0
           Added `ignore_concurrent_change`
     """
     def __init__(self, form, bound_field, refresh_widget=None, ignore_concurrent_change=False):
@@ -171,6 +179,8 @@ class CheckboxInput(reahl.web.ui.CheckboxSelectInput):
 
        .. versionchanged:: 5.0
           Added `refresh_widget`
+
+       .. versionchanged:: 5.0
           Added `ignore_concurrent_change`
     """
     allowed_field_types = [ChoiceField]
@@ -217,6 +227,8 @@ class RadioButtonSelectInput(reahl.web.ui.RadioButtonSelectInput):
 
        .. versionchanged:: 5.0
           Added `refresh_widget`
+
+       .. versionchanged:: 5.0
           Added `ignore_concurrent_change`
     """
     def __init__(self, form, bound_field, contents_layout=None, refresh_widget=None, ignore_concurrent_change=False):
@@ -247,6 +259,8 @@ class ButtonInput(reahl.web.ui.ButtonInput):
 
        .. versionchanged:: 5.0
           Added `ignore_concurrent_change`
+
+       .. versionchanged:: 5.0
           Changed to always get a :class:`ButtonLayout` upon creation.
     """
     def __init__(self, form, event, ignore_concurrent_change=False, style='secondary', outline=False, size=None, active=False, wide=False, text_wrap=True):
@@ -334,7 +348,7 @@ class ButtonLayout(reahl.web.fw.Layout):
        :keyword wide: If True, the button stretches to the entire width of its parent.
        :keyword text_wrap: If False, text on the Button does not wrap. 
 
-       .. versionchanged::
+       .. versionchanged:: 5.0
           Change style to allow 'secondary' (Bootstrap 4) instead of 'default' (Bootstrap 3).
           Default style is not 'secondary'.
 
