@@ -96,6 +96,7 @@ before_deploy:
   - travis/configurePypi.sh
 
 deploy:
+  skip_cleanup: true
   provider: script
   script: reahl upload -rusdX
   on:
