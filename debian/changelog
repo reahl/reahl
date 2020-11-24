@@ -1,3 +1,11 @@
+python-reahl (5.0.1) unstable; urgency=low
+
+ * Renamed the DynamicContent feature to Calculator
+ * Built wheel filenames are no longer universal. Only for py3
+
+ -- Iwan Vosloo <iwan@reahl.org>  Tue, 24 Nov 2020 08:45:00 +0200
+
+
 python-reahl (5.0.0) unstable; urgency=low
 
  * Added the ability for onchange events to cause Widgets to be refreshed via ajax (responsive-disclosure #132).

@@ -15,7 +15,7 @@
   </deps>
 
   <persisted>
-    <class locator="reahl.doc.examples.features.dynamiccontent.dynamiccontent:DynamicContentSelect"/>
+    <class locator="reahl.doc.examples.features.dynamiccontent.dynamiccontent:Calculator"/>
   </persisted>
 
 </project>

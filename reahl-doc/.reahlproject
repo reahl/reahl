@@ -31,7 +31,7 @@
 
     <persisted>
         <class locator="reahl.doc.examples.features.persistence.persistence:Comment"/>
-        <class locator="reahl.doc.examples.features.dynamiccontent.dynamiccontent:DynamicContentSelect"/>
+        <class locator="reahl.doc.examples.features.dynamiccontent.dynamiccontent:Calculator"/>
         <class locator="reahl.doc.examples.web.fileupload.fileupload:Comment"/>
         <class locator="reahl.doc.examples.web.fileupload.fileupload:AttachedFile"/>
         <class locator="reahl.doc.examples.tutorial.test_model2:Address"/>
