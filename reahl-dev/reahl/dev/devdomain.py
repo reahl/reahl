@@ -191,7 +191,7 @@ class PythonWheelPackage(DistributionPackage):
     def build(self, sign=True):
         with self.project.generated_setup_py():
             build_directory = os.path.join(self.project.workspace.build_directory, self.project.project_name)
-            self.project.setup(['build', '-b', build_directory, 'bdist_wheel', '--dist-dir', self.project.distribution_egg_repository.root_directory, '--universal'])
+            self.project.setup(['build', '-b', build_directory, 'bdist_wheel', '--dist-dir', self.project.distribution_egg_repository.root_directory])
             if sign:
                 self.project.distribution_egg_repository.sign_files_for(self)
 
@@ -217,7 +217,7 @@ class PythonWheelPackage(DistributionPackage):
         return [self.wheel_filename]
 
     def wheel_filename_for(self, project):
-        return '%s-%s-py2.py3-none-any.whl' % (project.project_name_pythonised, project.version)
+        return '%s-%s-py3-none-any.whl' % (project.project_name_pythonised, project.version)
 
     def last_built_after(self, when):
         return self.project.distribution_egg_repository.is_uploaded_after(self, when)
