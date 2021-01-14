@@ -21,7 +21,7 @@ import threading
 from reahl.tofu import scenario, expected, Fixture, temp_file_with, uses
 from reahl.tofu.pytestsupport import with_fixtures
 
-from reahl.webdev.tools import XPath
+from reahl.webdriver.webdriver import XPath
 
 from reahl.sqlalchemysupport import Session
 from reahl.webdeclarative.webdeclarative import PersistedFile

@@ -3,7 +3,7 @@ from reahl.tofu import Fixture
 from reahl.tofu.pytestsupport import with_fixtures
 
 from reahl.sqlalchemysupport import Session
-from reahl.webdev.tools import Browser, XPath
+from reahl.webdriver.webdriver import Browser, XPath
 
 from reahl.doc.examples.tutorial.sessionscopebootstrap.sessionscopebootstrap import SessionScopeUI, User
 

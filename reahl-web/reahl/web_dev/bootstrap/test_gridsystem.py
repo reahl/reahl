@@ -19,7 +19,7 @@
 from reahl.tofu import expected, NoException
 from reahl.tofu.pytestsupport import with_fixtures
 
-from reahl.webdev.tools import WidgetTester
+from reahl.webdriver.webdriver import WidgetTester
 
 from reahl.component.exceptions import ProgrammerError
 from reahl.web.ui import HTMLAttributeValueOption

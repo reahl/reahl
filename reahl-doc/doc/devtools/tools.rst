@@ -66,28 +66,28 @@ Testing tools
 WidgetTester
 """"""""""""
 
-.. autoclass:: reahl.webdev.tools.WidgetTester
+.. autoclass:: reahl.webdriver.webdriver.WidgetTester
    :members:
    :inherited-members:
 
 Browser
 """""""
 
-.. autoclass:: reahl.webdev.tools.Browser
+.. autoclass:: reahl.webdriver.webdriver.Browser
    :members:
    :inherited-members:
 
 DriverBrowser
 """""""""""""
 
-.. autoclass:: reahl.webdev.tools.DriverBrowser
+.. autoclass:: reahl.webdriver.webdriver.DriverBrowser
    :members:
    :inherited-members:
       
 XPath
 """""
 
-.. autoclass:: reahl.webdev.tools.XPath
+.. autoclass:: reahl.webdriver.webdriver.XPath
    :members:
 
 ReahlWebServer

@@ -1,7 +1,7 @@
 from reahl.tofu import Fixture, uses
 from reahl.tofu.pytestsupport import with_fixtures
 
-from reahl.webdev.tools import Browser, XPath
+from reahl.webdriver.webdriver import Browser, XPath
 
 from reahl.doc.examples.tutorial.i18nexamplebootstrap.i18nexamplebootstrap import AddressBookUI, Address
 

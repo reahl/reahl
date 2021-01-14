@@ -25,7 +25,7 @@ from reahl.tofu import expected, scenario, Fixture, uses
 from reahl.tofu.pytestsupport import with_fixtures
 from reahl.stubble import EmptyStub
 
-from reahl.webdev.tools import Browser, XPath
+from reahl.webdriver.webdriver import Browser, XPath
 
 from reahl.component.exceptions import ProgrammerError, IncorrectArgumentError, IsSubclass
 from reahl.web.fw import UserInterface

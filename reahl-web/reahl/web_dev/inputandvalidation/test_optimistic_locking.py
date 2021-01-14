@@ -27,7 +27,7 @@ from reahl.web.fw import Widget
 from reahl.web.ui import Form, ButtonInput, TextInput, FormLayout, PrimitiveInput, HTMLElement, Div
 from reahl.web_dev.fixtures import WebFixture
 from reahl.web_dev.inputandvalidation.test_input import SimpleInputFixture
-from reahl.webdev.tools import Browser, XPath
+from reahl.webdriver.webdriver import Browser, XPath
 from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
 from reahl.sqlalchemysupport import Base, Session
 

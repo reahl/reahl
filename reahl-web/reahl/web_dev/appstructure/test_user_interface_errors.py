@@ -19,7 +19,7 @@
 from reahl.tofu import scenario, expected, Fixture
 from reahl.tofu.pytestsupport import with_fixtures
 
-from reahl.webdev.tools import Browser
+from reahl.webdriver.webdriver import Browser
 
 from reahl.component.exceptions import ProgrammerError
 from reahl.web.fw import UserInterface

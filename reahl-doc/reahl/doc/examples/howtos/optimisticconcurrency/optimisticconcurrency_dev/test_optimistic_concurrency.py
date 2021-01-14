@@ -3,7 +3,7 @@ from reahl.tofu.pytestsupport import with_fixtures
 from reahl.tofu import Fixture, uses
 
 from reahl.web_dev.fixtures import WebFixture
-from reahl.webdev.tools import XPath
+from reahl.webdriver.webdriver import XPath
 
 from reahl.doc.examples.howtos.optimisticconcurrency.optimisticconcurrency import OptimisticConcurrencyUI
 

@@ -20,7 +20,7 @@ from reahl.stubble import EmptyStub
 from reahl.tofu import Fixture, scenario, uses
 from reahl.tofu.pytestsupport import with_fixtures
 
-from reahl.webdev.tools import XPath, WidgetTester
+from reahl.webdriver.webdriver import XPath, WidgetTester
 from reahl.web.fw import Widget
 from reahl.web.ui import StaticColumn, DynamicColumn, Table, Thead, Span, Div, P, TextNode
 

@@ -24,7 +24,7 @@ from reahl.stubble import stubclass, CallMonitor, replaced
 from reahl.tofu import scenario, expected, Fixture, uses, NoException
 from reahl.tofu.pytestsupport import with_fixtures
 
-from reahl.webdev.tools import Browser
+from reahl.webdriver.webdriver import Browser
 from reahl.component.exceptions import DomainException, ProgrammerError
 from reahl.web.fw import CheckedRemoteMethod, JsonResult, MethodResult, RemoteMethod, Widget, WidgetResult
 from reahl.web.ui import Div

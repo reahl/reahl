@@ -22,7 +22,7 @@ from reahl.web.fw import Url
 from reahl.web.ui import Form, TextInput
 from reahl.component.modelinterface import EmailField, exposed
 
-from reahl.webdev.tools import Browser
+from reahl.webdriver.webdriver import Browser
 
 from reahl.web_dev.fixtures import WebFixture
 

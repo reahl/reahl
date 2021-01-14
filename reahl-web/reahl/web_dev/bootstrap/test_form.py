@@ -21,8 +21,8 @@ from sqlalchemy import Column, String, Integer
 from reahl.tofu import scenario, Fixture, uses, expected
 from reahl.tofu.pytestsupport import with_fixtures
 
-from reahl.webdev.tools import XPath, Browser
-from reahl.webdev.tools import WidgetTester
+from reahl.webdriver.webdriver import XPath, Browser
+from reahl.webdriver.webdriver import WidgetTester
 from reahl.component.modelinterface import exposed, Field, BooleanField, Event, Choice, ChoiceField,\
     MultiChoiceField, IntegerField, Action
 from reahl.component.exceptions import DomainException

@@ -4,7 +4,7 @@
 from reahl.tofu import Fixture, uses
 from reahl.tofu.pytestsupport import with_fixtures
 
-from reahl.webdev.tools import Browser, XPath
+from reahl.webdriver.webdriver import Browser, XPath
 from reahl.sqlalchemysupport import Session
 
 from reahl.doc.examples.tutorial.jobsbootstrap.jobsbootstrap import AddressBookUI, Address

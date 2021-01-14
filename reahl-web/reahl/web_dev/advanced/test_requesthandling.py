@@ -32,7 +32,7 @@ from reahl.web.interfaces import UserSessionProtocol
 from reahl.dev.fixtures import ReahlSystemFixture
 from reahl.web.ui import HTML5Page
 from reahl.web_dev.fixtures import ReahlWSGIApplicationStub, BasicPageLayout
-from reahl.webdev.tools import Browser
+from reahl.webdriver.webdriver import Browser
 from reahl.sqlalchemysupport import Session
 
 from reahl.web_dev.fixtures import WebFixture

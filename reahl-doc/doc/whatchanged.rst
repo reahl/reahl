@@ -13,10 +13,10 @@ What changed in version 5.0
 .. |Widget| replace:: :class:`~reahl.web.fw.Widget`
 .. |Input| replace:: :class:`~reahl.web.ui.Input`
 .. |ButtonInput| replace:: :class:`~reahl.web.bootstrap.forms.ButtonInput`
-.. |XPath| replace:: :class:`~reahl.webdev.tools.XPath`
-.. |DriverBrowser| replace:: :class:`~reahl.webdev.tools.DriverBrowser`
-.. |type| replace:: :meth:`~reahl.webdev.tools.DriverBrowser.type`
-.. |click| replace:: :meth:`~reahl.webdev.tools.DriverBrowser.click`
+.. |XPath| replace:: :class:`~reahl.webdriver.webdriver.XPath`
+.. |DriverBrowser| replace:: :class:`~reahl.webdriver.webdriver.DriverBrowser`
+.. |type| replace:: :meth:`~reahl.webdriver.webdriver.DriverBrowser.type`
+.. |click| replace:: :meth:`~reahl.webdriver.webdriver.DriverBrowser.click`
 .. |TransactionVeto| replace:: :class:`~reahl.sqlalchemysupport.sqlalchemysupport.TransactionVeto`
 .. |nested_transaction| replace:: :meth:`~reahl.sqlalchemysupport.sqlalchemysupport.SqlAlchemyControl.nested_transaction`
 .. |should_commit| replace:: :attr:`~reahl.sqlalchemysupport.sqlalchemysupport.TransactionVeto.should_commit`

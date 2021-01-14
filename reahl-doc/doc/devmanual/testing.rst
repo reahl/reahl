@@ -1,14 +1,14 @@
 .. Copyright 2013-2016 Reahl Software Services (Pty) Ltd. All rights reserved.
 
-.. |Browser| replace::  :class:`~reahl.webdev.tools.Browser`
-.. |XPath| replace::  :class:`~reahl.webdev.tools.XPath`
+.. |Browser| replace::  :class:`~reahl.webdriver.webdriver.Browser`
+.. |XPath| replace::  :class:`~reahl.webdriver.webdriver.XPath`
 .. |Fixture| replace::  :class:`~reahl.tofu.Fixture`
 .. |ExecutionContext| replace::  :class:`~reahl.component.context.ExecutionContext`
 .. |Configuration| replace::  :class:`~reahl.component.config.Configuration`
 .. |SystemControl| replace::  :class:`~reahl.component.dbutils.SystemControl`
 .. |WebFixture| replace::  :class:`~reahl.web_dev.fixtures.WebFixture`
 .. |WebServerFixture| replace::  :class:`~reahl.web_dev.fixtures.WebServerFixture`
-.. |DriverBrowser| replace::  :class:`~reahl.webdev.tools.DriverBrowser`
+.. |DriverBrowser| replace::  :class:`~reahl.webdriver.webdriver.DriverBrowser`
 .. |ReahlSystemFixture| replace:: :class:`~reahl.dev.fixtures.ReahlSystemFixture`
 .. |ReahlSystemSessionFixture| replace:: :class:`~reahl.dev.fixtures.ReahlSystemSessionFixture`
 .. |SqlAlchemyFixture| replace:: :class:`~reahl.sqlalchemysupport_dev.fixtures.SqlAlchemyFixture`

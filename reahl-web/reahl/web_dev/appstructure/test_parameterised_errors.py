@@ -20,7 +20,7 @@
 from reahl.tofu import expected
 from reahl.tofu.pytestsupport import with_fixtures
 
-from reahl.webdev.tools import Browser
+from reahl.webdriver.webdriver import Browser
 
 from reahl.component.modelinterface import Field, RequiredConstraint
 from reahl.component.exceptions import ProgrammerError
