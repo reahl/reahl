@@ -43,6 +43,7 @@ from reahl.component.exceptions import ProgrammerError
 from reahl.component.context import ExecutionContext, NoContextFound
 from reahl.component.config import StoredConfiguration
 from reahl.component.shelltools import Executable
+from reahl.component.decorators import deprecated
 from reahl.web.fw import ReahlWSGIApplication
 
 
@@ -398,7 +399,7 @@ class ReahlWebServer:
        :param port: The HTTP port on which the server should be started. The HTTPS port is computed as this number + 363.
     """
     @classmethod
-    def fromConfigDirectory(cls, directory, port):
+    def from_config_directory(cls, directory, port):
         """Creates a new ReahlWebServer given a port and standard configuration directory for an application.
         
            :param directory: The directory from which configuration will be read.
@@ -407,6 +408,11 @@ class ReahlWebServer:
         config = StoredConfiguration(directory)
         config.configure()
         return cls(config, port)
+
+    @classmethod
+    @deprecated('renamed to from_config_directory','5.1')
+    def fromConfigDirectory(cls, directory, port):
+        return cls.from_config_directory(directory, port)
 
     def set_app(self, new_wsgi_app):
         """Changes the currently served application to `new_wsgi_app`."""

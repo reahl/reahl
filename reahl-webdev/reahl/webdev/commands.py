@@ -69,7 +69,7 @@ class ServeCurrentProject(WorkspaceCommand):
                     print('\nUsing config from %s\n' % config_directory, flush=True)
                     
                     try:
-                        reahl_server = ReahlWebServer.fromConfigDirectory(config_directory, args.port)
+                        reahl_server = ReahlWebServer.from_config_directory(config_directory, args.port)
                     except pkg_resources.DistributionNotFound as ex:
                         terminate_keys = 'Ctrl+Break' if platform.system() == 'Windows' else 'Ctrl+C'
                         print('\nPress %s to terminate\n\n' % terminate_keys, flush=True)
