@@ -43,7 +43,7 @@
 
   <export entrypoint="reahl.component.commands" name="UpdateCopyright" locator="reahl.dev.devshell:UpdateCopyright"/>
 
-  <version number="5.0">
+  <version number="5.1">
     <deps purpose="run">
       <egg name="reahl-component" versionlocked="True"/>
       <egg name="reahl-tofu" versionlocked="True"/>
@@ -56,7 +56,21 @@
       <thirdpartyegg name="pip" minversion="10.0.0"/> 
     </deps>
   </version>
-  
+
+  <version number="5.0">
+    <deps purpose="run">
+      <egg name="reahl-component" versionlocked="True"/>
+      <egg name="reahl-tofu" versionlocked="True"/>
+      <egg name="reahl-stubble" versionlocked="True"/>
+      <thirdpartyegg name="Babel" minversion="2.1" maxversion="2.8.999"/>
+      <thirdpartyegg name="twine" minversion="1.15.0" maxversion="3.1.9999"/>
+      <thirdpartyegg name="wheel" minversion="0.34.0" maxversion="0.34.9999"/>
+      <thirdpartyegg name="tzlocal" minversion="2.0.0" maxversion="2.0.9999"/>
+      <thirdpartyegg name="setuptools" minversion="32.3.1"/>
+      <thirdpartyegg name="pip" minversion="10.0.0"/>
+    </deps>
+  </version>
+
   <version number="4.0">
     <deps purpose="run">
       <egg name="reahl-component" versionlocked="True"/>

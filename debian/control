@@ -238,6 +238,22 @@ Description: Web-specific development tools for Reahl.
  See http://www.reahl.org/docs/5.0/tutorial/gettingstarted-install.d.html for
  installation instructions.
 
+
+Package: python-reahl-webdriver
+Architecture: all
+Depends: openssl (>= 0.9), ${python:Depends}, ${reahl:Depends}
+Provides: ${python:Provides}
+Description: An alternative API for working with Selenium and WebTest.
+ Reahl is a web application framework that allows a Python programmer to work in
+ terms of useful abstractions - using a single programming language.
+ .
+ Tools for building user readable XPath expressions and an interface to selenium webdriver
+ which uses these.
+ .
+ See http://www.reahl.org/docs/5.0/tutorial/gettingstarted-install.d.html for
+ installation instructions.
+
+
 Package: python-reahl-domain
 Architecture: all
 Depends: ${python:Depends}, ${reahl:Depends}

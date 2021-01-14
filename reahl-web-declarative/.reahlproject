@@ -32,6 +32,16 @@
   <schedule locator="reahl.webdeclarative.webdeclarative:UserSession.remove_dead_sessions"/>
 
 
+  <version number="5.1">
+    <deps purpose="run">
+      <egg name="reahl-sqlalchemysupport" versionlocked="True"/>
+      <egg name="reahl-web" versionlocked="True"/>
+      <egg name="reahl-component" versionlocked="True"/>
+    </deps>
+    <migrations>
+      <class locator="reahl.webdeclarative.migrations:AddViewPathToSessionData"/>
+    </migrations>
+  </version>
 
   <version number="5.0">
     <deps purpose="run">
