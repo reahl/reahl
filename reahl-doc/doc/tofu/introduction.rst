@@ -3,6 +3,4 @@
 Tofu -- Test Fixtures and other handy testing utilities (reahl.tofu)
 --------------------------------------------------------------------
 
-Tofu's docs have moved:
-- :doc:`Introduction <../tofu/introduction>`
-- :doc:`API reference <../tofu/index>`
+TODO

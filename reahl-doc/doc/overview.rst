@@ -3,24 +3,34 @@
 Documentation overview
 ======================
 
-Introductory material
----------------------
+Introduction
+------------
+
+Reahl comprises a number of software packages. The Reahl web framework (reahl-web) is the most well known.
 
 The :doc:`Getting started guide <tutorial/gettingstarted-install>` will enable you to
-install Reahl, and start experimenting.
+install all the Reahl packages, and start experimenting.
 
-To start learning Reahl in earnest, you can work through the :doc:`web
+To start learning all of Reahl in earnest, you can work through the :doc:`web
 application tutorial <tutorial/index>`.
 
 The :doc:`programmer's guide <devmanual/index>` contains information
 on how we work and how the internals of Reahl is structured.
 
-Reference material
-------------------
+Other projects
+~~~~~~~~~~~~~~
 
-The Reahl web framework is built in terms of a collection of useful
-components geared for the development of server applications in
-Python.
+Although shipped with reahl-web, these projects do not require the web framework and can even be used with other
+web frameworks (where applicable):
+
+- :doc:`reahl-webdriver <webdriver/introduction>`: Composable XPaths and an interface to WebDriver
+- :doc:`reahl-component <component/index>`: Infrastructure for component-based development
+- :doc:`reahl-tofu <devtools/tofu>`: Class-based Fixtures and other testing tools
+- :doc:`reahl-stubble <devtools/stubble>`: Stub classes that break if the real class changes interface
+
+
+API Reference
+-------------
 
 The main components of Reahl are illustrated in the figure below:
 
@@ -72,21 +82,34 @@ Simple support for sending emails is provided by `reahl-mailutil`.
 
 All these are discussed in :doc:`domain/index`.
 
-Development tools
-~~~~~~~~~~~~~~~~~
+Webdriver
+~~~~~~~~~
 
-We do all development :doc:`inside a Vagrant machine
-<devmanual/devenv>`. The `reahl-workstation` component is meant to
-be installed on your main workstation. It contains a stripped-down
-version of the `reahl` command containing commands that help deal with
-whats inside the Vagrant machine.
+`reahl-webdriver` is an abstracted interface to WebDriver including
+a programmatic way of composing XPaths. See :doc:`its documentation
+for more detail <webdriver/introduction>`.
+
+Tofu
+~~~~
 
 The `reahl-tofu` component contains our test Fixture framework and
 extensions that bolt it onto `pytest <https://pytest.org/>`_. It also
 contains a small collection of other test utilities.
 
+Stubble
+~~~~~~~
+
 Stubble (in `reahl-stubble`) enables one to write stub classes that
 will break if the interfaces of the classes they stub should change.
+
+Other tools
+~~~~~~~~~~~
+
+We do all development :doc:`inside a docker image
+<devmanual/devenv>`. The `reahl-workstation` component is meant to
+be installed on your main workstation. It contains a stripped-down
+version of the `reahl` command containing commands that help deal with
+whats inside the docker image.
 
 Infrastructure is provided in `reahl-dev` and `reahl-webdev` for
 dealing with Reahl components using an extensible command line

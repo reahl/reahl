@@ -58,42 +58,12 @@ WebFixture
    :members:
 
 
-
-
-Testing tools
-^^^^^^^^^^^^^
-
-WidgetTester
-""""""""""""
-
-.. autoclass:: reahl.webdriver.webdriver.WidgetTester
-   :members:
-   :inherited-members:
-
-Browser
-"""""""
-
-.. autoclass:: reahl.webdriver.webdriver.Browser
-   :members:
-   :inherited-members:
-
-DriverBrowser
-"""""""""""""
-
-.. autoclass:: reahl.webdriver.webdriver.DriverBrowser
-   :members:
-   :inherited-members:
-      
-XPath
-"""""
-
-.. autoclass:: reahl.webdriver.webdriver.XPath
-   :members:
+General web development tools
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 ReahlWebServer
 """"""""""""""
 
 .. autoclass:: reahl.webdev.webserver.ReahlWebServer
    :members:
-
 

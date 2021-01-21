@@ -12,18 +12,42 @@ programmer.
 
 Contents:
 
+Introduction
+------------
+
 .. toctree::
    :maxdepth: 1
 
    overview
    whatchanged
    tutorial/index
+   component/introduction
+   webdriver/introduction
+   tofu/introduction
+   stubble/introduction
+
+Howtos
+------
+
+.. toctree::
+   :maxdepth: 1
+
    howto/index
+
+API Documentation
+-----------------
+
+.. toctree::
+   :maxdepth: 1
+
    component/index
    web/index
    domain/index
    devtools/index
    devmanual/index
+   webdriver/index
+   tofu/introduction
+   stubble/introduction
 
 
 Indices and tables
