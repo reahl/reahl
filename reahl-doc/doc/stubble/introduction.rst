@@ -3,6 +3,8 @@
 Stubble -- A collection of tools for writing stubs in unit tests (reahl.stubble)
 ================================================================================
 
+.. note:: API docs
+   Please see :doc:`for the complete API <index>`.
 
 Introduction
 ^^^^^^^^^^^^

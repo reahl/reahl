@@ -94,7 +94,7 @@ The 'hello' component
    reahl-web-declarative
      Technology-dependent parts of the framework written using `SqlAlchemy <http://sqlalchemy.org>`__.
 
-The 'hello' project is a Reahl component.
+The 'hello' project is a :doc:`Reahl component <component/introduction>`.
 
 .. warning:: The word *component* is used by different people for different things.
 
@@ -123,12 +123,14 @@ component import statements):
 .. code-block:: xml
 
    <project type="egg">
-     <deps purpose="run">
-       <egg name="reahl-component"/>
-       <egg name="reahl-web"/>
-       <egg name="reahl-sqlalchemysupport"/>
-       <egg name="reahl-web-declarative"/>
-     </deps>
+     <version number="0.0">
+       <deps purpose="run">
+         <egg name="reahl-component"/>
+         <egg name="reahl-web"/>
+         <egg name="reahl-sqlalchemysupport"/>
+         <egg name="reahl-web-declarative"/>
+       </deps>
+     </version>
    </project>
 
 .. _preparing-for-development:

@@ -36,9 +36,9 @@ means in your application as well.
 Dependencies
 ------------
 
-Right at the beginning of this tutorial, in the :doc:`../tutorial/gettingstarted-develop`, we
-state that all code in a Reahl program is packaged into some or
-other component. This component is packaged as a Python Egg. When you
+Right at the beginning of the tutorial, in the :doc:`../tutorial/gettingstarted-develop`, we
+state that all code in a Reahl program is packaged into :doc:`some or
+other component <../component/introduction>`. This component is packaged as a Python Egg. When you
 write your web application, you write it as such an Egg. As it goes
 with Eggs, if you want one Egg to use the code in another Egg, the
 first Egg must declare its dependence on the other one which it is
