@@ -33,11 +33,26 @@ function import_gpg_keys () {
   gpg --status-fd 2 --import-ownertrust < $from_dir/trust.asc
 }
 
-cat ~/.gnupg/options ~/.gnupg/gpg.conf
+if [ -f ~/.gnupg/gpg.conf ]
+then
+  cat  ~/.gnupg/gpg.conf
+fi
+if [ -f ~/.gnupg/options ]
+then
+  cat  ~/.gnupg/options
+fi
 rm -f ~/.gnupg/options ~/.gnupg/gpg.conf
 
 configure_gnupg
-cat ~/.gnupg/options ~/.gnupg/gpg.conf
+
+if [ -f ~/.gnupg/gpg.conf ]
+then
+  cat  ~/.gnupg/gpg.conf
+fi
+if [ -f ~/.gnupg/options ]
+then
+  cat  ~/.gnupg/options
+fi
 
 if [ "$TRAVIS_SECURE_ENV_VARS" == 'true' ]; then
   echo "SECRETS are available, fetching reahl GPG signing key"
