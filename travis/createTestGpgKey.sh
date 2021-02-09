@@ -59,6 +59,7 @@ if [ "$TRAVIS_SECURE_ENV_VARS" == 'true' ]; then
 else
   echo "SECRETS NOT available, using fake key for signing"
 fi
+echo "no-tty" >> ~/.gnupg/gpg.conf
 
 import_gpg_keys travis/keys  # We import these anyways for use by tests that sign stuff
 
