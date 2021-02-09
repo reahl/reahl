@@ -17,7 +17,6 @@ function configure_gnupg {
   echo "allow-preset-passphrase" >> ~/.gnupg/gpg-agent.conf
   echo "allow-loopback-pinentry" >> ~/.gnupg/gpg-agent.conf
   echo "use-agent" >> ~/.gnupg/gpg.conf
-  echo "no-tty" >> ~/.gnupg/gpg.conf
   gpgconf --reload gpg-agent
 }
 
@@ -34,8 +33,26 @@ function import_gpg_keys () {
   gpg --status-fd 2 --import-ownertrust < $from_dir/trust.asc
 }
 
+function cat_if_exists {
+  filename=$1
+  if [ -f $filename ]
+  then
+    echo "Contents of: $filename"
+    cat $filename
+  else
+    echo "File not found: $filename"
+  fi
+}
+
+cat_if_exists ~/.gnupg/gpg.conf
+cat_if_exists ~/.gnupg/options
+
 rm -f ~/.gnupg/options ~/.gnupg/gpg.conf
 configure_gnupg
+echo "no-tty" >> ~/.gnupg/gpg.conf
+
+cat_if_exists ~/.gnupg/gpg.conf
+cat_if_exists ~/.gnupg/options
 
 
 if [ "$TRAVIS_SECURE_ENV_VARS" == 'true' ]; then
