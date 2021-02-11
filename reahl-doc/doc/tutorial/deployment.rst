@@ -6,8 +6,8 @@ Deploying a production site
 .. sidebar:: Examples in this section
 
    - tutorial.helloanywhere
-   - tutorial.helloapache
-   - tutorial.hellonginx
+   - howto.helloapache
+   - howto.hellonginx
 
    Get a copy of an example by running:
 
@@ -15,8 +15,7 @@ Deploying a production site
 
       reahl example <examplename>
 
-The easiest way to run your application is at PythonAnywhere_. See the other examples in this
-section for more options.
+The easiest way to run your application is at PythonAnywhere_. :doc:`See our howtos <../howto/index>` for more options.
 
 
 Your PythonAnywhere account
@@ -29,6 +28,7 @@ your app will be accessable on something like
 `http://myname.pythonanywhere.com` (assuming `myname` is the name you
 registered with).
 
+.. _build:
 
 Build and upload the `helloanywhere` example
 --------------------------------------------
@@ -74,7 +74,7 @@ Install your app inside the activated virtualenv:
 
 .. code-block:: bash
 
-   pip install -f ~/dist/ reahl==4.0.0 helloanywhere
+   pip install -f ~/dist/ helloanywhere
 
 
 Configure
