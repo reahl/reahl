@@ -33,32 +33,9 @@ function import_gpg_keys () {
   gpg --status-fd 2 --import-ownertrust < $from_dir/trust.asc
 }
 
-function sign_test {
-  touch test.txt
-  gpg -abs --yes -o test.txt.gpg test.txt
-}
-
-function cat_if_exists {
-  filename=$1
-  if [ -f $filename ]
-  then
-    echo "Contents of: $filename"
-    cat $filename
-  else
-    echo "File not found: $filename"
-  fi
-}
-
-cat_if_exists ~/.gnupg/gpg.conf
-cat_if_exists ~/.gnupg/options
-
 rm -f ~/.gnupg/options ~/.gnupg/gpg.conf
+
 configure_gnupg
-echo "no-tty" >> ~/.gnupg/gpg.conf
-
-cat_if_exists ~/.gnupg/gpg.conf
-cat_if_exists ~/.gnupg/options
-
 
 if [ "$TRAVIS_SECURE_ENV_VARS" == 'true' ]; then
   echo "SECRETS are available, fetching reahl GPG signing key"
@@ -83,9 +60,6 @@ else
   echo "SECRETS NOT available, using fake key for signing"
 fi
 
-
 import_gpg_keys travis/keys  # We import these anyways for use by tests that sign stuff
 
 gpg --list-secret-keys --with-keygrip
-
-sign_test

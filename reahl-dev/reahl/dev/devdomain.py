@@ -494,8 +494,9 @@ class LocalAptRepository(LocalRepository):
         with open( os.path.join(self.root_directory, 'Release'), 'w' ) as release_file:
             Executable('apt-ftparchive').check_call(['release', directory_name], cwd=path_name, stdout=release_file)
 
-    def sign_index_files(self):
-        Executable('gpg').check_call(['-abs', '--yes', '-o', 'Release.gpg', 'Release'], cwd=self.root_directory)
+    def sign_index_files(self, default_key=None):
+        default_key_override = ['--default-key', default_key] if default_key else []
+        Executable('gpg').check_call(['-abs', '--yes']+default_key_override+['-o', 'Release.gpg', 'Release'], cwd=self.root_directory)
 
 
 class EntryPointExport:
