@@ -19,7 +19,6 @@
 Run 'reahl componentinfo reahl-web' for configuration information.
 """
 
-import six
 import atexit
 import inspect
 import json
@@ -2701,8 +2700,7 @@ class ConcatenatedFile(FileOnDisk):
                 yacc.YaccProduction.__getitem__ = __getitem__
                 
             def minify(self, input_stream, output_stream):
-                if six.PY3:
-                    self.monkey_patch_ply()
+                self.monkey_patch_ply()
 
                 text = io.StringIO()
                 for line in input_stream:
