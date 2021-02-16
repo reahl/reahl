@@ -277,7 +277,7 @@ def test_index_building(local_apt_repository_fixture):
     repository.upload(package, [])
 
     repository.build_index_files()
-    repository.sign_index_files()
+    repository.sign_index_files(default_key='23203326628B5A6925BFB3EC37019E3ADE633F86')
     for filename in ['Packages','Release','Release.gpg']:
         assert os.path.isfile( os.path.join(repository.root_directory, filename))
 
