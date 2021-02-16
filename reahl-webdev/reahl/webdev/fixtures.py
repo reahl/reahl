@@ -61,7 +61,7 @@ class WebServerFixture(Fixture):
     """
 
     def new_reahl_server(self):
-        return ReahlWebServer(self.reahl_system_fixture.config, 8000)
+        return ReahlWebServer(self.reahl_system_fixture.config, 8000, 8363)
 
     @property
     def web_driver(self):
