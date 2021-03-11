@@ -17,8 +17,8 @@
   <egg name="reahl-webdev"/>
  </deps>
  <persisted>
-  <class locator="bootstrapsass:InvestmentOrder"/>
-  <class locator="bootstrapsass:Allocation"/>
-  <class locator="bootstrapsass:IDDocument"/>
+  <class locator="reahl.doc.examples.howtos.bootstrapsassmultihomed:InvestmentOrder"/>
+  <class locator="reahl.doc.examples.howtos.bootstrapsassmultihomed:Allocation"/>
+  <class locator="reahl.doc.examples.howtos.bootstrapsassmultihomed:IDDocument"/>
  </persisted>
 </project>

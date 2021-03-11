@@ -16,9 +16,4 @@
   <egg name="reahl-dev"/>
   <egg name="reahl-webdev"/>
  </deps>
- <persisted>
-  <class locator="bootstrapsass:InvestmentOrder"/>
-  <class locator="bootstrapsass:Allocation"/>
-  <class locator="bootstrapsass:IDDocument"/>
- </persisted>
 </project>

@@ -41,8 +41,8 @@ In order to make the packaged CSS and JavaScript part of your site,
 you create a custom |Library| (see also :ref:`shipping_js_css`).
 
 
-Install JavaScript and CSS build tools for you project
-------------------------------------------------------
+Install JavaScript and CSS build tools for your project
+-------------------------------------------------------
 
 Install nodeJS (it includes npm):
 

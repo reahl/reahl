@@ -6,7 +6,7 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 module.exports = {
   entry: { 'main': './webpack/index.js',
-           'theme': './webpack/index.scss'
+           'theme': './webpack/theme.scss'
   },
   output: {
     filename: '[name].js',

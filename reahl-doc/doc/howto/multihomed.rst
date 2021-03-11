@@ -86,17 +86,34 @@ as well as your customised library, in the correct order:
 Congratulations!
 ----------------
 
-To be able to see the different themes in a development environment,
-you will have to visit the application using the actual domain names.
+To be able to see the different themes in a development environment
+you will have to visit the application using the actual domain names:
 
-Visiting http://localhost:8000 will not match sitea.com or siteb.com.
+Visiting http://localhost:8000 will not match the theme for sitea.com
+or siteb.com, you have to visit http://sitea.com:8000 or http://siteb.com:8000.
 
-In Ubuntu you can simulate this by adding names to /etc/hosts:
+You you can simulate this by adding names to your development
+machine's `hosts` file. This differs on each platform:
+
+In Ubuntu, do:
 
 .. code:: bash
 
    sudo bash -c "echo '127.0.1.1 sitea.com siteb.com' >> /etc/hosts"
 
+On a Mac, do:
+
+.. code:: bash
+
+   sudo bash -c "echo '127.0.1.1 sitea.com siteb.com' >> /private/etc/hosts"
+
+On Windows:
+
+   Edit C:\Windows\System32\drivers\etc\hosts and add the line:
+   
+    127.0.1.1 sitea.com siteb.com
+
+    
 
 
 
