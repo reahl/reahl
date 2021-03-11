@@ -1,0 +1,7 @@
+node_modules/
+dist/
+*.db
+.eggs
+.pytest_cache
+__pycache__
+*.egg-info
