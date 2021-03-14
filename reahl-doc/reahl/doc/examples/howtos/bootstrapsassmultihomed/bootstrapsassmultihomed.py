@@ -341,8 +341,9 @@ class IDDocument(Base):
 
 
 class CompiledBootstrap(Library):
-    def __init__(self):
+    def __init__(self, force_theme=None):
         super().__init__('custom')
+        self.force_theme = force_theme
         self.egg_name = 'bootstrapsassmultihomed'
         self.shipped_in_directory = 'dist'
         self.files = [
@@ -354,7 +355,7 @@ class CompiledBootstrap(Library):
     def files_of_type(self, extension):
         if extension == '.css':
             from reahl.web.fw import Url
-            hostname = Url.get_current_url().hostname
+            hostname = self.force_theme or Url.get_current_url().hostname
             return ['%s.css' % hostname]
         else:
             return super().files_of_type(extension)

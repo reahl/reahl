@@ -6,6 +6,7 @@
 .. |Navbar| replace:: :class:`~reahl.web.bootstrap.navbar.Navbar`
 .. |ResponsiveLayout| replace:: :class:`~reahl.web.bootstrap.navbar.ResponsiveLayout`
 .. |Container| replace:: :class:`~reahl.web.bootstrap.grid.Container`
+.. |Library| replace:: :class:`~reahl.web.libraries.Library`
 
 
                          
@@ -49,27 +50,30 @@ contents to the |Navbar|.
 The |Container| |Layout| used on the body of our |HTML5Page| gives the page
 some margins and is necessary for Bootstrap to work.
 
+Custom styling
+==============
 
-.. note:: Custom styling
+Out of the box, a Reahl web application uses a default set of colours
+and styling choices.  To comprehensively change these defaults
+requires one to `compile a customised version of bootstrap`
+<../howto/customisingcss>` --- an advanced topic.
 
-   We dont want you to think of css anymore, but.. if you really want
-   to you can add your own css too:
-   
-   Serve your own static files from a directory added using
-   :meth:`~reahl.web.fw.UserInterface.define_static_directory` inside
-   your :meth:`~reahl.web.fw.UserInterface.assemble`.
+If you just need to add some CSS op top of the defaults,
+serve your own static files from a directory added using
+:meth:`~reahl.web.fw.UserInterface.define_static_directory` inside
+your :meth:`~reahl.web.fw.UserInterface.assemble`.
 
-   .. code-block:: python
+.. code-block:: python
 
-      self.define_static_directory('/css')
+   self.define_static_directory('/css')
 
 
-   To use your own CSS, add a link to such a static file on
-   your HTML5Page subclass. For example in the `__init__`
-   of your class, put:
+To use your own CSS, add a link to such a static file on
+your HTML5Page subclass. For example in the `__init__`
+of your class, put:
 
-   .. code-block:: python
+.. code-block:: python
 
-      self.head.add_css(Url('/css/own.css'))
+   self.head.add_css(Url('/css/own.css'))
 
 
