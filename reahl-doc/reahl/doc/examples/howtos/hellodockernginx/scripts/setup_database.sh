@@ -7,3 +7,5 @@ docker-compose exec -T -e PGPASSWORD=reahl app /app/venv/bin/reahl createdb -U d
 #docker-compose exec -T -e MYSQL_PWD=reahl app /app/venv/bin/reahl createdb -U root /etc/app-reahl
 
 docker-compose exec -T app /app/venv/bin/reahl createdbtables  /etc/app-reahl
+
+echo "Database setup complete"

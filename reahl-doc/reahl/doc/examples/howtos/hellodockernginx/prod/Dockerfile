@@ -3,7 +3,7 @@ FROM ubuntu:20.04 as base
 #For Postgres db
 ENV DB_CLIENT_LIBS=postgresql-client
 
-#For MySql db
+#For MySQL db
 #ENV DB_CLIENT_BUILD_LIBS="gcc python3-dev default-libmysqlclient-dev mysql-client"
 #ENV DB_CLIENT_LIBS="libmysqlclient21 mysql-client"
 #ENV WHEELS_TO_BUILD="reahl[mysql]$REAHL_VERSION_SPEC"

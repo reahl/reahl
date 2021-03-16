@@ -38,3 +38,4 @@ Production deployment
 
    nginx
    apache
+   docker
