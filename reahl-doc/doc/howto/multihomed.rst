@@ -87,40 +87,25 @@ as well as your customised library, in the correct order:
 .. literalinclude:: ../../reahl/doc/examples/howtos/bootstrapsassmultihomed/etc/web.config.py
 
 
-Congratulations!
-----------------
+Try it out!
+-----------
 
-To be able to see the different themes in a development environment
-you will have to visit the application using the actual domain names:
+Serving your multihomed project on http://localhost:8000 will not
+match the theme for sitea.com or siteb.com. You have to visit
+http://sitea.com:8000 or http://siteb.com:8000 for that to work.
 
-Visiting http://localhost:8000 will not match the theme for sitea.com
-or siteb.com, you have to visit http://sitea.com:8000 or http://siteb.com:8000.
+However, sitea.com and siteb.com quite likely do not resolve to your
+development machine.
 
-You you can simulate this by adding names to your development
-machine's `hosts` file. This differs on each platform:
+In order to see the changes in a development environment on http://localhost:8000, you can
+change `web.config.py` used in development to force your `CompiledBootstrap` to display a
+specific theme by passing `force_theme`::
 
-In Ubuntu, do:
-
-.. code-block:: bash
-
-   sudo bash -c "echo '127.0.1.1 sitea.com siteb.com' >> /etc/hosts"
-
-On a Mac, do:
-
-.. code-block:: bash
-
-   sudo bash -c "echo '127.0.1.1 sitea.com siteb.com' >> /private/etc/hosts"
-
-On Windows:
-
-    Edit ``C:\Windows\System32\drivers\etc\hosts`` and add the line:
-
-.. code-block:: cfg
-
-        127.0.1.1 sitea.com siteb.com
-
-    
+  CompiledBootstrap(force_theme='sitea.com')
 
 
+.. note::
 
-
+    If you are technically minded, you can also add aliases for your
+    localhost to your local `hosts` file so that http://sitea.com:8000 or http://siteb.com:8000
+    resolve to http://localhost:8000.

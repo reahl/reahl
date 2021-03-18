@@ -24,17 +24,14 @@ has its own ecosystem of tools that allow you to do various things, for example:
  - Some code is minified.
 
 This module is a start towards supporting such "front-end frameworks"
-which Reahl depends upon. Currently, Reahl merely includes the correct
-versions of the front-end libraries it needs and a user is not able to
-customise these in any way. In the future we hope to extend this
-infrastructure to be able to make use of everything the JavaScript /
-CSS tool ecosystem offers.
+which Reahl depends upon. By default, Reahl merely includes the correct
+versions of the front-end libraries it needs.
 
 Reahl also contains its own JavaScript and CSS code. Where we do this,
 our own code is also managed using this same infrastructure.
 
 If you write your own Widgets that make use of CSS or JavaScript,
-creating a :class:`Library` is the way to do it going forward.
+creating a :class:`Library` and configure your site to use it.
 
 """
 

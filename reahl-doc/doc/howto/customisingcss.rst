@@ -44,6 +44,14 @@ you create a custom |Library| (see also :ref:`shipping_js_css`).
 Install JavaScript and CSS build tools for your project
 -------------------------------------------------------
 
+.. note::
+
+   Installing Node.js and execution of the `npm` commands should be done
+   on your main machine even if you are using :doc:`the Reahl docker
+   development container <../devmanual/devenv>` for development, from
+   the root of your source code.
+   
+
 `Install Node.js <https://nodejs.org/en/download/>`_ (it includes npm):
 
 .. code-block:: bash
@@ -58,7 +66,7 @@ Install JavaScript and CSS build tools for your project
 
       alias npm='docker run --rm  -v ${PWD}:/app -w /app node:15.7.0 npm'
 
-
+      
 Install bootstrap sources and packaging tools in your project:
 
 .. code-block:: bash
