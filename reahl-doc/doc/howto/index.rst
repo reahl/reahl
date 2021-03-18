@@ -22,6 +22,15 @@ Parameterised views
    programmaticparameterised
 .. transitionstoparameterised
 
+Look and feel
+-------------
+
+.. toctree::
+   :maxdepth: 1
+
+   customisingcss
+   multihomed
+
 Misc
 ----
 .. toctree::
