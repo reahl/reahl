@@ -1,0 +1,15 @@
+
+$body-bg: white;
+$body-color: black;
+
+
+$theme-colors: (
+        "primary": #0074d9,
+        "danger": #ff4136,
+        "custom-color": #900
+);
+
+$enable-rounded: false;
+$enable-shadows: true;
+
+@import "bootstrap";

@@ -55,6 +55,8 @@ other |Widget|\s to achieve the required basic HTML representation
 wrapped in a Python class.
 
 
+.. _shipping_js_css:
+
 Shipping JavaScript and CSS code
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
