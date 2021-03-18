@@ -24,7 +24,7 @@ This example shows how to create a single site that is themed
 differently depending on which hostname you use to access to it.
 
 This example assumes you know the basics of creating a customised
-theme as explained in :doc:`bootstrapsass`.
+theme as explained in :doc:`customisingcss`.
 
 
 Create multiple themes and configure webpack to package them
@@ -34,6 +34,7 @@ Create a webpack directory containing an `index.js` which includes the
 bootstrap sources:
 
 .. literalinclude:: ../../reahl/doc/examples/howtos/bootstrapsassmultihomed/webpack/index.js
+    :language: js
 
 For each of your sites, create a <site_name>.scss file in the
 `webpack` directory with `customised SCSS sources
@@ -43,15 +44,18 @@ that site:
 sitea.com.scss:
 
 .. literalinclude:: ../../reahl/doc/examples/howtos/bootstrapsassmultihomed/webpack/sitea.com.scss
+    :language: scss
 
 siteb.com.scss:
 
 .. literalinclude:: ../../reahl/doc/examples/howtos/bootstrapsassmultihomed/webpack/siteb.com.scss
+    :language: scss
 
 
 List all your sites in `webpack.config.js`:
 
 .. literalinclude:: ../../reahl/doc/examples/howtos/bootstrapsassmultihomed/webpack.config.js
+    :language: js
 
 
      
@@ -60,12 +64,12 @@ Build your custom SCSS
 
 In your project root, run:
 
-.. code:: bash
+.. code-block:: bash
 
    npm run build
 
 
-This command creates a ./dist directory with the packaged CSS for each of your site's domain names.
+This command creates a `dist` directory which contains the packaged CSS for each of your site's domain names.
 
 
 Configure your application to use your customisation
@@ -97,21 +101,23 @@ machine's `hosts` file. This differs on each platform:
 
 In Ubuntu, do:
 
-.. code:: bash
+.. code-block:: bash
 
    sudo bash -c "echo '127.0.1.1 sitea.com siteb.com' >> /etc/hosts"
 
 On a Mac, do:
 
-.. code:: bash
+.. code-block:: bash
 
    sudo bash -c "echo '127.0.1.1 sitea.com siteb.com' >> /private/etc/hosts"
 
 On Windows:
 
-   Edit C:\Windows\System32\drivers\etc\hosts and add the line:
-   
-    127.0.1.1 sitea.com siteb.com
+    Edit ``C:\Windows\System32\drivers\etc\hosts`` and add the line:
+
+.. code-block:: cfg
+
+        127.0.1.1 sitea.com siteb.com
 
     
 

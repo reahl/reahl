@@ -27,14 +27,14 @@ you need to compile Bootstrap sources using `SASS
 <https://getbootstrap.com/docs/4.5/getting-started/theming/>`_ to suit
 your needs.
 
-You can of course also add your own CSS on top of that too.
+You can of course also add your own CSS(see :ref:`your_own_css`) on top of that too.
 
 Once you have compiled your customised theme, you need to package the
 resultant CSS and JavaScript and make it part of your site.
 
-For packaging, we use `npm <https://www.npmjs.com/>`_ and `webpack
-<https://webpack.js.org/>`_, both of which need the `nodeJS
-<https://nodejs.org/>`_ interpreter installed on your development
+For packaging, use `npm <https://www.npmjs.com/>`_ and `webpack
+<https://webpack.js.org/>`_, both of which need the `Node.js
+<https://nodejs.org/>`_ runtime installed in your development
 environment.
 
 In order to make the packaged CSS and JavaScript part of your site,
@@ -44,23 +44,24 @@ you create a custom |Library| (see also :ref:`shipping_js_css`).
 Install JavaScript and CSS build tools for your project
 -------------------------------------------------------
 
-Install nodeJS (it includes npm):
+`Install Node.js <https://nodejs.org/en/download/>`_ (it includes npm):
 
-.. code: bash
+.. code-block:: bash
 
    sudo snap install --classic node
 
 .. note::
-   If you know docker and want to use node in a docker container instead, do:
+
+    If you know docker and want to use node in a docker container instead, create an alias:
           
-   .. code: bash
+   .. code-block:: bash
 
       alias npm='docker run --rm  -v ${PWD}:/app -w /app node:15.7.0 npm'
 
 
 Install bootstrap sources and packaging tools in your project:
 
-.. code: bash
+.. code-block:: bash
 
    cd bootstrapsass
    npm init -y
@@ -80,29 +81,34 @@ Create a webpack directory containing an `index.js` which includes the
 bootstrap sources:
 
 .. literalinclude:: ../../reahl/doc/examples/howtos/bootstrapsass/webpack/index.js
+    :language: js
+
 
 Define your theme by `setting bootstrap variables
 <https://getbootstrap.com/docs/4.5/getting-started/theming/>`_ (or
 custom CSS) in `theme.scss` in the webpack directory:
 
 .. literalinclude:: ../../reahl/doc/examples/howtos/bootstrapsass/webpack/theme.scss
+    :language: scss
+
 
 
 Create a file `webpack.config.js` to instruct webpack to package your theme sources:
 
 .. literalinclude:: ../../reahl/doc/examples/howtos/bootstrapsass/webpack.config.js
+    :language: js
 
 Edit `package.json` to make npm aware of webpack:
 
 - Add, at the top level:
 
-  .. code:: json
+  .. code-block:: json-object
 
      "main": "webpack.config.js",  
 
 - Under "scripts", before "test", add:
 
-  .. code:: json
+  .. code-block:: json-object
 
     "build": "webpack",
 
@@ -112,19 +118,19 @@ Build your custom SCSS
 
 Still in your project root, run:
 
-.. code:: bash
+.. code-block:: bash
 
    npm run build
 
 
-This command creates a ./dist directory with the packaged CSS and
+This command creates a `dist` directory which contains the packaged CSS and
 JavaScript files needed by your site.
 
 
 Configure your application to use your customisation
 ----------------------------------------------------
 
-Create a |Library| for the files created in `./dist` as part of your source code:
+Create a |Library| for the files created in `dist` as part of your source code:
 
 .. literalinclude:: ../../reahl/doc/examples/howtos/bootstrapsass/bootstrapsass.py
    :pyobject: CompiledBootstrap
