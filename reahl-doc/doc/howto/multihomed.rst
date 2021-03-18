@@ -26,6 +26,9 @@ differently depending on which hostname you use to access to it.
 This example assumes you know the basics of creating a customised
 theme as explained in :doc:`customisingcss`.
 
+To prepare for this example, follow :doc:`the steps in <customisingcss>` to
+configure `package.json` and install the node modules.
+
 
 Create multiple themes and configure webpack to package them
 ------------------------------------------------------------

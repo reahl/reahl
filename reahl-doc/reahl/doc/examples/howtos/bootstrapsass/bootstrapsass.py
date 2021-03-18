@@ -1,4 +1,4 @@
-# Copyright 2018, 2019, 2020 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2021 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -15,30 +15,20 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-
-from reahl.component.modelinterface import exposed, Field, Event, Action, Choice, ChoiceField, IntegerField, BooleanField
-from reahl.component.exceptions import DomainException
-from reahl.web.fw import UserInterface, Widget
-from reahl.web.ui import StaticColumn, DynamicColumn
+from reahl.web.fw import UserInterface, Widget, Url
 from reahl.web.layout import PageLayout
 from reahl.web.bootstrap.page import HTML5Page
-from reahl.web.bootstrap.ui import FieldSet, Div, P, Alert
+from reahl.web.bootstrap.ui import A, Alert
+from reahl.web.bootstrap.forms import ButtonLayout
 from reahl.web.bootstrap.grid import Container, ColumnLayout, ColumnOptions, ResponsiveSize
-from reahl.web.bootstrap.forms import Form, FormLayout, TextInput, SelectInput, RadioButtonSelectInput, CheckboxInput, Button
-from reahl.web.bootstrap.tables import Table
 from reahl.web.libraries import Library
-
-from sqlalchemy import Column, Integer, UnicodeText, Boolean, ForeignKey
-from sqlalchemy.orm import relationship
-from reahl.sqlalchemysupport import Base, Session, session_scoped
-
 
 
 class ThemedUI(UserInterface):
     def assemble(self):
-        self.define_page(HTML5Page).use_layout(PageLayout(document_layout=Container(),
-                                                          contents_layout=ColumnLayout(
-                                                              ColumnOptions('main', size=ResponsiveSize(lg=6))).with_slots()))
+        self.define_page(HTML5Page).use_layout(
+            PageLayout(document_layout=Container(),
+                      contents_layout=ColumnLayout(ColumnOptions('main', size=ResponsiveSize(lg=6))).with_slots()))
         home = self.define_view('/', title='Themed example')
         home.set_slot('main', SomeWidget.factory())
 
@@ -48,10 +38,8 @@ class SomeWidget(Widget):
         super().__init__(view)
 
         self.add_child(Alert(view, 'This is an alert in danger color', severity='danger'))
-
         self.add_child(Alert(view, 'This is an alert in primary color', severity='primary'))
-
-
+        self.add_child(A(view, Url('#'), description='Link styled as button')).use_layout(ButtonLayout(style='primary'))
 
 
 class CompiledBootstrap(Library):

@@ -1,4 +1,4 @@
-from reahl.web.libraries import Library, Bootstrap4, LibraryIndex, JQuery, JsCookie, JQueryUI, Underscore, HTML5Shiv, IE9, Reahl, Holder, Popper, ReahlBootstrap4Additions
+from reahl.web.libraries import LibraryIndex, JQuery, JsCookie, JQueryUI, Underscore, HTML5Shiv, IE9, Reahl, Holder, ReahlBootstrap4Additions
 
 from reahl.doc.examples.howtos.bootstrapsass.bootstrapsass import ThemedUI, CompiledBootstrap
 

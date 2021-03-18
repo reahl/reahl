@@ -100,7 +100,6 @@ custom CSS) in `theme.scss` in the webpack directory:
     :language: scss
 
 
-
 Create a file `webpack.config.js` to instruct webpack to package your theme sources:
 
 .. literalinclude:: ../../reahl/doc/examples/howtos/bootstrapsass/webpack.config.js
