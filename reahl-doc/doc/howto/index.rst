@@ -37,5 +37,4 @@ Production deployment
    :maxdepth: 1
 
    nginx
-   apache
    docker

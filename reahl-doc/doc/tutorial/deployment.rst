@@ -6,7 +6,6 @@ Deploying a production site
 .. sidebar:: Examples in this section
 
    - tutorial.helloanywhere
-   - howto.helloapache
    - howto.hellonginx
 
    Get a copy of an example by running:
@@ -44,7 +43,7 @@ running (from the example's directory):
 
 This `builds a wheel <https://pythonwheels.com/>`_ as specified in your :doc:`.reahlproject <../devtools/xmlref>`:
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/helloapache/.reahlproject
+.. literalinclude:: ../../reahl/doc/examples/tutorial/helloanywhere/.reahlproject
    :language: xml
    :start-after: <!-- packaging -->
    :end-before: </project>
