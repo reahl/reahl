@@ -20,13 +20,15 @@ Get started
 
 Check out the example on your development machine.
 
-You will create a docker image for your example **app** with all its runtime dependencies installed along with the required config.
-Two additional images for **web** (nginx) and your **database** (Postgres) will be composed.
+In this example you will create a docker image for your example **app** with all its runtime dependencies
+installed along with the required config using docker-compose on your local machine to simulate a production environment.
 
-The example assumes you need a Postgres database, however it can be changed to be MySQL fairly easily.
+The **web** server (Nginx) and **database** (PostgreSQL) are run in separate containers.
+
+The example assumes you need a PostgreSQL database, however :ref:`it can be changed to be MySQL fairly easily <mysql>`.
 
 Follow the instructions for your chosen platform to `install docker <https://docs.docker.com/get-docker/>`_, and also
-`docker-compose <https://docs.docker.com/compose/install/>`_. to make use of what the example provides.
+`docker-compose <https://docs.docker.com/compose/install/>`_.
 
 
 Create docker images
@@ -34,8 +36,8 @@ Create docker images
 
 In the checked out example directory, build the required images.
 
-.. note:: docker-compose will reference the provided docker-compose.yml file.
-
+.. note::
+   docker-compose will reference the provided docker-compose.yml file.
 
 .. code-block:: bash
 
@@ -47,62 +49,84 @@ Verify that the required images built successfully:
 
     docker images | grep hellodockernginx
 
-Expect output similar to:
-
-::
+Expect output similar to::
 
     hellodockernginx_web       latest              e41c79d7ca1a        8 seconds ago       153MB
     hellodockernginx           latest              a351ff871b20        15 seconds ago      270MB
 
-The hellodockernginx image contains *uwsgi* that will serve your **app**. Your **app**'s config
-will point to the **database** container using the default ports.
-Locations in image to take note of:
+
+Understanding docker-compose.yaml file
+--------------------------------------
+
+The `docker-compose.yaml` file in this example configures 3 services:
+
+database
+  This runs a PostgreSQL server, in a container named postgresql, with super user and password as specified in
+  the given environment variables.
+
+app
+  The hellodockernginx image runs your app in a *uwsgi* server. Your **app**'s config
+  points to the **database** service using the default ports.  See `prod/etc/reahl.config.py`:
+
+  .. literal-include:: ../../reahl/examples/howtos/hellodockernginx/prod/etc/reahl.config.py
+
+  Since this example uses services defined for docker-compose, this configuration can hard-code
+  the service name `database`.
+
+  The uwsi config ensures the hellodockernginxwsgi module is run by uwsgi:
+
+  .. literal-include:: ../../reahl/examples/howtos/hellodockernginx/prod/uwsgi/app.ini
+
+  The hellodockernginxwsgi module is part of your application and hard-codes where the Reahl configuration
+  is read from:
+
+  .. literal-include:: ../../reahl/examples/howtos/hellodockernginx/hellodockernginxwsgi.py
+
+  Locations in the built image to take note of:
 
     - App is installed in a venv
         /app/venv
-    - App config
+    - App's Reahl config directory
         /etc/app-reahl
     - App static file location
         /app/www
     - wsgi config
         /etc/app-wsgi.ini
 
-hellodockernginx_web will connect *nginx* to to your **app** on port 8080 through the created docker network. It
-contains preconfigured SSL certificates.
-Locations in image to take note of:
+   This image is built using `prod/Dockerfile` which works in two stages `base` and `build`:
+    - base
+      In this stage, development dependencies are installed, and a wheel is built for your app.
+    - build
+      In this stage, a venv is created, and your built wheel is installed along with its static files.
+
+web
+  The web service runs *nginx* in a container named hellodockernginx_web. Nginx is configured in `prod/nginx/app.conf`
+  to reverse-proxy to your app using the `uwsgi_pass` directive. Note that since this is using services defined for
+  docker-compose, this configuration can hard-code the service name `app`:
+
+  .. literal-include:: ../../reahl/examples/howtos/hellodockernginx/prod/nginx/app.conf
+
+  In order to be able to copy this config into the built image, this service also builds its container from
+  `prod/nginx/Dockerfile`:
+
+  .. literal-include:: ../../reahl/examples/howtos/hellodockernginx/prod/nginx/Dockerfile
+
+  .. note::
+     This configuration uses the insecure `snakeoil` certificates shipped in the ssl-cert package. You will
+     install your own, mounting the actual certificates via a volume external to the image itself.
+
+  Locations in the built image to take note of:
 
     - nginx config
         /etc/nginx/conf.d/default.conf
 
 
-.. note:: You should modify the ```prod/nginx/Dockerfile``` to install your own production certificates and update the nginx default.conf.
 
-Although your database image does not need to be built, check that it has been downloaded.
-
-.. code-block:: bash
-
-    docker images | grep postgres
-
-Expect at least one entry for postgres
-
-::
-
-    postgres:12.3
-
+Test the image locally using docker-compose
+-------------------------------------------
 
 Spin up containers
-------------------
-
-
-Docker hosting platforms
-~~~~~~~~~~~~~~~~~~~~~~~~
-
-There are so many Docker hosting platforms you can choose from. Follow the guides provided by your chosen supplier.
-
-The next section will show you how to spin up containers yourself.
-
-Spin up containers locally
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~
 
 Before deploying the images in your production environment, you can test them locally.
 Spin up containers for the built images and connect to your app.
@@ -111,9 +135,7 @@ Spin up containers for the built images and connect to your app.
 
     docker-compose up -d
 
-Expect:
-
-::
+Expect::
 
     Creating network "hellodockernginx_default" with the default driver
     Creating hellodockernginx_database_1 ... done
@@ -126,7 +148,7 @@ List the running containers:
 
     docker container list
 
-::
+Expect output::
 
     CONTAINER ID        IMAGE                  COMMAND                  CREATED             STATUS              PORTS                                         NAMES
     ca0dd108aa59        hellodockernginx_web   "/docker-entrypoint.…"   2 hours ago         Up 2 hours          0.0.0.0:8080->80/tcp, 0.0.0.0:8443->443/tcp   hellodockernginx_web_1
@@ -134,25 +156,35 @@ List the running containers:
     26c5e89f5fee        postgres:12.3          "docker-entrypoint.s…"   2 hours ago         Up 2 hours          5432/tcp                                      hellodockernginx_database_1
 
 
-Prepare the database for your app.
+Create and initialise the database
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Prepare the database for your app by executing:
+
+.. literal-include:: ../../reahl/examples/howtos/hellodockernginx/scripts/setup_database.sh
+
+
+Check the database:
 
 .. code-block:: bash
 
-    ./scripts/setup_database.sh
+   docker-compose exec -T app /app/venv/bin/reahl sizedb /etc/app-reahl
 
-Expect
+Expect output like::
 
-::
+   Database size: 8177 kB
 
-    Database setup complete
 
-To inspect the **app** container, you can step into it with this command:
+Inspect running app container
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To inspect the **app** container, step into it with:
 
 .. code-block:: bash
 
     docker exec -ti hellodockernginx_app_1 bash -l
 
-View the output for the **app** container:
+View the logs for the **app** container:
 
 .. code-block:: bash
 
@@ -176,6 +208,8 @@ Similarly, expect:
 ```<p>Hello World!<p>```
 
 
+.. _mysql
+
 Changes for a MySQL database
 ----------------------------
 
@@ -188,7 +222,7 @@ Modify these files that have been annotated with references to MySQL:
     - prod/Dockerfile
         Change the ENV variables to cater for MySQL dependencies
     - scrips/setup_database.sh
-        Change the commands to connect to MySQL database container
+        Use the commands to connect to MySQL database container
     - docker-compose.yml
         Replace the Postgres database section with the MySQL section
 

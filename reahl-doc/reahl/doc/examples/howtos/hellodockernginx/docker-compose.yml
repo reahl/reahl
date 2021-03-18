@@ -7,8 +7,8 @@ services:
       context: .
       dockerfile: prod/nginx/Dockerfile
     ports:
-      - 8080:80
-      - 8443:443
+      - 8080:80     # These (the exposed ports) have to match up with your web.config.py
+      - 8043:443
     depends_on:
       - app
 
