@@ -43,24 +43,23 @@ you create a custom |Library| (see also :ref:`shipping_js_css`).
 
 Install JavaScript and CSS build tools for your project
 -------------------------------------------------------
-
-.. note::
-
-   Installing Node.js and execution of the `npm` commands should be done
-   on your main machine even if you are using :doc:`the Reahl docker
-   development container <../devmanual/devenv>` for development, from
-   the root of your source code.
    
-
-`Install Node.js <https://nodejs.org/en/download/>`_ (it includes npm):
+`Install Node.js <https://nodejs.org/en/download/>`_  and npm:
 
 .. code-block:: bash
 
-   sudo snap install --classic node
+   sudo apt-get install nodejs npm
 
 .. note::
 
-    If you know docker and want to use node in a docker container instead, create an alias:
+   If you know docker, you might prefer using it for executing Node.js
+   commands instead of installing Node.js. If you do this, execution
+   of the `npm` commands are done on your main machine even if
+   you are using :doc:`the Reahl docker development container
+   <../devmanual/devenv>` for development, from the root of your
+   source code.
+
+   To use docker, on your main machine, do:
           
    .. code-block:: bash
 

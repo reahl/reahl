@@ -57,6 +57,8 @@ from reahl.doc.examples.tutorial.dynamiccontent import dynamiccontent
 
 from reahl.doc.examples.howtos.responsivedisclosure import responsivedisclosure
 from reahl.doc.examples.howtos.optimisticconcurrency import optimisticconcurrency
+from reahl.doc.examples.howtos.bootstrapsass import bootstrapsass
+from reahl.doc.examples.howtos.bootstrapsassmultihomed import bootstrapsassmultihomed
 
 
 from reahl.web_dev.fixtures import WebFixture
@@ -203,6 +205,15 @@ class ExampleFixture(Fixture):
     @scenario
     def optimisticconcurrency(self):
         self.wsgi_app = self.web_fixture.new_wsgi_app(site_root=optimisticconcurrency.OptimisticConcurrencyUI, enable_js=True)
+
+    @scenario
+    def bootstrapsass(self):
+        self.wsgi_app = self.web_fixture.new_wsgi_app(site_root=bootstrapsass.ThemedUI, enable_js=True)
+
+    @scenario
+    def bootstrapsassmultihomed(self):
+        self.wsgi_app = self.web_fixture.new_wsgi_app(site_root=bootstrapsassmultihomed.ThemedUI, enable_js=True)
+
 
 
 @with_fixtures(WebFixture, ExampleFixture)
