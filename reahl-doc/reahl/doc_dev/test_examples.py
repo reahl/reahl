@@ -28,8 +28,8 @@ from reahl.sqlalchemysupport import Session
 from reahl.webdev.tools import XPath, Browser
 
 from reahl.doc.examples.tutorial.hello.hello import HelloUI
-from reahl.doc.examples.tutorial.helloapache import helloapache
-from reahl.doc.examples.tutorial.hellonginx import hellonginx
+from reahl.doc.examples.howtos.hellonginx import hellonginx
+from reahl.doc.examples.howtos.hellodockernginx import hellodockernginx
 from reahl.doc.examples.tutorial.slots.slots import SlotsUI
 from reahl.doc.examples.features.tabbedpanel.tabbedpanel import TabbedPanelUI
 from reahl.doc.examples.features.carousel.carousel import CarouselUI
@@ -111,8 +111,8 @@ class ExampleFixture(Fixture):
         self.wsgi_app = self.web_fixture.new_wsgi_app(site_root=HelloUI)
 
     @scenario
-    def hello_apache(self):
-        self.wsgi_app = self.web_fixture.new_wsgi_app(site_root=helloapache.HelloUI)
+    def hello_docker_nginx(self):
+        self.wsgi_app = self.web_fixture.new_wsgi_app(site_root=hellodockernginx.HelloUI)
 
     @scenario
     def hello_nginx(self):

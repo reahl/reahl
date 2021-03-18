@@ -83,7 +83,7 @@ frontend-code of your project.)
 Lastly, you need to change your configuration to include your new
 |Library|. This is done in file file `web.config.py`:
 
-.. code:: Python
+.. code-block:: Python
 
    from some.module import MyLibrary
 
@@ -102,7 +102,7 @@ Adding CSS to your own Widget is really simple. You just include CSS
 
 For example, in your Python class you can do this:
 
-.. code:: Python
+.. code-block:: Python
 
    class MyWidget(Widget):
        def __init__(self, view):
@@ -112,7 +112,7 @@ For example, in your Python class you can do this:
 
 Then add CSS by including a CSS file in your |Library| containing:
 
-.. code:: CSS
+.. code-block:: CSS
 
    div.mywidget: { border: 1px solid black; }
 
@@ -170,7 +170,7 @@ to an |HTMLElement| which represents your |Widget| in the browser DOM.
 
 Here is an example of how we do it:
 
-.. code:: JavaScript
+.. code-block:: JavaScript
 
    (function($) {
    "use strict";
@@ -213,7 +213,7 @@ If you give such a |Div| a css class, say 'mywidget', you can
 instantiate its JavaScript half (done in the previous section) using
 JavaScript like this:
 
-.. code:: JavaScript
+.. code-block:: JavaScript
 
    $("div.mywidget").mywidgetjs("{message:'Hello there'}")
 
@@ -226,7 +226,7 @@ are executed at page load time.
 
 Here is an example:
 
-.. code:: Python
+.. code-block:: Python
 
    class MyWidget(Widget):
        def __init__(self, view):
@@ -254,7 +254,7 @@ However, if you need to send different options to different Widget
 instances, you may have to choose a different selector that will
 target each instance individually. For example:
 
-.. code:: Python
+.. code-block:: Python
 
    class MyWidget(Widget):
        def __init__(self, view, unique_name, message):

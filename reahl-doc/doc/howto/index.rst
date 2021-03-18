@@ -22,20 +22,30 @@ Parameterised views
    programmaticparameterised
 .. transitionstoparameterised
 
+Concurrency
+-----------
+.. toctree::
+   :maxdepth: 1
+
+   optimisticlocking
+
 Look and feel
 -------------
 
 .. toctree::
    :maxdepth: 1
 
+   customisingerrorpages
    customisingcss
    multihomed
 
-Misc
-----
+Production deployment
+---------------------
+
 .. toctree::
    :maxdepth: 1
 
-   customisingerrorpages
-   optimisticlocking
+   nginx
+   docker
+
 

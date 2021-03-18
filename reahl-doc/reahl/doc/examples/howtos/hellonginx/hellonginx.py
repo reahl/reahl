@@ -13,4 +13,3 @@ class HelloUI(UserInterface):
     def assemble(self):
         self.define_view('/', title='Home', page=HelloPage.factory())
 
-
