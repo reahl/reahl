@@ -37,13 +37,13 @@ In the checked out example directory, build the required images.
 .. note:: docker-compose will reference the provided docker-compose.yml file.
 
 
-.. code:: bash
+.. code-block:: bash
 
     docker-compose build
 
 Verify that the required images built successfully:
 
-.. code:: bash
+.. code-block:: bash
 
     docker images | grep hellodockernginx
 
@@ -79,7 +79,7 @@ Locations in image to take note of:
 
 Although your database image does not need to be built, check that it has been downloaded.
 
-.. code:: bash
+.. code-block:: bash
 
     docker images | grep postgres
 
@@ -107,7 +107,7 @@ Spin up containers locally
 Before deploying the images in your production environment, you can test them locally.
 Spin up containers for the built images and connect to your app.
 
-.. code:: bash
+.. code-block:: bash
 
     docker-compose up -d
 
@@ -122,7 +122,7 @@ Expect:
 
 List the running containers:
 
-.. code:: bash
+.. code-block:: bash
 
     docker container list
 
@@ -136,7 +136,7 @@ List the running containers:
 
 Prepare the database for your app.
 
-.. code:: bash
+.. code-block:: bash
 
     ./scripts/setup_database.sh
 
@@ -148,13 +148,13 @@ Expect
 
 To inspect the **app** container, you can step into it with this command:
 
-.. code:: bash
+.. code-block:: bash
 
     docker exec -ti hellodockernginx_app_1 bash -l
 
 View the output for the **app** container:
 
-.. code:: bash
+.. code-block:: bash
 
     docker logs hellodockernginx_app_1
 
@@ -167,7 +167,7 @@ Open a browser tab to `localhost:8080 <http://localhost:8080/>`_ and expect to s
 
 Or test it from a commandline:
 
-.. code:: bash
+.. code-block:: bash
 
    python3 -c "from urllib.request import urlopen; import re; print(re.search(r'<p>.*?</p>', urlopen('http://localhost:8080').read().decode('utf-8')).group(0))"
 

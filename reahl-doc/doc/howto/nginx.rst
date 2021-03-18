@@ -55,7 +55,7 @@ These are:
 
 On the production machine, create a venv as root and install your application:
 
-.. code:: bash
+.. code-block:: bash
     sudo -i
     mkdir -p /usr/local/hellonginx
     python3 -m venv /usr/local/hellonginx/venv/
@@ -65,14 +65,14 @@ On the production machine, create a venv as root and install your application:
 
 Create a config directory for hellonginx:
 
-.. code:: bash
+.. code-block:: bash
    sudo mkdir -p /etc/reahl.d/hellonginx
 
 Copy the contents of prod/etc on the example to /etc/reahl.d/hellonginx on the prod machine.
 
 Create a directory (as root) for the database:
 
-.. code:: bash
+.. code-block:: bash
    sudo mkdir /var/local/hellonginx
    sudo chown www-data.www-data /var/local/hellonginx
 
@@ -82,7 +82,7 @@ Test your installation
 
 Become the www-data user and check what's installed in the venv:
 
-.. code:: bash
+.. code-block:: bash
     sudo -u www-data bash -l
     source /usr/local/hellonginx/venv/bin/activate
     pip freeze | grep hellonginx
@@ -97,7 +97,7 @@ Create the database
 
 Create the database as www-data:
 
-.. code:: bash
+.. code-block:: bash
     sudo -u www-data bash -l
     source /usr/local/hellonginx/venv/bin/activate
     reahl createdbuser /etc/reahl.d/hellonginx
@@ -109,7 +109,7 @@ Test your database connection
 
 Still in the www-data shell, test again:
 
-.. code:: bash
+.. code-block:: bash
    python -c "from hellonginxwsgi import application; application.start()"
 
 Serve your application using uwsgi appserver
@@ -118,7 +118,7 @@ Serve your application using uwsgi appserver
 To configure uwsgi, put the contents of prod/uwsgi of the example into /etc/uwsgi/apps-available on the prod machine
 and create a link as per the instructions in /etc/uwsgi/apps-available/README:
 
-.. code:: bash
+.. code-block:: bash
    ln -s /etc/uwsgi/apps-available/hellonginx.ini /etc/uwsgi/apps-enabled
 
 
@@ -127,7 +127,7 @@ Test your uwsgi config
 
 Run uwsgi on your installed app:
 
-.. code:: bash
+.. code-block:: bash
    sudo -u www-data uwsgi /etc/uwsgi/apps-enabled/hellonginx.ini  -s tcp:///localhost:8000
 
 That command should start with output ending in::
@@ -139,7 +139,7 @@ That command should start with output ending in::
 If you got this far, uwsgi is working correctly.
 Terminate the previous command with <CTRL>C and then reload the uwsgi config:
 
-.. code:: bash
+.. code-block:: bash
    sudo systemctl reload uwsgi
 
 Configure nginx to serve hellonginx from uwsgi
@@ -148,7 +148,7 @@ Configure nginx to serve hellonginx from uwsgi
 To configure nginx, put the contents of prod/nginx of the example into /etc/nginx/sites-available on the prod machine.
 Then, create a link from sites-enabled and reload nginx config:
 
-.. code:: bash
+.. code-block:: bash
    sudo ln -s /etc/nginx/sites-available/hellonginx /etc/nginx/sites-enabled/
    sudo systemctl reload nginx
 
@@ -158,12 +158,12 @@ Test your app being served by nginx
 Your hellonginx app is configured to be served on the DNS name 'hellonginx'.
 Fool your prod machine into thinking that name points to itself:
 
-.. code:: bash
+.. code-block:: bash
    sudo bash -c "echo '127.0.1.1 hellonginx' >> /etc/hosts"
 
 Then test by running the following:
 
-.. code:: bash
+.. code-block:: bash
    python3 -c "from urllib.request import urlopen; import re; print(re.search(r'<p>.*?</p>', urlopen('http://hellonginx').read().decode('utf-8')).group(0))"
 
 If you see the output:
