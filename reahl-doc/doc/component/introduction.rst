@@ -11,10 +11,10 @@ Why this?
 Pip and PyPI do a good job of enabling the distribution of Python code. The projects ensure that when you install a
 package you get all its correct dependencies as well.
 
-When your code contains classes mapped by an ORM (such as SqlAlchemy) to tables in a database things become more
+When your code contains classes mapped by an ORM (such as SqlAlchemy) to tables in a database, things become more
 complicated:
 
-The selection of packages used together in the same database cannot be foreseen by the individual package authors.
+The selection of packages used together in the same database cannot be foreseen by individual package authors.
 How do you create a database schema sufficient for the n packages you have decided to use together in your project?
 
 What happens if a new version of a package requires a different database schema to a previous version? How
@@ -39,6 +39,14 @@ Components are not only database-aware. Each component can include:
 Defining a component
 --------------------
 
+.. seealso::
+
+  :ref:`<create-component>`
+     How to create a basic component using a `.reahlproject` file.
+
+  `<../devtools/xmlref>`
+     Reference documentation for a .reahlproject file.
+
 A Reahl component is just a setuptools package with extra metadata.
 
 The Reahl component infrastructure will recognise any package with an
@@ -61,44 +69,163 @@ extended with extra commands, some of which are:
     reahl shell -g tox
   And to just generate a setup.py, you copy the generated file elsewhere::
     reahl shell -g cp setup.py setup.generated.py
-    
+
+Basics of .reahlproject
+-----------------------
+
+.. seealso::
+
+  `<../devtools/xmlref>`
+     Reference documentation for a .reahlproject file.
+
+The `.reahlproject` file is XML, and contains a :ref:`\<project type="egg"\> <xml_project>` tag at its root.
+
+In the <project> tag, there should be a :ref:`\<metadata\> <xml_metadata>` tag which specifies the name of
+your project and its version.
+
+There should also be one or more :ref:`\<version\> <xml_version>` entries for each minor version of your project,
+including one that matches the major.minor part of the version specified in the metadata tag.
+
+List all the dependencies of a particular version by adding a :ref:`\<deps purpose="run"\> <xml_deps>` inside the
+appropriate <version> tag, and a :ref:`\<thirdpartyegg\> <xml_thirdpartyegg>` tag for each dependency.
+
+Each time you change `.reahlproject`, be sure to regenerate the egg metadata:
+
+.. code-block:: bash
+   reahl develop -N
 
 Reahl commandline
 -----------------
 
-The Reahl commandline is installed when you install `reahl-component` and is invoked with the command `reahl`.
-It has several commands, and depending on what else you install, its list of commands is extended.
+The Reahl commandline is installed when you install `reahl-component` and is invoked with the command `reahl`. The set
+of commands it offers depends on other Reahl components you install.
 
-Installing `reahl-dev` gives it a bunch of commands that work with components that use .reahloroject files.
+The commands in `reahl-commands` and `reahl-dev` pertain to the functionality of `reahl-component` as explained here.
+Below is a more complete list of which commands other components add:
+
 `reahl-dev`
-~~~~~~~~~~~
-  With reahl-dev installed, `reahl` gains commands that build packages, run arbitrary commands via setup.py, etc.
+  Commands to work with components defined by .reahlproject files instead of setup.py files.
 
-`reahl
+`reahl-commands`
+  Commands for working with the extra functionality provided by Reahl components. This includes managing databases,
+  schemas and performing migrations as well as dealing with things like internationalisation and configuration.
 
+`reahl-workstation`
+  When using `the Reahl development Docker image <../devmanual/devenv.rst>` `reahl-workstation` is installed on the
+  host machine to provide commands to help share GUI windows of terminal access via `Ngrok <https://ngrok.com>`_ or
+  `Xpra <https://xpra.org>`_.
 
-    
+`reahl-webdev`
+  Helpful commands when using web development using the Reahl web framework (`reahl-web`).
 
-
-
-
-
+`reahl-doc`
+  Commands for working with examples included in the overall Reahl documentation.
 
 
 Persistence
 -----------
 
+.. seealso::
+
+  `<../tutorial/persistence>`
+     How to register persisted classes with your component and use the commandline to create a database schema.
+
+The `reahl-component` infrastructure is extended by other Reahl components to be able to deal with differing
+implementations of ORM or database systems.
+
+To use a particular database, use the support package matching the database you want to use:
+
+- `reahl-postgresqlsupport`
+- `reahl-mysqlsupport`
+- `reahl-sqlitesupport`
+
+You also should use `reahl-sqlalchemysupport` which provides support for `SQLAlchemy <https://www.sqlalchemy.org/>`_
+which is the only supported ORM.
+
+Your component should list the required packages as well as `reahl-component` as its dependencies.
+
+The <project> tag can also contain a single :ref:`\<persisted\> <xml_persisted>` tag. List each persisted class in
+your component using a :ref:`\<class\> <xml_class>` tag inside the <persisted> tag.
+
+You can now use the following commands (amongst others) from `reahl-commands` to manage the database::
+
+    reahl createdbuser <config_directory>
+    reahl createdb <config_directory>
+    reahl createdbtables <config_directory>
+
 
 Database migration
 ------------------
+
+.. seealso::
+
+  `<../tutorial/schemaevolution>`
+     How to write migrations, define new versions of a Reahl component and upgrade a database to the new version.
+
+The author of one component has no knowledge of other components which might inhabit the same database when used
+together. However, when component A depends on component B, the author of A will know that B is being used. The classes
+of A can be written such that they result in foreign keys to tables created by component B.
+
+This creates a dependency on the database level with some implications:
+
+1. When creating database tables, the tables of component B have to be created before those of A to ensure A's foreign
+   key constraints will not be violated.
+2. When changing the schema for B, the foreign key constraints of A (to B) first have to be removed before changes are
+   made to the schema of B. Then the foreign key constraints of A can be reinstated possibly referring to renamed
+   tables or columns in B.
+
+If B's author brings out a new version of B in which tables or column names have changed as in (2) above, version 2 of
+B will contain a |Migration| which takes care of changing B's schema from the old version.
+
+If A's author wants to bring out a new version of A that uses B v2, A's author needs to write a |Migration| as part of
+A v2 which adjusts the old A v1 foreign key constraints to be compatible with the changes in B v2.
+
+In a real world project, there could be a large number of such components by diverse authors. In order to migrate
+the whole database from one version to another, Reahl computes a dependency graph that spans all the versions of all
+the components in play. It then runs different parts of each |Migration| in the correct order to ensure all database
+level dependencies and constraints are honoured.
+
+In order to facilitate this functionality, each version of a Reahl component can have its own set of |Migration|\s
+which are performed when upgrading to that version from its predecessor. For this reason your <project> tag contains
+one or more <version> tags. Since your project's dependencies can differ between versions, <deps purpose="run"> are
+specified inside each <version> tag. The list of <version> tags in your project never changes - it is only added to.
+
+A change in dependency or in database schema is seen as at least a minor version change, therefore <version> tags only
+specify major.minor version numbers, not an additional patch version.
+
+Each |Migration| is written such that user code only schedules each necessary change in a so-called 'phase'. The final
+order in which the |Migration| itself and each individual phase of the |Migration| will be executed is determined by Reahl
+at runtime taking all components into account.
+
+If you schedule more than one action in a single phase in your |Migration|, these actions will retain their order
+relative to one another.
+
+The following useful commands are available related to migration::
+
+    reahl migratedbdb <config_directory>
+    reahl diffdb <config_directory>
+    reahl listversionhistory <config_directory>
+    reahl listdependencies <config_directory>
+
 
 
 Configuration
 -------------
 
+.. seealso::
+
+  `<../tutorial/owncomponent>`
+     How to define and use configuration for your own component.
+
+
 
 Internationalisation
 --------------------
+
+.. seealso::
+
+  `<../tutorial/i18n>`
+     How to make strings in your application translatable and work with translations in other languages.
 
 
 Context of execution
