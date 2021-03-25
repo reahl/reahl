@@ -5,7 +5,7 @@ services:
       - type: bind
         source: ~/.bash_history_docker
         target: /home/developer/.bash_history
-      - /tmp/examples:/tmp/examples
+      - $REAHL_EXAMPLE_CHECKOUT_DIR:/tmp/examples
     environment:
       BOOTSTRAP_REAHL_SOURCE: /home/developer/reahl
 

@@ -1,0 +1,42 @@
+version: '3.7'
+
+services:
+  web:
+    init: true
+    build:
+      context: .
+      dockerfile: prod/nginx/Dockerfile
+    ports:
+      - 8080:80     # These (the exposed ports) have to match up with your web.config.py
+      - 8043:443
+    depends_on:
+      - app
+
+  app:
+    init: true
+    image: hellodockernginx
+    build:
+      context: .
+      dockerfile: prod/Dockerfile
+    depends_on:
+      - database
+
+  database:
+    init: true
+    image: postgres:12.3
+    volumes:
+      - db_volume:/var/lib/postgresql
+    restart: always
+    environment:
+        POSTGRES_PASSWORD: reahl
+        POSTGRES_USER: developer
+
+#  database:
+#    image: mysql:5.7
+#    command: --default-authentication-plugin=mysql_native_password
+#    restart: always
+#    environment:
+#      MYSQL_ROOT_PASSWORD: reahl
+
+volumes:
+  db_volume:
