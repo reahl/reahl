@@ -28,8 +28,8 @@ from reahl.sqlalchemysupport import Session
 from reahl.webdev.tools import XPath, Browser
 
 from reahl.doc.examples.tutorial.hello.hello import HelloUI
-from reahl.doc.examples.tutorial.helloapache import helloapache
-from reahl.doc.examples.tutorial.hellonginx import hellonginx
+from reahl.doc.examples.howtos.hellonginx import hellonginx
+from reahl.doc.examples.howtos.hellodockernginx import hellodockernginx
 from reahl.doc.examples.tutorial.slots.slots import SlotsUI
 from reahl.doc.examples.features.tabbedpanel.tabbedpanel import TabbedPanelUI
 from reahl.doc.examples.features.carousel.carousel import CarouselUI
@@ -57,6 +57,8 @@ from reahl.doc.examples.tutorial.dynamiccontent import dynamiccontent
 
 from reahl.doc.examples.howtos.responsivedisclosure import responsivedisclosure
 from reahl.doc.examples.howtos.optimisticconcurrency import optimisticconcurrency
+from reahl.doc.examples.howtos.bootstrapsass import bootstrapsass
+from reahl.doc.examples.howtos.bootstrapsassmultihomed import bootstrapsassmultihomed
 
 
 from reahl.web_dev.fixtures import WebFixture
@@ -109,8 +111,8 @@ class ExampleFixture(Fixture):
         self.wsgi_app = self.web_fixture.new_wsgi_app(site_root=HelloUI)
 
     @scenario
-    def hello_apache(self):
-        self.wsgi_app = self.web_fixture.new_wsgi_app(site_root=helloapache.HelloUI)
+    def hello_docker_nginx(self):
+        self.wsgi_app = self.web_fixture.new_wsgi_app(site_root=hellodockernginx.HelloUI)
 
     @scenario
     def hello_nginx(self):
@@ -203,6 +205,15 @@ class ExampleFixture(Fixture):
     @scenario
     def optimisticconcurrency(self):
         self.wsgi_app = self.web_fixture.new_wsgi_app(site_root=optimisticconcurrency.OptimisticConcurrencyUI, enable_js=True)
+
+    @scenario
+    def bootstrapsass(self):
+        self.wsgi_app = self.web_fixture.new_wsgi_app(site_root=bootstrapsass.ThemedUI, enable_js=True)
+
+    @scenario
+    def bootstrapsassmultihomed(self):
+        self.wsgi_app = self.web_fixture.new_wsgi_app(site_root=bootstrapsassmultihomed.ThemedUI, enable_js=True)
+
 
 
 @with_fixtures(WebFixture, ExampleFixture)

@@ -29,13 +29,13 @@ to matching keyword arguments to the `EditView.assemble`.
 
 So, if you did:
 
-.. code::
+.. code-block::
 
    edit = self.define_view('/edit', view_class=EditView, address_id=IntegerField(), some_bookmark=a_bookmark)
 
 You can change your |assemble| signature like this:
 
-.. code::
+.. code-block::
 
    def assemble(self, address_id=None, some_bookmark=None):
 
