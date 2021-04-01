@@ -70,6 +70,8 @@ address. Invalid input is blocked by the |EmailField| and the
 
    A rough design sketch
 
+.. _fields_explained:
+
 |Field|\s are defined on Address using a method decorated with
 :class:`~reahl.component.modelinterface.exposed`:
 

@@ -6,6 +6,12 @@ Module reahl.component.config
 .. automodule:: reahl.component.config
 
 
+StoredConfiguration
+"""""""""""""""""""
+
+.. autoclass:: StoredConfiguration
+   :members:
+
 Configuration
 """""""""""""
 

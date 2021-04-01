@@ -83,6 +83,8 @@ components that do not contain any knowledge of the circumstances of
 where they will be used. This is the cornerstone (and price) of being
 able to make reusable components.
 
+.. _dependency_injection:
+
 Dependency injection
 --------------------
 

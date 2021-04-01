@@ -116,7 +116,7 @@ catalogue. List it in your `.reahlproject`:
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/i18nexamplebootstrap/.reahlproject
    :start-after: <project type="egg">
-   :end-before: <deps purpose="run">
+   :end-before: <version number="0.0">
 
 Once your "translations" package is ready, extract the catalogue from
 your source code by running:

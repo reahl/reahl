@@ -92,6 +92,8 @@ locator attribute
   module concerned. The part after the colon is the name of the object to import. It can be a simple name, 
   but for class attributes it can also be dot-separated (ie, 'MyClass.method_name').
 
+.. _xml_configuration:
+
 <configuration>
 """""""""""""""
 
@@ -113,6 +115,9 @@ locator attribute
 
   Used to list one class in this component as part of either the `<persisted>` list of classes,
   or the `<migrations>` list. It requires a :ref:`locator-attribute`.
+
+
+.. _xml_translations:
 
 <translations>
 """"""""""""""
