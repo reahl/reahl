@@ -1,7 +1,8 @@
 .. Copyright 2013-2016 Reahl Software Services (Pty) Ltd. All rights reserved.
 
 .. |Configuration| replace:: :class:`~reahl.component.config.Configuration`
- 
+
+
 XML reference for .reahlproject
 ===============================
 
@@ -131,6 +132,8 @@ locator attribute
 
   Used to list all the :class:`~reahl.component.migration.Migration` classes for a specific <version> of
   this component. Each class is listed in-order using a `<class>` element.
+
+.. _xml_schedule:
 
 <schedule>
 """"""""""

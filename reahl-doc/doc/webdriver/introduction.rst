@@ -1,10 +1,10 @@
 . Copyright 2021 Reahl Software Services (Pty) Ltd. All rights reserved.
 
-.. replace:: |XPath| :class:`~reahl.webdriver.webdriver.XPath`
-.. replace:: |DriverBrowser| :class:`~reahl.webdriver.webdriver.DriverBrowser`
-.. replace:: |Browser| :class:`~reahl.webdriver.webdriver.Browser`
-.. replace:: |WebDriver| `Selenium Webdriver <https://www.selenium.dev/>`_
-.. replace:: |WebTest| `WebTest <https://docs.pylonsproject.org/projects/webtest>`_
+.. |XPath| replace::  :class:`~reahl.webdriver.webdriver.XPath`
+.. |DriverBrowser| replace:: :class:`~reahl.webdriver.webdriver.DriverBrowser`
+.. |Browser| replace:: :class:`~reahl.webdriver.webdriver.Browser`
+.. |WebDriver| replace:: `Selenium Webdriver <https://www.selenium.dev/>`__
+.. |WebTest| replace:: `WebTest <https://docs.pylonsproject.org/projects/webtest>`__
 
 reahl-webdriver -- An interface to webdriver with programmatically composable XPaths
 ------------------------------------------------------------------------------------
@@ -35,11 +35,12 @@ Composing expressions
 """""""""""""""""""""
 
 Call methods on an |XPath| instance to compose a larger expression::
+
   >>> XPath.div().including_class('myclass')
   XPath('//div[contains(concat(" ", @class, " "), " myclass ")]')
 
 These methods can be chained, since each one returns an |XPath|::
-how to compose an xpath
+
   >>> XPath.div().including_class('myclass').including_text('hello')
   XPath('//div[contains(concat(" ", @class, " "), " myclass ")][contains(normalize-space(), normalize-space("hello"))]')
 
@@ -61,6 +62,7 @@ Some |XPath| class methods can find elements that are not so easily composable, 
 """"""""""""""""""""""""""""""""
 
 An |XPath| can also be located inside of another::
+
     XPath.button_labelled('Save').inside_of(XPath.div().including_class('myclass'))
 
 
@@ -73,11 +75,13 @@ appear before you can click on it, for example.
 
 |DriverBrowser| contains a number of methods to simulate a human interacting with the browser, such
 as :meth:`~reahl.webdriver.webdriver.DriverBrowser.click`::
+
    browser.click(XPath.button_labelled('Save'))
 
 These methods always automatically wait for the operated-on element to appear, so you don't have to write that in
 your tests. Where sensible, they also wait for possible ajax action to complete before returning, as in the case
 with :meth:`~reahl.webdriver.webdriver.DriverBrowser.type`::
+
    browser.type(XPath.input_labelled('Percentage'), '99')
 
 Why wait? Because typing a value and tabbing out to the next field might trigger changes to the page. You want to

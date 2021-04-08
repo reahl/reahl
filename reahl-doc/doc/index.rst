@@ -10,7 +10,6 @@ The details of how those abstractions are implemented using several
 different web technologies are hidden and dealt with for the
 programmer.
 
-Contents:
 
 Introduction
 ------------
@@ -30,7 +29,7 @@ Howtos
 ------
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
    howto/index
 

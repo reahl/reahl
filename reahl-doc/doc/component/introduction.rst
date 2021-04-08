@@ -1,4 +1,30 @@
-.. Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
+.. Copyright 2021 Reahl Software Services (Pty) Ltd. All rights reserved.
+
+.. |Migration| replace:: :class:`~reahl.component.migration.Migration`
+.. |ExecutionContext| replace:: :class:`~reahl.component.context.ExecutionContext`
+.. |install| replace:: :meth:`~reahl.component.context.ExecutionContext.install`
+.. |Configuration| replace:: :class:`~reahl.component.configuration.Configuration`
+.. |StoredConfiguration| replace:: :class:`~reahl.component.configuration.StoredConfiguration`
+.. |configure| replace:: :meth:`~reahl.component.configuration.StoredConfiguration.configure`
+.. |AccessRestricted| replace:: :class:`~reahl.component.exception.AccessRestricted`
+.. |Action| replace:: :class:`~reahl.component.modelinterface.Action`
+.. |add_validation_constraint| replace:: :meth:`~reahl.component.modelinterface.Field.add_validation_constraint`
+.. |as_input| replace:: :meth:`~reahl.component.modelinterface.Field.as_input`
+.. |Event| replace:: :class:`~reahl.component.modelinterface.Event`
+.. |exposed| replace:: :class:`~reahl.component.modelinterface.exposed`
+.. |secured| replace:: :class:`~reahl.component.modelinterface.secured`
+.. |Field| replace:: :class:`~reahl.component.modelinterface.Field`
+.. |FieldIndex| replace:: :class:`~reahl.component.modelinterface.FieldIndex`
+.. |fire| replace:: :meth:`~reahl.component.modelinterface.Event.fire`
+.. |from_input| replace:: :meth:`~reahl.component.modelinterface.Field.from_input`
+.. |parse_input| replace:: :meth:`~reahl.component.modelinterface.Field.parse_input`
+.. |readable| replace:: :meth:`~reahl.component.modelinterface.Action.readable`
+.. |writable| replace:: :meth:`~reahl.component.modelinterface.Action.writable`
+.. |SqlAlchemyControl| replace:: :class:`~reahl.sqlalchemysupport.sqlalchemysupport.SqlAlchemyControl`
+.. |unparse_input| replace:: :meth:`~reahl.component.modelinterface.Field.unparse_input`
+.. |validate_input| replace:: :meth:`~reahl.component.modelinterface.ValidationConstraint.validate_input`
+.. |validate_parsed_value| replace:: :meth:`~reahl.component.modelinterface.ValidationConstraint.validate_parsed_value`
+.. |ValidationConstraint| replace:: :class:`~reahl.component.modelinterface.ValidationConstraint`
 
 Component framework - packaging and distributing more than just code
 ====================================================================
@@ -15,12 +41,13 @@ When your code contains classes mapped by an ORM (such as SqlAlchemy) to tables 
 complicated:
 
 The selection of packages used together in the same database cannot be foreseen by individual package authors.
-How do you create a database schema sufficient for all the packages you have decided to use together in your project?
 
-What happens if a new version of a package requires a different database schema to a previous version? How
-do you migrate the schema of an existing database to the new schema? This, in the context of there being several
-packages mixed into a single database - with possible foreign key constraints forming dependencies between packages on
-the database level.
+- How do you create a database schema sufficient for all the database-aware packages you have decided to use together
+  in your project?
+- What happens if a new version of a package requires a different database schema to a previous version?
+- How do you migrate the schema of an existing database to the new schema? This, in the context of there being several
+  packages mixed into a single database - with possible foreign key constraints forming dependencies between packages on
+  the database level.
 
 The Reahl component framework is an attempt to build such distributable packages that are database-aware. It solves
 all the surprisingly difficult accompanying problems. It calls such packages "components".
@@ -31,13 +58,16 @@ Components are not only database-aware. Similar problems are solved for componen
 - its own natural language translations to support multiple languages (i18n).
 - annotations of the data and features of its domain objects which can be used by, for example,
   a web framework, to manipulate such objects.
+- housekeeping code that needs to be invoked regularly.
 
-.. note:: API docs
-   Please see :doc:`for the complete API <index>`.
+.. seealso::
+
+   :doc:`The API documentation <index>`.
 
 .. note::
+
    In the text below, links are provided to more detail for some topics. These links refer to the Reahl web framework
-   tutorial which discusses these topics in more detail - albeit in the context of the Reahl web framework. Note that
+   tutorial which discusses these topics in more detail --- albeit in the context of the Reahl web framework. Note that
    `reahl-component` functionality is independent of the Reahl web framework.
 
 Defining a component
@@ -45,10 +75,10 @@ Defining a component
 
 .. seealso::
 
-  :ref:`<create-component>`
+  :ref:`The 'hello' component <create-component>`
      How to create a basic component using a `.reahlproject` file.
 
-  `<../devtools/xmlref>`
+  :doc:`../devtools/xmlref`
      Reference documentation for a .reahlproject file.
 
 A Reahl component is just a setuptools package with extra metadata.
@@ -58,45 +88,43 @@ The Reahl component infrastructure will recognise any package with an
 in the group 'reahl.eggs' which points to the :class:`reahl.component.eggs.ReahlEgg` class as a Reahl component.
 
 One can create such a package using a setup.py, but due to all the extra metadata which is encoded into what setuptools
-supports, it is easier to use a .reahlproject file instead. To use a .reahlproject file, you need to install `reahl-dev`
-in your development environment where you will build packages.  With `reahl-dev` installed, the `reahl` commandline tool is
-extended with extra commands, some of which are:
+supports, it is easier to use a .reahlproject file instead. To use a .reahlproject file, install `reahl-dev`
+in your development environment where you will build packages. With `reahl-dev` installed, the `reahl` commandline tool is
+extended with extra commands providing access to setup.py functionality:
 
-- reahl setup <usual arguments to setup.py>
+reahl setup <usual arguments to setup.py>
   This invokes the normal functionality provided by setup.py, but uses the your .reahlproject file as a source.
-- reahl build
-  This builds distribution packages as defined in your `.reahlproject` file.
-- reahl shell [-g]
+reahl shell [-g]
   This runs a shell command for one or more projects, each with a `.reahlproject` file. The `-g` option
   generates a setup.py for the duration of the shell command's execution. Hence, to run a shell command
   which expects a setup.py (such as tox), you would run, for example::
     reahl shell -g tox
-  And to just generate a setup.py, you copy the generated file elsewhere::
-    reahl shell -g cp setup.py setup.generated.py
 
 Basics of .reahlproject
 -----------------------
 
 .. seealso::
 
-  `<../devtools/xmlref>`
+  :doc:`../devtools/xmlref`
      Reference documentation for a .reahlproject file.
 
-The `.reahlproject` file is XML, and contains a :ref:`\<project type="egg"\> <xml_project>` tag at its root.
+The `.reahlproject` file contains XML with a :ref:`\<project type="egg"\> <xml_project>` tag at its root.
 
-In the <project> tag, there should be a :ref:`\<metadata\> <xml_metadata>` tag which specifies the name of
-your project and its version.
+In the :ref:`\<project\> <xml_project>` tag, add a :ref:`\<metadata\> <xml_metadata>` tag which specifies
+the name of your project and its version.
 
-There should also be one or more :ref:`\<version\> <xml_version>` entries for each minor version of your project,
+Also add one or more :ref:`\<version\> <xml_version>` entries for each minor version of your project,
 including one that matches the major.minor part of the version specified in the metadata tag.
 
 List all the dependencies of a particular version by adding a :ref:`\<deps purpose="run"\> <xml_deps>` inside the
-appropriate <version> tag, and a :ref:`\<thirdpartyegg\> <xml_thirdpartyegg>` tag for each dependency.
+appropriate :ref:`\<version\> <xml_version>` tag, and a :ref:`\<thirdpartyegg\> <xml_thirdpartyegg>` tag for each
+dependency.
 
 Each time you change `.reahlproject`, be sure to regenerate the egg metadata:
 
 .. code-block:: bash
-   reahl develop -N
+
+   reahl setup develop -N
 
 Reahl commandline
 -----------------
@@ -104,8 +132,7 @@ Reahl commandline
 The Reahl commandline is installed when you install `reahl-component` and is invoked with the command `reahl`. The set
 of commands it offers depends on other Reahl components you install.
 
-The commands in `reahl-commands` and `reahl-dev` pertain to the functionality of `reahl-component` as explained here.
-Below is a more complete list of which commands other components add:
+Below is a list of which commands some components add:
 
 `reahl-dev`
   Commands to work with components defined by .reahlproject files instead of setup.py files. This includes
@@ -116,12 +143,12 @@ Below is a more complete list of which commands other components add:
   schemas and performing migrations as well as dealing with things like internationalisation and configuration.
 
 `reahl-workstation`
-  When using `the Reahl development Docker image <../devmanual/devenv.rst>` `reahl-workstation` is installed on the
-  host machine to provide commands to help share GUI windows of terminal access via `Ngrok <https://ngrok.com>`_ or
+  When using :doc:`the Reahl development Docker image <../devmanual/devenv>` install `reahl-workstation` on your
+  host machine to provide commands to share terminal access via `Ngrok <https://ngrok.com>`_ or GUI windows with
   `Xpra <https://xpra.org>`_.
 
 `reahl-webdev`
-  Helpful commands when using web development using the Reahl web framework (`reahl-web`).
+  Helpful commands when doing web development using the Reahl web framework (`reahl-web`).
 
 `reahl-doc`
   Commands for working with examples included in the overall Reahl documentation.
@@ -136,23 +163,25 @@ Persistence basics
 The `reahl-component` infrastructure is extended by other Reahl components to be able to deal with differing
 implementations of ORM or database systems.
 
-To use a particular database, use the support package matching the database you want to use:
+To use a particular database, include in your component's dependencies the support package matching the database you
+want to use:
 
 - `reahl-postgresqlsupport`
 - `reahl-mysqlsupport`
 - `reahl-sqlitesupport`
 
-You also should use `reahl-sqlalchemysupport` which provides support for `SQLAlchemy <https://www.sqlalchemy.org/>`_
-which is the only supported ORM.
+Set the reahlsystem.connection_uri in `reahlsystem.config.py` to an URI matching your database
+`as specified by SQLAlchemy <https://docs.sqlalchemy.org/en/14/core/engines.html#database-urls>`_.
 
-Your component should list the required packages as well as `reahl-component` as its dependencies.
+List the database support component, `reahl-sqlalchemysupport` and `reahl-component` as dependencies of your component.
 
-The <project> tag can also contain a single :ref:`\<persisted\> <xml_persisted>` tag. List each persisted class in
-your component using a :ref:`\<class\> <xml_class>` tag inside the <persisted> tag.
+List each persisted class in your component using a :ref:`\<class\> <xml_class>` tag inside the single
+:ref:`\<persisted\> <xml_persisted>` tag in your :ref:`\<project\> <xml_project>`.
+
 
 .. seealso::
 
-  `<../tutorial/persistence>`
+  :doc:`../tutorial/persistence`
      How to register persisted classes with your component and use the commandline to create a database schema.
 
 You can now use the following commands (amongst others) from `reahl-commands` to manage the database::
@@ -189,18 +218,25 @@ level dependencies and constraints are honoured.
 
 .. seealso::
 
-  `<../tutorial/schemaevolution>`
+  :doc:`../tutorial/schemaevolution`
      How to write migrations, define new versions of a Reahl component and upgrade a database to the new version.
 
-In order to facilitate this functionality, each version of a Reahl component can have its own set of |Migration|\s
-which are performed when upgrading to that version from its predecessor. For this reason your
-:ref:`\<project\> <xml_project>` tag contains one or more :ref:`\<version\> <xml_version>` tags. Since your project's
-dependencies can differ between versions, :ref:`\<deps purpose="run"\> <xml_deps>` are specified inside each
-:ref:`\<version\> <xml_version>` tag. The list of :ref:`\<version\> <xml_version>` tags in your project never changes -
-it is only added to.
+Each version of your Reahl component can have its own set of |Migration|\s which are performed when upgrading to that
+version from its predecessor. The migration machinery needs access to all |Migration|\s of all versions of all
+components to be able to compute a correct dependency tree.
 
-A change in dependency or in database schema is seen as at least a minor version change, therefore
-:ref:`\<version\> <xml_version>` tags only specify major.minor version numbers, not an additional patch version.
+List one or more :ref:`\<version\> <xml_version>` tags inside your :ref:`\<project\> <xml_project>` tag for each
+version of your component.
+
+Specify the dependencies of a version of your component inside each :ref:`\<version\> <xml_version>` tag. (A component's
+dependencies can differ from version to version.)
+
+The list of :ref:`\<version\> <xml_version>` tags in your project never changes except for adding newer versions.
+
+.. note::
+
+   A change in dependency or in database schema is seen as at least a minor version change, therefore
+   :ref:`\<version\> <xml_version>` tags only specify major.minor version numbers, not an additional patch version.
 
 Each |Migration| is written such that user code only schedules each necessary change in a so-called 'phase'. The final
 order in which the |Migration| itself and each individual phase of the |Migration| will be executed is determined by Reahl
@@ -215,6 +251,37 @@ The following useful commands from `reahl-commands` related to migration are ava
     reahl diffdb <config_directory>
     reahl listversionhistory <config_directory>
     reahl listdependencies <config_directory>
+
+Execution context
+-----------------
+
+Some Reahl code is dependent upon there being an |ExecutionContext| which can be obtained at any point in the code, and
+hosts information such as the global configuration or current locale.
+
+In other systems, you may be familiar with using `thread-local storage <https://en.wikipedia.org/wiki/Thread-local_storage>`_
+for this purpose. Reahl's |ExecutionContext| is not local to a thread, it is local to a call stack.
+
+To execute code that needs an |ExecutionContext|, |install| it a top-level method or function, then invoke other code
+that may need it. The |ExecutionContext| is then available to any code lower down in the call stack.
+
+.. code-block:: python
+
+    class Example:
+        def do_something(self):
+            self.do_something_else()
+
+        def do_something_else(self):
+            print(ExecutionContext.get_context().interface_locale)
+
+    try:
+        Example().do_something()   # Breaks, because there's no ExecutionContext
+    except:
+        pass
+    ExecutionContext().install()
+    Example().do_something()       # Prints en_gb by default
+
+
+
 
 Configuration
 -------------
@@ -232,24 +299,43 @@ Configuration basics
 
 .. seealso::
 
-  `<../tutorial/owncomponent>`
+  :doc:`../tutorial/owncomponent`
      How to define and use configuration for your own component.
 
-A Reahl system has a single config directory. Each Reahl component can have its own configuration file in that directory,
-in which its own configuration settings which are set. A component author specifies a unique key for the config of a
-component, as well as what config settings it needs and the configuration file name to be used. This is done by
-inheriting a new class from |Configuration|. In your `.reahlproject` register this class using a
+A Reahl system has a single config directory with a config file for each component in the system.
+
+You specify a unique key for the config of your component, as well as what config settings you need and the
+configuration file name to be used for your component:
+
+Inherit a new class from |Configuration|. In your `.reahlproject` register this class using a
 :ref:`\<configuration\> <xml_configuration>` tag inside your :ref:`\<project\> <xml_project>`.
 
 When defining config settings, you can specify default values for these settings, and also a human readable description
-of each setting. Some defaults can also be marked as "dangerous defaults": such defaults will produce warnings when
+of each setting. You can mark some config settings as "dangerous defaults": such defaults will produce warnings when
 reading a configuration if they are not explicitly set in a config file. Defaults are usually chosen for a development
-environment, marking a default as dangerous is a way to prevent that default from reaching a production
+environment, marking a default as dangerous is a way to prevent that default value from reaching a production
 environment.
 
+.. sidebar:: Use an ExecutionContext
+
+   Store your |Configuration| on an |ExecutionContext| to make it accessible anywhere in your code:
+
+   .. code-block:: python
+
+      config = StoredConfiguration('/my/directory')
+      config.configure()
+      context = ExecutionContext().install()
+
+      context.config = config
+
+      ...
+
+      ExecutionContext.get_context().config  # To get it anywhere
+
 In your system, read the config by creating a |StoredConfiguration|, and then calling |configure| on it. Pass
-True to |strict_checking| in production environments in order to turn dangerous defaults into errors instead of
+True to `strict_checking` in production environments in order to turn dangerous defaults into errors instead of
 warnings.
+
 
 Dependency injection between components
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -298,8 +384,39 @@ in `.reahlproject` using a :ref:`\<translations\> <xml_translations>` tag inside
 
 .. seealso::
 
-  `<../tutorial/i18n>`
+  :doc:`../tutorial/i18n`
      How to make strings in your application translatable and work with translations in other languages.
+
+
+Setting the current locale
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+Python has its own ways to set and determine what the current locale should be. Reahl code is used in server settings,
+however, which means that the locale used is probably different for each user regardless of the server the code is
+running on.
+
+For this reason, a different mechanism is used to determine the current locale: supply an object to represent
+a 'user session' containing options related to the current user. Add a method called `get_interface_locale` on it which
+returns a locale string `formatted according to RFC5646 <https://tools.ietf.org/html/rfc5646>`_.
+
+To make the session available to code, ensure it runs within an |ExecutionContext| on which you have set the session:
+
+.. code-block:: python
+
+    class UserSession:
+        def __init__(self, locale):
+            self.locale = locale
+        def get_interface_locale(self):
+            return self.locale
+
+    context = ExecutionContext().install()
+    context.session = UserSession('en_gb')
+
+.. note::
+   If you set the locale to a language for which you have not supplied translations, messages will just be displayed
+   using 'en_gb' - the default.
+
+Commands
+~~~~~~~~
 
 The following useful commands from `reahl-dev` related to translations are available::
 
@@ -344,22 +461,22 @@ addresses, numbers or booleans.
 The |exposed| decorator is used to define all the |Field|\s available for user input on a particular class instance.
 
 .. note::
-   ORMs like Django ORM and SQLAlchemy famously use class attributes to define how database columns
+   ORMs like Django ORM and SQLAlchemy use class attributes to define how database columns
    map to the attributes of an object. Reahl's |exposed| mechanism is purposely different so that it can be used
    together with these tools without getting in their way.
 
-A method decorated with |exposed| is always passed a single argument, and is accessible as a property on the instance.
-The argument passed is a |FieldIndex|. Describe the attributes of your object by assigning an instance of |Field| to
-an attribute of |FieldIndex| using the same name as the attribute on the object.
+A method decorated with |exposed| is always passed a single argument (a |FieldIndex|), and is accessible as a property
+on the instance. Describe each attribute of your object by assigning an instance of |Field| to an attribute of
+|FieldIndex| using the same name as the attribute of the object you are describing.
 
 .. seealso::
 
   :ref:`Using Fields <fields_explained>`
-     How to use |exposed| to expose |Fields| for an object.
+     How to use |exposed| to expose |Field| for an object.
 
 
-Accessing an object via is |exposed| |Field|\s
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Accessing an object via its |exposed| |Field|\s
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Given an object with exposed |Field|\s:
 
@@ -374,6 +491,7 @@ You can access it from user interface code using the |from_input| and |as_input|
 
 .. code-block:: python
 
+   ExecutionContext().install()      # Because the code lower down need it
    order = Order()
 
    order.fields.processed.from_input('yes')
@@ -384,6 +502,7 @@ You can access it from user interface code using the |from_input| and |as_input|
 Invalid input raises a |ValidationConstraint| to communicate what is wrong:
 
 .. code-block::
+
    order.fields.processed.from_input('invalid input')  # Raises: reahl.component.modelinterface.AllowedValuesConstraint: Processed should be one of the following: yes|no
 
 
@@ -391,20 +510,21 @@ Extending |Field|\s and validation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Standard |Field| subclasses manage their validation by adding various |ValidationConstraint|\s based on keyword
-parameters given upon construction. You can add additional |ValidationConstraint|\s to a |Field| using
-|add_validation_constraint|.
+parameters given upon construction.
 
-To build a |Field| to marshal an object of your own, create your own |Field| subclass, and override the |parse_input|
+Add additional |ValidationConstraint|\s to a |Field| using |add_validation_constraint|.
+
+Build a |Field| to marshal an object of your own by creating your own |Field| subclass, and overriding the |parse_input|
 and |unparse_input| methods.
 
 When creating your own |ValidationConstraint|, create a subclass of |ValidationConstraint| and override the
-|validate_input| and |validate_parsed_input| methods.
+|validate_input| and |validate_parsed_value| methods.
 
 
 Access rights
 ~~~~~~~~~~~~~
 
-To control access to a |Field|, pass single-argument callables to |readable| or |writable| when constructing the |Field|.
+To control access to a |Field|, pass single-argument callables to `readable` or `writable` when constructing the |Field|.
 These callables will be called when the |Field| is read or written using |as_input| and |from_input| respectively, and
 the |Field| instance itself is passed as the single argument.
 
@@ -436,8 +556,9 @@ To |fire| an |Event|, you first need to receive it as textual input:
 
 .. code-block:: python
 
+    ExecutionContext().install()       # Because the code lower down need it
     boo = X().events.boo
-    boo.from_input(e.as_input())
+    boo.from_input(boo.as_input())
     boo.fire()
 
 An |Event| can be parameterised, which will cause its action to be sent arguments upon firing. These arguments are
@@ -448,18 +569,54 @@ This advanced topic is outside of the scope of this introductory material.
 Access controlled methods
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Methods can also be access controlled. Decorate a method with |secured|, passing it callables for |read_check| and
-|write_check|. The signatures of these callables should match that of the |secured| method.
+Methods can also be access controlled. Decorate a method with |secured|, passing it callables for `read_check` and
+`write_check`. The signatures of these callables should match that of the |secured| method.
 
 Each time a |secured| method is executed, these check callables are first executed to check whether the method is
 allowed to be executed. If either of these callables return False, an |AccessRestricted| is raised. The point of
-|read_check| is that user interface machinery could in theory use the |read_check| to, for example show a button, but
-grey it out (ie., the user is aware of the method's existence but cannot invoke it). A False |write_check| instead
+`read_check` is that user interface machinery could in theory use the `read_check` to, for example show a button, but
+grey it out (ie., the user is aware of the method's existence but cannot invoke it). A False `write_check` instead
 could signal to the user interface machinery to not even show the said button at all.
 
+.. code-block:: python
+
+    class Order:
+        state = 'new'
+        def is_submitted(self):
+            return self.state == 'submitted'
+
+        @secured(write_check=is_submitted)
+        def authorise(self):
+            ...
+
+   >>> Order().authorise()   # raises reahl.component.exceptions.AccessRestricted because state is 'new'
 
 
+Scheduled jobs
+--------------
+
+The internals of a component may require certain housekeeping tasks to be performed regularly. A user of a system with
+many such components does not want to have to know about all the jobs needed by all the components used. In order to
+facilitate this, Reahl has a mechanism by which a component author can register jobs that the system runs on a regular
+basis.
+
+Use a :ref:`\<schedule\> <xml_schedule>` tag inside the :ref:`\<project\> <xml_project>` tag in your `.reahlproject` to
+register a given class method as being a regular scheduled job. The class method should not have any arguments.
+
+Whenever `reahl runjobs` is executed on your system's configuration directory, all the registered scheduled jobs of all
+components used by your system are executed.
+
+On a production system, ensure that this command is run regularly (say every 10 minutes) via your system's task
+scheduler. It is up to the code in each such registered class method to check whether it should do any work when
+invoked or whether it should wait until a future invocation. For example: a job may cleans out sessions from a database,
+but only once a day around midnight despite being invoked every 10 minutes.
+
+.. seealso::
+
+  :doc:`../tutorial/jobs`
+     Registering and running regular scheduled jobs.
 
 
+The only command from `reahl-commands` related to jobs is::
 
-scheduled jobs?
+    reahl runjobs <configuration directory>
