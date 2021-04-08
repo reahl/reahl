@@ -396,23 +396,29 @@ class ReahlWebServer:
        certificate has been provided as part of the distribution for convenience.
     
        :param config: The :class:`reahl.component.config.Configuration` instance to use as config for this process.
-       :param port: The HTTP port on which the server should be started. The HTTPS port is computed as this number + 363.
     """
     @classmethod
-    def from_config_directory(cls, directory, port):
+    def from_config_directory(cls, directory):
         """Creates a new ReahlWebServer given a port and standard configuration directory for an application.
         
            :param directory: The directory from which configuration will be read.
-           :param port: The HTTP port on which the server will be started.
+
+           ..versionchanged:: 5.1
+             Removed port keyword argument, port and encrypted port will be set from the config found in the directory argument.
+
+           ..versionchanged:: 5.1
+             Renamed from camel case name.
+
         """
         config = StoredConfiguration(directory)
         config.configure()
-        return cls(config, port)
+
+        return cls(config)
 
     @classmethod
     @deprecated('renamed to from_config_directory','5.1')
     def fromConfigDirectory(cls, directory, port):
-        return cls.from_config_directory(directory, port)
+        return cls.from_config_directory(directory)
 
     def set_app(self, new_wsgi_app):
         """Changes the currently served application to `new_wsgi_app`."""
@@ -421,20 +427,22 @@ class ReahlWebServer:
     def set_noop_app(self):
         self.set_app(NoopApp())
 
-    def __init__(self, config, port):
+    def __init__(self, config):
         super().__init__()
         self.in_separate_thread = None
         self.running = False
         self.handlers = {}
         self.httpd_thread = None
+
+        self.port = int(config.web.default_http_port)
+        self.encrypted_port = int(config.web.encrypted_http_port)
         certfile = pkg_resources.resource_filename(__name__, 'reahl_development_cert.pem')
         self.reahl_wsgi_app = WrappedApp(ReahlWSGIApplication(config))
         try:
-            https_port = port+363
-            self.httpd = ReahlWSGIServer.make_server('', port, self.reahl_wsgi_app)
-            self.httpsd = SSLCapableWSGIServer.make_server('', https_port, certfile, self.reahl_wsgi_app)
+            self.httpd = ReahlWSGIServer.make_server('', self.port, self.reahl_wsgi_app)
+            self.httpsd = SSLCapableWSGIServer.make_server('', self.encrypted_port, certfile, self.reahl_wsgi_app)
         except socket.error as ex:
-            message = ('Caught socket.error: %s\nThis means that another process is using one of these ports: %s, %s. ' % (ex, port, https_port)) \
+            message = ('Caught socket.error: %s\nThis means that another process is using one of these ports: %s, %s. ' % (ex, self.port, self.encrypted_port)) \
                      +'\nIf this happens while running tests, it probably means that a browser client did not close its side of a connection to a previous server you had running - and that the server socket now sits in TIME_WAIT state. Is there perhaps a browser hanging around from a previous run? I have no idea how to fix this automatically... see http://hea-www.harvard.edu/~fine/Tech/addrinuse.html'
 
             raise AssertionError(message)
