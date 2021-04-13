@@ -76,6 +76,7 @@ jobs:
       - name: Setup environment
         run: |
           echo "$HOME/bin" >> $GITHUB_PATH
+          echo "REAHL_TEST_CONNECTION_URI='postgresql://reahl:reahl@postgres/reahl'" >> $GITHUB_ENV
           travis/setupTestGit.sh
           travis/configurePip.sh
         # travis/createTestSshKey.sh
