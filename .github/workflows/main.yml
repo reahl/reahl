@@ -79,8 +79,8 @@ jobs:
           echo "$HOME/bin" >> $GITHUB_PATH
           travis/setupTestGit.sh
           travis/configurePip.sh
-          travis/createTestSshKey.sh
-          travis/createTestGpgKey.sh
+        # travis/createTestSshKey.sh
+        # travis/createTestGpgKey.sh
 
       - name: Create venv
         run: |
