@@ -42,7 +42,7 @@ jobs:
       - name: Install For testing of reahl-component
         run: sudo apt-get install graphviz
 
-      - name Run tests
+      - name: Run tests
         uses: GabrielBB/xvfb-action@v1
         run: echo Tests wil run with xvfb enabled!
 
