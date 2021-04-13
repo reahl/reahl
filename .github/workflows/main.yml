@@ -19,14 +19,13 @@ jobs:
   build:
     # The type of runner that the job will run on
     runs-on: ubuntu-20.04
-    container: ubuntu-20.04 # need to add this so that all this runs ni container so that postgres service is discoverable on network
     env:
       REAHLWORKSPACE: $HOME
       EMAIL: noone@example.org
       DEBFULLNAME: "Github Runner"
       DEBEMAIL: $EMAIL
       DISPLAY: :99.0
-      REAHL_TEST_CONNECTION_URI: "postgresql://reahl:reahl@postgres/reahl"
+      REAHL_TEST_CONNECTION_URI: "postgresql://reahl:reahl@localhost/reahl"
     services:
       postgres:
         image: postgres:12.3
@@ -34,7 +33,6 @@ jobs:
           POSTGRES_USER: reahl
           POSTGRES_PASSWORD: reahl
           POSTGRES_DB: reahl
-          POSTGRES_HOST_AUTH_METHOD: trust
         ports:
           - 5432:5432
         # Set health checks to wait until postgres has started
