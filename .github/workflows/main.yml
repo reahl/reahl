@@ -20,6 +20,12 @@ jobs:
     # The type of runner that the job will run on
     runs-on: ubuntu-20.04
     env:
+      REAHLWORKSPACE=$HOME
+      EMAIL=noone@example.org
+      DEBFULLNAME="Github Runner"
+      DEBEMAIL=$EMAIL
+      DISPLAY=:99.0
+      PATH=$HOME/bin:$PATH
       VENV_NAME: reahl_env
     services:
       postgres:
