@@ -19,6 +19,7 @@ jobs:
   build:
     # The type of runner that the job will run on
     runs-on: ubuntu-20.04
+    container: ubuntu-20.04 # need to add this so that all this runs ni container so that postgres service is discoverable on network
     env:
       REAHLWORKSPACE: $HOME
       EMAIL: noone@example.org
@@ -57,7 +58,11 @@ jobs:
       - uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
-          
+
+      - name: Verify DB connection name resolution
+        run: |
+          ping postgres -n 3
+
       - name: Install Basic apt dependencies
         run: sudo apt-get install openssh-client dpkg-dev bzr git firefox firefox-geckodriver
 
