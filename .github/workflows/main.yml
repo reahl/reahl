@@ -29,8 +29,12 @@ jobs:
           POSTGRES_DB: reahl
         ports:
           - 5432:5432
-        # needed because the postgres container does not provide a healthcheck
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
 
     strategy:
@@ -63,6 +67,13 @@ jobs:
           firefox --version
           geckodriver --version
           gpg --version
+
+      - name: Setup environment
+        run: |
+          python scripts/bootstrap.py --script-dependencies
+          CFLAGS="-O0" python scripts/bootstrap.py --pip-installs
+          reahl createdb -U postgres reahl-web/etc
+          reahl setup -sX -- develop -N
 
       - name: Run tests
         uses: GabrielBB/xvfb-action@v1
