@@ -36,7 +36,7 @@ jobs:
         run: sudo apt-get install openssh-client dpkg-dev bzr git firefox firefox-geckodriver
 
       - name: Install For compiling pip installed extensions we use
-        run: sudo apt-get install  python-virtualenv python-dev gcc cython libxml2-dev libxslt-dev libsqlite3-0 sqlite3 postgresql-server-dev-all zlib1g-dev libjpeg62-dev libfreetype6-dev liblcms2-dev libmysqlclient-dev
+        run: sudo apt-get install  python3-virtualenv python-dev gcc cython libxml2-dev libxslt-dev libsqlite3-0 sqlite3 postgresql-server-dev-all zlib1g-dev libjpeg62-dev libfreetype6-dev liblcms2-dev libmysqlclient-dev
 
         # - phantomjs  # for reference... not allowed in apt addon
       - name: Install For testing of reahl-component
