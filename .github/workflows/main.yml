@@ -57,10 +57,6 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Verify DB connection name resolution
-        run: |
-          ping postgres -n 3
-
       - name: Install Basic apt dependencies
         run: sudo apt-get install openssh-client dpkg-dev bzr git firefox firefox-geckodriver
 
