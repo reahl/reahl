@@ -85,7 +85,7 @@ jobs:
         run: |
           python3 -m venv $HOME/.reahl_env
           source ~/.reahl_env/bin/activate
-          python3 -m pip install –upgrade pip
+          pip install --upgrade pip
           mkdir -p $REAHLWORKSPACE/.reahlworkspace/dist-egg
           python scripts/bootstrap.py --script-dependencies
           CFLAGS="-O0" python scripts/bootstrap.py --pip-installs
