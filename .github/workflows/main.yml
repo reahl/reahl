@@ -26,6 +26,7 @@ jobs:
       DEBEMAIL: $EMAIL
       DISPLAY: :99.0
       REAHL_TEST_CONNECTION_URI: "postgresql://reahl:reahl@localhost/reahl"
+      PGPASSWORD: reahl
     services:
       postgres:
         image: postgres:12.3
