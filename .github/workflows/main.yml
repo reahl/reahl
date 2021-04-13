@@ -19,7 +19,8 @@ jobs:
   build:
     # The type of runner that the job will run on
     runs-on: ubuntu-20.04
-
+    env:
+      VENV_NAME: reahl_env
     services:
       postgres:
         image: postgres:12.3
@@ -70,6 +71,18 @@ jobs:
 
       - name: Setup environment
         run: |
+          travis/setupTestGit.sh
+          travis/configurePip.sh
+          travis/createTestSshKey.sh
+          travis/createTestGpgKey.sh
+
+      - name: Create venv
+        run: |
+          scripts/createVenv.sh $VENV_NAME
+          workon $VENV_NAME
+
+      - name: Setup reahl
+        run: |
           python scripts/bootstrap.py --script-dependencies
           CFLAGS="-O0" python scripts/bootstrap.py --pip-installs
           reahl createdb -U postgres reahl-web/etc
@@ -78,7 +91,10 @@ jobs:
       - name: Run tests
         uses: GabrielBB/xvfb-action@v1
         with:
-          run: echo Tests wil run with xvfb enabled!
+          run: |
+            (reahl build -sdX || (EXITCODE=$?; shred -f $HOME/.gnupg/*; exit $EXITCODE))
+            (reahl shell -sdXg tox && (EXITCODE=$?; shred -f $HOME/.gnupg/*; exit $EXITCODE))
+
 
       # Runs a single command using the runners shell
       - name: Run a one-line script
