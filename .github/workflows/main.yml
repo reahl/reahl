@@ -19,10 +19,25 @@ jobs:
   build:
     # The type of runner that the job will run on
     runs-on: ubuntu-20.04
+
+    services:
+      postgres:
+        image: postgres:12.3
+        env:
+          POSTGRES_USER: reahl
+          POSTGRES_PASSWORD: reahl
+          POSTGRES_DB: reahl
+        ports:
+          - 5432:5432
+        # needed because the postgres container does not provide a healthcheck
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+
     strategy:
       matrix:
         os: [ubuntu-20.04]
-        python-version: ['3.6', '3.7', '3.8']
+        #python-version: ['3.6', '3.7', '3.8']
+        python-version: ['3.6']
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -41,6 +56,13 @@ jobs:
         # - phantomjs  # for reference... not allowed in apt addon
       - name: Install For testing of reahl-component
         run: sudo apt-get install graphviz
+
+      - name: Debug info
+        run: |
+          git --version
+          firefox --version
+          geckodriver --version
+          gpg --version
 
       - name: Run tests
         uses: GabrielBB/xvfb-action@v1
