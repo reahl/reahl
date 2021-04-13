@@ -82,12 +82,9 @@ jobs:
         # travis/createTestSshKey.sh
         # travis/createTestGpgKey.sh
 
-      - name: Create venv
-        run: |
-          scripts/createVenv.sh $VENV_NAME
-          workon $VENV_NAME
-
       - name: Setup reahl
+        uses: syphar/restore-virtualenv@v1
+          id: $VENV_NAME
         run: |
           python scripts/bootstrap.py --script-dependencies
           CFLAGS="-O0" python scripts/bootstrap.py --pip-installs
