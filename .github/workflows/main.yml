@@ -83,7 +83,7 @@ jobs:
 
       - name: Setup reahl
         uses: syphar/restore-virtualenv@v1
-          id: reahl_env
+        id: reahl_env
         run: |
           python scripts/bootstrap.py --script-dependencies
           CFLAGS="-O0" python scripts/bootstrap.py --pip-installs
