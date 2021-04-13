@@ -33,6 +33,7 @@ jobs:
           POSTGRES_USER: reahl
           POSTGRES_PASSWORD: reahl
           POSTGRES_DB: reahl
+          POSTGRES_HOST_AUTH_METHOD: trust
         ports:
           - 5432:5432
         # Set health checks to wait until postgres has started
