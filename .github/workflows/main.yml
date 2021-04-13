@@ -25,7 +25,6 @@ jobs:
       DEBFULLNAME: "Github Runner"
       DEBEMAIL: $EMAIL
       DISPLAY: :99.0
-      VENV_NAME: reahl_env
     services:
       postgres:
         image: postgres:12.3
@@ -84,7 +83,7 @@ jobs:
 
       - name: Setup reahl
         uses: syphar/restore-virtualenv@v1
-          id: $VENV_NAME
+          id: reahl_env
         run: |
           python scripts/bootstrap.py --script-dependencies
           CFLAGS="-O0" python scripts/bootstrap.py --pip-installs
