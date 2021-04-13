@@ -28,7 +28,6 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
-      - uses: GabrielBB/xvfb-action@v1
       - uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
@@ -43,7 +42,9 @@ jobs:
       - name: Install For testing of reahl-component
         run: sudo apt-get install graphviz
 
-
+      - name Run tests
+        uses: GabrielBB/xvfb-action@v1
+        run: echo Tests wil run with xvfb enabled!
 
       # Runs a single command using the runners shell
       - name: Run a one-line script
