@@ -44,7 +44,8 @@ jobs:
 
       - name: Run tests
         uses: GabrielBB/xvfb-action@v1
-        run: echo Tests wil run with xvfb enabled!
+        with:
+          run: echo Tests wil run with xvfb enabled!
 
       # Runs a single command using the runners shell
       - name: Run a one-line script
