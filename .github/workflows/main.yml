@@ -33,7 +33,7 @@ jobs:
     services:
       postgres:
         image: postgres:12.3
-        env:
+#        env:
 #          POSTGRES_USER: reahl
 #          POSTGRES_PASSWORD: reahl
 #          POSTGRES_DB: reahl
