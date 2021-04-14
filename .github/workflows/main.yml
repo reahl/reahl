@@ -96,6 +96,7 @@ jobs:
           python scripts/bootstrap.py --script-dependencies
           CFLAGS="-O0" python scripts/bootstrap.py --pip-installs
           reahl createdb -U postgres reahl-web/etc
+          reahl createdbuser -U postgres reahl-web/etc
           reahl setup -sX -- develop -N
 
       - name: Run tests
