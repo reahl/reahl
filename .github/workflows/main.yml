@@ -25,7 +25,8 @@ jobs:
       EMAIL: "noone@example.org"
       DEBFULLNAME: "Github Runner"
       DISPLAY: ":99.0"
-      REAHL_TEST_CONNECTION_URI: "postgresql://reahl:reahl@localhost:54321/reahl"
+      REAHL_TEST_CONNECTION_URI: "sqlite:///./db/reahl.db"
+#      REAHL_TEST_CONNECTION_URI: "postgresql://reahl:reahl@localhost:54321/reahl"
       #REAHL_TEST_CONNECTION_URI: "postgresql://reahl:reahl@database/reahl"
       PGPASSWORD: "postgres"
     services:
