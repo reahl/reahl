@@ -26,10 +26,10 @@ jobs:
       DEBFULLNAME: "Github Runner"
       DISPLAY: ":99.0"
       REAHL_TEST_CONNECTION_URI: "postgresql://reahl:reahl@localhost:54321/reahl"
-      #REAHL_TEST_CONNECTION_URI: "postgresql://reahl:reahl@postgres/reahl"
+      #REAHL_TEST_CONNECTION_URI: "postgresql://reahl:reahl@database/reahl"
       PGPASSWORD: "postgres"
     services:
-      postgres:
+      database:
         image: postgres:12.3
         env:
           POSTGRES_USER: postgres
@@ -79,6 +79,7 @@ jobs:
 
       - name: Setup environment
         run: |
+          echo "HOME=${PWD}" >> $GITHUB_ENV
           echo "$HOME/bin" >> $GITHUB_PATH
           echo "REAHLWORKSPACE=$HOME" >> $GITHUB_ENV
           echo "DEBEMAIL=$EMAIL" >> $GITHUB_ENV
@@ -89,8 +90,8 @@ jobs:
 
       - name: Setup reahl
         run: |
-          python3 -m venv $HOME/.reahl_env
-          source ~/.reahl_env/bin/activate
+          python3 -m venv .reahl_env
+          source .reahl_env/bin/activate
           pip install --upgrade pip
           mkdir -p $REAHLWORKSPACE/.reahlworkspace/dist-egg
           python scripts/bootstrap.py --script-dependencies
