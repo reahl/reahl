@@ -17,17 +17,18 @@ on:
 jobs:
   # This workflow contains a single job called "build"
   build:
-    # The type of runner that the job will run on
+    # The type of runner that the job will run on. Must be linux if you want to use Services/docker
     runs-on: ubuntu-20.04
-    container:
-      image: ubuntu:20.04 #needs docker container to get to postgres via docker network
+#    container: #if you want the job to tun inside a container inside the runs-on machine
+#      image: ubuntu:20.04 #needs docker container to get to postgres via docker network
     env:
       REAHLWORKSPACE: $HOME
       EMAIL: noone@example.org
       DEBFULLNAME: "Github Runner"
       DEBEMAIL: $EMAIL
       DISPLAY: :99.0
-      REAHL_TEST_CONNECTION_URI: "postgresql://reahl:reahl@postgres/reahl"
+      REAHL_TEST_CONNECTION_URI: "postgresql://reahl:reahl@localhost:54321/reahl"
+      #REAHL_TEST_CONNECTION_URI: "postgresql://reahl:reahl@postgres/reahl"
       PGPASSWORD: reahl
     services:
       postgres:
@@ -36,8 +37,9 @@ jobs:
           POSTGRES_USER: reahl
           POSTGRES_PASSWORD: reahl
           POSTGRES_DB: reahl
+          POSTGRES_HOST_AUTH_METHOD: trust
         ports:
-          - 5432:5432
+          - "54321:5432"
         # Set health checks to wait until postgres has started
         options: >-
           --health-cmd pg_isready
