@@ -100,13 +100,14 @@ jobs:
           reahl createdb -U postgres reahl-web/etc
           reahl createdbuser -U postgres reahl-web/etc
           reahl setup -sX -- develop -N
+          reahl build -sdX
+
 
       - name: Run tests
         uses: GabrielBB/xvfb-action@v1
         with:
           run: |
-            (reahl build -sdX || (EXITCODE=$?; shred -f $HOME/.gnupg/*; exit $EXITCODE))
-            (reahl shell -sdXg tox && (EXITCODE=$?; shred -f $HOME/.gnupg/*; exit $EXITCODE))
+            reahl shell -sdXg tox
 
 
       # Runs a single command using the runners shell
