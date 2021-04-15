@@ -49,13 +49,13 @@ jobs:
 
       - name: build wheels
         run: |
-          reahl list
           echo $REAHLWORKSPACE
           pwd
           ls -la $REAHLWORKSPACE/.reahlworkspace/
           cat $REAHLWORKSPACE/.reahlworkspace/current.selection
           cat $REAHLWORKSPACE/.reahlworkspace/workspace.projects
           source $VENV/bin/activate
+          reahl list
           reahl build -sdX
 
       - name: save artifacts
