@@ -32,8 +32,8 @@ COPY --chown=$REAHL_USER:$REAHL_USER . $REAHLWORKSPACE/reahl
 
 
 USER $REAHL_USER
-RUN $REAHL_SCRIPTS/scripts/createVenv.sh $VENV_NAME
-RUN $REAHL_SCRIPTS/scripts/createVenv.sh $BUILD_VENV_NAME
+RUN $REAHL_SCRIPTS/scripts/createVenv.sh $VENV
+RUN $REAHL_SCRIPTS/scripts/createVenv.sh $BUILD_VENV
 
 USER root
 RUN /etc/init.d/ssh start && \

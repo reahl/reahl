@@ -27,7 +27,7 @@ if [ ! -f /.provisioned ]; then
         su $REAHL_USER -c -- bash -l -c "
            deactivate
            rmvirtualenv $VENV_NAME
-           $REAHL_SCRIPTS/scripts/createVenv.sh $VENV_NAME
+           $REAHL_SCRIPTS/scripts/createVenv.sh $VENV
            workon $VENV_NAME
            cd $BOOTSTRAP_REAHL_SOURCE
            python3 scripts/bootstrap.py --script-dependencies
