@@ -25,13 +25,14 @@ jobs:
   build_wheels:
     needs: build_image
     runs-on: ubuntu-20.04
-    container:
-      image: reahl-dev:snapshot
+#    container:
+#      image: reahl-dev:snapshot
 
     steps:
       - uses: actions/checkout@v2
       - name: Debug output
         run: |
+          docker image ls
           pwd
           ls -la
           whoami
