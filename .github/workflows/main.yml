@@ -34,6 +34,7 @@ jobs:
           sudo -H ./scripts/installDebs.sh
           sudo -H ./scripts/installDevEnvDebs.sh
           travis/configurePip.sh
+          chmod og-rw ~
           mkdir ~/.ssh
           chmod og-rw ~/.ssh
           travis/createTestSshKey.sh
