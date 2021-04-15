@@ -17,7 +17,8 @@ on:
 jobs:
   build_wheels:
     runs-on: ubuntu-20.04
-
+    env:
+      VENV: ~/.venvs/build
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
@@ -27,6 +28,7 @@ jobs:
       - name: Setup dev env
         run: |
           mkdir -p ~/.reahlworkspace/dist-egg
+          mkdir -p ~/.venvs
           sudo -H ./scripts/installBuildDebs.sh
           sudo -H ./scripts/installDebs.sh
           sudo -H ./scripts/installDevEnvDebs.sh
@@ -34,12 +36,11 @@ jobs:
 
       - name: bootstrap venv
         run: |
-          workon build
-          python scripts/bootstrap.py --script-dependencies
-          python scripts/bootstrap.py --pip-installs
+          $(VENV)/bin/python scripts/bootstrap.py --script-dependencies
+          $(VENV)/bin/python scripts/bootstrap.py --pip-installs
 
       - name: build wheels
-        run:  reahl build -sdX
+        run:  $(VENV)/bin/reahl build -sdX
 
       - name: save artifacts
         uses: actions/upload-artifact@v2
