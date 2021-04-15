@@ -27,8 +27,8 @@ jobs:
       - name: Setup dev env
         run: |
           mkdir -p ~/.reahlworkspace/dist-egg
-          ./scripts/installBuildDeps.sh
-          ./scripts/installDeps.sh
+          ./scripts/installBuildDebs.sh
+          ./scripts/installDebs.sh
           ./scripts/installDevEnvDebs.sh
           ./scripts/createVenv.sh build
 
@@ -51,6 +51,7 @@ jobs:
 
   test:
     runs-on: ubuntu-20.04
+    needs: build-wheels
 
     steps:
       - uses: actions/checkout@v2
