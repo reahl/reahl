@@ -35,8 +35,6 @@ jobs:
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: postgres
-          POSTGRES_HOST_AUTH_METHOD: trust
         ports:
           - "54321:5432"
         # Set health checks to wait until postgres has started
@@ -49,7 +47,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-20.04]
+        #os: [ubuntu-20.04]
         #python-version: ['3.6', '3.7', '3.8']
         python-version: ['3.6']
 
