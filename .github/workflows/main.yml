@@ -68,8 +68,7 @@ jobs:
         with:
           name: dist-wheels
           path: |
-            $REAHLWORKSPACE/.reahlworkspace/dist-egg/*
-            ls -la $REAHLWORKSPACE/.reahlworkspace/dist-egg/*
+            /home/runner/.reahlworkspace/dist-egg
 
   test:
     runs-on: ubuntu-20.04
