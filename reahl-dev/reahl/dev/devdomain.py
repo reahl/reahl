@@ -2242,7 +2242,7 @@ class Workspace:
         self.projects.read(self.current_projects_filename)
 
     def refresh(self, append, directories):
-        directories = [os.path.normpath(os.path.join(self.startup_directory, i)) for i in directories]
+        directories = [os.path.normpath(os.path.expanduser(os.path.join(self.startup_directory, i))) for i in directories]
 
         if not append:
             self.projects = ProjectList(self)
