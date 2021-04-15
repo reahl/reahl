@@ -49,6 +49,7 @@ jobs:
 
       - name: build wheels
         run: |
+          reahl list
           echo $REAHLWORKSPACE
           pwd
           ls -la $REAHLWORKSPACE/.reahlworkspace/
