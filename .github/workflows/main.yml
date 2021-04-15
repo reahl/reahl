@@ -36,6 +36,7 @@ jobs:
 
       - name: bootstrap venv
         run: |
+          source $VENV/bin/activate
           $VENV/bin/python scripts/bootstrap.py --script-dependencies
           $VENV/bin/python scripts/bootstrap.py --pip-installs
 
