@@ -34,9 +34,8 @@ jobs:
           sudo -H ./scripts/installDebs.sh
           sudo -H ./scripts/installDevEnvDebs.sh
           travis/configurePip.sh
+#          for shh in github actions containers, default home permissions not strict enough
           chmod og-rw ~
-          mkdir ~/.ssh
-          chmod og-rw ~/.ssh
           travis/createTestSshKey.sh
           travis/createTestGpgKey.sh
 
@@ -83,7 +82,7 @@ jobs:
           python-version: 3.8
 
       - name: fetch built wheels
-        uses: actions/upload-artifact@v2
+        uses: actions/download-artifact@v2
         with:
           name: dist-wheels
 
