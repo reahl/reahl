@@ -19,6 +19,7 @@ jobs:
     runs-on: ubuntu-20.04
     env:
       VENV: ~/.venvs/build
+      REAHLWORKSPACE: ~/.reahlworkspace
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
@@ -27,7 +28,7 @@ jobs:
 
       - name: Setup dev env
         run: |
-          mkdir -p ~/.reahlworkspace/dist-egg
+          mkdir -p $REAHLWORKSPACE/dist-egg
           mkdir -p ~/.venvs
           sudo -H ./scripts/installBuildDebs.sh
           sudo -H ./scripts/installDebs.sh
@@ -48,8 +49,8 @@ jobs:
         with:
           name: dist-wheels
           path: |
-            ~/.reahlworkspace/dist-egg/*
-            ls -la ~/.reahlworkspace/dist-egg/*
+            $REAHLWORKSPACE/dist-egg/*
+            ls -la $REAHLWORKSPACE/dist-egg/*
 
   test:
     runs-on: ubuntu-20.04
@@ -69,5 +70,5 @@ jobs:
       - name: debug
         run: |
           pwd
-          ls -la ~/.reahlworkspace/dist-egg/*
+          ls -la $REAHLWORKSPACE/dist-egg/*
 
