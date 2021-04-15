@@ -27,9 +27,9 @@ jobs:
       - name: Setup dev env
         run: |
           mkdir -p ~/.reahlworkspace/dist-egg
-          ./scripts/installBuildDebs.sh
-          ./scripts/installDebs.sh
-          ./scripts/installDevEnvDebs.sh
+          sudo -H ./scripts/installBuildDebs.sh
+          sudo -H ./scripts/installDebs.sh
+          sudo -H ./scripts/installDevEnvDebs.sh
           ./scripts/createVenv.sh build
 
       - name: bootstrap venv
