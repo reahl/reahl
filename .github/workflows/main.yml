@@ -15,107 +15,26 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on. Must be linux if you want to use Services/docker
+  build_image:
     runs-on: ubuntu-20.04
-#    container: #if you want the job to tun inside a container inside the runs-on machine
-#      image: ubuntu:20.04 #needs docker container to get to postgres via docker network
-    env: #cant set variables base on other vars here
-      EMAIL: "noone@example.org"
-      DEBFULLNAME: "Github Runner"
-      DISPLAY: ":99.0"
-      REAHL_TEST_CONNECTION_URI: "sqlite:///./db/reahl.db"
-#      REAHL_TEST_CONNECTION_URI: "postgresql://reahl:reahl@localhost:54321/reahl"
-      #REAHL_TEST_CONNECTION_URI: "postgresql://reahl:reahl@database/reahl"
-      PGPASSWORD: "postgres"
-    services:
-      database:
-        image: postgres:12.3
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-        ports:
-          - "54321:5432"
-        # Set health checks to wait until postgres has started
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
-
-    strategy:
-      matrix:
-        #os: [ubuntu-20.04]
-        #python-version: ['3.6', '3.7', '3.8']
-        python-version: ['3.6']
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
+      - name: Build development docker image
+        run: docker build -t reahl-dev:snapshot -f Dockerfile .
 
-      - name: Install Basic apt dependencies
-        run: sudo apt-get install openssh-client dpkg-dev bzr git firefox firefox-geckodriver
+  build_wheels:
+    needs: build_image
+    runs-on: ubuntu-20.04
+    container:
+      image: reahl-dev:snapshot
 
-      - name: Install For compiling pip installed extensions we use
-        run: sudo apt-get install  python3-virtualenv python-dev gcc cython libxml2-dev libxslt-dev libsqlite3-0 sqlite3 postgresql-server-dev-all zlib1g-dev libjpeg62-dev libfreetype6-dev liblcms2-dev libmysqlclient-dev
-
-        # - phantomjs  # for reference... not allowed in apt addon
-      - name: Install For testing of reahl-component
-        run: sudo apt-get install graphviz
-
-      - name: Debug info
+    steps:
+      - uses: actions/checkout@v2
+      - name: Debug output
         run: |
-          git --version
-          firefox --version
-          geckodriver --version
-          gpg --version
-
-      - name: Setup environment
-        run: |
-          echo "HOME=${PWD}" >> $GITHUB_ENV
-          echo "$HOME/bin" >> $GITHUB_PATH
-          echo "REAHLWORKSPACE=$HOME" >> $GITHUB_ENV
-          echo "DEBEMAIL=$EMAIL" >> $GITHUB_ENV
-          travis/setupTestGit.sh
-          travis/configurePip.sh
-        # travis/createTestSshKey.sh
-        # travis/createTestGpgKey.sh
-
-      - name: Setup reahl
-        run: |
-          python3 -m venv .reahl_env
-          source .reahl_env/bin/activate
-          pip install --upgrade pip
-          mkdir -p $REAHLWORKSPACE/.reahlworkspace/dist-egg
-          python scripts/bootstrap.py --script-dependencies
-          CFLAGS="-O0" python scripts/bootstrap.py --pip-installs
-          reahl createdb -U postgres reahl-web/etc
-          reahl createdbuser -U postgres reahl-web/etc
-          reahl setup -sX -- develop -N
-          reahl build -sdX
-          sudo apt-get install -y xvfb libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-xinput0 libxcb-xfixes0
-          sudo /usr/bin/Xvfb $DISPLAY -screen 0 1280x1024x24 &
-          reahl shell -sdXg tox
-
-#      - name: Run tests
-#        uses: GabrielBB/xvfb-action@v1
-#        with:
-#          run: |
-#            reahl shell -sdXg tox
+          pwd
+          ls -la
+          whoami
+          ps auxwww
 
 
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: echo Hello, world!
-
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
-        run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
