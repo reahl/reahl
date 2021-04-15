@@ -33,16 +33,18 @@ jobs:
           sudo -H ./scripts/installBuildDebs.sh
           sudo -H ./scripts/installDebs.sh
           sudo -H ./scripts/installDevEnvDebs.sh
-          ./scripts/createVenv.sh $VENV
 
       - name: bootstrap venv
         run: |
+          ./scripts/createVenv.sh $VENV
           source $VENV/bin/activate
-          $VENV/bin/python scripts/bootstrap.py --script-dependencies
-          $VENV/bin/python scripts/bootstrap.py --pip-installs
+          python scripts/bootstrap.py --script-dependencies
+          python scripts/bootstrap.py --pip-installs
 
       - name: build wheels
-        run:  $VENV/bin/reahl build -sdX
+        run: |
+          source $VENV/bin/activate
+          reahl build -sdX
 
       - name: save artifacts
         uses: actions/upload-artifact@v2
