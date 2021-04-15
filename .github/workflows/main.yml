@@ -26,7 +26,7 @@ jobs:
 
       - name: Setup dev env
         run: |
-          mkdir ~/.reahlworkspace/dist-egg
+          mkdir -p ~/.reahlworkspace/dist-egg
           ./scripts/installBuildDeps.sh
           ./scripts/installDeps.sh
           ./scripts/installDevEnvDebs.sh
