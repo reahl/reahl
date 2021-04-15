@@ -40,9 +40,16 @@ jobs:
           source $VENV/bin/activate
           python scripts/bootstrap.py --script-dependencies
           python scripts/bootstrap.py --pip-installs
+          echo $REAHLWORKSPACE
+          pwd
+          ls -la $REAHLWORKSPACE/.reahlworkspace/
+          cat $REAHLWORKSPACE/.reahlworkspace/current.selection
+          cat $REAHLWORKSPACE/.reahlworkspace/workspace.projects
 
       - name: build wheels
         run: |
+          echo $REAHLWORKSPACE
+          pwd
           ls -la $REAHLWORKSPACE/.reahlworkspace/
           cat $REAHLWORKSPACE/.reahlworkspace/current.selection
           cat $REAHLWORKSPACE/.reahlworkspace/workspace.projects
