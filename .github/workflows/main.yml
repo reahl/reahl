@@ -40,9 +40,13 @@ jobs:
           source $VENV/bin/activate
           python scripts/bootstrap.py --script-dependencies
           python scripts/bootstrap.py --pip-installs
+          ls -la $REAHLWORKSPACE/.reahlworkspace/
+          cat $REAHLWORKSPACE/.reahlworkspace/*
 
       - name: build wheels
         run: |
+          ls -la $REAHLWORKSPACE/.reahlworkspace/
+          cat $REAHLWORKSPACE/.reahlworkspace/*
           source $VENV/bin/activate
           reahl build -sdX
 
