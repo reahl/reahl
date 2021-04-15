@@ -15,27 +15,56 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  build_image:
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v2
-      - name: Build development docker image
-        run: docker build -t reahl-dev:snapshot -f Dockerfile .
-
   build_wheels:
-    needs: build_image
     runs-on: ubuntu-20.04
-#    container:
-#      image: reahl-dev:snapshot
 
     steps:
       - uses: actions/checkout@v2
-      - name: Debug output
-        run: |
-          docker image ls
-          pwd
-          ls -la
-          whoami
-          ps auxwww
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
 
+      - name: Setup dev env
+        run: |
+          mkdir ~/.reahlworkspace/dist-egg
+          ./scripts/installBuildDeps.sh
+          ./scripts/installDeps.sh
+          ./scripts/installDevEnvDebs.sh
+          ./scripts/createVenv.sh build
+
+      - name: bootstrap venv
+        run: |
+          workon build
+          python scripts/bootstrap.py --script-dependencies
+          python scripts/bootstrap.py --pip-installs
+
+      - name: build wheels
+        run:  reahl build -sdX
+
+      - name: save artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: dist-wheels
+          path: |
+            ~/.reahlworkspace/dist-egg/*
+            ls -la ~/.reahlworkspace/dist-egg/*
+
+  test:
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+
+      - name: fetch built wheels
+        uses: actions/upload-artifact@v2
+        with:
+          name: dist-wheels
+
+      - name: debug
+        run: |
+          pwd
+          ls -la ~/.reahlworkspace/dist-egg/*
 
