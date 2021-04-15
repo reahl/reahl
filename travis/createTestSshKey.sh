@@ -12,5 +12,8 @@ cat ~/.ssh/id_localhost.pub >> ~/.ssh/authorized_keys
 
 # Accept localhost server key
 ssh-keyscan -t rsa localhost >> ~/.ssh/known_hosts
-ssh -vvv localhost ls
+ls -la ~/.ssh/authorized_keys
+cat ~/.ssh/authorized_keys
+cat /etc/ssh/sshd_config
+ssh -v localhost ls
 
