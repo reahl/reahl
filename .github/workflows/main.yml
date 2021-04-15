@@ -34,8 +34,7 @@ jobs:
           sudo -H ./scripts/installDebs.sh
           sudo -H ./scripts/installDevEnvDebs.sh
           travis/configurePip.sh
-          sudo apt-get install policycoreutils
-          restorecon -Rv /home/runner
+          chmod og-rw ~/.ssh
           travis/createTestSshKey.sh
           travis/createTestGpgKey.sh
 
