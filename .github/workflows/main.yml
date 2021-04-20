@@ -77,7 +77,6 @@ jobs:
         run: |
           pwd
           ls -la
-          which reahl
           echo docker-compose up -d
           docker image ls
           docker image ls ${{ steps.prep.outputs.tagged_image }}
