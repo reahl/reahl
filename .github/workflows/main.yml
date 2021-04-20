@@ -24,7 +24,7 @@ jobs:
         id: prep
         run: |
           TAG=$(echo $GITHUB_SHA | head -c7)
-          IMAGE="my.docker.registry/not_using/something"
+          IMAGE="reahl-dev"
           echo ::set-output name=tagged_image::${IMAGE}:${TAG}
           echo ::set-output name=tag::${TAG}
 
@@ -52,8 +52,8 @@ jobs:
           context: .
           builder: ${{ steps.buildx.outputs.name }}
           file: Dockerfile
-          # Set the desired build target here (found in your Dockerfile):
-          target: dev-image
+          # Set the desired build target to python-install (in Dockerfile) it will produce built wheels
+          target: python-install
           push: false
           tags: ${{ steps.prep.outputs.tagged_image }}
           cache-from: type=local,src=/tmp/.buildx-cache
@@ -66,3 +66,18 @@ jobs:
         run: |
           rm -rf /tmp/.buildx-cache
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+
+  test_something:
+    needs: build_docker_base
+    runs-on:  ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: check docker images
+        run: |
+          pwd
+          ls -la
+          which reahl
+#          docker-compose up -d
+          docker image ls
+          docker image ls ${{ steps.prep.outputs.tagged_image }}
