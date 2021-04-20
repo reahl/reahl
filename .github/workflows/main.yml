@@ -17,9 +17,6 @@ on:
 jobs:
   build_docker_base:
     runs-on: ubuntu-20.04
-    env:
-      VENV: ~/.venvs/build
-      REAHLWORKSPACE: /home/runner
     steps:
       - uses: actions/checkout@v2
 
