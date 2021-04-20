@@ -78,6 +78,6 @@ jobs:
           pwd
           ls -la
           which reahl
-#          docker-compose up -d
+          echo docker-compose up -d
           docker image ls
           docker image ls ${{ steps.prep.outputs.tagged_image }}
