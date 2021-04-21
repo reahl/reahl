@@ -63,6 +63,12 @@ jobs:
           cache-to: type=local,mode=max,dest=/tmp/.buildx-cache-new
           outputs: type=docker,dest=/tmp/reahlimage.tar
 
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: reahlimage
+          path: /tmp/reahlimage.tar
+
       - name: Move cache
         run: |
           rm -rf /tmp/.buildx-cache
@@ -76,11 +82,8 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
 
-      - name: Download artifact
+      - name: Download artifacts from previous steps
         uses: actions/download-artifact@v2
-        with:
-          name: reahlimage
-          path: /tmp
 
       - name: Check docker images
         run: |
