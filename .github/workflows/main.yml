@@ -100,12 +100,14 @@ jobs:
         with:
           name: wheels
           path: ~/.reahlworkspace/dist-egg
+      - name: check wheels
         run: ls -la /tmp/wheels
 
-      - name: Check docker images
+      - name: Setup python
         uses: actions/setup-python@v2
         with:
           python-version: 3.8
+      - name: Check docker images
         run: |
           pwd
           ls -la
