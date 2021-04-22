@@ -61,10 +61,12 @@ jobs:
           # More: https://github.com/moby/buildkit#--export-cache-options
           # And: https://github.com/docker/buildx#--cache-tonametypetypekeyvalue
           cache-to: type=local,mode=max,dest=/tmp/.buildx-cache-new
+          output: type=docker,dest=/tmp/image.tar
 
       - name: Extract built wheels
         run: |
           mkdir -p /tmp/wheels
+          docker images ls
           docker run --rm -v /tmp/wheels:/tmp/wheels ${{ steps.prep.outputs.tagged_image }} cp -a /home/developer/.reahlworkspace/dist-egg/* /tmp/wheels
           ls -laR /tmp/wheels
 
