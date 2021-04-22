@@ -1,6 +1,7 @@
 #!/bin/bash -ev
 
 PYTHON_DEPS="python3 python3-venv"
+MYSQL_BUILD_DEPS="build-essential python3-dev gcc"
 
 OS_DEPS="ca-certificates sudo xauth libexif12 wget"
 

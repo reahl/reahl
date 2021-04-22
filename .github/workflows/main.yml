@@ -15,7 +15,7 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  build_docker_base:
+  build:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
@@ -46,14 +46,14 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-multi-buildx
 
-      - name: Build dev image
+      - name: Build build image and wheels
         uses: docker/build-push-action@v2
         with:
           context: .
           builder: ${{ steps.buildx.outputs.name }}
           file: Dockerfile
           # Set the desired build target to python-install (in Dockerfile) it will produce built wheels
-          target: python-install
+          target: build-image
           push: false
           tags: ${{ steps.prep.outputs.tagged_image }}
           cache-from: type=local,src=/tmp/.buildx-cache
@@ -62,19 +62,25 @@ jobs:
           # And: https://github.com/docker/buildx#--cache-tonametypetypekeyvalue
           cache-to: type=local,mode=max,dest=/tmp/.buildx-cache-new
 
-      - name: Upload artifact
+      - name: Extract built wheels
+        run: |
+          mkdir -p /tmp/wheels
+          docker run --rm -v /tmp/wheels:/tmp/wheels ${{ steps.prep.outputs.tagged_image }} cp -a /home/developer/.reahlworkspace/dist-egg/* /tmp/wheels
+          ls -laR /tmp/wheels
+
+      - name: Upload built wheels
         uses: actions/upload-artifact@v2
         with:
-          name: reahlimage
-          path: /tmp/reahlimage.tar
+          name: wheels
+          path: /tmp/wheels
 
       - name: Move cache
         run: |
           rm -rf /tmp/.buildx-cache
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
-  test_something:
-    needs: build_docker_base
+  test:
+    needs: build
     runs-on:  ubuntu-20.04
     container:
       image:  ubuntu:20.04
@@ -93,10 +99,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
 
-      - name: Download reahlimage artifact
+      - name: Download wheels
         uses: actions/download-artifact@v2
         with:
           name: wheels
@@ -111,9 +115,9 @@ jobs:
       - name: Check docker images
         run: |
           pwd
-          ls -la
-          docker image ls
-          docker load --input /tmp/reahlimage.tar
-          docker image ls
-          echo ${{ steps.prep.outputs.tagged_image }}
-          docker image ls ${{ steps.prep.outputs.tagged_image }}
+          ./scripts/installDebs.sh
+          ./scripts/setupDevEnv.sh
+          cat ~/.pip/pip.conf
+          pip install --pre reahl[dev]
+          reahl createdb -U postgres reahl-web/etc
+          (reahl shell -sdXg tox && (EXITCODE=$?; shred -f $HOME/.gnupg/*; exit $EXITCODE))
