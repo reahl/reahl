@@ -61,7 +61,6 @@ jobs:
           # More: https://github.com/moby/buildkit#--export-cache-options
           # And: https://github.com/docker/buildx#--cache-tonametypetypekeyvalue
           cache-to: type=local,mode=max,dest=/tmp/.buildx-cache-new
-          outputs: type=docker,dest=/tmp/reahlimage.tar
 
       - name: Upload artifact
         uses: actions/upload-artifact@v2
@@ -77,6 +76,20 @@ jobs:
   test_something:
     needs: build_docker_base
     runs-on:  ubuntu-20.04
+    container: ubuntu-20.04
+    services:
+      postgres:
+        image: postgres:12.3
+        env:
+          POSTGRES_PASSWORD: reahl
+          POSTGRES_USER: developer
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - uses: actions/checkout@v2
       - name: Set up Docker Buildx
@@ -85,10 +98,14 @@ jobs:
       - name: Download reahlimage artifact
         uses: actions/download-artifact@v2
         with:
-          name: reahlimage
-          path: /tmp
+          name: wheels
+          path: ~/.reahlworkspace/dist-egg
+        run: ls -la /tmp/wheels
 
       - name: Check docker images
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
         run: |
           pwd
           ls -la

@@ -42,8 +42,8 @@ RUN /etc/init.d/ssh start && \
 
 USER $REAHL_USER
 RUN mkdir -p $REAHLWORKSPACE/.reahlworkspace/dist-egg
-RUN bash -l -c "workon $BUILD_VENV_NAME && cd $REAHL_SCRIPTS && python scripts/bootstrap.py --script-dependencies && python scripts/bootstrap.py --pip-installs; reahl build -sdX; cd reahl-doc/doc; make html"
-RUN bash -l -c "workon $VENV_NAME && pip install --pre reahl[all]"
+RUN bash -l -c "workon $VENV_NAME && cd $REAHL_SCRIPTS && python scripts/bootstrap.py --script-dependencies && python scripts/bootstrap.py --pip-installs; reahl build -sdX; cd reahl-doc/doc; make html"
+
 
     
 
