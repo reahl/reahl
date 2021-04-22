@@ -76,7 +76,7 @@ jobs:
   test_something:
     needs: build_docker_base
     runs-on:  ubuntu-20.04
-    container: ubuntu-20.04
+    container: ubuntu:20.04
     services:
       postgres:
         image: postgres:12.3
