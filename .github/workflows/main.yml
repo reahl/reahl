@@ -68,7 +68,7 @@ jobs:
           mkdir -p /tmp/wheels
           docker load --input /tmp/reahlimage.tar
           docker image ls
-          docker run --rm  ${{ steps.prep.outputs.tagged_image }} ls -la /home/developer/
+          docker run --rm  ${{ steps.prep.outputs.tagged_image }} ls -laR /home/developer/.reahlworkspace/
           docker run --rm -v /tmp/wheels:/tmp/wheels ${{ steps.prep.outputs.tagged_image }} cp -a /home/developer/.reahlworkspace/dist-egg/* /tmp/wheels
           ls -laR /tmp/wheels
 
