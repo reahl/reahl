@@ -1,5 +1,12 @@
 .. Copyright 2013, 2014, 2015 Reahl Software Services (Pty) Ltd. All rights reserved.
 
+.. |Fixture| replace::  :class:`~reahl.tofu.Fixture`
+.. |scenario| replace::  :class:`~reahl.tofu.scenario`
+.. |uses| replace::  :class:`~reahl.tofu.uses`
+.. |scope| replace::  :class:`~reahl.tofu.pytestsupport.scope`
+.. |with_fixtures| replace::  :class:`~reahl.tofu.pytestsupport.with_fixtures`
+
+
 Tofu -- Test Fixtures and other handy testing utilities (reahl.tofu)
 --------------------------------------------------------------------
 
@@ -53,19 +60,20 @@ How are |Fixture|\s used?
 A |Fixture| can be used in many ways:
 
 - Inside a `with` statement
-  .. code-block:: Python
 
-     with MyFixture() as fixture:
-          ...
+    .. code-block:: python
+
+       with MyFixture() as fixture:
+        ...
 
   Used outside of a test framework, using a Fixture inside a `with` statement ensures that its set up and tear down
   logic is executed.
 
 - Supplied to a pytest test function
-  .. code-block:: Python
+    .. code-block:: python
 
-     @with_fixtures(MyFixture)
-     def test_things(fixture):
+        @with_fixtures(MyFixture)
+        def test_things(fixture):
          ...
 
   When using pytest, decorate your test method using a |with_fixtures| decorator in which you list all the |Fixture|
@@ -79,7 +87,7 @@ Writing a |Fixture|
 ~~~~~~~~~~~~~~~~~~~
 
 To write a |Fixture|, inherit a new class from |Fixture|. For each element of the |Fixture|, add a method that
-creates the element. Prepend 'new_' to the method name to signal that it is a factory method.
+creates the element. Prepend `new_` to the method name to signal that it is a factory method.
 
 .. code-block:: python
 
@@ -87,7 +95,7 @@ creates the element. Prepend 'new_' to the method name to signal that it is a fa
        def new_user(self):
            return User(name='sam')
 
-Whenever an attribute is accessed on the |Fixture|, it checks whether a 'new_'-method exists for that name. If so,
+Whenever an attribute is accessed on the |Fixture|, it checks whether a `new_`-method exists for that name. If so,
 it invokes the method to create the object in question. Subsequent accesses just return the first object so created:
 
 .. code-block:: python
