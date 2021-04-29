@@ -19,7 +19,7 @@ from reahl.stubble import stubclass
 from reahl.tofu import Fixture, scenario, uses
 from reahl.tofu.pytestsupport import with_fixtures
 
-from reahl.webdriver.webdriver import XPath
+from reahl.browsertools.browsertools import XPath
 from reahl.web.bootstrap.ui import P, Div
 from reahl.web.bootstrap.pagination import PageMenu, PagedPanel, PageIndex, SequentialPageIndex, AnnualItemOrganiserProtocol, AnnualPageIndex
 

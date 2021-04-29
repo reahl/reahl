@@ -23,7 +23,7 @@ from reahl.component.modelinterface import Field, ValidationConstraint, Required
                              MaxLengthConstraint, PatternConstraint, AllowedValuesConstraint, \
                              EqualToConstraint, RemoteConstraint, exposed
 from reahl.web.ui import PrimitiveInput, HTMLInputElement, Form, TextInput, ButtonInput, FormLayout
-from reahl.webdriver.webdriver import WidgetTester, XPath
+from reahl.browsertools.browsertools import WidgetTester, XPath
 
 from reahl.web_dev.inputandvalidation.test_input import SimpleInputFixture2
 from reahl.web_dev.fixtures import WebFixture

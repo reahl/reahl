@@ -22,7 +22,7 @@ from webob import Request, Response
 from reahl.stubble import stubclass
 from reahl.tofu import Fixture, set_up, uses
 
-from reahl.webdriver.webdriver import DriverBrowser
+from reahl.browsertools.browsertools import DriverBrowser
 from reahl.webdeclarative.webdeclarative import UserSession, PersistedException, PersistedFile, UserInput
 
 from reahl.domain.systemaccountmodel import LoginSession

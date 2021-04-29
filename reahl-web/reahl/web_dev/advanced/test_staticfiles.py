@@ -25,7 +25,7 @@ from reahl.tofu.pytestsupport import with_fixtures
 from reahl.stubble import easter_egg, stubclass
 
 from reahl.web.fw import FileOnDisk, FileFromBlob, PackagedFile, ConcatenatedFile, FileDownload, UserInterface
-from reahl.webdriver.webdriver import Browser
+from reahl.browsertools.browsertools import Browser
 
 from reahl.web_dev.fixtures import WebFixture
 

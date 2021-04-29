@@ -7,12 +7,16 @@
 .. |with_fixtures| replace::  :class:`~reahl.tofu.pytestsupport.with_fixtures`
 
 
-Tofu -- Test Fixtures and other handy testing utilities (reahl.tofu)
---------------------------------------------------------------------
+Tofu (reahl-tofu)
+-----------------
 
 Tofu provides class-based |Fixture|\s for use in tests. Tofu's |Fixture|\s can be used on
 their own with any test framework, but Tofu also provides an extension to `pytest <https://pytest.org>`_
 that makes using it with pytest seamless.
+
+.. seealso::
+
+   :doc:`The API documentation <index>`.
 
 .. note::
 

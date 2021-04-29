@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- Created with Inkscape (http://www.inkscape.org/) -->
-
 <svg
    xmlns:dc="http://purl.org/dc/elements/1.1/"
    xmlns:cc="http://creativecommons.org/ns#"
@@ -9,39 +7,41 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="686.51019"
-   height="378.94534"
-   id="svg2"
    version="1.1"
+   id="svg2"
+   height="378.94534"
+   width="686.51019"
+   sodipodi:docname="overview.svg"
    inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)"
-   sodipodi:docname="overview.svg">
-  <defs
-     id="defs4" />
+   inkscape:export-filename="/home/iwan/work/reahl/reahl-doc/doc/overview.png"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96">
   <sodipodi:namedview
-     id="base"
      pagecolor="#ffffff"
      bordercolor="#666666"
-     borderopacity="1.0"
-     inkscape:pageopacity="0.0"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.4142136"
-     inkscape:cx="396.34138"
-     inkscape:cy="214.94905"
-     inkscape:document-units="px"
-     inkscape:current-layer="layer1"
+     inkscape:window-width="1736"
+     inkscape:window-height="1010"
+     id="namedview111"
      showgrid="false"
-     inkscape:window-width="1848"
-     inkscape:window-height="1016"
+     inkscape:zoom="1.4296426"
+     inkscape:cx="263.09483"
+     inkscape:cy="182.79634"
      inkscape:window-x="72"
      inkscape:window-y="27"
-     inkscape:window-maximized="1"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="layer1"
      fit-margin-top="0"
      fit-margin-left="0"
      fit-margin-right="0"
-     fit-margin-bottom="0"
-     showguides="true"
-     inkscape:guide-bbox="true"
-     inkscape:snap-global="false" />
+     fit-margin-bottom="0" />
+  <defs
+     id="defs4" />
   <metadata
      id="metadata7">
     <rdf:RDF>
@@ -55,620 +55,556 @@
     </rdf:RDF>
   </metadata>
   <g
-     inkscape:label="Layer 1"
-     inkscape:groupmode="layer"
-     id="layer1"
-     transform="translate(115.56428,-652.74451)">
+     transform="translate(115.56428,-652.74451)"
+     id="layer1">
     <rect
-       style="fill:none;stroke:#000000;stroke-width:1.74166858;stroke-miterlimit:4;stroke-dasharray:none"
-       id="rect2985"
-       width="684.76855"
-       height="111.1048"
-       x="-114.69344"
+       ry="0"
        y="919.71423"
-       ry="0" />
-    <flowRoot
-       xml:space="preserve"
-       id="flowRoot3755"
-       style="font-style:normal;font-weight:normal;line-height:0.01%;font-family:'Bitstream Vera Sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"><flowRegion
-         id="flowRegion3757"><rect
-           id="rect3759"
-           width="314"
-           height="23"
-           x="102"
-           y="296.04724"
-           style="font-size:16px" /></flowRegion><flowPara
-         id="flowPara3761"
-         style="font-size:16px;line-height:1.25"> </flowPara></flowRoot>    <flowRoot
-       xml:space="preserve"
-       id="flowRoot3763"
-       style="font-style:normal;font-weight:normal;line-height:0.01%;font-family:'Bitstream Vera Sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"><flowRegion
-         id="flowRegion3765"><rect
-           id="rect3767"
-           width="355"
-           height="18"
-           x="77"
-           y="301.04724"
-           style="font-size:16px" /></flowRegion><flowPara
-         id="flowPara3769"
-         style="font-size:16px;line-height:1.25"> </flowPara></flowRoot>    <g
-       id="g4055"
-       transform="translate(5.0013428)">
+       x="-114.69344"
+       height="111.1048"
+       width="684.76855"
+       id="rect2985"
+       style="fill:none;stroke:#000000;stroke-width:1.74166858;stroke-miterlimit:4;stroke-dasharray:none" />
+    <g
+       transform="translate(5.0013428,-1.56233)"
+       id="g4055">
       <g
-         transform="translate(-74.5)"
-         id="g4036">
+         id="g4036"
+         transform="translate(-74.5)">
         <text
-           xml:space="preserve"
-           style="font-style:normal;font-weight:normal;line-height:0%;font-family:'Bitstream Vera Sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
-           x="215.13564"
-           y="1007.854"
+           transform="scale(0.99988797,1.000112)"
            id="text3781-5"
-           transform="scale(0.99988797,1.000112)"><tspan
-             sodipodi:role="line"
-             id="tspan3783-5"
-             x="215.13564"
+           y="1007.854"
+           x="215.13564"
+           style="font-style:normal;font-weight:normal;line-height:0%;font-family:'Bitstream Vera Sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
+           xml:space="preserve"><tspan
+             style="font-size:12.91616154px;line-height:1.25"
              y="1007.854"
-             style="font-size:12.91616154px;line-height:1.25">reahl-sqlalchemysupport</tspan></text>
+             x="215.13564"
+             id="tspan3783-5">reahl-sqlalchemysupport</tspan></text>
         <g
            id="g4026">
           <rect
-             rx="8"
-             ry="8"
-             y="991.52618"
-             x="203.62656"
-             height="25.835218"
-             width="184.3282"
+             style="fill:none;stroke:#000000;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:0.5, 0.5;stroke-dashoffset:0"
              id="rect3779-9"
-             style="fill:none;stroke:#000000;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:0.5, 0.5;stroke-dashoffset:0" />
+             width="184.3282"
+             height="25.835218"
+             x="203.62656"
+             y="991.52618"
+             ry="8"
+             rx="8" />
           <g
              id="g4019">
             <rect
-               style="fill:none;stroke:#000000;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:0.5, 0.5;stroke-dashoffset:0"
-               id="rect3779-5-5"
-               width="186.8662"
-               height="25.835218"
-               x="202.35757"
-               y="956.29645"
+               rx="8"
                ry="8"
-               rx="8" />
+               y="956.29645"
+               x="202.35757"
+               height="25.835218"
+               width="186.8662"
+               id="rect3779-5-5"
+               style="fill:none;stroke:#000000;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:0.5, 0.5;stroke-dashoffset:0" />
             <text
-               xml:space="preserve"
-               style="font-style:normal;font-weight:normal;line-height:0%;font-family:'Bitstream Vera Sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
-               x="218.07457"
-               y="972.66882"
+               transform="scale(0.99988797,1.000112)"
                id="text3781-2-9"
-               transform="scale(0.99988797,1.000112)"><tspan
-                 sodipodi:role="line"
-                 id="tspan3783-1-9"
-                 x="218.07457"
+               y="972.66882"
+               x="218.07457"
+               style="font-style:normal;font-weight:normal;line-height:0%;font-family:'Bitstream Vera Sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
+               xml:space="preserve"><tspan
+                 style="font-size:12.91616154px;line-height:1.25"
                  y="972.66882"
-                 style="font-size:12.91616154px;line-height:1.25">reahl-postgresqlsupport</tspan></text>
+                 x="218.07457"
+                 id="tspan3783-1-9">reahl-postgresqlsupport</tspan></text>
           </g>
         </g>
       </g>
     </g>
     <rect
-       style="fill:none;stroke:#000000;stroke-width:1.53600454;stroke-miterlimit:4;stroke-dasharray:none"
-       id="rect2985-0"
-       width="169.36848"
-       height="254.39813"
+       ry="0"
+       y="653.5481"
        x="-114.69344"
-       y="653.5481"
-       ry="0" />
+       height="254.39813"
+       width="169.36848"
+       id="rect2985-0"
+       style="fill:none;stroke:#000000;stroke-width:1.53600454;stroke-miterlimit:4;stroke-dasharray:none" />
     <text
-       xml:space="preserve"
-       style="font-style:normal;font-weight:normal;line-height:0%;font-family:'Bitstream Vera Sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
-       x="-81.132179"
+       id="text3781-2-9-0-2"
        y="799.36218"
-       id="text3781-2-9-0-2"><tspan
-         sodipodi:role="line"
-         id="tspan3783-1-9-7-5"
-         x="-81.132179"
+       x="-81.132179"
+       style="font-style:normal;font-weight:normal;line-height:0%;font-family:'Bitstream Vera Sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
+       xml:space="preserve"><tspan
+         style="font-size:11px;line-height:1.25"
          y="799.36218"
-         style="font-size:11px;line-height:1.25"> </tspan></text>
+         x="-81.132179"
+         id="tspan3783-1-9-7-5"> </tspan></text>
     <g
-       id="g14712"
-       transform="matrix(1.174065,0,0,1.174328,-128.54363,-186.68348)">
+       transform="matrix(1.174065,0,0,1.174328,-128.54363,-186.68348)"
+       id="g14712">
       <rect
-         rx="6.8139329"
-         ry="6.8124065"
-         y="765.86212"
-         x="50.396584"
-         height="22"
-         width="66.206833"
+         style="fill:none;stroke:#000000;stroke-width:0.42582309;stroke-miterlimit:4;stroke-dasharray:0.42582309, 0.42582309;stroke-dashoffset:0"
          id="rect3779-5-1-26"
-         style="fill:none;stroke:#000000;stroke-width:0.42582309;stroke-miterlimit:4;stroke-dasharray:0.42582309, 0.42582309;stroke-dashoffset:0" />
+         width="66.206833"
+         height="22"
+         x="50.396584"
+         y="765.86212"
+         ry="6.8124065"
+         rx="6.8139329" />
       <text
-         id="text3781-2-0-0"
-         y="780.96295"
-         x="56.005371"
+         xml:space="preserve"
          style="font-style:normal;font-weight:normal;line-height:0%;font-family:'Bitstream Vera Sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
-         xml:space="preserve"><tspan
-           y="780.96295"
-           x="56.005371"
+         x="56.005371"
+         y="780.96295"
+         id="text3781-2-0-0"><tspan
+           style="font-size:11px;line-height:1.25"
            id="tspan3783-1-7-1"
-           sodipodi:role="line"
-           style="font-size:11px;line-height:1.25">reahl-web</tspan></text>
+           x="56.005371"
+           y="780.96295">reahl-web</tspan></text>
     </g>
     <g
-       id="g14707"
-       transform="matrix(1.174065,0,0,1.174328,-165.79371,-185.36246)">
+       transform="matrix(1.174065,0,0,1.174328,-165.79371,-185.36246)"
+       id="g14707">
       <rect
-         rx="6.8139329"
-         ry="6.8124065"
-         y="795.86218"
-         x="49.896584"
-         height="21"
-         width="130.66171"
+         style="fill:none;stroke:#000000;stroke-width:0.42582309;stroke-miterlimit:4;stroke-dasharray:0.42582309, 0.42582309;stroke-dashoffset:0"
          id="rect3779-5-5-90-4"
-         style="fill:none;stroke:#000000;stroke-width:0.42582309;stroke-miterlimit:4;stroke-dasharray:0.42582309, 0.42582309;stroke-dashoffset:0" />
+         width="130.66171"
+         height="21"
+         x="49.896584"
+         y="795.86218"
+         ry="6.8124065"
+         rx="6.8139329" />
       <text
-         id="text3781-2-9-7-1"
-         y="810.46301"
-         x="54.971825"
+         xml:space="preserve"
          style="font-style:normal;font-weight:normal;line-height:0%;font-family:'Bitstream Vera Sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
-         xml:space="preserve"><tspan
-           y="810.46301"
-           x="54.971825"
+         x="54.971825"
+         y="810.46301"
+         id="text3781-2-9-7-1"><tspan
+           style="font-size:11px;line-height:1.25"
            id="tspan3783-1-9-6-5"
-           sodipodi:role="line"
-           style="font-size:11px;line-height:1.25">reahl-web-declarative</tspan></text>
+           x="54.971825"
+           y="810.46301">reahl-web-declarative</tspan></text>
     </g>
     <text
-       xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0%;font-family:AlHor;-inkscape-font-specification:AlHor;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
-       x="-104.37222"
-       y="680.25323"
+       transform="scale(0.999888,1.000112)"
        id="text4357"
-       transform="scale(0.999888,1.000112)"><tspan
-         sodipodi:role="line"
-         id="tspan4359"
-         x="-104.37222"
+       y="680.25323"
+       x="-104.37222"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0%;font-family:AlHor;-inkscape-font-specification:AlHor;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
+       xml:space="preserve"><tspan
+         style="font-size:18.78714561px;line-height:1.25"
          y="680.25323"
-         style="font-size:18.78714561px;line-height:1.25">Web framework</tspan></text>
+         x="-104.37222"
+         id="tspan4359">Web framework</tspan></text>
     <rect
-       style="fill:none;stroke:#000000;stroke-width:1.44476879;stroke-miterlimit:4;stroke-dasharray:none"
-       id="rect2985-0-8-6"
-       width="174.50107"
-       height="254.39809"
-       x="62.95657"
+       ry="0"
        y="653.5481"
-       ry="0" />
+       x="62.95657"
+       height="254.39809"
+       width="174.50107"
+       id="rect2985-0-8-6"
+       style="fill:none;stroke:#000000;stroke-width:1.44476879;stroke-miterlimit:4;stroke-dasharray:none" />
     <g
-       id="g14677"
-       transform="matrix(1.174065,0,0,1.174328,-146.15725,-186.66283)">
+       transform="matrix(1.174065,0,0,1.174328,-146.15725,-186.66283)"
+       id="g14677">
       <rect
-         rx="6.8139324"
-         ry="6.8124065"
-         y="765.86212"
-         x="211.39658"
-         height="22"
-         width="81.206833"
+         style="fill:none;stroke:#000000;stroke-width:0.42582309;stroke-miterlimit:4;stroke-dasharray:0.42582309, 0.42582309;stroke-dashoffset:0"
          id="rect3779-5-1-2"
-         style="fill:none;stroke:#000000;stroke-width:0.42582309;stroke-miterlimit:4;stroke-dasharray:0.42582309, 0.42582309;stroke-dashoffset:0" />
-      <text
-         id="text3781-2-0-6"
-         y="780.96295"
-         x="215.44971"
-         style="font-style:normal;font-weight:normal;line-height:0%;font-family:'Bitstream Vera Sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
-         xml:space="preserve"><tspan
-           y="780.96295"
-           x="215.44971"
-           id="tspan3783-1-7-4"
-           sodipodi:role="line"
-           style="font-size:11px;line-height:1.25">reahl-domain</tspan></text>
-    </g>
-    <g
-       id="g14672"
-       transform="matrix(1.174065,0,0,1.174328,-153.76219,-185.92896)">
-      <rect
-         rx="6.8139329"
-         ry="6.8124065"
-         y="795.86218"
-         x="211.39658"
+         width="81.206833"
          height="22"
-         width="94.16172"
-         id="rect3779-5-5-90-7"
-         style="fill:none;stroke:#000000;stroke-width:0.42582306;stroke-miterlimit:4;stroke-dasharray:0.4258231, 0.4258231;stroke-dashoffset:0" />
+         x="211.39658"
+         y="765.86212"
+         ry="6.8124065"
+         rx="6.8139324" />
       <text
-         id="text3781-2-9-7-9"
-         y="810.96301"
-         x="216.95082"
+         xml:space="preserve"
          style="font-style:normal;font-weight:normal;line-height:0%;font-family:'Bitstream Vera Sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
-         xml:space="preserve"><tspan
-           y="810.96301"
-           x="216.95082"
-           id="tspan3783-1-9-6-3"
-           sodipodi:role="line"
-           style="font-size:11px;line-height:1.25">reahl-domainui</tspan></text>
+         x="215.44971"
+         y="780.96295"
+         id="text3781-2-0-6"><tspan
+           style="font-size:11px;line-height:1.25"
+           id="tspan3783-1-7-4"
+           x="215.44971"
+           y="780.96295">reahl-domain</tspan></text>
     </g>
     <g
-       id="g14720"
-       transform="translate(-157.01624,-0.5)">
+       transform="matrix(1.174065,0,0,1.174328,-153.76219,-185.92896)"
+       id="g14672">
       <rect
-         rx="7.9999995"
-         ry="7.9999995"
-         y="785.13806"
-         x="256.05231"
-         height="25.835217"
-         width="101.3421"
-         id="rect3779-5-1-6-2"
-         style="fill:none;stroke:#000000;stroke-width:0.49999997;stroke-miterlimit:4;stroke-dasharray:0.49999998, 0.49999998;stroke-dashoffset:0" />
+         style="fill:none;stroke:#000000;stroke-width:0.42582306;stroke-miterlimit:4;stroke-dasharray:0.4258231, 0.4258231;stroke-dashoffset:0"
+         id="rect3779-5-5-90-7"
+         width="94.16172"
+         height="22"
+         x="211.39658"
+         y="795.86218"
+         ry="6.8124065"
+         rx="6.8139329" />
       <text
-         transform="scale(0.99988801,1.000112)"
-         id="text3781-2-0-4-8"
-         y="802.78149"
-         x="264.02655"
+         xml:space="preserve"
          style="font-style:normal;font-weight:normal;line-height:0%;font-family:'Bitstream Vera Sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
-         xml:space="preserve"><tspan
-           y="802.78149"
-           x="264.02655"
-           id="tspan3783-1-7-9-7"
-           sodipodi:role="line"
-           style="font-size:12.91616154px;line-height:1.25">reahl-mailutil</tspan></text>
+         x="216.95082"
+         y="810.96301"
+         id="text3781-2-9-7-9"><tspan
+           style="font-size:11px;line-height:1.25"
+           id="tspan3783-1-9-6-3"
+           x="216.95082"
+           y="810.96301">reahl-domainui</tspan></text>
     </g>
+    <g
+       transform="translate(-157.01624,-0.5)"
+       id="g14720">
+      <rect
+         style="fill:none;stroke:#000000;stroke-width:0.49999997;stroke-miterlimit:4;stroke-dasharray:0.49999998, 0.49999998;stroke-dashoffset:0"
+         id="rect3779-5-1-6-2"
+         width="101.3421"
+         height="25.835217"
+         x="256.05231"
+         y="785.13806"
+         ry="7.9999995"
+         rx="7.9999995" />
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-weight:normal;line-height:0%;font-family:'Bitstream Vera Sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
+         x="264.02655"
+         y="802.78149"
+         id="text3781-2-0-4-8"
+         transform="scale(0.99988801,1.000112)"><tspan
+           style="font-size:12.91616154px;line-height:1.25"
+           id="tspan3783-1-7-9-7"
+           x="264.02655"
+           y="802.78149">reahl-mailutil</tspan></text>
+    </g>
+    <text
+       transform="scale(0.999888,1.000112)"
+       id="text4357-2"
+       y="672.82709"
+       x="150.28816"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0%;font-family:AlHor;-inkscape-font-specification:AlHor;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+       xml:space="preserve"><tspan
+         style="font-size:18.78714561px;line-height:1.25"
+         y="672.82709"
+         x="150.28816"
+         id="tspan4359-0">End-user</tspan><tspan
+         style="font-size:18.78714561px;line-height:1.25"
+         id="tspan4382"
+         y="696.31104"
+         x="150.28816">functionality</tspan></text>
+    <text
+       transform="scale(0.99988799,1.000112)"
+       id="text4357-5"
+       y="942.89227"
+       x="-105.37222"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0%;font-family:AlHor;-inkscape-font-specification:AlHor;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
+       xml:space="preserve"><tspan
+         style="font-size:18.78714561px;line-height:1.25"
+         y="942.89227"
+         x="-105.37222"
+         id="tspan4359-4">Component framework</tspan></text>
+    <g
+       id="g4065"
+       transform="translate(0,-1.855986)">
+      <g
+         id="g4014"
+         transform="translate(-135)">
+        <rect
+           rx="8"
+           ry="8"
+           y="992.70068"
+           x="51.891109"
+           height="24.660889"
+           width="137.60844"
+           id="rect3779-5"
+           style="fill:none;stroke:#000000;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:0.5, 0.5;stroke-dashoffset:0" />
+        <text
+           transform="scale(0.99988797,1.000112)"
+           id="text3781-2"
+           y="1009.0283"
+           x="65.033134"
+           style="font-style:normal;font-weight:normal;line-height:0%;font-family:'Bitstream Vera Sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
+           xml:space="preserve"><tspan
+             style="font-size:12.91616154px;line-height:1.25"
+             y="1009.0283"
+             x="65.033134"
+             id="tspan3783-1">reahl-component</tspan></text>
+      </g>
+      <g
+         id="g4009"
+         transform="translate(-135)">
+        <rect
+           rx="8"
+           ry="8"
+           y="956.88361"
+           x="51.891109"
+           height="24.660889"
+           width="137.60844"
+           id="rect3779-5-6"
+           style="fill:none;stroke:#000000;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:0.5, 0.5;stroke-dashoffset:0" />
+        <text
+           transform="scale(0.99988797,1.000112)"
+           id="text3781-2-7"
+           y="973.92072"
+           x="66.12735"
+           style="font-style:normal;font-weight:normal;line-height:0%;font-family:'Bitstream Vera Sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
+           xml:space="preserve"><tspan
+             style="font-size:12.91616154px;line-height:1.25"
+             y="973.92072"
+             x="66.12735"
+             id="tspan3783-1-5">reahl-commands</tspan></text>
+      </g>
+    </g>
+    <rect
+       ry="0"
+       y="653.5481"
+       x="419.55832"
+       height="253.97487"
+       width="150.55197"
+       id="rect2985-0-8"
+       style="fill:none;stroke:#000000;stroke-width:1.60716438;stroke-miterlimit:4;stroke-dasharray:none" />
+    <g
+       transform="matrix(1.174065,0,0,1.174328,13.343837,-180.22468)"
+       id="g14702">
+      <rect
+         style="fill:none;stroke:#000000;stroke-width:0.42582306;stroke-miterlimit:4;stroke-dasharray:0.42582308, 0.42582308;stroke-dashoffset:0"
+         id="rect3779-5-1"
+         width="87.706833"
+         height="22"
+         x="366.25204"
+         y="760.36212"
+         ry="6.8124065"
+         rx="6.8139324" />
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-weight:normal;line-height:0%;font-family:'Bitstream Vera Sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
+         x="372.34399"
+         y="775.46295"
+         id="text3781-2-0"><tspan
+           style="font-size:11px;line-height:1.25"
+           id="tspan3783-1-7"
+           x="372.34399"
+           y="775.46295">reahl-webdev</tspan></text>
+    </g>
+    <g
+       transform="matrix(1.174065,0,0,1.174328,22.442798,-181.2523)"
+       id="g14697">
+      <rect
+         style="fill:none;stroke:#000000;stroke-width:0.42582309;stroke-miterlimit:4;stroke-dasharray:0.42582309, 0.42582309;stroke-dashoffset:0"
+         id="rect3779-5-5-90"
+         width="72.16172"
+         height="22"
+         x="366.2746"
+         y="791.86218"
+         ry="6.8124065"
+         rx="6.8139329" />
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-weight:normal;line-height:0%;font-family:'Bitstream Vera Sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
+         x="375.96997"
+         y="806.96301"
+         id="text3781-2-9-7"><tspan
+           style="font-size:11px;line-height:1.25"
+           id="tspan3783-1-9-6"
+           x="375.96997"
+           y="806.96301">reahl-dev</tspan></text>
+    </g>
+    <text
+       transform="scale(0.99988801,1.000112)"
+       id="text4357-2-8"
+       y="673.31757"
+       x="494.82092"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0%;font-family:AlHor;-inkscape-font-specification:AlHor;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+       xml:space="preserve"><tspan
+         style="font-size:18.78714561px;line-height:1.25"
+         id="tspan4410"
+         y="673.31757"
+         x="494.82092">Other tools</tspan></text>
+    <g
+       transform="matrix(1.174065,0,0,1.174328,6.8863633,-252.22468)"
+       id="g14682">
+      <rect
+         style="fill:none;stroke:#000000;stroke-width:0.44763955;stroke-miterlimit:4;stroke-dasharray:0.44763957, 0.44763957;stroke-dashoffset:0"
+         id="rect3779-5-5-90-8-3"
+         width="109.6361"
+         height="21.974382"
+         x="360.78741"
+         y="882.87494"
+         ry="6.8044739"
+         rx="6.8059988" />
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-weight:normal;line-height:0%;font-family:'Bitstream Vera Sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
+         x="367.3999"
+         y="897.96295"
+         id="text3781-2-9-7-4-7-6"><tspan
+           style="font-size:11px;line-height:1.25"
+           id="tspan3783-1-9-6-6-0-7"
+           x="367.3999"
+           y="897.96295">reahl-workstation</tspan></text>
+    </g>
+    <g
+       id="g4044"
+       transform="translate(0,-2.149573)">
+      <rect
+         style="fill:none;stroke:#000000;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:0.5, 0.5;stroke-dashoffset:0"
+         id="rect3779-5-5-9"
+         width="157.51457"
+         height="25.835218"
+         x="388.13153"
+         y="992.70074"
+         ry="8"
+         rx="8" />
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-weight:normal;line-height:0%;font-family:'Bitstream Vera Sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
+         x="403.65952"
+         y="1009.0283"
+         id="text3781-2-9-0"
+         transform="scale(0.99988799,1.000112)"><tspan
+           id="tspan3783-1-9-7"
+           x="403.65952"
+           y="1009.0283"
+           style="font-size:12.91616154px;line-height:1.25">reahl-sqllitesupport</tspan></text>
+      <rect
+         style="fill:none;stroke:#000000;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:0.5, 0.5;stroke-dashoffset:0"
+         id="rect3779-5-5-9-3"
+         width="157.51457"
+         height="25.835218"
+         x="388.13153"
+         y="956.29645"
+         ry="8"
+         rx="8" />
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-weight:normal;line-height:0%;font-family:'Bitstream Vera Sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
+         x="403.63425"
+         y="972.66882"
+         id="text3781-2-9-0-6"
+         transform="scale(0.99988799,1.000112)"><tspan
+           id="tspan3783-1-9-7-7"
+           x="403.63425"
+           y="972.66882"
+           style="font-size:12.91616154px;line-height:1.25">reahl-mysqlsupport</tspan></text>
+    </g>
+    <g
+       transform="translate(-168.56721,203.64675)"
+       id="g4227">
+      <rect
+         style="fill:none;stroke:#000000;stroke-width:0.49999997;stroke-miterlimit:4;stroke-dasharray:0.49999999, 0.49999999;stroke-dashoffset:0"
+         id="rect3779-5-1-6"
+         width="104.14759"
+         height="25.835217"
+         x="444.61105"
+         y="666.13892"
+         ry="7.9999995"
+         rx="8" />
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-weight:normal;font-size:14.09035778px;line-height:0%;font-family:'Bitstream Vera Sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.17419648"
+         x="453.83902"
+         y="683.79572"
+         id="text3781-2-9-7-4"
+         transform="scale(0.99988801,1.000112)"><tspan
+           style="font-size:12.91616154px;line-height:1.25;stroke-width:1.17419648"
+           id="tspan3783-1-9-6-6"
+           x="453.83902"
+           y="683.79572">reahl-stubble</tspan></text>
+    </g>
+    <rect
+       ry="0"
+       y="654.0481"
+       x="245.73917"
+       height="78.301094"
+       width="164.75694"
+       id="rect2985-0-6"
+       style="fill:none;stroke:#000000;stroke-width:1.53600466;stroke-miterlimit:4;stroke-dasharray:none" />
+    <rect
+       rx="8"
+       ry="7.9999995"
+       y="695.2475"
+       x="261.79898"
+       height="25.835217"
+       width="132.63713"
+       id="rect3779-5-1-6-6"
+       style="fill:none;stroke:#000000;stroke-width:0.49999994;stroke-miterlimit:4;stroke-dasharray:0.5, 0.5;stroke-dashoffset:0" />
+    <text
+       id="text3781-2-9-7-4-75"
+       y="712.901"
+       x="267.78961"
+       style="font-style:normal;font-weight:normal;font-size:14.09035778px;line-height:0%;font-family:'Bitstream Vera Sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.17419648"
+       xml:space="preserve"
+       transform="scale(0.99988801,1.000112)"><tspan
+         y="712.901"
+         x="267.78961"
+         id="tspan3783-1-9-6-6-3"
+         style="font-size:12.91616154px;line-height:1.25;stroke-width:1.17419648">reahl-browsertools</tspan></text>
+    <g
+       transform="matrix(1.174065,0,0,1.174328,-143.98031,-216.14532)"
+       id="g14687">
+      <rect
+         style="fill:none;stroke:#000000;stroke-width:0.42582309;stroke-miterlimit:4;stroke-dasharray:0.42582309, 0.42582309;stroke-dashoffset:0"
+         id="rect3779-5-5-90-8"
+         width="71.66172"
+         height="22"
+         x="366.2746"
+         y="850.86218"
+         ry="6.8124065"
+         rx="6.8139329" />
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-weight:normal;line-height:0%;font-family:'Bitstream Vera Sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
+         x="375.24463"
+         y="865.96301"
+         id="text3781-2-9-7-4-7"><tspan
+           style="font-size:11px;line-height:1.25"
+           id="tspan3783-1-9-6-6-0"
+           x="375.24463"
+           y="865.96301">reahl-tofu</tspan></text>
+    </g>
+    <rect
+       style="fill:none;stroke:#000000;stroke-width:1.53600466;stroke-miterlimit:4;stroke-dasharray:none"
+       id="rect4220"
+       width="164.75694"
+       height="78.301094"
+       x="245.73917"
+       y="829.41058"
+       ry="0" />
+    <rect
+       style="fill:none;stroke:#000000;stroke-width:1.53600466;stroke-miterlimit:4;stroke-dasharray:none"
+       id="rect4222"
+       width="164.75694"
+       height="78.301094"
+       x="245.73917"
+       y="741.72937"
+       ry="0" />
     <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0%;font-family:AlHor;-inkscape-font-specification:AlHor;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
-       x="150.28816"
-       y="672.82709"
-       id="text4357-2"
-       transform="scale(0.999888,1.000112)"><tspan
-         sodipodi:role="line"
-         id="tspan4359-0"
-         x="150.28816"
-         y="672.82709"
-         style="font-size:18.78714561px;line-height:1.25">End-user</tspan><tspan
-         sodipodi:role="line"
-         x="150.28816"
-         y="696.31104"
-         id="tspan4382"
-         style="font-size:18.78714561px;line-height:1.25">functionality</tspan></text>
+       x="327.69113"
+       y="673.31757"
+       id="text4233"
+       transform="scale(0.99988801,1.000112)"><tspan
+         x="327.69113"
+         y="673.31757"
+         id="tspan4231"
+         style="font-size:18.78714561px;line-height:1.25">Browser Tools</tspan></text>
     <text
-       xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0%;font-family:AlHor;-inkscape-font-specification:AlHor;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
-       x="-105.37222"
-       y="942.89227"
-       id="text4357-5"
-       transform="scale(0.99988799,1.000112)"><tspan
-         sodipodi:role="line"
-         id="tspan4359-4"
-         x="-105.37222"
-         y="942.89227"
-         style="font-size:18.78714561px;line-height:1.25">Component framework</tspan></text>
-    <g
-       id="g4065">
-      <g
-         transform="translate(-135)"
-         id="g4014">
-        <rect
-           style="fill:none;stroke:#000000;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:0.5, 0.5;stroke-dashoffset:0"
-           id="rect3779-5"
-           width="137.60844"
-           height="24.660889"
-           x="51.891109"
-           y="992.70068"
-           ry="8"
-           rx="8" />
-        <text
-           xml:space="preserve"
-           style="font-style:normal;font-weight:normal;line-height:0%;font-family:'Bitstream Vera Sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
-           x="65.033134"
-           y="1009.0283"
-           id="text3781-2"
-           transform="scale(0.99988797,1.000112)"><tspan
-             sodipodi:role="line"
-             id="tspan3783-1"
-             x="65.033134"
-             y="1009.0283"
-             style="font-size:12.91616154px;line-height:1.25">reahl-component</tspan></text>
-      </g>
-      <g
-         transform="translate(-135)"
-         id="g4009">
-        <rect
-           style="fill:none;stroke:#000000;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:0.5, 0.5;stroke-dashoffset:0"
-           id="rect3779-5-6"
-           width="137.60844"
-           height="24.660889"
-           x="51.891109"
-           y="956.88361"
-           ry="8"
-           rx="8" />
-        <text
-           xml:space="preserve"
-           style="font-style:normal;font-weight:normal;line-height:0%;font-family:'Bitstream Vera Sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
-           x="66.12735"
-           y="973.92072"
-           id="text3781-2-7"
-           transform="scale(0.99988797,1.000112)"><tspan
-             sodipodi:role="line"
-             id="tspan3783-1-5"
-             x="66.12735"
-             y="973.92072"
-             style="font-size:12.91616154px;line-height:1.25">reahl-commands</tspan></text>
-      </g>
-    </g>
-    <g
-       id="g4285"
-       transform="translate(158.39189)">
-      <rect
-         ry="0"
-         y="653.5481"
-         x="245.07848"
-         height="253.97487"
-         width="166.63991"
-         id="rect2985-0-8"
-         style="fill:none;stroke:#000000;stroke-width:1.60716438;stroke-miterlimit:4;stroke-dasharray:none" />
-      <g
-         transform="matrix(1.174065,0,0,1.174328,-154.09202,-180.22468)"
-         id="g14702">
-        <rect
-           style="fill:none;stroke:#000000;stroke-width:0.42582306;stroke-miterlimit:4;stroke-dasharray:0.42582308, 0.42582308;stroke-dashoffset:0"
-           id="rect3779-5-1"
-           width="87.706833"
-           height="22"
-           x="366.25204"
-           y="760.36212"
-           ry="6.8124065"
-           rx="6.8139324" />
-        <text
-           xml:space="preserve"
-           style="font-style:normal;font-weight:normal;line-height:0%;font-family:'Bitstream Vera Sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
-           x="372.34399"
-           y="775.46295"
-           id="text3781-2-0"><tspan
-             style="font-size:11px;line-height:1.25"
-             sodipodi:role="line"
-             id="tspan3783-1-7"
-             x="372.34399"
-             y="775.46295">reahl-webdev</tspan></text>
-      </g>
-      <g
-         transform="matrix(1.174065,0,0,1.174328,-144.99301,-181.2523)"
-         id="g14697">
-        <rect
-           style="fill:none;stroke:#000000;stroke-width:0.42582309;stroke-miterlimit:4;stroke-dasharray:0.42582309, 0.42582309;stroke-dashoffset:0"
-           id="rect3779-5-5-90"
-           width="72.16172"
-           height="22"
-           x="366.2746"
-           y="791.86218"
-           ry="6.8124065"
-           rx="6.8139329" />
-        <text
-           xml:space="preserve"
-           style="font-style:normal;font-weight:normal;line-height:0%;font-family:'Bitstream Vera Sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
-           x="375.96997"
-           y="806.96301"
-           id="text3781-2-9-7"><tspan
-             style="font-size:11px;line-height:1.25"
-             sodipodi:role="line"
-             id="tspan3783-1-9-6"
-             x="375.96997"
-             y="806.96301">reahl-dev</tspan></text>
-      </g>
-      <text
-         transform="scale(0.99988799,1.000112)"
-         id="text4357-2-8"
-         y="673.31757"
-         x="327.74265"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0%;font-family:AlHor;-inkscape-font-specification:AlHor;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
-         xml:space="preserve"><tspan
-           style="font-size:18.78714561px;line-height:1.25"
-           id="tspan4410"
-           y="673.31757"
-           x="327.74265"
-           sodipodi:role="line">Other tools</tspan></text>
-      <g
-         transform="matrix(1.174065,0,0,1.174328,-160.54938,-252.22468)"
-         id="g14682">
-        <rect
-           style="fill:none;stroke:#000000;stroke-width:0.44763955;stroke-miterlimit:4;stroke-dasharray:0.44763957, 0.44763957;stroke-dashoffset:0"
-           id="rect3779-5-5-90-8-3"
-           width="109.6361"
-           height="21.974382"
-           x="360.78741"
-           y="882.87494"
-           ry="6.8044739"
-           rx="6.8059988" />
-        <text
-           xml:space="preserve"
-           style="font-style:normal;font-weight:normal;line-height:0%;font-family:'Bitstream Vera Sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
-           x="367.3999"
-           y="897.96295"
-           id="text3781-2-9-7-4-7-6"><tspan
-             style="font-size:11px;line-height:1.25"
-             sodipodi:role="line"
-             id="tspan3783-1-9-6-6-0-7"
-             x="367.3999"
-             y="897.96295">reahl-workstation</tspan></text>
-      </g>
-    </g>
-    <g
-       id="g4044">
-      <rect
-         rx="8"
-         ry="8"
-         y="992.70074"
-         x="388.13153"
-         height="25.835218"
-         width="157.51457"
-         id="rect3779-5-5-9"
-         style="fill:none;stroke:#000000;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:0.5, 0.5;stroke-dashoffset:0" />
-      <text
-         transform="scale(0.99988799,1.000112)"
-         id="text3781-2-9-0"
-         y="1009.0283"
-         x="403.65952"
-         style="font-style:normal;font-weight:normal;line-height:0%;font-family:'Bitstream Vera Sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
-         xml:space="preserve"><tspan
-           style="font-size:12.91616154px;line-height:1.25"
-           y="1009.0283"
-           x="403.65952"
-           id="tspan3783-1-9-7"
-           sodipodi:role="line">reahl-sqllitesupport</tspan></text>
-      <rect
-         rx="8"
-         ry="8"
-         y="956.29645"
-         x="388.13153"
-         height="25.835218"
-         width="157.51457"
-         id="rect3779-5-5-9-3"
-         style="fill:none;stroke:#000000;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:0.5, 0.5;stroke-dashoffset:0" />
-      <text
-         transform="scale(0.99988799,1.000112)"
-         id="text3781-2-9-0-6"
-         y="972.66882"
-         x="403.63425"
-         style="font-style:normal;font-weight:normal;line-height:0%;font-family:'Bitstream Vera Sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
-         xml:space="preserve"><tspan
-           style="font-size:12.91616154px;line-height:1.25"
-           y="972.66882"
-           x="403.63425"
-           id="tspan3783-1-9-7-7"
-           sodipodi:role="line">reahl-mysqlsupport</tspan></text>
-    </g>
-    <g
-       id="g4267"
-       transform="translate(-176.26145)">
-      <g
-         transform="translate(0,203.64675)"
-         id="g4227">
-        <rect
-           style="fill:none;stroke:#000000;stroke-width:0.49999997;stroke-miterlimit:4;stroke-dasharray:0.49999999, 0.49999999;stroke-dashoffset:0"
-           id="rect3779-5-1-6"
-           width="104.14759"
-           height="25.835217"
-           x="444.61105"
-           y="666.13892"
-           ry="7.9999995"
-           rx="8" />
-        <text
-           xml:space="preserve"
-           style="font-style:normal;font-weight:normal;font-size:14.09035778px;line-height:0%;font-family:'Bitstream Vera Sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.17419648"
-           x="453.83902"
-           y="683.79572"
-           id="text3781-2-9-7-4"
-           transform="scale(0.99988801,1.000112)"><tspan
-             style="font-size:12.91616154px;line-height:1.25;stroke-width:1.17419648"
-             sodipodi:role="line"
-             id="tspan3783-1-9-6-6"
-             x="453.83902"
-             y="683.79572">reahl-stubble</tspan></text>
-      </g>
-      <rect
-         ry="0"
-         y="654.0481"
-         x="422.00061"
-         height="78.301094"
-         width="149.36848"
-         id="rect2985-0-6"
-         style="fill:none;stroke:#000000;stroke-width:1.53600466;stroke-miterlimit:4;stroke-dasharray:none" />
-      <g
-         transform="matrix(1.174065,0,0,1.174328,11.35728,-266.21382)"
-         id="g14692-3">
-        <g
-           id="g3819">
-          <rect
-             rx="6.8139324"
-             ry="6.8124065"
-             y="818.73322"
-             x="362.84506"
-             height="22"
-             width="101.0571"
-             id="rect3779-5-1-6-6"
-             style="fill:none;stroke:#000000;stroke-width:0.42582306;stroke-miterlimit:4;stroke-dasharray:0.4258231, 0.4258231;stroke-dashoffset:0" />
-          <text
-             id="text3781-2-9-7-4-75"
-             y="833.83405"
-             x="369.42737"
-             style="font-style:normal;font-weight:normal;line-height:0%;font-family:'Bitstream Vera Sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
-             xml:space="preserve"><tspan
-               y="833.83405"
-               x="369.42737"
-               id="tspan3783-1-9-6-6-3"
-               sodipodi:role="line"
-               style="font-size:11px;line-height:1.25">reahl-webdriver</tspan></text>
-        </g>
-      </g>
-      <g
-         transform="matrix(1.174065,0,0,1.174328,23.172686,-216.14532)"
-         id="g14687">
-        <rect
-           style="fill:none;stroke:#000000;stroke-width:0.42582309;stroke-miterlimit:4;stroke-dasharray:0.42582309, 0.42582309;stroke-dashoffset:0"
-           id="rect3779-5-5-90-8"
-           width="71.66172"
-           height="22"
-           x="366.2746"
-           y="850.86218"
-           ry="6.8124065"
-           rx="6.8139329" />
-        <text
-           xml:space="preserve"
-           style="font-style:normal;font-weight:normal;line-height:0%;font-family:'Bitstream Vera Sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
-           x="375.24463"
-           y="865.96301"
-           id="text3781-2-9-7-4-7"><tspan
-             style="font-size:11px;line-height:1.25"
-             sodipodi:role="line"
-             id="tspan3783-1-9-6-6-0"
-             x="375.24463"
-             y="865.96301">reahl-tofu</tspan></text>
-      </g>
-      <rect
-         style="fill:none;stroke:#000000;stroke-width:1.53600466;stroke-miterlimit:4;stroke-dasharray:none"
-         id="rect4220"
-         width="149.36848"
-         height="78.301094"
-         x="422.00061"
-         y="829.41058"
-         ry="0" />
-      <rect
-         style="fill:none;stroke:#000000;stroke-width:1.53600466;stroke-miterlimit:4;stroke-dasharray:none"
-         id="rect4222"
-         width="149.36848"
-         height="78.301094"
-         x="422.00061"
-         y="741.72937"
-         ry="0" />
-      <text
-         xml:space="preserve"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0%;font-family:AlHor;-inkscape-font-specification:AlHor;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
-         x="493.93134"
-         y="673.31757"
-         id="text4233"
-         transform="scale(0.999888,1.000112)"><tspan
-           sodipodi:role="line"
-           x="493.93134"
-           y="673.31757"
-           id="tspan4231"
-           style="font-size:18.78714561px;line-height:1.25">Webdriver</tspan></text>
-      <text
-         transform="scale(0.99988801,1.000112)"
-         id="text4239"
+       transform="scale(0.99988801,1.000112)"
+       id="text4239"
+       y="763.11005"
+       x="329.03503"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0%;font-family:AlHor;-inkscape-font-specification:AlHor;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+       xml:space="preserve"><tspan
+         style="font-size:18.78714561px;line-height:1.25"
+         id="tspan4237"
          y="763.11005"
-         x="493.93134"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0%;font-family:AlHor;-inkscape-font-specification:AlHor;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
-         xml:space="preserve"><tspan
-           style="font-size:18.78714561px;line-height:1.25"
-           id="tspan4237"
-           y="763.11005"
-           x="493.93134"
-           sodipodi:role="line">Tofu</tspan></text>
-      <text
-         transform="scale(0.99988801,1.000112)"
-         id="text4243"
+         x="329.03503">Tofu</tspan></text>
+    <text
+       transform="scale(0.99988801,1.000112)"
+       id="text4243"
+       y="849.36743"
+       x="328.03513"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0%;font-family:AlHor;-inkscape-font-specification:AlHor;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+       xml:space="preserve"><tspan
+         style="font-size:18.78714561px;line-height:1.25"
+         id="tspan4241"
          y="849.36743"
-         x="493.93134"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0%;font-family:AlHor;-inkscape-font-specification:AlHor;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
-         xml:space="preserve"><tspan
-           style="font-size:18.78714561px;line-height:1.25"
-           id="tspan4241"
-           y="849.36743"
-           x="493.93134"
-           sodipodi:role="line">Stubble</tspan></text>
-    </g>
+         x="328.03513">Stubble</tspan></text>
   </g>
 </svg>

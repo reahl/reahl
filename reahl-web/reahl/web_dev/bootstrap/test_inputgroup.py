@@ -19,7 +19,7 @@
 from reahl.tofu import scenario, Fixture, uses
 from reahl.tofu.pytestsupport import with_fixtures
 
-from reahl.webdriver.webdriver import WidgetTester
+from reahl.browsertools.browsertools import WidgetTester
 
 from reahl.web.bootstrap.ui import P
 from reahl.web.bootstrap.forms import TextInput, InputGroup

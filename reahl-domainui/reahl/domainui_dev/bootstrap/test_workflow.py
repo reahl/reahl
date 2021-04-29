@@ -29,7 +29,7 @@ from reahl.domainui.bootstrap.accounts import AccountUI
 from reahl.domainuiegg import DomainUiConfig
 from reahl.domainui_dev.fixtures import BookmarkStub
 
-from reahl.webdriver.webdriver import Browser, XPath
+from reahl.browsertools.browsertools import Browser, XPath
 
 from reahl.web.fw import UserInterface, Url
 from reahl.web.layout import PageLayout

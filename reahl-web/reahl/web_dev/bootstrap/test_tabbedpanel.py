@@ -19,7 +19,7 @@
 from reahl.tofu import scenario, Fixture, uses
 from reahl.tofu.pytestsupport import with_fixtures
 
-from reahl.webdriver.webdriver import WidgetTester, XPath
+from reahl.browsertools.browsertools import WidgetTester, XPath
 
 from reahl.web.fw import Url
 from reahl.web.bootstrap.ui import P

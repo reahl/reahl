@@ -18,7 +18,7 @@
 from reahl.tofu.pytestsupport import with_fixtures
 from reahl.tofu import Fixture, scenario
 
-from reahl.webdriver.webdriver import XPath
+from reahl.browsertools.browsertools import XPath
 
 from reahl.web.fw import UserInterface, Url
 from reahl.web.bootstrap.page import HTML5Page

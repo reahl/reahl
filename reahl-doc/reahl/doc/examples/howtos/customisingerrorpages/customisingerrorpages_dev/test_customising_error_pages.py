@@ -4,7 +4,7 @@ from reahl.tofu.pytestsupport import with_fixtures
 from reahl.tofu import Fixture, uses, scenario
 
 from reahl.web_dev.fixtures import WebFixture
-from reahl.webdriver.webdriver import XPath
+from reahl.browsertools.browsertools import XPath
 
 from reahl.doc.examples.howtos.customisingerrorpages.customisingerrorpages import BreakingUIWithBuiltInErrorPage, BreakingUIWithCustomErrorPage
 

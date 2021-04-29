@@ -19,7 +19,7 @@
 from reahl.tofu import Fixture, uses
 from reahl.tofu.pytestsupport import with_fixtures
 
-from reahl.webdriver.webdriver import XPath
+from reahl.browsertools.browsertools import XPath
 
 from reahl.component.modelinterface import exposed, BooleanField
 

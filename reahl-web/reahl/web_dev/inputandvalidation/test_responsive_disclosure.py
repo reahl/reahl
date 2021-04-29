@@ -24,7 +24,7 @@ from reahl.tofu import Fixture, scenario, uses
 from reahl.tofu.pytestsupport import with_fixtures
 
 from reahl.web_dev.fixtures import WebFixture
-from reahl.webdriver.webdriver import XPath
+from reahl.browsertools.browsertools import XPath
 from reahl.web.fw import Widget
 from reahl.web.ui import Form, Div, SelectInput, Label, P, RadioButtonSelectInput, CheckboxSelectInput, \
     CheckboxInput, ButtonInput, TextInput, FormLayout

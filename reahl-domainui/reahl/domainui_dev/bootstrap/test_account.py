@@ -21,7 +21,7 @@ from reahl.tofu.pytestsupport import with_fixtures
 from reahl.sqlalchemysupport import Session
 from reahl.web.fw import Url, UserInterface
 from reahl.web.layout import PageLayout
-from reahl.webdriver.webdriver import Browser, XPath
+from reahl.browsertools.browsertools import Browser, XPath
 from reahl.web.bootstrap.page import HTML5Page
 from reahl.web.bootstrap.grid import ResponsiveSize, ColumnLayout, ColumnOptions, Container
 from reahl.domain.systemaccountmodel import VerifyEmailRequest, NewPasswordRequest, ActivateAccount

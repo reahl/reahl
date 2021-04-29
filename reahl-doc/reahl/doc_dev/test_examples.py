@@ -25,7 +25,7 @@ from reahl.tofu.pytestsupport import with_fixtures
 from reahl.stubble import SystemOutStub
 
 from reahl.sqlalchemysupport import Session
-from reahl.webdriver.webdriver import XPath, Browser
+from reahl.browsertools.browsertools import XPath, Browser
 
 from reahl.doc.examples.tutorial.hello.hello import HelloUI
 from reahl.doc.examples.howtos.hellonginx import hellonginx

@@ -3,7 +3,13 @@
 Reahl documentation
 ===================
 
-Reahl is a web application framework that allows a programmer to work
+Reahl comprises a number of projects that help with the development of
+interactive web applications.
+
+These projects were developed to support development of Reahl-web but can be
+used without it too.
+
+Reahl-web is a web application framework that allows a programmer to work
 in terms of useful abstractions -- using a single programming language.
 
 The details of how those abstractions are implemented using several
@@ -19,19 +25,26 @@ Introduction
 
    overview
    whatchanged
-   tutorial/index
-   component/introduction
-   webdriver/introduction
-   tofu/introduction
-   stubble/introduction
 
-Howtos
-------
+Web framework (reahl-web)
+-------------------------
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
+   tutorial/index
    howto/index
+
+Other projects
+--------------
+
+.. toctree::
+   :maxdepth: 1
+
+   component/introduction
+   browsertools/introduction
+   tofu/introduction
+   stubble/introduction
 
 API Documentation
 -----------------
@@ -44,9 +57,9 @@ API Documentation
    domain/index
    devtools/index
    devmanual/index
-   webdriver/index
-   tofu/introduction
-   stubble/introduction
+   browsertools/index
+   tofu/index
+   stubble/index
 
 
 Indices and tables

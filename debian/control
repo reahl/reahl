@@ -239,7 +239,7 @@ Description: Web-specific development tools for Reahl.
  installation instructions.
 
 
-Package: python-reahl-webdriver
+Package: python-reahl-browsertools
 Architecture: all
 Depends: openssl (>= 0.9), ${python:Depends}, ${reahl:Depends}
 Provides: ${python:Provides}

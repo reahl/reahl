@@ -23,7 +23,7 @@ from reahl.tofu.pytestsupport import with_fixtures
 
 from reahl.component.modelinterface import FileField, exposed, Event, UploadedFile, ValidationConstraint
 from reahl.web.ui import SimpleFileInput, Form, ButtonInput
-from reahl.webdriver.webdriver import XPath
+from reahl.browsertools.browsertools import XPath
 
 from reahl.web_dev.fixtures import WebFixture
 

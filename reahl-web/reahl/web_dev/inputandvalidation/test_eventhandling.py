@@ -24,7 +24,7 @@ from reahl.tofu import Fixture, scenario, NoException, expected, uses
 from reahl.tofu.pytestsupport import with_fixtures
 from reahl.stubble import EmptyStub
 
-from reahl.webdriver.webdriver import WidgetTester, XPath, Browser
+from reahl.browsertools.browsertools import WidgetTester, XPath, Browser
 
 from reahl.component.exceptions import DomainException, ProgrammerError, IsInstance
 from reahl.component.modelinterface import IntegerField, EmailField, DateField, \

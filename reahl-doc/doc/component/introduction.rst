@@ -26,10 +26,14 @@
 .. |validate_parsed_value| replace:: :meth:`~reahl.component.modelinterface.ValidationConstraint.validate_parsed_value`
 .. |ValidationConstraint| replace:: :class:`~reahl.component.modelinterface.ValidationConstraint`
 
-Component framework - packaging and distributing more than just code
-====================================================================
+Component framework (reahl-component)
+=====================================
 
 The Reahl component framework extends setuptools distribution packages to package and distribute more than just code.
+
+.. seealso::
+
+   :doc:`The API documentation <index>`.
 
 Why this?
 ---------
@@ -59,10 +63,6 @@ Components are not only database-aware. Similar problems are solved for componen
 - annotations of the data and features of its domain objects which can be used by, for example,
   a web framework, to manipulate such objects.
 - housekeeping code that needs to be invoked regularly.
-
-.. seealso::
-
-   :doc:`The API documentation <index>`.
 
 .. note::
 
@@ -98,6 +98,7 @@ reahl shell [-g]
   This runs a shell command for one or more projects, each with a `.reahlproject` file. The `-g` option
   generates a setup.py for the duration of the shell command's execution. Hence, to run a shell command
   which expects a setup.py (such as tox), you would run, for example::
+
     reahl shell -g tox
 
 Basics of .reahlproject

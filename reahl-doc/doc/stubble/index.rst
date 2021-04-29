@@ -1,7 +1,7 @@
 .. Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
 
-Stubble -- A collection of tools for writing stubs in unit tests (reahl.stubble)
-================================================================================
+Stubble
+=======
 
 
 .. automodule:: reahl.stubble

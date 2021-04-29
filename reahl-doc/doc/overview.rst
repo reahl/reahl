@@ -23,10 +23,10 @@ Other projects
 Although shipped with reahl-web, these projects do not require the web framework and can even be used with other
 web frameworks (where applicable):
 
-- :doc:`reahl-webdriver <webdriver/introduction>`: Composable XPaths and an interface to WebDriver
-- :doc:`reahl-component <component/index>`: Infrastructure for component-based development
-- :doc:`reahl-tofu <devtools/tofu>`: Class-based Fixtures and other testing tools
-- :doc:`reahl-stubble <devtools/stubble>`: Stub classes that break if the real class changes interface
+- :doc:`reahl-browsertools <browsertools/introduction>`: Composable XPaths and an interface to WebDriver
+- :doc:`reahl-component <component/introduction>`: Infrastructure for component-based development
+- :doc:`reahl-tofu <tofu/introduction>`: Class-based Fixtures and other testing tools
+- :doc:`reahl-stubble <stubble/introduction>`: Stub classes that break if the real class changes interface
 
 
 API Reference
@@ -82,25 +82,27 @@ Simple support for sending emails is provided by `reahl-mailutil`.
 
 All these are discussed in :doc:`domain/index`.
 
-Webdriver
-~~~~~~~~~
+Browser tools
+~~~~~~~~~~~~~
 
-`reahl-webdriver` is an abstracted interface to WebDriver including
+`reahl-browsertools` is an abstracted interface to WebDriver including
 a programmatic way of composing XPaths. See :doc:`its documentation
-for more detail <webdriver/introduction>`.
+for more detail <browsertools/introduction>`.
 
 Tofu
 ~~~~
 
 The `reahl-tofu` component contains our test Fixture framework and
 extensions that bolt it onto `pytest <https://pytest.org/>`_. It also
-contains a small collection of other test utilities.
+contains a small collection of other test utilities. See :doc:`its documentation
+for more detail <tofu/introduction>`.
 
 Stubble
 ~~~~~~~
 
 Stubble (in `reahl-stubble`) enables one to write stub classes that
-will break if the interfaces of the classes they stub should change.
+will break if the interfaces of the classes they stub should change. See :doc:`its documentation
+for more detail <stubble/introduction>`.
 
 Other tools
 ~~~~~~~~~~~

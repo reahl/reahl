@@ -19,7 +19,7 @@ from reahl.tofu import Fixture, set_up, temp_dir
 from reahl.tofu.pytestsupport import with_fixtures
 from reahl.stubble import replaced
 
-from reahl.webdriver.webdriver import Browser
+from reahl.browsertools.browsertools import Browser
 
 from reahl.web.dhtml import DhtmlUI, DHTMLFile
 from reahl.web.fw import UserInterface

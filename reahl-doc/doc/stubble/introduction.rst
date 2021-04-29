@@ -1,17 +1,20 @@
 .. Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
 
-Stubble -- A collection of tools for writing stubs in unit tests (reahl.stubble)
-================================================================================
-
-.. note:: API docs
-   Please see :doc:`for the complete API <index>`.
+Stubble (reahl-stubble)
+=======================
 
 Introduction
 ^^^^^^^^^^^^
 
 Stubble is a set of tools which can be used to simplify Python unit
 testing code by means of the responsible use of so-called "stub"
-classes. Stubble includes several special classes that can be used
+classes.
+
+.. seealso::
+
+   :doc:`The API documentation <index>`.
+
+Stubble includes several special classes that can be used
 to stub out (and restore) sys.stdout or to mock methods on a class
 temporarily.
 

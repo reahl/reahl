@@ -9,7 +9,7 @@ from reahl.tofu.pytestsupport import with_fixtures
 
 from reahl.sqlalchemysupport import Session
 
-from reahl.webdriver.webdriver import Browser, XPath
+from reahl.browsertools.browsertools import Browser, XPath
 
 from reahl.doc.examples.tutorial.accessbootstrap.accessbootstrap import Address, AddressBook, AddressBookUI
 from reahl.domain.systemaccountmodel import EmailAndPasswordSystemAccount

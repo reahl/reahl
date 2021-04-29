@@ -22,7 +22,7 @@ from reahl.tofu import temp_dir, Fixture, set_up, uses
 from reahl.tofu.pytestsupport import with_fixtures
 from reahl.stubble import easter_egg
 
-from reahl.webdriver.webdriver import Browser
+from reahl.browsertools.browsertools import Browser
 
 from reahl.web.fw import ReahlWSGIApplication, UserInterface
 from reahl.web.ui import HTML5Page

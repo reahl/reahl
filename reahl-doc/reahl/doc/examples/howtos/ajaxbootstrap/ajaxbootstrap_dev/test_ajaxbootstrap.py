@@ -9,7 +9,7 @@
 from reahl.tofu import Fixture, uses
 from reahl.tofu.pytestsupport import with_fixtures
 
-from reahl.webdriver.webdriver import XPath
+from reahl.browsertools.browsertools import XPath
 from reahl.doc.examples.howtos.ajaxbootstrap.ajaxbootstrap import WidgetRefreshUI
 
 from reahl.web_dev.fixtures import WebFixture
