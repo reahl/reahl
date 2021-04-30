@@ -69,7 +69,7 @@ jobs:
           docker load --input /tmp/reahlimage.tar
           docker image ls
           echo "=================1================"
-          docker run --rm  ${{ steps.prep.outputs.tagged_image }} "ls -laR /home/developer/"
+          docker run --rm  ${{ steps.prep.outputs.tagged_image }} "ls -laR /home/"
           echo "=================2================"
           docker run --rm  ${{ steps.prep.outputs.tagged_image }} "ls -ladR /home/developer/.reahlworkspace"
           echo "=================3================"
