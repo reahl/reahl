@@ -39,6 +39,7 @@ jobs:
     container: ubuntu:20.04
     env:
       REAHL_TEST_CONNECTION_URI: "postgresql://@postgres/reahl"
+      PGPASSWORD: "reahl"
     services:
       postgres:
         image: postgres:12.3
