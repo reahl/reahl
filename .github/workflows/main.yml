@@ -21,7 +21,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Build reahl-dev:latest docker image
-        run: docker build --target build-image -t reahl-dev:latest
+        run: docker build --target build-image -t reahl-dev:latest -f Dockerfile .
 
       - name: Extract built wheels
         run: |
