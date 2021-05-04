@@ -68,7 +68,7 @@ jobs:
         run: echo "=== $SHELL ==="
 
       - name: Setup Test env
-      - shell: bash
+        shell: bash
         run: |
           echo "=== $SHELL ==="
           ./scripts/installDebs.sh
