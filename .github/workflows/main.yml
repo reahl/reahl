@@ -36,8 +36,9 @@ jobs:
   test:
     needs: build
     runs-on:  ubuntu-20.04
-    container:
-      image:  ubuntu:20.04
+    container: ubuntu:20.04
+    env:
+      REAHL_TEST_CONNECTION_URI: "postgresql://@postgres/reahl"
     services:
       postgres:
         image: postgres:12.3
@@ -50,8 +51,6 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-        ports:
-          - 5432:5432
 
     steps:
       - uses: actions/checkout@v2
