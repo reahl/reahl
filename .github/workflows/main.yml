@@ -64,10 +64,12 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: 3.8
-      - name: Check docker images
+
+      - name: Run Tests
         run: |
           pwd
           ./scripts/installDebs.sh
+          ./scripts/installDevEnvDebs.sh
           ./scripts/setupDevEnv.sh
           cat ~/.pip/pip.conf
           pip install --pre reahl[dev]
