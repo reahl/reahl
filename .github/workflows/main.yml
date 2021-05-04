@@ -24,11 +24,9 @@ jobs:
         run: docker build --target build-image -t reahl-dev:latest -f Dockerfile .
 
       - name: Extract built wheels
-        run: |
-          docker run --rm -v /tmp/wheels:/tmp/wheels reahl-dev:latest "cp -a /home/developer/.reahlworkspace/dist-egg /tmp/wheels"
-          ls -laR /tmp/wheels
+        run: docker cp $(docker create --rm reahl-dev:latest):/home/developer/.reahlworkspace/dist-egg/ /tmp/wheels
 
-      - name: Upload built wheels
+      - name: Upload built wheels to cache
         uses: actions/upload-artifact@v2
         with:
           name: wheels
@@ -61,8 +59,6 @@ jobs:
         with:
           name: wheels
           path: ~/.reahlworkspace/dist-egg
-      - name: check wheels
-        run: ls -la /tmp/wheels
 
       - name: Setup python
         uses: actions/setup-python@v2
