@@ -64,9 +64,13 @@ jobs:
         with:
           python-version: 3.8
 
+      - name: Check shell
+        run: echo "=== $SHELL ==="
+
       - name: Setup Test env
+      - shell: bash
         run: |
-          pwd
+          echo "=== $SHELL ==="
           ./scripts/installDebs.sh
           ./scripts/installDevEnvDebs.sh
           ./scripts/setupDevEnv.sh
