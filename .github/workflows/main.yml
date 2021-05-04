@@ -50,6 +50,8 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+        ports:
+          - 5432:5432
 
     steps:
       - uses: actions/checkout@v2
@@ -65,7 +67,7 @@ jobs:
         with:
           python-version: 3.8
 
-      - name: XXX
+      - name: Setup Test env
         run: |
           pwd
           ./scripts/installDebs.sh
@@ -73,10 +75,9 @@ jobs:
           ./scripts/setupDevEnv.sh
           python -m pip install --upgrade pip
           cat ~/.pip/pip.conf
-      - name: Setup db for tests
+      - name: Setup db for Tests
         run: |
           pip install --pre reahl[postgresql,dev]
           reahl createdb -U postgres reahl-web/etc
-
       - name: Run Tests
         run: (reahl shell -sdXg tox && (EXITCODE=$?; shred -f $HOME/.gnupg/*; exit $EXITCODE))
