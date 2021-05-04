@@ -37,9 +37,6 @@ jobs:
     needs: build
     runs-on:  ubuntu-20.04
     container: ubuntu:20.04
-    env:
-      REAHL_TEST_CONNECTION_URI: "postgresql://@postgres/reahl"
-      PGPASSWORD: "reahl"
     services:
       postgres:
         image: postgres:12.3
@@ -73,8 +70,11 @@ jobs:
           ./scripts/installDebs.sh
           ./scripts/installDevEnvDebs.sh
           ./scripts/setupDevEnv.sh
+          . $HOME/.profile
           python -m pip install --upgrade pip
           cat ~/.pip/pip.conf
+      - name: Show env
+        run: set
       - name: Setup db for Tests
         run: |
           pip install --pre reahl[postgresql,dev]
