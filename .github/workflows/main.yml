@@ -74,6 +74,7 @@ jobs:
           ./scripts/installDebs.sh
           ./scripts/installDevEnvDebs.sh
           ./scripts/setupDevEnv.sh
+          pip3 install virtualenvwrapper
           . $HOME/.profile
           python -m pip install --upgrade pip
           cat ~/.pip/pip.conf
