@@ -36,7 +36,6 @@ jobs:
   test:
     needs: build
     runs-on:  ubuntu-20.04
-    container: ubuntu:20.04
     services:
       postgres:
         image: postgres:12.3
@@ -75,7 +74,7 @@ jobs:
           ./scripts/setupDevEnv.sh
           . $HOME/.profile
           python -m pip install --upgrade pip
-          cat ~/.pip/pip.conf
+          cat $HOME/.pip/pip.conf
       - name: Show env
         run: set
       - name: Setup db for Tests
