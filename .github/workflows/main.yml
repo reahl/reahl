@@ -77,7 +77,10 @@ jobs:
           python -m pip install --upgrade pip
           cat $HOME/.pip/pip.conf
       - name: Show env
-        run: set
+        run: |
+          set
+          which python
+          which python3 || "true"
       - name: Setup db for Tests
         run: |
           pip install --pre reahl[postgresql,dev]
