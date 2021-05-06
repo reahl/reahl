@@ -58,9 +58,10 @@ def clean_virtual_env():
 
 def get_venv_basedir():
     exec_prefix = distutils.sysconfig.get_config_vars()['exec_prefix']
-    if hasattr(sys, 'real_prefix') is False or exec_prefix.startswith(sys.real_prefix):
+    venv_created_dir = read_env_variable('VENV', 'You must be in a virtual environment')
+    if exec_prefix != venv_created_dir:
         raise AssertionError('You must be in a virtual environment')
-    return os.path.abspath(distutils.sysconfig.get_config_vars()['exec_prefix'] + '/../')
+    return exec_prefix
 
 
 def clean_workspace(reahl_workspace):
