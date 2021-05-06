@@ -1,4 +1,4 @@
-#!/bin/sh -evx
+#!/bin/bash -evx
 
 VENV=$1
 

@@ -1,4 +1,4 @@
-#!/bin/bash -ev
+#!/bin/sh -ev
 
 # Generate the key
 ssh-keygen -t rsa -f ~/.ssh/id_localhost -N ""

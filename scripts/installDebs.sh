@@ -1,4 +1,4 @@
-#!/bin/bash -ev
+#!/bin/sh -ev
 
 PYTHON_DEPS="python3 python3-venv"
 MYSQL_BUILD_DEPS="build-essential python3-dev gcc"

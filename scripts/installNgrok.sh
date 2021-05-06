@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 mkdir -p $HOME/testdownloads
 if [ ! -e $HOME/testdownloads/ngrok-stable-linux-amd64.zip ]; then

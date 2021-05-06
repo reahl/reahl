@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/sh -e
 
 # Setup postgresql user and test database
 /etc/init.d/postgresql start

@@ -18,6 +18,7 @@
 import sys
 import subprocess
 import pkg_resources
+import distutils.sysconfig
 import os
 import shutil
 import glob
@@ -45,12 +46,22 @@ def read_env_variable(variable, error_message):
     except KeyError as e:
       raise AssertionError(error_message)
 
-def clean_virtual_env(virtual_env):
+
+def clean_virtual_env():
+    virtual_env = get_venv_basedir()
     for f in glob.iglob(os.path.join(virtual_env, 'lib', 'python*', 'site-packages', '*egg-link')):
         rm_f(f)
 
     for f in glob.iglob(os.path.join(virtual_env, 'lib', 'python*', 'site-packages', 'easy-install.pth')):
         rm_f(f)
+
+
+def get_venv_basedir():
+    exec_prefix = distutils.sysconfig.get_config_vars()['exec_prefix']
+    if hasattr(sys, 'real_prefix') is False or exec_prefix.startswith(sys.real_prefix):
+        raise AssertionError('You must be in a virtual environment')
+    return os.path.abspath(distutils.sysconfig.get_config_vars()['exec_prefix'] + '/../')
+
 
 def clean_workspace(reahl_workspace):
     rm_f(os.path.join(reahl_workspace, '.reahlworkspace', 'workspace.projects'))
@@ -245,14 +256,13 @@ def ensure_reahl_project_dependencies_installed():
     return True
 
 
-virtual_env = read_env_variable('VIRTUAL_ENV', 'You should develop on Reahl within a virtualenv.')
 reahl_workspace = read_env_variable('REAHLWORKSPACE',
                     'Please set the environment variable REAHLWORKSPACE to point to a parent directory of %s' \
                           % (os.getcwd()))
 reahl_dev_requires_file = os.path.join(os.getcwd(), 'reahl-dev', 'reahl_dev.egg-info', 'requires.txt')
 core_project_dirs = ['reahl-component', 'reahl-stubble', 'reahl-tofu', 'reahl-dev']
 
-clean_virtual_env(virtual_env)
+clean_virtual_env()
 clean_workspace(reahl_workspace)
 clean_egg_info_dirs()
 

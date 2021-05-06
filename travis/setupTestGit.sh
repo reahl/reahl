@@ -1,4 +1,4 @@
-#!/bin/bash -ev
+#!/bin/sh -ev
 
 echo "Email: $EMAIL"
 echo "Name: $DEBFULLNAME"

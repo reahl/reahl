@@ -68,13 +68,11 @@ jobs:
         run: echo "=== $SHELL ==="
 
       - name: Setup Test env
-        shell: bash
         run: |
           echo "=== $SHELL ==="
           ./scripts/installDebs.sh
           ./scripts/installDevEnvDebs.sh
           ./scripts/setupDevEnv.sh
-          pip install virtualenvwrapper
           . $HOME/.profile
           python -m pip install --upgrade pip
           cat ~/.pip/pip.conf

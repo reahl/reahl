@@ -1,4 +1,4 @@
-#!/bin/bash -ev
+#!/bin/sh -ev
 
 PYTHON_DEPS="python3 python3-venv virtualenvwrapper"
 
@@ -10,7 +10,7 @@ POSTGRES_DEV="postgresql-server-dev-all"
 OS_DEPS_BUILD="ca-certificates wget gnupg openssh-server"
 OS_DEPS_DEV="wget gnupg"
 
-BUILD_DEPS="$PYTHON_DEPS $OS_DEPS_BUILD $PYTHON_DEV $LXML_DEV $MYSQL_DEV $POSTGRES_DEV"
+BUILD_DEPS="$PYTHON_DEPS $OS_DEPS_BUILD $OS_DEPS_DEV $PYTHON_DEV $LXML_DEV $MYSQL_DEV $POSTGRES_DEV"
 
 export DEBIAN_FRONTEND=noninteractive
 

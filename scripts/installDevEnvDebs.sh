@@ -1,4 +1,4 @@
-#!/bin/bash -ev
+#!/bin/sh -ev
 
 MYSQL="default-libmysqlclient-dev mysql-client"
 POSTGRES="postgresql-client"
