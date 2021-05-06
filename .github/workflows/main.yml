@@ -36,6 +36,7 @@ jobs:
   test:
     needs: build
     runs-on:  ubuntu-20.04
+    container: ubuntu:20.04
     services:
       postgres:
         image: postgres:12.3
@@ -68,11 +69,11 @@ jobs:
 
       - name: Setup Test env
         run: |
-          echo "=== $SHELL ==="
           ./scripts/installDebs.sh
           ./scripts/installDevEnvDebs.sh
           ./scripts/setupDevEnv.sh
           . $HOME/.profile
+          apt-get install python-pip
           python -m pip install --upgrade pip
           cat $HOME/.pip/pip.conf
       - name: Show env
