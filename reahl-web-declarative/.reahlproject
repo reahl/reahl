@@ -17,6 +17,7 @@
     <egg name="reahl-stubble"/>
     <egg name="reahl-dev"/>
     <egg name="reahl-webdev"/>
+    <egg name="reahl-browsertools"/>
     <egg name="reahl-domain"/>
     <egg name="reahl-postgresqlsupport"/>
   </deps>

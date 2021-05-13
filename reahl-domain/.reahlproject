@@ -20,6 +20,7 @@
     <egg name="reahl-dev"/>
     <egg name="reahl-postgresqlsupport"/>
     <egg name="reahl-webdev"/>
+    <egg name="reahl-browsertools"/>
   </deps>
 
   <persisted>
