@@ -54,6 +54,7 @@ class StubThirdPartyDependency(StubDependency):
     def is_component(self):
         return False
 
+
 @stubclass(Dependency)
 class StubThirdPartyComponentDependency(StubThirdPartyDependency):
 
