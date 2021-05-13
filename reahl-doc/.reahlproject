@@ -24,6 +24,7 @@
     <egg name="reahl-stubble"/>
     <egg name="reahl-dev"/>
     <egg name="reahl-webdev"/>
+    <egg name="reahl-browsertools"/>
     <egg name="reahl-postgresqlsupport"/>
     <egg name="reahl-sqlitesupport"/>
     <egg name="reahl-mysqlsupport"/>

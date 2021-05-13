@@ -17,6 +17,7 @@
   <egg name="reahl-stubble"/>
   <egg name="reahl-dev"/>
   <egg name="reahl-webdev"/>
+  <egg name="reahl-browsertools"/>
  </deps>
  <persisted>
   <class locator="reahl.doc.examples.tutorial.sessionscopebootstrap.sessionscopebootstrap:User"/>
