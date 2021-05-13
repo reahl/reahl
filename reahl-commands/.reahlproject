@@ -14,6 +14,12 @@
     <egg name="reahl-stubble"/>
   </deps>
 
+  <version number="5.1">
+    <deps purpose="run">
+      <egg name="reahl-component" versionlocked="True"/>
+    </deps>
+  </version>
+
   <version number="5.0">
     <deps purpose="run">
       <egg name="reahl-component" versionlocked="True"/>

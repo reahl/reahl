@@ -20,7 +20,7 @@ from webob import Request
 from reahl.stubble import stubclass
 from reahl.tofu.pytestsupport import with_fixtures
 
-from reahl.webdev.tools import Browser
+from reahl.browsertools.browsertools import Browser
 
 from reahl.web.fw import UserInterface, Widget, FactoryDict, UserInterfaceFactory, RegexPath, UrlBoundView
 from reahl.web.ui import HTML5Page, P, A, Div, Slot

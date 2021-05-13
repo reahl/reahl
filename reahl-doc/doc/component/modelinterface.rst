@@ -224,6 +224,12 @@ Not
    :members:
 
 
+secured
+"""""""
+
+.. autoclass:: secured
+   :members:
+
 SecuredDeclaration
 """"""""""""""""""
 

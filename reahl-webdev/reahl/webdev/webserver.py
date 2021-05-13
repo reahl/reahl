@@ -43,6 +43,7 @@ from reahl.component.exceptions import ProgrammerError
 from reahl.component.context import ExecutionContext, NoContextFound
 from reahl.component.config import StoredConfiguration
 from reahl.component.shelltools import Executable
+from reahl.component.decorators import deprecated
 from reahl.web.fw import ReahlWSGIApplication
 
 
@@ -397,7 +398,7 @@ class ReahlWebServer:
        :param config: The :class:`reahl.component.config.Configuration` instance to use as config for this process.
     """
     @classmethod
-    def fromConfigDirectory(cls, directory):
+    def from_config_directory(cls, directory):
         """Creates a new ReahlWebServer given a port and standard configuration directory for an application.
         
            :param directory: The directory from which configuration will be read.
@@ -405,11 +406,19 @@ class ReahlWebServer:
            ..versionchanged:: 5.1
              Removed port keyword argument, port and encrypted port will be set from the config found in the directory argument.
 
+           ..versionchanged:: 5.1
+             Renamed from camel case name.
+
         """
         config = StoredConfiguration(directory)
         config.configure()
 
-        return cls(config, config.web.default_http_port, config.web.encrypted_http_port)
+        return cls(config)
+
+    @classmethod
+    @deprecated('renamed to from_config_directory','5.1')
+    def fromConfigDirectory(cls, directory, port):
+        return cls.from_config_directory(directory)
 
     def set_app(self, new_wsgi_app):
         """Changes the currently served application to `new_wsgi_app`."""
@@ -418,14 +427,15 @@ class ReahlWebServer:
     def set_noop_app(self):
         self.set_app(NoopApp())
 
-    def __init__(self, config, port, encrypted_port):
+    def __init__(self, config):
         super().__init__()
         self.in_separate_thread = None
         self.running = False
         self.handlers = {}
         self.httpd_thread = None
-        self.port = int(port)
-        self.encrypted_port = int(encrypted_port)
+
+        self.port = int(config.web.default_http_port)
+        self.encrypted_port = int(config.web.encrypted_http_port)
         certfile = pkg_resources.resource_filename(__name__, 'reahl_development_cert.pem')
         self.reahl_wsgi_app = WrappedApp(ReahlWSGIApplication(config))
         try:

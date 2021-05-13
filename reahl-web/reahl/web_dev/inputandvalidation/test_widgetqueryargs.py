@@ -20,7 +20,7 @@ from reahl.tofu.pytestsupport import with_fixtures
 
 from reahl.component.exceptions import ProgrammerError
 
-from reahl.webdev.tools import Browser, XPath
+from reahl.browsertools.browsertools import Browser, XPath
 
 from reahl.component.modelinterface import exposed, IntegerField, MultiChoiceField, Choice, Action, Event
 from reahl.web.fw import Bookmark, Widget
