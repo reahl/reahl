@@ -7,8 +7,6 @@ Development tools
    :maxdepth: 2
 
    xmlref
-   stubble
-   tofu
    tools
    
 

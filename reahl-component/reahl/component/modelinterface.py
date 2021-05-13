@@ -1120,7 +1120,7 @@ class Event(Field):
        :keyword readable: (See :class:`Field`)
        :keyword writable: (See :class:`Field`)
        :keyword disallowed_message: (See :class:`Field`)
-       :keyword event_argument_fields: Keyword arguments given in order to specify the names of the auirguments 
+       :keyword event_argument_fields: Keyword arguments given in order to specify the names of the arguments
                         this Event should have. The value to each keyword argument is a Field
                         governing input to that Event argument.
     """
@@ -1162,6 +1162,7 @@ class Event(Field):
         return self.can_read() and super().can_write()
 
     def fire(self, force=False):
+        """Fire this event - which executes the Action of the event."""
         if not force and not self.occurred:
             raise ProgrammerError('attempted to fire Event that has not occurred: %s' % self)
         return self.action(self)

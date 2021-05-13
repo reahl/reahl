@@ -16,6 +16,7 @@
   <egg name="reahl-stubble"/>
   <egg name="reahl-dev"/>
   <egg name="reahl-webdev"/>
+  <egg name="reahl-browsertools"/>
  </deps>
  <!-- The added configuration -->
  <configuration locator="reahl.doc.examples.tutorial.componentconfigbootstrap.componentconfigbootstrap:AddressConfig"/>

@@ -31,7 +31,6 @@ from selenium.webdriver.support.ui import WebDriverWait, Select
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 
-from reahl.web.fw import Url
 
 
 # See: https://bitbucket.org/ianb/webtest/issue/45/html5-form-associated-inputs-break-webtest
@@ -231,7 +230,7 @@ class Browser(BasicBrowser):
 
         .. versionadded:: 5.0
         """
-        return Url(self.last_response.request.url)
+        return urllib.parse.urlparse(self.last_response.request.url, allow_fragments=True)
 
     def get_form_for(self, locator):
         """Return the form for the given `locator`.
@@ -1022,13 +1021,15 @@ class DriverBrowser(BasicBrowser):
 
            :param url_string: A string containing the URL to be opened.
         """
-        url = Url(url_string)
-        if not url.is_network_absolute:
-            url.hostname = self.default_host
-            url.scheme = self.default_scheme
-            url.port = self.default_port
-        self.web_driver.get(str(url))
+        parsed_url = urllib.parse.urlparse(url_string, allow_fragments=True)
+        if not (parsed_url.scheme and parsed_url.path and parsed_url.path.startswith('/')):
+            parsed_url = parsed_url._replace(scheme=self.default_scheme)
+            parsed_url = parsed_url._replace(netloc='{}:{}'.format(self.default_host, self.default_port))
+
+        new_url_string = urllib.parse.urlunparse(parsed_url)
+        self.web_driver.get(new_url_string)
         self.wait_for_page_to_load()
+
 
     def click(self, locator, wait=True, wait_for_ajax=True):
         """Clicks on the element found by `locator`.
@@ -1192,7 +1193,8 @@ class DriverBrowser(BasicBrowser):
     @property
     def current_url(self):
         """Returns the :class:`reahl.web.fw.Url` of the current location."""
-        return Url(self.web_driver.current_url)
+        return urllib.parse.urlparse(self.web_driver.current_url, allow_fragments=True)
+
 
     def go_back(self):
         """GETs the previous location (like the back button on a browser).

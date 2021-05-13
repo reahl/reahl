@@ -19,7 +19,7 @@
 from reahl.tofu import Fixture
 from reahl.tofu.pytestsupport import with_fixtures
 
-from reahl.webdev.tools import XPath
+from reahl.browsertools.browsertools import XPath
 
 from reahl.component.modelinterface import exposed, Field
 

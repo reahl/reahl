@@ -1,3 +1,4 @@
+prune reahl-browsertools
 prune reahl-bzrsupport
 prune reahl-component
 prune reahl-dev

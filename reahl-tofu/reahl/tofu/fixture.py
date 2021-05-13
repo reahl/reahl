@@ -123,11 +123,6 @@ class Fixture:
 
        A Fixture can be used by many tests and also by other Fixtures.
 
-       .. note:: 
-          
-          Do not confuse Fixtures with Django's Fixtures or with
-          pytest's Fixtures. They are all related, but work
-          differently.
 
        To create your own Fixture, create a subclasses of Fixture.
        On such a subclass, a new member of the Fixture is defined by a specially

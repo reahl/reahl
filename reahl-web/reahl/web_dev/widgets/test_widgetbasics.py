@@ -19,7 +19,7 @@ from reahl.tofu import expected
 from reahl.tofu.pytestsupport import with_fixtures
 from reahl.stubble import EmptyStub, stubclass
 
-from reahl.webdev.tools import WidgetTester, Browser
+from reahl.browsertools.browsertools import WidgetTester, Browser
 
 from reahl.component.exceptions import IncorrectArgumentError, IsInstance
 from reahl.web.fw import UserInterface, Widget

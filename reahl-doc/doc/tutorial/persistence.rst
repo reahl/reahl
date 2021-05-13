@@ -76,7 +76,7 @@ Whenever you change a `.reahlproject` file though, be sure to run:
 
 .. code-block:: bash
 
-   reahl setup -- develop -N
+   reahl setup develop -N
 
 To create a database, run:
 

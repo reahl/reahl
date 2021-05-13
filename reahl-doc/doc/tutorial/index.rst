@@ -1,10 +1,9 @@
 .. Copyright 2013-2016 Reahl Software Services (Pty) Ltd. All rights reserved.
  
-Tutorial
-========
+Web framework tutorial
+======================
 
-This tutorial is intended for those who'd like to understand Reahl and
-what it is about.
+This tutorial is intended for those who'd like to understand Reahl-web, with some coverage of our other projects.
 
 
 Get started

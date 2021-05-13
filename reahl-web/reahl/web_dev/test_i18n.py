@@ -21,7 +21,7 @@ from reahl.tofu.pytestsupport import with_fixtures
 from reahl.component.i18n import Catalogue
 from reahl.web.fw import UserInterface, IdentityDictionary, Bookmark
 from reahl.web.ui import HTML5Page
-from reahl.webdev.tools import Browser
+from reahl.browsertools.browsertools import Browser
 
 from reahl.web_dev.fixtures import WebFixture
 

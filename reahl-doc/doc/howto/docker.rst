@@ -68,19 +68,19 @@ app
   The hellodockernginx image runs your app in a *uwsgi* server. Your **app**'s config
   points to the **database** service using the default ports.  See `prod/etc/reahl.config.py`:
 
-  .. literal-include:: ../../reahl/examples/howtos/hellodockernginx/prod/etc/reahl.config.py
+  .. literalinclude:: ../../reahl/doc/examples/howtos/hellodockernginx/prod/etc/reahl.config.py
 
   Since this example uses services defined for docker-compose, this configuration can hard-code
   the service name `database`.
 
   The uwsi config ensures the hellodockernginxwsgi module is run by uwsgi:
 
-  .. literal-include:: ../../reahl/examples/howtos/hellodockernginx/prod/uwsgi/app.ini
+  .. literalinclude:: ../../reahl/doc/examples/howtos/hellodockernginx/prod/uwsgi/app.ini
 
   The hellodockernginxwsgi module is part of your application and hard-codes where the Reahl configuration
   is read from:
 
-  .. literal-include:: ../../reahl/examples/howtos/hellodockernginx/hellodockernginxwsgi.py
+  .. literalinclude:: ../../reahl/doc/examples/howtos/hellodockernginx/hellodockernginxwsgi.py
 
   Locations in the built image to take note of:
 
@@ -104,12 +104,12 @@ web
   to reverse-proxy to your app using the `uwsgi_pass` directive. Note that since this is using services defined for
   docker-compose, this configuration can hard-code the service name `app`:
 
-  .. literal-include:: ../../reahl/examples/howtos/hellodockernginx/prod/nginx/app.conf
+  .. literalinclude:: ../../reahl/doc/examples/howtos/hellodockernginx/prod/nginx/app.conf
 
   In order to be able to copy this config into the built image, this service also builds its container from
   `prod/nginx/Dockerfile`:
 
-  .. literal-include:: ../../reahl/examples/howtos/hellodockernginx/prod/nginx/Dockerfile
+  .. literalinclude:: ../../reahl/doc/examples/howtos/hellodockernginx/prod/nginx/Dockerfile
 
   .. note::
      This configuration uses the insecure `snakeoil` certificates shipped in the ssl-cert package. You will
@@ -161,7 +161,7 @@ Create and initialise the database
 
 Prepare the database for your app by executing:
 
-.. literal-include:: ../../reahl/examples/howtos/hellodockernginx/scripts/setup_database.sh
+.. literalinclude:: ../../reahl/doc/examples/howtos/hellodockernginx/scripts/setup_database.sh
 
 
 Check the database:
@@ -208,7 +208,7 @@ Similarly, expect:
 ```<p>Hello World!<p>```
 
 
-.. _mysql
+.. _mysql:
 
 Changes for a MySQL database
 ----------------------------

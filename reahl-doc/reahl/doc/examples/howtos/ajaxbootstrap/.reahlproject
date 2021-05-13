@@ -16,5 +16,6 @@
   <egg name="reahl-stubble"/>
   <egg name="reahl-dev"/>
   <egg name="reahl-webdev"/>
+  <egg name="reahl-browsertools"/>
  </deps>
 </project>

@@ -1,0 +1,12 @@
+*egg-info
+*.spic
+*~
+
+build
+build-stamp
+configure-stamp
+tmp
+debian/python-reahl-browsertools.*.debhelper
+debian/python-reahl-browsertools.substvars
+debian/python-reahl-browsertools
+debian/files

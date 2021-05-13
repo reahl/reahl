@@ -19,7 +19,7 @@ from reahl.tofu import Fixture, scenario, uses
 from reahl.tofu.pytestsupport import with_fixtures
 from reahl.stubble import EmptyStub
 
-from reahl.webdev.tools import WidgetTester, Browser, XPath
+from reahl.browsertools.browsertools import WidgetTester, Browser, XPath
 
 from reahl.component.modelinterface import Action, Allowed, Event, Field, exposed
 from reahl.web.fw import Widget, UserInterface

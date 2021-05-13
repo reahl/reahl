@@ -23,6 +23,17 @@ from collections.abc import Callable
 
 
 class StubClass:
+    """A stub class is a class you use in a test as a substitute for another
+       class, but with some methods implemented differently to the real class
+       for purposes of the current test.
+
+       You mark a class as a stub class by decorating it with @stubclass(TheRealClass).
+
+       If you do this, the signatures of the methods you supply on the stubclass
+       are checked against those on the real class in order to ensure your tests
+       will break if the signature of the methods provided on the stub no longer
+       match that of the same methods in TheRealClass.
+    """
     def __init__(self, orig, check_attributes_also=False):
         self.orig = orig
         self.check_attributes_also = check_attributes_also
@@ -102,6 +113,13 @@ class StubClass:
 
 #------------------------------------------------[ Impostor ]
 class Impostor:
+    """A class that inherits from Impostor, and is also a @stubclass(TheRealClass) gains the dubious benefit
+       that the following would be true:
+
+       .. code-block:: Python
+
+          isinstance(stub_class_instance, TheRealClass)
+    """
     def __getattribute__(self, name):
         _stubbed_class = object.__getattribute__(self, '_stubbed_class')
         if name == '__class__':
@@ -112,6 +130,19 @@ class Impostor:
 
 #------------------------------------------------[ Delegate ]
 class Delegate:
+    """A class that inherits from Delegate, and is an @stubclass(TheRealClass) can be constructed as a wrapper to
+       an already existing instance of TheRealClass.
+
+       When methods are called on it that it defines itself, they will be called. When calling methods not 
+       defined on it, these are delegated to the wrapped TheRealClass.
+
+       Like an Impostor, the following is true for a Delegate:
+
+       .. code-block:: Python
+
+          isinstance(stub_class_instance, TheRealClass)
+
+    """
     def __init__(self, real):
         super().__setattr__('real', real)
 
@@ -161,6 +192,21 @@ class StubbleDescriptor:
 
 #------------------------------------------------[ SlotConstrained ]
 class SlotConstrained(StubbleDescriptor):
+    """
+    Assign an instance of slotconstrained to a variable in class scope to check that
+    a similarly named variable exists in the __slots__ of the real class:
+
+    .. code-block::
+
+       class TheRealClass:
+           __slots__ = ('a')
+
+       @stubclass(TheRealClass)
+       class Stub:
+           a = slotconstrained()
+
+    """
+
     def available_slots(self, cls):
         def flatten_slots(l, cls):
             s = cls.__slots__
@@ -184,6 +230,11 @@ class SlotConstrained(StubbleDescriptor):
 
 #------------------------------------------------[ Exempt ]
 class Exempt(StubbleDescriptor):
+    """
+    A method on a stub class that is decorated with @exempt will not be checked against the real class.
+
+    This allows you to add methods on the stub that are NOT present on the real class.
+    """
     def __init__(self, value):
         self.value = value
 
@@ -201,6 +252,20 @@ class Exempt(StubbleDescriptor):
 
 #------------------------------------------------[ CheckedInstance ]    
 class CheckedInstance(StubbleDescriptor):
+    """
+    Assign an instance of checkedinstance to a variable in class scope to check that
+    a similarly named class variable exists on the real class:
+
+    .. code-block::
+
+       class TheRealClass:
+           a = 'something'
+
+       @stubclass(TheRealClass)
+       class Stub:
+           a = checkedinstance()
+
+    """
     def stubble_check(self, instance, orig, stub):
         assert hasattr(orig, self.name), \
                'stub attribute mismatch for "%s.%s": %s not found as class attribute of %s' % \

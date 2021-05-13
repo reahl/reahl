@@ -22,7 +22,7 @@ from reahl.tofu.pytestsupport import with_fixtures
 from reahl.stubble import EmptyStub, stubclass
 
 from reahl.web.ui import *
-from reahl.webdev.tools import WidgetTester
+from reahl.browsertools.browsertools import WidgetTester
 
 from reahl.web_dev.fixtures import WebFixture
 

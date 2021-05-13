@@ -24,7 +24,7 @@ from reahl.tofu import scenario, Fixture
 from reahl.tofu.pytestsupport import with_fixtures
 
 from reahl.component.modelinterface import Field
-from reahl.webdev.tools import Browser
+from reahl.browsertools.browsertools import Browser
 from reahl.web.fw import Resource, SubResource, Widget
 
 from reahl.web_dev.fixtures import WebFixture

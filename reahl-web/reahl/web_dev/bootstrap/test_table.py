@@ -18,7 +18,7 @@
 from reahl.tofu import scenario, Fixture
 from reahl.tofu.pytestsupport import with_fixtures
 
-from reahl.webdev.tools import XPath
+from reahl.browsertools.browsertools import XPath
 
 import reahl.web_dev.widgets.test_table
 from reahl.component.modelinterface import Field, IntegerField, exposed

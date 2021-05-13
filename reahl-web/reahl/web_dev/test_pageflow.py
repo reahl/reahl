@@ -21,7 +21,7 @@ import urllib.parse
 from reahl.tofu import expected
 from reahl.tofu.pytestsupport import with_fixtures
 
-from reahl.webdev.tools import Browser, XPath
+from reahl.browsertools.browsertools import Browser, XPath
 from reahl.component.modelinterface import Event, Field, Action, exposed, IntegerField
 from reahl.component.exceptions import ProgrammerError
 

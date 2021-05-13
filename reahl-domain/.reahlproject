@@ -20,6 +20,7 @@
     <egg name="reahl-dev"/>
     <egg name="reahl-postgresqlsupport"/>
     <egg name="reahl-webdev"/>
+    <egg name="reahl-browsertools"/>
   </deps>
 
   <persisted>
@@ -41,6 +42,16 @@
 
   <schedule locator="reahl.workflowmodel:DeferredAction.check_deadline"/>
 
+  <version number="5.1">
+    <deps purpose="run">
+      <egg name="reahl-component" versionlocked="True"/>
+      <egg name="reahl-mailutil" versionlocked="True"/>
+      <egg name="reahl-sqlalchemysupport" versionlocked="True"/>
+      <egg name="reahl-web-declarative" versionlocked="True"/>
+      <thirdpartyegg name="passlib" minversion="1.7.1" maxversion="1.7.9999"/>
+    </deps>
+  </version>
+
   <version number="5.0">
     <deps purpose="run">
       <egg name="reahl-component" versionlocked="True"/>
@@ -49,9 +60,8 @@
       <egg name="reahl-web-declarative" versionlocked="True"/>
       <thirdpartyegg name="passlib" minversion="1.7.1" maxversion="1.7.9999"/>
     </deps>
-
   </version>
-  
+
   <version number="4.0">
     <deps purpose="run">
       <egg name="reahl-component" versionlocked="True"/>

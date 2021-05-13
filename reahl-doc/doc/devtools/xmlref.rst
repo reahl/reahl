@@ -1,7 +1,8 @@
 .. Copyright 2013-2016 Reahl Software Services (Pty) Ltd. All rights reserved.
 
 .. |Configuration| replace:: :class:`~reahl.component.config.Configuration`
- 
+
+
 XML reference for .reahlproject
 ===============================
 
@@ -16,11 +17,15 @@ project. It is used to create a `setup.py` on the fly. It contains other informa
 Project basics and dependencies
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+.. _xml_project:
+
 <project type="egg">
 """"""""""""""""""""
 
   The project element is the top-level element in a .reahlproject file. It requires one attribute: `type`, which 
   should be the string "egg". 
+
+.. _xml_version:
 
 <version>
 """""""""
@@ -33,7 +38,9 @@ Project basics and dependencies
 
   This tag is used mainly for computing migrations and dependencies. A database or dependency change thus counts
   as at least a minor version change.
-  
+
+.. _xml_deps:
+
 <deps>
 """"""
 
@@ -44,20 +51,8 @@ Project basics and dependencies
   Each dependency is listed as a child of a `<deps>` element, using the `<egg>` or `<thirdpartyegg>` elements.
 
   <deps purpose="run"> is treated specially. It can only occur inside a <version> tag.
-  
-<egg>
-"""""
 
-  Used to list a single dependency within a `<deps>` element. It requires one attribute: `name`, which should
-  be set to the name of the egg referred to. Two more attributes are optional:  `version` can be specified (as
-  a string) to pin down the version of the dependency manually to what is specified here; `ignoreversion` 
-  (a boolean value) can be specified as False to indicate that the dependency can be on any version of the
-  specified egg.
-  
-  Use this element only for other projects in your workspace, under your control. Version information for such
-  dependencies can be obtained from the metainfo in your workspace.
-
-  **Changed in 3.0**: The optional `name` and `version` attributes were added.
+.. _xml_thirdpartyegg:
 
 <thirdpartyegg>
 """""""""""""""
@@ -65,10 +60,24 @@ Project basics and dependencies
   Used to list a single dependency within a `<deps>` element. It requires one attribute: `name`, which should
   be set to the name of the egg referred to.
   
-  Use this element to refer to any project, even if you are not the developer. Version information for such
+  **Use this element to refer to any project, even if you are not the developer**. Version information for such
   dependencies have to be specified explicitly. This is done using the `maxversion` and `minversion` attributes
   to this element.
   
+<egg>
+"""""
+
+  Used to list a single dependency within a `<deps>` element. It requires one attribute: `name`, which should
+  be set to the name of the egg referred to. Two more attributes are optional:  `version` can be specified (as
+  a string) to pin down the version of the dependency manually to what is specified here; `ignoreversion`
+  (a boolean value) can be specified as False to indicate that the dependency can be on any version of the
+  specified egg.
+
+  **Use this element only for other projects in your workspace**, under your control. Version information for such
+  dependencies is automatically derived from the metainfo in your workspace.
+
+  **Changed in 3.0**: The optional `name` and `version` attributes were added.
+
 
 Component functionality
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -84,11 +93,15 @@ locator attribute
   module concerned. The part after the colon is the name of the object to import. It can be a simple name, 
   but for class attributes it can also be dot-separated (ie, 'MyClass.method_name').
 
+.. _xml_configuration:
+
 <configuration>
 """""""""""""""
 
   Used to indicate the :class:`~reahl.component.config.Configuration` class to be used for this component. It
   requires a :ref:`locator-attribute`.
+
+.. _xml_persisted:
 
 <persisted>
 """""""""""
@@ -96,11 +109,16 @@ locator attribute
   Used to list all the classes in this component that are persisted, using an ORM and hence need special handling.
   Each class is listed in-order using a `<class>` element.
 
+.. _xml_class:
+
 <class>
 """""""
 
   Used to list one class in this component as part of either the `<persisted>` list of classes,
   or the `<migrations>` list. It requires a :ref:`locator-attribute`.
+
+
+.. _xml_translations:
 
 <translations>
 """"""""""""""
@@ -114,6 +132,8 @@ locator attribute
 
   Used to list all the :class:`~reahl.component.migration.Migration` classes for a specific <version> of
   this component. Each class is listed in-order using a `<class>` element.
+
+.. _xml_schedule:
 
 <schedule>
 """"""""""
@@ -149,6 +169,8 @@ locator attribute
 
 Development and packaging
 ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. _xml_metadata:
 
 <metadata>
 """"""""""
