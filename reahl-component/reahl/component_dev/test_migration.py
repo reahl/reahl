@@ -19,7 +19,7 @@ from contextlib import contextmanager
 import warnings
 import re
 
-from reahl.tofu import Fixture, expected, temp_dir
+from reahl.tofu import Fixture, expected, temp_dir, uses, scenario
 from reahl.tofu.pytestsupport import with_fixtures
 from reahl.stubble import CallMonitor, EmptyStub, stubclass
 
@@ -43,10 +43,22 @@ class StubDependency:
     def __str__(self):
         return str(self.version)
 
+    def is_component(self):
+        return True
+
 
 @stubclass(Dependency)
 class StubThirdPartyDependency(StubDependency):
     type = 'thirdparty'
+
+    def is_component(self):
+        return False
+
+@stubclass(Dependency)
+class StubThirdPartyComponentDependency(StubThirdPartyDependency):
+
+    def is_component(self):
+        return True
 
 
 @stubclass(ReahlEgg)
@@ -216,31 +228,52 @@ def test_migrating_dependencies(fixture):
     assert some_object.calls_made == expected_order
 
 
-@with_fixtures(MigrateFixture)
-def test_migrating_can_be_thirdparty_dependencies(fixture):
-    """
-    """
+@uses(migrate_fixture=MigrateFixture)
+class DependencyScenarios(Fixture):
 
-    some_object = fixture.some_object
+    @property
+    def orm_control(self):
+        return self.migrate_fixture.orm_control
+
+    @scenario
+    def egg_dependency(self):
+        self.dependency_class = StubDependency
+        self.is_component = True
+
+    @scenario
+    def thirdparty_component_dependency(self):
+        self.dependency_class = StubThirdPartyComponentDependency
+        self.is_component = True
+
+    @scenario
+    def thirdparty_dependency(self):
+        self.dependency_class = StubThirdPartyDependency
+        self.is_component = False
+
+
+@with_fixtures(DependencyScenarios)
+def test_dependency_types_detected(dependency_scenarios):
+    """Components may depend on other components. These dependencies may be referred to as egg or thirparty dependencies.
+    If these dependencies are components, they should be included in the version dependency graph
+    """
 
     main_egg = ReahlEggStub('main_egg', {'1.0': [], '1.1': []})
 
-    class DependencyMigration(Migration):
-        def schedule_upgrades(self):
-            self.schedule('create_pk', some_object.do_something, 'create_pk-1')
-
-    dependency_egg = ReahlEggStub('dependency_egg', {'5.0': [], '5.1': [DependencyMigration]})
+    dependency_egg = ReahlEggStub('dependency_egg', {'5.0': [], '5.1': []})
 
     [mv1, mv2] = main_egg.get_versions()
     [dv1, dv2] = dependency_egg.get_versions()
 
-    main_egg.dependencies = {str(mv1.version_number): [StubDependency(dv1)],
-                             str(mv2.version_number): [StubThirdPartyDependency(dv2)]}
+    main_egg.dependencies = {str(mv1.version_number): [dependency_scenarios.dependency_class(dv1)],
+                             str(mv2.version_number): [dependency_scenarios.dependency_class(dv2)]}
 
-    fixture.orm_control.migrate_db(main_egg)
+    plan = MigrationPlan(main_egg, dependency_scenarios.orm_control)
+    plan.do_planning()
 
-    expected_order = ['create_pk-1']
-    assert some_object.calls_made == expected_order
+    if dependency_scenarios.is_component:
+        assert set([dv1, dv2]).issubset(plan.version_graph.graph)
+    else:
+        assert not set([dv1, dv2]).intersection(plan.version_graph.graph)
 
 
 @with_fixtures(MigrateFixture)
