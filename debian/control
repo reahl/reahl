@@ -28,7 +28,7 @@ Description: The Reahl web framework.
  to install everything needed to run Reahl on sqlite, the dev tools and documentation.
  (On Windows platforms, use easy_install instead of pip.)
  .
- See http://www.reahl.org/docs/5.0/tutorial/gettingstarted-install.d.html for
+ See http://www.reahl.org/docs/5.1/tutorial/gettingstarted-install.d.html for
  installation instructions.
 
 Package: python-reahl-component
@@ -39,10 +39,8 @@ Description: The component framework of Reahl.
  Reahl is a web application framework that allows a Python programmer to work in 
  terms of useful abstractions - using a single programming language.
  .
- Reahl-component is the component that contains Reahl's component framework.
- .
- See http://www.reahl.org/docs/5.0/tutorial/gettingstarted-install.d.html for
- installation instructions.
+ The reahl-component framework extends setuptools distribution packages to package
+ and distribute more than just code.
 
 Package: python-reahl-commands
 Architecture: all
@@ -53,9 +51,7 @@ Description: The component framework of Reahl.
  terms of useful abstractions - using a single programming language.
  .
  Reahl-commands contains useful commandline commands for reahl components.
- .
- See http://www.reahl.org/docs/5.0/tutorial/gettingstarted-install.d.html for
- installation instructions.
+
 
 Package: python-reahl-workstation
 Architecture: all
@@ -67,9 +63,6 @@ Description: Useful commands to ease development.
  .
  Reahl-workstation contains a few utilities that helps to have available
  on a developer workstation.
- .
- See http://www.reahl.org/docs/5.0/tutorial/gettingstarted-install.d.html for
- installation instructions.
 
 Package: python-reahl-dev
 Architecture: all
@@ -80,9 +73,18 @@ Description: The core Reahl development tools.
  terms of useful abstractions - using a single programming language.
  .
  Reahl-dev is the component containing general Reahl development tools. 
+
+
+Package: python-reahl-browsertools
+Architecture: all
+Depends: ${python:Depends}, ${reahl:Depends}
+Provides: ${python:Provides}
+Description: Tools for driving selenium webdriver and generating XPaths.
+ Reahl is a web application framework that allows a Python programmer to work in
+ terms of useful abstractions - using a single programming language.
  .
- See http://www.reahl.org/docs/5.0/tutorial/gettingstarted-install.d.html for
- installation instructions.
+ Reahl-browsertools provides an interface to Selenium WebDriver that simplifies tests that deal with ajax.
+ It also includes programmatically composable XPaths that are easy to read in code.
 
 Package: python-reahl-stubble
 Architecture: all
@@ -135,9 +137,7 @@ Description: Simple utilities for sending email from Reahl.
  .
  Reahl-mailutil is a simple library for sending emails (optionally from ReST 
  sources).
- .
- See http://www.reahl.org/docs/5.0/tutorial/gettingstarted-install.d.html for
- installation instructions.
+
  
 
 Package: python-reahl-doc
@@ -151,7 +151,7 @@ Description: Documentation and examples for Reahl.
  .
  Reahl-doc contains documentation and examples of Reahl.
  .
- See http://www.reahl.org/docs/5.0/tutorial/gettingstarted-install.d.html for
+ See http://www.reahl.org/docs/5.1/tutorial/gettingstarted-install.d.html for
  installation instructions.
 
 Package: python-reahl-postgresqlsupport
@@ -164,9 +164,7 @@ Description: Support for using PostgreSQL with Reahl.
  .
  This package contains infrastructure necessary to
  use Reahl with PostgreSQL.
- .
- See http://www.reahl.org/docs/5.0/tutorial/gettingstarted-install.d.html for
- installation instructions.
+
 
 Package: python-reahl-mysqlsupport
 Architecture: all
@@ -178,9 +176,7 @@ Description: Support for using MySQL with Reahl.
  .
  This package contains infrastructure necessary to
  use Reahl with MySQL.
- .
- See http://www.reahl.org/docs/5.0/tutorial/gettingstarted-install.d.html for
- installation instructions.
+
 
 Package: python-reahl-web
 Architecture: all
@@ -192,7 +188,7 @@ Description: The core Reahl web framework
  .
  This package contains the core of the Reahl framework. 
  .
- See http://www.reahl.org/docs/5.0/tutorial/gettingstarted-install.d.html for
+ See http://www.reahl.org/docs/5.1/tutorial/gettingstarted-install.d.html for
  installation instructions.
 
 
@@ -206,9 +202,7 @@ Description: Support for using SqlAlchemy with Reahl.
  .
  This package contains infrastructure necessary to
  use Reahl with SqlAlchemy or Elixir.
- .
- See http://www.reahl.org/docs/5.0/tutorial/gettingstarted-install.d.html for
- installation instructions.
+
 
 Package: python-reahl-sqlitesupport
 Architecture: all
@@ -220,9 +214,7 @@ Description: Support for using Sqlite with Reahl.
  . 
  This package contains infrastructure necessary to
  use Reahl with Sqlite.
- .
- See http://www.reahl.org/docs/5.0/tutorial/gettingstarted-install.d.html for
- installation instructions.
+
 
 
 Package: python-reahl-webdev
@@ -234,9 +226,7 @@ Description: Web-specific development tools for Reahl.
  terms of useful abstractions - using a single programming language.
  .
  Reahl development tools for testing and working with web based programs.
- .
- See http://www.reahl.org/docs/5.0/tutorial/gettingstarted-install.d.html for
- installation instructions.
+
 
 
 Package: python-reahl-browsertools
@@ -249,9 +239,6 @@ Description: An alternative API for working with Selenium and WebTest.
  .
  Tools for building user readable XPath expressions and an interface to selenium webdriver
  which uses these.
- .
- See http://www.reahl.org/docs/5.0/tutorial/gettingstarted-install.d.html for
- installation instructions.
 
 
 Package: python-reahl-domain
@@ -264,9 +251,6 @@ Description: End-user domain functionality for use with Reahl.
  .
  This Reahl component includes functionality modelling user accounts,
  some simple workflow concepts and more.
- .
- See http://www.reahl.org/docs/5.0/tutorial/gettingstarted-install.d.html for
- installation instructions.
 
 Package: python-reahl-domainui
 Architecture: all
@@ -278,9 +262,6 @@ Description: A user interface for reahl-domain.
  .
  This Reahl component contains a user interface for some
  of the domain functionality in reahl-domainui.
- .
- See http://www.reahl.org/docs/5.0/tutorial/gettingstarted-install.d.html for
- installation instructions.
 
 Package: python-reahl-web-declarative
 Architecture: all
@@ -293,9 +274,7 @@ Description: An implementation of Reahl persisted classes using SqlAlchemy.
  Some core elements of Reahl can be implemented for use with
  different persistence technologies. This is such an implementation
  based on SqlAlchemy.
- .
- See http://www.reahl.org/docs/5.0/tutorial/gettingstarted-install.d.html for
- installation instructions.
+
 
 
 

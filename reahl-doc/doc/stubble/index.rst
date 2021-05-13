@@ -18,18 +18,6 @@ StubClass
 .. autoclass:: reahl.stubble.stub.StubClass
    :members:
 
-Impostor
-^^^^^^^^
-
-.. autoclass:: reahl.stubble.stub.Impostor
-   :members:
-
-Delegate
-^^^^^^^^
-
-.. autoclass:: reahl.stubble.stub.Delegate
-   :members:
-
 @exempt
 ^^^^^^^
 
@@ -46,6 +34,18 @@ Delegate
 ^^^^^^^^^^^^^^^^
 
 .. autoclass:: reahl.stubble.stub.CheckedInstance
+   :members:
+
+Impostor
+^^^^^^^^
+
+.. autoclass:: reahl.stubble.stub.Impostor
+   :members:
+
+Delegate
+^^^^^^^^
+
+.. autoclass:: reahl.stubble.stub.Delegate
    :members:
 
 
