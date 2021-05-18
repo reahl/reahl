@@ -258,12 +258,12 @@ class Reahl(Library):
 
 
 class Holder(Library):
-    """Version 2.9.7 of `Holder <http://imsky.github.io/holder/>`_.
+    """Version 2.9.9 of `Holder <http://imsky.github.io/holder/>`_.
     """
     def __init__(self):
         super().__init__('holder')
         self.shipped_in_directory = 'reahl/web/holder'
-        self.files = ['holder-2.9.7.js']
+        self.files = ['holder-2.9.9.js']
 
 
 class Bootstrap4(Library):
