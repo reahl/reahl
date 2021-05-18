@@ -156,8 +156,8 @@ class JQuery(Library):
     =================== ==================================
      jquery.validate     1.19.3 (a heavily modified version) (https://github.com/jquery-validation/jquery-validation/releases/tag/1.19.3)
      jquery.ba-bbq       1.3pre
-     jquery.blockUI      2.70.0
-     jquery.form         4.2.2
+     jquery.blockUI      2.70.0 (https://github.com/malsup/blockui/releases)
+     jquery.form         4.3.0 (https://github.com/jquery-form/form/releases)
     =================== ==================================
     """
     def __init__(self):
@@ -168,7 +168,7 @@ class JQuery(Library):
         for i in ['jquery.validate-1.19.3.modified.js',
                   'jquery.ba-bbq-1.3pre.js',
                   'jquery.blockUI-2.70.0.js',
-                  'jquery.form-4.2.2.js']:
+                  'jquery.form-4.3.0.js']:
             self.add_shipped_plugin('jquery/%s' % i)
 
     def add_shipped_plugin(self, file_name):
