@@ -290,7 +290,6 @@ class Bootstrap4(Library):
                super().header_only_material(rendered_page) 
 
 
-
 class ReahlBootstrap4Additions(Library):
     """Reahl specific JavaScript and CSS for use with :class:`Bootstrap4`.
     """
