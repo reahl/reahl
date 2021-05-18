@@ -31,7 +31,7 @@ Copyright 2011-2020 The Bootstrap Authors (https://github.com/twbs/bootstrap/gra
 Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
 
 
-reahl-web/reahl/web/static/popper-1.16.0/popper.js
+reahl-web/reahl/web/static/popper-1.16.1/popper.js
 ==================================================
 
 Kickass library to create and place poppers near their reference elements.
