@@ -23,10 +23,10 @@ Several files from other projects are included in this code. See the copyright i
 of each applicable file below:
 
 
-reahl-web/reahl/web/static/bootstrap-4.5.0/
+reahl-web/reahl/web/static/bootstrap-4.5.3/
 ===========================================
 
-Bootstrap v4.5.0 (https://getbootstrap.com)
+Bootstrap v4.5.3 (https://getbootstrap.com)
 Copyright 2011-2020 The Bootstrap Authors (https://github.com/twbs/bootstrap/graphs/contributors)
 Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
 
