@@ -324,13 +324,13 @@ class Popper(Library):
 
 
 class Underscore(Library):
-    """Version 1.10.2 of `Underscore.js <https://underscorejs.org>`_.
+    """Version 1.13.1 of `Underscore.js <https://underscorejs.org>`_.
     """
     def __init__(self):
         super().__init__('underscore')
         self.shipped_in_directory = 'reahl/web/static'
         self.files = [
-            'underscore-min-1.10.2.js'
+            'underscore-umd-min.1.13.1.js'
         ]
     def footer_only_material(self, rendered_page):
         return super().footer_only_material(rendered_page) + '<script>var underscore = _;</script>'
