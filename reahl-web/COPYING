@@ -118,10 +118,10 @@ Copyright 2006 M. Alsup
 Dual licensed under the LGPL-2.1+ or MIT licenses
 https://github.com/jquery-form/form#license
 
-reahl-web/reahl/web/static/jquery/jquery.validate-1.19.1.modified.js
+reahl-web/reahl/web/static/jquery/jquery.validate-1.19.3.modified.js
 ====================================================================
 
-Copyright (c) 2019 Jörn Zaefferer
+Copyright (c) 2021 Jörn Zaefferer
 Released under the MIT license
 
 Which includes http://jqueryvalidation.org/url-method/ :

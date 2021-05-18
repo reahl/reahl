@@ -154,8 +154,7 @@ class JQuery(Library):
     =================== ==================================
      Plugin              Version
     =================== ==================================
-     jquery.cookie       1.4.1
-     jquery.validate     1.19.1 (a heavily modified version)
+     jquery.validate     1.19.3 (a heavily modified version) (https://github.com/jquery-validation/jquery-validation/releases/tag/1.19.3)
      jquery.ba-bbq       1.3pre
      jquery.blockUI      2.70.0
      jquery.form         4.2.2
@@ -166,7 +165,7 @@ class JQuery(Library):
         self.files = ['jquery-3.5.1/jquery-3.5.1.js',
                       'jquery-3.5.1/jquery-3.5.1.min.map']
         self.shipped_in_directory = 'reahl/web/static'
-        for i in ['jquery.validate-1.19.1.modified.js',
+        for i in ['jquery.validate-1.19.3.modified.js',
                   'jquery.ba-bbq-1.3pre.js',
                   'jquery.blockUI-2.70.0.js',
                   'jquery.form-4.2.2.js']:
