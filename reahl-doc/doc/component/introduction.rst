@@ -3,9 +3,9 @@
 .. |Migration| replace:: :class:`~reahl.component.migration.Migration`
 .. |ExecutionContext| replace:: :class:`~reahl.component.context.ExecutionContext`
 .. |install| replace:: :meth:`~reahl.component.context.ExecutionContext.install`
-.. |Configuration| replace:: :class:`~reahl.component.configuration.Configuration`
-.. |StoredConfiguration| replace:: :class:`~reahl.component.configuration.StoredConfiguration`
-.. |configure| replace:: :meth:`~reahl.component.configuration.StoredConfiguration.configure`
+.. |Configuration| replace:: :class:`~reahl.component.config.Configuration`
+.. |StoredConfiguration| replace:: :class:`~reahl.component.config.StoredConfiguration`
+.. |configure| replace:: :meth:`~reahl.component.config.StoredConfiguration.configure`
 .. |AccessRestricted| replace:: :class:`~reahl.component.exception.AccessRestricted`
 .. |Action| replace:: :class:`~reahl.component.modelinterface.Action`
 .. |add_validation_constraint| replace:: :meth:`~reahl.component.modelinterface.Field.add_validation_constraint`
@@ -317,7 +317,7 @@ reading a configuration if they are not explicitly set in a config file. Default
 environment, marking a default as dangerous is a way to prevent that default value from reaching a production
 environment.
 
-.. sidebar:: Use an ExecutionContext
+.. note:: Use an ExecutionContext
 
    Store your |Configuration| on an |ExecutionContext| to make it accessible anywhere in your code:
 

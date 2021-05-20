@@ -3,8 +3,8 @@
 .. |Fixture| replace::  :class:`~reahl.tofu.Fixture`
 .. |scenario| replace::  :class:`~reahl.tofu.scenario`
 .. |uses| replace::  :class:`~reahl.tofu.uses`
-.. |scope| replace::  :class:`~reahl.tofu.pytestsupport.scope`
-.. |with_fixtures| replace::  :class:`~reahl.tofu.pytestsupport.with_fixtures`
+.. |scope| replace::  :class:`~reahl.tofu.scope`
+.. |with_fixtures| replace::  :class:`~reahl.tofu.with_fixtures`
 
 
 Tofu (reahl-tofu)
@@ -44,7 +44,7 @@ routinely used. What's more, the CreditCard used in the tests should be linked t
    fixture -- user
    credit_card -right- user
 
-Given the example above, the following assumptions can be make inside tests:
+Given the example above, the following assumptions can be made inside tests:
 
 .. code-block:: Python
 
