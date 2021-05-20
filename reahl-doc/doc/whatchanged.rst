@@ -84,3 +84,14 @@ howtos.hellodockernginx
 The howtos.helloapache example was removed.
 
 
+Updated dependencies
+--------------------
+
+Some included thirdparty JavaScript and CSS libraries were updated:
+
+- Bootstrap to 4.5.3
+- JQuery.validate was updated to 1.19.3 (and patched).
+- JQuery.form to 4.3.0
+- Popper to 1.16.1
+- holder to 2.9.9
+- underscore 1.13.1 (fixes CVE-2021-23358)

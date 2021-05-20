@@ -23,15 +23,15 @@ Several files from other projects are included in this code. See the copyright i
 of each applicable file below:
 
 
-reahl-web/reahl/web/static/bootstrap-4.5.0/
+reahl-web/reahl/web/static/bootstrap-4.5.3/
 ===========================================
 
-Bootstrap v4.5.0 (https://getbootstrap.com)
+Bootstrap v4.5.3 (https://getbootstrap.com)
 Copyright 2011-2020 The Bootstrap Authors (https://github.com/twbs/bootstrap/graphs/contributors)
 Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
 
 
-reahl-web/reahl/web/static/popper-1.16.0/popper.js
+reahl-web/reahl/web/static/popper-1.16.1/popper.js
 ==================================================
 
 Kickass library to create and place poppers near their reference elements.
@@ -39,13 +39,12 @@ Copyright (c) 2016 Federico Zivolo and contributors
 FezVrasta/popper.js is licensed under the MIT License
 
 
-reahl/reahl-web/reahl/web/static/underscore-min-1.10.2.js
+reahl/reahl-web/reahl/web/static/underscore-min-1.13.1.js
 =========================================================
 
-Underscore is a JavaScript library that provides a whole mess of useful functional programming helpers without extending any built-in objects.
-Underscore.js 1.10.2
-http://underscorejs.org
-(c) 2009-2020 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+Underscore.js 1.13.1
+https://underscorejs.org
+(c) 2009-2021 Jeremy Ashkenas, Julian Gonggrijp, and DocumentCloud and Investigative Reporters & Editors
 Underscore may be freely distributed under the MIT license.
 https://github.com/jashkenas/underscore/blob/master/LICENSE
 
@@ -110,7 +109,7 @@ Copyright 2006, 2015 Klaus Hartl & Fagner Brack
 Released under the MIT license
 http://www.opensource.org/licenses/mit-license.php
 
-reahl-web/reahl/web/static/jquery/jquery.form-4.2.2.js
+reahl-web/reahl/web/static/jquery/jquery.form-4.3.0.js
 ======================================================
 
 Copyright 2017 Kevin Morris
@@ -119,10 +118,10 @@ Copyright 2006 M. Alsup
 Dual licensed under the LGPL-2.1+ or MIT licenses
 https://github.com/jquery-form/form#license
 
-reahl-web/reahl/web/static/jquery/jquery.validate-1.19.1.modified.js
+reahl-web/reahl/web/static/jquery/jquery.validate-1.19.3.modified.js
 ====================================================================
 
-Copyright (c) 2019 Jörn Zaefferer
+Copyright (c) 2021 Jörn Zaefferer
 Released under the MIT license
 
 Which includes http://jqueryvalidation.org/url-method/ :
@@ -144,12 +143,12 @@ Licensed MIT
 http://www.opensource.org/licenses/mit-license.php
 
 
-reahl-web/reahl/web/holder/holder-2.9.7.js
+reahl-web/reahl/web/holder/holder-2.9.9.js
 ==========================================
 
 Holder - client side image placeholders
-Version 2.9.7+5g5ho
-(c) 2020 Ivan Malopinsky - https://imsky.co
+Version 2.9.9+jl7z
+(c) 2021 Ivan Malopinsky - https://imsky.co
 
 Site:     http://holderjs.com
 Issues:   https://github.com/imsky/holder/issues
