@@ -57,7 +57,7 @@ class MigrationPlan:
         if version not in graph and not version.is_up_to_date(orm_control):
             cls.discover_version_graph_for(version.get_previous_version(), graph, orm_control)
             all_versions = [dependency.get_best_version() for dependency in version.get_dependencies()
-                            if dependency.type == 'egg' and dependency.distribution]
+                            if dependency.distribution and dependency.is_component]
             children = graph[version] = [v for v in all_versions if not v.is_up_to_date(orm_control)]
             for v in children:
                 cls.discover_version_graph_for(v, graph, orm_control)
