@@ -33,9 +33,11 @@ from reahl.component.exceptions import ProgrammerError
 class StubDependency:
     type = 'egg'
     distribution = EmptyStub()
-    def __init__(self, version):
+    def __init__(self, version, egg_type='egg', is_component=True):
         self.version = version
         self.name = self.version.name
+        self.type = egg_type
+        self._is_component = is_component
 
     def get_best_version(self):
         return self.version
@@ -43,23 +45,9 @@ class StubDependency:
     def __str__(self):
         return str(self.version)
 
+    @property
     def is_component(self):
-        return True
-
-
-@stubclass(Dependency)
-class StubThirdPartyDependency(StubDependency):
-    type = 'thirdparty'
-
-    def is_component(self):
-        return False
-
-
-@stubclass(Dependency)
-class StubThirdPartyComponentDependency(StubThirdPartyDependency):
-
-    def is_component(self):
-        return True
+        return self._is_component
 
 
 @stubclass(ReahlEgg)
@@ -238,43 +226,44 @@ class DependencyScenarios(Fixture):
 
     @scenario
     def egg_dependency(self):
-        self.dependency_class = StubDependency
+        self.egg_type = 'egg'
         self.is_component = True
 
     @scenario
     def thirdparty_component_dependency(self):
-        self.dependency_class = StubThirdPartyComponentDependency
+        self.egg_type = 'thirdparty'
         self.is_component = True
 
     @scenario
     def thirdparty_dependency(self):
-        self.dependency_class = StubThirdPartyDependency
+        self.egg_type = 'thirdparty'
         self.is_component = False
 
 
 @with_fixtures(DependencyScenarios)
 def test_dependency_types_detected(dependency_scenarios):
-    """Components may depend on other components. These dependencies may be referred to as egg or thirparty dependencies.
-    If these dependencies are components, they should be included in the version dependency graph
+    """Components may depend on other components. These dependencies may be referred to as egg or thirdparty dependencies.
+    If these dependencies are components, they should be included in the version dependency graph.
     """
 
-    main_egg = ReahlEggStub('main_egg', {'1.0': [], '1.1': []})
+    main_egg = ReahlEggStub('main_egg', {'1.0': []})
 
-    dependency_egg = ReahlEggStub('dependency_egg', {'5.0': [], '5.1': []})
+    dependency_egg = ReahlEggStub('dependency_egg', {'5.0': []})
 
-    [mv1, mv2] = main_egg.get_versions()
-    [dv1, dv2] = dependency_egg.get_versions()
+    [mv1] = main_egg.get_versions()
+    [dv1] = dependency_egg.get_versions()
 
-    main_egg.dependencies = {str(mv1.version_number): [dependency_scenarios.dependency_class(dv1)],
-                             str(mv2.version_number): [dependency_scenarios.dependency_class(dv2)]}
+    main_egg.dependencies = {str(mv1.version_number): 
+                             [StubDependency(dv1, egg_type=dependency_scenarios.egg_type,
+                                                  is_component=dependency_scenarios.is_component)]}
 
     plan = MigrationPlan(main_egg, dependency_scenarios.orm_control)
     plan.do_planning()
 
     if dependency_scenarios.is_component:
-        assert set([dv1, dv2]).issubset(plan.version_graph.graph)
+        assert dv1 in plan.version_graph.graph
     else:
-        assert not set([dv1, dv2]).intersection(plan.version_graph.graph)
+        assert dv1 not in plan.version_graph.graph
 
 
 @with_fixtures(MigrateFixture)

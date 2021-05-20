@@ -243,6 +243,7 @@ class Dependency(object):
         except:
             return None
 
+    @property
     def is_component(self):
         return bool(self.distribution.get_entry_map().get('reahl.versions', {}))
 
