@@ -83,7 +83,7 @@ jobs:
           ./scripts/installDebs.sh
           ./scripts/installDevEnvDebs.sh
           ./scripts/setupDevEnv.sh
-          . $HOME/.profile
+
 
       - name: Check pip.conf
         run: cat $HOME/.pip/pip.conf
@@ -111,6 +111,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install --pre reahl[declarative,postgresql,dev]
       - name: Setup db for Tests
-        run: reahl createdb -U postgres reahl-web/etc
+        run: . $HOME/.profile && set && reahl createdb -U postgres reahl-web/etc
       - name: Run Tests
-        run: (reahl shell -sdXg tox && (EXITCODE=$?; shred -f $HOME/.gnupg/*; exit $EXITCODE))
+        run: (. $HOME/.profile && set && reahl shell -sdXg tox && (EXITCODE=$?; shred -f $HOME/.gnupg/*; exit $EXITCODE))
