@@ -37,6 +37,9 @@ jobs:
     needs: build
     runs-on:  ubuntu-20.04
     container: ubuntu:20.04
+    strategy:
+      matrix:
+        python-version: [ '3.8' ]
     services:
       postgres:
         image: postgres:12.3
@@ -62,7 +65,11 @@ jobs:
       - name: Setup python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.8
+          python-version: ${{ matrix.python-version }}
+      - name: Display Python version
+        run: python -c "import sys; print(sys.version)"
+      - name: Display Pip version
+        run: python -m pip --version
 
       - name: Check shell
         run: echo "=== $SHELL ==="
@@ -73,12 +80,14 @@ jobs:
           ./scripts/installDevEnvDebs.sh
           ./scripts/setupDevEnv.sh
           . $HOME/.profile
-          apt-get install python-pip
+          apt-get install python3-pip
           python -m pip install --upgrade pip
           cat $HOME/.pip/pip.conf
-      - name: Show env
+
+      - name: Show env 1
+        run: set
+      - name: Show env 2
         run: |
-          set
           echo "==================== show python =================="
           which python
           echo "==================== show python3 =================="
@@ -88,9 +97,10 @@ jobs:
           echo "==================== show pip =================="
           which pip || "true"
           echo "==================== show end =================="
+
+      - name: Install reahl-dev
+        run: pip install --pre reahl[postgresql,dev]
       - name: Setup db for Tests
-        run: |
-          pip install --pre reahl[postgresql,dev]
-          reahl createdb -U postgres reahl-web/etc
+        run: reahl createdb -U postgres reahl-web/etc
       - name: Run Tests
         run: (reahl shell -sdXg tox && (EXITCODE=$?; shred -f $HOME/.gnupg/*; exit $EXITCODE))
