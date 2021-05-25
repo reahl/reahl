@@ -111,6 +111,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install --pre reahl[declarative,postgresql,dev]
       - name: Setup db for Tests
-        run: . $HOME/.profile && set && reahl createdb -U postgres reahl-web/etc
+        run: . $HOME/.profile && set && reahl createdb -U developer reahl-web/etc
       - name: Run Tests
         run: (. $HOME/.profile && set && reahl shell -sdXg tox && (EXITCODE=$?; shred -f $HOME/.gnupg/*; exit $EXITCODE))
