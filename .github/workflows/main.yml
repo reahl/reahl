@@ -36,6 +36,7 @@ jobs:
   test:
     needs: build
     runs-on:  ubuntu-20.04
+    container: ubuntu:20.04
     strategy:
       matrix:
         python-version: [ '3.8' ]
@@ -79,13 +80,15 @@ jobs:
 
       - name: Setup Test env
         run: |
-          sudo ./scripts/installDebs.sh
-          sudo ./scripts/installDevEnvDebs.sh
+          ./scripts/installDebs.sh
+          ./scripts/installDevEnvDebs.sh
           ./scripts/setupDevEnv.sh
           . $HOME/.profile
 
       - name: Check pip.conf
         run: cat $HOME/.pip/pip.conf
+      - name: Show env 1
+        run: set
       - name: Show env 1
         run: set
       - name: Show env 2
@@ -101,7 +104,9 @@ jobs:
           echo "==================== show end =================="
 
       - name: Install reahl-dev
-        run: pip install --pre reahl[declarative,postgresql,dev]
+        run: |
+          set
+          pip install --pre reahl[declarative,postgresql,dev]
       - name: Setup db for Tests
         run: reahl createdb -U postgres reahl-web/etc
       - name: Run Tests
