@@ -79,8 +79,15 @@ jobs:
       - name: Show env
         run: |
           set
+          echo "==================== show python =================="
           which python
+          echo "==================== show python3 =================="
           which python3 || "true"
+          echo "==================== show pip3 =================="
+          which pip3 || "true"
+          echo "==================== show pip =================="
+          which pip || "true"
+          echo "==================== show end =================="
       - name: Setup db for Tests
         run: |
           pip install --pre reahl[postgresql,dev]
