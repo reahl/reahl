@@ -110,9 +110,9 @@ jobs:
           set
           python -m pip install --upgrade pip
           pip install --pre reahl[declarative,postgresql,dev]
-      - name: Create db for Tests
-        run: . $HOME/.profile && reahl createdb -U developer reahl-web/etc
       - name: Create db user for Tests
         run: . $HOME/.profile && reahl createdbuser -U developer reahl-web/etc
+      - name: Create db for Tests
+        run: . $HOME/.profile && reahl createdb -U developer reahl-web/etc
       - name: Run Tests
         run: (. $HOME/.profile && set && reahl shell -sdXg tox && (EXITCODE=$?; shred -f $HOME/.gnupg/*; exit $EXITCODE))
