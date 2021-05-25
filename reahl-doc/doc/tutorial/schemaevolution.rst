@@ -200,7 +200,7 @@ Dependency management
 
 Declare a dependency on component B in the `.reahlproject` of component A:
 
-- If component A delares a foreign key to a table that belongs to component B
+- If component A declares a foreign key to a table that belongs to component B
 - If component A imports code from component B
 
 The migration machinery computes a complicated order in which |Migration|\s are scheduled 

@@ -1,0 +1,13 @@
+*.log
+*.pyc
+__pycache__
+*.bak
+.idea
+*.py[cod]
+*$py.class
+*.egg-info/
+.tox/
+.cache
+.pytest_cache/
+Dockerfile*
+docker-compose*

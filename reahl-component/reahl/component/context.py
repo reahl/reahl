@@ -73,6 +73,7 @@ class ExecutionContext:
         self.id = (self.parent_context.id if isinstance(self.parent_context, ExecutionContext) else id(self))
 
     def install(self, stop=None):
+        """Installs the ExecutionContext in the current scope so that it will be found by code called after it is installed. """
         f = inspect.currentframe()
         i = 0
         if not stop:

@@ -45,8 +45,7 @@ class ServeCurrentProject(WorkspaceCommand):
 
     def assemble(self):
         super().assemble()
-        self.parser.add_argument('-p', '--port', action='store', type=int, dest='port', default=8000, help='port (optional)')
-        self.parser.add_argument('-s', '--seconds-between-restart', action='store', type=int, dest='max_seconds_between_restarts', 
+        self.parser.add_argument('-s', '--seconds-between-restart', action='store', type=int, dest='max_seconds_between_restarts',
                                  default=3, help='poll only every n seconds for filesystem changes (optional)')
         self.parser.add_argument('-d', '--monitor-directory', action='append', dest='monitored_directories', default=[],
                                  help='add a directory to monitor for changes'
@@ -69,7 +68,7 @@ class ServeCurrentProject(WorkspaceCommand):
                     print('\nUsing config from %s\n' % config_directory, flush=True)
                     
                     try:
-                        reahl_server = ReahlWebServer.fromConfigDirectory(config_directory, args.port)
+                        reahl_server = ReahlWebServer.from_config_directory(config_directory)
                     except pkg_resources.DistributionNotFound as ex:
                         terminate_keys = 'Ctrl+Break' if platform.system() == 'Windows' else 'Ctrl+C'
                         print('\nPress %s to terminate\n\n' % terminate_keys, flush=True)
@@ -77,7 +76,7 @@ class ServeCurrentProject(WorkspaceCommand):
 
                     reahl_server.start(connect=True)
                     print('\n\nServing http on port %s, https on port %s (config=%s, flush=True)' % \
-                                     (args.port, args.port+363, config_directory))
+                                     (reahl_server.port, reahl_server.encrypted_port, config_directory))
                     terminate_keys = 'Ctrl+Break' if platform.system() == 'Windows' else 'Ctrl+C'
                     print('\nPress %s to terminate\n\n' % terminate_keys, flush=True)
 

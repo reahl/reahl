@@ -291,6 +291,7 @@ class ConfigAsDict(dict):
 
 
 class StoredConfiguration(Configuration):
+    """The Configuration of a whole set of components, stored together in a directory."""
     def __init__(self, config_directory_name, strict_checking=False):
         self.config_directory = config_directory_name
         self.strict_checking = strict_checking
@@ -307,6 +308,10 @@ class StoredConfiguration(Configuration):
                 os.environ['LANG'] = 'en_US.UTF-8'
                 
     def configure(self, validate=True):
+        """Read and optionally validate the configuration.
+
+        :keyword validate: If True (the default), also check that all required config is specified and warns about dangerous defaults.
+        """
         self.check_for_python_issue_18378()
         self.configure_logging()
         logging.getLogger(__name__).info('Using config in %s' % self.config_directory)

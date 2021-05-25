@@ -18,7 +18,7 @@
 from reahl.tofu import scenario, expected, Fixture, uses
 from reahl.tofu.pytestsupport import with_fixtures
 
-from reahl.webdev.tools import XPath
+from reahl.browsertools.browsertools import XPath
 from reahl.component.exceptions import IsInstance
 
 from reahl.web.fw import Bookmark

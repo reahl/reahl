@@ -18,7 +18,7 @@
 from reahl.tofu import scenario, Fixture, uses
 from reahl.tofu.pytestsupport import with_fixtures
 
-from reahl.webdev.tools import Browser, XPath
+from reahl.browsertools.browsertools import Browser, XPath
 
 from reahl.component.modelinterface import Field
 from reahl.web.fw import CannotCreate, IdentityDictionary, UrlBoundView, UserInterface

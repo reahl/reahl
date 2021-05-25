@@ -18,7 +18,7 @@
 from reahl.tofu import Fixture, expected, scenario, uses
 from reahl.tofu.pytestsupport import with_fixtures
 
-from reahl.webdev.tools import Browser
+from reahl.browsertools.browsertools import Browser
 
 from reahl.component.exceptions import IsInstance, ProgrammerError
 from reahl.web.fw import UserInterface, Layout

@@ -26,8 +26,8 @@ from reahl.web.ui import HTMLElement, PrimitiveInput, Form, CheckboxInput, TextI
 from reahl.component.modelinterface import Field, EmailField, BooleanField, Event, Allowed, exposed, \
     Action, Choice, ChoiceGroup, ChoiceField, IntegerField, MultiChoiceField, DateField
 from reahl.component.exceptions import IsInstance, ProgrammerError
-from reahl.webdev.tools import WidgetTester
-from reahl.webdev.tools import XPath
+from reahl.browsertools.browsertools import WidgetTester
+from reahl.browsertools.browsertools import XPath
 
 from reahl.web_dev.fixtures import WebFixture
 from reahl.component_dev.test_field import FieldFixture

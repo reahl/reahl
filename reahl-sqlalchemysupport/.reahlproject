@@ -23,6 +23,15 @@
     <class locator="reahl.sqlalchemysupport:SchemaVersion"/>
   </persisted>
 
+  <version number="5.1">
+    <deps purpose="run">
+      <egg name="reahl-component" versionlocked="True"/>
+      <egg name="reahl-commands" versionlocked="True"/>
+      <thirdpartyegg name="SQLAlchemy" minversion="1.2.0" maxversion="1.3.999"/>
+      <thirdpartyegg name="alembic" minversion="0.9.6" maxversion="1.4.999"/>
+    </deps>
+  </version>
+
   <version number="5.0">
     <deps purpose="run">
       <egg name="reahl-component" versionlocked="True"/>
@@ -30,7 +39,6 @@
       <thirdpartyegg name="SQLAlchemy" minversion="1.2.0" maxversion="1.3.999"/>
       <thirdpartyegg name="alembic" minversion="0.9.6" maxversion="1.4.999"/>
     </deps>
-
   </version>
 
   <version number="4.0">

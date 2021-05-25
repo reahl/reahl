@@ -19,7 +19,7 @@ from contextlib import contextmanager
 import warnings
 import re
 
-from reahl.tofu import Fixture, expected, temp_dir
+from reahl.tofu import Fixture, expected, temp_dir, uses, scenario
 from reahl.tofu.pytestsupport import with_fixtures
 from reahl.stubble import CallMonitor, EmptyStub, stubclass
 
@@ -33,15 +33,21 @@ from reahl.component.exceptions import ProgrammerError
 class StubDependency:
     type = 'egg'
     distribution = EmptyStub()
-    def __init__(self, version):
+    def __init__(self, version, egg_type='egg', is_component=True):
         self.version = version
         self.name = self.version.name
+        self.type = egg_type
+        self._is_component = is_component
 
     def get_best_version(self):
         return self.version
 
     def __str__(self):
         return str(self.version)
+
+    @property
+    def is_component(self):
+        return self._is_component
 
 
 @stubclass(ReahlEgg)
@@ -169,7 +175,7 @@ def test_how_migration_works(fixture):
 
 @with_fixtures(MigrateFixture)
 def test_migrating_dependencies(fixture):
-    """Only the neccessary Migrations are run to bring the database schema up to date from a previous running installation.
+    """Only the necessary Migrations are run to bring the database schema up to date from a previous running installation.
     """
 
     some_object = fixture.some_object
@@ -211,10 +217,58 @@ def test_migrating_dependencies(fixture):
     assert some_object.calls_made == expected_order
 
 
+@uses(migrate_fixture=MigrateFixture)
+class DependencyScenarios(Fixture):
+
+    @property
+    def orm_control(self):
+        return self.migrate_fixture.orm_control
+
+    @scenario
+    def egg_dependency(self):
+        self.egg_type = 'egg'
+        self.is_component = True
+
+    @scenario
+    def thirdparty_component_dependency(self):
+        self.egg_type = 'thirdparty'
+        self.is_component = True
+
+    @scenario
+    def thirdparty_dependency(self):
+        self.egg_type = 'thirdparty'
+        self.is_component = False
+
+
+@with_fixtures(DependencyScenarios)
+def test_dependency_types_detected(dependency_scenarios):
+    """Components may depend on other components. These dependencies may be referred to as egg or thirdparty dependencies.
+    If these dependencies are components, they should be included in the version dependency graph.
+    """
+
+    main_egg = ReahlEggStub('main_egg', {'1.0': []})
+
+    dependency_egg = ReahlEggStub('dependency_egg', {'5.0': []})
+
+    [mv1] = main_egg.get_versions()
+    [dv1] = dependency_egg.get_versions()
+
+    main_egg.dependencies = {str(mv1.version_number): 
+                             [StubDependency(dv1, egg_type=dependency_scenarios.egg_type,
+                                                  is_component=dependency_scenarios.is_component)]}
+
+    plan = MigrationPlan(main_egg, dependency_scenarios.orm_control)
+    plan.do_planning()
+
+    if dependency_scenarios.is_component:
+        assert dv1 in plan.version_graph.graph
+    else:
+        assert dv1 not in plan.version_graph.graph
+
 
 @with_fixtures(MigrateFixture)
 def test_migrating_dependencies_with_intermediate_versions(fixture):
-    """A dependency on a project can skip intermediate versions of the project, yet the neccary migrations are still run.
+    """A dependency on a project can skip intermediate versions of the project, yet the necessary migrations are still run.
     """
 
     some_object = fixture.some_object
@@ -356,7 +410,8 @@ def test_migrating_from_existing_schema(fixture):
 
 @with_fixtures(MigrateFixture)
 def test_migrating_changing_dependencies(fixture):
-    """The dependencies of Versions can change during the evolution of the relateOnly the neccessary Migrations are run to bring the database schema up to date from a previous running installation.
+    """The dependencies of Versions can change during the evolution of the relateOnly the necessary Migrations are run
+       to bring the database schema up to date from a previous running installation.
     """
 
     some_object = fixture.some_object
@@ -418,6 +473,7 @@ def test_migrating_changing_dependencies(fixture):
     assert dv22 not in fixture.orm_control.pruned_schemas_to # dv22 is not live anymore, and its schema is cleaned up
     assert all([i in fixture.orm_control.pruned_schemas_to for i in [mv2, dv12]]) # These schemas are still live
 
+
 @with_fixtures(MigrateFixture)
 def test_intra_cluster_circular_dependency(fixture):
     """Circular dependencies within a cluster are not allowed.
@@ -434,7 +490,6 @@ def test_intra_cluster_circular_dependency(fixture):
 
     main_egg.dependencies = {str(mv1.version_number): [StubDependency(dv1)]}
     dependency_egg.dependencies = {str(dv1.version_number): [StubDependency(mv1)]}
-
     
     with expected(CircularDependencyDetected, test=r'(dependency_egg\[5\.0\] -> main_egg\[1\.0\] -> dependency_egg\[5\.0\]|main_egg\[1\.0\] -> dependency_egg\[5\.0\] -> main_egg\[1\.0\])'):
         fixture.orm_control.migrate_db(main_egg)
@@ -541,6 +596,7 @@ def test_missing_schedule_upgrades_warns():
                        '(method name typo perhaps?)'
     assert str(warning.message) == expected_message
 
+
 def test_error_reporting_on_breaking_migrations():
     """When there is an error during execution of a Migration, the code where it was scheduled is reported."""
 
@@ -565,8 +621,6 @@ def test_planning(fixture):
     """A plan can be explained by generating graphs used by the migration algorithm.
     """
 
-    some_object = fixture.some_object
-
     egg = ReahlEggStub('my_egg', {'1.0': [], '1.1': []})
 
     plan = MigrationPlan(egg, fixture.orm_control)
@@ -577,7 +631,6 @@ def test_planning(fixture):
         assert os.path.isfile(os.path.join(dir_name, 'clusters.svg'))
         assert os.path.isfile(os.path.join(dir_name, 'versions.svg'))
         assert os.path.isfile(os.path.join(dir_name, 'schedules.svg'))
-
 
 
 

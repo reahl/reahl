@@ -1,3 +1,10 @@
+python-reahl (5.1) unstable; urgency=low
+
+ * Extracted reahl/webdev/tools to reahl-browsertools.
+
+ -- Iwan Vosloo <iwan@reahl.org>  Tue, 24 Nov 2020 08:45:00 +0200
+
+
 python-reahl (5.0.1) unstable; urgency=low
 
  * Renamed the DynamicContent feature to Calculator

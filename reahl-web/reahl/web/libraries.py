@@ -24,17 +24,14 @@ has its own ecosystem of tools that allow you to do various things, for example:
  - Some code is minified.
 
 This module is a start towards supporting such "front-end frameworks"
-which Reahl depends upon. Currently, Reahl merely includes the correct
-versions of the front-end libraries it needs and a user is not able to
-customise these in any way. In the future we hope to extend this
-infrastructure to be able to make use of everything the JavaScript /
-CSS tool ecosystem offers.
+which Reahl depends upon. By default, Reahl merely includes the correct
+versions of the front-end libraries it needs.
 
 Reahl also contains its own JavaScript and CSS code. Where we do this,
 our own code is also managed using this same infrastructure.
 
 If you write your own Widgets that make use of CSS or JavaScript,
-creating a :class:`Library` is the way to do it going forward.
+creating a :class:`Library` and configure your site to use it.
 
 """
 
@@ -157,11 +154,10 @@ class JQuery(Library):
     =================== ==================================
      Plugin              Version
     =================== ==================================
-     jquery.cookie       1.4.1
-     jquery.validate     1.19.1 (a heavily modified version)
+     jquery.validate     1.19.3 (a heavily modified version) (https://github.com/jquery-validation/jquery-validation/releases/tag/1.19.3)
      jquery.ba-bbq       1.3pre
-     jquery.blockUI      2.70.0
-     jquery.form         4.2.2
+     jquery.blockUI      2.70.0 (https://github.com/malsup/blockui/releases)
+     jquery.form         4.3.0 (https://github.com/jquery-form/form/releases)
     =================== ==================================
     """
     def __init__(self):
@@ -169,10 +165,10 @@ class JQuery(Library):
         self.files = ['jquery-3.5.1/jquery-3.5.1.js',
                       'jquery-3.5.1/jquery-3.5.1.min.map']
         self.shipped_in_directory = 'reahl/web/static'
-        for i in ['jquery.validate-1.19.1.modified.js',
+        for i in ['jquery.validate-1.19.3.modified.js',
                   'jquery.ba-bbq-1.3pre.js',
                   'jquery.blockUI-2.70.0.js',
-                  'jquery.form-4.2.2.js']:
+                  'jquery.form-4.3.0.js']:
             self.add_shipped_plugin('jquery/%s' % i)
 
     def add_shipped_plugin(self, file_name):
@@ -262,29 +258,29 @@ class Reahl(Library):
 
 
 class Holder(Library):
-    """Version 2.9.7 of `Holder <http://imsky.github.io/holder/>`_.
+    """Version 2.9.9 of `Holder <http://imsky.github.io/holder/>`_.
     """
     def __init__(self):
         super().__init__('holder')
         self.shipped_in_directory = 'reahl/web/holder'
-        self.files = ['holder-2.9.7.js']
+        self.files = ['holder-2.9.9.js']
 
 
 class Bootstrap4(Library):
-    """Version 4.5.2 of `Bootstrap <http://getbootstrap.com/>`_.
+    """Version 4.5.3 of `Bootstrap <http://getbootstrap.com/>`_.
     """
     def __init__(self):
         super().__init__('bootstrap4')
         self.shipped_in_directory = 'reahl/web/static'
         self.files = [
-                      'bootstrap-4.5.2/css/bootstrap.css',
-                      'bootstrap-4.5.2/css/reahl-patch.css',
-                      'bootstrap-4.5.2/css/bootstrap.css.map',
-                      # 'bootstrap-4.5.2/css/bootstrap-grid.css',
-                      # 'bootstrap-4.5.2/css/bootstrap-grid.css.map',
-                      # 'bootstrap-4.5.2/css/bootstrap-reboot.css',
-                      # 'bootstrap-4.5.2/css/bootstrap-reboot.css.map',
-                      'bootstrap-4.5.2/js/bootstrap.js'
+                      'bootstrap-4.5.3/css/bootstrap.css',
+                      'bootstrap-4.5.3/css/reahl-patch.css',
+                      'bootstrap-4.5.3/css/bootstrap.css.map',
+                      # 'bootstrap-4.5.3/css/bootstrap-grid.css',
+                      # 'bootstrap-4.5.3/css/bootstrap-grid.css.map',
+                      # 'bootstrap-4.5.3/css/bootstrap-reboot.css',
+                      # 'bootstrap-4.5.3/css/bootstrap-reboot.css.map',
+                      'bootstrap-4.5.3/js/bootstrap.js'
                       ]
 
 
@@ -292,7 +288,6 @@ class Bootstrap4(Library):
         return '<meta charset="utf-8">'\
                '<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">' +\
                super().header_only_material(rendered_page) 
-
 
 
 class ReahlBootstrap4Additions(Library):
@@ -316,24 +311,24 @@ class ReahlBootstrap4Additions(Library):
 
 
 class Popper(Library):
-    """Version 1.16.0 (umd) of `Popper <https://popper.js.org/>`_.
+    """Version 1.16.1 (umd) of `Popper <https://popper.js.org/>`_.
     """
     def __init__(self):
         super().__init__('popper')
         self.shipped_in_directory = 'reahl/web/static'
         self.files = [
-            'popper-1.16.0/popper.js' #make sure it is the umd edition
+            'popper-1.16.1/popper.js' #make sure it is the umd edition
         ]
 
 
 class Underscore(Library):
-    """Version 1.10.2 of `Underscore.js <https://underscorejs.org>`_.
+    """Version 1.13.1 of `Underscore.js <https://underscorejs.org>`_.
     """
     def __init__(self):
         super().__init__('underscore')
         self.shipped_in_directory = 'reahl/web/static'
         self.files = [
-            'underscore-min-1.10.2.js'
+            'underscore-umd-min.1.13.1.js'
         ]
     def footer_only_material(self, rendered_page):
         return super().footer_only_material(rendered_page) + '<script>var underscore = _;</script>'
