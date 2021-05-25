@@ -101,7 +101,7 @@ jobs:
           echo "==================== show end =================="
 
       - name: Install reahl-dev
-        run: $(which pip) install --pre reahl[postgresql,dev]
+        run: pip install --pre reahl[declarative,postgresql,dev]
       - name: Setup db for Tests
         run: reahl createdb -U postgres reahl-web/etc
       - name: Run Tests
