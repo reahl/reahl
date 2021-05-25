@@ -68,6 +68,8 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Display Python version
         run: python -c "import sys; print(sys.version)"
+      - name: Upgrade Pip version
+        run: python -m pip install --upgrade pip
       - name: Display Pip version
         run: python -m pip --version
 
@@ -80,10 +82,9 @@ jobs:
           ./scripts/installDevEnvDebs.sh
           ./scripts/setupDevEnv.sh
           . $HOME/.profile
-          apt-get install python3-pip
-          python -m pip install --upgrade pip
-          cat $HOME/.pip/pip.conf
 
+      - name: Check pip.conf
+        run: cat $HOME/.pip/pip.conf
       - name: Show env 1
         run: set
       - name: Show env 2
