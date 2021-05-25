@@ -101,11 +101,14 @@ jobs:
           which pip3 || "true"
           echo "==================== show pip =================="
           which pip || "true"
+          echo "==================== show profile =================="
+          cat $HOME/.profile
           echo "==================== show end =================="
 
       - name: Install reahl-dev
         run: |
           set
+          python -m pip install --upgrade pip
           pip install --pre reahl[declarative,postgresql,dev]
       - name: Setup db for Tests
         run: reahl createdb -U postgres reahl-web/etc
