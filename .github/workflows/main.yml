@@ -115,4 +115,4 @@ jobs:
       - name: Create db for Tests
         run: . $HOME/.profile && reahl createdb -U developer reahl-web/etc
       - name: Run Tests
-        run: (. $HOME/.profile && set && reahl shell -sdXg tox && (EXITCODE=$?; shred -f $HOME/.gnupg/*; exit $EXITCODE))
+        run: . $HOME/.profile && reahl shell -sdXg tox && (EXITCODE=$?; shred -f $HOME/.gnupg/*; exit $EXITCODE)
