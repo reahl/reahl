@@ -114,5 +114,9 @@ jobs:
         run: . $HOME/.profile && reahl createdbuser -U developer reahl-web/etc
       - name: Create db for Tests
         run: . $HOME/.profile && reahl createdb -U developer reahl-web/etc
+      - name: Check something 1
+        run: . $HOME/.profile && reahl select -a
+      - name: Check something 2
+        run: . $HOME/.profile && reahl list
       - name: Run Tests
         run: . $HOME/.profile && reahl shell -sdXg tox && (EXITCODE=$?; shred -f $HOME/.gnupg/*; exit $EXITCODE)
