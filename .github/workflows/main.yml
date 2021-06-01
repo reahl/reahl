@@ -55,6 +55,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
 
       - name: Download wheels
         uses: actions/download-artifact@v2
@@ -62,10 +65,12 @@ jobs:
           name: wheels
           path: ~/.reahlworkspace/dist-egg
 
-      - name: Setup python
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
+      - name: Setup Test env
+        run: |
+          ./scripts/installDebs.sh
+          ./scripts/installDevEnvDebs.sh
+          ./scripts/setupDevEnv.sh
+
       - name: Display Python version
         run: python -c "import sys; print(sys.version)"
       - name: Upgrade Pip version (does not work needs SSL)
@@ -74,21 +79,10 @@ jobs:
         run: python -m pip --version
       - name: Display Pip version
         run: which pip
-
       - name: Check shell
         run: echo "=== $SHELL ==="
-
-      - name: Setup Test env
-        run: |
-          ./scripts/installDebs.sh
-          ./scripts/installDevEnvDebs.sh
-          ./scripts/setupDevEnv.sh
-
-
       - name: Check pip.conf
         run: cat $HOME/.pip/pip.conf
-      - name: Show env 1
-        run: set
       - name: Show env 1
         run: set
       - name: Show env 2
@@ -104,16 +98,8 @@ jobs:
           echo "==================== show profile =================="
           cat $HOME/.profile
           echo "==================== show end =================="
-
-      - name: Install reahl-dev
-        run: |
-          set
-          python -m pip install --upgrade pip
-          pip install --pre reahl[declarative,postgresql,dev]
-      - name: Create db user for Tests
-        run: . $HOME/.profile && reahl createdbuser -U developer reahl-web/etc
-      - name: Create db for Tests
-        run: . $HOME/.profile && reahl createdb -U developer reahl-web/etc
+      - name: Check python  for runner
+        run: ls -la $RUNNER_TOOL_CACHE/Python/
       - name: Check something 1
         run: . $HOME/.profile && pwd
       - name: Check something 1
@@ -124,5 +110,12 @@ jobs:
         run: . $HOME/.profile && reahl list -a
       - name: Check something 2
         run: . $HOME/.profile && reahl select -a
+
+      - name: Install reahl-dev
+        run: pip install --pre reahl[declarative,postgresql,dev]
+      - name: Create db user for Tests
+        run: . $HOME/.profile && reahl createdbuser -U developer reahl-web/etc
+      - name: Create db for Tests
+        run: . $HOME/.profile && reahl createdb -U developer reahl-web/etc
       - name: Run Tests
         run: . $HOME/.profile && reahl shell -sdXg tox && (EXITCODE=$?; shred -f $HOME/.gnupg/*; exit $EXITCODE)
