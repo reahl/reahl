@@ -45,6 +45,8 @@ jobs:
         env:
           POSTGRES_PASSWORD: reahl
           POSTGRES_USER: developer
+        ports:
+          - 5432:5432
         # Set health checks to wait until postgres has started
         options: >-
           --health-cmd pg_isready
@@ -66,6 +68,9 @@ jobs:
         with:
           name: wheels
           path: ~/.reahlworkspace/dist-egg
+
+      - name: Map postgres machine name to localhost ip
+        run: sudo "echo '127.0.0.1 postgres' >> /etc/hosts"
 
       - name: Prepare for SSH
         run: |
