@@ -70,7 +70,7 @@ jobs:
           path: ~/.reahlworkspace/dist-egg
 
       - name: Map postgres machine name to localhost ip
-        run: sudo "echo '127.0.0.1 postgres' >> /etc/hosts"
+        run: sudo bash -c "echo '127.0.0.1 postgres' >> /etc/hosts"
 
       - name: Prepare for SSH
         run: |
