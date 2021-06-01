@@ -83,6 +83,7 @@ jobs:
 
       - name: Setup Test env
         run: |
+          sudo apt-get install tox
           sudo ./scripts/installDebs.sh
           sudo ./scripts/installDevEnvDebs.sh
           ./scripts/setupDevEnv.sh
