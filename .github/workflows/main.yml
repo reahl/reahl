@@ -36,10 +36,9 @@ jobs:
   test:
     needs: build
     runs-on:  ubuntu-20.04
-    container: ubuntu:20.04
     strategy:
       matrix:
-        python-version: [ '3.8' ]
+        python-version: [ '3.7' ]
     services:
       postgres:
         image: postgres:12.3
@@ -59,11 +58,23 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip
+
       - name: Download wheels
         uses: actions/download-artifact@v2
         with:
           name: wheels
           path: ~/.reahlworkspace/dist-egg
+
+      - name: Prepare for SSH
+        run: |
+          mkdir ~/.ssh
+          chmod 700 ~/.ssh
+          touch ~/.ssh/authorized_keys
+          chmod 600 ~/.ssh/authorized_keys
+          chmod 0755 ~/
+          ls -la ~/.ssh
 
       - name: Setup Test env
         run: |
@@ -73,8 +84,6 @@ jobs:
 
       - name: Display Python version
         run: python -c "import sys; print(sys.version)"
-      - name: Upgrade Pip version (does not work needs SSL)
-        run: python -m pip install --upgrade pip
       - name: Display Pip version
         run: python -m pip --version
       - name: Display Pip version
@@ -98,8 +107,10 @@ jobs:
           echo "==================== show profile =================="
           cat $HOME/.profile
           echo "==================== show end =================="
-      - name: Check python  for runner
-        run: ls -la $RUNNER_TOOL_CACHE/Python/
+
+      - name: Install reahl-dev
+        run: pip install --pre reahl[declarative,postgresql,dev]
+
       - name: Check something 1
         run: . $HOME/.profile && pwd
       - name: Check something 1
@@ -111,8 +122,6 @@ jobs:
       - name: Check something 2
         run: . $HOME/.profile && reahl select -a
 
-      - name: Install reahl-dev
-        run: pip install --pre reahl[declarative,postgresql,dev]
       - name: Create db user for Tests
         run: . $HOME/.profile && reahl createdbuser -U developer reahl-web/etc
       - name: Create db for Tests
