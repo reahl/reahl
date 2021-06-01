@@ -78,8 +78,8 @@ jobs:
 
       - name: Setup Test env
         run: |
-          ./scripts/installDebs.sh
-          ./scripts/installDevEnvDebs.sh
+          sudo ./scripts/installDebs.sh
+          sudo ./scripts/installDevEnvDebs.sh
           ./scripts/setupDevEnv.sh
 
       - name: Display Python version
