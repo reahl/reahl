@@ -134,5 +134,5 @@ jobs:
         run: . $HOME/.profile && reahl createdb -U developer reahl-web/etc
       - name: Run Tests
         env:
-          REAHL_TEST_CONNECTION_URI: "postgresql://reahl:reahl@postgres/reahl"
+          TOX_TESTENV_PASSENV: REAHL_TEST_CONNECTION_URI
         run: . $HOME/.profile && reahl shell -sdXg tox && (EXITCODE=$?; shred -f $HOME/.gnupg/*; exit $EXITCODE)
