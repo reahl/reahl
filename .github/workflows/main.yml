@@ -44,7 +44,7 @@ jobs:
         image: postgres:12.3
         env:
           POSTGRES_PASSWORD: reahl
-          POSTGRES_USER: developer
+          POSTGRES_USER: runner
         ports:
           - 5432:5432
         # Set health checks to wait until postgres has started
@@ -129,8 +129,8 @@ jobs:
         run: . $HOME/.profile && reahl select -a
 
       - name: Create db user for Tests
-        run: . $HOME/.profile && reahl createdbuser -U developer reahl-web/etc
+        run: . $HOME/.profile && reahl createdbuser -U runner reahl-web/etc
       - name: Create db for Tests
-        run: . $HOME/.profile && reahl createdb -U developer reahl-web/etc
+        run: . $HOME/.profile && reahl createdb -U runner reahl-web/etc
       - name: Run Tests
         run: . $HOME/.profile && reahl shell -sdXg tox && (EXITCODE=$?; shred -f $HOME/.gnupg/*; exit $EXITCODE)
