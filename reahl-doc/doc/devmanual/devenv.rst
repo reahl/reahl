@@ -162,7 +162,7 @@ Install reahl-workstation on your development machine
 
 The reahl-workstation component of Reahl is meant to be installed
 separately on your own development workstation. It contains the
-`reahl` commandline and a few commands that are useful for pair
+`reahl` command line and a few commands that are useful for pair
 programming.
 
 If you are on ubuntu install it like this:

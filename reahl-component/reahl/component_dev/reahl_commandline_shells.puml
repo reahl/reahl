@@ -3,7 +3,7 @@
 @startuml
 !include base.iuml
 
-title Reahl commandline shells
+title Reahl command line shells
 
 ReahlCommandLine -right- “*” Command : {discovered via entrypoints}
 Command <|-- ProductionCommand

@@ -197,7 +197,7 @@ Test your app being served by nginx
 
 Open a browser tab to `localhost:8080 <http://localhost:8080/>`_ and expect to see **Hello World!**
 
-Or test it from a commandline:
+Or test it from a command line:
 
 .. code-block:: bash
 

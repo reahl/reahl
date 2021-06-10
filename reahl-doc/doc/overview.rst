@@ -39,7 +39,7 @@ implemented in separate components: `reahl-postgresqlsupport`,
 `reahl-sqlalchemysupport`, `reahl-sqllitesupport` and `reahl-mysqlsupport`.
 
 All of these components are discussed under the heading of
-:doc:`component/overview`.
+:doc:`component/introduction`.
 
 
 Web framework

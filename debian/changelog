@@ -8,7 +8,7 @@ python-reahl (5.1.0) unstable; urgency=low
  * Fixed seuptools issue on Windows (#271).
  * Specify reahl serve ports from config (#305).
 
- -- Iwan Vosloo <iwan@reahl.org>  Tue, 20 May 2021 10:25:00 +0200
+ -- Iwan Vosloo <iwan@reahl.org>  Tue, 10 June 2021 14:25:00 +0200
 
 
 python-reahl (5.0.1) unstable; urgency=low

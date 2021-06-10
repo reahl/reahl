@@ -89,7 +89,7 @@ in the group 'reahl.eggs' which points to the :class:`reahl.component.eggs.Reahl
 
 One can create such a package using a setup.py, but due to all the extra metadata which is encoded into what setuptools
 supports, it is easier to use a .reahlproject file instead. To use a .reahlproject file, install `reahl-dev`
-in your development environment where you will build packages. With `reahl-dev` installed, the `reahl` commandline tool is
+in your development environment where you will build packages. With `reahl-dev` installed, the `reahl` command line tool is
 extended with extra commands providing access to setup.py functionality:
 
 reahl setup <usual arguments to setup.py>
@@ -127,10 +127,10 @@ Each time you change `.reahlproject`, be sure to regenerate the egg metadata:
 
    reahl setup develop -N
 
-Reahl commandline
------------------
+Reahl command line
+------------------
 
-The Reahl commandline is installed when you install `reahl-component` and is invoked with the command `reahl`. The set
+The Reahl command line is installed when you install `reahl-component` and is invoked with the command `reahl`. The set
 of commands it offers depends on other Reahl components you install.
 
 Below is a list of which commands some components add:
@@ -183,7 +183,7 @@ List each persisted class in your component using a :ref:`\<class\> <xml_class>`
 .. seealso::
 
   :doc:`../tutorial/persistence`
-     How to register persisted classes with your component and use the commandline to create a database schema.
+     How to register persisted classes with your component and use the command line to create a database schema.
 
 You can now use the following commands (amongst others) from `reahl-commands` to manage the database::
 
@@ -379,7 +379,7 @@ version of this file with translations for each such message to that language.
 Reahl-component provides a mechanism for each component to ship the translations of its messages. One component can
 also provide extra translations for another component.
 
-Before you can use the Reahl commandline commands for working with messages, create an empty python package in which
+Before you can use the Reahl command line commands for working with messages, create an empty python package in which
 messages and their translations can be saved. Once created, register this translations package
 in `.reahlproject` using a :ref:`\<translations\> <xml_translations>` tag inside your :ref:`\<project\> <xml_project>`.
 
