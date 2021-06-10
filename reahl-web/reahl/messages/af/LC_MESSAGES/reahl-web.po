@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: reahl-web 2.0.0a1\n"
 "Report-Msgid-Bugs-To: info@reahl.org\n"
-"POT-Creation-Date: 2020-11-10 12:06+0000\n"
+"POT-Creation-Date: 2021-06-10 12:38+0000\n"
 "PO-Revision-Date: 2012-04-22 10:40+0200\n"
 "Last-Translator: Iwan Vosloo <iwan@reahl.org>\n"
 "Language: af\n"
@@ -15,27 +15,27 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.8.0\n"
+"Generated-By: Babel 2.8.1\n"
 
-#: reahl/web/dhtml.py:60 reahl/web/fw.py:556
+#: reahl/web/dhtml.py:59 reahl/web/fw.py:555
 msgid "Untitled"
 msgstr "Ongetiteld"
 
-#: reahl/web/fw.py:84 reahl/web/fw.py:1320
+#: reahl/web/fw.py:83 reahl/web/fw.py:1319
 msgid "An error occurred"
 msgid_plural "Some errors occurred"
 msgstr[0] "'n Fout het gebeur"
 msgstr[1] "Foute het gebeur"
 
-#: reahl/web/fw.py:88
+#: reahl/web/fw.py:87
 msgid "Refresh"
 msgstr "Verfris"
 
-#: reahl/web/fw.py:503
+#: reahl/web/fw.py:502
 msgid "Error"
 msgstr "Fout"
 
-#: reahl/web/fw.py:2849
+#: reahl/web/fw.py:2851
 msgid ""
 "Something changed on the server while you were busy. You cannot perform "
 "this action anymore."
@@ -75,7 +75,7 @@ msgstr ""
 msgid "Reset input"
 msgstr "Herstel insetdata"
 
-#: reahl/web/ui.py:2441
+#: reahl/web/ui.py:2455
 msgid "uploaded files should all have different names"
 msgstr "opgelaaide lêers moet almal verskillende name hê"
 
