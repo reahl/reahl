@@ -1,4 +1,4 @@
-# Copyright 2013-2020 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2021 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -455,7 +455,7 @@ class ReahlWebServer:
                 self.httpd.serve_async(in_separate_thread=self.in_separate_thread)
                 self.httpsd.serve_async(in_separate_thread=self.in_separate_thread)
             except:  
-                # When running as a standalone server, we keep the server running, but else break so tests break
+                # When running as a stand-alone server, we keep the server running, but else break so tests break
                 if self.in_separate_thread and self.running:
                     print(traceback.format_exc(), file=sys.stderr)
                 else:
