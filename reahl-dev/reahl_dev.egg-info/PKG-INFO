@@ -1,6 +1,6 @@
 Metadata-Version: 1.2
 Name: reahl-dev
-Version: 5.1
+Version: 5.1.0
 Summary: The core Reahl development tools.
 Home-page: http://www.reahl.org
 Maintainer: Iwan Vosloo
@@ -8,7 +8,5 @@ Maintainer-email: iwan@reahl.org
 License: UNKNOWN
 Description: Reahl is a web application framework that allows a Python programmer to work in terms of useful abstractions - using a single programming language.
         
-        Reahl-dev is the component containing general Reahl development tools.
-        
-        See http://www.reahl.org/docs/5.0/tutorial/gettingstarted-install.d.html for installation instructions. 
+        Reahl-dev is the component containing general Reahl development tools. 
 Platform: UNKNOWN

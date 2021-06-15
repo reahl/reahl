@@ -26,7 +26,7 @@ from reahl.doc.commands import Example, GetExample
 
 "An example is code shipped in a python package that can be checked out by a user as separate example project."
 
-"The imports absolute to the example's packaged location are made relative to render it a standalone copy of the packaged version."
+"The imports absolute to the example's packaged location are made relative to render it a stand-alone copy of the packaged version."
 
 "Certain files and directories are ignored when checking out the example."
 

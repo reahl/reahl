@@ -6,37 +6,24 @@ Documentation overview
 Introduction
 ------------
 
-Reahl comprises a number of software packages. The Reahl web framework (reahl-web) is the most well known.
+Although many of the Reahl packages can be used independently, the
+following introductory materials cover all Reahl packages written
+in terms of a user of the Reahl web framework (reahl-web):
 
-The :doc:`Getting started guide <tutorial/gettingstarted-install>` will enable you to
-install all the Reahl packages, and start experimenting.
+- The :doc:`Getting started guide <tutorial/gettingstarted-install>` will enable you to
+  install all the Reahl packages, and start experimenting.
 
-To start learning all of Reahl in earnest, you can work through the :doc:`web
-application tutorial <tutorial/index>`.
+- To start learning all of Reahl in earnest, you can work through the :doc:`web
+  application tutorial <tutorial/index>`.
 
-The :doc:`programmer's guide <devmanual/index>` contains information
-on how we work and how the internals of Reahl is structured.
-
-Other projects
-~~~~~~~~~~~~~~
-
-Although shipped with reahl-web, these projects do not require the web framework and can even be used with other
-web frameworks (where applicable):
-
-- :doc:`reahl-browsertools <browsertools/introduction>`: Composable XPaths and an interface to WebDriver
-- :doc:`reahl-component <component/introduction>`: Infrastructure for component-based development
-- :doc:`reahl-tofu <tofu/introduction>`: Class-based Fixtures and other testing tools
-- :doc:`reahl-stubble <stubble/introduction>`: Stub classes that break if the real class changes interface
-
-
-API Reference
--------------
+- The :doc:`programmer's guide <devmanual/index>` contains information
+  on how we work and how the internals of Reahl is structured.
 
 The main components of Reahl are illustrated in the figure below:
 
 .. figure:: overview.png
    :alt: A visual depiction of Reahl components and how they depend on each other.
-
+  
 
 Component framework
 ~~~~~~~~~~~~~~~~~~~
@@ -52,7 +39,7 @@ implemented in separate components: `reahl-postgresqlsupport`,
 `reahl-sqlalchemysupport`, `reahl-sqllitesupport` and `reahl-mysqlsupport`.
 
 All of these components are discussed under the heading of
-:doc:`component/index`.
+:doc:`component/introduction`.
 
 
 Web framework
@@ -119,4 +106,19 @@ tool. This includes a web server for development purposes and a number
 of special tofu Fixtures that are useful when developing Reahl.
 
 The development tools are discussed in detail in :doc:`devtools/index`
+
+
+  
+
+API Reference
+-------------
+
+- :doc:`reahl-component <component/index>`: Infrastructure for component-based development.
+- :doc:`reahl-web <web/index>`: The Reahl web framework.
+- :doc:`reahl-domain <domain/index>`: Domain functionality for use with the web framework.
+- :doc:`reahl-browsertools <browsertools/index>`: Composable XPaths and an interface to WebDriver.
+- :doc:`reahl-tofu <tofu/index>`: Class-based Fixtures and other testing tools.
+- :doc:`reahl-stubble <stubble/index>`: Stub classes that break tests if they are out of sync with the real class.
+- :doc:`Other tools <devtools/index>`: Other development tools.
+
 

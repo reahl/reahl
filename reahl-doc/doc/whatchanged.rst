@@ -8,6 +8,9 @@ What changed in version 5.1
 
 .. |PrimitiveInput| replace:: :class:`~reahl.web.ui.PrimitiveInput`
 .. |type| replace:: :meth:`~reahl.browsertools.browsertools.DriverBrowser.type`
+.. _AGPL: http://www.gnu.org/licenses/agpl-3.0.html
+.. _LGPL: http://www.gnu.org/licenses/lgpl-3.0.html
+
 
 
 Upgrading
@@ -48,20 +51,20 @@ also can easily be used without installing the rest of the Reahl components or r
 Licensing changes
 -----------------
 
-Since its inception all parts of Reahl have been licensed using the AGPL. At the time, we felt that a strict license
+Since its inception all parts of Reahl have been licensed using the AGPL_. At the time, we felt that a strict license
 is a good idea for a project that still needs to mature. The time has now come to selectively ease up on the license.
 
-The licensing of supporting components for development have been changed from AGPL to LGPL. These components
+The licensing of supporting components for development have been changed from AGPL_ to LGPL_. These components
 (reahl-stubble, reahl-tofu and the newly split out reahl-browsertools) are meant to be used in development only,
 so the more restrictive license did not make sense for them.
 
 A lot of unique functionality is contained in reahl-component. We have decided to change its license
-to LGPL in order to make it easier for others to use in their environment.
+to LGPL_ in order to make it easier for others to use in their environment.
 
-The rest of the components (reahl-web and related components) are still AGPL licensed.
+The rest of the components (reahl-web and related components) are still AGPL_ licensed.
 
-Your code that imports our code that is LGPL licensed, does not need to be licensed using a copyleft license.
-If the public can access your web application which uses our AGPL code, then your code also needs to use a compatible
+Your code that imports our code that is LGPL_ licensed, does not need to be licensed using a copyleft license.
+If the public can access your web application which uses our AGPL_ code, then your code also needs to use a compatible
 license.
 
 If you want to use any part of Reahl without the restrictions of these licenses, we are quite open to
