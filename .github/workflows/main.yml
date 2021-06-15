@@ -131,4 +131,4 @@ jobs:
       - name: Create db user for Tests
         run: . $HOME/.profile && reahl createdbuser -U runner reahl-web/etc
       - name: Run Tests
-        run: . $HOME/.profile && reahl shell -sdXg tox && (EXITCODE=$?; shred -f $HOME/.gnupg/*; exit $EXITCODE)
+        run: . $HOME/.profile && reahl shell -sdXg tox && (EXITCODE=$?; find $HOME/.gnupg/ -type f -exec shred -f {} \;; exit $EXITCODE)
