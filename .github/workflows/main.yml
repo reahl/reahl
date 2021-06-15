@@ -38,7 +38,7 @@ jobs:
     runs-on:  ubuntu-20.04
     strategy:
       matrix:
-        python-version: [ '3.7' ]
+        python-version: [ '3.5', '3.6', '3.7', '3.8', '3.9']
     services:
       postgres:
         image: postgres:12.3
@@ -88,45 +88,11 @@ jobs:
           sudo ./scripts/installDevEnvDebs.sh
           ./scripts/setupDevEnv.sh
 
-      - name: Display Python version
-        run: python -c "import sys; print(sys.version)"
-      - name: Display Pip version
-        run: python -m pip --version
-      - name: Display Pip version
-        run: which pip
-      - name: Check shell
-        run: echo "=== $SHELL ==="
-      - name: Check pip.conf
-        run: cat $HOME/.pip/pip.conf
-      - name: Show env 1
-        run: set
-      - name: Show env 2
-        run: |
-          echo "==================== show python =================="
-          which python
-          echo "==================== show python3 =================="
-          which python3 || "true"
-          echo "==================== show pip3 =================="
-          which pip3 || "true"
-          echo "==================== show pip =================="
-          which pip || "true"
-          echo "==================== show profile =================="
-          cat $HOME/.profile
-          echo "==================== show end =================="
-
       - name: Install reahl-dev
         run: pip install --pre reahl[declarative,postgresql,dev]
 
-      - name: Check something 1
-        run: . $HOME/.profile && pwd
-      - name: Check something 1
-        run: . $HOME/.profile && find ./ -name .reahlproject
-      - name: Check something 1
+      - name: Select all projects
         run: . $HOME/.profile && reahl refresh
-      - name: Check reahl list all
-        run: . $HOME/.profile && reahl list -a
-      - name: Check something 2
-        run: . $HOME/.profile && reahl select -a
 
       - name: Create db user for Tests
         run: . $HOME/.profile && reahl createdbuser -U runner reahl-web/etc
