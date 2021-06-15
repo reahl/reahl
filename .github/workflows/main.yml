@@ -93,6 +93,8 @@ jobs:
 
       - name: Select all projects
         run: . $HOME/.profile && reahl refresh
+      - name: Check something 2
+        run: . $HOME/.profile && reahl select -a
 
       - name: Create db user for Tests
         run: . $HOME/.profile && reahl createdbuser -U runner reahl-web/etc
