@@ -1,7 +1,9 @@
 .. Copyright 2018 Reahl Software Services (Pty) Ltd. All rights reserved.
 
-Howtos
+HOWTOs
 ======
+
+More advanced examples that are not covered in the :doc:`web framework tutorial <../tutorial/index>`.
 
 Dynamic content
 ---------------

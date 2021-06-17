@@ -29,7 +29,7 @@ Install Reahl
      - A C/C++ compiler (such as gcc)
      - Cython
 
-This version of Reahl requires version 3.5 of Python or greater.
+This version of Reahl requires version 3.6 of Python or greater.
 
 Reahl depends on a lot of other software. Installing it is not just a
 straight `pip3 install reahl`. You need to install a couple of other

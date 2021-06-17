@@ -87,6 +87,12 @@ howtos.hellodockernginx
 The howtos.helloapache example was removed.
 
 
+Support for Python 3.5
+----------------------
+
+This version drops support for Python 3.5 which has reached its end-of-life and stopped receiving security updates in 2020.
+   
+
 Updated dependencies
 --------------------
 
