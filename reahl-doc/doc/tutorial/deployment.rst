@@ -60,11 +60,11 @@ Install
 
 Head over to the "Consoles" tab on PythonAnywhere_ and start a new
 `bash` console. In the console, create a virtualenv for python
-3.5:
+3:
 
 .. code-block:: bash
 
-   mkvirtualenv -p python3.5 helloanywhere
+   mkvirtualenv -p python3 helloanywhere
 
 Notice that your prompt should now start with `(helloanywhere)` to
 indicate the new virtualenv is activated.
@@ -111,7 +111,7 @@ The last step is to point PythonAnywhere_ to your app.
 Go to the "Web" tab, and click on the "Add new web app" button. You will be asked to make a few choices:
 
 - When asked to choose a web framework, choose "Manual config" (and do not forget to recommend Reahl for inclusion in the list!).
-- On the next step choose Python 3.5.
+- On the next step choose a Python newer than 3.5.
 
 Once the web app is created, scroll down to the "Code" section and
 click on the WSGI configuration file. Delete everything in that file
