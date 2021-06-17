@@ -1,8 +1,15 @@
+python-reahl (5.1.1) unstable; urgency=low
+
+ * Removed duplicated migration.
+ * Added missing dependency reahl-doc -> reahl-dev.
+
+ -- Iwan Vosloo <iwan@reahl.org>  Thu, 17 June 2021 15:25:00 +0200
+
 python-reahl (5.1.0) unstable; urgency=low
 
  * Extracted reahl/webdev/tools to reahl-browsertools (#315).
  * Updated deployment examples (#306).
- * Added howtos for using SASS and multihomed (#316). 
+ * Added howtos for using SASS and multihomed (#316).
  * Updated javascript dependencies (#321).
  * Fixed migration bug (#319).
  * Fixed seuptools issue on Windows (#271).

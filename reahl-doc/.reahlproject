@@ -74,6 +74,7 @@
       <egg name="reahl-domain" versionlocked="True"/>
       <egg name="reahl-domainui" versionlocked="True"/>
       <egg name="reahl-commands" versionlocked="True"/>
+      <egg name="reahl-dev" versionlocked="True"/>
       <thirdpartyegg name="pytest" minversion="3.0"/>
       <thirdpartyegg name="setuptools" minversion="32.3.1"/>
     </deps>

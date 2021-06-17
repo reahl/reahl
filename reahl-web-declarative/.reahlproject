@@ -39,9 +39,6 @@
       <egg name="reahl-web" versionlocked="True"/>
       <egg name="reahl-component" versionlocked="True"/>
     </deps>
-    <migrations>
-      <class locator="reahl.webdeclarative.migrations:AddViewPathToSessionData"/>
-    </migrations>
   </version>
 
   <version number="5.0">
