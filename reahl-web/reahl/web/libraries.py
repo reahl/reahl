@@ -88,6 +88,8 @@ class LibraryIndex:
         for library in new_libraries:
             self.add(library)
 
+    def __str__(self):
+        return  '%s(%s)' % (self.__class__.__name__, ','.join(self.libraries_by_name.keys()))
 
 class Library:
     """A frontend-library: a collection of CSS and JavaScript code that can be used with Reahl.
@@ -103,6 +105,7 @@ class Library:
 
     :param name: A unique name for this Library.
     """
+    active = True
     def __init__(self, name):
         self.name = name  #: The unique name of this Library
         self.egg_name = 'reahl-web'  #: The component (egg) that contains the files of this library
@@ -134,14 +137,16 @@ class Library:
 
     def header_only_material(self, rendered_page):
         result = ''
-        for file_name in self.files_of_type('.css'):
-            result += '\n<link rel="stylesheet" href="/static/%s" type="text/css">' % file_name
+        if self.active:
+            for file_name in self.files_of_type('.css'):
+                result += '\n<link rel="stylesheet" href="/static/%s" type="text/css">' % file_name
         return result
 
     def footer_only_material(self, rendered_page):
         result = ''
-        for file_name in self.files_of_type('.js'):
-            result += '\n<script type="text/javascript" src="/static/%s"></script>' % file_name
+        if self.active:
+            for file_name in self.files_of_type('.js'):
+                result += '\n<script type="text/javascript" src="/static/%s"></script>' % file_name
         return result
 
 
@@ -343,3 +348,25 @@ class JsCookie(Library):
         self.files = [
             'js-cookie-2.2.1/js.cookie.js' #this is the UMD version
         ]
+
+
+class PlotlyJS(Library):
+    """Version 2.2.0 of `plotly.js <https://github.com/plotly/plotly.js/>`_.
+    """
+    javascript_filename = 'plotly-2.2.0.min.js'
+    def __init__(self, active):
+        self.active = active
+        super().__init__('plotly.js')
+        self.shipped_in_directory = 'reahl/web/static'
+        self.files = [
+            self.javascript_filename
+        ]
+
+    def header_only_material(self, rendered_page):
+        result = ''
+        for file_name in self.files_of_type('.js'):
+            result += '\n<script type="text/javascript" src="/static/%s"></script>' % file_name
+        return result
+
+    def footer_only_material(self, rendered_page):
+        return ''
