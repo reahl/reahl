@@ -364,8 +364,9 @@ class PlotlyJS(Library):
 
     def header_only_material(self, rendered_page):
         result = ''
-        for file_name in self.files_of_type('.js'):
-            result += '\n<script type="text/javascript" src="/static/%s"></script>' % file_name
+        if self.active:
+            for file_name in self.files_of_type('.js'):
+                result += '\n<script type="text/javascript" src="/static/%s"></script>' % file_name
         return result
 
     def footer_only_material(self, rendered_page):
