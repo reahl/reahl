@@ -1004,6 +1004,7 @@ class Widget:
     def set_creating_factory(self, factory):
         self.created_by = factory
 
+    @property
     def is_refresh_enabled(self):
         return False
 

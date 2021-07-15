@@ -10,10 +10,10 @@ class GraphPage(HTML5Page):
         super().__init__(view)
 
         fig1 = self.create_bar_chart_figure()
-        self.body.add_child(Chart(view, fig1))
+        self.body.add_child(Chart(view, fig1, 'bar'))
 
         fig2 = self.create_line_chart_figure()
-        self.body.add_child(Chart(view, fig2))
+        self.body.add_child(Chart(view, fig2, 'line'))
 
     def create_line_chart_figure(self):
         x = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']

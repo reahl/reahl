@@ -20,18 +20,16 @@
 "use strict";
 
 $.widget('reahl.plotlychart', {
-    options: { id: '',
-               json: {}
+    options: { json: {}
     },
 
     _create: function() {
         var element = this.element;
         element.data('reahlPlotlychart', this);
-        Plotly.newPlot(this.options.id, this.options.json);
     },
 
     update: function(updated_json) {
-        Plotly.newPlot(this.options.id, updated_json);
+        Plotly.react(this.element.attr('id'), updated_json);
     }
 });
 
@@ -45,7 +43,6 @@ $.widget('reahl.plotlychartdata', {
     },
 
     _create: function() {
-        var element = this.element;
         var chart = $('#'+this.options.chart_id).data('reahlPlotlychart');
         chart.update(this.options.json);
     }

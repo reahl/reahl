@@ -10,16 +10,19 @@ from reahl.component.modelinterface import ChoiceField, Choice, IntegerField, ex
 import plotly.graph_objects as go
 
 
-class ChangingChart(HTMLWidget):
+class ChartForm(Form):
     def __init__(self, view):
-        super().__init__(view)
-        self.set_html_representation(self.add_child(Div(view)))
-        self.set_id('changing-chart')
-        self.enable_refresh()
+        super().__init__(view, 'chartform')
+        self.use_layout(FormLayout())
 
-    def make_chart(self, factor):
-        fig = self.create_line_chart_figure(factor)
-        self.chart = self.html_representation.add_child(Chart(self.view, fig))
+        select_input = self.layout.add_input(SelectInput(self, self.fields.factor))  # Creating the input, sets self.factor
+        fig = self.create_line_chart_figure(self.factor)
+        chart = self.add_child(Chart(self.view, fig, 'changing-chart'))
+        select_input.set_refresh_widget(chart.contents)
+
+    @exposed
+    def fields(self, fields):
+        fields.factor = ChoiceField([Choice(i, IntegerField(label=str(i))) for i in range(1, 10)])
 
     def create_line_chart_figure(self, factor):
         x = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
@@ -35,30 +38,10 @@ class ChangingChart(HTMLWidget):
         return fig
 
 
-class ChartForm(Form):
-    def __init__(self, view):
-        self.factor = 1
-        super().__init__(view, 'chartform')
-        self.use_layout(FormLayout())
-
-        select_input = self.layout.add_input(SelectInput(self, self.fields.factor))
-        chart = ChangingChart(view)
-        chart.make_chart(self.factor)
-        select_input.set_refresh_widget(chart.chart.data)
-
-        self.add_child(chart)
-
-    @exposed
-    def fields(self, fields):
-        fields.factor = ChoiceField([Choice(i, IntegerField(label=str(i))) for i in range(1, 10)])
-
-
 class GraphPage(HTML5Page):
     def __init__(self, view):
         super().__init__(view)
-
         self.body.add_child(ChartForm(view))
-
 
 
 class DynamicPlotlyUI(UserInterface):

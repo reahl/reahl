@@ -38,6 +38,7 @@ creating a :class:`Library` and configure your site to use it.
 import itertools
 from collections import OrderedDict
 
+from reahl.component.context import ExecutionContext
 from reahl.component.exceptions import ProgrammerError
 from reahl.web.fw import PackagedFile, ConcatenatedFile
 
@@ -115,6 +116,10 @@ class Library:
     :param name: A unique name for this Library.
     """
     active = True
+    @classmethod
+    def get_instance(cls):
+        return ExecutionContext.get_context().config.web.frontend_libraries.get(cls)
+
     def __init__(self, name):
         self.name = name  #: The unique name of this Library
         self.egg_name = 'reahl-web'  #: The component (egg) that contains the files of this library
@@ -157,6 +162,11 @@ class Library:
                 result += '\n<script type="text/javascript" src="/static/%s"></script>' % file_name
         return result
 
+    def inline_material(self):
+        result = ''
+        for file_name in self.files_of_type('.js'):
+            result += '\n<script type="text/javascript" src="/static/%s"></script>' % file_name
+        return result
 
     
 class JQuery(Library):

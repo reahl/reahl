@@ -308,6 +308,7 @@ class HTMLElement(Widget):
             self.on_refresh = on_refresh
             on_refresh.fire(force=True)
 
+    @property
     def is_refresh_enabled(self):
         return self.ajax_handler is not None
 
@@ -403,7 +404,7 @@ class HTMLElement(Widget):
 
     def get_js(self, context=None):
         js = []
-        if self.is_refresh_enabled():
+        if self.is_refresh_enabled:
             js = ['$(%s).hashchange(%s);' % \
                   (self.contextualise_selector(self.jquery_selector, context),
                    self.ajax_handler.as_jquery_parameter())]
@@ -1469,6 +1470,10 @@ class HTMLWidget(Widget):
         self.html_representation.query_fields.update(self.query_fields)
         self.html_representation.enable_refresh(*for_fields)
 
+    @property
+    def is_refresh_enabled(self):
+        return self.html_representation.is_refresh_enabled
+
     def set_html_representation(self, widget):
         self.html_representation = widget
 
@@ -1625,6 +1630,15 @@ class PrimitiveInput(Input):
             self.refresh_widget = None
 
     def set_refresh_widget(self, refresh_widget):
+        """
+        Instructs this |PrimitiveInput| to refresh the given widget when its value changes.
+
+        The `refresh_widget` has to have a css_id, and also needs to have refreshing enabled.
+
+        :param refresh_widget: An |HTMLWidget| or |HTMLElement|.
+
+        .. versionadded:: 5.2
+        """
         if not refresh_widget.is_refresh_enabled:
             raise ProgrammerError(
                 '%s is not set to refresh. You can only refresh widgets on which enable_refresh() was called.' % refresh_widget)
