@@ -19,7 +19,7 @@ class ChangingChart(HTMLWidget):
 
     def make_chart(self, factor):
         fig = self.create_line_chart_figure(factor)
-        self.html_representation.add_child(Chart(self.view, fig))
+        self.chart = self.html_representation.add_child(Chart(self.view, fig))
 
     def create_line_chart_figure(self, factor):
         x = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
@@ -41,9 +41,10 @@ class ChartForm(Form):
         super().__init__(view, 'chartform')
         self.use_layout(FormLayout())
 
+        select_input = self.layout.add_input(SelectInput(self, self.fields.factor))
         chart = ChangingChart(view)
-        self.layout.add_input(SelectInput(self, self.fields.factor, refresh_widget=chart))
         chart.make_chart(self.factor)
+        select_input.set_refresh_widget(chart.chart.data)
 
         self.add_child(chart)
 

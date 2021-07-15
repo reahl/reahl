@@ -393,7 +393,7 @@ class HTMLElement(Widget):
 
     @property
     def jquery_selector(self):
-        """Returns a string (including its " delimeters) which can be used to target this HTMLElement using
+        """Returns a string (including its " delimiters) which can be used to target this HTMLElement using
            JQuery. By default this uses the id attribute of the HTMLElement, but this property can be overridden to
            not be dependent on the id attribute of the HTMLElement.
 
@@ -577,7 +577,7 @@ class Body(HTMLElement):
     def footer_already_added(self):
         if len(self.children) > 0:
             last_child = self.children[-1]
-            return isinstance(last_child, Slot) and last_child.name == 'reahl_footer'
+            return last_child is self.out_of_bound_container
         return False
 
     def add_child(self, child):
@@ -1606,11 +1606,6 @@ class PrimitiveInput(Input):
 
         self.ignore_concurrent_change = ignore_concurrent_change
 
-        if refresh_widget:
-            if not refresh_widget.is_refresh_enabled:
-                raise ProgrammerError('%s is not set to refresh. You can only refresh widgets on which enable_refresh() was called.' % refresh_widget)
-        self.refresh_widget = refresh_widget
-
         self.registers_with_form = registers_with_form
         if self.registers_with_form:
             form.register_input(self) # bound_field must be set for this registration to work
@@ -1623,8 +1618,18 @@ class PrimitiveInput(Input):
         if not self.is_contained:
             self.add_to_attribute('class', ['reahl-primitiveinput'])
             self.add_input_data_attributes()
-        if self.refresh_widget:
-            self.set_attribute('data-refresh-widget-id', self.refresh_widget.css_id)
+
+        if refresh_widget:
+            self.set_refresh_widget(refresh_widget)
+        else:
+            self.refresh_widget = None
+
+    def set_refresh_widget(self, refresh_widget):
+        if not refresh_widget.is_refresh_enabled:
+            raise ProgrammerError(
+                '%s is not set to refresh. You can only refresh widgets on which enable_refresh() was called.' % refresh_widget)
+        self.set_attribute('data-refresh-widget-id', refresh_widget.css_id)
+        self.refresh_widget = refresh_widget
 
     def make_html_control_css_id(self):
         return str(CssId.from_dirty_string('id-%s' % (self.name)))
