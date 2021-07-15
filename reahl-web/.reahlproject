@@ -15,6 +15,7 @@
 
   <deps purpose="test">
     <thirdpartyegg name="pytest" minversion="3.0"/>
+    <thirdpartyegg name="plotly" minversion="5.1.0" maxversion="5.1.99999"/>
     <egg name="reahl-tofu"/>
     <egg name="reahl-stubble"/>
     <egg name="reahl-sqlalchemysupport"/>

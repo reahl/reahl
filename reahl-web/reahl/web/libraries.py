@@ -38,6 +38,7 @@ creating a :class:`Library` and configure your site to use it.
 import itertools
 from collections import OrderedDict
 
+from reahl.component.exceptions import ProgrammerError
 from reahl.web.fw import PackagedFile, ConcatenatedFile
 
 
@@ -68,6 +69,14 @@ class LibraryIndex:
         """Adds a Library to the end of the list."""
         self.libraries_by_name[library.name] = library
         return library
+
+    def get(self, library_class):
+        matching_libraries = [i for i in self.libraries_by_name.values() if isinstance(i, library_class)]
+        if not matching_libraries:
+            raise ProgrammerError('No library "%s" found in the config.web.frontend_libraries' % library_class)
+        elif len(matching_libraries) > 1:
+            raise ProgrammerError('More than "%s" found in the config.web.frontend_libraries' % library_class)
+        return matching_libraries[0]
 
     def __contains__(self, name):
         """An implementation of the `in` operator, so that one can ask whether a library with given name is in this index.
@@ -130,7 +139,6 @@ class Library:
         if css_files_to_include:
             exposed_files.append(ConcatenatedFile('%s.css' % self.name, css_files_to_include))
         return exposed_files
-
 
     def files_of_type(self, extension):
         return [f for f in self.files if f.endswith(extension)]
@@ -256,6 +264,7 @@ class Reahl(Library):
                       'reahl.textinput.js',
                       'reahl.validate.js',
                       'reahl.form.js',
+                      'reahl.plotlychart.js',
                       'reahl.css',
                       'reahl.runningonbadge.css',
                       'runningon.png'
@@ -354,20 +363,10 @@ class PlotlyJS(Library):
     """Version 2.2.0 of `plotly.js <https://github.com/plotly/plotly.js/>`_.
     """
     javascript_filename = 'plotly-2.2.0.min.js'
-    def __init__(self, active):
-        self.active = active
+    def __init__(self):
+        self.active = False
         super().__init__('plotly.js')
         self.shipped_in_directory = 'reahl/web/static'
         self.files = [
             self.javascript_filename
         ]
-
-    def header_only_material(self, rendered_page):
-        result = ''
-        if self.active:
-            for file_name in self.files_of_type('.js'):
-                result += '\n<script type="text/javascript" src="/static/%s"></script>' % file_name
-        return result
-
-    def footer_only_material(self, rendered_page):
-        return ''
