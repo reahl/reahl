@@ -239,6 +239,34 @@ def test_inputs_can_refresh_parent_widgets(web_fixture, query_string_fixture, re
 
 
 @with_fixtures(WebFixture, QueryStringFixture, ResponsiveDisclosureFixture)
+def test_refresh_input_can_be_set_after_input_is_created(web_fixture, query_string_fixture, responsive_disclosure_fixture):
+    """If the widget to be refreshed can only be created after the triggering Input, `set_refresh_widget` can be called
+       after construction of the Input to instruct it to refresh a given Widget."""
+    fixture = responsive_disclosure_fixture
+
+    class MyForm(Form):
+        def __init__(self, view, an_object):
+            super().__init__(view, 'myform')
+            self.use_layout(FormLayout())
+            trigger_input = self.layout.add_input(SelectInput(self, an_object.fields.choice))
+            refreshed_widget = self.add_child(P(self.view, text='My state is now %s' % an_object.choice))
+            refreshed_widget.set_id('refreshing-paragraph')
+            refreshed_widget.enable_refresh()
+            trigger_input.set_refresh_widget(refreshed_widget)
+
+    fixture.MyForm = MyForm
+
+    wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=fixture.MainWidget.factory())
+    web_fixture.reahl_server.set_app(wsgi_app)
+    browser = web_fixture.driver_browser
+    browser.open('/')
+
+    assert browser.wait_for(query_string_fixture.is_state_now, 1)
+    browser.select(XPath.select_labelled('Choice'), 'Three')
+    assert browser.wait_for(query_string_fixture.is_state_now, 3)
+
+
+@with_fixtures(WebFixture, QueryStringFixture, ResponsiveDisclosureFixture)
 def test_overridden_names(web_fixture, query_string_fixture, responsive_disclosure_fixture):
     """The overridden names of inputs correctly ensures that that input's state is distinguished from another with the same name."""
     fixture = responsive_disclosure_fixture

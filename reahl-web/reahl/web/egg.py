@@ -22,7 +22,7 @@ import os
 
 from reahl.component.config import Configuration, ConfigSetting
 from reahl.web.libraries import LibraryIndex, JQuery, JQueryUI, Underscore, HTML5Shiv, IE9, Reahl, Holder, Popper, \
-    Bootstrap4, ReahlBootstrap4Additions, JsCookie
+    Bootstrap4, ReahlBootstrap4Additions, JsCookie, PlotlyJS
 
 
 class WebConfig(Configuration):
@@ -84,5 +84,5 @@ class WebConfig(Configuration):
         # We create it here, so that each instance of a WebConfig will have its own LibraryIndex instance
         self.frontend_libraries = LibraryIndex(JQuery(), JsCookie(), JQueryUI(), Underscore(), HTML5Shiv(), IE9(), Reahl(), Holder(),
                                                Popper(),  # must be before Bootstrap in html script includes
-                                               Bootstrap4(), ReahlBootstrap4Additions())
+                                               Bootstrap4(), ReahlBootstrap4Additions(), PlotlyJS())
 

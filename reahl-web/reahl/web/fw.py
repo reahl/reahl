@@ -1004,6 +1004,7 @@ class Widget:
     def set_creating_factory(self, factory):
         self.created_by = factory
 
+    @property
     def is_refresh_enabled(self):
         return False
 
@@ -2067,7 +2068,7 @@ class FooterContent(Widget):
 
     def render(self):
         config = ExecutionContext.get_context().config
-        return ''.join([library.footer_only_material(self.page)
+        return super().render() + ''.join([library.footer_only_material(self.page)
                         for library in config.web.frontend_libraries])
 
 
@@ -2794,8 +2795,8 @@ class FileDownload(Response):
         self.content_length = str(self.file.size) if (self.file.size is not None) else None
         self.last_modified = datetime.fromtimestamp(self.file.mtime)
         self.etag = ('%s-%s-%s' % (self.file.mtime,
-                                                         self.file.size, 
-                                                         abs(hash(self.file.name))))
+                                   self.file.size,
+                                   abs(hash(self.file.name))))
 
     def __iter__(self):
         return self.app_iter_range(start=0)

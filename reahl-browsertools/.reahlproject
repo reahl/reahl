@@ -16,6 +16,15 @@
     <egg name="reahl-stubble"/>
   </deps>
 
+  <version number="5.2">
+      <deps purpose="run">
+        <thirdpartyegg name="lxml" minversion="4.2" maxversion="4.5.999"/>
+        <thirdpartyegg name="WebTest" minversion="2.0" maxversion="2.0.999"/>
+        <thirdpartyegg name="selenium" minversion="2.42" maxversion="3.141.9999"/>
+        <thirdpartyegg name="setuptools" minversion="32.3.1"/>
+      </deps>
+  </version>
+
   <version number="5.1">
       <deps purpose="run">
         <thirdpartyegg name="lxml" minversion="4.2" maxversion="4.5.999"/>
@@ -131,5 +140,3 @@
   </distpackage>
 
 </project>
-
-

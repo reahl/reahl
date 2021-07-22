@@ -41,6 +41,15 @@ Look and feel
    customisingcss
    multihomed
 
+Charts
+------
+
+.. toctree::
+   :maxdepth: 1
+
+   chartplotly
+   chartplotly2
+
 Production deployment
 ---------------------
 

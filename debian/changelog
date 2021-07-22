@@ -1,3 +1,9 @@
+python-reahl (5.2.0) unstable; urgency=low
+
+ * Add Chart widget for plotly (#281).
+
+ -- Iwan Vosloo <iwan@reahl.org>  Thu, 17 June 2021 15:25:00 +0200
+
 python-reahl (5.1.1) unstable; urgency=low
 
  * Removed duplicated migration.
