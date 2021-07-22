@@ -1,7 +1,7 @@
 
 from reahl.web.fw import UserInterface
 from reahl.web.ui import HTML5Page, HTMLWidget, Div, LiteralHTML
-from reahl.web.plotly.charts import Chart
+from reahl.web.plotly import Chart
 
 import plotly.graph_objects as go
 

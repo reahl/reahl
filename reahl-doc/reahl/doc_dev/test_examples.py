@@ -60,6 +60,8 @@ from reahl.doc.examples.howtos.optimisticconcurrency import optimisticconcurrenc
 from reahl.doc.examples.howtos.bootstrapsass import bootstrapsass
 from reahl.doc.examples.howtos.bootstrapsassmultihomed import bootstrapsassmultihomed
 
+from reahl.doc.examples.howtos.chartplotly import chartplotly
+from reahl.doc.examples.howtos.chartplotly2 import chartplotly2
 
 from reahl.web_dev.fixtures import WebFixture
 
@@ -214,6 +216,13 @@ class ExampleFixture(Fixture):
     def bootstrapsassmultihomed(self):
         self.wsgi_app = self.web_fixture.new_wsgi_app(site_root=bootstrapsassmultihomed.ThemedUI, enable_js=True)
 
+    @scenario
+    def chartplotly(self):
+        self.wsgi_app = self.web_fixture.new_wsgi_app(site_root=chartplotly.PlotlyUI, enable_js=True)
+
+    @scenario
+    def chartplotly2(self):
+        self.wsgi_app = self.web_fixture.new_wsgi_app(site_root=chartplotly2.DynamicPlotlyUI, enable_js=True)
 
 
 @with_fixtures(WebFixture, ExampleFixture)
@@ -571,6 +580,7 @@ def test_responsivedisclosure(web_fixture, responsivedisclosure_scenario):
     browser.set_selected(XPath.input_labelled('New'))
     browser.capture_cropped_screenshot(fixture.new_screenshot_path('responsivedisclosure_3.png'))
 
+
 @with_fixtures(WebFixture, ExampleFixture.optimisticconcurrency)
 def test_optimisticconcurrency(web_fixture, optimisticconcurrency_scenario):
     fixture = optimisticconcurrency_scenario
@@ -587,3 +597,27 @@ def test_optimisticconcurrency(web_fixture, optimisticconcurrency_scenario):
     error_alert = XPath.div().including_class('alert').including_text('Some data changed since you opened this page')
     assert browser.is_element_present(error_alert)
     browser.capture_cropped_screenshot(fixture.new_screenshot_path('optimisticconcurrency.png'))
+
+
+@with_fixtures(WebFixture, ExampleFixture.chartplotly)
+def test_chartplotly(web_fixture, plotly_scenario):
+    fixture = plotly_scenario
+    browser = web_fixture.driver_browser
+
+    fixture.start_example_app()
+    browser.open('/')
+
+    assert browser.is_element_present(XPath.div().including_class('js-plotly-plot'))
+
+
+@with_fixtures(WebFixture, ExampleFixture.chartplotly2)
+def test_chartplotly2(web_fixture, plotly_scenario):
+    fixture = plotly_scenario
+    browser = web_fixture.driver_browser
+
+    fixture.start_example_app()
+    browser.open('/')
+
+    with browser.refresh_expected_for('#thechart-data', True):
+        select_input = XPath.select_labelled('factor')
+        browser.select(select_input, '2')

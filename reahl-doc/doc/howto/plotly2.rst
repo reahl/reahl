@@ -1,7 +1,10 @@
 .. Copyright 2021 Reahl Software Services (Pty) Ltd. All rights reserved.
 
-.. |Chart| replace:: :class:`~reahl.web.plotly.charts.Chart`
-
+.. |Chart| replace:: :class:`~reahl.web.plotly.Chart`
+.. |Input| replace:: :class:`~reahl.web.ui.Input`
+.. |SelectInput| replace:: :class:`~reahl.web.ui.SelectInput`
+.. |Field| replace:: :class:`~reahl.component.modelinterface.Field`
+.. |set_refresh_widget|:: :meth:`~reahl.web.ui.PrimitiveInput.set_refresh_widget`
 
 Interacting with Plotly |Chart|
 ===============================
@@ -17,7 +20,7 @@ Interacting with Plotly |Chart|
       reahl example <examplename>
 
 
-This example shows how to change a Plotly |Chart| when a user changes |Input|\s that affect it. The example assumes
+This example shows how to change a Plotly |Chart| when a user changes an |Input| that affect it. The example assumes
 you already understand :doc:`the basics of Charts <plotly>` as well as :doc:`how to refresh Widgets in response to
 user interaction <refreshingwidgets>`.
 
@@ -29,14 +32,23 @@ Add a |Field| on `ChartForm` to keep track of the `factor`:
 .. literalinclude:: ../../reahl/doc/examples/howtos/plotly2/plotly2.py
    :pyobject: ChartForm.fields
 
-Create a |SelectInput| to allow the user to change the `factor`.
-Only after constructing the |SelectInput| will the `factor` attribute be set on the `ChartForm`. Create the Figure
-(which depends on the `factor` attribute) after creation of the |SelectInput|.
+        select_input = self.layout.add_input(SelectInput(self, self.fields.factor))  # Creating the input, sets self.factor
+        chart = self.create_chart(self.factor)
+        select_input.set_refresh_widget(chart.contents)
 
-Then only create the |Chart|, and lastly, call |set_refresh_widget| to make the |SelectInput| change the |Chart|.
+The `factor` attribute of `ChartForm` will only be updated in response to user changes once an |Input| is created for it.
+
+This means that you first initialise `factor`, then create the |SelectInput| to possibly update the default value of `factor`.
+After the creation of the |SelectInput|, create the |Chart| (which uses `factor`).
+Lastly, call |set_refresh_widget| to make the |SelectInput| change the contents of the |Chart|:
 
 .. note::
-   Refreshing only the |contents| of the |Chart| updates the screen faster.
+   Refreshing only the |contents| of the |Chart| instead of the entire |Chart| updates the screen faster.
+
+.. literalinclude:: ../../reahl/doc/examples/howtos/plotly2/plotly2.py
+   :pyobject: ChartForm.__init__
+
+Here is the entire example:
 
 .. literalinclude:: ../../reahl/doc/examples/howtos/plotly2/plotly2.py
    :pyobject: ChartForm

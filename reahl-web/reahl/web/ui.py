@@ -578,7 +578,7 @@ class Body(HTMLElement):
     def footer_already_added(self):
         if len(self.children) > 0:
             last_child = self.children[-1]
-            return last_child is self.out_of_bound_container
+            return isinstance(last_child, Slot) and last_child.name == 'reahl_footer'
         return False
 
     def add_child(self, child):

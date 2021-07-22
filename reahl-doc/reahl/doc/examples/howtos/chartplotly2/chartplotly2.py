@@ -1,8 +1,7 @@
 
-from reahl.web.fw import UserInterface, Widget
-from reahl.web.ui import HTMLWidget
-from reahl.web.plotly.charts import Chart
-from reahl.web.bootstrap.ui import Div
+from reahl.web.fw import UserInterface
+from reahl.web.plotly import Chart
+
 from reahl.web.bootstrap.page import HTML5Page
 from reahl.web.bootstrap.forms import Form, FormLayout, SelectInput
 from reahl.component.modelinterface import ChoiceField, Choice, IntegerField, exposed
@@ -13,12 +12,16 @@ import plotly.graph_objects as go
 class ChartForm(Form):
     def __init__(self, view):
         super().__init__(view, 'chartform')
+        self.factor = 1
         self.use_layout(FormLayout())
 
         select_input = self.layout.add_input(SelectInput(self, self.fields.factor))  # Creating the input, sets self.factor
-        fig = self.create_line_chart_figure(self.factor)
-        chart = self.add_child(Chart(self.view, fig, 'changing-chart'))
+        chart = self.create_chart(self.factor)
         select_input.set_refresh_widget(chart.contents)
+
+    def create_chart(self, factor):
+        fig = self.create_line_chart_figure(factor)
+        return self.add_child(Chart(self.view, fig, 'changing-chart'))
 
     @exposed
     def fields(self, fields):

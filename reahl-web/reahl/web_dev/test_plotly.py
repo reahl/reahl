@@ -20,7 +20,7 @@ from reahl.browsertools.browsertools import XPath, Browser
 from reahl.web_dev.fixtures import WebFixture
 from reahl.web.ui import Div, Form, FormLayout, SelectInput, exposed, ChoiceField, Choice
 from reahl.component.modelinterface import Field, IntegerField
-from reahl.web.plotly.charts import Chart
+from reahl.web.plotly import Chart
 
 import plotly.graph_objects as go
 
@@ -107,7 +107,7 @@ def test_refreshing_chart_data_only(web_fixture):
             fig = go.Figure()
             fig.update_layout(title=self.choice)
             chart = self.add_child(Chart(view, fig, 'thechart'))
-            select.set_refresh_widget(chart.content)
+            select.set_refresh_widget(chart.contents)
 
         @exposed
         def fields(self, fields):
