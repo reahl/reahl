@@ -1054,7 +1054,7 @@ class CSRFTokenField(Field):
 
     def parse_input(self, unparsed_input):
         # TODO: handle exceptions:
-        return CSRFToken.from_signed_string(unparsed_input)
+        return CSRFToken.from_coded_string(unparsed_input)
 
     def unparse_input(self, parsed_value):
         # TODO: handle exceptions:
