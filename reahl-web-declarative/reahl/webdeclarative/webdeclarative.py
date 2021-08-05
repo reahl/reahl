@@ -34,6 +34,7 @@ from reahl.component.eggs import ReahlEgg
 from reahl.component.config import Configuration
 from reahl.component.context import ExecutionContext
 from reahl.web.interfaces import UserSessionProtocol, UserInputProtocol, PersistedExceptionProtocol, PersistedFileProtocol
+from reahl.web.ui import CSRFToken
 from reahl.web.fw import Url
 
 class InvalidKeyException(Exception):
@@ -75,6 +76,9 @@ class UserSession(Base, UserSessionProtocol):
         self.last_activity = datetime.fromordinal(1)
         self.set_idle_lifetime(False)
         super().__init__(**kwargs)
+
+    def get_csrf_token(self):
+        return CSRFToken()
 
     def is_secured(self):
         context = ExecutionContext.get_context()

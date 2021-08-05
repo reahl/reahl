@@ -74,6 +74,11 @@ class WebConfig(Configuration):
                                          description='The time in seconds after which a secure session will be considered expired')
     debug_concurrency_hash = ConfigSetting(default=False,
                                    description='If True, replaces the concurrency hash with a long string indicating the values used in calculating the hash')
+    csrf_key = ConfigSetting(default='unsafekey',
+                             description='Used to sign CSRF tokens for a site. Set this to a secret long string unique to your deployment.',
+                             dangerous=True)
+    csrf_timeout_seconds = ConfigSetting(default=60*5,
+                                         description='Forms have to be submitted within this time after being rendered.')
                                        
     @property
     def secure_key_name(self):

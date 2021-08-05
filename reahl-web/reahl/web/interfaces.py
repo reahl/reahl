@@ -74,7 +74,10 @@ class UserSessionProtocol(object, metaclass=ABCMeta):
            Called at the beginning of a request or after an abort during the request (which may require reinitialisation
            of the session so it may still be used after the abort).
         """
-        
+
+    def get_csrf_token(self):
+        """Fetch/create a suitable token for protecting against CSRF"""
+
 
 class SessionDataProtocol(object, metaclass=ABCMeta):
     @classmethod

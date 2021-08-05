@@ -16,8 +16,11 @@
 """
 Basic Widgets and related user interface elements.
 """
-
-
+import base64
+import hashlib
+import hmac
+import os
+import datetime
 import time
 from string import Template
 import copy
@@ -1032,6 +1035,109 @@ class ConcurrentChange(ValidationConstraint):
             raise self
 
 
+class ValidCSRFToken(ValidationConstraint):
+    def __init__(self, token):
+        super().__init__(error_message=_('Invalid CSRF token.'))
+        self.token = token
+
+    def validate_input(self, unparsed_input):
+        token = CSRFToken.from_coded_string(unparsed_input)
+        if not self.token.matches(token):
+            raise self
+
+
+class CSRFTokenField(Field):
+    def __init__(self, token):
+        super().__init__()
+        self.token = token
+        self.add_validation_constraint(ValidCSRFToken(token))
+
+    def parse_input(self, unparsed_input):
+        # TODO: handle exceptions:
+        return CSRFToken.from_signed_string(unparsed_input)
+
+    def unparse_input(self, parsed_value):
+        # TODO: handle exceptions:
+        return parsed_value.as_signed_string()
+
+
+class InvalidCSRFToken(Exception):
+    pass
+
+
+class ExpiredCSRFToken(Exception):
+    pass
+
+
+class CSRFToken:
+    @classmethod
+    def from_coded_string(cls, signed_string):
+
+        try:
+            encoded_value, encoded_timestamp, received_signature = signed_string.split(':')
+        except (TypeError, ValueError) as e:
+            raise InvalidCSRFToken()
+
+        received_value_string = cls.decode_to_string(encoded_value)
+        received_timestamp_string = cls.decode_to_string(encoded_timestamp)
+
+        computed_signature = cls.signed_timed_value_hexdigest(received_value_string, received_timestamp_string)
+        is_signature_valid = hmac.compare_digest(received_signature.encode('ascii'), computed_signature.encode('ascii'))
+        if not is_signature_valid:
+            raise InvalidCSRFToken()
+
+        try:
+            timestamp = float(received_timestamp_string)
+        except ValueError as e:
+            raise InvalidCSRFToken()
+
+        now = cls.get_now()
+        csrf_timeout_seconds = ExecutionContext.get_context().config.web.csrf_timeout_seconds
+        cutoff_timestamp = (now - datetime.timedelta(seconds=csrf_timeout_seconds)).timestamp()
+        if timestamp > now.timestamp() or timestamp < cutoff_timestamp:
+            raise ExpiredCSRFToken()
+
+        return cls(value=received_value_string)
+
+    @classmethod
+    def decode_to_string(cls, encoded_value):
+        return base64.urlsafe_b64decode(encoded_value).decode('utf-8')
+
+    @classmethod
+    def encode_string(cls, value_string):
+        return cls.encode_bytes(value_string.encode('utf-8'))
+
+    @classmethod
+    def encode_bytes(cls, bytes):
+        return base64.urlsafe_b64encode(bytes).decode('utf-8')
+
+    @classmethod
+    def get_now(cls):
+        return datetime.datetime.now(tz=datetime.timezone.utc)
+
+    @classmethod
+    def get_delimited_encoded_string(cls, value_string, timestamp_string):
+        return '%s:%s' % (cls.encode_string(value_string), cls.encode_string(timestamp_string))
+
+    @classmethod
+    def signed_timed_value_hexdigest(cls, value_string, timestamp_string):
+        timed_value = cls.get_delimited_encoded_string(value_string, timestamp_string)
+        key = ExecutionContext.get_context().config.web.csrf_key
+        return hmac.new(key.encode('utf-8'), msg=timed_value.encode('utf-8'), digestmod=hashlib.sha1).hexdigest()
+
+    def __init__(self, value=None):
+        self.value = value or hashlib.sha1(os.urandom(64)).hexdigest()
+
+    def get_now_timestamp_string(self):
+        return repr(self.get_now().timestamp())
+
+    def as_signed_string(self):
+        timestamp_string = self.get_now_timestamp_string()
+        signature = self.signed_timed_value_hexdigest(self.value, timestamp_string)
+        return '%s:%s' % (self.get_delimited_encoded_string(self.value, timestamp_string), signature)
+
+    def matches(self, other):
+        return hmac.compare_digest(self.value, other.value)
 
 
 # Uses: reahl/web/reahl.form.js
@@ -1075,6 +1181,8 @@ class Form(HTMLElement):
                 attributes.set_to('value', digest)
 
         self.hash_inputs = self.add_child(Div(self.view, css_id='%s_hashes' % unique_name))
+        self._reahl_csrf_token = ExecutionContext.get_context().session.get_csrf_token()
+        self.hash_inputs.add_child(HiddenInput(self, self.fields._reahl_csrf_token, ignore_concurrent_change=True))
         self.database_digest_input = self.hash_inputs.add_child(HiddenInput(self, self.fields._reahl_database_concurrency_digest, ignore_concurrent_change=True))
         # the digest input will have a value when:
         #  (1) you're busy with an ajax call, after being internally redirected (because AjaxMethod.fire_ajax_event will have inputted the browser value); or
@@ -1105,6 +1213,7 @@ class Form(HTMLElement):
     @exposed
     def fields(self, fields):
         fields._reahl_database_concurrency_digest = Field().with_validation_constraint(ConcurrentChange(self))
+        fields._reahl_csrf_token = CSRFTokenField(self._reahl_csrf_token)
 
     @exposed
     def events(self, events):
