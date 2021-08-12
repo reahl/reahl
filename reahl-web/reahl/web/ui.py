@@ -28,7 +28,7 @@ import re
 import html
 from collections import OrderedDict
 from collections.abc import Callable
-
+from webob.exc import HTTPForbidden
 
 from reahl.component.exceptions import IsInstance
 from reahl.component.exceptions import ProgrammerError
@@ -1040,10 +1040,15 @@ class ValidCSRFToken(ValidationConstraint):
         super().__init__(error_message=_('Invalid CSRF token.'))
         self.token = token
 
+    def validate_parsed_value(self, parsed_value):
+        if not self.token.matches(parsed_value):
+            raise HTTPForbidden()
+
     def validate_input(self, unparsed_input):
-        token = CSRFToken.from_coded_string(unparsed_input)
-        if not self.token.matches(token):
-            raise self
+        try:
+            self.field.parse_input(unparsed_input)
+        except InputParseException:
+            raise HTTPForbidden()
 
 
 class CSRFTokenField(Field):
@@ -1057,7 +1062,6 @@ class CSRFTokenField(Field):
         return CSRFToken.from_coded_string(unparsed_input)
 
     def unparse_input(self, parsed_value):
-        # TODO: handle exceptions:
         return parsed_value.as_signed_string()
 
 
@@ -1081,7 +1085,7 @@ class CSRFToken:
         received_value_string = cls.decode_to_string(encoded_value)
         received_timestamp_string = cls.decode_to_string(encoded_timestamp)
 
-        computed_signature = cls.signed_timed_value_hexdigest(received_value_string, received_timestamp_string)
+        computed_signature = cls.sign_timed_value(received_value_string, received_timestamp_string)
         is_signature_valid = hmac.compare_digest(received_signature.encode('ascii'), computed_signature.encode('ascii'))
         if not is_signature_valid:
             raise InvalidCSRFToken()
@@ -1120,7 +1124,7 @@ class CSRFToken:
         return '%s:%s' % (cls.encode_string(value_string), cls.encode_string(timestamp_string))
 
     @classmethod
-    def signed_timed_value_hexdigest(cls, value_string, timestamp_string):
+    def sign_timed_value(cls, value_string, timestamp_string):
         timed_value = cls.get_delimited_encoded_string(value_string, timestamp_string)
         key = ExecutionContext.get_context().config.web.csrf_key
         return hmac.new(key.encode('utf-8'), msg=timed_value.encode('utf-8'), digestmod=hashlib.sha1).hexdigest()
@@ -1133,7 +1137,7 @@ class CSRFToken:
 
     def as_signed_string(self):
         timestamp_string = self.get_now_timestamp_string()
-        signature = self.signed_timed_value_hexdigest(self.value, timestamp_string)
+        signature = self.sign_timed_value(self.value, timestamp_string)
         return '%s:%s' % (self.get_delimited_encoded_string(self.value, timestamp_string), signature)
 
     def matches(self, other):

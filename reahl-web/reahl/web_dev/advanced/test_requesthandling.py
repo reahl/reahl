@@ -196,6 +196,15 @@ def test_web_session_handling(reahl_system_fixture, web_fixture):
         def initialise_web_session_on(cls, context):
             context.session = cls.get_or_create_session()
 
+        @classmethod
+        def preserve_session(cls, session):
+            import pdb;pdb.set_trace()
+            cls.session_is_preserved = session
+
+        @classmethod
+        def restore_session(cls, session):
+            cls.session_is_restored = session
+            
         def set_session_key(self, response):
             self.key_is_set = True
             self.saved_response = response

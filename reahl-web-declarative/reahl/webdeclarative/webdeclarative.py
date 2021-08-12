@@ -21,6 +21,8 @@ Run 'reahl componentinfo reahl-web-declarative' for configuration information.
 """
 
 import random
+import hmac
+import hashlib
 import urllib.parse
 from datetime import datetime, timedelta
 

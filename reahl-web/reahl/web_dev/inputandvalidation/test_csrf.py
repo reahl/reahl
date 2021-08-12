@@ -17,6 +17,7 @@
 
 import datetime
 import base64
+from webob.exc import HTTPForbidden
 
 from reahl.tofu import Fixture, scenario, expected, uses, NoException
 from reahl.tofu.pytestsupport import with_fixtures
@@ -29,14 +30,6 @@ from reahl.browsertools.browsertools import WidgetTester
 from reahl.browsertools.browsertools import XPath
 
 from reahl.web_dev.fixtures import WebFixture
-
-
-@with_fixtures(WebFixture)
-def test_form_has_csrf_token(web_fixture):
-    fixture = web_fixture
-
-    form = Form(fixture.view, 'myform')
-    assert form.inputs['myform-_reahl_csrf_token'].value is not None
 
 
 @with_fixtures(WebFixture)
@@ -61,10 +54,9 @@ def test_submit_form_with_invalid_csrf_token(web_fixture):
 
     browser.open('/')
     browser.execute_script('$("#id-myform-_reahl_csrf_token").attr("value", "%s")' % 'invalid csrf token value')
-    with expected(InvalidCSRFToken):
-        browser.click(XPath.button_labelled('Submit'))
-
-    assert False, 'TODO: What about HTTPForbidden?'
+    assert not browser.is_element_present(XPath.heading(1).with_text("403 Forbidden"))
+    browser.click(XPath.button_labelled('Submit'))
+    assert browser.is_element_present(XPath.heading(1).with_text("403 Forbidden"))
 
 
 @with_fixtures(WebFixture)
@@ -84,10 +76,11 @@ def test_csrf_fiddled_value(web_fixture):
     csrf_token = token.as_signed_string()
     value, timestamp, signature = csrf_token.split(":")
 
-    crafted_value = base64.urlsafe_b64encode("new world".encode()).decode('utf-8')
-    crafted_token_string = ":".join([crafted_value, timestamp, signature])
+    crafted_value = base64.urlsafe_b64encode('new world'.encode()).decode('utf-8')
+    crafted_token_string = ':'.join([crafted_value, timestamp, signature])
     with expected(InvalidCSRFToken):
         CSRFToken.from_coded_string(crafted_token_string)
+
 
 @with_fixtures(WebFixture)
 def test_csrf_botched_value(web_fixture):
@@ -107,22 +100,23 @@ class CSRFTokenWithSetTimestamp(CSRFToken):
 
 @with_fixtures(WebFixture)
 def test_csrf_stale_token(web_fixture):
+    """A Token is only valid if reconstructed within a specified time."""
+    now = datetime.datetime.now(tz=datetime.timezone.utc)
 
     #case recent timestamp
-    token = CSRFTokenWithSetTimestamp(CSRFToken().get_now())
+    token = CSRFTokenWithSetTimestamp(now)
     with expected(NoException):
         CSRFToken.from_coded_string(token.as_signed_string())
 
     #case old timestamp
     allowed_timeout = ExecutionContext.get_context().config.web.csrf_timeout_seconds
-    stale_time = CSRFToken.get_now() - datetime.timedelta(seconds=allowed_timeout+1)
+    stale_time = now - datetime.timedelta(seconds=allowed_timeout+1)
     stale_token = CSRFTokenWithSetTimestamp(stale_time)
     with expected(ExpiredCSRFToken):
         CSRFToken.from_coded_string(stale_token.as_signed_string())
 
     #case future timestamp
     seconds_into_future = 300
-    now = CSRFToken().get_now()
     future_time = now + datetime.timedelta(seconds=seconds_into_future)
     future_token = CSRFTokenWithSetTimestamp(future_time)
     with expected(ExpiredCSRFToken):
