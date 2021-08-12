@@ -3055,8 +3055,10 @@ class ReahlWSGIApplication:
                             resource = self.resource_for(request)
                             response = resource.handle_request(request) 
                             veto.should_commit = resource.should_commit
+                            if not veto.should_commit:
+                                context.config.web.session_class.preserve_session(context.session)
                     if not veto.should_commit:
-                        context.config.web.session_class.initialise_web_session_on(context) # Because the rollback above nuked it
+                        context.config.web.session_class.restore_session(context.session) # Because the rollback above nuked it
                     if resource:
                         resource.cleanup_after_transaction()
                         

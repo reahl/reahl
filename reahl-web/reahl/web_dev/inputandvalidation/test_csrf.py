@@ -34,6 +34,7 @@ from reahl.web_dev.fixtures import WebFixture
 
 @with_fixtures(WebFixture)
 def test_submit_form_with_invalid_csrf_token(web_fixture):
+    """A Form cannot be submitted without the original CSRF token proving that it was rendered by us originally."""
     fixture = web_fixture
 
     class MyForm(Form):
@@ -61,8 +62,11 @@ def test_submit_form_with_invalid_csrf_token(web_fixture):
 
 @with_fixtures(WebFixture)
 def test_check_csrf_token_match(web_fixture):
+    """A CSRFToken is transformed into a signed string, with timestamp, and can be reconstructed and matched with a reconstructed token."""
     token = CSRFToken(value='hello world')
     csrf_token = token.as_signed_string()
+
+    assert len(csrf_token.split(':')) == 3
 
     reconstructed_token = CSRFToken.from_coded_string(csrf_token)
     assert reconstructed_token.value == 'hello world'
@@ -71,7 +75,7 @@ def test_check_csrf_token_match(web_fixture):
 
 @with_fixtures(WebFixture)
 def test_csrf_fiddled_value(web_fixture):
-
+    """A token with signature that does not match its contents is invalid."""
     token = CSRFToken(value='hello world')
     csrf_token = token.as_signed_string()
     value, timestamp, signature = csrf_token.split(":")
@@ -83,8 +87,8 @@ def test_csrf_fiddled_value(web_fixture):
 
 
 @with_fixtures(WebFixture)
-def test_csrf_botched_value(web_fixture):
-
+def test_csrf_malformed_token(web_fixture):
+    """A malformed token is invalid."""
     with expected(InvalidCSRFToken):
         CSRFToken.from_coded_string("someting without delimeters")
 
@@ -119,5 +123,5 @@ def test_csrf_stale_token(web_fixture):
     seconds_into_future = 300
     future_time = now + datetime.timedelta(seconds=seconds_into_future)
     future_token = CSRFTokenWithSetTimestamp(future_time)
-    with expected(ExpiredCSRFToken):
+    with expected(InvalidCSRFToken):
         CSRFToken.from_coded_string(future_token.as_signed_string())

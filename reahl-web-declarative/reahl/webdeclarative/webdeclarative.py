@@ -72,7 +72,15 @@ class UserSession(Base, UserSessionProtocol):
     @classmethod
     def initialise_web_session_on(cls, context):
         context.session = cls.get_or_create_session()
-    
+
+    @classmethod
+    def preserve_session(cls, session):
+        Session.expunge(session)
+
+    @classmethod
+    def restore_session(cls, session):
+        Session.add(session)
+
     def __init__(self, **kwargs):
         self.generate_salt()
         self.last_activity = datetime.fromordinal(1)
@@ -80,7 +88,9 @@ class UserSession(Base, UserSessionProtocol):
         super().__init__(**kwargs)
 
     def get_csrf_token(self):
-        return CSRFToken()
+        key = ExecutionContext.get_context().config.web.csrf_key
+        #return CSRFToken(value=hmac.new(key.encode('utf-8'), msg=self.as_key().encode('utf-8'), digestmod=hashlib.sha1).hexdigest())
+        return CSRFToken(value=str(self.id))
 
     def is_secured(self):
         context = ExecutionContext.get_context()

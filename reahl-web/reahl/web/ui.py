@@ -22,6 +22,7 @@ import hmac
 import os
 import datetime
 import time
+from builtins import Exception
 from string import Template
 import copy
 import re
@@ -1058,8 +1059,10 @@ class CSRFTokenField(Field):
         self.add_validation_constraint(ValidCSRFToken(token))
 
     def parse_input(self, unparsed_input):
-        # TODO: handle exceptions:
-        return CSRFToken.from_coded_string(unparsed_input)
+        try:
+            return CSRFToken.from_coded_string(unparsed_input)
+        except (InvalidCSRFToken, ExpiredCSRFToken) as ex:
+            raise InputParseException(ex)
 
     def unparse_input(self, parsed_value):
         return parsed_value.as_signed_string()
@@ -1098,7 +1101,9 @@ class CSRFToken:
         now = cls.get_now()
         csrf_timeout_seconds = ExecutionContext.get_context().config.web.csrf_timeout_seconds
         cutoff_timestamp = (now - datetime.timedelta(seconds=csrf_timeout_seconds)).timestamp()
-        if timestamp > now.timestamp() or timestamp < cutoff_timestamp:
+        if timestamp > now.timestamp():
+            raise InvalidCSRFToken()
+        if timestamp < cutoff_timestamp:
             raise ExpiredCSRFToken()
 
         return cls(value=received_value_string)

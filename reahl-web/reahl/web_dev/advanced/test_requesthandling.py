@@ -241,14 +241,22 @@ def test_web_session_handling(reahl_system_fixture, web_fixture):
             class ResourceStub:
                 should_commit = True
                 def cleanup_after_transaction(self):
-                    assert monitor.times_called == 2  # The database has been committed after user code started executed, before cleanup
+                    context = ExecutionContext.get_context()
+                    if hasattr(context.request, 'internal_redirect'):
+                        assert monitor.times_called == 2  # The database has been committed after user code started executed, before cleanup
+                    else:
+                        assert monitor.times_called == 1  # The database has been committed after user code started executed, before cleanup
+
                 def handle_request(self, request):
                     context = ExecutionContext.get_context()
                     assert context.session is UserSessionStub.session  # By the time user code executes, the session is set
                     assert monitor.times_called == 1  # The database has been committed before user code started executing
                     assert context.session.last_activity_time_set
                     assert not UserSessionStub.session.key_is_set
-                    return Response()
+                    if hasattr(request, 'internal_redirect'):
+                        return Response()
+                    else:
+                        raise InternalRedirect()
 
             @stubclass(ReahlWSGIApplication)
             class ReahlWSGIApplicationStub2(ReahlWSGIApplicationStub):
