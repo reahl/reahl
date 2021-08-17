@@ -1089,7 +1089,7 @@ class CSRFToken:
         received_timestamp_string = cls.decode_to_string(encoded_timestamp)
 
         computed_signature = cls.sign_timed_value(received_value_string, received_timestamp_string)
-        is_signature_valid = hmac.compare_digest(received_signature.encode('ascii'), computed_signature.encode('ascii'))
+        is_signature_valid = hmac.compare_digest(received_signature.encode('utf-8'), computed_signature.encode('utf-8'))
         if not is_signature_valid:
             raise InvalidCSRFToken()
 

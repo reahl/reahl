@@ -89,8 +89,8 @@ class UserSession(Base, UserSessionProtocol):
 
     def get_csrf_token(self):
         key = ExecutionContext.get_context().config.web.csrf_key
-        #return CSRFToken(value=hmac.new(key.encode('utf-8'), msg=self.as_key().encode('utf-8'), digestmod=hashlib.sha1).hexdigest())
-        return CSRFToken(value=str(self.id))
+        message = self.as_key()
+        return CSRFToken(value=hmac.new(key.encode('utf-8'), msg=message.encode('utf-8'), digestmod=hashlib.sha1).hexdigest())
 
     def is_secured(self):
         context = ExecutionContext.get_context()
