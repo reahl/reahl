@@ -19,6 +19,7 @@ Basic Widgets and related user interface elements.
 import base64
 import hashlib
 import hmac
+import logging
 import os
 import datetime
 import time
@@ -32,7 +33,7 @@ from collections.abc import Callable
 from webob.exc import HTTPForbidden
 
 from reahl.component.exceptions import IsInstance
-from reahl.component.exceptions import ProgrammerError
+from reahl.component.exceptions import ProgrammerError, DomainException
 from reahl.component.exceptions import arg_checks
 from reahl.component.i18n import Catalogue
 from reahl.component.context import ExecutionContext
@@ -1036,6 +1037,11 @@ class ConcurrentChange(ValidationConstraint):
             raise self
 
 
+class ExpiredCSRFToken(DomainException):
+    def __init__(self):
+        super().__init__(message=_('This form was submitted after too long a period of inactivity. For security reasons, please review your input and retry.'))
+
+
 class ValidCSRFToken(ValidationConstraint):
     def __init__(self, token):
         super().__init__(error_message=_('Invalid CSRF token.'))
@@ -1044,6 +1050,8 @@ class ValidCSRFToken(ValidationConstraint):
     def validate_parsed_value(self, parsed_value):
         if not self.token.matches(parsed_value):
             raise HTTPForbidden()
+        if parsed_value.is_expired():
+            raise ExpiredCSRFToken()
 
     def validate_input(self, unparsed_input):
         try:
@@ -1061,7 +1069,8 @@ class CSRFTokenField(Field):
     def parse_input(self, unparsed_input):
         try:
             return CSRFToken.from_coded_string(unparsed_input)
-        except (InvalidCSRFToken, ExpiredCSRFToken) as ex:
+        except InvalidCSRFToken as ex:
+            logging.getLogger(__name__).warning(str(ex))
             raise InputParseException(ex)
 
     def unparse_input(self, parsed_value):
@@ -1079,11 +1088,10 @@ class ExpiredCSRFToken(Exception):
 class CSRFToken:
     @classmethod
     def from_coded_string(cls, signed_string):
-
         try:
             encoded_value, encoded_timestamp, received_signature = signed_string.split(':')
         except (TypeError, ValueError) as e:
-            raise InvalidCSRFToken()
+            raise InvalidCSRFToken('Malformed incoming token string')
 
         received_value_string = cls.decode_to_string(encoded_value)
         received_timestamp_string = cls.decode_to_string(encoded_timestamp)
@@ -1091,22 +1099,16 @@ class CSRFToken:
         computed_signature = cls.sign_timed_value(received_value_string, received_timestamp_string)
         is_signature_valid = hmac.compare_digest(received_signature.encode('utf-8'), computed_signature.encode('utf-8'))
         if not is_signature_valid:
-            raise InvalidCSRFToken()
+            raise InvalidCSRFToken('Invalid signature')
 
         try:
             timestamp = float(received_timestamp_string)
         except ValueError as e:
-            raise InvalidCSRFToken()
+            raise InvalidCSRFToken('Unable to parse timestamp')
+        if timestamp > cls.get_now().timestamp():
+            raise InvalidCSRFToken('Future timestamp')
 
-        now = cls.get_now()
-        csrf_timeout_seconds = ExecutionContext.get_context().config.web.csrf_timeout_seconds
-        cutoff_timestamp = (now - datetime.timedelta(seconds=csrf_timeout_seconds)).timestamp()
-        if timestamp > now.timestamp():
-            raise InvalidCSRFToken()
-        if timestamp < cutoff_timestamp:
-            raise ExpiredCSRFToken()
-
-        return cls(value=received_value_string)
+        return cls(value=received_value_string, timestamp=timestamp)
 
     @classmethod
     def decode_to_string(cls, encoded_value):
@@ -1134,16 +1136,20 @@ class CSRFToken:
         key = ExecutionContext.get_context().config.web.csrf_key
         return hmac.new(key.encode('utf-8'), msg=timed_value.encode('utf-8'), digestmod=hashlib.sha1).hexdigest()
 
-    def __init__(self, value=None):
+    def __init__(self, value=None, timestamp=None):
         self.value = value or hashlib.sha1(os.urandom(64)).hexdigest()
-
-    def get_now_timestamp_string(self):
-        return repr(self.get_now().timestamp())
+        self.timestamp = timestamp if timestamp else self.get_now().timestamp()
 
     def as_signed_string(self):
-        timestamp_string = self.get_now_timestamp_string()
+        timestamp_string = repr(self.timestamp)
         signature = self.sign_timed_value(self.value, timestamp_string)
         return '%s:%s' % (self.get_delimited_encoded_string(self.value, timestamp_string), signature)
+
+    def is_expired(self):
+        now = self.get_now()
+        csrf_timeout_seconds = ExecutionContext.get_context().config.web.csrf_timeout_seconds
+        cutoff_timestamp = (now - datetime.timedelta(seconds=csrf_timeout_seconds)).timestamp()
+        return self.timestamp < cutoff_timestamp
 
     def matches(self, other):
         return hmac.compare_digest(self.value, other.value)
