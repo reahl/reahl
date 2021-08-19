@@ -268,7 +268,8 @@ class Reahl(Library):
     def __init__(self):
         super().__init__('reahl')
         self.shipped_in_directory = 'reahl/web/static'
-        self.files = ['reahl.hashchange.js',
+        self.files = ['reahl.csrf.js',
+                      'reahl.hashchange.js',
                       'reahl.ajaxlink.js',
                       'reahl.primitiveinput.js',
                       'reahl.textinput.js',

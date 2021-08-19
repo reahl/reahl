@@ -36,7 +36,7 @@ from reahl.component.eggs import ReahlEgg
 from reahl.component.config import Configuration
 from reahl.component.context import ExecutionContext
 from reahl.web.interfaces import UserSessionProtocol, UserInputProtocol, PersistedExceptionProtocol, PersistedFileProtocol
-from reahl.web.ui import CSRFToken
+from reahl.web.csrf import CSRFToken
 from reahl.web.fw import Url
 
 class InvalidKeyException(Exception):

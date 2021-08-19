@@ -25,7 +25,8 @@ from reahl.stubble import stubclass
 
 from reahl.component.context import  ExecutionContext
 from reahl.component.modelinterface import Action, Event, exposed
-from reahl.web.ui import Form, CSRFToken, ExpiredCSRFToken, InvalidCSRFToken, ButtonInput
+from reahl.web.ui import Form, ButtonInput
+from reahl.web.csrf import ExpiredCSRFToken, InvalidCSRFToken, CSRFToken
 from reahl.browsertools.browsertools import WidgetTester
 from reahl.browsertools.browsertools import XPath
 
