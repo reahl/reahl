@@ -139,12 +139,15 @@ class WebFixture(Fixture):
         browser = browser or self.driver_browser
         login_session = LoginSession.for_session(session)
         login_session.set_as_logged_in(system_account or self.party_account_fixture.system_account, stay_logged_in)
+        self.set_session_cookies(browser, session)
+
+    def set_session_cookies(self, browser, session):
         # quickly create a response so the fw sets the cookies, which we copy and explicitly set on selenium.
         response = Response()
         session.set_session_key(response)
         cookies = http.cookies.BaseCookie(', '.join(response.headers.getall('set-cookie')))
         for name, morsel in cookies.items():
-            cookie = {'name':name, 'value':morsel.value}
+            cookie = {'name': name, 'value': morsel.value}
             cookie.update(dict([(key, value) for key, value in morsel.items() if value]))
             browser.create_cookie(cookie)
 

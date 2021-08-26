@@ -916,11 +916,13 @@ def test_remote_field_validation(web_fixture):
 
     wsgi_app = fixture.new_wsgi_app(child_factory=MyForm.factory('myform'))
     browser = Browser(wsgi_app)
+    browser.open('/')
+    csrf_token_string = web_fixture.get_csrf_token_string(browser=browser)
 
-    browser.open('/_myform_validate_method?myform-a_field=invalid email address')
+    browser.open('/_myform_validate_method?myform-a_field=invalid email address', headers={'X-CSRF-TOKEN':csrf_token_string})
     assert browser.raw_html == '"a_field should be a valid email address"'
 
-    browser.open('/_myform_validate_method?myform-a_field=valid@email.org')
+    browser.open('/_myform_validate_method?myform-a_field=valid@email.org', headers={'X-CSRF-TOKEN':csrf_token_string})
     assert browser.raw_html == 'true'
 
 
@@ -945,11 +947,13 @@ def test_remote_field_formatting(web_fixture):
 
     wsgi_app = fixture.new_wsgi_app(child_factory=MyForm.factory('myform'))
     browser = Browser(wsgi_app)
+    browser.open('/')
+    csrf_token_string = web_fixture.get_csrf_token_string(browser=browser)
 
-    browser.open('/_myform_format_method?myform-a_field=13 November 2012')
+    browser.open('/_myform_format_method?myform-a_field=13 November 2012', headers={'X-CSRF-TOKEN':csrf_token_string})
     assert browser.raw_html == '13 Nov 2012'
 
-    browser.open('/_myform_format_method?myform-a_field=invaliddate')
+    browser.open('/_myform_format_method?myform-a_field=invaliddate', headers={'X-CSRF-TOKEN':csrf_token_string})
     assert browser.raw_html == ''
 
 
