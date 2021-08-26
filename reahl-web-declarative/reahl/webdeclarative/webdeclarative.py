@@ -21,6 +21,8 @@ Run 'reahl componentinfo reahl-web-declarative' for configuration information.
 """
 
 import random
+import hmac
+import hashlib
 import urllib.parse
 from datetime import datetime, timedelta
 
@@ -34,6 +36,7 @@ from reahl.component.eggs import ReahlEgg
 from reahl.component.config import Configuration
 from reahl.component.context import ExecutionContext
 from reahl.web.interfaces import UserSessionProtocol, UserInputProtocol, PersistedExceptionProtocol, PersistedFileProtocol
+from reahl.web.csrf import CSRFToken
 from reahl.web.fw import Url
 
 class InvalidKeyException(Exception):
@@ -69,12 +72,25 @@ class UserSession(Base, UserSessionProtocol):
     @classmethod
     def initialise_web_session_on(cls, context):
         context.session = cls.get_or_create_session()
-    
+
+    @classmethod
+    def preserve_session(cls, session):
+        Session.expunge(session)
+
+    @classmethod
+    def restore_session(cls, session):
+        Session.add(session)
+
     def __init__(self, **kwargs):
         self.generate_salt()
         self.last_activity = datetime.fromordinal(1)
         self.set_idle_lifetime(False)
         super().__init__(**kwargs)
+
+    def get_csrf_token(self):
+        key = ExecutionContext.get_context().config.web.csrf_key
+        message = self.as_key()
+        return CSRFToken(value=hmac.new(key.encode('utf-8'), msg=message.encode('utf-8'), digestmod=hashlib.sha1).hexdigest())
 
     def is_secured(self):
         context = ExecutionContext.get_context()

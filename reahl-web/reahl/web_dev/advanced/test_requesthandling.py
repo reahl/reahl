@@ -196,6 +196,15 @@ def test_web_session_handling(reahl_system_fixture, web_fixture):
         def initialise_web_session_on(cls, context):
             context.session = cls.get_or_create_session()
 
+        @classmethod
+        def preserve_session(cls, session):
+            import pdb;pdb.set_trace()
+            cls.session_is_preserved = session
+
+        @classmethod
+        def restore_session(cls, session):
+            cls.session_is_restored = session
+            
         def set_session_key(self, response):
             self.key_is_set = True
             self.saved_response = response
@@ -210,6 +219,15 @@ def test_web_session_handling(reahl_system_fixture, web_fixture):
 
         def get_interface_locale(self):
             return 'en_gb'
+
+        def preserve_session(cls, session):
+            pass
+
+        def restore_session(cls, session):
+            pass
+
+        def get_csrf_token(self):
+            pass
 
 
     import sqlalchemy.orm
@@ -232,14 +250,22 @@ def test_web_session_handling(reahl_system_fixture, web_fixture):
             class ResourceStub:
                 should_commit = True
                 def cleanup_after_transaction(self):
-                    assert monitor.times_called == 2  # The database has been committed after user code started executed, before cleanup
+                    context = ExecutionContext.get_context()
+                    if hasattr(context.request, 'internal_redirect'):
+                        assert monitor.times_called == 2  # The database has been committed after user code started executed, before cleanup
+                    else:
+                        assert monitor.times_called == 1  # The database has been committed after user code started executed, before cleanup
+
                 def handle_request(self, request):
                     context = ExecutionContext.get_context()
                     assert context.session is UserSessionStub.session  # By the time user code executes, the session is set
                     assert monitor.times_called == 1  # The database has been committed before user code started executing
                     assert context.session.last_activity_time_set
                     assert not UserSessionStub.session.key_is_set
-                    return Response()
+                    if hasattr(request, 'internal_redirect'):
+                        return Response()
+                    else:
+                        raise InternalRedirect()
 
             @stubclass(ReahlWSGIApplication)
             class ReahlWSGIApplicationStub2(ReahlWSGIApplicationStub):

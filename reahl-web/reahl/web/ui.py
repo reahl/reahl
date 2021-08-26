@@ -16,8 +16,6 @@
 """
 Basic Widgets and related user interface elements.
 """
-
-
 import time
 from string import Template
 import copy
@@ -26,7 +24,6 @@ import html
 from collections import OrderedDict
 from collections.abc import Callable
 
-
 from reahl.component.exceptions import IsInstance
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.exceptions import arg_checks
@@ -34,6 +31,7 @@ from reahl.component.i18n import Catalogue
 from reahl.component.context import ExecutionContext
 from reahl.component.modelinterface import exposed, ValidationConstraintList, ValidationConstraint, ExpectedInputNotFound,\
     Field, Event, BooleanField, Choice, UploadedFile, InputParseException, StandaloneFieldIndex, MultiChoiceField, ChoiceField, Action
+from reahl.web.csrf import CSRFTokenField
 from reahl.web.fw import EventChannel, RemoteMethod, JsonResult, Widget, \
     ValidationException, WidgetResult, WidgetFactory, Url, ErrorWidget, Layout
 from reahl.mailutil.rst import RestructuredText
@@ -1032,8 +1030,6 @@ class ConcurrentChange(ValidationConstraint):
             raise self
 
 
-
-
 # Uses: reahl/web/reahl.form.js
 class Form(HTMLElement):
     """A Form is a container for Inputs. Any Input has to belong to a Form. When a user clicks on
@@ -1075,6 +1071,8 @@ class Form(HTMLElement):
                 attributes.set_to('value', digest)
 
         self.hash_inputs = self.add_child(Div(self.view, css_id='%s_hashes' % unique_name))
+        self._reahl_csrf_token = ExecutionContext.get_context().session.get_csrf_token()
+        self.hash_inputs.add_child(HiddenInput(self, self.fields._reahl_csrf_token, ignore_concurrent_change=True))
         self.database_digest_input = self.hash_inputs.add_child(HiddenInput(self, self.fields._reahl_database_concurrency_digest, ignore_concurrent_change=True))
         # the digest input will have a value when:
         #  (1) you're busy with an ajax call, after being internally redirected (because AjaxMethod.fire_ajax_event will have inputted the browser value); or
@@ -1105,6 +1103,7 @@ class Form(HTMLElement):
     @exposed
     def fields(self, fields):
         fields._reahl_database_concurrency_digest = Field().with_validation_constraint(ConcurrentChange(self))
+        fields._reahl_csrf_token = CSRFTokenField(self._reahl_csrf_token)
 
     @exposed
     def events(self, events):

@@ -71,6 +71,7 @@ from reahl.component.exceptions import arg_checks
 from reahl.component.i18n import Catalogue
 from reahl.component.modelinterface import StandaloneFieldIndex, FieldIndex, Field, Event, ValidationConstraint,\
                                              Allowed, exposed, Event, Action
+from reahl.web.csrf import InvalidCSRFToken, CSRFToken
 
 _ = Catalogue('reahl-web')
 
@@ -2055,9 +2056,14 @@ class HeaderContent(Widget):
         self.page = page
 
     def render(self):
-        config = ExecutionContext.get_context().config
-        return ''.join([library.header_only_material(self.page)
-                        for library in config.web.frontend_libraries])
+        context = ExecutionContext.get_context()
+        token_string = context.session.get_csrf_token().as_signed_string()
+        csrf_meta = '<meta name="csrf-token" content="%s">' % token_string
+        config = context.config
+        library_header_material = ''.join([library.header_only_material(self.page)
+                                           for library in config.web.frontend_libraries])
+        return csrf_meta+library_header_material
+
     
 
 
@@ -2402,6 +2408,7 @@ class RemoteMethod(SubResource):
        :keyword method: The http method supported by this RemoteMethod is derived from whether it is idempotent or not. By default 
                         a RemoteMethod is accessible via http 'get' if it is idempotent, else by 'post'. This behaviour can be 
                         overridden by specifying an http method explicitly using the `method` keyword argument.
+       :keyword disable_csrf_check: Pass True to prevent this RemoteMethod from doing the usual CSRF check.
 
         .. versionchanged:: 5.0
            idempotent and immutable kwargs split up into two and better defined.
@@ -2409,11 +2416,14 @@ class RemoteMethod(SubResource):
         .. versionchanged:: 5.0
            method keyword argument added to explicitly state http method.
 
+        .. versionchanged:: 5.2
+           disable_csrf_check keyword argument added.
+
     """
     sub_regex = 'method'
     sub_path_template = 'method'
 
-    def __init__(self, view, name, callable_object, default_result, idempotent=False, immutable=False, method=None):
+    def __init__(self, view, name, callable_object, default_result, idempotent=False, immutable=False, method=None, disable_csrf_check=False):
         super().__init__(view, name)
         self.idempotent = idempotent or immutable
         self.immutable = immutable
@@ -2422,6 +2432,7 @@ class RemoteMethod(SubResource):
         self.caught_exception = None
         self.input_values = None
         self.method = method
+        self.disable_csrf_check = disable_csrf_check
 
     @property
     def should_commit(self):
@@ -2451,7 +2462,9 @@ class RemoteMethod(SubResource):
            completed successfully."""
 
     def call_with_input(self, input_values, catch_exception):
-        context = ExecutionContext.get_context()
+        if not self.disable_csrf_check:
+            self.check_csrf_header()
+
         caught_exception = None
         return_value = None
         try:
@@ -2460,6 +2473,22 @@ class RemoteMethod(SubResource):
             self.caught_exception = caught_exception = ex
             self.input_values = input_values
         return (return_value, caught_exception)
+
+    def check_csrf_header(self):
+        context = ExecutionContext.get_context()
+
+        try:
+            received_token_string = context.request.headers['X-CSRF-TOKEN']
+        except KeyError:
+            raise HTTPForbidden()
+        try:
+            received_token = CSRFToken.from_coded_string(received_token_string)
+        except InvalidCSRFToken as ex:
+            raise HTTPForbidden()
+        if received_token.is_expired():
+            raise HTTPForbidden()
+        if not context.session.get_csrf_token().matches(received_token):
+            raise HTTPForbidden()
 
     def cleanup_after_transaction(self):
         super().cleanup_after_transaction()
@@ -2513,8 +2542,8 @@ class CheckedRemoteMethod(RemoteMethod):
        .. versionchanged:: 5.0
           Split immutable into immutable and idempotent kwargs.
     """
-    def __init__(self, view, name, callable_object, result, idempotent=False, immutable=False, **parameters):
-        super().__init__(view, name, callable_object, result, idempotent=idempotent, immutable=immutable)
+    def __init__(self, view, name, callable_object, result, idempotent=False, immutable=False, disable_csrf_check=False, **parameters):
+        super().__init__(view, name, callable_object, result, idempotent=idempotent, immutable=immutable, disable_csrf_check=disable_csrf_check)
         self.parameters = FieldIndex(self)
         for name, field in parameters.items():
             self.parameters.set(name, field)
@@ -2537,7 +2566,7 @@ class EventChannel(RemoteMethod):
        Programmers should not need to work with an EventChannel directly.
     """
     def __init__(self, form, controller, name):
-        super().__init__(form.view, name, self.delegate_event, None, idempotent=False, immutable=False)
+        super().__init__(form.view, name, self.delegate_event, None, idempotent=False, immutable=False, disable_csrf_check=True)
         self.controller = controller
         self.form = form
 
@@ -3055,8 +3084,10 @@ class ReahlWSGIApplication:
                             resource = self.resource_for(request)
                             response = resource.handle_request(request) 
                             veto.should_commit = resource.should_commit
+                            if not veto.should_commit:
+                                context.config.web.session_class.preserve_session(context.session)
                     if not veto.should_commit:
-                        context.config.web.session_class.initialise_web_session_on(context) # Because the rollback above nuked it
+                        context.config.web.session_class.restore_session(context.session) # Because the rollback above nuked it
                     if resource:
                         resource.cleanup_after_transaction()
                         
