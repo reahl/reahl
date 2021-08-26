@@ -138,9 +138,3 @@ def test_csrf_with_invalid_timestamp(web_fixture):
     future_token = CSRFToken(timestamp=future_time)
     with expected(InvalidCSRFToken):
         CSRFToken.from_coded_string(future_token.as_signed_string())
-
-#when js submitted, token is received and checked
-#remote methods that disable csrf_checks
-#what about JS errors? we do no report them
-
-

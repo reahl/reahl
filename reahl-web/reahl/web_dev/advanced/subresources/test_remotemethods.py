@@ -50,16 +50,16 @@ class RemoteMethodFixture(Fixture):
 
         return WidgetWithRemoteMethod.factory()
 
-    def new_wsgi_app(self, remote_method=None):
+    def new_wsgi_app(self, remote_method=None, enable_js=False):
         remote_method = remote_method or self.remote_method
-        return self.web_fixture.new_wsgi_app(child_factory=self.new_widget_factory(remote_method=remote_method))
+        return self.web_fixture.new_wsgi_app(child_factory=self.new_widget_factory(remote_method=remote_method), enable_js=enable_js)
 
 
-@with_fixtures(WebFixture)
-def test_remote_methods(web_fixture):
+@with_fixtures(WebFixture, RemoteMethodFixture)
+def test_remote_methods(web_fixture, remote_method_fixture):
     """A RemoteMethod is a SubResource representing a method on the server side which can be invoked via POSTing to an URL."""
 
-    fixture = web_fixture
+    fixture = remote_method_fixture
 
     def callable_object():
         return 'value returned from method'
@@ -67,13 +67,7 @@ def test_remote_methods(web_fixture):
     encoding = 'koi8_r'  # Deliberate
     remote_method = RemoteMethod(web_fixture.view, 'amethod', callable_object, MethodResult(mime_type='ttext/hhtml', encoding=encoding), disable_csrf_check=True)
 
-    @stubclass(Widget)
-    class WidgetWithRemoteMethod(Widget):
-        def __init__(self, view):
-            super().__init__(view)
-            view.add_resource(remote_method)
-
-    wsgi_app = fixture.new_wsgi_app(child_factory=WidgetWithRemoteMethod.factory())
+    wsgi_app = fixture.new_wsgi_app(remote_method=remote_method)
     browser = Browser(wsgi_app)
 
     # By default you cannot GET, since the method is not immutable
@@ -84,6 +78,31 @@ def test_remote_methods(web_fixture):
     assert browser.raw_html == 'value returned from method'
     assert browser.last_response.charset == encoding
     assert browser.last_response.content_type == 'ttext/hhtml'
+
+@with_fixtures(WebFixture, RemoteMethodFixture)
+def test_remote_methods_via_ajax(web_fixture, remote_method_fixture):
+    """A RemoteMethod can be called via AJAX with CSRF protection built-in."""
+
+    fixture = remote_method_fixture
+
+    def callable_object():
+        return 'value returned from method'
+
+    remote_method = RemoteMethod(web_fixture.view, 'amethod', callable_object, MethodResult(), disable_csrf_check=False)
+
+    wsgi_app = fixture.new_wsgi_app(remote_method=remote_method, enable_js=True)
+    web_fixture.reahl_server.set_app(wsgi_app)
+    browser = web_fixture.driver_browser
+
+    # Case: using jquery to POST to the method includes the necessary xsrf info automatically
+    browser.open('/')
+    browser.execute_script('$.post("/_amethod_method", success=function(data){ $("body").attr("data-result", data) })')
+    results = browser.execute_script('return $("body").attr("data-result")')
+    assert results == 'value returned from method'
+
+    # Case: POSTing without a csrf token breaks
+    browser = Browser(wsgi_app)
+    browser.post('/_amethod_method', {}, status=403)
 
 
 @with_fixtures(WebFixture, RemoteMethodFixture)

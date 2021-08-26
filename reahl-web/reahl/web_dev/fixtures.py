@@ -22,7 +22,7 @@ from webob import Request, Response
 from reahl.stubble import stubclass
 from reahl.tofu import Fixture, set_up, uses
 
-from reahl.browsertools.browsertools import DriverBrowser
+from reahl.browsertools.browsertools import DriverBrowser, XPath
 from reahl.webdeclarative.webdeclarative import UserSession, PersistedException, PersistedFile, UserInput
 
 from reahl.domain.systemaccountmodel import LoginSession
@@ -132,6 +132,11 @@ class WebFixture(Fixture):
             request.environ['SERVER_PORT'] = '8363'
             request.host = 'localhost:8363'
         return Request(request.environ, charset='utf8')
+
+    def get_csrf_token_string(self, browser=None):
+        browser = browser or self.driver_browser
+        [csrf_token] = browser.xpath(XPath('//meta[@name="csrf-token"]/@content'))
+        return str(csrf_token)
 
     def log_in(self, browser=None, session=None, system_account=None, stay_logged_in=False):
         """Logs the user into the current webapp without having to navigate to a login page."""
