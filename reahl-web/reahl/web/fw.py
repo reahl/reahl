@@ -2352,7 +2352,7 @@ class WidgetResult(MethodResult):
         rendered_widgets = {widget.css_id: widget.render_contents() + widget.render_contents_js() 
                             for widget in widgets_to_render}
         success = exception is None
-        return json.dumps({ 'success': success, 'widgets': rendered_widgets })
+        return json.dumps({ 'success': success, 'exception': str(exception), 'widgets': rendered_widgets })
 
     def get_coactive_widgets_recursively(self, widget):
         ancestral_widgets = []

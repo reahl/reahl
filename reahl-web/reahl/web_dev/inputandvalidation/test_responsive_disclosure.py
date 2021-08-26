@@ -267,6 +267,32 @@ def test_refresh_input_can_be_set_after_input_is_created(web_fixture, query_stri
 
 
 @with_fixtures(WebFixture, QueryStringFixture, ResponsiveDisclosureFixture)
+def test_handle_ajax_error(web_fixture, query_string_fixture, responsive_disclosure_fixture):
+    """."""
+    fixture = responsive_disclosure_fixture
+
+    class MyForm(fixture.MyForm):
+        def __init__(self, view, an_object):
+            super().__init__(view, an_object)
+            if an_object.choice == 2:
+                raise Exception('Intentionally breaking')
+
+    fixture.MyForm = MyForm
+
+    wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=fixture.MainWidget.factory())
+    web_fixture.reahl_server.set_app(wsgi_app)
+    browser = web_fixture.driver_browser
+
+    wsgi_app.config.reahlsystem.debug = False
+    browser.open('/')
+
+    assert browser.wait_for(query_string_fixture.is_state_now, 1)
+    import pdb; pdb.set_trace()
+    browser.select(XPath.select_labelled('Choice'), 'Two')
+    assert browser.wait_for_element_visible(XPath.paragraph().including_text('Koos was hier'))
+
+
+@with_fixtures(WebFixture, QueryStringFixture, ResponsiveDisclosureFixture)
 def test_overridden_names(web_fixture, query_string_fixture, responsive_disclosure_fixture):
     """The overridden names of inputs correctly ensures that that input's state is distinguished from another with the same name."""
     fixture = responsive_disclosure_fixture

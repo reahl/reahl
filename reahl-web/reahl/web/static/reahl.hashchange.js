@@ -242,8 +242,14 @@ $.widget('reahl.hashchange', {
                         _this.replaceContents(data.widgets);
                         _this.arguments = newArguments;
                     } else {
-                        //TODO: redirect to error page?
+                        setTimeout(function() {
+                            var errorUrl = window.location.origin + "/error?error_message="+ encodeURIComponent(data.exception)+"&error_source_href="+encodeURIComponent(window.location.href);
+                            //window.location.assign(errorUrl);http://localhost:8000/error?error_message=Intentionally breaking&error_source_href=/
+                            window.location.href = errorUrl;
+                        }, 0);
                     }
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
                 },
                 complete: function(data){
                     _this.element.unblock();
