@@ -67,9 +67,9 @@ class WebConfig(Configuration):
     session_lifetime = ConfigSetting(default=60*60*24*7*2,
                                      description='The time in seconds a user session will be kept after last use')
     idle_lifetime = ConfigSetting(default=60*60*2,
-                                  description='The time in seconds after which a user session will be considered idle - normal setting')
+                                  description='The time in seconds after which a user session will be considered not logged in anymore')
     idle_lifetime_max = ConfigSetting(default=60*60*24*7*2,
-                                      description='The time in seconds after which a user session will be considered idle - "forever" setting')
+                                      description='The time in seconds after which a user session will be considered not logged in anymore - when the user opted to stay logged in')
     idle_secure_lifetime = ConfigSetting(default=60*60,
                                          description='The time in seconds after which a secure session will be considered expired')
     debug_concurrency_hash = ConfigSetting(default=False,

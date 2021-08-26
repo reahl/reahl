@@ -2408,12 +2408,16 @@ class RemoteMethod(SubResource):
        :keyword method: The http method supported by this RemoteMethod is derived from whether it is idempotent or not. By default 
                         a RemoteMethod is accessible via http 'get' if it is idempotent, else by 'post'. This behaviour can be 
                         overridden by specifying an http method explicitly using the `method` keyword argument.
+       :keyword disable_csrf_check: Pass True to prevent this RemoteMethod from doing the usual CSRF check.
 
         .. versionchanged:: 5.0
            idempotent and immutable kwargs split up into two and better defined.
 
         .. versionchanged:: 5.0
            method keyword argument added to explicitly state http method.
+
+        .. versionchanged:: 5.2
+           disable_csrf_check keyword argument added.
 
     """
     sub_regex = 'method'
