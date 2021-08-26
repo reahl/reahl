@@ -220,6 +220,15 @@ def test_web_session_handling(reahl_system_fixture, web_fixture):
         def get_interface_locale(self):
             return 'en_gb'
 
+        def preserve_session(cls, session):
+            pass
+
+        def restore_session(cls, session):
+            pass
+
+        def get_csrf_token(self):
+            pass
+
 
     import sqlalchemy.orm
     @stubclass(sqlalchemy.orm.Session)
