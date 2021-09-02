@@ -79,6 +79,7 @@ def test_remote_methods(web_fixture, remote_method_fixture):
     assert browser.last_response.charset == encoding
     assert browser.last_response.content_type == 'ttext/hhtml'
 
+
 @with_fixtures(WebFixture, RemoteMethodFixture)
 def test_remote_methods_via_ajax(web_fixture, remote_method_fixture):
     """A RemoteMethod can be called via AJAX with CSRF protection built-in."""

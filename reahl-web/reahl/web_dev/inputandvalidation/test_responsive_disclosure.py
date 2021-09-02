@@ -283,13 +283,15 @@ def test_handle_ajax_error(web_fixture, query_string_fixture, responsive_disclos
     web_fixture.reahl_server.set_app(wsgi_app)
     browser = web_fixture.driver_browser
 
-    wsgi_app.config.reahlsystem.debug = False
+    wsgi_app.config.reahlsystem.debug = False #causes redirect to the error page and not stacktrace
+
     browser.open('/')
 
     assert browser.wait_for(query_string_fixture.is_state_now, 1)
-    import pdb; pdb.set_trace()
     browser.select(XPath.select_labelled('Choice'), 'Two')
-    assert browser.wait_for_element_visible(XPath.paragraph().including_text('Koos was hier'))
+    assert browser.wait_for_element_visible(XPath.heading(1).with_text('An error occurred'))
+    assert browser.wait_for_element_visible(XPath.paragraph().including_text('Intentionally breaking'))
+    assert fixture.driver_browser.current_url.startswith('/error?')
 
 
 @with_fixtures(WebFixture, QueryStringFixture, ResponsiveDisclosureFixture)

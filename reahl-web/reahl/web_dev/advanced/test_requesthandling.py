@@ -198,7 +198,6 @@ def test_web_session_handling(reahl_system_fixture, web_fixture):
 
         @classmethod
         def preserve_session(cls, session):
-            import pdb;pdb.set_trace()
             cls.session_is_preserved = session
 
         @classmethod
