@@ -25,7 +25,7 @@ from collections import OrderedDict
 from collections.abc import Callable
 
 from reahl.component.exceptions import IsInstance
-from reahl.component.exceptions import ProgrammerError
+from reahl.component.exceptions import ProgrammerError, DomainException
 from reahl.component.exceptions import arg_checks
 from reahl.component.i18n import Catalogue
 from reahl.component.context import ExecutionContext
@@ -269,6 +269,7 @@ class HTMLElement(Widget):
         self.constant_attributes = HTMLAttributeDict()
         self.ajax_handler = None
         self.on_refresh = Event()
+        self.exception_on_refresh = None
         if css_id:
             self.set_id(css_id)
 
@@ -304,7 +305,10 @@ class HTMLElement(Widget):
         self.add_hash_change_handler(for_fields if for_fields else self.query_fields.values())
         if on_refresh:
             self.on_refresh = on_refresh
-            on_refresh.fire(force=True)
+            try:
+                self.fire_on_refresh()
+            except DomainException as ex:
+                self.exception_on_refresh = ex
 
     @property
     def is_refresh_enabled(self):
