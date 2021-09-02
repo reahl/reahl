@@ -262,7 +262,7 @@ class ResultScenarios(Fixture):
         self.web_fixture.view.page = self.method_result.result_widget
 
         self.value_to_return = 'ignored in this case'
-        self.expected_response = {'widgets': {"someid": '<the widget contents><script type="text/javascript">javascriptsome</script>'},
+        self.expected_response = {'result': {"someid": '<the widget contents><script type="text/javascript">javascriptsome</script>'},
                                   'exception': '',
                                   'success': True}
         self.expected_charset = self.method_result.encoding
@@ -437,14 +437,14 @@ class WidgetResultScenarios(Fixture):
         self.exception = False
         self.expected_response = {'success': True,
                                   'exception': '',
-                                  'widgets': {'an_id': '<changed contents><script type="text/javascript">js(changed contents)</script>'}}
+                                  'result': {'an_id': '<changed contents><script type="text/javascript">js(changed contents)</script>'}}
 
     @scenario
     def exception(self):
         self.exception = True
         self.expected_response = {'success': False,
                                   'exception': 'ex',
-                                  'widgets': {'an_id': '<changed contents><script type="text/javascript">js(changed contents)</script>'}}
+                                  'result': {'an_id': '<changed contents><script type="text/javascript">js(changed contents)</script>'}}
 
 
 @with_fixtures(WebFixture, WidgetResultScenarios)
@@ -502,7 +502,7 @@ def test_coactive_widgets(web_fixture):
     json_response = json.loads(browser.raw_html)
     assert json_response == {'success': True,
                              'exception': '',
-                             'widgets': {
+                             'result': {
                                 'main': '<main><script type="text/javascript"></script>',
                                 'coactive1': '<coactive1><script type="text/javascript"></script>',
                                 'coactive2': '<coactive2><script type="text/javascript"></script>'}

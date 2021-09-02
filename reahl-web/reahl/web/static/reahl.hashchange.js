@@ -239,7 +239,7 @@ $.widget('reahl.hashchange', {
                         _this.element.find('form').each(function(i, form) {
                             $(form).validate().destroy();
                         });
-                        _this.replaceContents(data.widgets);
+                        _this.replaceContents(data.result);
                         _this.arguments = newArguments;
                     } else {
                         setTimeout(function() {

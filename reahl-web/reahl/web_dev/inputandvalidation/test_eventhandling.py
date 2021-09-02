@@ -892,7 +892,7 @@ def test_alternative_event_trigerring(web_fixture):
 
     browser.open('/')
     expected_html = '<div id="myform_hashes">'
-    assert json_dict['widgets']['myform'].startswith(expected_html)
+    assert json_dict['result']['myform'].startswith(expected_html)
 
 
 @with_fixtures(WebFixture)
