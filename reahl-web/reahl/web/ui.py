@@ -192,12 +192,13 @@ class AjaxMethod(RemoteMethod):
         for widget in self.view.page.contained_widgets():
             widget.accept_disambiguated_input(state)
 
-        self.widget.fire_on_refresh()
-
-        construction_state = {}
-        for widget in self.view.page.contained_widgets():
-            widget.update_construction_state(construction_state)
-        self.view.set_construction_state_from_state_dict(construction_state)
+        try:
+            self.widget.fire_on_refresh()
+        finally:
+            construction_state = {}
+            for widget in self.view.page.contained_widgets():
+                widget.update_construction_state(construction_state)
+            self.view.set_construction_state_from_state_dict(construction_state)
 
 
 # Uses: reahl/web/reahl.hashchange.js

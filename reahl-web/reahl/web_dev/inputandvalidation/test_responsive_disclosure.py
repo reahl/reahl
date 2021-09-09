@@ -969,8 +969,7 @@ class RecalculateWidgetFixture(Fixture):
             calculated_state = Column(Integer, default=0)
 
             def recalculate(self):
-                is_firing_action = fixture.break_on_recalculate and self.choice == 2
-                if is_firing_action:
+                if fixture.break_on_recalculate and self.choice == 2:
                     raise DomainException(message='Breaking intentionally on recalculate')
                 self.calculated_state = self.choice * 10
 
@@ -1088,7 +1087,10 @@ def test_recalculate_on_refresh(web_fixture, query_string_fixture, sql_alchemy_f
 
 @with_fixtures(WebFixture, QueryStringFixture, SqlAlchemyFixture, RecalculateWidgetFixture)
 def test_error_on_refresh_action(web_fixture, query_string_fixture, sql_alchemy_fixture, recalculate_fixture):
-    """When a DomainException is raised during an Action executed on_refresh, ...TODO"""
+    """When a DomainException is raised during an Action executed on_refresh, the Widget should still render
+       (albeit differently) despite the fact that there was an exception and all inputs causing the exception
+       are retained.
+    """
 
     fixture = recalculate_fixture
 
@@ -1111,11 +1113,24 @@ def test_error_on_refresh_action(web_fixture, query_string_fixture, sql_alchemy_
         browser.open('/')
         assert browser.wait_for(query_string_fixture.is_state_now, 1)
         fixture.break_on_recalculate = True
+
+        # The Windget is rendered differently, and inputs retained.
         browser.type(XPath.input_labelled('Choice'), '2', wait_for_ajax=False)
         error_message = XPath.paragraph().including_text('Breaking intentionally on recalculate').inside_of(XPath.div().including_class('errors'))
         assert browser.is_element_present(error_message)
         modified_widget_message = XPath.paragraph().including_text('Invalid input, cannot calculate')
         assert browser.is_element_present(modified_widget_message)
+
+        # After breakage, selecting a working value restored how the Widget renders itself
+        browser.type(XPath.input_labelled('Choice'), '3', wait_for_ajax=False)
+        assert browser.is_element_present(XPath.paragraph().including_text('My state is now 3'))
+        assert browser.is_element_present(XPath.paragraph().including_text('My calculated state is now 30'))
+
+        # Implementation corner case: Subsequent breakages work correctly again
+        browser.type(XPath.input_labelled('Choice'), '2', wait_for_ajax=False)
+        assert browser.is_element_present(XPath.paragraph().including_text('My state is now 2'))
+        assert browser.is_element_present(XPath.paragraph().including_text('Invalid input, cannot calculate'))
+
         assert None, "TODO: we need to clean up the exception business. Maybe just one for form and widget? We need to document all this and possibly build a HOWTO or add to one. Remove exception on Widget result(json_dumps)"
 
 
