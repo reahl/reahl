@@ -889,8 +889,6 @@ def test_alternative_event_trigerring(web_fixture):
     # the response is a json object reporting the success of the event and a new rendition of the form
     json_dict = json.loads(browser.raw_html)
     assert json_dict['success']
-
-    browser.open('/')
     expected_html = '<div id="myform_hashes">'
     assert json_dict['result']['myform'].startswith(expected_html)
 

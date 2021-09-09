@@ -263,7 +263,6 @@ class ResultScenarios(Fixture):
 
         self.value_to_return = 'ignored in this case'
         self.expected_response = {'result': {"someid": '<the widget contents><script type="text/javascript">javascriptsome</script>'},
-                                  'exception': '',
                                   'success': True}
         self.expected_charset = self.method_result.encoding
         self.expected_content_type = 'application/json'
@@ -436,14 +435,12 @@ class WidgetResultScenarios(Fixture):
     def success(self):
         self.exception = False
         self.expected_response = {'success': True,
-                                  'exception': '',
                                   'result': {'an_id': '<changed contents><script type="text/javascript">js(changed contents)</script>'}}
 
     @scenario
     def exception(self):
         self.exception = True
         self.expected_response = {'success': False,
-                                  'exception': 'ex',
                                   'result': {'an_id': '<changed contents><script type="text/javascript">js(changed contents)</script>'}}
 
 
@@ -501,7 +498,6 @@ def test_coactive_widgets(web_fixture):
     browser.post('/_amethod_method', {})
     json_response = json.loads(browser.raw_html)
     assert json_response == {'success': True,
-                             'exception': '',
                              'result': {
                                 'main': '<main><script type="text/javascript"></script>',
                                 'coactive1': '<coactive1><script type="text/javascript"></script>',
