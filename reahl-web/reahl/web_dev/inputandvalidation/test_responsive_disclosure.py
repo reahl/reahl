@@ -993,17 +993,18 @@ class RecalculateWidgetFixture(Fixture):
     def new_model_object(self):
         return self.ModelObject()
 
-    def new_MainWidgetWithPersistentModelObject(self):
+    def new_MyForm(self):
         fixture = self
         class MyForm(Form):
             def __init__(self, view, an_object):
                 super().__init__(view, 'myform')
                 self.use_layout(FormLayout())
                 self.an_object = an_object
-                self.enable_refresh(on_refresh=an_object.events.choice_changed)
+                self.enable_refresh(on_refresh=self.an_object.events.choice_changed)
+                self.recalculate()
 
-                if self.exception or self.exception_on_refresh:
-                    self.layout.add_alert_for_domain_exception(self.exception or self.exception_on_refresh)
+                if self.exception:
+                    self.layout.add_alert_for_domain_exception(self.exception)
                 self.change_trigger_input = TextInput(self, an_object.fields.choice, refresh_widget=self)
                 self.layout.add_input(self.change_trigger_input)
                 self.add_child(P(self.view, text='My state is now %s' % an_object.choice))
@@ -1011,11 +1012,18 @@ class RecalculateWidgetFixture(Fixture):
                 self.define_event_handler(an_object.events.submit)
                 self.add_child(ButtonInput(self, an_object.events.submit))
 
+            def recalculate(self):
+                self.an_object.recalculate()
+
+        return MyForm
+
+    def new_MainWidgetWithPersistentModelObject(self):
+        fixture = self
         class MainWidgetWithPersistentModelObject(Widget):
             def __init__(self, view):
                 super().__init__(view)
                 an_object = fixture.model_object
-                self.add_child(MyForm(view, an_object))
+                self.add_child(fixture.MyForm(view, an_object))
 
         return MainWidgetWithPersistentModelObject
 
@@ -1093,13 +1101,22 @@ def test_error_on_refresh_action(web_fixture, query_string_fixture, sql_alchemy_
     """
 
     fixture = recalculate_fixture
+    class FormThatCatchesErrors(fixture.MyForm):
+        def recalculate(self):
+            self.can_calculate = True
+            try:
+                super().recalculate()
+            except DomainException as ex:
+                self.layout.add_alert_for_domain_exception(ex)
+                self.can_calculate = False
 
     def add_to_form(form, model_object):
-        if form.exception_on_refresh:
-            form.add_child(P(form.view, text='Invalid input, cannot calculate'))
-        else:
+        if form.can_calculate:
             form.add_child(P(form.view, text='My calculated state is now %s' % model_object.calculated_state))
+        else:
+            form.add_child(P(form.view, text='Invalid input, cannot calculate'))
 
+    fixture.MyForm = FormThatCatchesErrors
     fixture.add_to_form = add_to_form
 
     with sql_alchemy_fixture.persistent_test_classes(fixture.ModelObject):
@@ -1114,7 +1131,7 @@ def test_error_on_refresh_action(web_fixture, query_string_fixture, sql_alchemy_
         assert browser.wait_for(query_string_fixture.is_state_now, 1)
         fixture.break_on_recalculate = True
 
-        # The Windget is rendered differently, and inputs retained.
+        # The Widget is rendered differently, and inputs retained.
         browser.type(XPath.input_labelled('Choice'), '2', wait_for_ajax=False)
         error_message = XPath.paragraph().including_text('Breaking intentionally on recalculate').inside_of(XPath.div().including_class('errors'))
         assert browser.is_element_present(error_message)
@@ -1131,7 +1148,47 @@ def test_error_on_refresh_action(web_fixture, query_string_fixture, sql_alchemy_
         assert browser.is_element_present(XPath.paragraph().including_text('My state is now 2'))
         assert browser.is_element_present(XPath.paragraph().including_text('Invalid input, cannot calculate'))
 
-        assert None, "TODO: we need to clean up the exception business. Maybe just one for form and widget? We need to document all this and possibly build a HOWTO or add to one. Remove exception on Widget result(json_dumps)"
+
+class DebugScenarios(Fixture):
+    @scenario
+    def debug_on(self):
+        self.expected_debug = True
+
+    @scenario
+    def debug_off(self):
+        self.expected_debug = False
+
+
+@with_fixtures(WebFixture, QueryStringFixture, SqlAlchemyFixture, RecalculateWidgetFixture, DebugScenarios)
+def test_forgotten_error_on_refresh_action(web_fixture, query_string_fixture, sql_alchemy_fixture, recalculate_fixture, debug_scenario):
+    """When an DomainException is raised during an Action executed on_refresh, and the Widget does not handle it,
+       and error page is displayed.
+    """
+
+    fixture = recalculate_fixture
+    def add_to_form(form, model_object):
+        form.add_child(P(form.view, text='My calculated state is now %s' % model_object.calculated_state))
+
+    fixture.add_to_form = add_to_form
+
+    with sql_alchemy_fixture.persistent_test_classes(fixture.ModelObject):
+
+        Session.add(fixture.model_object)
+
+        wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=fixture.MainWidgetWithPersistentModelObject.factory())
+        wsgi_app.config.reahlsystem.debug = debug_scenario.expected_debug
+        web_fixture.reahl_server.set_app(wsgi_app)
+        browser = web_fixture.driver_browser
+
+        browser.open('/')
+        assert browser.wait_for(query_string_fixture.is_state_now, 1)
+        fixture.break_on_recalculate = True
+
+        # Upon the ajax error, redirect to an error page
+        with web_fixture.reahl_server.in_background():
+            browser.type(XPath.input_labelled('Choice'), '2', wait_for_ajax=False)
+        browser.wait_for_page_to_load()
+        assert browser.wait_for_element_visible(XPath.heading(1).with_text('An error occurred:'))
 
 
 @with_fixtures(WebFixture, QueryStringFixture, SqlAlchemyFixture)
@@ -1177,6 +1234,7 @@ def test_invalid_trigger_inputs(web_fixture, query_string_fixture, sql_alchemy_f
             self.use_layout(FormLayout())
             self.an_object = an_object
             self.enable_refresh(on_refresh=an_object.events.choice_changed)
+            self.an_object.recalculate()
             if self.exception:
                 self.layout.add_alert_for_domain_exception(self.exception)
             self.change_trigger_input = TextInput(self, an_object.fields.choice, refresh_widget=self)
@@ -1265,6 +1323,7 @@ def test_invalid_non_trigger_input_corner_case(web_fixture, query_string_fixture
             self.an_object = an_object
             self.use_layout(FormLayout())
             self.enable_refresh(on_refresh=an_object.events.choice_changed)
+            self.an_object.recalculate()
             if self.exception:
                 self.add_child(P(self.view, text=str(self.exception)))
             self.change_trigger_input = self.layout.add_input(TextInput(self, an_object.fields.choice, refresh_widget=self))

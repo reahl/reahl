@@ -30,6 +30,7 @@ from reahl.browsertools.browsertools import XPath, Browser
 from reahl.doc.examples.tutorial.hello.hello import HelloUI
 from reahl.doc.examples.howtos.hellonginx import hellonginx
 from reahl.doc.examples.howtos.hellodockernginx import hellodockernginx
+from reahl.doc.examples.howtos.dynamiccontenterrors import dynamiccontenterrors
 from reahl.doc.examples.tutorial.slots.slots import SlotsUI
 from reahl.doc.examples.features.tabbedpanel.tabbedpanel import TabbedPanelUI
 from reahl.doc.examples.features.carousel.carousel import CarouselUI
@@ -199,6 +200,10 @@ class ExampleFixture(Fixture):
     @scenario
     def dynamiccontent(self):
         self.wsgi_app = self.web_fixture.new_wsgi_app(site_root=dynamiccontent.DynamicUI, enable_js=True)
+
+    @scenario
+    def dynamiccontenterrors(self):
+        self.wsgi_app = self.web_fixture.new_wsgi_app(site_root=dynamiccontenterrors.DynamicUI, enable_js=True)
 
     @scenario
     def responsivedisclosure(self):
@@ -621,3 +626,19 @@ def test_chartplotly2(web_fixture, plotly_scenario):
     with browser.refresh_expected_for('#thechart-data', True):
         select_input = XPath.select_labelled('factor')
         browser.select(select_input, '2')
+
+
+@with_fixtures(WebFixture, ExampleFixture.dynamiccontenterrors)
+def test_dynamicerrors(web_fixture, dynamiccontenterrors_scenario):
+    fixture = dynamiccontenterrors_scenario
+    browser = web_fixture.driver_browser
+
+    fixture.start_example_app()
+    browser.open('/')
+
+    browser.select(XPath.select_named('dynamic_content_error_form-operator'), '÷');
+    error_alert = XPath.div().including_class('alert').including_text('I can\'t divide by 0')
+    assert not browser.is_element_present(error_alert)
+    browser.type(XPath.input_named('dynamic_content_error_form-operand_b'), '0')
+    assert browser.is_element_present(error_alert)
+    assert browser.is_element_present(XPath.span().including_text('---'))

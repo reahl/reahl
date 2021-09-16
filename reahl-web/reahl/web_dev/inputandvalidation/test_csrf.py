@@ -96,6 +96,25 @@ def test_submit_form_with_expired_csrf_token(web_fixture, csrf_fixture):
         browser.click(XPath.button_labelled('Submit'))
 
 
+@with_fixtures(WebFixture, CSRFFixture)
+def test_refresh_form_with_expired_csrf_token(web_fixture, csrf_fixture):
+    """A form submitted with a valid expired token, shows a validation exception. After refresh, a new token is received and submit works."""
+    fixture = csrf_fixture
+
+    wsgi_app = web_fixture.new_wsgi_app(child_factory=fixture.MyForm.factory(), enable_js=True)
+    web_fixture.reahl_server.set_app(wsgi_app)
+    browser = web_fixture.driver_browser
+
+    browser.open('/')
+    fixture.set_csrf_token_in_rendered_form_to_expired(browser)
+
+    with expected(ExpiredCSRFToken):
+        browser.click(XPath.button_labelled('Submit'))
+    #this should get a new csrftoken
+    browser.refresh()
+    browser.click(XPath.button_labelled('Submit'))
+
+
 @with_fixtures(WebFixture)
 def test_check_csrf_token_match(web_fixture):
     """A CSRFToken is transformed into a signed string, with timestamp, and can be reconstructed and matched with a reconstructed token."""

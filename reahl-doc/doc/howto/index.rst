@@ -14,6 +14,7 @@ Dynamic content
    responsivedisclosure
    paginglonglists
    refreshingwidgets
+   dynamiccontenterrors
 
 Parameterised views
 -------------------
@@ -47,8 +48,8 @@ Charts
 .. toctree::
    :maxdepth: 1
 
-   chartplotly
-   chartplotly2
+   plotly
+   plotly2
 
 Production deployment
 ---------------------

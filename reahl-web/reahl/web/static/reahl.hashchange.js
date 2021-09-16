@@ -248,6 +248,8 @@ $.widget('reahl.hashchange', {
                     }
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
+                    var errorUrl = window.location.origin+"/error?error_message="+encodeURIComponent(errorThrown)+"&error_source_href="+encodeURIComponent(window.location.href);
+                    window.location.href = errorUrl;
                 },
                 complete: function(data){
                     _this.element.unblock();

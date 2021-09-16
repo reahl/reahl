@@ -270,7 +270,6 @@ class HTMLElement(Widget):
         self.constant_attributes = HTMLAttributeDict()
         self.ajax_handler = None
         self.on_refresh = Event()
-        self.exception_on_refresh = None
         if css_id:
             self.set_id(css_id)
 
@@ -306,10 +305,6 @@ class HTMLElement(Widget):
         self.add_hash_change_handler(for_fields if for_fields else self.query_fields.values())
         if on_refresh:
             self.on_refresh = on_refresh
-            try:
-                self.fire_on_refresh()
-            except DomainException as ex:
-                self.exception_on_refresh = ex
 
     @property
     def is_refresh_enabled(self):
@@ -1219,7 +1214,7 @@ class Form(HTMLElement):
 
     @property
     def exception(self):
-        """The :class:`reahl.component.exceptions.DomainException` which occurred, if any."""
+        """The :class:`reahl.component.exceptions.DomainException` which occurred during submission of the Form, if any."""
         return self.persisted_exception_class.get_exception_for_form(self)
 
     def persist_exception(self, exception):
