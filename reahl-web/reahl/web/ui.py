@@ -305,6 +305,7 @@ class HTMLElement(Widget):
         self.add_hash_change_handler(for_fields if for_fields else self.query_fields.values())
         if on_refresh:
             self.on_refresh = on_refresh
+            self.fire_on_refresh()
 
     @property
     def is_refresh_enabled(self):

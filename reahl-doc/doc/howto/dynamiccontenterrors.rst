@@ -36,7 +36,8 @@ reports it back to the user while also showing the answer as "---" instead of it
 The calculator logic
 --------------------
 
-In the Calculator's `recalculate` method, raise a |DomainException| to signal the error condition:
+In the Calculator's `recalculate` method, raise a |DomainException| to signal the error condition, but at the same time
+ensure that result is always set. In Calculator.recalculate result is set to None for invalid input:
 
 .. literalinclude:: ../../reahl/doc/examples/howtos/dynamiccontenterrors/dynamiccontenterrors.py
    :pyobject: Calculator.recalculate
@@ -45,20 +46,13 @@ In the Calculator's `recalculate` method, raise a |DomainException| to signal th
 The display logic
 -----------------
 
-CalculateForm is the |Widget| responsible for showing the Calculator. In it, first call |enable_refresh|, passing
-it the required |Action| as usual.
+CalculateForm is the |Widget| responsible for showing the Calculator. The usual call to |enable_refresh| automatically
+also calls your `on_refresh` |Action|, so be sure to handle the |DomainException| it can raise:
 
 .. literalinclude:: ../../reahl/doc/examples/howtos/dynamiccontenterrors/dynamiccontenterrors.py
    :pyobject: CalculatorForm.__init__
 
-Then, call `recalculate` on the Calculator to update its calculated value before displaying it. Since `recalculate`
-can raise exceptions, put it in a try: block. Display the caught |DomainException| by adding an alert for it to the
-CalculateForm:
-
-.. literalinclude:: ../../reahl/doc/examples/howtos/dynamiccontenterrors/dynamiccontenterrors.py
-   :pyobject: CalculatorForm.update_calculated_value
-
-When adding the result for the current nonsensical input, take into account whether or not a result can be calculated:
+When adding the result for the current nonsensical input, take into account whether or not a result could be calculated:
 
 .. literalinclude:: ../../reahl/doc/examples/howtos/dynamiccontenterrors/dynamiccontenterrors.py
    :pyobject: CalculatorForm.display_result

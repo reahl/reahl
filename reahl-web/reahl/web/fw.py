@@ -83,14 +83,6 @@ class ValidationException(DomainException):
         detail_messages = [i.message for i in failed_validation_constraints]
         return cls(message=_.ngettext('An error occurred', 'Some errors occurred', len(detail_messages)), detail_messages=detail_messages)
 
-    @exposed
-    def events(self, events):
-        events.refresh = Event(label=_('Refresh'), action=Action(self.clear_view_data))
-
-    def clear_view_data(self, form=None):
-        form.clear_all_saved_data()
-
-
 
 class NoMatchingFactoryFound(Exception):
     pass

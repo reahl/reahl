@@ -30,7 +30,7 @@ from reahl.component.modelinterface import BooleanField, MultiChoiceField, Choic
 from reahl.component.modelinterface import exposed, Event, Action
 
 import reahl.web.ui
-from reahl.web.fw import Layout
+from reahl.web.fw import Layout, ValidationException
 from reahl.web.ui import Label, HTMLAttributeValueOption, HTMLElement
 from reahl.web.bootstrap.ui import Div, P, WrappedInput, A, TextNode, Span, Legend, FieldSet, Alert, Ul, Li, Hr
 from reahl.web.bootstrap.grid import ColumnLayout
@@ -523,9 +523,10 @@ class FormLayout(reahl.web.fw.Layout):
             for detail_message in exception.detail_messages:
                 ul.add_child(Li(self.widget.view)).add_child(TextNode(self.widget.view, detail_message))
 
-        reset_form = alert.add_child(NestedForm(self.widget.view, 'reset_%s%s' % (form.channel_name, unique_name)))
-        reset_form.form.define_event_handler(form.events.reset)
-        reset_form.add_child(Button(reset_form.form, form.events.reset, style='primary'))
+        if isinstance(exception, ValidationException):
+            reset_form = alert.add_child(NestedForm(self.widget.view, 'reset_%s%s' % (form.channel_name, unique_name)))
+            reset_form.form.define_event_handler(form.events.reset)
+            reset_form.add_child(Button(reset_form.form, form.events.reset, style='primary'))
             
 
 

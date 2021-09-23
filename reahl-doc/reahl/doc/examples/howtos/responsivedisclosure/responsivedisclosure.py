@@ -109,7 +109,6 @@ class AllocationDetailSection(Div):
 
         self.investment_order = investment_order    
         self.enable_refresh(on_refresh=self.investment_order.events.allocation_changed)
-        self.investment_order.recalculate()
 
         self.add_allocation_controls()
         self.add_allocation_table()

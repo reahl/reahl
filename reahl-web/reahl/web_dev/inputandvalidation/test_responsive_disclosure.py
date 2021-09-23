@@ -965,8 +965,13 @@ class RecalculateWidgetFixture(Fixture):
         class ModelObject(Base):
             __tablename__ = 'test_responsive_disclosure_recalculate'
             id = Column(Integer, primary_key=True)
-            choice = Column(Integer, default=1)
-            calculated_state = Column(Integer, default=0)
+            choice = Column(Integer)
+            calculated_state = Column(Integer)
+
+            def __init__(self):
+                super().__init__()
+                self.choice = 1
+                self.recalculate()
 
             def recalculate(self):
                 if fixture.break_on_recalculate and self.choice == 2:
@@ -1000,8 +1005,8 @@ class RecalculateWidgetFixture(Fixture):
                 super().__init__(view, 'myform')
                 self.use_layout(FormLayout())
                 self.an_object = an_object
-                self.enable_refresh(on_refresh=self.an_object.events.choice_changed)
-                self.recalculate()
+
+                self.call_enable_refresh()
 
                 if self.exception:
                     self.layout.add_alert_for_domain_exception(self.exception)
@@ -1012,8 +1017,12 @@ class RecalculateWidgetFixture(Fixture):
                 self.define_event_handler(an_object.events.submit)
                 self.add_child(ButtonInput(self, an_object.events.submit))
 
+            def call_enable_refresh(self):
+                self.enable_refresh(on_refresh=self.an_object.events.choice_changed)
+
             def recalculate(self):
                 self.an_object.recalculate()
+
 
         return MyForm
 
@@ -1102,10 +1111,12 @@ def test_error_on_refresh_action(web_fixture, query_string_fixture, sql_alchemy_
 
     fixture = recalculate_fixture
     class FormThatCatchesErrors(fixture.MyForm):
-        def recalculate(self):
+        can_calculate = True
+
+        def call_enable_refresh(self):
             self.can_calculate = True
             try:
-                super().recalculate()
+                super().call_enable_refresh()
             except DomainException as ex:
                 self.layout.add_alert_for_domain_exception(ex)
                 self.can_calculate = False
@@ -1185,9 +1196,9 @@ def test_forgotten_error_on_refresh_action(web_fixture, query_string_fixture, sq
         fixture.break_on_recalculate = True
 
         # Upon the ajax error, redirect to an error page
-        with web_fixture.reahl_server.in_background():
+        with web_fixture.reahl_server.in_background(): # because we expect this call to throw an exception and we dont want to catch it here
             browser.type(XPath.input_labelled('Choice'), '2', wait_for_ajax=False)
-        browser.wait_for_page_to_load()
+            browser.wait_for_page_to_load()
         assert browser.wait_for_element_visible(XPath.heading(1).with_text('An error occurred:'))
 
 
@@ -1234,7 +1245,6 @@ def test_invalid_trigger_inputs(web_fixture, query_string_fixture, sql_alchemy_f
             self.use_layout(FormLayout())
             self.an_object = an_object
             self.enable_refresh(on_refresh=an_object.events.choice_changed)
-            self.an_object.recalculate()
             if self.exception:
                 self.layout.add_alert_for_domain_exception(self.exception)
             self.change_trigger_input = TextInput(self, an_object.fields.choice, refresh_widget=self)
@@ -1323,7 +1333,6 @@ def test_invalid_non_trigger_input_corner_case(web_fixture, query_string_fixture
             self.an_object = an_object
             self.use_layout(FormLayout())
             self.enable_refresh(on_refresh=an_object.events.choice_changed)
-            self.an_object.recalculate()
             if self.exception:
                 self.add_child(P(self.view, text=str(self.exception)))
             self.change_trigger_input = self.layout.add_input(TextInput(self, an_object.fields.choice, refresh_widget=self))

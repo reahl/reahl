@@ -25,7 +25,7 @@ from reahl.web.bootstrap.ui import FieldSet, Span
 from reahl.web.bootstrap.grid import Container, ColumnLayout, ColumnOptions, ResponsiveSize
 from reahl.web.bootstrap.forms import Form, FormLayout, TextInput, ChoiceField, InlineFormLayout, SelectInput
 
-from sqlalchemy import Column, Integer, UnicodeText
+from sqlalchemy import Column, Integer, UnicodeText, orm
 from reahl.sqlalchemysupport import Base, session_scoped
 
 
@@ -42,12 +42,12 @@ class CalculatorForm(Form):
     def __init__(self, view):
         super().__init__(view, 'dynamic_content_error_form')
         self.use_layout(FormLayout())
+        self.calculator = Calculator.for_current_session()
+
         try:
-            self.calculator = Calculator.for_current_session()
-            #TODO: figure out why tests break when we do not recalc at enable_refresh
+            self.enable_refresh(on_refresh=self.calculator.events.inputs_changed)
         except DomainException as ex:
             self.layout.add_alert_for_domain_exception(ex)
-        self.enable_refresh(on_refresh=self.calculator.events.inputs_changed)
 
         controls = self.add_child(FieldSet(view).use_layout(InlineFormLayout()))
         self.add_inputs(controls)
@@ -64,12 +64,11 @@ class CalculatorForm(Form):
         controls.layout.add_input(operand_b_input, hide_label=True)
 
     def display_result(self, controls):
-        if self.calculator.is_divide_by_zero:
-            message = '= ---'
-        else:
+        if self.calculator.result:
             message = '= %s' % self.calculator.result
-#        controls.add_child(Span(self.view, text=message))
-        controls.layout.add_input(TextInput(self, self.calculator.fields.result))
+        else:
+            message = '= ---'
+        controls.add_child(Span(self.view, text=message))
 
 
 @session_scoped
@@ -88,7 +87,6 @@ class Calculator(Base):
         fields.operand_b  = IntegerField(label='B', required=True)
         fields.operator   = ChoiceField([Choice('plus', Field(label='+')),
                                           Choice('divide', Field(label='÷'))], required=True)
-        fields.result  = IntegerField(label='result')
 
     @exposed
     def events(self, events):
@@ -107,6 +105,7 @@ class Calculator(Base):
 
     def recalculate(self):
         if self.is_divide_by_zero:
+            self.result = None
             raise DomainException(message='I can\'t divide by 0')
 
         if self.operator == 'plus':
