@@ -41,8 +41,11 @@ class InvalidCSRFToken(Exception):
 
 
 class ExpiredCSRFToken(DomainException):
-    def __init__(self):
+    def __init__(self, commit=False, message=None, detail_messages=[]):
         super().__init__(message=_('This form was submitted after too long a period of inactivity. For security reasons, please review your input and retry.'))
+
+    def __getnewargs__(self):
+        return tuple()
 
 
 class ValidCSRFToken(ValidationConstraint):
