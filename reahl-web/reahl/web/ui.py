@@ -1073,7 +1073,7 @@ class Form(HTMLElement):
 
         self.hash_inputs = self.add_child(Div(self.view, css_id='%s_hashes' % unique_name))
         self._reahl_csrf_token = ExecutionContext.get_context().session.get_csrf_token()
-        self.hash_inputs.add_child(HiddenInput(self, self.fields._reahl_csrf_token, ignore_concurrent_change=True))
+        self.hash_inputs.add_child(HiddenInput(self, self.fields._reahl_csrf_token, ignore_concurrent_change=True, ignore_persist_on_exception=True))
         self.database_digest_input = self.hash_inputs.add_child(HiddenInput(self, self.fields._reahl_database_concurrency_digest, ignore_concurrent_change=True))
         # the digest input will have a value when:
         #  (1) you're busy with an ajax call, after being internally redirected (because AjaxMethod.fire_ajax_event will have inputted the browser value); or
@@ -2151,11 +2151,16 @@ class PasswordInput(PrimitiveInput):
 
 
 class HiddenInput(PrimitiveInput):
-    def __init__(self, form, bound_field, ignore_concurrent_change=False):
+    def __init__(self, form, bound_field, ignore_concurrent_change=False, ignore_persist_on_exception=False):
+        self.ignore_persist_on_exception = ignore_persist_on_exception
         super().__init__(form, bound_field, ignore_concurrent_change=ignore_concurrent_change)
 
     def create_html_widget(self):
         return HTMLInputElement(self, 'hidden')
+
+    def persist_input(self, input_values):
+        if not self.ignore_persist_on_exception:
+            super().persist_input(input_values)
 
 
 class CheckboxInput(PrimitiveInput):

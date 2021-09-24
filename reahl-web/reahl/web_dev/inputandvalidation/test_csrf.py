@@ -25,7 +25,7 @@ from reahl.stubble import stubclass
 
 from reahl.component.context import  ExecutionContext
 from reahl.component.modelinterface import Action, Event, exposed
-from reahl.web.ui import Form, ButtonInput
+from reahl.web.ui import Form, ButtonInput, FormLayout
 from reahl.web.csrf import ExpiredCSRFToken, InvalidCSRFToken, CSRFToken
 from reahl.browsertools.browsertools import WidgetTester
 from reahl.browsertools.browsertools import XPath
@@ -38,7 +38,9 @@ class CSRFFixture(Fixture):
         class MyForm(Form):
             def __init__(self, view):
                 super().__init__(view, 'myform')
-
+                self.use_layout(FormLayout())
+                if self.exception:
+                    self.layout.add_alert_for_domain_exception(self.exception)
                 self.define_event_handler(self.events.submit_break)
                 self.add_child(ButtonInput(self, self.events.submit_break))
 
@@ -82,22 +84,6 @@ def test_submit_form_with_invalid_csrf_token(web_fixture, csrf_fixture):
 
 @with_fixtures(WebFixture, CSRFFixture)
 def test_submit_form_with_expired_csrf_token(web_fixture, csrf_fixture):
-    """A form submitted with a valid expired token, shows a validation exception."""
-    fixture = csrf_fixture
-
-    wsgi_app = web_fixture.new_wsgi_app(child_factory=fixture.MyForm.factory(), enable_js=True)
-    web_fixture.reahl_server.set_app(wsgi_app)
-    browser = web_fixture.driver_browser
-
-    browser.open('/')
-    fixture.set_csrf_token_in_rendered_form_to_expired(browser)
-
-    with expected(ExpiredCSRFToken):
-        browser.click(XPath.button_labelled('Submit'))
-
-
-@with_fixtures(WebFixture, CSRFFixture)
-def test_refresh_form_with_expired_csrf_token(web_fixture, csrf_fixture):
     """A form submitted with a valid expired token, shows a validation exception. After refresh, a new token is received and submit works."""
     fixture = csrf_fixture
 
@@ -108,11 +94,13 @@ def test_refresh_form_with_expired_csrf_token(web_fixture, csrf_fixture):
     browser.open('/')
     fixture.set_csrf_token_in_rendered_form_to_expired(browser)
 
-    with expected(ExpiredCSRFToken):
-        browser.click(XPath.button_labelled('Submit'))
-    #this should get a new csrftoken
-    browser.refresh()
     browser.click(XPath.button_labelled('Submit'))
+    error_message = XPath.paragraph().including_text('This form was submitted after too long a period of inactivity. For security reasons, please review your input and retry.')
+    assert browser.is_element_present(error_message)
+
+    #case: submit again should work now - new csrftoken received in GET
+    browser.click(XPath.button_labelled('Submit'))
+    assert not browser.is_element_present(error_message)
 
 
 @with_fixtures(WebFixture)
