@@ -25,7 +25,7 @@ from collections import OrderedDict
 from collections.abc import Callable
 
 from reahl.component.exceptions import IsInstance
-from reahl.component.exceptions import ProgrammerError
+from reahl.component.exceptions import ProgrammerError, DomainException
 from reahl.component.exceptions import arg_checks
 from reahl.component.i18n import Catalogue
 from reahl.component.context import ExecutionContext
@@ -192,12 +192,13 @@ class AjaxMethod(RemoteMethod):
         for widget in self.view.page.contained_widgets():
             widget.accept_disambiguated_input(state)
 
-        self.widget.fire_on_refresh()
-
-        construction_state = {}
-        for widget in self.view.page.contained_widgets():
-            widget.update_construction_state(construction_state)
-        self.view.set_construction_state_from_state_dict(construction_state)
+        try:
+            self.widget.fire_on_refresh()
+        finally:
+            construction_state = {}
+            for widget in self.view.page.contained_widgets():
+                widget.update_construction_state(construction_state)
+            self.view.set_construction_state_from_state_dict(construction_state)
 
 
 # Uses: reahl/web/reahl.hashchange.js
@@ -304,7 +305,7 @@ class HTMLElement(Widget):
         self.add_hash_change_handler(for_fields if for_fields else self.query_fields.values())
         if on_refresh:
             self.on_refresh = on_refresh
-            on_refresh.fire(force=True)
+            self.fire_on_refresh()
 
     @property
     def is_refresh_enabled(self):
@@ -1072,7 +1073,7 @@ class Form(HTMLElement):
 
         self.hash_inputs = self.add_child(Div(self.view, css_id='%s_hashes' % unique_name))
         self._reahl_csrf_token = ExecutionContext.get_context().session.get_csrf_token()
-        self.hash_inputs.add_child(HiddenInput(self, self.fields._reahl_csrf_token, ignore_concurrent_change=True))
+        self.hash_inputs.add_child(HiddenInput(self, self.fields._reahl_csrf_token, ignore_concurrent_change=True, ignore_persist_on_exception=True))
         self.database_digest_input = self.hash_inputs.add_child(HiddenInput(self, self.fields._reahl_database_concurrency_digest, ignore_concurrent_change=True))
         # the digest input will have a value when:
         #  (1) you're busy with an ajax call, after being internally redirected (because AjaxMethod.fire_ajax_event will have inputted the browser value); or
@@ -1214,7 +1215,7 @@ class Form(HTMLElement):
 
     @property
     def exception(self):
-        """The :class:`reahl.component.exceptions.DomainException` which occurred, if any."""
+        """The :class:`reahl.component.exceptions.DomainException` which occurred during submission of the Form, if any."""
         return self.persisted_exception_class.get_exception_for_form(self)
 
     def persist_exception(self, exception):
@@ -1605,6 +1606,7 @@ class PrimitiveInput(Input):
     is_for_file = False
     is_contained = False
 
+    @arg_checks(form=IsInstance(Form), bound_field=IsInstance(Field))
     def __init__(self, form, bound_field, registers_with_form=True, refresh_widget=None, ignore_concurrent_change=False):
         super().__init__(form, bound_field.in_namespace(form.channel_name) if registers_with_form else bound_field)
 
@@ -1744,7 +1746,7 @@ class PrimitiveInput(Input):
     def prepare_input(self):
         field_data_store = ExecutionContext.get_context().global_field_values = getattr(ExecutionContext.get_context(), 'global_field_values', {})
         self.bound_field.activate_global_field_data_store(field_data_store)
-        
+
         construction_state = self.view.get_construction_state()
         if construction_state:
             self.bound_field.from_disambiguated_input(construction_state, ignore_validation=True, ignore_access=True)
@@ -2150,11 +2152,20 @@ class PasswordInput(PrimitiveInput):
 
 
 class HiddenInput(PrimitiveInput):
-    def __init__(self, form, bound_field, ignore_concurrent_change=False):
+    def __init__(self, form, bound_field, ignore_concurrent_change=False, ignore_persist_on_exception=False):
+        self.ignore_persist_on_exception = ignore_persist_on_exception
         super().__init__(form, bound_field, ignore_concurrent_change=ignore_concurrent_change)
 
     def create_html_widget(self):
         return HTMLInputElement(self, 'hidden')
+
+    def persist_input(self, input_values):
+        if not self.ignore_persist_on_exception:
+            super().persist_input(input_values)
+
+    def update_construction_state(self, disambiguated_input):
+        if not self.ignore_persist_on_exception:
+            super().update_construction_state(disambiguated_input)
 
 
 class CheckboxInput(PrimitiveInput):

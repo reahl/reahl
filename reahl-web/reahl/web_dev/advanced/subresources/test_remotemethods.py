@@ -79,6 +79,7 @@ def test_remote_methods(web_fixture, remote_method_fixture):
     assert browser.last_response.charset == encoding
     assert browser.last_response.content_type == 'ttext/hhtml'
 
+
 @with_fixtures(WebFixture, RemoteMethodFixture)
 def test_remote_methods_via_ajax(web_fixture, remote_method_fixture):
     """A RemoteMethod can be called via AJAX with CSRF protection built-in."""
@@ -261,7 +262,7 @@ class ResultScenarios(Fixture):
         self.web_fixture.view.page = self.method_result.result_widget
 
         self.value_to_return = 'ignored in this case'
-        self.expected_response = {'widgets': {"someid": '<the widget contents><script type="text/javascript">javascriptsome</script>'},
+        self.expected_response = {'result': {"someid": '<the widget contents><script type="text/javascript">javascriptsome</script>'},
                                   'success': True}
         self.expected_charset = self.method_result.encoding
         self.expected_content_type = 'application/json'
@@ -424,7 +425,7 @@ class WidgetResultScenarios(Fixture):
                 def change_something():
                     fixture.changes_made = True
                     if fixture.exception:
-                        raise DomainException('ex')
+                        raise DomainException(message='ex')
                 remote_method = RemoteMethod(view, 'amethod', change_something, default_result=method_result,
                                              immutable=False, disable_csrf_check=True)
                 view.add_resource(remote_method)
@@ -434,13 +435,13 @@ class WidgetResultScenarios(Fixture):
     def success(self):
         self.exception = False
         self.expected_response = {'success': True,
-                                  'widgets': {'an_id': '<changed contents><script type="text/javascript">js(changed contents)</script>'}}
+                                  'result': {'an_id': '<changed contents><script type="text/javascript">js(changed contents)</script>'}}
 
     @scenario
     def exception(self):
         self.exception = True
         self.expected_response = {'success': False,
-                                  'widgets': {'an_id': '<changed contents><script type="text/javascript">js(changed contents)</script>'}}
+                                  'result': {'an_id': '<changed contents><script type="text/javascript">js(changed contents)</script>'}}
 
 
 @with_fixtures(WebFixture, WidgetResultScenarios)
@@ -497,7 +498,7 @@ def test_coactive_widgets(web_fixture):
     browser.post('/_amethod_method', {})
     json_response = json.loads(browser.raw_html)
     assert json_response == {'success': True,
-                             'widgets': {
+                             'result': {
                                 'main': '<main><script type="text/javascript"></script>',
                                 'coactive1': '<coactive1><script type="text/javascript"></script>',
                                 'coactive2': '<coactive2><script type="text/javascript"></script>'}

@@ -1,10 +1,11 @@
 .. Copyright 2021 Reahl Software Services (Pty) Ltd. All rights reserved.
 
 .. |Chart| replace:: :class:`~reahl.web.plotly.Chart`
+.. |contents| replace:: :attr:`~reahl.web.plotly.Chart.contents`
 .. |Input| replace:: :class:`~reahl.web.ui.Input`
 .. |SelectInput| replace:: :class:`~reahl.web.ui.SelectInput`
 .. |Field| replace:: :class:`~reahl.component.modelinterface.Field`
-.. |set_refresh_widget|:: :meth:`~reahl.web.ui.PrimitiveInput.set_refresh_widget`
+.. |set_refresh_widget| replace:: :meth:`~reahl.web.ui.PrimitiveInput.set_refresh_widget`
 
 Interacting with Plotly |Chart|
 ===============================
@@ -29,12 +30,9 @@ based on a factor, which the user can select from a |SelectInput|.
 
 Add a |Field| on `ChartForm` to keep track of the `factor`:
 
-.. literalinclude:: ../../reahl/doc/examples/howtos/plotly2/plotly2.py
+.. literalinclude:: ../../reahl/doc/examples/howtos/chartplotly2/chartplotly2.py
    :pyobject: ChartForm.fields
 
-        select_input = self.layout.add_input(SelectInput(self, self.fields.factor))  # Creating the input, sets self.factor
-        chart = self.create_chart(self.factor)
-        select_input.set_refresh_widget(chart.contents)
 
 The `factor` attribute of `ChartForm` will only be updated in response to user changes once an |Input| is created for it.
 
@@ -45,12 +43,12 @@ Lastly, call |set_refresh_widget| to make the |SelectInput| change the contents 
 .. note::
    Refreshing only the |contents| of the |Chart| instead of the entire |Chart| updates the screen faster.
 
-.. literalinclude:: ../../reahl/doc/examples/howtos/plotly2/plotly2.py
+.. literalinclude:: ../../reahl/doc/examples/howtos/chartplotly2/chartplotly2.py
    :pyobject: ChartForm.__init__
 
 Here is the entire example:
 
-.. literalinclude:: ../../reahl/doc/examples/howtos/plotly2/plotly2.py
+.. literalinclude:: ../../reahl/doc/examples/howtos/chartplotly2/chartplotly2.py
    :pyobject: ChartForm
 
 

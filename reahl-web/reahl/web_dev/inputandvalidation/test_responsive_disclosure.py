@@ -267,6 +267,33 @@ def test_refresh_input_can_be_set_after_input_is_created(web_fixture, query_stri
 
 
 @with_fixtures(WebFixture, QueryStringFixture, ResponsiveDisclosureFixture)
+def test_handle_ajax_error(web_fixture, query_string_fixture, responsive_disclosure_fixture):
+    """."""
+    fixture = responsive_disclosure_fixture
+
+    class MyForm(fixture.MyForm):
+        def __init__(self, view, an_object):
+            super().__init__(view, an_object)
+            if an_object.choice == 2:
+                raise Exception('Intentionally breaking')
+
+    fixture.MyForm = MyForm
+
+    wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=fixture.MainWidget.factory())
+    web_fixture.reahl_server.set_app(wsgi_app)
+    browser = web_fixture.driver_browser
+
+    wsgi_app.config.reahlsystem.debug = False #causes redirect to the error page and not stacktrace
+
+    browser.open('/')
+
+    assert browser.wait_for(query_string_fixture.is_state_now, 1)
+    browser.select(XPath.select_labelled('Choice'), 'Two')
+    assert browser.wait_for_element_visible(XPath.heading(1).with_text('An error occurred:'))
+    assert browser.wait_for_element_visible(XPath.paragraph().including_text('Intentionally breaking'))
+
+
+@with_fixtures(WebFixture, QueryStringFixture, ResponsiveDisclosureFixture)
 def test_overridden_names(web_fixture, query_string_fixture, responsive_disclosure_fixture):
     """The overridden names of inputs correctly ensures that that input's state is distinguished from another with the same name."""
     fixture = responsive_disclosure_fixture
@@ -930,16 +957,25 @@ def test_browser_back_after_state_changes_goes_to_previous_url(web_fixture, quer
 
 
 @uses(query_string_fixture=QueryStringFixture)
-class RecalculatedWidgetScenarios(Fixture):
+class RecalculateWidgetFixture(Fixture):
+    break_on_recalculate = False
+    read_only = False
     def new_ModelObject(self):
         fixture = self
         class ModelObject(Base):
             __tablename__ = 'test_responsive_disclosure_recalculate'
             id = Column(Integer, primary_key=True)
-            choice = Column(Integer, default=1)
-            calculated_state = Column(Integer, default=0)
+            choice = Column(Integer)
+            calculated_state = Column(Integer)
+
+            def __init__(self):
+                super().__init__()
+                self.choice = 1
+                self.recalculate()
 
             def recalculate(self):
+                if fixture.break_on_recalculate and self.choice == 2:
+                    raise DomainException(message='Breaking intentionally on recalculate')
                 self.calculated_state = self.choice * 10
 
             def submit(self):
@@ -962,14 +998,16 @@ class RecalculatedWidgetScenarios(Fixture):
     def new_model_object(self):
         return self.ModelObject()
 
-    def new_MainWidgetWithPersistentModelObject(self):
+    def new_MyForm(self):
         fixture = self
         class MyForm(Form):
             def __init__(self, view, an_object):
                 super().__init__(view, 'myform')
                 self.use_layout(FormLayout())
                 self.an_object = an_object
-                self.enable_refresh(on_refresh=an_object.events.choice_changed)
+
+                self.call_enable_refresh()
+
                 if self.exception:
                     self.layout.add_alert_for_domain_exception(self.exception)
                 self.change_trigger_input = TextInput(self, an_object.fields.choice, refresh_widget=self)
@@ -979,13 +1017,28 @@ class RecalculatedWidgetScenarios(Fixture):
                 self.define_event_handler(an_object.events.submit)
                 self.add_child(ButtonInput(self, an_object.events.submit))
 
+            def call_enable_refresh(self):
+                self.enable_refresh(on_refresh=self.an_object.events.choice_changed)
+
+            def recalculate(self):
+                self.an_object.recalculate()
+
+
+        return MyForm
+
+    def new_MainWidgetWithPersistentModelObject(self):
+        fixture = self
         class MainWidgetWithPersistentModelObject(Widget):
             def __init__(self, view):
                 super().__init__(view)
                 an_object = fixture.model_object
-                self.add_child(MyForm(view, an_object))
+                self.add_child(fixture.MyForm(view, an_object))
 
         return MainWidgetWithPersistentModelObject
+
+
+@uses(query_string_fixture=QueryStringFixture, recalculate_fixture=RecalculateWidgetFixture)
+class RecalculatedWidgetScenarios(Fixture):
 
     @scenario
     def plain_widget(self):
@@ -995,9 +1048,9 @@ class RecalculatedWidgetScenarios(Fixture):
         def check_widget_value(browser, value):
             browser.wait_for(self.query_string_fixture.is_state_labelled_now, 'My calculated state', value)
 
-        self.add_to_form = add_to_form
+        self.recalculate_fixture.add_to_form = add_to_form
         self.check_widget_value = check_widget_value
-        self.read_only = True
+        self.recalculate_fixture.read_only = True
 
     @scenario
     def writable_input(self):
@@ -1010,27 +1063,27 @@ class RecalculatedWidgetScenarios(Fixture):
             status_text = browser.get_text(XPath.paragraph().including_text('Status: '))
             assert 'invalidly_entered' not in status_text
 
-        self.add_to_form = add_to_form
+        self.recalculate_fixture.add_to_form = add_to_form
         self.check_widget_value = check_widget_value
-        self.read_only = False
+        self.recalculate_fixture.read_only = False
 
     @scenario
     def read_only_input(self):
         self.writable_input()
-        self.read_only = True
+        self.recalculate_fixture.read_only = True
 
 
-@with_fixtures(WebFixture, QueryStringFixture, SqlAlchemyFixture, RecalculatedWidgetScenarios)
-def test_recalculate_on_refresh(web_fixture, query_string_fixture, sql_alchemy_fixture, scenario):
+@with_fixtures(WebFixture, QueryStringFixture, SqlAlchemyFixture, RecalculateWidgetFixture, RecalculatedWidgetScenarios)
+def test_recalculate_on_refresh(web_fixture, query_string_fixture, sql_alchemy_fixture, recalculate_fixture, scenario):
     """You can make a widget recalculate domain values upon refresh by adding an Event to enable_refresh()."""
 
-    fixture = scenario
+    fixture = recalculate_fixture
 
     with sql_alchemy_fixture.persistent_test_classes(fixture.ModelObject):
 
         Session.add(fixture.model_object)
 
-        wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=scenario.MainWidgetWithPersistentModelObject.factory())
+        wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=fixture.MainWidgetWithPersistentModelObject.factory())
         web_fixture.reahl_server.set_app(wsgi_app)
         browser = web_fixture.driver_browser
 
@@ -1047,6 +1100,106 @@ def test_recalculate_on_refresh(web_fixture, query_string_fixture, sql_alchemy_f
         browser.click(XPath.button_labelled('submit'))
         assert browser.is_element_present(XPath.paragraph().including_text('An exception happened on submit'))
         scenario.check_widget_value(browser, 20)
+
+
+@with_fixtures(WebFixture, QueryStringFixture, SqlAlchemyFixture, RecalculateWidgetFixture)
+def test_error_on_refresh_action(web_fixture, query_string_fixture, sql_alchemy_fixture, recalculate_fixture):
+    """When a DomainException is raised during an Action executed on_refresh, the Widget should still render
+       (albeit differently) despite the fact that there was an exception and all inputs causing the exception
+       are retained.
+    """
+
+    fixture = recalculate_fixture
+    class FormThatCatchesErrors(fixture.MyForm):
+        can_calculate = True
+
+        def call_enable_refresh(self):
+            self.can_calculate = True
+            try:
+                super().call_enable_refresh()
+            except DomainException as ex:
+                self.layout.add_alert_for_domain_exception(ex)
+                self.can_calculate = False
+
+    def add_to_form(form, model_object):
+        if form.can_calculate:
+            form.add_child(P(form.view, text='My calculated state is now %s' % model_object.calculated_state))
+        else:
+            form.add_child(P(form.view, text='Invalid input, cannot calculate'))
+
+    fixture.MyForm = FormThatCatchesErrors
+    fixture.add_to_form = add_to_form
+
+    with sql_alchemy_fixture.persistent_test_classes(fixture.ModelObject):
+
+        Session.add(fixture.model_object)
+
+        wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=fixture.MainWidgetWithPersistentModelObject.factory())
+        web_fixture.reahl_server.set_app(wsgi_app)
+        browser = web_fixture.driver_browser
+
+        browser.open('/')
+        assert browser.wait_for(query_string_fixture.is_state_now, 1)
+        fixture.break_on_recalculate = True
+
+        # The Widget is rendered differently, and inputs retained.
+        browser.type(XPath.input_labelled('Choice'), '2', wait_for_ajax=False)
+        error_message = XPath.paragraph().including_text('Breaking intentionally on recalculate').inside_of(XPath.div().including_class('errors'))
+        assert browser.is_element_present(error_message)
+        modified_widget_message = XPath.paragraph().including_text('Invalid input, cannot calculate')
+        assert browser.is_element_present(modified_widget_message)
+
+        # After breakage, selecting a working value restored how the Widget renders itself
+        browser.type(XPath.input_labelled('Choice'), '3', wait_for_ajax=False)
+        assert browser.is_element_present(XPath.paragraph().including_text('My state is now 3'))
+        assert browser.is_element_present(XPath.paragraph().including_text('My calculated state is now 30'))
+
+        # Implementation corner case: Subsequent breakages work correctly again
+        browser.type(XPath.input_labelled('Choice'), '2', wait_for_ajax=False)
+        assert browser.is_element_present(XPath.paragraph().including_text('My state is now 2'))
+        assert browser.is_element_present(XPath.paragraph().including_text('Invalid input, cannot calculate'))
+
+
+class DebugScenarios(Fixture):
+    @scenario
+    def debug_on(self):
+        self.expected_debug = True
+
+    @scenario
+    def debug_off(self):
+        self.expected_debug = False
+
+
+@with_fixtures(WebFixture, QueryStringFixture, SqlAlchemyFixture, RecalculateWidgetFixture, DebugScenarios)
+def test_forgotten_error_on_refresh_action(web_fixture, query_string_fixture, sql_alchemy_fixture, recalculate_fixture, debug_scenario):
+    """When an DomainException is raised during an Action executed on_refresh, and the Widget does not handle it,
+       and error page is displayed.
+    """
+
+    fixture = recalculate_fixture
+    def add_to_form(form, model_object):
+        form.add_child(P(form.view, text='My calculated state is now %s' % model_object.calculated_state))
+
+    fixture.add_to_form = add_to_form
+
+    with sql_alchemy_fixture.persistent_test_classes(fixture.ModelObject):
+
+        Session.add(fixture.model_object)
+
+        wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=fixture.MainWidgetWithPersistentModelObject.factory())
+        wsgi_app.config.reahlsystem.debug = debug_scenario.expected_debug
+        web_fixture.reahl_server.set_app(wsgi_app)
+        browser = web_fixture.driver_browser
+
+        browser.open('/')
+        assert browser.wait_for(query_string_fixture.is_state_now, 1)
+        fixture.break_on_recalculate = True
+
+        # Upon the ajax error, redirect to an error page
+        with web_fixture.reahl_server.in_background(): # because we expect this call to throw an exception and we dont want to catch it here
+            browser.type(XPath.input_labelled('Choice'), '2', wait_for_ajax=False)
+            browser.wait_for_page_to_load()
+        assert browser.wait_for_element_visible(XPath.heading(1).with_text('An error occurred:'))
 
 
 @with_fixtures(WebFixture, QueryStringFixture, SqlAlchemyFixture)

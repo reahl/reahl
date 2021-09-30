@@ -71,7 +71,7 @@ from reahl.component.exceptions import arg_checks
 from reahl.component.i18n import Catalogue
 from reahl.component.modelinterface import StandaloneFieldIndex, FieldIndex, Field, Event, ValidationConstraint,\
                                              Allowed, exposed, Event, Action
-from reahl.web.csrf import InvalidCSRFToken, CSRFToken
+from reahl.web.csrf import InvalidCSRFToken, CSRFToken, ExpiredCSRFToken
 
 _ = Catalogue('reahl-web')
 
@@ -82,14 +82,6 @@ class ValidationException(DomainException):
     def for_failed_validations(cls, failed_validation_constraints):
         detail_messages = [i.message for i in failed_validation_constraints]
         return cls(message=_.ngettext('An error occurred', 'Some errors occurred', len(detail_messages)), detail_messages=detail_messages)
-
-    @exposed
-    def events(self, events):
-        events.refresh = Event(label=_('Refresh'), action=Action(self.clear_view_data))
-
-    def clear_view_data(self, form=None):
-        form.clear_all_saved_data()
-
 
 
 class NoMatchingFactoryFound(Exception):
@@ -2352,7 +2344,7 @@ class WidgetResult(MethodResult):
         rendered_widgets = {widget.css_id: widget.render_contents() + widget.render_contents_js() 
                             for widget in widgets_to_render}
         success = exception is None
-        return json.dumps({ 'success': success, 'widgets': rendered_widgets })
+        return json.dumps({ 'success': success, 'result': rendered_widgets })
 
     def get_coactive_widgets_recursively(self, widget):
         ancestral_widgets = []
@@ -2486,7 +2478,7 @@ class RemoteMethod(SubResource):
         except InvalidCSRFToken as ex:
             raise HTTPForbidden()
         if received_token.is_expired():
-            raise HTTPForbidden()
+            raise ExpiredCSRFToken()
         if not context.session.get_csrf_token().matches(received_token):
             raise HTTPForbidden()
 

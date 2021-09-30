@@ -26,7 +26,7 @@ from reahl.browsertools.browsertools import WidgetTester
 from reahl.component.modelinterface import exposed, Field, BooleanField, Event, Choice, ChoiceField,\
     MultiChoiceField, IntegerField, Action
 from reahl.component.exceptions import DomainException
-from reahl.web.fw import Url
+from reahl.web.fw import Url, ValidationException
 from reahl.web.bootstrap.ui import A, Div, FieldSet
 from reahl.web.bootstrap.forms import Button, FormLayout, InlineFormLayout, GridFormLayout, Form, ChoicesLayout,\
     TextInput, CheckboxInput, PrimitiveCheckboxInput, RadioButtonSelectInput, ButtonLayout
@@ -709,7 +709,7 @@ def test_alert_for_domain_exception(web_fixture):
             events.submit_break = Event(label='Submit', action=Action(self.always_break))
 
         def always_break(self):
-            raise DomainException('designed to break')
+            raise ValidationException(message='designed to break')
 
     class MyForm(Form):
         def __init__(self, view):
@@ -738,7 +738,7 @@ def test_alert_for_domain_exception(web_fixture):
     alert = XPath.div().including_class('alert')
     
     assert browser.is_element_present(alert)
-    assert browser.get_text(alert) == 'An error occurred: DomainException'
+    assert browser.get_text(alert) == 'designed to break'
 
     assert browser.get_value(XPath.input_labelled('Some field')) == 'some input given'
     browser.click(XPath.button_labelled('Reset input'))

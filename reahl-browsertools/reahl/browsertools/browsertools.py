@@ -295,7 +295,6 @@ class Browser(BasicBrowser):
         assert select.tag == 'select', 'Expected %s to find a select tag' % locator
 
         form = self.get_form_for(xpath)
-
         for option in select.findall('option'):
             if option.text == label_to_choose:
                 form[select.attrib['name']] = option.attrib['value']
@@ -685,6 +684,11 @@ class XPath:
         """Returns an XPath to find an HTML <select> referred to by a <label> that contains the text in `label`."""
         label = cls.any('label').with_text(label_text)
         return cls.any('select')['@id=%s/@for' % label]
+
+    @classmethod
+    def select_named(cls, name):
+        """Returns an XPath to find an HTML <select> with the given name."""
+        return cls.any('select')['@name="%s"' % name]
 
     @classmethod
     def span(cls):

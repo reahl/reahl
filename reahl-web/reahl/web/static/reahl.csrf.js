@@ -19,11 +19,11 @@
 (function($) {
 "use strict";
     // From: https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html#use-of-custom-request-headers
-    var csrf_token = $('meta[name="csrf-token"]').attr('content');
 
     $.ajaxSetup({
         beforeSend: function(xhr, settings) {
             if (!this.crossDomain) {
+                var csrf_token = $('meta[name="csrf-token"]').attr('content');
                 xhr.setRequestHeader("X-CSRF-TOKEN", csrf_token);
             }
         }
