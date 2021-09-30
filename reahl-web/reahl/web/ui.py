@@ -1606,6 +1606,7 @@ class PrimitiveInput(Input):
     is_for_file = False
     is_contained = False
 
+    @arg_checks(form=IsInstance(Form), bound_field=IsInstance(Field))
     def __init__(self, form, bound_field, registers_with_form=True, refresh_widget=None, ignore_concurrent_change=False):
         super().__init__(form, bound_field.in_namespace(form.channel_name) if registers_with_form else bound_field)
 
@@ -1745,7 +1746,7 @@ class PrimitiveInput(Input):
     def prepare_input(self):
         field_data_store = ExecutionContext.get_context().global_field_values = getattr(ExecutionContext.get_context(), 'global_field_values', {})
         self.bound_field.activate_global_field_data_store(field_data_store)
-        
+
         construction_state = self.view.get_construction_state()
         if construction_state:
             self.bound_field.from_disambiguated_input(construction_state, ignore_validation=True, ignore_access=True)
@@ -2161,6 +2162,10 @@ class HiddenInput(PrimitiveInput):
     def persist_input(self, input_values):
         if not self.ignore_persist_on_exception:
             super().persist_input(input_values)
+
+    def update_construction_state(self, disambiguated_input):
+        if not self.ignore_persist_on_exception:
+            super().update_construction_state(disambiguated_input)
 
 
 class CheckboxInput(PrimitiveInput):

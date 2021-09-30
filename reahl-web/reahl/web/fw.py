@@ -71,7 +71,7 @@ from reahl.component.exceptions import arg_checks
 from reahl.component.i18n import Catalogue
 from reahl.component.modelinterface import StandaloneFieldIndex, FieldIndex, Field, Event, ValidationConstraint,\
                                              Allowed, exposed, Event, Action
-from reahl.web.csrf import InvalidCSRFToken, CSRFToken
+from reahl.web.csrf import InvalidCSRFToken, CSRFToken, ExpiredCSRFToken
 
 _ = Catalogue('reahl-web')
 
@@ -2478,7 +2478,7 @@ class RemoteMethod(SubResource):
         except InvalidCSRFToken as ex:
             raise HTTPForbidden()
         if received_token.is_expired():
-            raise HTTPForbidden()
+            raise ExpiredCSRFToken()
         if not context.session.get_csrf_token().matches(received_token):
             raise HTTPForbidden()
 

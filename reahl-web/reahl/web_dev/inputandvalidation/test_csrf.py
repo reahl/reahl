@@ -15,6 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+import time
 import datetime
 import base64
 from webob.exc import HTTPForbidden
@@ -24,8 +25,8 @@ from reahl.tofu.pytestsupport import with_fixtures
 from reahl.stubble import stubclass
 
 from reahl.component.context import  ExecutionContext
-from reahl.component.modelinterface import Action, Event, exposed
-from reahl.web.ui import Form, ButtonInput, FormLayout
+from reahl.component.modelinterface import Action, Event, exposed, ChoiceField, Choice, IntegerField
+from reahl.web.ui import Form, ButtonInput, FormLayout, SelectInput
 from reahl.web.csrf import ExpiredCSRFToken, InvalidCSRFToken, CSRFToken
 from reahl.browsertools.browsertools import WidgetTester
 from reahl.browsertools.browsertools import XPath
@@ -38,15 +39,24 @@ class CSRFFixture(Fixture):
         class MyForm(Form):
             def __init__(self, view):
                 super().__init__(view, 'myform')
+                self.enable_refresh()
                 self.use_layout(FormLayout())
                 if self.exception:
                     self.layout.add_alert_for_domain_exception(self.exception)
+                self.layout.add_input(SelectInput(self, self.fields.choice, refresh_widget=self))
                 self.define_event_handler(self.events.submit_break)
                 self.add_child(ButtonInput(self, self.events.submit_break))
 
             @exposed
             def events(self, events):
                 events.submit_break = Event(label='Submit')
+
+            @exposed
+            def fields(self, fields):
+                fields.choice = ChoiceField([Choice(1, IntegerField(label='1')),
+                                             Choice(2, IntegerField(label='2'))])
+
+
         return MyForm
 
     def set_csrf_token_in_rendered_form(self, browser, value):
@@ -91,16 +101,52 @@ def test_submit_form_with_expired_csrf_token(web_fixture, csrf_fixture):
     web_fixture.reahl_server.set_app(wsgi_app)
     browser = web_fixture.driver_browser
 
-    browser.open('/')
-    fixture.set_csrf_token_in_rendered_form_to_expired(browser)
 
+    browser.open('/')
+    select_widget_path = XPath.select_labelled('choice')
+    assert browser.get_value(select_widget_path) == '1'
+    browser.select(select_widget_path, '2')
+
+    wsgi_app.config.web.csrf_timeout_seconds = 0.5
+    time.sleep(wsgi_app.config.web.csrf_timeout_seconds+0.1)
     browser.click(XPath.button_labelled('Submit'))
+    wsgi_app.config.web.csrf_timeout_seconds = 300
     error_message = XPath.paragraph().including_text('This form was submitted after too long a period of inactivity. For security reasons, please review your input and retry.')
     assert browser.is_element_present(error_message)
 
     #case: submit again should work now - new csrftoken received in GET
     browser.click(XPath.button_labelled('Submit'))
     assert not browser.is_element_present(error_message)
+
+
+@with_fixtures(WebFixture, CSRFFixture)
+def test_refresh_widget_with_expired_csrf_token(web_fixture, csrf_fixture):
+    """An Ajax request done with a valid expired token, shows a validation exception. After refresh, a new token is received and submit works."""
+    fixture = csrf_fixture
+
+    wsgi_app = web_fixture.new_wsgi_app(child_factory=fixture.MyForm.factory(), enable_js=True)
+    web_fixture.reahl_server.set_app(wsgi_app)
+    browser = web_fixture.driver_browser
+
+    wsgi_app.config.reahlsystem.debug = False #causes redirect to the error page and not stacktrace
+
+    browser.open('/')
+
+    select_widget_path = XPath.select_labelled('choice')
+    assert browser.get_value(select_widget_path) == '1'
+    wsgi_app.config.web.csrf_timeout_seconds = 0.5
+    time.sleep(wsgi_app.config.web.csrf_timeout_seconds+0.1)
+    browser.select(select_widget_path, '2')
+    wsgi_app.config.web.csrf_timeout_seconds = 300
+    error_message = XPath.paragraph().including_text('This form was submitted after too long a period of inactivity. For security reasons, please review your input and retry.')
+    assert browser.is_element_present(error_message)
+
+    #case: new csrftoken received in GET
+    browser.click(XPath.link().with_text('Ok'))
+    assert browser.get_value(select_widget_path) == '1'
+    browser.select(select_widget_path, '2')
+    assert not browser.is_element_present(error_message)
+
 
 
 @with_fixtures(WebFixture)

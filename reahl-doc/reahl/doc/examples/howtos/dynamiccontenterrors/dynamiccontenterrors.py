@@ -64,7 +64,7 @@ class CalculatorForm(Form):
         controls.layout.add_input(operand_b_input, hide_label=True)
 
     def display_result(self, controls):
-        if self.calculator.result:
+        if self.calculator.result is not None:
             message = '= %s' % self.calculator.result
         else:
             message = '= ---'
