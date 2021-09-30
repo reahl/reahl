@@ -111,7 +111,7 @@ def test_submit_form_with_expired_csrf_token(web_fixture, csrf_fixture):
     time.sleep(wsgi_app.config.web.csrf_timeout_seconds+0.1)
     browser.click(XPath.button_labelled('Submit'))
     wsgi_app.config.web.csrf_timeout_seconds = 300
-    error_message = XPath.paragraph().including_text('This form was submitted after too long a period of inactivity. For security reasons, please review your input and retry.')
+    error_message = XPath.paragraph().including_text('This page has expired. For security reasons, please review your input and retry.')
     assert browser.is_element_present(error_message)
 
     #case: submit again should work now - new csrftoken received in GET
@@ -138,7 +138,7 @@ def test_refresh_widget_with_expired_csrf_token(web_fixture, csrf_fixture):
     time.sleep(wsgi_app.config.web.csrf_timeout_seconds+0.1)
     browser.select(select_widget_path, '2')
     wsgi_app.config.web.csrf_timeout_seconds = 300
-    error_message = XPath.paragraph().including_text('This form was submitted after too long a period of inactivity. For security reasons, please review your input and retry.')
+    error_message = XPath.paragraph().including_text('This page has expired. For security reasons, please review your input and retry.')
     assert browser.is_element_present(error_message)
 
     #case: new csrftoken received in GET
