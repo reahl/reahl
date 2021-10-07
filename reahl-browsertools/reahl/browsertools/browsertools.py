@@ -30,8 +30,7 @@ from lxml import html
 from selenium.webdriver.support.ui import WebDriverWait, Select
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
-
-
+from selenium.webdriver.support import expected_conditions
 
 # See: https://bitbucket.org/ianb/webtest/issue/45/html5-form-associated-inputs-break-webtest
 from webtest.forms import Field, Form
@@ -1510,6 +1509,13 @@ class DriverBrowser(BasicBrowser):
                 raise UnexpectedLoadOf(jquery_selector)
             if not new_element_loaded:
                 self.web_driver.execute_script('''$('%s').find('%s').remove()''' % (escaped_jquery_selector, escaped_load_flag_selector))
+
+    def is_alert_present(self):
+        return expected_conditions.alert_is_present()(self.web_driver)
+
+    @contextlib.contextmanager
+    def alert_expected(self):
+        yield self.wait_for(self.is_alert_present)
 
     @property
     def current_browser_tab(self):
