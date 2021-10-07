@@ -2344,7 +2344,8 @@ class WidgetResult(MethodResult):
         rendered_widgets = {widget.css_id: widget.render_contents() + widget.render_contents_js() 
                             for widget in widgets_to_render}
         success = exception is None
-        return json.dumps({ 'success': success, 'result': rendered_widgets })
+        report_exception = str(exception) if exception and not exception.handled_inline else ''
+        return json.dumps({ 'success': success, 'exception': report_exception, 'result': rendered_widgets })
 
     def get_coactive_widgets_recursively(self, widget):
         ancestral_widgets = []
@@ -2454,12 +2455,12 @@ class RemoteMethod(SubResource):
            completed successfully."""
 
     def call_with_input(self, input_values, catch_exception):
-        if not self.disable_csrf_check:
-            self.check_csrf_header()
 
         caught_exception = None
         return_value = None
         try:
+            if not self.disable_csrf_check:
+                self.check_csrf_header()
             return_value = self.callable_object(**self.parse_arguments(input_values))
         except catch_exception as ex:
             self.caught_exception = caught_exception = ex

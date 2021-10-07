@@ -18,20 +18,20 @@
 import time
 import datetime
 import base64
-from webob.exc import HTTPForbidden
+
+from selenium.common.exceptions import TimeoutException
 
 from reahl.tofu import Fixture, scenario, expected, uses, NoException
 from reahl.tofu.pytestsupport import with_fixtures
-from reahl.stubble import stubclass
 
 from reahl.component.context import  ExecutionContext
 from reahl.component.modelinterface import Action, Event, exposed, ChoiceField, Choice, IntegerField
-from reahl.web.ui import Form, ButtonInput, FormLayout, SelectInput
+from reahl.web.ui import Form, ButtonInput, FormLayout, SelectInput, P
 from reahl.web.csrf import ExpiredCSRFToken, InvalidCSRFToken, CSRFToken
-from reahl.browsertools.browsertools import WidgetTester
 from reahl.browsertools.browsertools import XPath
 
 from reahl.web_dev.fixtures import WebFixture
+
 
 
 class CSRFFixture(Fixture):
@@ -40,12 +40,14 @@ class CSRFFixture(Fixture):
             def __init__(self, view):
                 super().__init__(view, 'myform')
                 self.enable_refresh()
+                self.choice = 1
                 self.use_layout(FormLayout())
                 if self.exception:
                     self.layout.add_alert_for_domain_exception(self.exception)
                 self.layout.add_input(SelectInput(self, self.fields.choice, refresh_widget=self))
                 self.define_event_handler(self.events.submit_break)
                 self.add_child(ButtonInput(self, self.events.submit_break))
+                self.add_child(P(view, 'Chosen: %s' % self.choice))
 
             @exposed
             def events(self, events):
@@ -136,17 +138,20 @@ def test_refresh_widget_with_expired_csrf_token(web_fixture, csrf_fixture):
     assert browser.get_value(select_widget_path) == '1'
     wsgi_app.config.web.csrf_timeout_seconds = 0.5
     time.sleep(wsgi_app.config.web.csrf_timeout_seconds+0.1)
-    browser.select(select_widget_path, '2')
+    browser.select(select_widget_path, '2', wait_for_ajax=False)
     wsgi_app.config.web.csrf_timeout_seconds = 300
-    error_message = XPath.paragraph().including_text('This page has expired. For security reasons, please review your input and retry.')
-    assert browser.is_element_present(error_message)
+
+    with browser.alert_expected() as js_alert:
+        assert js_alert.text == 'This page has expired. For security reasons, please review your input and retry.'
+        js_alert.accept()
 
     #case: new csrftoken received in GET
-    browser.click(XPath.link().with_text('Ok'))
     assert browser.get_value(select_widget_path) == '1'
+    assert browser.wait_for_element_not_present(XPath.paragraph().with_text('Chosen: 2'))
     browser.select(select_widget_path, '2')
-    assert not browser.is_element_present(error_message)
 
+    assert browser.wait_for_element_present(XPath.paragraph().with_text('Chosen: 2'))
+    assert browser.wait_for_not(browser.is_alert_present)
 
 
 @with_fixtures(WebFixture)

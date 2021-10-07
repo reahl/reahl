@@ -236,11 +236,16 @@ $.widget('reahl.hashchange', {
                 data:    data,
                 success: function(data, status, xhr){
                     if (xhr.getResponseHeader("content-type").startsWith("application/json")) {
-                        _this.element.find('form').each(function (i, form) {
-                            $(form).validate().destroy();
-                        });
-                        _this.replaceContents(data.result);
-                        _this.arguments = newArguments;
+                        if (data.exception) {
+                            alert(data.exception)
+                            window.location.replace(window.location.href);
+                        } else {
+                            _this.element.find('form').each(function (i, form) {
+                                $(form).validate().destroy();
+                            });
+                            _this.replaceContents(data.result);
+                            _this.arguments = newArguments;
+                        }
                     } else {
                         document.open();
                         document.write(data);
