@@ -2151,7 +2151,6 @@ class SubResource(Resource):
     @classmethod
     def get_url_for(cls, unique_name, **kwargs):
         sub_path = cls.get_path_template(unique_name) % kwargs
-        context = ExecutionContext.get_context()
         url = Url.get_current_url()
         view_path = url.path
         if SubResource.is_for_sub_resource(url.path):
@@ -2300,7 +2299,7 @@ class JsonResult(MethodResult):
     """
     redirects_internally = True
     def __init__(self, result_field, **kwargs):
-        super().__init__(mime_type='application/json', encoding='utf-8', replay_request=True, **kwargs)
+        super().__init__(mime_type='application/json', encoding='utf-8', replay_request=False, **kwargs)
         self.fields = FieldIndex(self)
         self.fields.result = result_field
 
@@ -2309,7 +2308,7 @@ class JsonResult(MethodResult):
         return self.fields.result.as_input()
 
     def render_exception(self, exception):
-        return '"%s"' % str(exception)
+        return str(exception)
 
 
 class RegenerateMethodResult(InternalRedirect):
