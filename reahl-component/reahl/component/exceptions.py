@@ -52,14 +52,14 @@ class DomainException(Exception):
     
     def __reduce__(self):
         return (self.__class__, (self.commit, self.message, self.detail_messages, self.handled_inline, self.json_string))
-    
+
     def as_user_message(self):
         # To ensure this module can be imported at a very low level
         from reahl.component.i18n import Catalogue
         _ = Catalogue('reahl-component')
         return self.message if self.message else _('An error occurred: %s' % self.__class__.__name__)
 
-    def __str__(self):
+    def as_json(self):
         if self.json_string:
             return self.json_string
         else:

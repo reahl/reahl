@@ -220,7 +220,7 @@ def test_sorting(web_fixture, data_table_fixture):
     assert not data_table_fixture.is_column_sorted(1, 'descending')
     assert not data_table_fixture.is_column_sorted(2, 'ascending')
     assert not data_table_fixture.is_column_sorted(2, 'descending')
-
+    import pdb; pdb.set_trace()
     #----- first click on column sorts ascending
     browser.click(data_table_fixture.xpath_for_sort_link_for_column(1))
     assert data_table_fixture.is_column_sorted(1, 'ascending')

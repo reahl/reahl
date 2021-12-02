@@ -41,12 +41,13 @@ class InvalidCSRFToken(Exception):
 
 
 class ExpiredCSRFToken(DomainException):
-    def __init__(self, commit=False, message=None, detail_messages=[]):
+    def __init__(self):
         super().__init__(message=_('This page has expired. For security reasons, please review your input and retry.'),
                          handled_inline=False)
 
-    def __getnewargs__(self):
-        return tuple()
+    def __reduce__(self):
+        return (self.__class__, ())
+
 
 
 class ValidCSRFToken(ValidationConstraint):

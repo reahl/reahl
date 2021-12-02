@@ -194,20 +194,11 @@ class PayPalButtonsPanel(HTMLWidget):
         return super().get_js(context=context) + \
             ['$("#%s").paypalbuttonspanel(%s);' % (self.css_id, json.dumps(options))]
 
-
     def create_order(self):
-        print('CREATING: %s' % self.order.status)
-        try:
-            return self.order.create_on_paypal()
-        finally:
-            print('CREATED: %s' % self.order.status)
+        return self.order.create_on_paypal()
 
     def capture_order(self):
-        print('CAPTURING: %s' % self.order.status)
-        try:
-            return self.order.capture_on_paypal()
-        finally:
-            print('CAPTURED: %s' % self.order.status)
+        return self.order.capture_on_paypal()
 
 
 

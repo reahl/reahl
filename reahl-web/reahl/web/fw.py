@@ -2299,7 +2299,7 @@ class JsonResult(MethodResult):
     """
     redirects_internally = True
     def __init__(self, result_field, **kwargs):
-        super().__init__(mime_type='application/json', encoding='utf-8', replay_request=False, **kwargs)
+        super().__init__(mime_type='application/json', encoding='utf-8', **kwargs)
         self.fields = FieldIndex(self)
         self.fields.result = result_field
 
@@ -2308,7 +2308,10 @@ class JsonResult(MethodResult):
         return self.fields.result.as_input()
 
     def render_exception(self, exception):
-        return str(exception)
+        if hasattr(exception, 'as_json'):
+            return exception.as_json()
+        else:
+            return '"%s"' % str(exception)
 
 
 class RegenerateMethodResult(InternalRedirect):
