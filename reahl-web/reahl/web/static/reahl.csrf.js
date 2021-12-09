@@ -28,18 +28,20 @@
     XMLHttpRequest.prototype.open = function(){
         var result = originalOpen.apply(this, arguments);
         if (isSameOrigin(arguments[1])) {
-            var csrf_token = $('meta[name="csrf-token"]').attr('content')
+            var csrf_token = $('meta[name="csrf-token"]').attr('content');
             this.setRequestHeader("X-CSRF-TOKEN", csrf_token);
         }
         return result;
     };
 
     var originalSend = XMLHttpRequest.prototype.send;
-    XMLHttpRequest.prototype.send = function(body) {
+    XMLHttpRequest.prototype.send = function(data) {
         var csrf_token = $('meta[name="csrf-token"]').attr('content')
-        if (this.getResponseHeader("X-CSRF-TOKEN") !== csrf_token) {};
-        this.setRequestHeader("X-CSRF-TOKEN", csrf_token);
-        originalSend.apply(this, body);
+        if (this.getResponseHeader("X-CSRF-TOKEN") !== csrf_token) {
+            //this.setRequestHeader("X-CSRF-TOKEN", csrf_token);
+        };
+
+        originalSend.apply(this, arguments);
     };
 
     var originalFetch = window.fetch;
