@@ -24,7 +24,7 @@ from reahl.stubble import stubclass, CallMonitor, replaced
 from reahl.tofu import scenario, expected, Fixture, uses, NoException
 from reahl.tofu.pytestsupport import with_fixtures
 
-from reahl.browsertools.browsertools import Browser
+from reahl.browsertools.browsertools import Browser, XPath
 from reahl.component.exceptions import DomainException, ProgrammerError
 from reahl.web.fw import CheckedRemoteMethod, JsonResult, MethodResult, RemoteMethod, Widget, WidgetResult
 from reahl.web.ui import Div
@@ -98,6 +98,7 @@ def test_remote_methods_via_ajax(web_fixture, remote_method_fixture):
     # Case: using jquery to POST to the method includes the necessary xsrf info automatically
     browser.open('/')
     browser.execute_script('$.post("/_amethod_method", success=function(data){ $("body").attr("data-result", data) })')
+    browser.wait_for_element_present(XPath('body/@data-result'))
     results = browser.execute_script('return $("body").attr("data-result")')
     assert results == 'value returned from method'
 
