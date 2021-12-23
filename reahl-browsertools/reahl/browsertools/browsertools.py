@@ -32,7 +32,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support import expected_conditions
 
-# See: https://bitbucket.org/ianb/webtest/issue/45/html5-form-associated-inputs-break-webtest
+# See: https://github.com/Pylons/webtest/issues/8
 from webtest.forms import Field, Form
 def patch(cls):
     if hasattr(cls, '__orig__init__'):

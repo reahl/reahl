@@ -15,7 +15,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
-import http.cookies 
+import http.cookies
+import contextlib
 
 from webob import Request, Response
 
@@ -36,7 +37,6 @@ from reahl.web.egg import WebConfig
 
 from reahl.dev.fixtures import ReahlSystemFixture
 from reahl.webdev.fixtures import WebServerFixture
-from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
 from reahl.domain_dev.fixtures import PartyAccountFixture
 
 
@@ -160,6 +160,11 @@ class WebFixture(Fixture):
         """A :class:`DriverBrowser` instance for controlling the browser."""
         driver = driver or self.web_driver
         return DriverBrowser(driver)
+
+    def quit_browser(self):
+        self.web_server_fixture.quit_drivers()
+        if hasattr(self, 'driver_browser'):
+            delattr(self, 'driver_browser')
 
     @property
     def chrome_driver(self):

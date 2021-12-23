@@ -72,6 +72,13 @@ class WebServerFixture(Fixture):
         self.reahl_server.install_handler(driver)
         return driver
 
+    def quit_drivers(self):
+        for driver_name in ['firefox_driver', 'chrome_driver']:
+            if self.is_instantiated(driver_name):
+                driver = getattr(self, driver_name)
+                delattr(self, driver_name)
+                driver.quit()
+
     def new_firefox_driver(self, javascript_enabled=True):
         assert javascript_enabled, 'Cannot disable javascript anymore, see: https://github.com/seleniumhq/selenium/issues/635'
         from selenium.webdriver import FirefoxProfile, DesiredCapabilities
@@ -169,12 +176,7 @@ class WebServerFixture(Fixture):
     def stop_servers(self):
         if self.is_instantiated('reahl_server'):
             self.reahl_server.set_noop_app() # selenium.stop() hits the application its opened on again.
-        if self.is_instantiated('firefox_driver'):
-            self.firefox_driver.close()
-            self.firefox_driver.quit()
-        if self.is_instantiated('chrome_driver'):
-            self.chrome_driver.close()
-            self.chrome_driver.quit()
+        self.quit_drivers()
         if self.is_instantiated('reahl_server'):
             self.reahl_server.restore_handlers()
             self.reahl_server.stop()
