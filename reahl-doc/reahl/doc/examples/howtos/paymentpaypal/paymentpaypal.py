@@ -21,13 +21,7 @@ from reahl.component.modelinterface import IntegerField, ChoiceField, Choice, Fi
     MinValueConstraint, MaxValueConstraint, Event, Action, Not
 from reahl.component.exceptions import DomainException
 from reahl.sqlalchemysupport import Session, Base, session_scoped
-from reahl.paypalsupport.paypalsupport import PayPalOrder, PayPalButtonsPanel
-
-
-
-
-# TODO: Change to use server pattern with paypal buttons: https://developer.paypal.com/demo/checkout/#/pattern/server
-
+from reahl.paypalsupport.paypalsupport import PayPalOrder, PayPalButtonsPanel, PayPalRemoteEnvironment
 
 
 class MenuPage(HTML5Page):
@@ -82,7 +76,7 @@ class PurchaseSummary(Form):
         self.add_child(Alert(view, 'Your order(%s) status: %s (%s)' % (paypal_order.id, paypal_order.status, paypal_order.paypal_id), 'secondary'))
 
         if paypal_order.is_due_for_payment:
-            self.add_child(PayPalButtonsPanel(view, 'paypal_buttons', shopping_cart.paypal_order))
+            self.add_child(PayPalButtonsPanel(view, 'paypal_buttons', shopping_cart.paypal_order, shopping_cart.paypal_remote_environment))
         elif paypal_order.is_paid:
             self.add_child(Alert(view, 'Your order has been paid successfully', 'primary'))
             self.add_child(Button(self, shopping_cart.events.clear_event.with_label('Continue')))
@@ -226,11 +220,24 @@ class ShoppingCart(Base):
 
     def clear(self):
         self.paypal_order = None
-        
 
-class LoginUI(UserInterface):
+
+class MyPaypalRemoteEnvironment(PayPalRemoteEnvironment):
+    def __init__(self):
+        #https://developer.paypal.com/docs/api/overview/#create-sandbox-accounts
+        #https://developer.paypal.com/home
+
+        #the actual credentials could be setup as config for your project if you only have one paypal account you need to use
+        #To setup credentials as config for your project see: https://www.reahl.org/docs/5.1/tutorial/owncomponent.d.html
+        paypal_client_id = 'AYcshR8hlS87w03yO4ma-vNWfWBMBaoGMdr0F3cGHOB6-TRYqJjHAccqLZrX9f4Z9B_fQCezQ8YYKDKV'
+        paypal_client_secret = 'EGu_92Qp6fyYiH2Y4_nr0P-HTVCGT9sc33pdWktzF_kkfDZZp8In1083x_BaRzmgCC8w2d_mcv0Oi2YY'
+        super(MyPaypalRemoteEnvironment, self).__init__(paypal_client_id, paypal_client_secret, live_environment=False)
+
+
+class ShoppingUI(UserInterface):
     def assemble(self):
         shopping_cart = ShoppingCart.for_current_session()
+        shopping_cart.paypal_remote_environment = MyPaypalRemoteEnvironment()
 
         home = self.define_view('/', title='Paypal Example')
         home.set_slot('main', PurchaseForm.factory(shopping_cart))

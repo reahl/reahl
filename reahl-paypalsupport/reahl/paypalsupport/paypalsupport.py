@@ -39,16 +39,24 @@ from paypalhttp.serializers.json_serializer import Json
 from paypalhttp.http_error import HttpError
 from sqlalchemy import Column, Integer, String, Unicode
 
-client_id = 'AYcshR8hlS87w03yO4ma-vNWfWBMBaoGMdr0F3cGHOB6-TRYqJjHAccqLZrX9f4Z9B_fQCezQ8YYKDKV' #TODO:cs
-client_secret = 'EGu_92Qp6fyYiH2Y4_nr0P-HTVCGT9sc33pdWktzF_kkfDZZp8In1083x_BaRzmgCC8w2d_mcv0Oi2YY' #TODO:cs
 
+class PayPalRemoteEnvironment:
+    def __init__(self, paypal_client_id, paypal_client_secret, live_environment=False):
+        self.client_id = paypal_client_id
+        self.cient_secret = paypal_client_secret
+        self.live_environment = live_environment
+
+    @property
+    def http_client(self):
+        if self.live_environment:
+            env = LiveEnvironment(client_id=self.client_id, client_secret=self.client_secret)
+        else:
+            env = SandboxEnvironment(client_id=self.client_id, client_secret=self.client_secret)
+        return PayPalHttpClient(env)
 
 class PayPal:
-    def __init__(self, paypal_client_id, paypal_client_secret):
-        self.client_id = paypal_client_id
-        self.client_secret = paypal_client_secret
-        self.environment = SandboxEnvironment(client_id=self.client_id, client_secret=self.client_secret)
-        self.client = PayPalHttpClient(self.environment)
+    def __init__(self, paypal_remote_environment):
+        self.remote_environment = paypal_remote_environment
 
     def object_to_json(self, json_data):
         result = {}
@@ -88,7 +96,7 @@ class PayPal:
         if self.debug:
             logging.debug('Paypal order: %s' % json_order)
 
-        response = self.client.execute(request)
+        response = self.remote_environment.http_client.execute(request)
 
         if self.debug:
             self.log_paypal_create_response(response)
@@ -97,7 +105,7 @@ class PayPal:
 
     def capture_order(self, order_id):
         capture_request = OrdersCaptureRequest(order_id)
-        capture_response = self.client.execute(capture_request)
+        capture_response = self.remote_environment.http_client.execute(capture_request)
 
         if self.debug:
             self.log_paypal_capture_response(capture_response)
@@ -144,8 +152,8 @@ class PayPalOrder(Base):
     json_string = Column(Unicode)
 
 
-    def create_on_paypal(self):
-        paypal = PayPal(client_id, client_secret)
+    def create_on_paypal(self, paypal_remote_environment):
+        paypal = PayPal(paypal_remote_environment)
         try:
             response = paypal.create_order(json.loads(self.json_string))
             if response.status_code != 201:
@@ -157,8 +165,8 @@ class PayPalOrder(Base):
         except HttpError as ex:
             raise Exception(str(ex))
 
-    def capture_on_paypal(self):
-        paypal = PayPal(client_id, client_secret)
+    def capture_on_paypal(self, paypal_remote_environment):
+        paypal = PayPal(paypal_remote_environment)
         response = paypal.capture_order(self.paypal_id)
         if response.status_code not in [200, 201]:
             raise DomainException(message='Could not connect with Paypal, HTTP error code: %s' % response.status_code)
@@ -188,11 +196,12 @@ class JsonField(Field):
 
 
 class PayPalButtonsPanel(HTMLWidget):
-    def __init__(self, view, css_id, order):
+    def __init__(self, view, css_id, order, paypal_remote_environment):
         super().__init__(view)
         self.set_as_security_sensitive()
         self.set_html_representation(self.add_child(Div(view)))
         self.set_id(css_id)
+        self.paypal_remote_environment = paypal_remote_environment
         self.order = order
         self.create_order_method = RemoteMethod(view, 'create_order', self.create_order, JsonResult(JsonField()))
         self.view.add_resource(self.create_order_method)
@@ -209,10 +218,10 @@ class PayPalButtonsPanel(HTMLWidget):
             ['$("#%s").paypalbuttonspanel(%s);' % (self.css_id, json.dumps(options))]
 
     def create_order(self):
-        return self.order.create_on_paypal()
+        return self.order.create_on_paypal(self.paypal_remote_environment)
 
     def capture_order(self):
-        return self.order.capture_on_paypal()
+        return self.order.capture_on_paypal(self.paypal_remote_environment)
 
 
 
