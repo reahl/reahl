@@ -20,7 +20,9 @@
 """
 import sys
 import json
+import logging
 
+from reahl.component.context import ExecutionContext
 from reahl.component.exceptions import DomainException
 from reahl.sqlalchemysupport import Base, Session
 from reahl.web.fw import RemoteMethod, JsonResult, CannotCreate
@@ -32,13 +34,13 @@ from reahl.sqlalchemysupport.sqlalchemysupport import Base, session_scoped
 
 from paypalcheckoutsdk.orders import OrdersCaptureRequest
 from paypalcheckoutsdk.orders import OrdersCreateRequest, OrdersGetRequest
-from paypalcheckoutsdk.core import PayPalHttpClient, SandboxEnvironment #, LiveEnvironment
+from paypalcheckoutsdk.core import PayPalHttpClient, SandboxEnvironment, LiveEnvironment
 from paypalhttp.serializers.json_serializer import Json
 from paypalhttp.http_error import HttpError
 from sqlalchemy import Column, Integer, String, Unicode
 
-client_id = 'AYcshR8hlS87w03yO4ma-vNWfWBMBaoGMdr0F3cGHOB6-TRYqJjHAccqLZrX9f4Z9B_fQCezQ8YYKDKV'
-client_secret = 'EGu_92Qp6fyYiH2Y4_nr0P-HTVCGT9sc33pdWktzF_kkfDZZp8In1083x_BaRzmgCC8w2d_mcv0Oi2YY'
+client_id = 'AYcshR8hlS87w03yO4ma-vNWfWBMBaoGMdr0F3cGHOB6-TRYqJjHAccqLZrX9f4Z9B_fQCezQ8YYKDKV' #TODO:cs
+client_secret = 'EGu_92Qp6fyYiH2Y4_nr0P-HTVCGT9sc33pdWktzF_kkfDZZp8In1083x_BaRzmgCC8w2d_mcv0Oi2YY' #TODO:cs
 
 
 class PayPal:
@@ -49,9 +51,6 @@ class PayPal:
         self.client = PayPalHttpClient(self.environment)
 
     def object_to_json(self, json_data):
-        """
-        Function to print(all json data in an organized readable manner)
-        """
         result = {}
         if sys.version_info[0] < 3:
             itr = json_data.__dict__.iteritems()
@@ -77,45 +76,61 @@ class PayPal:
     def is_primittive(self, data):
         return isinstance(data, str) or isinstance(data, int)
 
-    def create_order(self, json_order, debug=False):
+    @property
+    def debug(self):
+        return ExecutionContext.get_context().config.reahlsystem.config
+
+    def create_order(self, json_order):
         request = OrdersCreateRequest()
         request.headers['prefer'] = 'return=representation'
         request.request_body(json_order)
-        if debug:
-            print(json_order)
-        response = self.client.execute(request)
-        if debug:
-            print('Status Code: ', response.status_code)
-            print('Status: ', response.result.status)
-            print('Order ID: ', response.result.id)
-            print('Intent: ', response.result.intent)
-            print('Links:')
-            for link in response.result.links:
-                print('\t{}: {}\tCall Type: {}'.format(link.rel, link.href, link.method))
-            print('Total Amount: {} {}'.format(response.result.purchase_units[0].amount.currency_code,
-                                               response.result.purchase_units[0].amount.value))
-            json_data = self.object_to_json(response.result)
-            print("json_data: ", json.dumps(json_data,indent=4))
-        return response
 
-    def capture_order(self, order_id, debug=False):
-        request = OrdersCaptureRequest(order_id)
+        if self.debug:
+            logging.debug('Paypal order: %s' % json_order)
+
         response = self.client.execute(request)
-        if debug:
-            print('Status Code: ', response.status_code)
-            print('Status: ', response.result.status)
-            print('Order ID: ', response.result.id)
-            print('Links: ')
-            for link in response.result.links:
-                print('\t{}: {}\tCall Type: {}'.format(link.rel, link.href, link.method))
-            print('Capture Ids: ')
-            for purchase_unit in response.result.purchase_units:
-                for capture in purchase_unit.payments.captures:
-                    print('\t', capture.id)
-            json_data = self.object_to_json(response.result)
-            print("json_data: ", json.dumps(json_data, indent=4))
+
+        if self.debug:
+            self.log_paypal_create_response(response)
 
         return response
+
+    def capture_order(self, order_id):
+        capture_request = OrdersCaptureRequest(order_id)
+        capture_response = self.client.execute(capture_request)
+
+        if self.debug:
+            self.log_paypal_capture_response(capture_response)
+
+        return capture_response
+
+    def log_paypal_create_response(self, response):
+        logging.debug('Paypal Status Code: ', response.status_code)
+        logging.debug('Paypal Status: ', response.result.status)
+        logging.debug('Paypal Order ID: ', response.result.id)
+        logging.debug('Paypal Intent: ', response.result.intent)
+        logging.debug('Paypal Links:')
+        for link in response.result.links:
+            logging.debug('\t{}: {}\tCall Type: {}'.format(link.rel, link.href, link.method))
+        logging.debug('Paypal Total Amount: {} {}'.format(response.result.purchase_units[0].amount.currency_code,
+                                                          response.result.purchase_units[0].amount.value))
+        json_response = self.object_to_json(response.result)
+        logging.debug("Paypal response: ", json.dumps(json_response, indent=4))
+
+
+    def log_paypal_capture_response(self, capture_response):
+        logging.debug('Status Code: ', capture_response.status_code)
+        logging.debug('Status: ', capture_response.result.status)
+        logging.debug('Order ID: ', capture_response.result.id)
+        logging.debug('Links: ')
+        for link in capture_response.result.links:
+            logging.debug('\t{}: {}\tCall Type: {}'.format(link.rel, link.href, link.method))
+        logging.debug('Capture Ids: ')
+        for purchase_unit in capture_response.result.purchase_units:
+            for capture in purchase_unit.payments.captures:
+                logging.debug('\t', capture.id)
+        json_data = self.object_to_json(capture_response.result)
+        logging.debug("json_data: ", json.dumps(json_data, indent=4))
 
 
 class PayPalOrder(Base):
@@ -132,7 +147,7 @@ class PayPalOrder(Base):
     def create_on_paypal(self):
         paypal = PayPal(client_id, client_secret)
         try:
-            response = paypal.create_order(json.loads(self.json_string), debug=True)
+            response = paypal.create_order(json.loads(self.json_string))
             if response.status_code != 201:
                 raise DomainException(message='Could not connect with Paypal: %s' % response.result.status)
             self.status = response.result.status
@@ -144,12 +159,11 @@ class PayPalOrder(Base):
 
     def capture_on_paypal(self):
         paypal = PayPal(client_id, client_secret)
-        response = paypal.capture_order(self.paypal_id, debug=True)
+        response = paypal.capture_order(self.paypal_id)
         if response.status_code not in [200, 201]:
             raise DomainException(message='Could not connect with Paypal, HTTP error code: %s' % response.status_code)
 
-        print(response )
-        print('Updating status of order to: %s' % response.result.status)
+        logging.debug('Updating status of order to: %s' % response.result.status)
         self.status = response.result.status
         return response.result.dict()
 
