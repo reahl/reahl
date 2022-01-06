@@ -1,4 +1,5 @@
 <project type="egg">
+ <configuration locator="reahl.doc.examples.howtos.paymentpaypal.paymentpaypal:PaymentPayPalConfig"/>
  <version number="0.0">
   <deps purpose="run">
    <egg name="reahl-web"/>

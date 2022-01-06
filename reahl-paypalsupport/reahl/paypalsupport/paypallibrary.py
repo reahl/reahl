@@ -31,6 +31,6 @@ class PayPalJS(Library):
 
     def footer_only_material(self, rendered_page):
         result = ''
-        for cdn_link in ['https://www.paypal.com/sdk/js?client-id=test&currency=USD']:
+        for cdn_link in ['https://www.paypal.com/sdk/js?client-id=test&currency=EUR']: #TODO: this needs to line up with Paypal client id
             result += '\n<script type="text/javascript" src="%s"></script>' % cdn_link
         return result + super().footer_only_material(rendered_page)

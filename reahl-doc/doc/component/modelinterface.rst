@@ -65,6 +65,18 @@ IntegerField
 .. autoclass:: IntegerField
    :members:
 
+NumericField
+""""""""""""
+
+.. autoclass:: NumericField
+   :members:
+
+JsonField
+"""""""""
+
+.. autoclass:: JsonField
+   :members:
+
 DateField
 """""""""
 

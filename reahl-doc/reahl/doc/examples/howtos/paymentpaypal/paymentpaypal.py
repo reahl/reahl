@@ -18,10 +18,22 @@ from reahl.web.bootstrap.navs import Nav, TabLayout
 from reahl.web.bootstrap.grid import ColumnLayout, ColumnOptions, ResponsiveSize, Container
 from reahl.domain.systemaccountmodel import AccountManagementInterface, LoginSession
 from reahl.component.modelinterface import IntegerField, ChoiceField, Choice, Field, exposed, PatternConstraint, \
-    MinValueConstraint, MaxValueConstraint, Event, Action, Not
+    MinValueConstraint, MaxValueConstraint, Event, Action, Not, NumericField
 from reahl.component.exceptions import DomainException
+from reahl.component.config import Configuration, ConfigSetting
+from reahl.component.context import ExecutionContext
 from reahl.sqlalchemysupport import Session, Base, session_scoped
-from reahl.paypalsupport.paypalsupport import PayPalOrder, PayPalButtonsPanel, PayPalRemoteEnvironment
+from reahl.paypalsupport.paypalsupport import PayPalOrder, PayPalButtonsPanel, PayPalClientCredentials
+
+
+class PaymentPayPalConfig(Configuration):
+    filename = 'paymentpaypal.config.py'
+    config_key = 'paymentpaypal'
+
+    client_id = ConfigSetting(description='The PayPal client ID that needs to receive funds from payments')
+    client_secret = ConfigSetting(description='The PayPal client secret')
+    sandboxed = ConfigSetting(default=True, description='If False, use the PayPal live environment instead of sandboxed', dangerous=True)
+
 
 
 class MenuPage(HTML5Page):
@@ -31,33 +43,6 @@ class MenuPage(HTML5Page):
         contents_layout = ColumnLayout(ColumnOptions('main', size=ResponsiveSize(md=4))).with_slots()
         self.layout.contents.use_layout(contents_layout)
 
-
-class NumericField(Field):
-    """A Field that yields any number that has a decimal point followed by digits that show the fractional part.
-
-       :keyword precision: The number of decimal digits allowed.
-       :keyword min_value: The minimum value allowed as valid input.
-       :keyword max_value: The maximum value allowed as valid input.
-
-       (For other arguments, see :class:`Field`.)"""
-    def __init__(self, default=None, precision=2, required=False, required_message=None, label=None, readable=None, writable=None, min_value=None, max_value=None):
-        label = label or ''
-        super().__init__(default, required, required_message, label, readable=readable, writable=writable, max_length=254)
-        error_message='$label should be a valid number'
-        self.add_validation_constraint(PatternConstraint('[+-]?([0-9]+\.?[0-9]{0,%s})' % precision, error_message))
-        if min_value:
-            self.add_validation_constraint(MinValueConstraint(min_value))
-        if max_value:
-            self.add_validation_constraint(MaxValueConstraint(max_value))
-
-    def parse_input(self, unparsed_input):
-        return decimal.Decimal(unparsed_input)
-
-
-class RedirectToExternal(HTTPSeeOther):
-    def __init__(self, href):
-        super().__init__(location=href)
-        self.commit = True
 
 
 class PurchaseSummary(Form):
@@ -76,7 +61,12 @@ class PurchaseSummary(Form):
         self.add_child(Alert(view, 'Your order(%s) status: %s (%s)' % (paypal_order.id, paypal_order.status, paypal_order.paypal_id), 'secondary'))
 
         if paypal_order.is_due_for_payment:
-            self.add_child(PayPalButtonsPanel(view, 'paypal_buttons', shopping_cart.paypal_order, shopping_cart.paypal_remote_environment))
+            config = ExecutionContext.get_context().config
+            paypal_client_id = config.paymentpaypal.client_id
+            paypal_client_secret = config.paymentpaypal.client_secret
+            sandboxed = config.paymentpaypal.sandboxed
+            credentails = PayPalClientCredentials(paypal_client_id, paypal_client_secret, sandboxed)
+            self.add_child(PayPalButtonsPanel(view, 'paypal_buttons', shopping_cart.paypal_order, credentails))
         elif paypal_order.is_paid:
             self.add_child(Alert(view, 'Your order has been paid successfully', 'primary'))
             self.add_child(Button(self, shopping_cart.events.clear_event.with_label('Continue')))
@@ -202,8 +192,7 @@ class ShoppingCart(Base):
         fields.quantity = IntegerField(min_value=1, max_value=10, label='Quantity', writable=is_unlocked)
         fields.price = NumericField(min_value=1, label='Price', writable=is_unlocked)
         fields.currency_code = ChoiceField([Choice('USD', Field(label='USD')),
-                                            Choice('ZAR', IntegerField(label='ZAR')),
-                                            Choice('EUR', IntegerField(label='EUR'))],
+                                            Choice('EUR', Field(label='EUR'))],
                                            label='Currency', writable=is_unlocked)
 
     def is_locked(self):
@@ -222,22 +211,9 @@ class ShoppingCart(Base):
         self.paypal_order = None
 
 
-class MyPaypalRemoteEnvironment(PayPalRemoteEnvironment):
-    def __init__(self):
-        #https://developer.paypal.com/docs/api/overview/#create-sandbox-accounts
-        #https://developer.paypal.com/home
-
-        #the actual credentials could be setup as config for your project if you only have one paypal account you need to use
-        #To setup credentials as config for your project see: https://www.reahl.org/docs/5.1/tutorial/owncomponent.d.html
-        paypal_client_id = 'AYcshR8hlS87w03yO4ma-vNWfWBMBaoGMdr0F3cGHOB6-TRYqJjHAccqLZrX9f4Z9B_fQCezQ8YYKDKV'
-        paypal_client_secret = 'EGu_92Qp6fyYiH2Y4_nr0P-HTVCGT9sc33pdWktzF_kkfDZZp8In1083x_BaRzmgCC8w2d_mcv0Oi2YY'
-        super(MyPaypalRemoteEnvironment, self).__init__(paypal_client_id, paypal_client_secret, live_environment=False)
-
-
 class ShoppingUI(UserInterface):
     def assemble(self):
         shopping_cart = ShoppingCart.for_current_session()
-        shopping_cart.paypal_remote_environment = MyPaypalRemoteEnvironment()
 
         home = self.define_view('/', title='Paypal Example')
         home.set_slot('main', PurchaseForm.factory(shopping_cart))
