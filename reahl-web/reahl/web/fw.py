@@ -3100,6 +3100,7 @@ class ReahlWSGIApplication:
                     if self.config.reahlsystem.debug:
                         raise e
                     else:
+                        logging.getLogger(__name__).exception(e)
                         response = UncaughtError(resource.view, resource.view.user_interface.root_ui, resource.view.user_interface, e)
 
                 context.session.set_session_key(response)
