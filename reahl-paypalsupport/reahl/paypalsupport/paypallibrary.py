@@ -16,7 +16,7 @@
 """.. versionadded:: 5.2
 """
 from reahl.web.libraries import Library
-
+from reahl.component.exceptions import ProgrammerError
 
 class PayPalJS(Library):
     """
@@ -29,8 +29,9 @@ class PayPalJS(Library):
             'reahl-paypalbuttonspanel.js'
         ]
 
-    def footer_only_material(self, rendered_page):
-        result = ''
-        for cdn_link in ['https://www.paypal.com/sdk/js?client-id=test&currency=EUR']: #TODO: this needs to line up with Paypal client id
-            result += '\n<script type="text/javascript" src="%s"></script>' % cdn_link
-        return result + super().footer_only_material(rendered_page)
+    def inline_material(self, credentials, currency):
+        paypal_script_cdn = ''
+        for cdn_link in ['https://www.paypal.com/sdk/js?client-id=%s&currency=%s' % (credentials.client_id, currency)]:
+            paypal_script_cdn += '\n<script type="text/javascript" src="%s"></script>' % cdn_link
+
+        return paypal_script_cdn

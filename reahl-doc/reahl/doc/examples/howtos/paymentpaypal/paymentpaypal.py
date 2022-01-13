@@ -1,25 +1,18 @@
 import decimal
-import sys
 import json
 
 from sqlalchemy.orm import relationship
-from webob.exc import HTTPSeeOther
 
-from sqlalchemy import Column, Integer, String, Unicode, UnicodeText, Numeric, ForeignKey
-from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy import Column, Integer, String, UnicodeText, Numeric, ForeignKey
 
 
-from reahl.web.fw import UserInterface, UrlBoundView, CouldNotConstructResource, CannotCreate
+from reahl.web.fw import UserInterface
 from reahl.web.layout import PageLayout
 from reahl.web.bootstrap.page import HTML5Page
-from reahl.web.bootstrap.ui import P, Widget, Div, Alert
-from reahl.web.bootstrap.forms import Form, TextInput, Button, FormLayout, PasswordInput, SelectInput
-from reahl.web.bootstrap.navs import Nav, TabLayout
+from reahl.web.bootstrap.ui import Alert
+from reahl.web.bootstrap.forms import Form, TextInput, Button, FormLayout, SelectInput
 from reahl.web.bootstrap.grid import ColumnLayout, ColumnOptions, ResponsiveSize, Container
-from reahl.domain.systemaccountmodel import AccountManagementInterface, LoginSession
-from reahl.component.modelinterface import IntegerField, ChoiceField, Choice, Field, exposed, PatternConstraint, \
-    MinValueConstraint, MaxValueConstraint, Event, Action, Not, NumericField
-from reahl.component.exceptions import DomainException
+from reahl.component.modelinterface import IntegerField, ChoiceField, Choice, Field, exposed, Event, Action, Not, NumericField
 from reahl.component.config import Configuration, ConfigSetting
 from reahl.component.context import ExecutionContext
 from reahl.sqlalchemysupport import Session, Base, session_scoped
@@ -66,7 +59,7 @@ class PurchaseSummary(Form):
             paypal_client_secret = config.paymentpaypal.client_secret
             sandboxed = config.paymentpaypal.sandboxed
             credentails = PayPalClientCredentials(paypal_client_id, paypal_client_secret, sandboxed)
-            self.add_child(PayPalButtonsPanel(view, 'paypal_buttons', shopping_cart.paypal_order, credentails))
+            self.add_child(PayPalButtonsPanel(view, 'paypal_buttons', shopping_cart.paypal_order, credentails, shopping_cart.currency_code))
         elif paypal_order.is_paid:
             self.add_child(Alert(view, 'Your order has been paid successfully', 'primary'))
             self.add_child(Button(self, shopping_cart.events.clear_event.with_label('Continue')))

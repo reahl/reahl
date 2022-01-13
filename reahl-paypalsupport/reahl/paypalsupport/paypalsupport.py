@@ -26,7 +26,7 @@ from reahl.component.context import ExecutionContext
 from reahl.component.exceptions import DomainException
 from reahl.sqlalchemysupport import Base, Session
 from reahl.web.fw import RemoteMethod, JsonResult, CannotCreate
-from reahl.web.ui import HTMLWidget
+from reahl.web.ui import HTMLWidget, LiteralHTML
 from reahl.web.bootstrap.ui import Div
 from reahl.component.modelinterface import Field, exposed, Event, Action, IntegerField, JsonField
 from reahl.sqlalchemysupport.sqlalchemysupport import Base, session_scoped
@@ -37,6 +37,8 @@ from paypalcheckoutsdk.orders import OrdersCreateRequest, OrdersGetRequest
 from paypalcheckoutsdk.core import PayPalHttpClient, SandboxEnvironment, LiveEnvironment
 from paypalhttp.serializers.json_serializer import Json
 from sqlalchemy import Column, Integer, String, Unicode
+
+from reahl.paypalsupport.paypallibrary import PayPalJS
 
 
 class PayPalClientCredentials:
@@ -107,12 +109,13 @@ class PayPalOrder(Base):
 
 
 class PayPalButtonsPanel(HTMLWidget):
-    def __init__(self, view, css_id, order, credentials):
+    def __init__(self, view, css_id, order, credentials, currency):
         super().__init__(view)
         self.set_as_security_sensitive()
         self.set_html_representation(self.add_child(Div(view)))
         self.set_id(css_id)
         self.credentials = credentials
+        self.add_child(LiteralHTML(view, PayPalJS.get_instance().inline_material(self.credentials, currency)))
         self.order = order
         self.create_order_method = RemoteMethod(view, 'create_order', self.create_order, JsonResult(JsonField()))
         self.view.add_resource(self.create_order_method)
