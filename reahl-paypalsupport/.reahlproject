@@ -32,6 +32,9 @@
         <thirdpartyegg name="setuptools" minversion="32.3.1"/>
         <thirdpartyegg name="paypal-checkout-serversdk"/>
       </deps>
+      <migrations>
+        <class locator="reahl.paypalsupport.migrations:CreatePaypal"/>
+      </migrations>
   </version>
 
   <distpackage type="wheel">
