@@ -15,7 +15,7 @@ reahl/dev/mailtest.py
 reahl/dev/tools.py
 reahl/dev/xmlreader.py
 reahl/dev_dev/__init__.py
-reahl/dev_dev/base.iuml
+reahl/dev_dev/../../../base.iuml
 reahl/dev_dev/building_and_distributing_packages.puml
 reahl/dev_dev/egg_and_chicken_projects.puml
 reahl/dev_dev/projects_and_project_related_metadata.puml
