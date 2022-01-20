@@ -49,7 +49,6 @@ class PayPalClientCredentials:
 
 
 class PayPalOrder(Base):
-
     __tablename__ = 'payment_paypal_order'
 
     id = Column(Integer, primary_key=True)
