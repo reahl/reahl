@@ -85,9 +85,6 @@ class PurchaseForm(Form):
         self.add_child(Button(self, shopping_cart.events.clear_event, style='secondary'))
 
 
-
-
-
 @session_scoped
 class ShoppingCart(Base):
     __tablename__ = 'paymentpaypal_shoppingcart'
@@ -95,22 +92,16 @@ class ShoppingCart(Base):
     id = Column(Integer, primary_key=True)
     item_name = Column(UnicodeText)
     quantity = Column(Integer)
-    price = Column(Numeric(precision=2, scale=2, decimal_return_scale=2))
+    price = Column(Numeric(precision=4, scale=2))
     currency_code = Column(String(3))
     paypal_order_id = Column(Integer, ForeignKey(PayPalOrder.id), nullable=True)
     paypal_order = relationship(PayPalOrder)
 
     def as_json(self):
         tax_rate = decimal.Decimal('0.15');
-        order_pre_tax_total = round((self.price * self.quantity),2)
-        order_total_tax = round(tax_rate * order_pre_tax_total, 2)
-        order_total_including_tax = order_pre_tax_total + order_total_tax
         invoice_id = id(self)
 
         print('Order:')
-        print('order_pre_tax_total: %s' % order_pre_tax_total)
-        print('order_total_tax: %s' % order_total_tax)
-        print('order_total_including_tax: %s' % order_total_including_tax)
 
         item_price = self.price
         item_tax = round(self.price * tax_rate, 2)
@@ -122,9 +113,13 @@ class ShoppingCart(Base):
         print('item_quantity: %s' % item_quantity)
         print('item_tax: %s' % item_tax)
 
-        print('Item * quantity totals')
-        print('total items price: %s' % (item_price * item_quantity))
-        print('total items tax: %s' % (item_quantity * item_tax))
+        order_pre_tax_total = item_quantity*item_price
+        order_total_tax = item_quantity*item_tax
+        order_total_including_tax = item_quantity*(item_price+item_tax)
+        print('order_pre_tax_total: %s' % order_pre_tax_total)
+        print('order_total_tax: %s' % order_total_tax)
+        print('order_total_including_tax: %s' % order_total_including_tax)
+
         brand_name = 'My Example company'
         return \
         {
