@@ -1,6 +1,8 @@
 python-reahl (5.2.0) unstable; urgency=low
 
  * Add Chart widget for plotly (#281).
+ * Add PayPal support (#328).
+ * Add JsonField and NumericField
  * Implemented CSRF protection (#153).
 
  -- Iwan Vosloo <iwan@reahl.org>  Thu, 17 June 2021 15:25:00 +0200

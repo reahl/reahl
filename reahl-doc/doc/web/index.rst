@@ -11,6 +11,7 @@ Web framework
    Generic layout tools (reahl.web.layout) <layout>
    Widgets and Layouts (bootstrap) -- what you'd use to build a user interface that looks like something (reahl.web.bootstrap) <bootstrap/index>
    Plotly charts (reahl.web.plotly) <plotly>
+   Plotly charts (reahl.web.plotly) <plotly>
    Holder -- on-the-fly placeholder images (reahl.web.holder) <holder>
 
    Including not-quite-static static content (reahl.web.dhtml) <dhtml>

@@ -16,6 +16,8 @@ What changed in version 5.2
 .. |preserve_session| replace:: :meth:'~reahl.web.interfaces.UserSessionProtocol.preserve_session`
 .. |restore_session| replace:: :meth:'~reahl.web.interfaces.UserSessionProtocol.restore_session`
 .. |get_csrf_token| replace:: :meth:'~reahl.web.interfaces.UserSessionProtocol.get_csrf_token`
+.. |PayPalButtonsPanel| replace:: :class:'~reahl.paypalsupport.paypalsupport.PayPalButtonsPanel`
+.. |PayPalOrder| replace:: :class:'~reahl.paypalsupport.paypalsupport.PayPalOrder`
 
 
 Upgrading
@@ -42,6 +44,19 @@ See the relevant HOWTOs for more information:
 
 :doc:`<howto/plotly2>`
   An example showing how to update a |Chart| efficiently in response to user actions.
+
+
+PayPal support
+--------------
+
+Added |PayPalButtonsPanel| which you can use to setup standard paypal payments. The panel displays the `PayPalButton <https://developer.paypal.com/docs/checkout/standard/>_`
+ which hooks up to the |PayPalOrder| providing seamless integration to PayPal using the `PayPal REST API <https://developer.paypal.com/api/orders/v2/>_`.
+
+See the HOWTO for more information:
+
+:doc:`<howto/paypal>`
+  Add a |PayPalButtonsPanel| to your shoppingcart for `PayPal <https://www.paypal.com>_` payments.
+
 
 Cross site request forgery (CSRF) protection
 --------------------------------------------
@@ -71,6 +86,7 @@ Implemention interfaces
 
 In order to accommodate CSRF protection, the three methods are added to |UserSessionProtocol|\: |preserve_session|,
 |restore_session|, and |get_csrf_token|.
+
 
 API changes
 -----------

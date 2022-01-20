@@ -20,8 +20,8 @@ from reahl.paypalsupport.paypallibrary import PayPalJS
 from reahl.component.config import Configuration
 
 class PayPalSiteConfig(Configuration):
-    filename = 'web.paypalsupport.config.py'
-    config_key = 'web.paypalsupport'
+    filename = 'paypalsupport.config.py'
+    config_key = 'paypalsupport'
 
     def do_injections(self, config):
         config.web.frontend_libraries.add(PayPalJS())

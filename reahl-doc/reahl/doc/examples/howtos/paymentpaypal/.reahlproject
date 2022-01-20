@@ -23,7 +23,6 @@
  </deps>
 
  <persisted>
-    <class locator="reahl.paypalsupport.paypalsupport:PayPalOrder"/>
     <class locator="reahl.doc.examples.howtos.paymentpaypal.paymentpaypal:ShoppingCart"/>
  </persisted>
 </project>
