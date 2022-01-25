@@ -1,1 +1,1 @@
-  unit setup -- -q pytest --addopts '-s --pyargs reahl.paypalsupport_dev'
+  unit setup -- check
