@@ -655,10 +655,13 @@ def test_paypal(web_fixture, paypal_scenario):
     fixture.start_example_app()
     browser.open('/')
 
+    print('A Cookie: %s' % str(browser.web_driver.get_cookies()))
     browser.type(XPath.input_labelled('Item name'), 'an item')
     browser.type(XPath.input_labelled('Quantity'), '2')
     browser.type(XPath.input_labelled('Price'), '3')
     browser.click(XPath.button_labelled('Pay'))
+    print('B Cookie: %s' % str(browser.web_driver.get_cookies()))
+    print(browser.view_source())
 
     assert browser.is_element_present(XPath.div().including_class('reahl-paypalbuttonspanel'))
     #check that paypal js addded their button to the containing div we provided
