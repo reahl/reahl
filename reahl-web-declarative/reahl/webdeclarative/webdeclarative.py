@@ -154,7 +154,6 @@ class UserSession(Base, UserSessionProtocol):
     def get_session_key(cls):
         context = ExecutionContext.get_context()
         try:
-            print('Cookies in new request: %s' % str(context.request.cookies))
             raw_cookie = context.request.cookies[context.config.web.session_key_name]
             return urllib.parse.unquote(raw_cookie)
         except KeyError:

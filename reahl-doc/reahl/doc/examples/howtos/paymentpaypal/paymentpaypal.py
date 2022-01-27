@@ -49,9 +49,6 @@ class PurchaseSummary(Form):
         self.add_child(P(view, text='%s: %s' % (shopping_cart.fields.price.label, shopping_cart.price)))
         self.add_child(P(view, text='%s: %s' % (shopping_cart.fields.currency_code.label, shopping_cart.currency_code)))
 
-        print('From Cart %s' % shopping_cart.id)
-        print('Rendering PayPalOrder %s (%s)' % (paypal_order, shopping_cart.paypal_order_id))
-
         self.add_child(Alert(view, 'Your order(%s) status: %s (%s)' % (paypal_order.id, paypal_order.status, paypal_order.paypal_id), 'secondary'))
 
         if paypal_order.is_due_for_payment:
@@ -80,7 +77,6 @@ class PurchaseForm(Form):
     def __init__(self, view, shopping_cart):
         super().__init__(view, 'purchase')
         self.use_layout(FormLayout())
-        self.set_as_security_sensitive()
 
         if self.exception:
             self.layout.add_alert_for_domain_exception(self.exception)
@@ -125,10 +121,7 @@ class ShoppingCart(Base):
         print(json_dict)
         order = PayPalOrder(json_string=json.dumps(json_dict))
         Session.add(order)
-        Session.flush()
         self.paypal_order = order
-        print('Created PayPalOrder %s (%s)' % (self.paypal_order, self.paypal_order.id))
-        print('From Cart %s' % self.id)
 
     def clear(self):
         self.paypal_order = None
