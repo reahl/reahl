@@ -80,6 +80,7 @@ class PurchaseForm(Form):
     def __init__(self, view, shopping_cart):
         super().__init__(view, 'purchase')
         self.use_layout(FormLayout())
+        self.set_as_security_sensitive()
 
         if self.exception:
             self.layout.add_alert_for_domain_exception(self.exception)
