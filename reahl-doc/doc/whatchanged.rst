@@ -50,12 +50,12 @@ PayPal support
 --------------
 
 Added |PayPalButtonsPanel| which you can use to setup standard paypal payments. The panel displays the `PayPalButton <https://developer.paypal.com/docs/checkout/standard/>_`
- which hooks up to the |PayPalOrder| providing seamless integration to PayPal using the `PayPal REST API <https://developer.paypal.com/api/orders/v2/>_`.
+for processing a given |PayPalOrder| providing seamless integration to PayPal using the `PayPal REST API <https://developer.paypal.com/api/orders/v2/>_`.
 
 See the HOWTO for more information:
 
 :doc:`<howto/paypal>`
-  Add a |PayPalButtonsPanel| to your shoppingcart for `PayPal <https://www.paypal.com>_` payments.
+  Add a |PayPalButtonsPanel| to your own shoppingcart for `PayPal <https://www.paypal.com>_` payments.
 
 
 Cross site request forgery (CSRF) protection
@@ -80,6 +80,7 @@ remember to set to a value of your choice on each production server.
 The timeout can be configured in web.config.py as `web.csrf_timeout_seconds`.
 
 .. note:: The web.csrf_timeout_seconds timeout should always be shorter than session_lifetime.
+
 
 Implemention interfaces
 -----------------------

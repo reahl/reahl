@@ -1,7 +1,15 @@
 .. Copyright 2022 Reahl Software Services (Pty) Ltd. All rights reserved.
 
-.. |PayPalButtonsPanel| replace:: :class:'~reahl.paypalsupport.paypalsupport.PayPalButtonsPanel`
-.. |PayPalOrder| replace:: :class:'~reahl.paypalsupport.paypalsupport.PayPalOrder`
+.. |@session_scoped| replace:: :func:`~reahl.sqlalchemysupport.sqlalchemysupport.session_scoped`
+.. |Widget| replace:: :class:`~reahl.web.fw.Widget`
+.. |UserInterface| replace:: :class:`~reahl.web.fw.UserInterface`
+.. |UrlBoundView| replace:: :class:`~reahl.web.fw.UrlBoundView`
+.. |Transition| replace:: :class:`~reahl.web.fw.Transition`
+.. |Configuration| replace:: :class:`~reahl.component.config.Configuration`
+.. |PayPalClientCredentials| replace:: :class:`~reahl.paypalsupport.paypalsupport.PayPalClientCredentials`
+.. |PayPalButtonsPanel| replace:: :class:`~reahl.paypalsupport.paypalsupport.PayPalButtonsPanel`
+.. |PayPalOrder| replace:: :class:`~reahl.paypalsupport.paypalsupport.PayPalOrder`
+
 
 Add a PayPal payment option to your page
 ========================================
@@ -95,7 +103,7 @@ There is no need to add a |Transition| to PayPal.
 Obtain sandbox credentials at PayPal
 ------------------------------------
 
-At this point (provided you commented out the use of `get_credentials_from_configuration` you can run the example up to a point.
+At this point (provided you commented out the use of `get_credentials_from_configuration`) you can run the example up to a point.
 
 To be able to interact with PayPal, `register as a developer at PayPal <https://developer.paypal.com/tools/sandbox/accounts/>`_
 
@@ -109,7 +117,7 @@ hardcoding these in the source code of your app.
 .. literalinclude:: ../../reahl/doc/examples/howtos/paymentpaypal/paymentpaypal.py
    :pyobject: PaymentPayPalConfig
 
-Remember to also include this |Configuration| in your `.reahlproject':
+Remember to also include this |Configuration| in your `.reahlproject`:
 
 .. literalinclude:: ../../reahl/doc/examples/howtos/paymentpaypal/.reahlproject
 

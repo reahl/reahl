@@ -16,32 +16,35 @@
 
 """Support for payment via PayPal.
 
-
+.. versionadded: 5.2
 """
-import sys
 import json
 import logging
 
-from reahl.component.context import ExecutionContext
 from reahl.component.exceptions import DomainException
-from reahl.sqlalchemysupport import Base, Session
-from reahl.web.fw import RemoteMethod, JsonResult, CannotCreate
+from reahl.web.fw import RemoteMethod, JsonResult
 from reahl.web.ui import HTMLWidget, LiteralHTML
 from reahl.web.bootstrap.ui import Div
-from reahl.component.modelinterface import Field, exposed, Event, Action, IntegerField, JsonField
-from reahl.sqlalchemysupport.sqlalchemysupport import Base, session_scoped
-
-
-from paypalcheckoutsdk.orders import OrdersCaptureRequest, OrdersCreateRequest
-from paypalcheckoutsdk.orders import OrdersCreateRequest, OrdersGetRequest
-from paypalcheckoutsdk.core import PayPalHttpClient, SandboxEnvironment, LiveEnvironment
-from paypalhttp.serializers.json_serializer import Json
-from sqlalchemy import Column, Integer, String, Unicode
-
+from reahl.component.modelinterface import JsonField
+from reahl.sqlalchemysupport.sqlalchemysupport import Base
 from reahl.paypalsupport.paypallibrary import PayPalJS
 
 
+from paypalcheckoutsdk.orders import OrdersCaptureRequest, OrdersCreateRequest
+from paypalcheckoutsdk.orders import OrdersCreateRequest
+from paypalcheckoutsdk.core import PayPalHttpClient, SandboxEnvironment, LiveEnvironment
+from sqlalchemy import Column, Integer, String, Unicode
+
+
+
 class PayPalClientCredentials:
+    """
+    Credentials needed to log into PayPal via API.
+
+    :param paypal_client_id: The PayPal API client id of a merchant account.
+    :param paypal_client_secret: The PayPal API client secret of a merchant account.
+    :param sandboxed: If True, these credentials are for the sandbox environment, otherwise they are for the live environment.
+    """
     def __init__(self, paypal_client_id, paypal_client_secret, sandboxed):
         self.client_id = paypal_client_id
         self.client_secret = paypal_client_secret
@@ -49,12 +52,20 @@ class PayPalClientCredentials:
 
 
 class PayPalOrder(Base):
+    """
+    A PayPalOrder is a proxy of an order created on PayPal via its API.
+
+    Create a PayPalOrder to keep track of the process of creating and finalising a matching order on PayPal.
+
+    :keyword json_string: Json string based on `the PayPal specification for orders <https://developer.paypal.com/api/orders/v2/#orders-create-request-body>`_.
+
+    """
     __tablename__ = 'payment_paypal_order'
 
     id = Column(Integer, primary_key=True)
-    paypal_id = Column(String(length=20), unique=True, nullable=True)
-    status = Column(String(length=10))
-    json_string = Column(Unicode)
+    paypal_id = Column(String(length=20), unique=True, nullable=True)  #: The ID of the corresponding order on PayPal.
+    status = Column(String(length=10))     #: If not None, the status of this order on PayPal's side.
+    json_string = Column(Unicode)          #: The json specification of how to create this order on PayPal
 
     def get_http_client(self, credentials):
         if credentials.sandboxed:
@@ -108,6 +119,17 @@ class PayPalOrder(Base):
 
 
 class PayPalButtonsPanel(HTMLWidget):
+    """
+    A Widget containing various buttons supplied by PayPal. Clicking on one of these invokes the payment process at PayPal.
+
+    :param view: (See :class:`reahl.web.fw.Widget`)
+    :param css_id: A unique ID for this PayPalButtonsPanel.
+    :param order: The :class:`PayPalOrder` this PayPalButtonsPanel is for.
+    :param credentials: The :class:`PayPalClientCredentials` for the merchant.
+    :param currency: A string with `the ISO-4217 3 character currency code <https://en.wikipedia.org/wiki/ISO_4217#Active_codes>`_ which is `supported by PayPal <https://developer.paypal.com/api/rest/reference/currency-codes/#link-currencycodes>`_.
+
+    .. note:: the `currency` of the PayPalButtonsPanel has to correspond with the currency used in the `json_string` of the :class:`PayPalOrder`.
+    """
     def __init__(self, view, css_id, order, credentials, currency):
         super().__init__(view)
         self.set_as_security_sensitive()

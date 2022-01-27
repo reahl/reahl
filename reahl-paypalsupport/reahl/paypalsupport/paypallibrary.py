@@ -19,7 +19,7 @@ from reahl.web.libraries import Library
 from reahl.component.exceptions import ProgrammerError
 
 class PayPalJS(Library):
-    """
+    """Reahl javascript code for integrating with PayPal as well as a CDN link to PayPal's own js library
     """
     def __init__(self):
         super().__init__('reahl-paypal')
