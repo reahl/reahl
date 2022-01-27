@@ -120,7 +120,9 @@ class ShoppingCart(Base):
     def pay(self):
         json_dict = self.as_json()
         print(json_dict)
-        self.paypal_order = PayPalOrder(json_string=json.dumps(json_dict))
+        order = PayPalOrder(json_string=json.dumps(json_dict))
+        Session.add(order)
+        self.paypal_order = order
 
     def clear(self):
         self.paypal_order = None
