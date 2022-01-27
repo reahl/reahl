@@ -122,6 +122,7 @@ class ShoppingCart(Base):
         print(json_dict)
         order = PayPalOrder(json_string=json.dumps(json_dict))
         Session.add(order)
+        Session.flush()
         self.paypal_order = order
 
     def clear(self):
