@@ -9,7 +9,7 @@ env:
     - DEBFULLNAME="Travis Tester"
     - DEBEMAIL=$EMAIL
     - DISPLAY=:99.0
-    - PATH=$HOME/bin:$PATH
+    - PATH=$HOME/bin:/usr/bin:$PATH
 
 language: python
 
