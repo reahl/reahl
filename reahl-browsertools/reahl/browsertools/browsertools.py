@@ -1536,14 +1536,14 @@ class DriverBrowser(BasicBrowser):
 
         try:
             yield
-
+        finally:
             tabs_after = [w for w in self.web_driver.window_handles if w != current_tab]
             new_tabs = [w for w in tabs_after if w not in tabs_before]
-            assert len(new_tabs) == 1
-
-        finally:
-            new_tab = new_tabs[0]
-            self.web_driver.switch_to.window(new_tab)
-            self.web_driver.close()
-            self.web_driver.switch_to.window(current_tab)
+            try:
+                assert len(new_tabs) == 1
+                new_tab = new_tabs[0]
+                self.web_driver.switch_to.window(new_tab)
+                self.web_driver.close()
+            finally:
+                self.web_driver.switch_to.window(current_tab)
 
