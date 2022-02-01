@@ -188,10 +188,10 @@ class ConcatenateScenarios(Fixture):
 
     @scenario
     def css_files(self):
-        self.file1_contents = '.cool {}/* a comment */ '
-        self.file2_contents = 'a, p { } '
+        self.file1_contents = '.cool {  text:bold;   }/* a comment */ '
+        self.file2_contents = 'a, p { text:white;     } '
         self.filename = 'concatenated.css'
-        self.expected_result = '.cool{}a,p{}'
+        self.expected_result = '.cool{text:bold}a,p{text:white}'
 
 
 @with_fixtures(WebFixture, ConcatenateScenarios)
