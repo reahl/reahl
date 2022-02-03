@@ -32,8 +32,8 @@
         <egg name="reahl-component" versionlocked="True"/>
         <egg name="reahl-mailutil" versionlocked="True"/>
         <thirdpartyegg name="ply" minversion="3.8" maxversion="3.11.999"/>
-        <thirdpartyegg name="jsmin" minversion="3.0" maxversion="3.0.999"/>
-        <thirdpartyegg name="csscompressor" minversion="0.9" maxversion="0.9.999"/>
+        <thirdpartyegg name="rjsmin" minversion="1.2.0" maxversion="1.2.999"/>
+        <thirdpartyegg name="rcssmin" minversion="1.1.0" maxversion="1.1.999"/>
         <thirdpartyegg name="beautifulsoup4" minversion="4.6" maxversion="4.6.999"/>
         <thirdpartyegg name="WebOb" minversion="1.8" maxversion="1.8.999"/>
         <thirdpartyegg name="Babel" minversion="2.1" maxversion="2.8.999"/>

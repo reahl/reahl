@@ -47,8 +47,8 @@ from collections import OrderedDict
 from pkg_resources import Requirement
 import urllib.parse
 
-import jsmin
-import csscompressor
+import rjsmin
+import rcssmin
 
 from webob import Request, Response
 from webob.exc import HTTPException
@@ -2712,15 +2712,18 @@ class ConcatenatedFile(FileOnDisk):
         
         class JSMinifier:
             def minify(self, input_stream, output_stream):
-                jsmin.JavascriptMinify(instream=input_stream, outstream=output_stream, quote_chars="'\"`").minify()
+                text = io.StringIO()
+                for line in input_stream:
+                    text.write(line)
+
+                output_stream.write(rjsmin.jsmin(text.getvalue()))
 
         class CSSMinifier:
             def minify(self, input_stream, output_stream):
                 text = io.StringIO()
                 for line in input_stream:
                     text.write(line)
-                output_stream.write(csscompressor.compress(text.getvalue(), preserve_exclamation_comments=False))
-
+                output_stream.write(rcssmin.cssmin(text.getvalue()))
 
         context = ExecutionContext.get_context()
         if context.config.reahlsystem.debug:
