@@ -4,6 +4,7 @@ python-reahl (5.2.0) unstable; urgency=low
  * Add PayPal support (#328).
  * Add JsonField and NumericField
  * Implemented CSRF protection (#153).
+ * Changed to use rssmin and rcsmin instead of slimit and cssmin (#336).
 
  -- Iwan Vosloo <iwan@reahl.org>  Thu, 27 Jan 2022 15:25:00 +0200
 

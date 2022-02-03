@@ -104,4 +104,5 @@ Updated dependencies
 
 Some included thirdparty JavaScript and CSS libraries were updated:
 
--
+- The dependency on cssmin was removed, in favour of rcssmin 1.1.0.
+- The dependency on slimit was removed, in favour of rjsmin 1.2.0.
