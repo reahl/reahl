@@ -19,4 +19,4 @@ Web framework
 
    Dealing with JavaScript and CSS code and external libraries (reahl.web.libraries) <libraries>
 
-
+   Support for making payments via PayPal (reahl.paypalsupport) <paypalsupport>

@@ -38,7 +38,6 @@
         <thirdpartyegg name="WebOb" minversion="1.8" maxversion="1.8.999"/>
         <thirdpartyegg name="Babel" minversion="2.1" maxversion="2.8.999"/>
         <thirdpartyegg name="setuptools" minversion="32.3.1"/>
-        <thirdpartyegg name="lxml" minversion="4.2" maxversion="4.5.999"/>
       </deps>
   </version>
 

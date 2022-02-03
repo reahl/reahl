@@ -103,7 +103,6 @@ def test_submit_form_with_expired_csrf_token(web_fixture, csrf_fixture):
     web_fixture.reahl_server.set_app(wsgi_app)
     browser = web_fixture.driver_browser
 
-
     browser.open('/')
     select_widget_path = XPath.select_labelled('choice')
     assert browser.get_value(select_widget_path) == '1'

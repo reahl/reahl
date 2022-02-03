@@ -20,6 +20,7 @@ import os.path
 
 import pytest
 
+from reahl.component.context import ExecutionContext
 from reahl.tofu import Fixture, scenario, expected, temp_file_with, uses
 from reahl.tofu.pytestsupport import with_fixtures
 from reahl.stubble import SystemOutStub
@@ -63,6 +64,10 @@ from reahl.doc.examples.howtos.bootstrapsassmultihomed import bootstrapsassmulti
 
 from reahl.doc.examples.howtos.chartplotly import chartplotly
 from reahl.doc.examples.howtos.chartplotly2 import chartplotly2
+
+from reahl.doc.examples.howtos.paymentpaypal import paymentpaypal
+from reahl.paypalsupport.paypallibrary import PayPalJS
+from reahl.paypalsupport.paypalconfig import PayPalSiteConfig
 
 from reahl.web_dev.fixtures import WebFixture
 
@@ -228,6 +233,20 @@ class ExampleFixture(Fixture):
     @scenario
     def chartplotly2(self):
         self.wsgi_app = self.web_fixture.new_wsgi_app(site_root=chartplotly2.DynamicPlotlyUI, enable_js=True)
+
+    @scenario
+    def paypal(self):
+        config = ExecutionContext.get_context().config
+
+        config.paypalsupport = PayPalSiteConfig()
+        config.paypalsupport.do_injections(config)
+
+        config.paymentpaypal = PayPalSiteConfig()
+        config.paymentpaypal.client_id = 'test'
+        config.paymentpaypal.client_secret = 'some secret'
+        config.paymentpaypal.sandboxed = True
+
+        self.wsgi_app = self.web_fixture.new_wsgi_app(site_root=paymentpaypal.ShoppingUI, enable_js=True)
 
 
 @with_fixtures(WebFixture, ExampleFixture)
@@ -626,6 +645,26 @@ def test_chartplotly2(web_fixture, plotly_scenario):
     with browser.refresh_expected_for('#thechart-data', True):
         select_input = XPath.select_labelled('factor')
         browser.select(select_input, '2')
+
+
+@with_fixtures(WebFixture, ExampleFixture.paypal)
+def test_paypal(web_fixture, paypal_scenario):
+    fixture = paypal_scenario
+    browser = web_fixture.driver_browser
+
+    web_fixture.config.web.default_http_scheme = web_fixture.config.web.encrypted_http_scheme
+    web_fixture.config.web.default_http_port = web_fixture.config.web.encrypted_http_port
+    fixture.start_example_app()
+    browser.open('/')
+
+    browser.type(XPath.input_labelled('Item name'), 'an item')
+    browser.type(XPath.input_labelled('Quantity'), '2')
+    browser.type(XPath.input_labelled('Price'), '3')
+    browser.click(XPath.button_labelled('Pay'))
+
+    assert browser.is_element_present(XPath.div().including_class('reahl-paypalbuttonspanel'))
+    #check that paypal js addded their button to the containing div we provided
+    assert browser.get_xpath_count(XPath('//*').inside_of(XPath.div().including_class('reahl-paypalbuttonspanel'))) > 0
 
 
 @with_fixtures(WebFixture, ExampleFixture.dynamiccontenterrors)

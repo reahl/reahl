@@ -9,7 +9,7 @@ env:
     - DEBFULLNAME="Travis Tester"
     - DEBEMAIL=$EMAIL
     - DISPLAY=:99.0
-    - PATH=$HOME/bin:$PATH
+    - PATH=$HOME/bin:/usr/bin:$PATH
 
 language: python
 
@@ -70,8 +70,11 @@ before_install:
   # Version checks of these things are useful for debugging
   - git --version
   - firefox --version
+  - which firefox
   - geckodriver --version
+  - which geckodriver
   - gpg --version
+  - echo $PATH
 
 install:
   - "python scripts/bootstrap.py --script-dependencies"

@@ -51,6 +51,15 @@ Charts
    plotly
    plotly2
 
+Payments
+--------
+
+.. toctree::
+   :maxdepth: 1
+
+   paypal
+
+
 Production deployment
 ---------------------
 

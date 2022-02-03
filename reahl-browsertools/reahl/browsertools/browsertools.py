@@ -32,7 +32,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support import expected_conditions
 
-# See: https://bitbucket.org/ianb/webtest/issue/45/html5-form-associated-inputs-break-webtest
+# See: https://github.com/Pylons/webtest/issues/8
 from webtest.forms import Field, Form
 def patch(cls):
     if hasattr(cls, '__orig__init__'):
@@ -1536,14 +1536,14 @@ class DriverBrowser(BasicBrowser):
 
         try:
             yield
-
+        finally:
             tabs_after = [w for w in self.web_driver.window_handles if w != current_tab]
             new_tabs = [w for w in tabs_after if w not in tabs_before]
-            assert len(new_tabs) == 1
-
-        finally:
-            new_tab = new_tabs[0]
-            self.web_driver.switch_to.window(new_tab)
-            self.web_driver.close()
-            self.web_driver.switch_to.window(current_tab)
+            try:
+                assert len(new_tabs) == 1
+                new_tab = new_tabs[0]
+                self.web_driver.switch_to.window(new_tab)
+                self.web_driver.close()
+            finally:
+                self.web_driver.switch_to.window(current_tab)
 

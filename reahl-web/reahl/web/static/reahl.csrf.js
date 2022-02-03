@@ -20,14 +20,37 @@
 "use strict";
     // From: https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html#use-of-custom-request-headers
 
-    $.ajaxSetup({
-        beforeSend: function(xhr, settings) {
-            if (!this.crossDomain) {
-                var csrf_token = $('meta[name="csrf-token"]').attr('content');
-                xhr.setRequestHeader("X-CSRF-TOKEN", csrf_token);
-            }
+    function isSameOrigin(urlString) {
+      return new URL(document.baseURI).origin === new URL(urlString, document.baseURI).origin;
+    }
+
+    var originalOpen = XMLHttpRequest.prototype.open;
+    XMLHttpRequest.prototype.open = function(){
+        var result = originalOpen.apply(this, arguments);
+        if (isSameOrigin(arguments[1])) {
+            var csrf_token = $('meta[name="csrf-token"]').attr('content');
+            this.setRequestHeader("X-CSRF-TOKEN", csrf_token);
         }
-    });
+        return result;
+    };
+
+    var originalFetch = window.fetch;
+    window.fetch = function() {
+        var argumentsArray = [].slice.call(arguments);
+        var init = {};
+        if (argumentsArray.length <= 1) {
+            argumentsArray.push(init);
+        } else {
+            init = argumentsArray[1];
+        }
+        if (!('headers' in init)) {
+            init.headers = new Headers();
+        }
+        if (isSameOrigin(arguments[0].toString())) {
+            var csrf_token = $('meta[name="csrf-token"]').attr('content');
+            init.headers.append("X-CSRF-TOKEN", csrf_token);
+        }
+        return originalFetch.apply(this, argumentsArray);
+    }
 
 })(jQuery);
-

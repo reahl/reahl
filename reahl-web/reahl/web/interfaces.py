@@ -81,7 +81,7 @@ class UserSessionProtocol(object, metaclass=ABCMeta):
         """
         Ensure the given session object is kept intact so that it can survive a transaction abort.
 
-        .. versionadded:: 5.2.0
+        .. versionadded:: 5.2
         """
 
     @classmethod
@@ -90,7 +90,7 @@ class UserSessionProtocol(object, metaclass=ABCMeta):
         """
         After a transaction is aborted, this ensures the given session is restored to its state before the abort.
 
-        .. versionadded:: 5.2.0
+        .. versionadded:: 5.2
         """
 
     @abstractmethod

@@ -1,5 +1,5 @@
 @startuml
-!include base.iuml
+!include ../../../base.iuml
 
 title Egg and chicken projects - development environment
 

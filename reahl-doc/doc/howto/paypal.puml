@@ -1,0 +1,32 @@
+@startuml
+
+!include ../../../base.iuml
+
+State "View: / " as View1 : Choose what to buy
+State "View: /order_summary " as View2 : order summary
+State "PayPal" as PayPal : Complete the payment on PayPal
+
+
+View1 -right-> View2 : click pay
+View2 --> PayPal : click PayPal button
+PayPal -down-> View2 
+
+
+
+'skinparam roundcorner 25
+
+'cloud "Complete payment on PayPal" as cloud1
+
+
+'state View1 {
+'    state one
+'} 
+'state "View: /order_summary"  as View2
+
+
+'View1 -> View2
+'View2 -down-> cloud1 : "click PayPal button"
+'cloud1 -> View2 
+
+
+@enduml
