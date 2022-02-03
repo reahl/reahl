@@ -33,7 +33,7 @@ from contextlib import contextmanager
 from datetime import datetime
 import itertools
 
-import cssmin
+
 import functools
 import io
 import locale
@@ -41,13 +41,15 @@ import os
 import os.path
 import pkg_resources
 import re
-import slimit
 import tempfile
 import warnings
 from collections import OrderedDict
 from pkg_resources import Requirement
-
 import urllib.parse
+
+import rjsmin
+import rcssmin
+
 from webob import Request, Response
 from webob.exc import HTTPException
 from webob.exc import HTTPForbidden
@@ -2709,33 +2711,19 @@ class ConcatenatedFile(FileOnDisk):
                     output_stream.write(line)
         
         class JSMinifier:
-            def monkey_patch_ply(self):
-                # Current version of ply (used by slimit) has a bug in Py3
-                # See https://github.com/rspivak/slimit/issues/64
-                from ply import yacc
-
-                def __getitem__(self,n):
-                    if isinstance(n, slice):
-                        return self.__getslice__(n.start, n.stop)
-                    if n >= 0: return self.slice[n].value
-                    else: return self.stack[n].value
-
-                yacc.YaccProduction.__getitem__ = __getitem__
-                
             def minify(self, input_stream, output_stream):
-                self.monkey_patch_ply()
-
                 text = io.StringIO()
                 for line in input_stream:
                     text.write(line)
-                output_stream.write(slimit.minify(text.getvalue(), mangle=True, mangle_toplevel=True))
+
+                output_stream.write(rjsmin.jsmin(text.getvalue()))
 
         class CSSMinifier:
             def minify(self, input_stream, output_stream):
                 text = io.StringIO()
                 for line in input_stream:
                     text.write(line)
-                output_stream.write(cssmin.cssmin(text.getvalue()))
+                output_stream.write(rcssmin.cssmin(text.getvalue()))
 
         context = ExecutionContext.get_context()
         if context.config.reahlsystem.debug:
