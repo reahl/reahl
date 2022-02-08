@@ -4,6 +4,8 @@ if [ ! -f /.provisioned ]; then
     # Regenerate host keys
     /bin/rm -fv /etc/ssh/ssh_host_*
     dpkg-reconfigure openssh-server
+    apt-get update -o Dir::Etc::SourceList=/etc/apt/sources.list -o Dir::Etc::SourceParts=/dev/null
+    apt-get install -y ca-certificates
 
     # Secure ssh (we modify its config here after the reconfigure above to avoid it asking about changes to config files)
     echo "PasswordAuthentication no" >> /etc/ssh/sshd_config.d/reahl.conf

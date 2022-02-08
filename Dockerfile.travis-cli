@@ -1,0 +1,8 @@
+FROM ruby:latest
+
+RUN adduser --disabled-password --gecos '' developer
+RUN gem install travis
+
+USER developer
+
+

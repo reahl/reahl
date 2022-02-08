@@ -24,4 +24,13 @@ services:
 #    restart: always
 #    environment:
 #      MYSQL_ROOT_PASSWORD: reahl
+  travis-cli:
+    container_name: travis-cli
+    image: ruby:latest
+    restart: never
+    profiles:
+      - dontstart
+    build:
+      context: .
+      dockerfile: Dockerfile.travis-cli
     
