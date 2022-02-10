@@ -31,7 +31,7 @@ function import_gpg_keys () {
   from_dir=$1
   gpg --status-fd 2 --pinentry-mode loopback --passphrase-fd 0 --import $from_dir/key.secret.asc <<< $GPG_PASSPHRASE
   gpg --status-fd 2 --import-ownertrust < $from_dir/trust.asc
-}
+w}
 
 rm -f ~/.gnupg/options ~/.gnupg/gpg.conf
 
@@ -39,18 +39,10 @@ configure_gnupg
 
 if [ "$TRAVIS_SECURE_ENV_VARS" == 'true' ]; then
   echo "SECRETS are available, fetching reahl GPG signing key"
-  i="0"
-  while ! gpg --keyserver $GPG_KEYSERVER --recv $GPG_KEY_ID && [ $i -lt 5 ]
-  do
-    sleep 10
-    i=$[$i+1]
-    echo "Trying to get key again again[$i]"
-  done
-  [ $i -lt 5 ] || exit 1
   pip install awscli
   aws s3 cp s3://$AWS_BUCKET/keys.tgz.enc /tmp/keys.tgz.enc
   set +x
-  openssl aes-256-cbc -K $encrypted_f7a01544e957_key -iv $encrypted_f7a01544e957_iv -in /tmp/keys.tgz.enc -out /tmp/keys.tgz -d
+  openssl aes-256-cbc -K $encrypted_1dc025804f5b_key -iv $encrypted_1dc025804f5b_iv -in keys.tgz.enc -out /travis/keys.tgz -d  
   set -x
   tar -C /tmp -zxvf /tmp/keys.tgz 
   import_gpg_keys /tmp/keys
