@@ -5,4 +5,7 @@ RUN gem install travis
 
 USER developer
 
+WORKDIR /travis
+
+ENTRYPOINT [ "travis" ]
 
