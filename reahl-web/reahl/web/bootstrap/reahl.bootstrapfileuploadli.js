@@ -112,7 +112,7 @@ $.widget('reahl.bootstrapfileuploadli', {
                     this_.element.remove();
                     fileInput.trigger('focusout').trigger('focus'); /* to revalidate the input after removal */
                 } else {
-                    this_.replaceContents(data.widgets);
+                    this_.replaceContents(data.result);
                 }
             },
             error: function(jqXHR, textStatus, errorThrown){
@@ -164,7 +164,7 @@ $.widget('reahl.bootstrapfileuploadli', {
                     if (data.success) {
                         this_.changeToUploaded();
                     } else {
-                        this_.replaceContents(data.widgets);
+                        this_.replaceContents(data.result);
                     }
                     this_.getFileInputPanel().uploadFinished();
                 },

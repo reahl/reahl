@@ -28,7 +28,7 @@ configuration file located in a common configuration directory.
 
 The `tutorial.componentconfigbootstrap` example shows how to make a
 component read configuration from such a file. The example uses its
-own config setting (`componentconfig.showheader`) to contol whether
+own config setting (`componentconfig.showheader`) to control whether
 AddressBookPanel has a heading or not.
 
 The |Configuration| for the system is available anywhere in your code

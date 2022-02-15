@@ -164,7 +164,8 @@ class Example:
                     if source_file_path != os.path.join(source, '__init__.py'):
                         dest_file_path = self.checkout_changes.get_output_filename(source_file_path, dest_dirname)
                         if self.new_name:
-                            dest_file_path = dest_file_path.replace(self.module_name, self.new_name)
+                            relative_path = dest_file_path[len(dest_dirname):]
+                            dest_file_path = dest_dirname + relative_path.replace(self.module_name, self.new_name)
                         self.sed_file_to(source_file_path, dest_file_path)
 
     def sed_file_to(self, source_file_path, dest_file_path):

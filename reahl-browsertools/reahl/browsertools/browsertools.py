@@ -30,10 +30,9 @@ from lxml import html
 from selenium.webdriver.support.ui import WebDriverWait, Select
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.support import expected_conditions
 
-
-
-# See: https://bitbucket.org/ianb/webtest/issue/45/html5-form-associated-inputs-break-webtest
+# See: https://github.com/Pylons/webtest/issues/8
 from webtest.forms import Field, Form
 def patch(cls):
     if hasattr(cls, '__orig__init__'):
@@ -295,7 +294,6 @@ class Browser(BasicBrowser):
         assert select.tag == 'select', 'Expected %s to find a select tag' % locator
 
         form = self.get_form_for(xpath)
-
         for option in select.findall('option'):
             if option.text == label_to_choose:
                 form[select.attrib['name']] = option.attrib['value']
@@ -685,6 +683,11 @@ class XPath:
         """Returns an XPath to find an HTML <select> referred to by a <label> that contains the text in `label`."""
         label = cls.any('label').with_text(label_text)
         return cls.any('select')['@id=%s/@for' % label]
+
+    @classmethod
+    def select_named(cls, name):
+        """Returns an XPath to find an HTML <select> with the given name."""
+        return cls.any('select')['@name="%s"' % name]
 
     @classmethod
     def span(cls):
@@ -1507,6 +1510,13 @@ class DriverBrowser(BasicBrowser):
             if not new_element_loaded:
                 self.web_driver.execute_script('''$('%s').find('%s').remove()''' % (escaped_jquery_selector, escaped_load_flag_selector))
 
+    def is_alert_present(self):
+        return expected_conditions.alert_is_present()(self.web_driver)
+
+    @contextlib.contextmanager
+    def alert_expected(self):
+        yield self.wait_for(self.is_alert_present)
+
     @property
     def current_browser_tab(self):
         return self.web_driver.current_window_handle
@@ -1526,14 +1536,14 @@ class DriverBrowser(BasicBrowser):
 
         try:
             yield
-
+        finally:
             tabs_after = [w for w in self.web_driver.window_handles if w != current_tab]
             new_tabs = [w for w in tabs_after if w not in tabs_before]
-            assert len(new_tabs) == 1
-
-        finally:
-            new_tab = new_tabs[0]
-            self.web_driver.switch_to.window(new_tab)
-            self.web_driver.close()
-            self.web_driver.switch_to.window(current_tab)
+            try:
+                assert len(new_tabs) == 1
+                new_tab = new_tabs[0]
+                self.web_driver.switch_to.window(new_tab)
+                self.web_driver.close()
+            finally:
+                self.web_driver.switch_to.window(current_tab)
 

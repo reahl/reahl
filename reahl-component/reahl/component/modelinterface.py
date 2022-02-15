@@ -27,13 +27,17 @@ import urllib.parse
 from string import Template
 import inspect
 from contextlib import contextmanager
+import json
 
 import dateutil.parser 
 import babel.dates 
+from babel.core import Locale
+from babel.numbers import parse_decimal, format_number
 from wrapt import FunctionWrapper, BoundFunctionWrapper
 
 
 from reahl.component.i18n import Catalogue
+from reahl.component.context import ExecutionContext
 from reahl.component.exceptions import AccessRestricted, ProgrammerError, arg_checks, IsInstance, IsCallable, NotYetAvailable
 from collections.abc import Callable
 
@@ -1357,6 +1361,61 @@ class IntegerField(Field):
 
     def parse_input(self, unparsed_input):
         return int(unparsed_input)
+
+
+class NumericField(Field):
+    """A Field that yields any number that has a decimal point followed by digits that show the fractional part.
+
+       :keyword precision: The number of decimal digits allowed.
+       :keyword min_value: The minimum value allowed as valid input.
+       :keyword max_value: The maximum value allowed as valid input.
+
+       (For other arguments, see :class:`Field`.)
+
+       .. versionadded:: 5.2
+
+       """
+    def __init__(self, default=None, precision=2, required=False, required_message=None, label=None, readable=None, writable=None, min_value=None, max_value=None):
+        label = label or ''
+        super().__init__(default, required, required_message, label, readable=readable, writable=writable, max_length=254)
+        error_message = _('$label should be a valid number')
+
+        locale = Locale.parse(ExecutionContext.get_context().interface_locale)
+        plus = locale.number_symbols['plusSign']
+        minus = locale.number_symbols['minusSign']
+        decimal = locale.number_symbols['decimal']
+        decimal_regex = '\.' if decimal == '.' else decimal
+        group_separator = locale.number_symbols['group']
+        group_separator_regex = '\.' if group_separator == '.' else group_separator
+        regex_str = '[%s%s]?([0-9%s]+%s?[0-9%s]{0,%s})' % (plus, minus, group_separator_regex, decimal_regex, group_separator_regex, precision)
+
+        self.add_validation_constraint(PatternConstraint(regex_str, error_message))
+        if min_value:
+            self.add_validation_constraint(MinValueConstraint(min_value))
+        if max_value:
+            self.add_validation_constraint(MaxValueConstraint(max_value))
+
+    def parse_input(self, unparsed_input):
+        return parse_decimal(unparsed_input, ExecutionContext.get_context().interface_locale)
+
+    def unparse_input(self, parsed_value):
+        if parsed_value is None:
+            return ''
+        return format_number(parsed_value, ExecutionContext.get_context().interface_locale)
+
+
+class JsonField(Field):
+    """
+        A field that parses a JSON formatted string to a python dictionary object.
+
+        .. versionadded:: 5.2
+
+    """
+    def parse_input(self, unparsed_input):
+        return json.loads(unparsed_input if unparsed_input != '' else 'null')
+
+    def unparse_input(self, parsed_value):
+        return json.dumps(parsed_value)
 
 
 class DateConstraint(ValidationConstraint):

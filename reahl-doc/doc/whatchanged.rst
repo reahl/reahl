@@ -3,14 +3,21 @@
 
 
 
-What changed in version 5.1
+What changed in version 5.2
 ===========================
 
 .. |PrimitiveInput| replace:: :class:`~reahl.web.ui.PrimitiveInput`
-.. |type| replace:: :meth:`~reahl.browsertools.browsertools.DriverBrowser.type`
-.. _AGPL: http://www.gnu.org/licenses/agpl-3.0.html
-.. _LGPL: http://www.gnu.org/licenses/lgpl-3.0.html
-
+.. |Widget| replace:: :class:`~reahl.web.fw.Widget`
+.. |Chart| replace:: :class:`~reahl.web.plotly.Chart`
+.. |Input| replace:: :class:`~reahl.web.ui.Input`
+.. |set_refresh_widget| replace:: :meth:`~reahl.web.ui.PrimitiveInput.set_refresh_widget`
+.. |RemoteMethod| replace:: :class:`~reahl.web.fw.RemoteMethod`
+.. |UserSessionProtocol| replace:: :class:'~reahl.web.interfaces.UserSessionProtocol`
+.. |preserve_session| replace:: :meth:'~reahl.web.interfaces.UserSessionProtocol.preserve_session`
+.. |restore_session| replace:: :meth:'~reahl.web.interfaces.UserSessionProtocol.restore_session`
+.. |get_csrf_token| replace:: :meth:'~reahl.web.interfaces.UserSessionProtocol.get_csrf_token`
+.. |PayPalButtonsPanel| replace:: :class:'~reahl.paypalsupport.paypalsupport.PayPalButtonsPanel`
+.. |PayPalOrder| replace:: :class:'~reahl.paypalsupport.paypalsupport.PayPalOrder`
 
 
 Upgrading
@@ -24,77 +31,78 @@ new virtualenv, then migrate your database:
    reahl migratedb etc
    
 
-Split out projects
-------------------
+Graphing support
+----------------
 
-The main focus of this release of Reahl is that we rearranged documentation to highlight the companion components
-that could be used without the Reahl web framework. We have also split out a new project (reahl-browsertools) so it
-also can easily be used without installing the rest of the Reahl components or reahl-web.
+This release includes support for rendering Graphs. Instead of writing our own graphing library, we have added a |Chart|
+|Widget| which renders a Figure created using `the Plotly Python library <https://github.com/plotly/plotly.py/>_`.
 
-:doc:`reahl-component <component/introduction>`
-  The Reahl component framework was always an independent component, but the documentation has been rewritten to make
-  sure it is explained in its own right.
+See the relevant HOWTOs for more information:
 
-:doc:`reahl-browsertools <browsertools/introduction>`
-  Web testing tools used in the development of Reahl is now split out into its own component so that it can be used
-  when developing applications using any web framework.
+:doc:`<howto/plotly>`
+  An example that shows the basics of using a |Chart|.
 
-:doc:`reahl-tofu <tofu/introduction>`
-  Tofu provides class based Fixtures used in tests. Documentation of Tofu has been rearranged to be consistent with
-  our other projects.
-
-:doc:`reahl-stubble <stubble/introduction>`
-  Stubble helps you write stub classes that cannot mask changes to the classes they stand in for. Documentation
-  of Stubble has been rearranged to be consistent with the other projects.
+:doc:`<howto/plotly2>`
+  An example showing how to update a |Chart| efficiently in response to user actions.
 
 
-Licensing changes
------------------
+PayPal support
+--------------
 
-Since its inception all parts of Reahl have been licensed using the AGPL_. At the time, we felt that a strict license
-is a good idea for a project that still needs to mature. The time has now come to selectively ease up on the license.
+Added |PayPalButtonsPanel| which you can use to setup standard paypal payments. The panel displays the `PayPalButton <https://developer.paypal.com/docs/checkout/standard/>_`
+for processing a given |PayPalOrder| providing seamless integration to PayPal using the `PayPal REST API <https://developer.paypal.com/api/orders/v2/>_`.
 
-The licensing of supporting components for development have been changed from AGPL_ to LGPL_. These components
-(reahl-stubble, reahl-tofu and the newly split out reahl-browsertools) are meant to be used in development only,
-so the more restrictive license did not make sense for them.
+See the HOWTO for more information:
 
-A lot of unique functionality is contained in reahl-component. We have decided to change its license
-to LGPL_ in order to make it easier for others to use in their environment.
+:doc:`<howto/paypal>`
+  Add a |PayPalButtonsPanel| to your own shoppingcart for `PayPal <https://www.paypal.com>_` payments.
 
-The rest of the components (reahl-web and related components) are still AGPL_ licensed.
 
-Your code that imports our code that is LGPL_ licensed, does not need to be licensed using a copyleft license.
-If the public can access your web application which uses our AGPL_ code, then your code also needs to use a compatible
-license.
+Cross site request forgery (CSRF) protection
+--------------------------------------------
 
-If you want to use any part of Reahl without the restrictions of these licenses, we are quite open to
-negotiate exceptions to the relevant licenses with individual clients. We fund the development of Reahl using such
-agreements.
+When a user is logged into a web application, their browser will automatically identify them as such on subsequent
+requests from the browser. An attacker can then trick the user to click on a link (such as from a malicious email)
+which is opened by the logged in browser and then performs an action on behalf of the logged-in user.
 
-HOWTOs
-------
+This kind of attack is called Cross site request forgery, or CSRF for short.
 
-Some HOWTO examples were added:
+In this version, Reahl protects against a CSRF exploit by default. Each form always includes a hidden input with a value
+linked to the current session and signed by a secret key (which is kept on the server). When it is submitted, the server
+checks that the signature matches and that the hidden input was generated recently.
 
-howtos.bootstrapsass
-   How to change your styling using a custom compile of bootstrap's SASS sources.
-howtos.bootstrapsassmultihomed
-   Run one site accessed by many customers, with each customer having its own domain name and the site styled
-   differently depending on the domain.
-howtos.hellodockernginx
-   How to host your web application in a docker container.
+If you need to use JavaScript to invoke a |RemoteMethod|, do so using Jquery. This ensures that the correct CSRF token
+is sent with such a JavaScript call as well.
 
-The howtos.helloapache example was removed.
+The secret key can be configured in web.config.py as `web.csrf_key`. This key is defaulted to an insecure value ---
+remember to set to a value of your choice on each production server.
 
+The timeout can be configured in web.config.py as `web.csrf_timeout_seconds`.
+
+.. note:: The web.csrf_timeout_seconds timeout should always be shorter than session_lifetime.
+
+
+Implemention interfaces
+-----------------------
+
+In order to accommodate CSRF protection, the three methods are added to |UserSessionProtocol|\: |preserve_session|,
+|restore_session|, and |get_csrf_token|.
+
+
+API changes
+-----------
+
+A |PrimitiveInput| is instructed to refresh a |Widget| upon change of the |Input|. This has always been done by
+passing the `refresh_widget` keyword argument upon construction. The |set_refresh_widget| method has been added so that
+this can be done at a later stage in order to simplify the order in which cooperating objects can be created.
+
+The keyword argument `disable_csrf_check` was added to the `__init__` of |RemoteMethod| to enable selective exclusion
+of a |RemoteMethod| from CSRF restrictions.
 
 Updated dependencies
 --------------------
 
 Some included thirdparty JavaScript and CSS libraries were updated:
 
-- Bootstrap to 4.5.3
-- JQuery.validate was updated to 1.19.3 (and patched).
-- JQuery.form to 4.3.0
-- Popper to 1.16.1
-- holder to 2.9.9
-- underscore 1.13.1 (fixes CVE-2021-23358)
+- The dependency on cssmin was removed, in favour of rcssmin 1.1.0.
+- The dependency on slimit was removed, in favour of rjsmin 1.2.0.

@@ -1,0 +1,61 @@
+@startuml
+
+hide footbox
+
+box Browser
+participant paypal.Buttons as PayPalButton
+end box
+
+box ReahlServer
+participant RemoteMethod
+participant PayPalOrder
+end box
+
+box PayPal Server
+participant "PayPal (Remote Sandbox/Live)" as  PayPalRemote
+end box
+
+== User clicks PaypalButton to pay ==
+
+PayPalButton -> RemoteMethod: createOrder(createOrderUrl)
+
+RemoteMethod -> PayPalOrder: create_on_paypal
+note right
+    see: https://developer.paypal.com/docs/api/orders/v2/
+end note
+PayPalOrder -> PayPalRemote: requests.request(...)
+
+PayPalRemote --> PayPalOrder: response <paypalhttp.http_response.HttpResponse>
+note right
+    see: <a>https://developer.paypal.com/docs/api/reference/api-responses/</a>
+
+    reponse.headers
+    reponse.status_code: Httpcodes like 201 for success
+    reponse.result:
+        paypal_order_id = response.result.id
+        reponse.result.status == "CREATED"
+        response.result.intent == "CAPTURE" we intend to capture payment immediately after the customer makes a payment
+        reponse.result.links: several links to "follow" to continue. We use the "approve" link to redirect the client to paypal to make payment
+        reponse.result.purchase_units: Summary of the order details like amount, invoice_id etc.
+end note
+PayPalOrder --> PayPalOrder: save status
+PayPalOrder --> PayPalOrder: save paypal_id
+PayPalOrder --> RemoteMethod: response
+RemoteMethod --> PayPalButton: response
+
+== Button action onApprove fires after payment success ==
+
+PayPalButton -> RemoteMethod: onApprove(captureOrderUrl)
+RemoteMethod -> PayPalOrder: capture_on_paypal paypal_id
+note right
+    see: https://developer.paypal.com/docs/api/orders/v2/#orders_capture
+end note
+PayPalOrder -> PayPalRemote: requests.request(...)
+
+PayPalRemote --> PayPalOrder: response <paypalhttp.http_response.HttpResponse>
+PayPalOrder --> PayPalOrder: save status
+PayPalOrder --> RemoteMethod: response
+RemoteMethod --> PayPalButton: response
+
+
+@enduml

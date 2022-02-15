@@ -74,7 +74,33 @@ class UserSessionProtocol(object, metaclass=ABCMeta):
            Called at the beginning of a request or after an abort during the request (which may require reinitialisation
            of the session so it may still be used after the abort).
         """
-        
+
+    @classmethod
+    @abstractmethod
+    def preserve_session(cls, session):
+        """
+        Ensure the given session object is kept intact so that it can survive a transaction abort.
+
+        .. versionadded:: 5.2
+        """
+
+    @classmethod
+    @abstractmethod
+    def restore_session(cls, session):
+        """
+        After a transaction is aborted, this ensures the given session is restored to its state before the abort.
+
+        .. versionadded:: 5.2
+        """
+
+    @abstractmethod
+    def get_csrf_token(self):
+        """
+        Fetch/create a suitable token for protecting against CSRF.
+
+        .. versionadded:: 5.2
+        """
+
 
 class SessionDataProtocol(object, metaclass=ABCMeta):
     @classmethod

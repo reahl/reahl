@@ -2,7 +2,7 @@
 
 
 @startuml
-!include base.iuml
+!include ../../../base.iuml
 
 title Accounts
 

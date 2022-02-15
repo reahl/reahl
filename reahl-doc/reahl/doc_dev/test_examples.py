@@ -20,6 +20,7 @@ import os.path
 
 import pytest
 
+from reahl.component.context import ExecutionContext
 from reahl.tofu import Fixture, scenario, expected, temp_file_with, uses
 from reahl.tofu.pytestsupport import with_fixtures
 from reahl.stubble import SystemOutStub
@@ -30,6 +31,7 @@ from reahl.browsertools.browsertools import XPath, Browser
 from reahl.doc.examples.tutorial.hello.hello import HelloUI
 from reahl.doc.examples.howtos.hellonginx import hellonginx
 from reahl.doc.examples.howtos.hellodockernginx import hellodockernginx
+from reahl.doc.examples.howtos.dynamiccontenterrors import dynamiccontenterrors
 from reahl.doc.examples.tutorial.slots.slots import SlotsUI
 from reahl.doc.examples.features.tabbedpanel.tabbedpanel import TabbedPanelUI
 from reahl.doc.examples.features.carousel.carousel import CarouselUI
@@ -60,6 +62,12 @@ from reahl.doc.examples.howtos.optimisticconcurrency import optimisticconcurrenc
 from reahl.doc.examples.howtos.bootstrapsass import bootstrapsass
 from reahl.doc.examples.howtos.bootstrapsassmultihomed import bootstrapsassmultihomed
 
+from reahl.doc.examples.howtos.chartplotly import chartplotly
+from reahl.doc.examples.howtos.chartplotly2 import chartplotly2
+
+from reahl.doc.examples.howtos.paymentpaypal import paymentpaypal
+from reahl.paypalsupport.paypallibrary import PayPalJS
+from reahl.paypalsupport.paypalconfig import PayPalSiteConfig
 
 from reahl.web_dev.fixtures import WebFixture
 
@@ -199,6 +207,10 @@ class ExampleFixture(Fixture):
         self.wsgi_app = self.web_fixture.new_wsgi_app(site_root=dynamiccontent.DynamicUI, enable_js=True)
 
     @scenario
+    def dynamiccontenterrors(self):
+        self.wsgi_app = self.web_fixture.new_wsgi_app(site_root=dynamiccontenterrors.DynamicUI, enable_js=True)
+
+    @scenario
     def responsivedisclosure(self):
         self.wsgi_app = self.web_fixture.new_wsgi_app(site_root=responsivedisclosure.ResponsiveUI, enable_js=True)
 
@@ -214,6 +226,27 @@ class ExampleFixture(Fixture):
     def bootstrapsassmultihomed(self):
         self.wsgi_app = self.web_fixture.new_wsgi_app(site_root=bootstrapsassmultihomed.ThemedUI, enable_js=True)
 
+    @scenario
+    def chartplotly(self):
+        self.wsgi_app = self.web_fixture.new_wsgi_app(site_root=chartplotly.PlotlyUI, enable_js=True)
+
+    @scenario
+    def chartplotly2(self):
+        self.wsgi_app = self.web_fixture.new_wsgi_app(site_root=chartplotly2.DynamicPlotlyUI, enable_js=True)
+
+    @scenario
+    def paypal(self):
+        config = ExecutionContext.get_context().config
+
+        config.paypalsupport = PayPalSiteConfig()
+        config.paypalsupport.do_injections(config)
+
+        config.paymentpaypal = PayPalSiteConfig()
+        config.paymentpaypal.client_id = 'test'
+        config.paymentpaypal.client_secret = 'some secret'
+        config.paymentpaypal.sandboxed = True
+
+        self.wsgi_app = self.web_fixture.new_wsgi_app(site_root=paymentpaypal.ShoppingUI, enable_js=True)
 
 
 @with_fixtures(WebFixture, ExampleFixture)
@@ -571,6 +604,7 @@ def test_responsivedisclosure(web_fixture, responsivedisclosure_scenario):
     browser.set_selected(XPath.input_labelled('New'))
     browser.capture_cropped_screenshot(fixture.new_screenshot_path('responsivedisclosure_3.png'))
 
+
 @with_fixtures(WebFixture, ExampleFixture.optimisticconcurrency)
 def test_optimisticconcurrency(web_fixture, optimisticconcurrency_scenario):
     fixture = optimisticconcurrency_scenario
@@ -587,3 +621,63 @@ def test_optimisticconcurrency(web_fixture, optimisticconcurrency_scenario):
     error_alert = XPath.div().including_class('alert').including_text('Some data changed since you opened this page')
     assert browser.is_element_present(error_alert)
     browser.capture_cropped_screenshot(fixture.new_screenshot_path('optimisticconcurrency.png'))
+
+
+@with_fixtures(WebFixture, ExampleFixture.chartplotly)
+def test_chartplotly(web_fixture, plotly_scenario):
+    fixture = plotly_scenario
+    browser = web_fixture.driver_browser
+
+    fixture.start_example_app()
+    browser.open('/')
+
+    assert browser.is_element_present(XPath.div().including_class('js-plotly-plot'))
+
+
+@with_fixtures(WebFixture, ExampleFixture.chartplotly2)
+def test_chartplotly2(web_fixture, plotly_scenario):
+    fixture = plotly_scenario
+    browser = web_fixture.driver_browser
+
+    fixture.start_example_app()
+    browser.open('/')
+
+    with browser.refresh_expected_for('#thechart-data', True):
+        select_input = XPath.select_labelled('factor')
+        browser.select(select_input, '2')
+
+
+@with_fixtures(WebFixture, ExampleFixture.paypal)
+def test_paypal(web_fixture, paypal_scenario):
+    fixture = paypal_scenario
+    browser = web_fixture.driver_browser
+
+    web_fixture.config.web.default_http_scheme = web_fixture.config.web.encrypted_http_scheme
+    web_fixture.config.web.default_http_port = web_fixture.config.web.encrypted_http_port
+    fixture.start_example_app()
+    browser.open('/')
+
+    browser.type(XPath.input_labelled('Item name'), 'an item')
+    browser.type(XPath.input_labelled('Quantity'), '2')
+    browser.type(XPath.input_labelled('Price'), '3')
+    browser.click(XPath.button_labelled('Pay'))
+
+    assert browser.is_element_present(XPath.div().including_class('reahl-paypalbuttonspanel'))
+    #check that paypal js addded their button to the containing div we provided
+    assert browser.get_xpath_count(XPath('//*').inside_of(XPath.div().including_class('reahl-paypalbuttonspanel'))) > 0
+
+
+@with_fixtures(WebFixture, ExampleFixture.dynamiccontenterrors)
+def test_dynamicerrors(web_fixture, dynamiccontenterrors_scenario):
+    fixture = dynamiccontenterrors_scenario
+    browser = web_fixture.driver_browser
+
+    fixture.start_example_app()
+    browser.open('/')
+
+    browser.select(XPath.select_named('dynamic_content_error_form-operator'), '÷');
+    error_alert = XPath.div().including_class('alert').including_text('I can\'t divide by 0')
+    assert not browser.is_element_present(error_alert)
+    browser.type(XPath.input_named('dynamic_content_error_form-operand_b'), '0')
+    assert browser.is_element_present(error_alert)
+    assert browser.is_element_present(XPath.span().including_text('---'))

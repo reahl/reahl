@@ -37,25 +37,33 @@ class DomainException(Exception):
                         when a DomainException is raised.
        :keyword message: Optional error message.
        :keyword detail_messages: A list of error messages giving more detail about the exception.
+       :keyword handled_inline: If False, indicates that this exception is not reported in the normal rendering of the page.
 
        .. versionchanged: 5.0
           Added `detail_messages` kwarg.
     """
-    def __init__(self, commit=False, message=None, detail_messages=[]):
+    def __init__(self, commit=False, message=None, detail_messages=[], handled_inline=True, json_string=None):
         super().__init__(message)
         self.commit = commit
         self.message = message
         self.detail_messages = detail_messages
+        self.handled_inline = handled_inline
+        self.json_string = json_string
     
     def __reduce__(self):
-        return (self.__class__, (self.commit, self.message, self.detail_messages))
-    
+        return (self.__class__, (self.commit, self.message, self.detail_messages, self.handled_inline, self.json_string))
+
     def as_user_message(self):
         # To ensure this module can be imported at a very low level
         from reahl.component.i18n import Catalogue
         _ = Catalogue('reahl-component')
         return self.message if self.message else _('An error occurred: %s' % self.__class__.__name__)
 
+    def as_json(self):
+        if self.json_string:
+            return self.json_string
+        else:
+            return '"%s"' % super().__str__()
 
 class AccessRestricted(Exception):
     """Raised to prevent the current user to perform some function which is not allowed."""

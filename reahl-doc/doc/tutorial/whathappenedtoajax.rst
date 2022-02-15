@@ -23,6 +23,7 @@ Changing content without refreshing (Ajax)
 
 .. note:: See also
 
+   - :doc:`../howto/dynamiccontenterrors`
    - :doc:`../howto/refreshingwidgets`
    - :doc:`../howto/paginglonglists`
    - :doc:`../howto/responsivedisclosure`

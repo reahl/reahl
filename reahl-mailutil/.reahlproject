@@ -16,6 +16,14 @@
     <egg name="reahl-stubble"/>
   </deps>
 
+  <version number="5.2">
+      <deps purpose="run">
+        <egg name="reahl-component" versionlocked="True"/>
+        <thirdpartyegg name="docutils" minversion="0.14" maxversion="0.16.999"/>
+        <thirdpartyegg name="Pygments" minversion="2.1.0" maxversion="2.6.999"/>
+      </deps>
+  </version>
+
   <version number="5.1">
       <deps purpose="run">
         <egg name="reahl-component" versionlocked="True"/>

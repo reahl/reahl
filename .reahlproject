@@ -68,6 +68,9 @@
 
   <excludepackage name="reahl.doc.*"/>
 
+  <version number="5.2">
+  </version>
+
   <version number="5.1">
   </version>
 
@@ -100,4 +103,3 @@
   </distpackage>
 
 </project>
-

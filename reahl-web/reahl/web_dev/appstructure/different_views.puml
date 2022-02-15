@@ -1,7 +1,7 @@
 ' Copyright 2016, 2018 Reahl Software Services (Pty) Ltd. All rights reserved.
 
 @startuml
-!include ../base.iuml
+!include ../../../../base.iuml
 
 title Different views
 

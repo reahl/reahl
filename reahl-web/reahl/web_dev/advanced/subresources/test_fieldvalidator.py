@@ -22,7 +22,7 @@ from reahl.web.fw import Url
 from reahl.web.ui import Form, TextInput
 from reahl.component.modelinterface import EmailField, exposed
 
-from reahl.browsertools.browsertools import Browser
+from reahl.browsertools.browsertools import Browser, XPath
 
 from reahl.web_dev.fixtures import WebFixture
 
@@ -86,7 +86,9 @@ def test_remote_field_validator_handles_GET(web_fixture, validation_scenarios):
     web_fixture.reahl_server.set_app(wsgi_app)
     browser = Browser(wsgi_app)
 
-    browser.open(str(fixture.url))
+    browser.open('/')
+    csrf_token_string = web_fixture.get_csrf_token_string(browser=browser)
+    browser.open(str(fixture.url), headers={'X-CSRF-TOKEN':csrf_token_string})
     response = browser.last_response
 
     assert response.unicode_body == fixture.expected_body 

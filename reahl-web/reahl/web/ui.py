@@ -16,8 +16,6 @@
 """
 Basic Widgets and related user interface elements.
 """
-
-
 import time
 from string import Template
 import copy
@@ -26,14 +24,14 @@ import html
 from collections import OrderedDict
 from collections.abc import Callable
 
-
 from reahl.component.exceptions import IsInstance
-from reahl.component.exceptions import ProgrammerError
+from reahl.component.exceptions import ProgrammerError, DomainException
 from reahl.component.exceptions import arg_checks
 from reahl.component.i18n import Catalogue
 from reahl.component.context import ExecutionContext
 from reahl.component.modelinterface import exposed, ValidationConstraintList, ValidationConstraint, ExpectedInputNotFound,\
     Field, Event, BooleanField, Choice, UploadedFile, InputParseException, StandaloneFieldIndex, MultiChoiceField, ChoiceField, Action
+from reahl.web.csrf import CSRFTokenField
 from reahl.web.fw import EventChannel, RemoteMethod, JsonResult, Widget, \
     ValidationException, WidgetResult, WidgetFactory, Url, ErrorWidget, Layout
 from reahl.mailutil.rst import RestructuredText
@@ -194,12 +192,13 @@ class AjaxMethod(RemoteMethod):
         for widget in self.view.page.contained_widgets():
             widget.accept_disambiguated_input(state)
 
-        self.widget.fire_on_refresh()
-
-        construction_state = {}
-        for widget in self.view.page.contained_widgets():
-            widget.update_construction_state(construction_state)
-        self.view.set_construction_state_from_state_dict(construction_state)
+        try:
+            self.widget.fire_on_refresh()
+        finally:
+            construction_state = {}
+            for widget in self.view.page.contained_widgets():
+                widget.update_construction_state(construction_state)
+            self.view.set_construction_state_from_state_dict(construction_state)
 
 
 # Uses: reahl/web/reahl.hashchange.js
@@ -306,8 +305,9 @@ class HTMLElement(Widget):
         self.add_hash_change_handler(for_fields if for_fields else self.query_fields.values())
         if on_refresh:
             self.on_refresh = on_refresh
-            on_refresh.fire(force=True)
+            self.fire_on_refresh()
 
+    @property
     def is_refresh_enabled(self):
         return self.ajax_handler is not None
 
@@ -393,7 +393,7 @@ class HTMLElement(Widget):
 
     @property
     def jquery_selector(self):
-        """Returns a string (including its " delimeters) which can be used to target this HTMLElement using
+        """Returns a string (including its " delimiters) which can be used to target this HTMLElement using
            JQuery. By default this uses the id attribute of the HTMLElement, but this property can be overridden to
            not be dependent on the id attribute of the HTMLElement.
 
@@ -403,7 +403,7 @@ class HTMLElement(Widget):
 
     def get_js(self, context=None):
         js = []
-        if self.is_refresh_enabled():
+        if self.is_refresh_enabled:
             js = ['$(%s).hashchange(%s);' % \
                   (self.contextualise_selector(self.jquery_selector, context),
                    self.ajax_handler.as_jquery_parameter())]
@@ -1031,8 +1031,6 @@ class ConcurrentChange(ValidationConstraint):
             raise self
 
 
-
-
 # Uses: reahl/web/reahl.form.js
 class Form(HTMLElement):
     """A Form is a container for Inputs. Any Input has to belong to a Form. When a user clicks on
@@ -1074,6 +1072,8 @@ class Form(HTMLElement):
                 attributes.set_to('value', digest)
 
         self.hash_inputs = self.add_child(Div(self.view, css_id='%s_hashes' % unique_name))
+        self._reahl_csrf_token = ExecutionContext.get_context().session.get_csrf_token()
+        self.hash_inputs.add_child(HiddenInput(self, self.fields._reahl_csrf_token, ignore_concurrent_change=True, ignore_persist_on_exception=True))
         self.database_digest_input = self.hash_inputs.add_child(HiddenInput(self, self.fields._reahl_database_concurrency_digest, ignore_concurrent_change=True))
         # the digest input will have a value when:
         #  (1) you're busy with an ajax call, after being internally redirected (because AjaxMethod.fire_ajax_event will have inputted the browser value); or
@@ -1104,6 +1104,7 @@ class Form(HTMLElement):
     @exposed
     def fields(self, fields):
         fields._reahl_database_concurrency_digest = Field().with_validation_constraint(ConcurrentChange(self))
+        fields._reahl_csrf_token = CSRFTokenField(self._reahl_csrf_token)
 
     @exposed
     def events(self, events):
@@ -1214,7 +1215,7 @@ class Form(HTMLElement):
 
     @property
     def exception(self):
-        """The :class:`reahl.component.exceptions.DomainException` which occurred, if any."""
+        """The :class:`reahl.component.exceptions.DomainException` which occurred during submission of the Form, if any."""
         return self.persisted_exception_class.get_exception_for_form(self)
 
     def persist_exception(self, exception):
@@ -1469,6 +1470,10 @@ class HTMLWidget(Widget):
         self.html_representation.query_fields.update(self.query_fields)
         self.html_representation.enable_refresh(*for_fields)
 
+    @property
+    def is_refresh_enabled(self):
+        return self.html_representation.is_refresh_enabled
+
     def set_html_representation(self, widget):
         self.html_representation = widget
 
@@ -1601,15 +1606,11 @@ class PrimitiveInput(Input):
     is_for_file = False
     is_contained = False
 
+    @arg_checks(form=IsInstance(Form), bound_field=IsInstance(Field))
     def __init__(self, form, bound_field, registers_with_form=True, refresh_widget=None, ignore_concurrent_change=False):
         super().__init__(form, bound_field.in_namespace(form.channel_name) if registers_with_form else bound_field)
 
         self.ignore_concurrent_change = ignore_concurrent_change
-
-        if refresh_widget:
-            if not refresh_widget.is_refresh_enabled:
-                raise ProgrammerError('%s is not set to refresh. You can only refresh widgets on which enable_refresh() was called.' % refresh_widget)
-        self.refresh_widget = refresh_widget
 
         self.registers_with_form = registers_with_form
         if self.registers_with_form:
@@ -1623,8 +1624,27 @@ class PrimitiveInput(Input):
         if not self.is_contained:
             self.add_to_attribute('class', ['reahl-primitiveinput'])
             self.add_input_data_attributes()
-        if self.refresh_widget:
-            self.set_attribute('data-refresh-widget-id', self.refresh_widget.css_id)
+
+        if refresh_widget:
+            self.set_refresh_widget(refresh_widget)
+        else:
+            self.refresh_widget = None
+
+    def set_refresh_widget(self, refresh_widget):
+        """
+        Instructs this |PrimitiveInput| to refresh the given widget when its value changes.
+
+        The `refresh_widget` has to have a css_id, and also needs to have refreshing enabled.
+
+        :param refresh_widget: An |HTMLWidget| or |HTMLElement|.
+
+        .. versionadded:: 5.2
+        """
+        if not refresh_widget.is_refresh_enabled:
+            raise ProgrammerError(
+                '%s is not set to refresh. You can only refresh widgets on which enable_refresh() was called.' % refresh_widget)
+        self.set_attribute('data-refresh-widget-id', refresh_widget.css_id)
+        self.refresh_widget = refresh_widget
 
     def make_html_control_css_id(self):
         return str(CssId.from_dirty_string('id-%s' % (self.name)))
@@ -1726,7 +1746,7 @@ class PrimitiveInput(Input):
     def prepare_input(self):
         field_data_store = ExecutionContext.get_context().global_field_values = getattr(ExecutionContext.get_context(), 'global_field_values', {})
         self.bound_field.activate_global_field_data_store(field_data_store)
-        
+
         construction_state = self.view.get_construction_state()
         if construction_state:
             self.bound_field.from_disambiguated_input(construction_state, ignore_validation=True, ignore_access=True)
@@ -2132,11 +2152,20 @@ class PasswordInput(PrimitiveInput):
 
 
 class HiddenInput(PrimitiveInput):
-    def __init__(self, form, bound_field, ignore_concurrent_change=False):
+    def __init__(self, form, bound_field, ignore_concurrent_change=False, ignore_persist_on_exception=False):
+        self.ignore_persist_on_exception = ignore_persist_on_exception
         super().__init__(form, bound_field, ignore_concurrent_change=ignore_concurrent_change)
 
     def create_html_widget(self):
         return HTMLInputElement(self, 'hidden')
+
+    def persist_input(self, input_values):
+        if not self.ignore_persist_on_exception:
+            super().persist_input(input_values)
+
+    def update_construction_state(self, disambiguated_input):
+        if not self.ignore_persist_on_exception:
+            super().update_construction_state(disambiguated_input)
 
 
 class CheckboxInput(PrimitiveInput):

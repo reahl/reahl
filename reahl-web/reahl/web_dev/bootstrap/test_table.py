@@ -212,6 +212,7 @@ def test_sorting(web_fixture, data_table_fixture):
     """By clicking on special links in the column header, the table is sorted according to that column - ascending or descending."""
 
     web_fixture.reahl_server.set_app(data_table_fixture.wsgi_app)
+    web_fixture.quit_browser() # To ensure that a previous one is not still running with cached javascript scripts
     browser = web_fixture.driver_browser
     browser.open('/')
 

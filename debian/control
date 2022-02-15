@@ -265,4 +265,14 @@ Description: An implementation of Reahl persisted classes using SqlAlchemy.
 
 
 
+Package: python-reahl-paypalsupport
+Architecture: all
+Depends: ${python:Depends}, ${reahl:Depends}
+Provides: ${python:Provides}
+Description: Support for payments via PayPal.
+ Reahl is a web application framework that allows a Python programmer to work in
+ terms of useful abstractions - using a single programming language.
+ .
+ This package contains add-on facilities using which you can process payments
+ via PayPal.
 

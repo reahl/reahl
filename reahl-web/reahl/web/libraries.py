@@ -38,6 +38,8 @@ creating a :class:`Library` and configure your site to use it.
 import itertools
 from collections import OrderedDict
 
+from reahl.component.context import ExecutionContext
+from reahl.component.exceptions import ProgrammerError
 from reahl.web.fw import PackagedFile, ConcatenatedFile
 
 
@@ -69,6 +71,14 @@ class LibraryIndex:
         self.libraries_by_name[library.name] = library
         return library
 
+    def get(self, library_class):
+        matching_libraries = [i for i in self.libraries_by_name.values() if isinstance(i, library_class)]
+        if not matching_libraries:
+            raise ProgrammerError('No library "%s" found in the config.web.frontend_libraries' % library_class)
+        elif len(matching_libraries) > 1:
+            raise ProgrammerError('More than "%s" found in the config.web.frontend_libraries' % library_class)
+        return matching_libraries[0]
+
     def __contains__(self, name):
         """An implementation of the `in` operator, so that one can ask whether a library with given name is in this index.
 
@@ -88,6 +98,8 @@ class LibraryIndex:
         for library in new_libraries:
             self.add(library)
 
+    def __str__(self):
+        return  '%s(%s)' % (self.__class__.__name__, ','.join(self.libraries_by_name.keys()))
 
 class Library:
     """A frontend-library: a collection of CSS and JavaScript code that can be used with Reahl.
@@ -103,6 +115,11 @@ class Library:
 
     :param name: A unique name for this Library.
     """
+    active = True
+    @classmethod
+    def get_instance(cls):
+        return ExecutionContext.get_context().config.web.frontend_libraries.get(cls)
+
     def __init__(self, name):
         self.name = name  #: The unique name of this Library
         self.egg_name = 'reahl-web'  #: The component (egg) that contains the files of this library
@@ -128,22 +145,28 @@ class Library:
             exposed_files.append(ConcatenatedFile('%s.css' % self.name, css_files_to_include))
         return exposed_files
 
-
     def files_of_type(self, extension):
         return [f for f in self.files if f.endswith(extension)]
 
     def header_only_material(self, rendered_page):
         result = ''
-        for file_name in self.files_of_type('.css'):
-            result += '\n<link rel="stylesheet" href="/static/%s" type="text/css">' % file_name
+        if self.active:
+            for file_name in self.files_of_type('.css'):
+                result += '\n<link rel="stylesheet" href="/static/%s" type="text/css">' % file_name
         return result
 
     def footer_only_material(self, rendered_page):
         result = ''
+        if self.active:
+            for file_name in self.files_of_type('.js'):
+                result += '\n<script type="text/javascript" src="/static/%s"></script>' % file_name
+        return result
+
+    def inline_material(self):
+        result = ''
         for file_name in self.files_of_type('.js'):
             result += '\n<script type="text/javascript" src="/static/%s"></script>' % file_name
         return result
-
 
     
 class JQuery(Library):
@@ -245,12 +268,14 @@ class Reahl(Library):
     def __init__(self):
         super().__init__('reahl')
         self.shipped_in_directory = 'reahl/web/static'
-        self.files = ['reahl.hashchange.js',
+        self.files = ['reahl.csrf.js',
+                      'reahl.hashchange.js',
                       'reahl.ajaxlink.js',
                       'reahl.primitiveinput.js',
                       'reahl.textinput.js',
                       'reahl.validate.js',
                       'reahl.form.js',
+                      'reahl.plotlychart.js',
                       'reahl.css',
                       'reahl.runningonbadge.css',
                       'runningon.png'
@@ -342,4 +367,17 @@ class JsCookie(Library):
         self.shipped_in_directory = 'reahl/web/static'
         self.files = [
             'js-cookie-2.2.1/js.cookie.js' #this is the UMD version
+        ]
+
+
+class PlotlyJS(Library):
+    """Version 2.2.0 of `plotly.js <https://github.com/plotly/plotly.js/>`_.
+    """
+    javascript_filename = 'plotly-2.2.0.min.js'
+    def __init__(self):
+        self.active = False
+        super().__init__('plotly.js')
+        self.shipped_in_directory = 'reahl/web/static'
+        self.files = [
+            self.javascript_filename
         ]

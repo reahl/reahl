@@ -1,14 +1,34 @@
+python-reahl (5.2.0) unstable; urgency=low
+
+ * Add Chart widget for plotly (#281).
+ * Add PayPal support (#328).
+ * Add JsonField and NumericField
+ * Implemented CSRF protection (#153).
+ * Changed to use rssmin and rcsmin instead of slimit and cssmin (#336).
+
+ -- Iwan Vosloo <iwan@reahl.org>  Thu, 27 Jan 2022 15:25:00 +0200
+
+
+python-reahl (5.1.1) unstable; urgency=low
+
+ * Removed duplicated migration.
+ * Added missing dependency reahl-doc -> reahl-dev.
+
+ -- Iwan Vosloo <iwan@reahl.org>  Thu, 17 June 2021 15:25:00 +0200
+
+
 python-reahl (5.1.0) unstable; urgency=low
 
  * Extracted reahl/webdev/tools to reahl-browsertools (#315).
  * Updated deployment examples (#306).
- * Added howtos for using SASS and multihomed (#316). 
+ * Added howtos for using SASS and multihomed (#316).
  * Updated javascript dependencies (#321).
  * Fixed migration bug (#319).
  * Fixed seuptools issue on Windows (#271).
  * Specify reahl serve ports from config (#305).
+ * Dropped support for Python 3.5.
 
- -- Iwan Vosloo <iwan@reahl.org>  Tue, 10 June 2021 14:25:00 +0200
+ -- Iwan Vosloo <iwan@reahl.org>  Thu, 17 June 2021 14:25:00 +0200
 
 
 python-reahl (5.0.1) unstable; urgency=low

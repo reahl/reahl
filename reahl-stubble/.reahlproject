@@ -13,6 +13,12 @@
     <thirdpartyegg name="pytest" minversion="3.0"/>
   </deps>
 
+  <version number="5.2">
+    <deps purpose="run">
+      <thirdpartyegg name="setuptools" minversion="32.3.1"/>
+    </deps>
+  </version>
+
   <version number="5.1">
     <deps purpose="run">
       <thirdpartyegg name="setuptools" minversion="32.3.1"/>

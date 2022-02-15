@@ -10,6 +10,7 @@ Web framework
    Low-level Widgets (reahl.web.ui) <ui>
    Generic layout tools (reahl.web.layout) <layout>
    Widgets and Layouts (bootstrap) -- what you'd use to build a user interface that looks like something (reahl.web.bootstrap) <bootstrap/index>
+   Plotly charts (reahl.web.plotly) <plotly>
    Holder -- on-the-fly placeholder images (reahl.web.holder) <holder>
 
    Including not-quite-static static content (reahl.web.dhtml) <dhtml>
@@ -18,4 +19,4 @@ Web framework
 
    Dealing with JavaScript and CSS code and external libraries (reahl.web.libraries) <libraries>
 
-
+   Support for making payments via PayPal (reahl.paypalsupport) <paypalsupport>

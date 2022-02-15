@@ -33,7 +33,7 @@ from contextlib import contextmanager
 from datetime import datetime
 import itertools
 
-import cssmin
+
 import functools
 import io
 import locale
@@ -41,13 +41,15 @@ import os
 import os.path
 import pkg_resources
 import re
-import slimit
 import tempfile
 import warnings
 from collections import OrderedDict
 from pkg_resources import Requirement
-
 import urllib.parse
+
+import rjsmin
+import rcssmin
+
 from webob import Request, Response
 from webob.exc import HTTPException
 from webob.exc import HTTPForbidden
@@ -71,6 +73,7 @@ from reahl.component.exceptions import arg_checks
 from reahl.component.i18n import Catalogue
 from reahl.component.modelinterface import StandaloneFieldIndex, FieldIndex, Field, Event, ValidationConstraint,\
                                              Allowed, exposed, Event, Action
+from reahl.web.csrf import InvalidCSRFToken, CSRFToken, ExpiredCSRFToken
 
 _ = Catalogue('reahl-web')
 
@@ -81,14 +84,6 @@ class ValidationException(DomainException):
     def for_failed_validations(cls, failed_validation_constraints):
         detail_messages = [i.message for i in failed_validation_constraints]
         return cls(message=_.ngettext('An error occurred', 'Some errors occurred', len(detail_messages)), detail_messages=detail_messages)
-
-    @exposed
-    def events(self, events):
-        events.refresh = Event(label=_('Refresh'), action=Action(self.clear_view_data))
-
-    def clear_view_data(self, form=None):
-        form.clear_all_saved_data()
-
 
 
 class NoMatchingFactoryFound(Exception):
@@ -1004,6 +999,7 @@ class Widget:
     def set_creating_factory(self, factory):
         self.created_by = factory
 
+    @property
     def is_refresh_enabled(self):
         return False
 
@@ -2054,9 +2050,14 @@ class HeaderContent(Widget):
         self.page = page
 
     def render(self):
-        config = ExecutionContext.get_context().config
-        return ''.join([library.header_only_material(self.page)
-                        for library in config.web.frontend_libraries])
+        context = ExecutionContext.get_context()
+        token_string = context.session.get_csrf_token().as_signed_string()
+        csrf_meta = '<meta name="csrf-token" content="%s">' % token_string
+        config = context.config
+        library_header_material = ''.join([library.header_only_material(self.page)
+                                           for library in config.web.frontend_libraries])
+        return csrf_meta+library_header_material
+
     
 
 
@@ -2067,7 +2068,7 @@ class FooterContent(Widget):
 
     def render(self):
         config = ExecutionContext.get_context().config
-        return ''.join([library.footer_only_material(self.page)
+        return super().render() + ''.join([library.footer_only_material(self.page)
                         for library in config.web.frontend_libraries])
 
 
@@ -2152,7 +2153,6 @@ class SubResource(Resource):
     @classmethod
     def get_url_for(cls, unique_name, **kwargs):
         sub_path = cls.get_path_template(unique_name) % kwargs
-        context = ExecutionContext.get_context()
         url = Url.get_current_url()
         view_path = url.path
         if SubResource.is_for_sub_resource(url.path):
@@ -2301,7 +2301,7 @@ class JsonResult(MethodResult):
     """
     redirects_internally = True
     def __init__(self, result_field, **kwargs):
-        super().__init__(mime_type='application/json', encoding='utf-8', replay_request=True, **kwargs)
+        super().__init__(mime_type='application/json', encoding='utf-8', **kwargs)
         self.fields = FieldIndex(self)
         self.fields.result = result_field
 
@@ -2310,7 +2310,10 @@ class JsonResult(MethodResult):
         return self.fields.result.as_input()
 
     def render_exception(self, exception):
-        return '"%s"' % str(exception)
+        if hasattr(exception, 'as_json'):
+            return exception.as_json()
+        else:
+            return '"%s"' % str(exception)
 
 
 class RegenerateMethodResult(InternalRedirect):
@@ -2345,7 +2348,8 @@ class WidgetResult(MethodResult):
         rendered_widgets = {widget.css_id: widget.render_contents() + widget.render_contents_js() 
                             for widget in widgets_to_render}
         success = exception is None
-        return json.dumps({ 'success': success, 'widgets': rendered_widgets })
+        report_exception = str(exception) if exception and not exception.handled_inline else ''
+        return json.dumps({ 'success': success, 'exception': report_exception, 'result': rendered_widgets })
 
     def get_coactive_widgets_recursively(self, widget):
         ancestral_widgets = []
@@ -2401,6 +2405,7 @@ class RemoteMethod(SubResource):
        :keyword method: The http method supported by this RemoteMethod is derived from whether it is idempotent or not. By default 
                         a RemoteMethod is accessible via http 'get' if it is idempotent, else by 'post'. This behaviour can be 
                         overridden by specifying an http method explicitly using the `method` keyword argument.
+       :keyword disable_csrf_check: Pass True to prevent this RemoteMethod from doing the usual CSRF check.
 
         .. versionchanged:: 5.0
            idempotent and immutable kwargs split up into two and better defined.
@@ -2408,11 +2413,14 @@ class RemoteMethod(SubResource):
         .. versionchanged:: 5.0
            method keyword argument added to explicitly state http method.
 
+        .. versionchanged:: 5.2
+           disable_csrf_check keyword argument added.
+
     """
     sub_regex = 'method'
     sub_path_template = 'method'
 
-    def __init__(self, view, name, callable_object, default_result, idempotent=False, immutable=False, method=None):
+    def __init__(self, view, name, callable_object, default_result, idempotent=False, immutable=False, method=None, disable_csrf_check=False):
         super().__init__(view, name)
         self.idempotent = idempotent or immutable
         self.immutable = immutable
@@ -2421,6 +2429,7 @@ class RemoteMethod(SubResource):
         self.caught_exception = None
         self.input_values = None
         self.method = method
+        self.disable_csrf_check = disable_csrf_check
 
     @property
     def should_commit(self):
@@ -2450,15 +2459,33 @@ class RemoteMethod(SubResource):
            completed successfully."""
 
     def call_with_input(self, input_values, catch_exception):
-        context = ExecutionContext.get_context()
+
         caught_exception = None
         return_value = None
         try:
+            if not self.disable_csrf_check:
+                self.check_csrf_header()
             return_value = self.callable_object(**self.parse_arguments(input_values))
         except catch_exception as ex:
             self.caught_exception = caught_exception = ex
             self.input_values = input_values
         return (return_value, caught_exception)
+
+    def check_csrf_header(self):
+        context = ExecutionContext.get_context()
+
+        try:
+            received_token_string = context.request.headers['X-CSRF-TOKEN']
+        except KeyError:
+            raise HTTPForbidden()
+        try:
+            received_token = CSRFToken.from_coded_string(received_token_string)
+        except InvalidCSRFToken as ex:
+            raise HTTPForbidden()
+        if received_token.is_expired():
+            raise ExpiredCSRFToken()
+        if not context.session.get_csrf_token().matches(received_token):
+            raise HTTPForbidden()
 
     def cleanup_after_transaction(self):
         super().cleanup_after_transaction()
@@ -2512,8 +2539,8 @@ class CheckedRemoteMethod(RemoteMethod):
        .. versionchanged:: 5.0
           Split immutable into immutable and idempotent kwargs.
     """
-    def __init__(self, view, name, callable_object, result, idempotent=False, immutable=False, **parameters):
-        super().__init__(view, name, callable_object, result, idempotent=idempotent, immutable=immutable)
+    def __init__(self, view, name, callable_object, result, idempotent=False, immutable=False, disable_csrf_check=False, **parameters):
+        super().__init__(view, name, callable_object, result, idempotent=idempotent, immutable=immutable, disable_csrf_check=disable_csrf_check)
         self.parameters = FieldIndex(self)
         for name, field in parameters.items():
             self.parameters.set(name, field)
@@ -2536,7 +2563,7 @@ class EventChannel(RemoteMethod):
        Programmers should not need to work with an EventChannel directly.
     """
     def __init__(self, form, controller, name):
-        super().__init__(form.view, name, self.delegate_event, None, idempotent=False, immutable=False)
+        super().__init__(form.view, name, self.delegate_event, None, idempotent=False, immutable=False, disable_csrf_check=True)
         self.controller = controller
         self.form = form
 
@@ -2686,33 +2713,19 @@ class ConcatenatedFile(FileOnDisk):
                     output_stream.write(line)
         
         class JSMinifier:
-            def monkey_patch_ply(self):
-                # Current version of ply (used by slimit) has a bug in Py3
-                # See https://github.com/rspivak/slimit/issues/64
-                from ply import yacc
-
-                def __getitem__(self,n):
-                    if isinstance(n, slice):
-                        return self.__getslice__(n.start, n.stop)
-                    if n >= 0: return self.slice[n].value
-                    else: return self.stack[n].value
-
-                yacc.YaccProduction.__getitem__ = __getitem__
-                
             def minify(self, input_stream, output_stream):
-                self.monkey_patch_ply()
-
                 text = io.StringIO()
                 for line in input_stream:
                     text.write(line)
-                output_stream.write(slimit.minify(text.getvalue(), mangle=True, mangle_toplevel=True))
+
+                output_stream.write(rjsmin.jsmin(text.getvalue()))
 
         class CSSMinifier:
             def minify(self, input_stream, output_stream):
                 text = io.StringIO()
                 for line in input_stream:
                     text.write(line)
-                output_stream.write(cssmin.cssmin(text.getvalue()))
+                output_stream.write(rcssmin.cssmin(text.getvalue()))
 
         context = ExecutionContext.get_context()
         if context.config.reahlsystem.debug:
@@ -2794,8 +2807,8 @@ class FileDownload(Response):
         self.content_length = str(self.file.size) if (self.file.size is not None) else None
         self.last_modified = datetime.fromtimestamp(self.file.mtime)
         self.etag = ('%s-%s-%s' % (self.file.mtime,
-                                                         self.file.size, 
-                                                         abs(hash(self.file.name))))
+                                   self.file.size,
+                                   abs(hash(self.file.name))))
 
     def __iter__(self):
         return self.app_iter_range(start=0)
@@ -3054,8 +3067,10 @@ class ReahlWSGIApplication:
                             resource = self.resource_for(request)
                             response = resource.handle_request(request) 
                             veto.should_commit = resource.should_commit
+                            if not veto.should_commit:
+                                context.config.web.session_class.preserve_session(context.session)
                     if not veto.should_commit:
-                        context.config.web.session_class.initialise_web_session_on(context) # Because the rollback above nuked it
+                        context.config.web.session_class.restore_session(context.session) # Because the rollback above nuked it
                     if resource:
                         resource.cleanup_after_transaction()
                         
@@ -3073,6 +3088,7 @@ class ReahlWSGIApplication:
                     if self.config.reahlsystem.debug:
                         raise e
                     else:
+                        logging.getLogger(__name__).exception(e)
                         response = UncaughtError(resource.view, resource.view.user_interface.root_ui, resource.view.user_interface, e)
 
                 context.session.set_session_key(response)

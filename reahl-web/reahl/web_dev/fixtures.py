@@ -15,14 +15,15 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
-import http.cookies 
+import http.cookies
+import contextlib
 
 from webob import Request, Response
 
 from reahl.stubble import stubclass
 from reahl.tofu import Fixture, set_up, uses
 
-from reahl.browsertools.browsertools import DriverBrowser
+from reahl.browsertools.browsertools import DriverBrowser, XPath
 from reahl.webdeclarative.webdeclarative import UserSession, PersistedException, PersistedFile, UserInput
 
 from reahl.domain.systemaccountmodel import LoginSession
@@ -36,7 +37,6 @@ from reahl.web.egg import WebConfig
 
 from reahl.dev.fixtures import ReahlSystemFixture
 from reahl.webdev.fixtures import WebServerFixture
-from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
 from reahl.domain_dev.fixtures import PartyAccountFixture
 
 
@@ -133,18 +133,26 @@ class WebFixture(Fixture):
             request.host = 'localhost:8363'
         return Request(request.environ, charset='utf8')
 
+    def get_csrf_token_string(self, browser=None):
+        browser = browser or self.driver_browser
+        [csrf_token] = browser.xpath(XPath('//meta[@name="csrf-token"]/@content'))
+        return str(csrf_token)
+
     def log_in(self, browser=None, session=None, system_account=None, stay_logged_in=False):
         """Logs the user into the current webapp without having to navigate to a login page."""
         session = session or self.party_account_fixture.session
         browser = browser or self.driver_browser
         login_session = LoginSession.for_session(session)
         login_session.set_as_logged_in(system_account or self.party_account_fixture.system_account, stay_logged_in)
+        self.set_session_cookies(browser, session)
+
+    def set_session_cookies(self, browser, session):
         # quickly create a response so the fw sets the cookies, which we copy and explicitly set on selenium.
         response = Response()
         session.set_session_key(response)
         cookies = http.cookies.BaseCookie(', '.join(response.headers.getall('set-cookie')))
         for name, morsel in cookies.items():
-            cookie = {'name':name, 'value':morsel.value}
+            cookie = {'name': name, 'value': morsel.value}
             cookie.update(dict([(key, value) for key, value in morsel.items() if value]))
             browser.create_cookie(cookie)
 
@@ -152,6 +160,11 @@ class WebFixture(Fixture):
         """A :class:`DriverBrowser` instance for controlling the browser."""
         driver = driver or self.web_driver
         return DriverBrowser(driver)
+
+    def quit_browser(self):
+        self.web_server_fixture.quit_drivers()
+        if hasattr(self, 'driver_browser'):
+            delattr(self, 'driver_browser')
 
     @property
     def chrome_driver(self):
