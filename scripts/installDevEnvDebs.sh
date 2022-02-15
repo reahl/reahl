@@ -13,7 +13,16 @@ wget https://xpra.org/gpg.asc -O- | apt-key add
 wget https://xpra.org/repos/focal/xpra.list -O - > /etc/apt/sources.list.d/xpra.list
 
 apt-get update --allow-releaseinfo-change-origin
-apt list
+
+#in github actions env this seems to be preinstalled: https://github.com/actions/virtual-environments/pull/4674
+#and causes the script to break when installing mysql-client with apt.
+dpkg-query --show  "mysql-client"
+if [ "$?" = "0" ];
+then
+    echo "mysql-client already installed, not trying to install with apt" found
+    MYSQL="default-libmysqlclient-dev"
+fi
+
 apt-get install --no-install-recommends -y $DEV_ENV $MYSQL $POSTGRES $SQLITE
 apt-get clean
 rm -rf /var/cache/apt/*
