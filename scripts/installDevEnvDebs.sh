@@ -13,6 +13,7 @@ wget https://xpra.org/gpg.asc -O- | apt-key add
 wget https://xpra.org/repos/focal/xpra.list -O - > /etc/apt/sources.list.d/xpra.list
 
 apt-get update --allow-releaseinfo-change-origin
+apt list
 apt-get install --no-install-recommends -y $DEV_ENV $MYSQL $POSTGRES $SQLITE
 apt-get clean
 rm -rf /var/cache/apt/*
