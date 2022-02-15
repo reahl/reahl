@@ -18,7 +18,7 @@
 
 
 
-pytest_plugins = '_pytest.pytester'
+pytest_plugins = 'pytest.pytester'
 
 
 def test_use_with_pytest(testdir):
