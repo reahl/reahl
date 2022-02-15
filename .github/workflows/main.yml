@@ -88,12 +88,36 @@ jobs:
           sudo ./scripts/installDevEnvDebs.sh
           ./scripts/setupDevEnv.sh
 
+      # Version checks of these things are useful for debugging
+      - name: Version of GIT
+        run: git --version
+    
+      - name: Version of Firefox
+        run: firefox --version
+
+      - name: Which FireFox
+        run: which firefox
+
+      - name: Version of GeckoDriver
+        run: geckodriver --version
+
+      - name: Which GeckoDriver
+        run: which geckodriver
+
+      - name: Version of GPG
+        run: gpg --version
+
+      - name: Show PATH
+        run: echo $PATH
+
+
+
       - name: Install reahl-dev
         run: pip install --pre reahl[declarative,postgresql,dev]
 
-      - name: Select all projects
+      - name: Refresh projects
         run: . $HOME/.profile && reahl refresh
-      - name: Check something 2
+      - name: Select All projects
         run: . $HOME/.profile && reahl select -a
 
       - name: Create db user for Tests
