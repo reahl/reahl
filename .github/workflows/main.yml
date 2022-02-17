@@ -36,8 +36,8 @@ jobs:
   test:
     needs: build
     runs-on:  ubuntu-20.04
-    env:
-      DEPLOY_WHEN_PYTHON_VERSION: 3.10
+#    env:
+#      DEPLOY_WHEN_PYTHON_VERSION: 3.10
     strategy:
       matrix:
         python-version: [ '3.5', '3.9', '3.10']
@@ -129,7 +129,7 @@ jobs:
 
 
         #TODO: TRAVIS_SECURE_ENV_VARS needs to be set and setupTestGPGKeys called to setup builds(run reahl build?) (was called in  setupDevEnv.sh)
-      - name: Publish
-        if: github.event_name == 'create'  && startsWith(github.ref, 'refs/tags/') && ${{ matrix.python-version }} == ${{ DEPLOY_WHEN_PYTHON_VERSION }}
-        run: |
-          . $HOME/.profile && ./travis/configurePypi.sh && reahl upload -rusdX
+#      - name: Publish
+#        if: github.event_name == 'create'  && startsWith(github.ref, 'refs/tags/') && ${{ matrix.python-version }} == ${{ DEPLOY_WHEN_PYTHON_VERSION }}
+#        run: |
+#          . $HOME/.profile && ./travis/configurePypi.sh && reahl upload -rusdX
