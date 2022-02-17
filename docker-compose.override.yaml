@@ -1,4 +1,4 @@
-version: "3.7"
+version: "3.9"
 services:
   reahl:
     volumes:
@@ -17,11 +17,34 @@ services:
         POSTGRES_PASSWORD: reahl
         POSTGRES_USER: developer
     
-#  mysql:
-#    container_name: mysql
-#    image: mysql:5.7
-#    command: --default-authentication-plugin=mysql_native_password
-#    restart: always
-#    environment:
-#      MYSQL_ROOT_PASSWORD: reahl
+  mysql:
+    container_name: mysql
+    image: mysql:5.7
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    profiles:
+      - dontstart
+    environment:
+      MYSQL_ROOT_PASSWORD: reahl
+
+  # BUILDKIT_PROGRESS=plain COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose build travis-cli
+  # docker-compose run --rm travis-cli status
+  # docker-compose run --rm travis-cli login --com -g $(cat ~/.ssh/github-token)
+  # docker-compose run --rm travis-cli encrypt-file --com -r reahl/reahl -p /travis/thefile 
+  travis-cli:
+    container_name: travis-cli
+    image: travis-cli:latest
+    restart: never
+    profiles:
+      - dontstart
+    volumes:
+      - type: bind
+        source: /tmp
+        target: /travis
+      - type: bind
+        source: ~/.travis
+        target: /home/developer/.travis
+    build:
+      context: .
+      dockerfile: Dockerfile.travis-cli
     
