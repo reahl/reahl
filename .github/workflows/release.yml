@@ -1,0 +1,49 @@
+name: Release
+
+on:
+  release:
+    types:
+      [created]
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  call_build:
+    uses: ./.github/workflows/build.yml
+
+  deploy:
+    needs: call_build
+    environment: release-builds
+    runs-on:  ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
+
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip
+
+      - name: Download wheels
+        uses: actions/download-artifact@v2
+        with:
+          name: wheels
+          path: ~/.reahlworkspace/dist-egg
+
+      - name: Setup Test env
+        run: |
+          sudo ./scripts/installDebs.sh
+          sudo ./scripts/installDevEnvDebs.sh
+          ./scripts/setupDevEnv.sh
+
+      - name: Install reahl
+        run: pip install --pre reahl-dev reahl-commands #uses wheels as specified in $HOME/.pip/pip.conf
+
+      - name: Select all reahl projects
+        run: . $HOME/.profile && reahl refresh && reahl select -a
+
+      - name: Sign all wheels
+        run: . $HOME/.profile && reahl sign -sdX
+
+      - name: Publish
+        run: |
+          . $HOME/.profile && ./travis/configurePypi.sh && reahl upload -rusdX
