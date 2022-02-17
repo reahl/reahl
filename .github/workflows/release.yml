@@ -5,14 +5,15 @@ on:
     types:
       [created]
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+  workflow_dispatch:
+
 jobs:
   call_build:
     uses: ./.github/workflows/build.yml
 
   deploy:
     needs: call_build
-    environment: release-builds
+    #environment: release-builds
     runs-on:  ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
@@ -46,4 +47,6 @@ jobs:
 
       - name: Publish
         run: |
-          . $HOME/.profile && ./travis/configurePypi.sh && reahl upload -rusdX
+          . $HOME/.profile && ./travis/configurePypi.sh && reahl list -s
+
+#      . $HOME/.profile && ./travis/configurePypi.sh && reahl upload -rusdX
