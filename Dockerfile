@@ -38,7 +38,7 @@ RUN /etc/init.d/ssh start && \
 
 USER $REAHL_USER
 RUN mkdir -p $REAHLWORKSPACE/.reahlworkspace/dist-egg
-RUN bash -l -c "cd $REAHL_SCRIPTS && $VENV/bin/python scripts/bootstrap.py --script-dependencies && python scripts/bootstrap.py --pip-installs; reahl build -sdX; cd reahl-doc/doc; make html"
+RUN bash -l -c "cd $REAHL_SCRIPTS && $VENV/bin/python scripts/bootstrap.py --script-dependencies && python scripts/bootstrap.py --pip-installs; reahl build -sdX; find $HOME/.gnupg/ -type f -exec shred -f {} \; ; cd reahl-doc/doc; make html"
 
 
     

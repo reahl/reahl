@@ -16,7 +16,11 @@ apt-get update --allow-releaseinfo-change-origin
 
 #in github actions env this seems to be preinstalled: https://github.com/actions/virtual-environments/pull/4674
 #and causes the script to break when installing mysql-client with apt.
-MYSQL="default-libmysqlclient-dev"
+if dpkg-query --show  "mysql-client"
+then
+  MYSQL="default-libmysqlclient-dev"
+fi
+
 
 apt-get install --no-install-recommends -y $DEV_ENV $MYSQL $POSTGRES $SQLITE
 apt-get clean

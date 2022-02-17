@@ -24,7 +24,7 @@ jobs:
         run: docker build --target build-image -t reahl-dev:latest -f Dockerfile .
 
       - name: Extract built wheels
-        run: docker cp $(docker create --rm reahl-dev:latest):/home/developer/.reahlworkspace/dist-egg/ /tmp/wheels
+        run: docker cp $(docker create reahl-dev:latest):/home/developer/.reahlworkspace/dist-egg/ /tmp/wheels
 
       - name: Upload built wheels to cache
         uses: actions/upload-artifact@v2
@@ -36,9 +36,11 @@ jobs:
   test:
     needs: build
     runs-on:  ubuntu-20.04
+    env:
+      DEPLOY_WHEN_PYTHON_VERSION: 3.10
     strategy:
       matrix:
-        python-version: [  '3.5', '3.9', '3.10']
+        python-version: [ '3.5', '3.9', '3.10']
     services:
       postgres:
         image: postgres:12.3
@@ -86,7 +88,8 @@ jobs:
           sudo apt-get install tox
           sudo ./scripts/installDebs.sh
           sudo ./scripts/installDevEnvDebs.sh
-          ./scripts/setupDevEnv.sh
+          ./scripts/setupDevEnv.sh 
+          find $HOME/.gnupg/ -type f -exec shred -f {} \;
 
       # Version checks of these things are useful for debugging
       - name: Version of GIT
@@ -113,14 +116,20 @@ jobs:
 
 
       - name: Install reahl-dev
-        run: pip install --pre reahl[declarative,postgresql,dev]
+        run: pip install --pre reahl-dev reahl-commands reahl-postgresqlsupport #uses wheels as specified in $HOME/.pip/pip.conf
 
-      - name: Refresh projects
-        run: . $HOME/.profile && reahl refresh
-      - name: Select All projects
-        run: . $HOME/.profile && reahl select -a
+      - name: Select all reahl projects
+        run: . $HOME/.profile && reahl refresh && reahl select -a
 
       - name: Create db user for Tests
         run: . $HOME/.profile && reahl createdbuser -U runner reahl-web/etc
       - name: Run Tests
-        run: . $HOME/.profile && reahl shell -sdXg tox && (EXITCODE=$?; find $HOME/.gnupg/ -type f -exec shred -f {} \;; exit $EXITCODE)
+        run: . $HOME/.profile && reahl shell -sdXg tox
+
+
+
+        #TODO: TRAVIS_SECURE_ENV_VARS needs to be set and setupTestGPGKeys called to setup builds(run reahl build?) (was called in  setupDevEnv.sh)
+      - name: Publish
+        if: github.event_name == 'create'  && startsWith(github.ref, 'refs/tags/') && ${{ matrix.python-version }} == ${{ DEPLOY_WHEN_PYTHON_VERSION }}
+        run: |
+          . $HOME/.profile && ./travis/configurePypi.sh && reahl upload -rusdX
