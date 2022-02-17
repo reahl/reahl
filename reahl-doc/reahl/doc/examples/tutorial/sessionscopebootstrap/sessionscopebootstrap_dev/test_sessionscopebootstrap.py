@@ -1,3 +1,4 @@
+import threading
 
 from reahl.tofu import Fixture
 from reahl.tofu.pytestsupport import with_fixtures
@@ -67,6 +68,17 @@ def test_email_retained(web_fixture, session_scope_fixture):
 
     # .. then the email is still pre-populated
     typed_value = browser.get_value(XPath.input_labelled('Email'))
+
+    import time
+    time_out = 0.01
+    while typed_value != 'johndoe@some.org' and time_out < 1.0:
+        print('Flipper(%s) - XPath %s' % (time_out, XPath.input_labelled('Email')))
+        print('Flipper(%s) - Source \n%s' % (time_out, browser.view_source()))
+        print('Flipper(%s) - Sleeping' % timeout)
+        time.sleep(timeout)
+        typed_value = browser.get_value(XPath.input_labelled('Email'))
+        time_out *= 2.0
+
     assert typed_value == 'johndoe@some.org'
     
 
