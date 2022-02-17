@@ -21,6 +21,7 @@ Select = reahl.dev.devshell:Select
 ServeSMTP = reahl.dev.mailtest:ServeSMTP
 Setup = reahl.dev.devshell:Setup
 Shell = reahl.dev.devshell:Shell
+Sign = reahl.dev.devshell:Sign
 SubstVars = reahl.dev.devshell:SubstVars
 UpdateAptRepository = reahl.dev.devshell:UpdateAptRepository
 UpdateCopyright = reahl.dev.devshell:UpdateCopyright

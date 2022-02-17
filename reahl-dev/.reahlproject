@@ -25,6 +25,7 @@
   <export entrypoint="reahl.component.commands" name="Shell" locator="reahl.dev.devshell:Shell"/>
   <export entrypoint="reahl.component.commands" name="Setup" locator="reahl.dev.devshell:Setup"/>
   <export entrypoint="reahl.component.commands" name="Build" locator="reahl.dev.devshell:Build"/>
+  <export entrypoint="reahl.component.commands" name="Sign" locator="reahl.dev.devshell:Sign"/>
   <export entrypoint="reahl.component.commands" name="ListMissingDependencies" locator="reahl.dev.devshell:ListMissingDependencies"/>
   <export entrypoint="reahl.component.commands" name="DebInstall" locator="reahl.dev.devshell:DebInstall"/>
   <export entrypoint="reahl.component.commands" name="Upload" locator="reahl.dev.devshell:Upload"/>

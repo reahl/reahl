@@ -45,7 +45,7 @@ from reahl.dev.exceptions import NoException, StatusException, AlreadyUploadedEx
     InvalidProjectFileException, NotUploadedException, NotVersionedException, NotCheckedInException, \
     MetaInformationNotAvailableException, AlreadyDebianisedException, \
     MetaInformationNotReadableException, UnchangedException, NeedsNewVersionException, \
-    NotBuiltAfterLastCommitException, NotBuiltException
+    NotBuiltAfterLastCommitException, NotBuiltException, NotSignedException
 
 class ProjectNotFound(Exception):
     pass
@@ -142,11 +142,18 @@ class PythonSourcePackage(DistributionPackage):
             build_directory = os.path.join(self.project.workspace.build_directory, self.project.project_name)
             self.project.setup(['build', '-b', build_directory, 'sdist', '--dist-dir', self.project.distribution_egg_repository.root_directory])
             if sign:
-                self.project.distribution_egg_repository.sign_files_for(self)
+                self.sign()
+
+    def sign(self):
+        self.project.distribution_egg_repository.sign_files_for(self)
 
     @property
     def is_built(self):
         return self.project.distribution_egg_repository.is_uploaded(self)
+
+    @property
+    def is_signed(self):
+        return self.project.distribution_egg_repository.is_signed(self)
 
     @property
     def package_files(self):
@@ -193,12 +200,18 @@ class PythonWheelPackage(DistributionPackage):
             build_directory = os.path.join(self.project.workspace.build_directory, self.project.project_name)
             self.project.setup(['build', '-b', build_directory, 'bdist_wheel', '--dist-dir', self.project.distribution_egg_repository.root_directory])
             if sign:
-                self.project.distribution_egg_repository.sign_files_for(self)
+                self.sign()
 
+    def sign(self):
+        self.project.distribution_egg_repository.sign_files_for(self)
 
     @property
     def is_built(self):
         return self.project.distribution_egg_repository.is_uploaded(self)
+
+    @property
+    def is_signed(self):
+        return self.project.distribution_egg_repository.is_signed(self)
 
     @property
     def package_files(self):
@@ -298,6 +311,9 @@ class DebianPackage(DistributionPackage):
         self.project.workspace.update_apt_repository_index(sign=sign)
         return 0
 
+    def sign(self):
+        assert None, 'Signing deb packages after building is not supported'
+    
     @property
     def package_files(self):
         return [self.deb_filename(self.project), self.targz_filename, self.changes_filename, self.dsc_filename]
@@ -470,6 +486,23 @@ class LocalRepository:
     def uploaded_files_for(self, package):
         return [os.path.join(self.root_directory, filename)
                 for filename in package.package_files]
+
+    def is_signed(self, package):
+        result = True
+        signature_file = os.path.join(self.root_directory, package.sign_filename)
+        files_to_sign = [os.path.join(self.root_directory, filename) for filename in package.filenames_to_sign]
+
+        if not all([os.path.exists(filename) for filename in files_to_sign+[signature_file]]):
+            return False
+
+        try:
+            process = Executable('gpg').run(['--batch', '--verify',  signature_file]+files_to_sign, check=True, capture_output=True, cwd=self.root_directory)
+        except subprocess.CalledProcessError as ex:
+            if ex.returncode == 1:
+                return False
+            raise
+
+        return 'Good signature' in process.stderr.decode('utf-8')
 
     def sign_files_for(self, package):
         sign_file = os.path.join(self.root_directory, package.sign_filename)
@@ -1525,6 +1558,8 @@ class Project:
 
         if not self.is_built():
             raise NotBuiltException()
+        if not self.is_signed():
+            raise NotSignedException()
         elif not self.latest_build_is_up_to_date_with_source():
             raise NotBuiltAfterLastCommitException()
 
@@ -1563,12 +1598,23 @@ class Project:
         for i in self.packages_to_distribute:
             i.build(sign=sign)
 
+    def sign(self):
+        assert self.packages_to_distribute, 'For %s: No <package>... listed in .reahlproject, nothing to do.' % self.project_name
+        for i in self.packages_to_distribute:
+            i.sign()
+            
     def is_built(self):
         is_built = True
         for i in self.packages_to_distribute:
             is_built &= i.is_built
         return is_built
 
+    def is_signed(self):
+        is_signed = True
+        for i in self.packages_to_distribute:
+            is_signed &= i.is_signed
+        return is_signed
+    
     def upload(self, knocks=[], ignore_release_checks=False, ignore_upload_check=False):
         try:
            self.do_release_checks()
