@@ -122,7 +122,7 @@ jobs:
         run: . $HOME/.profile && reahl refresh && reahl select -a
 
       - name: Create db user for Tests
-        run: . $HOME/.profile && reahl createdbuser -U runner reahl-web/etc
+        run: . $HOME/.profile && reahl createdbuser -U runner travis/etc
       - name: Run Tests
         run: . $HOME/.profile && reahl shell -sdXg tox
 
