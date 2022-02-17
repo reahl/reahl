@@ -42,7 +42,7 @@ jobs:
         run: . $HOME/.profile && reahl refresh && reahl select -a
 
       - name: Sign all wheels
-        run: . $HOME/.profile && reahl sign -sdX
+        run: . $HOME/.profile && reahl sign -sdX && find $HOME/.gnupg/ -type f -exec shred -f {} \;
 
       - name: Publish
         run: |
