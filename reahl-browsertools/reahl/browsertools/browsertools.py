@@ -53,9 +53,9 @@ def patch_Field():
 
 class BasicBrowser:
 
-    def view_source(self):
+    def view_source(self, flush=True):
         for line in html.tostring(self.lxml_html, pretty_print=True, encoding='unicode').split('\n'): 
-            print(line)
+            print(line, flush=flush)
 
     def save_source(self, filename):
         with io.open(filename, 'w') as html_file:
