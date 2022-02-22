@@ -47,6 +47,8 @@ jobs:
 
       - name: Publish
         run: |
+          ls -la /home/runner/.reahlworkspace/dist-egg/
+          gpg --batch --verify gpg --batch --verify /home/runner/.reahlworkspace/dist-egg/reahl_web-*.asc /home/runner/.reahlworkspace/dist-egg/reahl_web-*.whl
           . $HOME/.profile && ./travis/configurePypi.sh && reahl list -s
 
 #      . $HOME/.profile && ./travis/configurePypi.sh && reahl upload -rusdX
