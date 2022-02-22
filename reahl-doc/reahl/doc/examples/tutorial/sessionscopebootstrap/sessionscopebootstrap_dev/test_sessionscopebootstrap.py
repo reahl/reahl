@@ -75,7 +75,6 @@ def test_email_retained(web_fixture, session_scope_fixture):
     while typed_value != 'johndoe@some.org' and time_out < 1.0:
 
         print('Flipper(%s) - XPath %s' % (time_out, XPath.input_labelled('Email')), flush=True)
-        print('Flipper(%s) - XPath %s' % (time_out, XPath.input_labelled('Email')), flush=True)
         print('Flipper(%s) - Source' % (time_out), flush=True)
         browser.view_source(flush=True)
         print('Flipper(%s) - last_response %s' % (time_out, id(browser.last_response)), flush=True)
@@ -91,7 +90,7 @@ def test_email_retained(web_fixture, session_scope_fixture):
 
         print('Flipper(%s) - Sleeping' % time_out, flush=True)
         time.sleep(time_out)
-        typed_value = browser.get_value(XPath.input_labelled('Email'), flush=True)
+        typed_value = browser.get_value(XPath.input_labelled('Email'))
         time_out *= 2.0
     # ==END Section to catch Flipper
 
