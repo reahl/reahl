@@ -27,7 +27,7 @@ jobs:
     runs-on:  ubuntu-20.04
     strategy:
       matrix:
-        python-version: [ '3.5', '3.9', '3.10']
+        python-version: [ '3.5', '3.6', '3.7', '3.8', '3.9', '3.10']
     services:
       postgres:
         image: postgres:12.3
@@ -110,6 +110,6 @@ jobs:
 
       - name: Create db user for Tests
         run: . $HOME/.profile && reahl createdbuser -U runner travis/etc
-#      - name: Run Tests
-#        run: . $HOME/.profile && reahl shell -sdXg tox
+      - name: Run Tests
+        run: . $HOME/.profile && reahl shell -sdXg tox
 

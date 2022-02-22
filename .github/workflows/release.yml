@@ -13,7 +13,7 @@ jobs:
 
   deploy:
     needs: call_build
-    #environment: release-builds
+    environment: release-builds
     runs-on:  ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
@@ -32,13 +32,9 @@ jobs:
 
       - name: Setup Test env
         run: |
-          if [ -f /home/runner/.gnupg/gpg.conf ]; then cat /home/runner/.gnupg/gpg.conf; else echo 'GPG file not found 1'; fi 
           sudo ./scripts/installDebs.sh
           sudo ./scripts/installDevEnvDebs.sh
           ./scripts/setupDevEnv.sh
-          echo "Showing GPG file"
-          if [ -f /home/runner/.gnupg/gpg.conf ]; then cat /home/runner/.gnupg/gpg.conf; else echo 'GPG file not found 2'; fi
-          echo "DONE Showing GPG file"
 
       - name: Install reahl
         run: pip install --pre reahl-dev reahl-commands #uses wheels as specified in $HOME/.pip/pip.conf
@@ -52,10 +48,4 @@ jobs:
       - name: Publish
         run: |
           ls -la /home/runner/.reahlworkspace/dist-egg/
-          echo "Showing GPG file"
-          if [ -f /home/runner/.gnupg/gpg.conf ]; then cat /home/runner/.gnupg/gpg.conf; else echo 'GPG file not found 3'; fi
-          echo "DONE Showing GPG file"
-          gpg --batch --verify /home/runner/.reahlworkspace/dist-egg/reahl_web-*.asc /home/runner/.reahlworkspace/dist-egg/reahl_web-*.whl
-          . $HOME/.profile && ./travis/configurePypi.sh 
-
-#      . $HOME/.profile && ./travis/configurePypi.sh && reahl upload -rusdX
+          . $HOME/.profile && ./travis/configurePypi.sh && reahl upload -rusdX
