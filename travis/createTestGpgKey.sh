@@ -1,7 +1,7 @@
 #!/bin/bash -ev
 
 function cleanup_keyfiles {
-  find /tmp/ -maxdepth 1 -name keys* -type f -exec shred -f {} \;
+  find /tmp/ -maxdepth 1 -name keys* -type f -exec shred -fu {} \;
 }
 trap cleanup_keyfiles EXIT
 

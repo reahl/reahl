@@ -61,6 +61,8 @@ def test_email_retained(web_fixture, session_scope_fixture):
     browser.type(XPath.input_labelled('Email'), 'johndoe@some.org')
     browser.type(XPath.input_labelled('Password'), 'topsecret')
     browser.click(XPath.button_labelled('Log in'))
+    print("View sources after login:", flush=True)
+    browser.view_source(flush=True)
 
     # Go away from the page, then back
     browser.click(XPath.link().with_text('Home'))
