@@ -61,42 +61,19 @@ def test_email_retained(web_fixture, session_scope_fixture):
     browser.type(XPath.input_labelled('Email'), 'johndoe@some.org')
     browser.type(XPath.input_labelled('Password'), 'topsecret')
     browser.click(XPath.button_labelled('Log in'))
-    print("View sources after login:", flush=True)
+    print("Login source is here:", flush=True)
     browser.view_source(flush=True)
+    typed_value = browser.get_value(XPath.input_labelled('Email'))
+    assert typed_value == 'johndoe@some.org'
 
     # Go away from the page, then back
     browser.click(XPath.link().with_text('Home'))
+    print("Home source is here:", flush=True)
+    browser.view_source(flush=True)
     browser.click(XPath.link().with_text('Log in'))
 
     # .. then the email is still pre-populated
     typed_value = browser.get_value(XPath.input_labelled('Email'))
-
-    # ==BEGIN Section to catch Flipper
-    import time
-    time_out = 0.01
-    while typed_value != 'johndoe@some.org' and time_out < 1.0:
-
-        print('Flipper(%s) - XPath %s' % (time_out, XPath.input_labelled('Email')), flush=True)
-        print('Flipper(%s) - Source' % (time_out), flush=True)
-        browser.view_source(flush=True)
-        print('Flipper(%s) - last_response %s' % (time_out, id(browser.last_response)), flush=True)
-
-        forms = browser.last_response.forms
-        for form_n in forms:
-            form = browser.last_response.forms[form_n]
-            print('Flipper(%s) - Form %s' % (time_out, form), flush=True)
-            for field_n in form.fields.keys():
-                print('Flipper(%s) - field len %s' % (time_out, len(form.fields[field_n])), flush=True)
-                field = form.fields[field_n][0]
-                print('    Flipper(%s) - Form (%s) has field: %s -> (%s)' % (time_out, form, field.name, field.value), flush=True)
-
-        print('Flipper(%s) - Sleeping' % time_out, flush=True)
-        time.sleep(time_out)
-        browser.refresh()
-        typed_value = browser.get_value(XPath.input_labelled('Email'))
-        time_out *= 2.0
-    # ==END Section to catch Flipper
-
     assert typed_value == 'johndoe@some.org'
     
 

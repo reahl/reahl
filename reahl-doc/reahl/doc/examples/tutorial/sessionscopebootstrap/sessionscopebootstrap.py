@@ -52,15 +52,21 @@ class LoginSession(Base):
         events.log_in = Event(label='Log in', action=Action(self.log_in))
 
     def log_in(self):
+        print('Logging in with (%s) and password (%s)' % (self.email_address, self.password), flush=True)
         matching_users = Session.query(User).filter_by(email_address=self.email_address)
+        print('Matching users count (%s)' % matching_users.count(), flush=True)
         if matching_users.count() != 1:
+            print('Not exactly one user found', flush=True)
             raise InvalidPassword()
 
         user = matching_users.one()
         if user.matches_password(self.password):
             self.current_user = user
+            print('User matched password', flush=True)
         else:
+            print('User NOT matched password', flush=True)
             raise InvalidPassword()
+
 
 
 
@@ -91,6 +97,13 @@ class LoginForm(Form):
 
         self.define_event_handler(login_session.events.log_in)
         self.add_child(Button(self, login_session.events.log_in, style='primary'))
+
+        login_session = LoginSession.for_current_session()
+        if login_session.current_user:
+            user_name = login_session.current_user.name
+        else:
+            user_name = 'Guest'
+        self.add_child(P(view, text='Logged in as %s' % user_name))
 
 
 class SessionScopeUI(UserInterface):
