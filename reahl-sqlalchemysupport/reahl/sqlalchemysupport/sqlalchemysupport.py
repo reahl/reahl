@@ -311,7 +311,7 @@ class SqlAlchemyControl(ORMControl):
             # nested state of the transaction to detect that it is called during a test.
             # If called during a test, this method should NOT commit, and it should NOT
             # nuke the session
-            # Session.flush()
+            Session.flush()
             return
 
         self.commit()
