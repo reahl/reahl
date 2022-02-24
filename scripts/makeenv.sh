@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 SITE_ENV=$1
 
@@ -38,7 +38,7 @@ sudo apt-get install firefox firefox-geckodriver
 virtualenv --no-site-packages $SITE_ENV
 
 
-source $SITE_ENV/bin/activate
+. $SITE_ENV/bin/activate
 
 pip install $LOCAL_EGGS reahl[all]
 

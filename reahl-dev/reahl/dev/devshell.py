@@ -407,7 +407,18 @@ class Build(ForAllWorkspaceCommand):
         project.build(sign=self.sign)
         return 0
 
+    
+class Sign(ForAllWorkspaceCommand):
+    """Signs all distributable packages for each project in the current selection."""
+    keyword = 'sign'
+    def assemble(self):
+        super().assemble()
 
+    def function(self, project, args):
+        project.sign()
+        return 0
+
+    
 class ListMissingDependencies(ForAllWorkspaceCommand):
     """Lists all missing thirdparty dependencies for each project in the current selection."""
     keyword = 'missingdeps'

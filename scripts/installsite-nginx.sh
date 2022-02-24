@@ -1,3 +1,4 @@
+#!/bin/sh
 
 # schroot -p -c precise-test
 # sudo ./scripts/makeenv.sh /usr/local/hellonginx/virtualenv file:///home/craig/develop/.reahlworkspace/dist-egg/

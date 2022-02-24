@@ -1,4 +1,4 @@
-#!/bin/bash -ev
+#!/bin/sh -ev
 
 cat > $HOME/.pypirc <<EOF
 [distutils]

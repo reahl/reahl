@@ -1,7 +1,7 @@
 #!/bin/bash -ev
 
 function cleanup_keyfiles {
-  find /tmp/ -maxdepth 1 -name keys* -type f -exec shred -f {} \;
+  find /tmp/ -maxdepth 2 -name 'key*' -type f -exec shred -fu {} \;
 }
 trap cleanup_keyfiles EXIT
 
@@ -27,11 +27,12 @@ function preset_passphrase {
   gpg-connect-agent 'keyinfo --list' /bye
 }
 
-function import_gpg_keys () {
+function import_gpg_keys() {
   from_dir=$1
   gpg --status-fd 2 --pinentry-mode loopback --passphrase-fd 0 --import $from_dir/key.secret.asc <<< $GPG_PASSPHRASE
   gpg --status-fd 2 --import-ownertrust < $from_dir/trust.asc
 }
+
 
 rm -f ~/.gnupg/options ~/.gnupg/gpg.conf
 
@@ -39,12 +40,15 @@ configure_gnupg
 
 if [ "$TRAVIS_SECURE_ENV_VARS" == 'true' ]; then
   echo "SECRETS are available, fetching reahl GPG signing key"
-  pip install awscli
-  aws s3 cp s3://$AWS_BUCKET/keys.tgz.enc /tmp/keys.tgz.enc
-  set +x
-  openssl aes-256-cbc -K $encrypted_1dc025804f5b_key -iv $encrypted_1dc025804f5b_iv -in /tmp/keys.tgz.enc -out /tmp/keys.tgz -d  
-  set -x
-  tar -C /tmp -zxvf /tmp/keys.tgz 
+#  pip install awscli
+#  aws s3 cp s3://$AWS_BUCKET/keys.tgz.enc /tmp/keys.tgz.enc
+#  set +x
+#  openssl aes-256-cbc -K $encrypted_1dc025804f5b_key -iv $encrypted_1dc025804f5b_iv -in /tmp/keys.tgz.enc -out /tmp/keys.tgz -d
+#  set -x
+#  tar -C /tmp -zxvf /tmp/keys.tgz
+  mkdir /tmp/keys
+  echo $GPG_KEY > /tmp/keys/key.secret.asc
+  echo $GPG_KEY_TRUST > /tmp/keys/trust.asc
   import_gpg_keys /tmp/keys
   preset_passphrase
   echo "default-key $GPG_KEY_ID" >> ~/.gnupg/gpg.conf

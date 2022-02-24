@@ -1,7 +1,7 @@
-#!/bin/sh -evx
+#!/bin/bash -evx
 
-VENV_NAME=$1
+VENV=$1
 
-bash -c "export WORKON_HOME=~/.venvs; . /usr/share/virtualenvwrapper/virtualenvwrapper.sh; mkvirtualenv -p $(which python3.8) $VENV_NAME"
-
+python3 -m venv $VENV
+$VENV/bin/pip install -U pip wheel
 

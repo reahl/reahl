@@ -1,3 +1,4 @@
+import threading
 
 from reahl.tofu import Fixture
 from reahl.tofu.pytestsupport import with_fixtures
@@ -60,6 +61,8 @@ def test_email_retained(web_fixture, session_scope_fixture):
     browser.type(XPath.input_labelled('Email'), 'johndoe@some.org')
     browser.type(XPath.input_labelled('Password'), 'topsecret')
     browser.click(XPath.button_labelled('Log in'))
+    typed_value = browser.get_value(XPath.input_labelled('Email'))
+    assert typed_value == 'johndoe@some.org'
 
     # Go away from the page, then back
     browser.click(XPath.link().with_text('Home'))

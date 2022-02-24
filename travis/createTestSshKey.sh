@@ -1,4 +1,4 @@
-#!/bin/bash -ev
+#!/bin/sh -ev
 
 # Generate the key
 ssh-keygen -t rsa -f ~/.ssh/id_localhost -N ""
@@ -12,5 +12,5 @@ cat ~/.ssh/id_localhost.pub >> ~/.ssh/authorized_keys
 
 # Accept localhost server key
 ssh-keyscan -t rsa localhost >> ~/.ssh/known_hosts
-ssh -vvv localhost ls
+ssh -v localhost ls
 

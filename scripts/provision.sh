@@ -27,13 +27,9 @@ if [ ! -f /.provisioned ]; then
     if [ ! -z "$BOOTSTRAP_REAHL_SOURCE" ]; then
         $REAHL_SCRIPTS/scripts/installBuildDebs.sh
         su $REAHL_USER -c -- bash -l -c "
-           deactivate
-           rmvirtualenv $VENV_NAME
-           $REAHL_SCRIPTS/scripts/createVenv.sh $VENV_NAME
-           workon $VENV_NAME
            cd $BOOTSTRAP_REAHL_SOURCE
-           python3 scripts/bootstrap.py --script-dependencies
-           python3 scripts/bootstrap.py --pip-installs
+           $VENV/bin/python scripts/bootstrap.py --script-dependencies
+           $VENV/bin/python scripts/bootstrap.py --pip-installs
         "
     fi
 

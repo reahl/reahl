@@ -5,7 +5,8 @@ services:
     container_name: reahl
     restart: always
     init: true
-    image: iwanvosloo/reahl-dev:5.1
+    image: reahl-dev:latest
+    #image: iwanvosloo/reahl-dev:5.1
     ports:
       - "8000:8000"
       - "8383:8383"

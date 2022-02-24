@@ -38,6 +38,11 @@ class NotBuiltException(StatusException):
     def __str__(self):
         return 'Project not built'
 
+class NotSignedException(StatusException):
+    legend = 'S'
+    def __str__(self):
+        return 'Project not signed'
+
 
 class NotBuiltAfterLastCommitException(StatusException):
     legend = 'b'

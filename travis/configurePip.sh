@@ -1,4 +1,4 @@
-#!/bin/bash -ev
+#!/bin/sh -ev
 
 mkdir $HOME/.pip
 cat > $HOME/.pip/pip.conf <<EOF

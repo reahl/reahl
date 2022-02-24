@@ -59,9 +59,9 @@ class LoginSession(Base):
         user = matching_users.one()
         if user.matches_password(self.password):
             self.current_user = user
+            print('Successfully logged in as %s ' % self.current_user.name)
         else:
             raise InvalidPassword()
-
 
 
 class MenuPage(HTML5Page):
@@ -91,6 +91,8 @@ class LoginForm(Form):
 
         self.define_event_handler(login_session.events.log_in)
         self.add_child(Button(self, login_session.events.log_in, style='primary'))
+
+        # login_session.current_user and Session.refresh(login_session.current_user)
 
 
 class SessionScopeUI(UserInterface):

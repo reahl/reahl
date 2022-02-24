@@ -1,3 +1,4 @@
+#!/bin/sh
 
 apt-get install apache ssl-cert
 cd reahl-doc/reahl/doc/examples/tutorial/helloapache/
@@ -13,11 +14,11 @@ chown -R www-data:www-data /var/local/helloapache
 chmod 755 /var/local/
 chmod -s /var/local
 
-source /usr/local/helloapache/virtualenv/bin/activate
+. /usr/local/helloapache/virtualenv/bin/activate
 pip install --no-index -f file:///home/craig/develop/.reahlworkspace/dist-egg/ helloapache
 
 su - www-data
-source /usr/local/helloapache/virtualenv/bin/activate
+. /usr/local/helloapache/virtualenv/bin/activate
 reahl createdbtables /etc/reahl.d/helloapache
 
 exit

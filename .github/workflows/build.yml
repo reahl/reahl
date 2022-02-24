@@ -1,0 +1,115 @@
+name: Build and Test
+
+on:
+  workflow_call:
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build reahl-dev:latest docker image
+        run: docker build --target build-image -t reahl-dev:latest -f Dockerfile .
+
+      - name: Extract built wheels
+        run: docker cp $(docker create reahl-dev:latest):/home/developer/.reahlworkspace/dist-egg/ /tmp/wheels
+
+      - name: Upload built wheels to cache
+        uses: actions/upload-artifact@v2
+        with:
+          name: wheels
+          path: /tmp/wheels
+
+
+  test:
+    needs: build
+    runs-on:  ubuntu-20.04
+    strategy:
+      matrix:
+        python-version: [ '3.6', '3.7', '3.8', '3.9', '3.10']
+    services:
+      postgres:
+        image: postgres:12.3
+        env:
+          POSTGRES_PASSWORD: reahl
+          POSTGRES_USER: runner
+        ports:
+          - 5432:5432
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip
+
+      - name: Download wheels
+        uses: actions/download-artifact@v2
+        with:
+          name: wheels
+          path: ~/.reahlworkspace/dist-egg
+
+      - name: Map postgres machine name to localhost ip
+        run: sudo bash -c "echo '127.0.0.1 postgres' >> /etc/hosts"
+
+      - name: Prepare for SSH
+        run: |
+          mkdir ~/.ssh
+          chmod 700 ~/.ssh
+          touch ~/.ssh/authorized_keys
+          chmod 600 ~/.ssh/authorized_keys
+          chmod 0755 ~/
+          ls -la ~/.ssh
+
+      - name: Setup Test env
+        run: |
+          sudo apt-get install tox
+          sudo ./scripts/installDebs.sh
+          sudo ./scripts/installDevEnvDebs.sh
+          ./scripts/setupDevEnv.sh 
+
+
+      # Version checks of these things are useful for debugging
+      - name: Version of GIT
+        run: git --version
+    
+      - name: Version of Firefox
+        run: firefox --version
+
+      - name: Which FireFox
+        run: which firefox
+
+      - name: Version of GeckoDriver
+        run: geckodriver --version
+
+      - name: Which GeckoDriver
+        run: which geckodriver
+
+      - name: Version of GPG
+        run: gpg --version
+
+      - name: Show PATH
+        run: echo $PATH
+
+
+
+      - name: Install reahl-dev
+        run: pip install --pre reahl-dev reahl-commands reahl-postgresqlsupport #uses wheels as specified in $HOME/.pip/pip.conf
+
+      - name: Select all reahl projects
+        run: . $HOME/.profile && reahl refresh && reahl select -a
+
+      - name: Create db user for Tests
+        run: . $HOME/.profile && reahl createdbuser -U runner travis/etc
+      - name: Run Tests
+        run: . $HOME/.profile && reahl shell -sdXg tox
+
