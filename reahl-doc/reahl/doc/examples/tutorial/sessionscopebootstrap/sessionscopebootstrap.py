@@ -93,11 +93,6 @@ class LoginForm(Form):
         self.define_event_handler(login_session.events.log_in)
         self.add_child(Button(self, login_session.events.log_in, style='primary'))
 
-        if login_session.current_user:
-            user_name = login_session.current_user.name
-        else:
-            user_name = 'Guest'
-        self.add_child(P(view, text='Logged in as %s' % user_name))
 
 
 class SessionScopeUI(UserInterface):
