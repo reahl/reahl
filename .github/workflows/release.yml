@@ -44,7 +44,7 @@ jobs:
 
       - name: Sign all wheels
         run: |
-        . $HOME/.profile && reahl sign -sdX && reahl list -s
+          . $HOME/.profile && reahl sign -sdX && reahl list -s
 
       - name: Publish
         run: |
