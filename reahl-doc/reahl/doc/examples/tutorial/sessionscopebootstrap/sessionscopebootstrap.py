@@ -52,19 +52,19 @@ class LoginSession(Base):
         events.log_in = Event(label='Log in', action=Action(self.log_in))
 
     def log_in(self):
-        print('Logging in with (%s) and password (%s)' % (self.email_address, self.password), flush=True)
+        print('Logging in with (%s) and password (%s)' % (self.email_address, self.password), flush=False)
         matching_users = Session.query(User).filter_by(email_address=self.email_address)
-        print('Matching users count (%s)' % matching_users.count(), flush=True)
+        print('Matching users count (%s)' % matching_users.count(), flush=False)
         if matching_users.count() != 1:
-            print('Not exactly one user found', flush=True)
+            print('Not exactly one user found', flush=False)
             raise InvalidPassword()
 
         user = matching_users.one()
         if user.matches_password(self.password):
             self.current_user = user
-            print('User matched password', flush=True)
+            print('User matched password', flush=False)
         else:
-            print('User NOT matched password', flush=True)
+            print('User NOT matched password', flush=False)
             raise InvalidPassword()
 
 
