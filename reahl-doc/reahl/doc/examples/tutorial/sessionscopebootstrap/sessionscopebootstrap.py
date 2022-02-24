@@ -54,15 +54,13 @@ class LoginSession(Base):
     def log_in(self):
         matching_users = Session.query(User).filter_by(email_address=self.email_address)
         if matching_users.count() != 1:
-            print('Not exactly one user found (%s) and password (%s)' % (self.email_address, self.password), flush=False)
             raise InvalidPassword()
 
         user = matching_users.one()
         if user.matches_password(self.password):
             self.current_user = user
-            self.current_user and self.current_user.name
+            print('Successfully logged in as %s ' % self.current_user.name)
         else:
-            print('User NOT matched password (%s) and password (%s)' % (self.email_address, self.password), flush=False)
             raise InvalidPassword()
 
 

@@ -61,15 +61,11 @@ def test_email_retained(web_fixture, session_scope_fixture):
     browser.type(XPath.input_labelled('Email'), 'johndoe@some.org')
     browser.type(XPath.input_labelled('Password'), 'topsecret')
     browser.click(XPath.button_labelled('Log in'))
-    print("Login source is here:", flush=True)
-    browser.view_source(flush=True)
     typed_value = browser.get_value(XPath.input_labelled('Email'))
     assert typed_value == 'johndoe@some.org'
 
     # Go away from the page, then back
     browser.click(XPath.link().with_text('Home'))
-    print("Home source is here:", flush=True)
-    browser.view_source(flush=True)
     browser.click(XPath.link().with_text('Log in'))
 
     # .. then the email is still pre-populated
