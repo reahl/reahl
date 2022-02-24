@@ -93,8 +93,7 @@ class LoginForm(Form):
         self.define_event_handler(login_session.events.log_in)
         self.add_child(Button(self, login_session.events.log_in, style='primary'))
 
-        import time
-        time.sleep(1)
+        login_session.current_user.name
 
 
 class SessionScopeUI(UserInterface):
