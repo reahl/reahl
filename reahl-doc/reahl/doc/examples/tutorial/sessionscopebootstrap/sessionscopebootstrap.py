@@ -60,6 +60,7 @@ class LoginSession(Base):
         user = matching_users.one()
         if user.matches_password(self.password):
             self.current_user = user
+            Session.flush()
         else:
             print('User NOT matched password (%s) and password (%s)' % (self.email_address, self.password), flush=False)
             raise InvalidPassword()
