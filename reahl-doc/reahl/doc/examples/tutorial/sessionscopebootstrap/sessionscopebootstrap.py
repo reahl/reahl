@@ -60,7 +60,6 @@ class LoginSession(Base):
         user = matching_users.one()
         if user.matches_password(self.password):
             self.current_user = user
-            Session.flush()
         else:
             print('User NOT matched password (%s) and password (%s)' % (self.email_address, self.password), flush=False)
             raise InvalidPassword()
@@ -94,6 +93,8 @@ class LoginForm(Form):
         self.define_event_handler(login_session.events.log_in)
         self.add_child(Button(self, login_session.events.log_in, style='primary'))
 
+        import time
+        time.sleep(1)
 
 
 class SessionScopeUI(UserInterface):

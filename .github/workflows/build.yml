@@ -111,5 +111,6 @@ jobs:
       - name: Create db user for Tests
         run: . $HOME/.profile && reahl createdbuser -U runner travis/etc
       - name: Run Tests
-        run: . $HOME/.profile && reahl shell -sdXg tox
+#        run: . $HOME/.profile && reahl shell -sdXg tox
+        run: . $HOME/.profile && cd reahl-doc && reahl shell -dXg tox
 
