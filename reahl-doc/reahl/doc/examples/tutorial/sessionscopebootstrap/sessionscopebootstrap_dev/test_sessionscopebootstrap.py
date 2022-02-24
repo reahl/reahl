@@ -86,10 +86,11 @@ def test_email_retained(web_fixture, session_scope_fixture):
             for field_n in form.fields.keys():
                 print('Flipper(%s) - field len %s' % (time_out, len(form.fields[field_n])), flush=True)
                 field = form.fields[field_n][0]
-                print('    Flipper(%s) - Form (%s) has field: %s -> %s' % (time_out, form, field.name, field.value), flush=True)
+                print('    Flipper(%s) - Form (%s) has field: %s -> (%s)' % (time_out, form, field.name, field.value), flush=True)
 
         print('Flipper(%s) - Sleeping' % time_out, flush=True)
         time.sleep(time_out)
+        browser.refresh()
         typed_value = browser.get_value(XPath.input_labelled('Email'))
         time_out *= 2.0
     # ==END Section to catch Flipper
