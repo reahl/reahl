@@ -20,6 +20,7 @@
     <thirdpartyegg name="pytest" minversion="3.0"/>
     <thirdpartyegg name="Sphinx"/>
     <thirdpartyegg name="sphinxcontrib-plantuml"/>
+    <thirdpartyegg name="flaky" minversion="3.7.0"/>
     <egg name="reahl-tofu"/>
     <egg name="reahl-stubble"/>
     <egg name="reahl-dev"/>
