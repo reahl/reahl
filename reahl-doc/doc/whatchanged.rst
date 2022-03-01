@@ -106,3 +106,9 @@ Some included thirdparty JavaScript and CSS libraries were updated:
 
 - The dependency on cssmin was removed, in favour of rcssmin 1.1.0.
 - The dependency on slimit was removed, in favour of rjsmin 1.2.0.
+- jQuery was upgraded from 3.5.1 to 3.6.0.
+- jQueryUI was upgraded from 1.12.1 to 1.13.1.
+- underscore.js was upgraded from 1.13.1 to 1.13.2.
+- plotly.js was upgraded from 2.2.0 to 2.9.0.
+  
+  
