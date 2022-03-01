@@ -71,9 +71,9 @@ class PostgresqlControl(DatabaseControl):
             
         with psycopg2.connect(**login_args) as connection:
             connection.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
+            connection.autocommit = True
             with connection.cursor() as cursor:
                 return cursor.execute(sql)
-
 
     def get_superuser_password(self):
         return os.environ.get('PGPASSWORD', None)

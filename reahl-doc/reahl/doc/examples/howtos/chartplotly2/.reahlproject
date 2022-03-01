@@ -5,7 +5,7 @@
    <egg name="reahl-web"/>
    <egg name="reahl-sqlalchemysupport"/>
    <egg name="reahl-web-declarative"/>
-   <thirdpartyegg name="plotly" minversion="5.1.0" maxversion="5.1.99999"/>
+   <thirdpartyegg name="plotly" minversion="5.1.0" maxversion="5.6.99999"/>
   </deps>
  </version>
 </project>

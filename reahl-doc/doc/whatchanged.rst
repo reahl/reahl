@@ -112,4 +112,17 @@ Some included thirdparty JavaScript and CSS libraries were updated:
 - plotly.js was upgraded from 2.2.0 to 2.9.0.
 - Bootstrap was upgraded from 4.5.3 to 4.6.1.
   
+Some dependencies on thirdparty python packages have been loosened to include a higher max version:
+
+- babel is allowed from 2.1.0 to 2.9.x
+- twine is allowed from 1.15.0 to 3.8.x
+- tzlocal is allowed from 2.0.0 to 4.1.x
+- wheel is allowed from 0.34.0 to any larger version
+- plotly is allowed from 5.1.0 to 5.6.x
+- docutils is allowed from 0.14.0 to 0.18.x
+- pygments is allowed from 2.1.0 to 2.11.x
+- mysqlclient is allowed from 1.3.0 to 2.1.x
+- wrapt is allowed from 1.11.0 to 1.13.x
+- beautifulsoup4 is allowed from 4.6.0 to 4.10.x
+
   
