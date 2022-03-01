@@ -624,6 +624,7 @@ class InputGroup(reahl.web.ui.WrappedInput):
         super().__init__(input_widget)
         self.div = self.add_child(Div(self.view))
         self.div.append_class('input-group')
+        self.div.append_class('has-validation')
         if prepend:
             self.add_as_addon(prepend, 'prepend')
         self.input_widget = self.div.add_child(input_widget)

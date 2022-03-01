@@ -23,12 +23,21 @@ Several files from other projects are included in this code. See the copyright i
 of each applicable file below:
 
 
-reahl-web/reahl/web/static/bootstrap-4.5.3/
+reahl-web/reahl/web/static/bootstrap-4.6.1/
 ===========================================
 
-Bootstrap v4.5.3 (https://getbootstrap.com)
-Copyright 2011-2020 The Bootstrap Authors (https://github.com/twbs/bootstrap/graphs/contributors)
-Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+/js/
+
+Bootstrap v4.6.1 (https://getbootstrap.com/)
+Copyright 2011-2021 The Bootstrap Authors (https://github.com/twbs/bootstrap/graphs/contributors)
+Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
+
+/css/
+
+Bootstrap v4.6.1 (https://getbootstrap.com/)
+Copyright 2011-2021 The Bootstrap Authors
+Copyright 2011-2021 Twitter, Inc.
+Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
 
 
 reahl-web/reahl/web/static/popper-1.16.1/popper.js

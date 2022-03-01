@@ -110,5 +110,6 @@ Some included thirdparty JavaScript and CSS libraries were updated:
 - jQueryUI was upgraded from 1.12.1 to 1.13.1.
 - underscore.js was upgraded from 1.13.1 to 1.13.2.
 - plotly.js was upgraded from 2.2.0 to 2.9.0.
+- Bootstrap was upgraded from 4.5.3 to 4.6.1.
   
   

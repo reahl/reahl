@@ -5,6 +5,11 @@ python-reahl (5.2.0) unstable; urgency=low
  * Add JsonField and NumericField
  * Implemented CSRF protection (#153).
  * Changed to use rssmin and rcsmin instead of slimit and cssmin (#336).
+ * Upgraded jQuery from 3.5.1 to 3.6.0.
+ * Upgraded jQueryUI from 1.12.1 to 1.13.1.
+ * Upgraded underscore.js from 1.13.1 to 1.13.2.
+ * Upgraded plotly.js from 2.2.0 to 2.9.0.
+ * Upgraded Bootstrap from 4.5.3 to 4.6.1.
 
  -- Iwan Vosloo <iwan@reahl.org>  Thu, 27 Jan 2022 15:25:00 +0200
 
