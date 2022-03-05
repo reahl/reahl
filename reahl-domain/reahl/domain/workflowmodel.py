@@ -81,7 +81,10 @@ class DeferredAction(Base):
     __tablename__ = 'deferredaction'
     id = Column(Integer, primary_key=True)
     discriminator = Column('row_type', String(40))
-    __mapper_args__ = {'polymorphic_on': discriminator}
+    __mapper_args__ = {
+        'polymorphic_identity': 'deferredaction',
+        'polymorphic_on': discriminator
+    }
     requirements = relationship('Requirement', 
                                 secondary=Table('deferredaction_requirement', 
                                             Base.metadata,
@@ -134,7 +137,10 @@ class Requirement(Base):
     __tablename__ = 'requirement'
     id = Column(Integer, primary_key=True)
     discriminator = Column('row_type', String(40))
-    __mapper_args__ = {'polymorphic_on': discriminator}
+    __mapper_args__ = {
+        'polymorphic_identity': 'requirement',
+        'polymorphic_on': discriminator
+    }
 
     #deferred_actions (would like to declare it here)
 
@@ -170,7 +176,10 @@ class Task(Base):
     __tablename__ = 'task'
     id = Column(Integer, primary_key=True)
     discriminator = Column('row_type', String(40))
-    __mapper_args__ = {'polymorphic_on': discriminator}
+    __mapper_args__ = {
+        'polymorphic_identity': 'task',
+        'polymorphic_on': discriminator
+    }
 
     queue_id = Column(Integer, ForeignKey(Queue.id), nullable=True, index=True)
     #queue  (would like to declare it here)
