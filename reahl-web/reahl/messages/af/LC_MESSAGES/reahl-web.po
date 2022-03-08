@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: reahl-web 2.0.0a1\n"
 "Report-Msgid-Bugs-To: info@reahl.org\n"
-"POT-Creation-Date: 2021-06-10 12:38+0000\n"
+"POT-Creation-Date: 2022-03-08 09:58+0000\n"
 "PO-Revision-Date: 2012-04-22 10:40+0200\n"
 "Last-Translator: Iwan Vosloo <iwan@reahl.org>\n"
 "Language: af\n"
@@ -15,27 +15,34 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.8.1\n"
+"Generated-By: Babel 2.9.1\n"
 
-#: reahl/web/dhtml.py:59 reahl/web/fw.py:555
+#: reahl/web/csrf.py:45
+msgid ""
+"This page has expired. For security reasons, please review your input and"
+" retry."
+msgstr "Hierdie bladsy het verval. Vir sekuriteitsredes, hersien"
+" asseblief jou insette en probeer weer. "
+
+#: reahl/web/csrf.py:55
+msgid "Invalid CSRF token."
+msgstr "Ongeldige CSRF-teken."
+
+#: reahl/web/dhtml.py:59 reahl/web/fw.py:550
 msgid "Untitled"
 msgstr "Ongetiteld"
 
-#: reahl/web/fw.py:83 reahl/web/fw.py:1319
+#: reahl/web/fw.py:86 reahl/web/fw.py:1315
 msgid "An error occurred"
 msgid_plural "Some errors occurred"
 msgstr[0] "'n Fout het gebeur"
 msgstr[1] "Foute het gebeur"
 
-#: reahl/web/fw.py:87
-msgid "Refresh"
-msgstr "Verfris"
-
-#: reahl/web/fw.py:502
+#: reahl/web/fw.py:497
 msgid "Error"
 msgstr "Fout"
 
-#: reahl/web/fw.py:2851
+#: reahl/web/fw.py:2864
 msgid ""
 "Something changed on the server while you were busy. You cannot perform "
 "this action anymore."
@@ -43,13 +50,13 @@ msgstr ""
 "Iets in die bediener het verander terwyl jy besig was. Jy kan hierdie "
 "taak nie meer laat uitvoer nie."
 
-#: reahl/web/ui.py:208
+#: reahl/web/ui.py:207
 msgid "An error occurred when contacting the server. Please try again later."
 msgstr ""
 "'n Fout het gebeur tydens kommunikasie met die bediener. Probeer "
 "asseblief later weer."
 
-#: reahl/web/ui.py:209
+#: reahl/web/ui.py:208
 msgid "The server took too long to respond. Please try again later."
 msgstr ""
 "Die bediener het te lank gevat om te antwoord. Probeer asseblief later "
@@ -71,11 +78,11 @@ msgstr ""
 "Die data het verander vandat jy laas hierdie bladsy besoek het, herstel "
 "die insetdata, en probeer weer."
 
-#: reahl/web/ui.py:1110
+#: reahl/web/ui.py:1111
 msgid "Reset input"
 msgstr "Herstel insetdata"
 
-#: reahl/web/ui.py:2455
+#: reahl/web/ui.py:2484
 msgid "uploaded files should all have different names"
 msgstr "opgelaaide lêers moet almal verskillende name hê"
 
