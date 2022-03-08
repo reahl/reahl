@@ -35,7 +35,7 @@ from paypalcheckoutsdk.orders import OrdersCreateRequest
 from paypalcheckoutsdk.core import PayPalHttpClient, SandboxEnvironment, LiveEnvironment
 from sqlalchemy import Column, Integer, String, Unicode
 
-
+_ = Catalogue('reahl-paypalsupport')
 
 class PayPalClientCredentials:
     """
@@ -147,7 +147,9 @@ class PayPalButtonsPanel(HTMLWidget):
         create_order_url = self.create_order_method.get_url().as_network_absolute()
         capture_order_url = self.capture_order_method.get_url().as_network_absolute()
         options = { 'createOrderUrl': str(create_order_url),
-                    'captureOrderUrl': str(capture_order_url)
+                    'captureOrderUrl': str(capture_order_url),
+                    'error_announce_text' : _('Error while talking to PayPal:'),
+                    'transaction_not_processed_text' : _('Sorry, your transaction could not be processed.')
                   }
         return super().get_js(context=context) + \
             ['$("#%s").paypalbuttonspanel(%s);' % (self.css_id, json.dumps(options))]
