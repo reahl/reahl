@@ -24,12 +24,12 @@
  </metadata>
  <version number="0.0">
   <deps purpose="run">
-   <egg name="reahl-component"/>
-   <egg name="reahl-web"/>
-   <egg name="reahl-sqlalchemysupport"/>
-   <egg name="reahl-web-declarative"/>
-   <egg name="reahl-postgresqlsupport"/>
-   <!-- egg name="reahl-mysqlsupport"/-->
+   <thirdpartyegg name="reahl-component"/>
+   <thirdpartyegg name="reahl-web"/>
+   <thirdpartyegg name="reahl-sqlalchemysupport"/>
+   <thirdpartyegg name="reahl-web-declarative"/>
+   <thirdpartyegg name="reahl-postgresqlsupport"/>
+   <!-- thirdpartyegg name="reahl-mysqlsupport"/-->
   </deps>
  </version>
  <!-- packaging -->
