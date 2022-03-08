@@ -111,7 +111,9 @@ Some included thirdparty JavaScript and CSS libraries were updated:
 - underscore.js was upgraded from 1.13.1 to 1.13.2.
 - plotly.js was upgraded from 2.2.0 to 2.9.0.
 - Bootstrap was upgraded from 4.5.3 to 4.6.1.
-  
+- SqlAlchemy upgraded from 1.3 to 1.4
+- Alembic upgraded from 1.4 to 1.7
+
 Some dependencies on thirdparty python packages have been loosened to include a higher max version:
 
 - babel is allowed from 2.1.0 to 2.9.x

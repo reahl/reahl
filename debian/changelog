@@ -20,6 +20,8 @@ python-reahl (5.2.0) unstable; urgency=low
  * Changed dependency on mysqlclient to be between 1.3.0 and 2.1.x
  * Changed dependency on wrapt to be between 1.11.0 and 1.13.x
  * Changed dependency on beautifulsoup4 to be between 4.6.0 and 4.10.x
+ * Changed dependency on SqlAchemy to be between 1.2.0 and 1.4.x
+ * Changed dependency on Alembic to be between 0.9.6 and 1.7.x
 
  -- Iwan Vosloo <iwan@reahl.org>  Thu, 27 Jan 2022 15:25:00 +0200
 
