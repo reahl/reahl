@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: reahl-paypalsupport 5.2.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-03-08 11:33+0000\n"
+"POT-Creation-Date: 2022-03-08 11:51+0000\n"
 "PO-Revision-Date: 2022-03-08 11:28+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: af\n"
@@ -19,12 +19,11 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.9.1\n"
 
-#: reahl/paypalsupport/paypalsupport.py:151
+#: reahl/paypalsupport/paypalsupport.py:152
 msgid "Error while talking to PayPal:"
 msgstr "Fout ten tyde van PayPal verbinding:"
 
-#: reahl/paypalsupport/paypalsupport.py:152
+#: reahl/paypalsupport/paypalsupport.py:153
 msgid "Sorry, your transaction could not be processed."
 msgstr "Jammer, jou transaksie kon nie verwerk word nie."
-
 

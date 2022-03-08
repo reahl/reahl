@@ -26,6 +26,7 @@ from reahl.web.fw import RemoteMethod, JsonResult
 from reahl.web.ui import HTMLWidget, LiteralHTML
 from reahl.web.bootstrap.ui import Div
 from reahl.component.modelinterface import JsonField
+from reahl.component.i18n import Catalogue
 from reahl.sqlalchemysupport.sqlalchemysupport import Base
 from reahl.paypalsupport.paypallibrary import PayPalJS
 

@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: reahl-component 2.0.0a1\n"
 "Report-Msgid-Bugs-To: info@reahl.org\n"
-"POT-Creation-Date: 2022-03-08 09:58+0000\n"
+"POT-Creation-Date: 2022-03-08 11:52+0000\n"
 "PO-Revision-Date: 2012-04-13 08:38+0200\n"
 "Last-Translator: Iwan Vosloo <iwan@reahl.org>\n"
 "Language: af\n"
@@ -86,7 +86,7 @@ msgstr "$label moet 'n geldige e-posadres wees"
 
 #: reahl/component/modelinterface.py:1381
 msgid "$label should be a valid number"
-msgstr "$label moet 'n heelgetal wees"
+msgstr "$label moet 'n numeriese syfer wees"
 
 #: reahl/component/modelinterface.py:1454
 msgid "Mon"
