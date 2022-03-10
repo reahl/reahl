@@ -340,3 +340,15 @@ class RemoveDeadApacheDigestColumn(Migration):
     def schedule_upgrades(self):
         self.orm_control.assert_dialect(self, 'postgresql')
         self.schedule('cleanup', op.drop_column, 'emailandpasswordsystemaccount', 'apache_digest')
+
+
+class AddPolimorphicEntityName(Migration):
+    def schedule_upgrades(self):
+        self.orm_control.assert_dialect(self, 'postgresql')
+        self.schedule('data', op.execute, 'update systemaccount set discriminator=\'systemaccount\' where discriminator is null')
+        self.schedule('data', op.execute, 'update loginsession set discriminator=\'loginsession\' where discriminator is null')
+        self.schedule('data', op.execute, 'update deferredaction set discriminator=\'deferredaction\' where discriminator is null')
+        self.schedule('data', op.execute, 'update requirement set discriminator=\'requirement\' where discriminator is null')
+        self.schedule('data', op.execute, 'update task set discriminator=\'task\' where discriminator is null')
+
+    
