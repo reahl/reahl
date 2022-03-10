@@ -1,6 +1,8 @@
 #!/bin/sh -ex
 
-# Setup virtualenv, virtualenvwrapper;
+[ -f ~/.profile ] || exit 1
+
+# Setup virtualenv, virtualenvwrapper (for bash only);
 echo "export WORKON_HOME=~/.venvs" >> $HOME/.bash_profile
 echo ". /usr/share/virtualenvwrapper/virtualenvwrapper.sh" >> $HOME/.bash_profile
 echo "workon $VENV_NAME" >> $HOME/.bash_profile

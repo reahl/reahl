@@ -38,10 +38,7 @@ RUN /etc/init.d/ssh start && \
 
 USER $REAHL_USER
 RUN mkdir -p $REAHLWORKSPACE/.reahlworkspace/dist-egg
-RUN bash -l -c "cd $REAHL_SCRIPTS && $VENV/bin/python scripts/bootstrap.py --script-dependencies && python scripts/bootstrap.py --pip-installs; reahl build -sdX -ns; cd reahl-doc/doc; make html"
-
-
-    
+RUN bash -l -c "cd $REAHL_SCRIPTS && python scripts/bootstrap.py --script-dependencies && python scripts/bootstrap.py --pip-installs; reahl build -sdX -ns; cd reahl-doc/doc; make html"
 
 FROM base as dev-image
 COPY --from=build-image "$REAHL_SCRIPTS/reahl-doc/doc/_build/html" "/usr/share/doc/reahl"
