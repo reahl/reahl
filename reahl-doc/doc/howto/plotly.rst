@@ -20,7 +20,7 @@ Display a Plotly.py Figure
 Writing a library to compose and render Charts is a complicated job in its own right. For this reason Reahl
 does not attempt to do this job itself.
 
-Using the `Plotly Python library <https://github.com/plotly/plotly.py/>_` (which has its own extensive documentation)
+Using the `Plotly Python library <https://github.com/plotly/plotly.py/>`_ (which has its own extensive documentation)
 you can construct Charts, called Figures in `Plotly`.
 
 Here is an example of a line chart:

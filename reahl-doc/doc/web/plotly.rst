@@ -6,7 +6,7 @@ Module reahl.web.plotly
 .. sidebar:: Behind the scenes
 
    This module uses `plotly.js <https://github.com/plotly/plotly.js/>`_ to
-   render figures you create in Python using `plotly.py <https://github.com/plotly/plotly.py/>_`.
+   render figures you create in Python using `plotly.py <https://github.com/plotly/plotly.py/>`_.
 
 .. automodule:: reahl.web.plotly
 

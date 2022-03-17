@@ -1632,11 +1632,11 @@ class PrimitiveInput(Input):
 
     def set_refresh_widget(self, refresh_widget):
         """
-        Instructs this |PrimitiveInput| to refresh the given widget when its value changes.
+        Instructs this :class:`PrimitiveInput` to refresh the given widget when its value changes.
 
         The `refresh_widget` has to have a css_id, and also needs to have refreshing enabled.
 
-        :param refresh_widget: An |HTMLWidget| or |HTMLElement|.
+        :param refresh_widget: An :class:`HTMLWidget` or :class:`HTMLElement`.
 
         .. versionadded:: 5.2
         """

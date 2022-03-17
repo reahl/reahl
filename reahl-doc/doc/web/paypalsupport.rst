@@ -5,7 +5,7 @@ Module reahl.paypalsupport
 
 .. sidebar:: Behind the scenes
 
-   This module uses `paypal-checkout-serversdk <https://pypi.org/project/paypal-checkout-serversdk/>_` to
+   This module uses `paypal-checkout-serversdk <https://pypi.org/project/paypal-checkout-serversdk/>`_ to
    invoke PayPal's online API and JavaScript SDK.
 
 .. automodule:: reahl.paypalsupport.paypalsupport

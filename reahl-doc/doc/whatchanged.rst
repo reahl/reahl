@@ -12,12 +12,12 @@ What changed in version 5.2
 .. |Input| replace:: :class:`~reahl.web.ui.Input`
 .. |set_refresh_widget| replace:: :meth:`~reahl.web.ui.PrimitiveInput.set_refresh_widget`
 .. |RemoteMethod| replace:: :class:`~reahl.web.fw.RemoteMethod`
-.. |UserSessionProtocol| replace:: :class:'~reahl.web.interfaces.UserSessionProtocol`
-.. |preserve_session| replace:: :meth:'~reahl.web.interfaces.UserSessionProtocol.preserve_session`
-.. |restore_session| replace:: :meth:'~reahl.web.interfaces.UserSessionProtocol.restore_session`
-.. |get_csrf_token| replace:: :meth:'~reahl.web.interfaces.UserSessionProtocol.get_csrf_token`
-.. |PayPalButtonsPanel| replace:: :class:'~reahl.paypalsupport.paypalsupport.PayPalButtonsPanel`
-.. |PayPalOrder| replace:: :class:'~reahl.paypalsupport.paypalsupport.PayPalOrder`
+.. |UserSessionProtocol| replace:: :class:`~reahl.web.interfaces.UserSessionProtocol`
+.. |preserve_session| replace:: :meth:`~reahl.web.interfaces.UserSessionProtocol.preserve_session`
+.. |restore_session| replace:: :meth:`~reahl.web.interfaces.UserSessionProtocol.restore_session`
+.. |get_csrf_token| replace:: :meth:`~reahl.web.interfaces.UserSessionProtocol.get_csrf_token`
+.. |PayPalButtonsPanel| replace:: :class:`~reahl.paypalsupport.paypalsupport.PayPalButtonsPanel`
+.. |PayPalOrder| replace:: :class:`~reahl.paypalsupport.paypalsupport.PayPalOrder`
 
 
 Upgrading
@@ -34,28 +34,28 @@ new virtualenv, then migrate your database:
 Graphing support
 ----------------
 
-This release includes support for rendering Graphs. Instead of writing our own graphing library, we have added a |Chart|
-|Widget| which renders a Figure created using `the Plotly Python library <https://github.com/plotly/plotly.py/>_`.
+This release includes support for rendering Graphs. Instead of writing our own graphing library, we have added |Chart|
+which renders a Figure created using `the Plotly Python library <https://github.com/plotly/plotly.py/>`_.
 
 See the relevant HOWTOs for more information:
 
-:doc:`<howto/plotly>`
+:doc:`howto/plotly`
   An example that shows the basics of using a |Chart|.
 
-:doc:`<howto/plotly2>`
+:doc:`howto/plotly2`
   An example showing how to update a |Chart| efficiently in response to user actions.
 
 
 PayPal support
 --------------
 
-Added |PayPalButtonsPanel| which you can use to setup standard paypal payments. The panel displays the `PayPalButton <https://developer.paypal.com/docs/checkout/standard/>_`
-for processing a given |PayPalOrder| providing seamless integration to PayPal using the `PayPal REST API <https://developer.paypal.com/api/orders/v2/>_`.
+Added |PayPalButtonsPanel| which you can use to setup standard paypal payments. The panel displays the `PayPalButton <https://developer.paypal.com/docs/checkout/standard/>`_
+for processing a given |PayPalOrder| providing seamless integration to PayPal using the `PayPal REST API <https://developer.paypal.com/api/orders/v2/>`_.
 
 See the HOWTO for more information:
 
-:doc:`<howto/paypal>`
-  Add a |PayPalButtonsPanel| to your own shoppingcart for `PayPal <https://www.paypal.com>_` payments.
+:doc:`howto/paypal`
+  Add a |PayPalButtonsPanel| to your own shoppingcart for `PayPal <https://www.paypal.com>`_ payments.
 
 
 Cross site request forgery (CSRF) protection
@@ -85,7 +85,7 @@ The timeout can be configured in web.config.py as `web.csrf_timeout_seconds`.
 Implemention interfaces
 -----------------------
 
-In order to accommodate CSRF protection, the three methods are added to |UserSessionProtocol|\: |preserve_session|,
+In order to accommodate CSRF protection three methods are added to |UserSessionProtocol|\: |preserve_session|,
 |restore_session|, and |get_csrf_token|.
 
 
@@ -111,8 +111,6 @@ Some included thirdparty JavaScript and CSS libraries were updated:
 - underscore.js was upgraded from 1.13.1 to 1.13.2.
 - plotly.js was upgraded from 2.2.0 to 2.9.0.
 - Bootstrap was upgraded from 4.5.3 to 4.6.1.
-- SqlAlchemy upgraded from 1.3 to 1.4
-- Alembic upgraded from 1.4 to 1.7
 
 Some dependencies on thirdparty python packages have been loosened to include a higher max version:
 
@@ -126,5 +124,7 @@ Some dependencies on thirdparty python packages have been loosened to include a 
 - mysqlclient is allowed from 1.3.0 to 2.1.x
 - wrapt is allowed from 1.11.0 to 1.13.x
 - beautifulsoup4 is allowed from 4.6.0 to 4.10.x
+- SQLAlchemy is allowed from 1.2 to 1.4
+- alembic is allowed from 0.9 to 1.7
 
   
