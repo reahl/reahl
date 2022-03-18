@@ -59,7 +59,6 @@ class LoginSession(Base):
         user = matching_users.one()
         if user.matches_password(self.password):
             self.current_user = user
-            print('Successfully logged in as %s ' % self.current_user.name)
         else:
             raise InvalidPassword()
 
