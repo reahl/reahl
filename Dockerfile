@@ -1,7 +1,6 @@
 FROM ubuntu:20.04 as base
 
 # ---- ENV vars set here are available to all phases of the build going forward
-
 ENV BOOTSTRAP_REAHL_SOURCE=
 ENV REAHL_USER=developer
 ENV VENV_HOME=/home/$REAHL_USER/.venvs
@@ -38,14 +37,15 @@ RUN /etc/init.d/ssh start && \
 
 USER $REAHL_USER
 RUN mkdir -p $REAHLWORKSPACE/.reahlworkspace/dist-egg
-RUN bash -l -c "cd $REAHL_SCRIPTS && $VENV/bin/python scripts/bootstrap.py --script-dependencies && python scripts/bootstrap.py --pip-installs; reahl build -sdX -ns; cd reahl-doc/doc; make html"
+RUN bash -l -c "cd $REAHL_SCRIPTS && python scripts/bootstrap.py --script-dependencies && python scripts/bootstrap.py --pip-installs; reahl build -sdX -ns; cd reahl-doc/doc; make html"
 
-
-    
 
 FROM base as dev-image
+
+RUN adduser --disabled-password --gecos '' $REAHL_USER
+
 COPY --from=build-image "$REAHL_SCRIPTS/reahl-doc/doc/_build/html" "/usr/share/doc/reahl"
-COPY --from=build-image "$REAHLWORKSPACE/.reahlworkspace/dist-egg" "$REAHLWORKSPACE/.reahlworkspace/dist-egg"
+COPY --chown=$REAHL_USER --from=build-image "$REAHLWORKSPACE/.reahlworkspace/dist-egg" "$REAHLWORKSPACE/.reahlworkspace/dist-egg"
 
 ENV REAHL_SCRIPTS=/opt/reahl
 RUN mkdir -p $REAHL_SCRIPTS 
@@ -56,8 +56,6 @@ COPY ./travis $REAHL_SCRIPTS/travis
 RUN $REAHL_SCRIPTS/scripts/installDebs.sh && \
     $REAHL_SCRIPTS/scripts/installDevEnvDebs.sh
 
-RUN adduser --disabled-password --gecos '' $REAHL_USER
-RUN chown -R $REAHL_USER:$REAHL_USER /home/$REAHL_USER
 RUN /etc/init.d/ssh start && \
         sudo -i -u $REAHL_USER -- bash -lex -c "export VENV_NAME=$VENV_NAME; cd $REAHL_SCRIPTS && $REAHL_SCRIPTS/scripts/setupDevEnv.sh" && \
         /etc/init.d/ssh stop

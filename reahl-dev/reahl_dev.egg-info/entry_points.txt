@@ -99,15 +99,15 @@ tzlocal = thirdpartyegg:2.0.0 [2.0.9999]
 wheel = thirdpartyegg:0.34.0 [0.34.9999]
 
 [reahl.versiondeps.5.2]
-Babel = thirdpartyegg:2.1 [2.8.999]
+Babel = thirdpartyegg:2.1 [2.9.999]
 pip = thirdpartyegg:10.0.0
 reahl-component = egg:5.2
 reahl-stubble = egg:5.2
 reahl-tofu = egg:5.2
 setuptools = thirdpartyegg:32.3.1
-twine = thirdpartyegg:1.15.0 [3.1.9999]
-tzlocal = thirdpartyegg:2.0.0 [2.0.9999]
-wheel = thirdpartyegg:0.34.0 [0.34.9999]
+twine = thirdpartyegg:1.15.0 [3.8.9999]
+tzlocal = thirdpartyegg:2.0.0 [4.1.9999]
+wheel = thirdpartyegg:0.34.0
 
 [reahl.versions]
 2.0 = 2.0

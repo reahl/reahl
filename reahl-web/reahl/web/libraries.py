@@ -1,4 +1,4 @@
-# Copyright 2015-2021 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2015-2022 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -170,7 +170,7 @@ class Library:
 
     
 class JQuery(Library):
-    """Version 3.5.1 of `JQuery <https://jquery.com>`_.
+    """Version 3.6.0 of `JQuery <https://jquery.com>`_.
 
     This Library also includes a number of plugins we use internally:
 
@@ -185,8 +185,8 @@ class JQuery(Library):
     """
     def __init__(self):
         super().__init__('jquery')
-        self.files = ['jquery-3.5.1/jquery-3.5.1.js',
-                      'jquery-3.5.1/jquery-3.5.1.min.map']
+        self.files = ['jquery-3.6.0/jquery-3.6.0.js',
+                      'jquery-3.6.0/jquery-3.6.0.min.map']
         self.shipped_in_directory = 'reahl/web/static'
         for i in ['jquery.validate-1.19.3.modified.js',
                   'jquery.ba-bbq-1.3pre.js',
@@ -218,14 +218,14 @@ class JQuery(Library):
 
 
 class JQueryUI(Library):
-    """A heavily customised subset of version 1.12.1 of `JQuery UI <https://jqueryui.com>`_.
+    """A heavily customised subset of version 1.13.1 of `JQuery UI <https://jqueryui.com>`_.
     
    Only contains the `Widget Factory <http://api.jqueryui.com/jQuery.widget/>`_ and :tabbable, :focusable Selector.
     """
     def __init__(self):
         super().__init__('jqueryui')
         self.shipped_in_directory = 'reahl/web/static'
-        self.files = ['jquery-ui-1.12.1.custom/jquery-ui.js']
+        self.files = ['jquery-ui-1.13.1.custom/jquery-ui.js']
 
 
 class HTML5Shiv(Library):
@@ -292,20 +292,20 @@ class Holder(Library):
 
 
 class Bootstrap4(Library):
-    """Version 4.5.3 of `Bootstrap <http://getbootstrap.com/>`_.
+    """Version 4.6.1 of `Bootstrap <http://getbootstrap.com/>`_.
     """
     def __init__(self):
         super().__init__('bootstrap4')
         self.shipped_in_directory = 'reahl/web/static'
         self.files = [
-                      'bootstrap-4.5.3/css/bootstrap.css',
-                      'bootstrap-4.5.3/css/reahl-patch.css',
-                      'bootstrap-4.5.3/css/bootstrap.css.map',
-                      # 'bootstrap-4.5.3/css/bootstrap-grid.css',
-                      # 'bootstrap-4.5.3/css/bootstrap-grid.css.map',
-                      # 'bootstrap-4.5.3/css/bootstrap-reboot.css',
-                      # 'bootstrap-4.5.3/css/bootstrap-reboot.css.map',
-                      'bootstrap-4.5.3/js/bootstrap.js'
+                      'bootstrap-4.6.1/css/bootstrap.css',
+                      'bootstrap-4.6.1/css/reahl-patch.css',
+                      'bootstrap-4.6.1/css/bootstrap.css.map',
+                      # 'bootstrap-4.6.1/css/bootstrap-grid.css',
+                      # 'bootstrap-4.6.1/css/bootstrap-grid.css.map',
+                      # 'bootstrap-4.6.1/css/bootstrap-reboot.css',
+                      # 'bootstrap-4.6.1/css/bootstrap-reboot.css.map',
+                      'bootstrap-4.6.1/js/bootstrap.js'
                       ]
 
 
@@ -347,13 +347,13 @@ class Popper(Library):
 
 
 class Underscore(Library):
-    """Version 1.13.1 of `Underscore.js <https://underscorejs.org>`_.
+    """Version 1.13.2 of `Underscore.js <https://underscorejs.org>`_.
     """
     def __init__(self):
         super().__init__('underscore')
         self.shipped_in_directory = 'reahl/web/static'
         self.files = [
-            'underscore-umd-min.1.13.1.js'
+            'underscore-umd-min.1.13.2.js'
         ]
     def footer_only_material(self, rendered_page):
         return super().footer_only_material(rendered_page) + '<script>var underscore = _;</script>'
@@ -371,9 +371,9 @@ class JsCookie(Library):
 
 
 class PlotlyJS(Library):
-    """Version 2.2.0 of `plotly.js <https://github.com/plotly/plotly.js/>`_.
+    """Version 2.9.0 of `plotly.js <https://github.com/plotly/plotly.js/>`_.
     """
-    javascript_filename = 'plotly-2.2.0.min.js'
+    javascript_filename = 'plotly-2.9.0.min.js'
     def __init__(self):
         self.active = False
         super().__init__('plotly.js')

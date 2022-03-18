@@ -21,10 +21,10 @@
  </metadata>
  <version number="0.1">
   <deps purpose="run">
-   <egg name="reahl-web"/>
-   <egg name="reahl-component"/>
-   <egg name="reahl-sqlalchemysupport"/>
-   <egg name="reahl-web-declarative"/>
+   <thidpartyegg name="reahl-web"/>
+   <thidpartyegg name="reahl-component"/>
+   <thidpartyegg name="reahl-sqlalchemysupport"/>
+   <thidpartyegg name="reahl-web-declarative"/>
   </deps>
   <migrations>
     <class locator="reahl.doc.examples.tutorial.migrationexamplebootstrap.migrationexamplebootstrap:AddDate"/>
@@ -32,10 +32,10 @@
  </version>
  <version number="0.0">
   <deps purpose="run">
-   <egg name="reahl-web"/>
-   <egg name="reahl-component"/>
-   <egg name="reahl-sqlalchemysupport"/>
-   <egg name="reahl-web-declarative"/>
+   <thidpartyegg name="reahl-web"/>
+   <thidpartyegg name="reahl-component"/>
+   <thidpartyegg name="reahl-sqlalchemysupport"/>
+   <thidpartyegg name="reahl-web-declarative"/>
   </deps>
  </version>
  <deps purpose="build">
@@ -43,10 +43,10 @@
  </deps>
  <deps purpose="test">
   <thirdpartyegg minversion="3.0" name="pytest"/>
-  <egg name="reahl-tofu"/>
-  <egg name="reahl-stubble"/>
-  <egg name="reahl-dev"/>
-  <egg name="reahl-webdev"/>
+  <thidpartyegg name="reahl-tofu"/>
+  <thidpartyegg name="reahl-stubble"/>
+  <thidpartyegg name="reahl-dev"/>
+  <thidpartyegg name="reahl-webdev"/>
  </deps>
  <persisted>
   <class locator="reahl.doc.examples.tutorial.migrationexamplebootstrap.migrationexamplebootstrap:Address"/>

@@ -23,12 +23,21 @@ Several files from other projects are included in this code. See the copyright i
 of each applicable file below:
 
 
-reahl-web/reahl/web/static/bootstrap-4.5.3/
+reahl-web/reahl/web/static/bootstrap-4.6.1/
 ===========================================
 
-Bootstrap v4.5.3 (https://getbootstrap.com)
-Copyright 2011-2020 The Bootstrap Authors (https://github.com/twbs/bootstrap/graphs/contributors)
-Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+/js/
+
+Bootstrap v4.6.1 (https://getbootstrap.com/)
+Copyright 2011-2021 The Bootstrap Authors (https://github.com/twbs/bootstrap/graphs/contributors)
+Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
+
+/css/
+
+Bootstrap v4.6.1 (https://getbootstrap.com/)
+Copyright 2011-2021 The Bootstrap Authors
+Copyright 2011-2021 Twitter, Inc.
+Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
 
 
 reahl-web/reahl/web/static/popper-1.16.1/popper.js
@@ -39,10 +48,10 @@ Copyright (c) 2016 Federico Zivolo and contributors
 FezVrasta/popper.js is licensed under the MIT License
 
 
-reahl/reahl-web/reahl/web/static/underscore-min-1.13.1.js
+reahl/reahl-web/reahl/web/static/underscore-min-1.13.2.js
 =========================================================
 
-Underscore.js 1.13.1
+Underscore.js 1.13.2
 https://underscorejs.org
 (c) 2009-2021 Jeremy Ashkenas, Julian Gonggrijp, and DocumentCloud and Investigative Reporters & Editors
 Underscore may be freely distributed under the MIT license.
@@ -68,10 +77,10 @@ Copyright HTML5 Shiv v3.7.3 | MIT/GPL2 Licensed,
 see http://opensource.org/licenses/mit-license.php
 or http://opensource.org/licenses/GPL-2.0
 
-reahl-web/reahl/web/static/jquery/jquery-3.5.1/
+reahl-web/reahl/web/static/jquery/jquery-3.6.0/
 ===============================================
 
-jQuery JavaScript Library v3.5.1
+jQuery JavaScript Library v3.6.0
 https://jquery.com/
 
 Includes Sizzle.js
@@ -132,12 +141,12 @@ see also https://mathiasbynens.be/demo/url-regex
 modified to allow protocol-relative URLs
 
 
-reahl-web/reahl/web/static/jquery-ui-1.12.1.custom/jquery-ui.js
+reahl-web/reahl/web/static/jquery-ui-1.13.1.custom/jquery-ui.js
 ===============================================================
 
-jQuery UI - v1.12.1 - 2018-02-27
+jQuery UI - v1.13.1 - 2022-03-01
 http://jqueryui.com
-Includes: widget.js
+Includes: widget.js, focusable.js, tabbable.js
 Copyright jQuery Foundation and other contributors;
 Licensed MIT
 http://www.opensource.org/licenses/mit-license.php
@@ -155,28 +164,15 @@ Issues:   https://github.com/imsky/holder/issues
 License:  MIT
 http://www.opensource.org/licenses/mit-license.php
 
-reahl-web/reahl/web/static/plotly-2.2.0.min.js
+reahl-web/reahl/web/static/plotly-2.9.0.min.js
 ==============================================
 
-Plotly.js - 2.2.0
+Plotly.js - 2.9.0
 https://github.com/plotly/plotly.js/
 
-Copyright (c) 2021 Plotly, Inc
+plotly.js v2.9.0
+Copyright 2012-2022, Plotly, Inc.
+All rights reserved.
+Licensed under the MIT license
+http://www.opensource.org/licenses/mit-license.php
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.

@@ -1,11 +1,11 @@
 <project type="egg">
  <version number="0.0">
   <deps purpose="run">
-   <egg name="reahl-component"/>
-   <egg name="reahl-web"/>
-   <egg name="reahl-sqlalchemysupport"/>
-   <egg name="reahl-web-declarative"/>
-   <egg name="reahl-sqlitesupport"/>
+   <thirdpartyegg name="reahl-component"/>
+   <thirdpartyegg name="reahl-web"/>
+   <thirdpartyegg name="reahl-sqlalchemysupport"/>
+   <thirdpartyegg name="reahl-web-declarative"/>
+   <thirdpartyegg name="reahl-sqlitesupport"/>
   </deps>
  </version>
  <!-- packaging -->

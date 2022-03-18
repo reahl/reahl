@@ -15,7 +15,7 @@
 
   <deps purpose="test">
     <thirdpartyegg name="pytest" minversion="3.0"/>
-    <thirdpartyegg name="plotly" minversion="5.1.0" maxversion="5.1.99999"/>
+    <thirdpartyegg name="plotly" minversion="5.1.0" maxversion="5.6.99999"/>
     <egg name="reahl-tofu"/>
     <egg name="reahl-stubble"/>
     <egg name="reahl-sqlalchemysupport"/>
@@ -34,10 +34,11 @@
         <thirdpartyegg name="ply" minversion="3.8" maxversion="3.11.999"/>
         <thirdpartyegg name="rjsmin" minversion="1.2.0" maxversion="1.2.999"/>
         <thirdpartyegg name="rcssmin" minversion="1.1.0" maxversion="1.1.999"/>
-        <thirdpartyegg name="beautifulsoup4" minversion="4.6" maxversion="4.6.999"/>
+        <thirdpartyegg name="beautifulsoup4" minversion="4.6" maxversion="4.10.999"/>
         <thirdpartyegg name="WebOb" minversion="1.8" maxversion="1.8.999"/>
-        <thirdpartyegg name="Babel" minversion="2.1" maxversion="2.8.999"/>
+        <thirdpartyegg name="Babel" minversion="2.1" maxversion="2.9.999"/>
         <thirdpartyegg name="setuptools" minversion="32.3.1"/>
+        <thirdpartyegg name="lxml" minversion="4.2" maxversion="4.7.999"/>
       </deps>
   </version>
 

@@ -1,11 +1,11 @@
 <project type="egg">
  <version number="0.0">
   <deps purpose="run">
-   <egg name="reahl-component"/>
-   <egg name="reahl-web"/>
-   <egg name="reahl-sqlalchemysupport"/>
-   <egg name="reahl-web-declarative"/>
-   <thirdpartyegg name="plotly" minversion="5.1.0" maxversion="5.1.99999"/>
+   <thirdpartyegg name="reahl-component"/>
+   <thirdpartyegg name="reahl-web"/>
+   <thirdpartyegg name="reahl-sqlalchemysupport"/>
+   <thirdpartyegg name="reahl-web-declarative"/>
+   <thirdpartyegg name="plotly" minversion="5.1.0" maxversion="5.6.99999"/>
   </deps>
  </version>
 </project>

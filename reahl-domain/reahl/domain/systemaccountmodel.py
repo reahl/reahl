@@ -1,4 +1,4 @@
-# Copyright 2013-2020 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2022 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -85,7 +85,10 @@ class SystemAccount(Base):
 
     id = Column(Integer, primary_key=True)
     discriminator = Column('row_type', String(40))
-    __mapper_args__ = {'polymorphic_on': discriminator}
+    __mapper_args__ = {
+        'polymorphic_identity': 'systemaccount',
+        'polymorphic_on': discriminator
+    }
 
     owner_party_id = Column(Integer, ForeignKey(Party.id))
     owner = relationship(Party) #: The party to whom this account belongs.
@@ -565,6 +568,7 @@ class ActivateAccount(DeferredAction):
         self.system_account.activate()
 
     def deadline_action(self):
+        Session.flush()
         self.system_account.cancel_reservation()
 
 
@@ -612,7 +616,10 @@ class LoginSession(Base):
 
     id = Column(Integer, primary_key=True)
     discriminator = Column('row_type', String(length=40))
-    __mapper_args__ = {'polymorphic_on': discriminator}
+    __mapper_args__ = {
+        'polymorphic_identity': 'loginsession',
+        'polymorphic_on': discriminator
+    }
 
     account_id = Column(Integer, ForeignKey('systemaccount.id'), index=True)
     account = relationship(SystemAccount) #: The SystemAccount currently logged on

@@ -34,7 +34,7 @@ services:
   travis-cli:
     container_name: travis-cli
     image: travis-cli:latest
-    restart: never
+    restart: "no"
     profiles:
       - dontstart
     volumes:
@@ -47,4 +47,16 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.travis-cli
+    
+  apt-cacher-ng:
+    container_name: apt-cacher-ng
+    image: apt-cacher-ng:latest
+    restart: "no"
+    profiles:
+      - dontstart
+    ports:
+      - "3142:3142"
+    build:
+      context: .
+      dockerfile: Dockerfile.apt-cacher-ng
     

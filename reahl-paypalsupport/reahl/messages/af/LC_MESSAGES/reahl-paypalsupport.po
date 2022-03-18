@@ -1,0 +1,29 @@
+# Afrikaans translations for reahl-paypalsupport.
+# Copyright (C) 2022 ORGANIZATION
+# This file is distributed under the same license as the reahl-paypalsupport
+# project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: reahl-paypalsupport 5.2.0\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2022-03-08 11:51+0000\n"
+"PO-Revision-Date: 2022-03-08 11:28+0000\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: af\n"
+"Language-Team: af <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.9.1\n"
+
+#: reahl/paypalsupport/paypalsupport.py:152
+msgid "Error while talking to PayPal:"
+msgstr "Fout ten tyde van PayPal verbinding:"
+
+#: reahl/paypalsupport/paypalsupport.py:153
+msgid "Sorry, your transaction could not be processed."
+msgstr "Jammer, jou transaksie kon nie verwerk word nie."
+

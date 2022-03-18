@@ -1,366 +1,370 @@
 # Translations template for reahl-component.
-# Copyright (C) 2021 ORGANIZATION
+# Copyright (C) 2022 ORGANIZATION
 # This file is distributed under the same license as the reahl-component
 # project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2021.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: reahl-component 5.1.0\n"
+"Project-Id-Version: reahl-component 5.2.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-06-10 12:38+0000\n"
+"POT-Creation-Date: 2022-03-08 11:52+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.8.1\n"
+"Generated-By: Babel 2.9.1\n"
 
-#: reahl/component/exceptions.py:57
+#: reahl/component/exceptions.py:60
 #, python-format
 msgid "An error occurred: %s"
 msgstr ""
 
-#: reahl/component/modelinterface.py:288 reahl/component/modelinterface.py:577
+#: reahl/component/modelinterface.py:292 reahl/component/modelinterface.py:581
 msgid "$label is invalid"
 msgstr ""
 
-#: reahl/component/modelinterface.py:366
+#: reahl/component/modelinterface.py:370
 msgid "$label is not valid"
 msgstr ""
 
-#: reahl/component/modelinterface.py:436 reahl/component/modelinterface.py:786
-#: reahl/component/modelinterface.py:1575
+#: reahl/component/modelinterface.py:440 reahl/component/modelinterface.py:790
+#: reahl/component/modelinterface.py:1634
 msgid "$label is required"
 msgstr ""
 
-#: reahl/component/modelinterface.py:490
+#: reahl/component/modelinterface.py:494
 msgid "$label should be equal to $other_label"
 msgstr ""
 
-#: reahl/component/modelinterface.py:504
+#: reahl/component/modelinterface.py:508
 msgid "$label should be greater than $other_label"
 msgstr ""
 
-#: reahl/component/modelinterface.py:519
+#: reahl/component/modelinterface.py:523
 msgid "$label should be smaller than $other_label"
 msgstr ""
 
-#: reahl/component/modelinterface.py:532
+#: reahl/component/modelinterface.py:536
 msgid "$label should be $min_length characters or longer"
 msgstr ""
 
-#: reahl/component/modelinterface.py:555
+#: reahl/component/modelinterface.py:559
 msgid "$label should not be longer than $max_length characters"
 msgstr ""
 
-#: reahl/component/modelinterface.py:592
+#: reahl/component/modelinterface.py:596
 #, python-format
 msgid "Invalid pattern: %s"
 msgstr ""
 
-#: reahl/component/modelinterface.py:607
+#: reahl/component/modelinterface.py:611
 msgid "$label should be one of the following: $allowed"
 msgstr ""
 
-#: reahl/component/modelinterface.py:623
+#: reahl/component/modelinterface.py:627
 msgid "$label should be an integer number"
 msgstr ""
 
-#: reahl/component/modelinterface.py:645
+#: reahl/component/modelinterface.py:649
 msgid "$label should be $min_value or greater"
 msgstr ""
 
-#: reahl/component/modelinterface.py:664
+#: reahl/component/modelinterface.py:668
 msgid "$label should be no greater than $max_value"
 msgstr ""
 
-#: reahl/component/modelinterface.py:731
+#: reahl/component/modelinterface.py:735
 msgid "Not allowed"
 msgstr ""
 
-#: reahl/component/modelinterface.py:1329
+#: reahl/component/modelinterface.py:1333
 msgid "$label should be a valid email address"
 msgstr ""
 
-#: reahl/component/modelinterface.py:1395
+#: reahl/component/modelinterface.py:1381
+msgid "$label should be a valid number"
+msgstr ""
+
+#: reahl/component/modelinterface.py:1454
 msgid "Mon"
 msgstr ""
 
-#: reahl/component/modelinterface.py:1395
+#: reahl/component/modelinterface.py:1454
 msgid "Monday"
 msgstr ""
 
-#: reahl/component/modelinterface.py:1396
+#: reahl/component/modelinterface.py:1455
 msgid "Tue"
 msgstr ""
 
-#: reahl/component/modelinterface.py:1396
+#: reahl/component/modelinterface.py:1455
 msgid "Tuesday"
 msgstr ""
 
-#: reahl/component/modelinterface.py:1397
+#: reahl/component/modelinterface.py:1456
 msgid "Wed"
 msgstr ""
 
-#: reahl/component/modelinterface.py:1397
+#: reahl/component/modelinterface.py:1456
 msgid "Wednesday"
 msgstr ""
 
-#: reahl/component/modelinterface.py:1398
+#: reahl/component/modelinterface.py:1457
 msgid "Thu"
 msgstr ""
 
-#: reahl/component/modelinterface.py:1398
+#: reahl/component/modelinterface.py:1457
 msgid "Thursday"
 msgstr ""
 
-#: reahl/component/modelinterface.py:1399
+#: reahl/component/modelinterface.py:1458
 msgid "Fri"
 msgstr ""
 
-#: reahl/component/modelinterface.py:1399
+#: reahl/component/modelinterface.py:1458
 msgid "Friday"
 msgstr ""
 
-#: reahl/component/modelinterface.py:1400
+#: reahl/component/modelinterface.py:1459
 msgid "Sat"
 msgstr ""
 
-#: reahl/component/modelinterface.py:1400
+#: reahl/component/modelinterface.py:1459
 msgid "Saturday"
 msgstr ""
 
-#: reahl/component/modelinterface.py:1401
+#: reahl/component/modelinterface.py:1460
 msgid "Sun"
 msgstr ""
 
-#: reahl/component/modelinterface.py:1401
+#: reahl/component/modelinterface.py:1460
 msgid "Sunday"
 msgstr ""
 
-#: reahl/component/modelinterface.py:1402
+#: reahl/component/modelinterface.py:1461
 msgid "Jan"
 msgstr ""
 
-#: reahl/component/modelinterface.py:1402
+#: reahl/component/modelinterface.py:1461
 msgid "January"
 msgstr ""
 
-#: reahl/component/modelinterface.py:1403
+#: reahl/component/modelinterface.py:1462
 msgid "Feb"
 msgstr ""
 
-#: reahl/component/modelinterface.py:1403
+#: reahl/component/modelinterface.py:1462
 msgid "February"
 msgstr ""
 
-#: reahl/component/modelinterface.py:1404
+#: reahl/component/modelinterface.py:1463
 msgid "Mar"
 msgstr ""
 
-#: reahl/component/modelinterface.py:1404
+#: reahl/component/modelinterface.py:1463
 msgid "March"
 msgstr ""
 
-#: reahl/component/modelinterface.py:1405
+#: reahl/component/modelinterface.py:1464
 msgid "Apr"
 msgstr ""
 
-#: reahl/component/modelinterface.py:1405
+#: reahl/component/modelinterface.py:1464
 msgid "April"
 msgstr ""
 
-#: reahl/component/modelinterface.py:1406
+#: reahl/component/modelinterface.py:1465
 msgid "May"
 msgstr ""
 
-#: reahl/component/modelinterface.py:1407
+#: reahl/component/modelinterface.py:1466
 msgid "Jun"
 msgstr ""
 
-#: reahl/component/modelinterface.py:1407
+#: reahl/component/modelinterface.py:1466
 msgid "June"
 msgstr ""
 
-#: reahl/component/modelinterface.py:1408
+#: reahl/component/modelinterface.py:1467
 msgid "Jul"
 msgstr ""
 
-#: reahl/component/modelinterface.py:1408
+#: reahl/component/modelinterface.py:1467
 msgid "July"
 msgstr ""
 
-#: reahl/component/modelinterface.py:1409
+#: reahl/component/modelinterface.py:1468
 msgid "Aug"
 msgstr ""
 
-#: reahl/component/modelinterface.py:1409
+#: reahl/component/modelinterface.py:1468
 msgid "August"
 msgstr ""
 
-#: reahl/component/modelinterface.py:1410
+#: reahl/component/modelinterface.py:1469
 msgid "Sep"
 msgstr ""
 
-#: reahl/component/modelinterface.py:1410
+#: reahl/component/modelinterface.py:1469
 msgid "September"
 msgstr ""
 
-#: reahl/component/modelinterface.py:1411
+#: reahl/component/modelinterface.py:1470
 msgid "Oct"
 msgstr ""
 
-#: reahl/component/modelinterface.py:1411
+#: reahl/component/modelinterface.py:1470
 msgid "October"
 msgstr ""
 
-#: reahl/component/modelinterface.py:1412
+#: reahl/component/modelinterface.py:1471
 msgid "Nov"
 msgstr ""
 
-#: reahl/component/modelinterface.py:1412
+#: reahl/component/modelinterface.py:1471
 msgid "November"
 msgstr ""
 
-#: reahl/component/modelinterface.py:1413
+#: reahl/component/modelinterface.py:1472
 msgid "Dec"
 msgstr ""
 
-#: reahl/component/modelinterface.py:1413
+#: reahl/component/modelinterface.py:1472
 msgid "December"
 msgstr ""
 
-#: reahl/component/modelinterface.py:1415
+#: reahl/component/modelinterface.py:1474
 msgid "h"
 msgstr ""
 
-#: reahl/component/modelinterface.py:1415
+#: reahl/component/modelinterface.py:1474
 msgid "hour"
 msgstr ""
 
-#: reahl/component/modelinterface.py:1415
+#: reahl/component/modelinterface.py:1474
 msgid "hours"
 msgstr ""
 
-#: reahl/component/modelinterface.py:1416
-#: reahl/component/modelinterface.py:1423
+#: reahl/component/modelinterface.py:1475
+#: reahl/component/modelinterface.py:1482
 msgid "m"
 msgstr ""
 
-#: reahl/component/modelinterface.py:1416
+#: reahl/component/modelinterface.py:1475
 msgid "minute"
 msgstr ""
 
-#: reahl/component/modelinterface.py:1416
+#: reahl/component/modelinterface.py:1475
 msgid "minutes"
 msgstr ""
 
-#: reahl/component/modelinterface.py:1417
+#: reahl/component/modelinterface.py:1476
 msgid "s"
 msgstr ""
 
-#: reahl/component/modelinterface.py:1417
+#: reahl/component/modelinterface.py:1476
 msgid "second"
 msgstr ""
 
-#: reahl/component/modelinterface.py:1417
+#: reahl/component/modelinterface.py:1476
 msgid "seconds"
 msgstr ""
 
-#: reahl/component/modelinterface.py:1418
+#: reahl/component/modelinterface.py:1477
 msgid "am"
 msgstr ""
 
-#: reahl/component/modelinterface.py:1418
+#: reahl/component/modelinterface.py:1477
 msgid "a"
 msgstr ""
 
-#: reahl/component/modelinterface.py:1419
+#: reahl/component/modelinterface.py:1478
 msgid "pm"
 msgstr ""
 
-#: reahl/component/modelinterface.py:1419
+#: reahl/component/modelinterface.py:1478
 msgid "p"
 msgstr ""
 
-#: reahl/component/modelinterface.py:1420
+#: reahl/component/modelinterface.py:1479
 msgid "UTC"
 msgstr ""
 
-#: reahl/component/modelinterface.py:1420
+#: reahl/component/modelinterface.py:1479
 msgid "GMT"
 msgstr ""
 
-#: reahl/component/modelinterface.py:1420
+#: reahl/component/modelinterface.py:1479
 msgid "Z"
 msgstr ""
 
-#: reahl/component/modelinterface.py:1421
-#: reahl/component/modelinterface.py:1423
+#: reahl/component/modelinterface.py:1480
+#: reahl/component/modelinterface.py:1482
 msgid "of"
 msgstr ""
 
-#: reahl/component/modelinterface.py:1423
+#: reahl/component/modelinterface.py:1482
 msgid "at"
 msgstr ""
 
-#: reahl/component/modelinterface.py:1423
-#: reahl/component/modelinterface.py:1571
+#: reahl/component/modelinterface.py:1482
+#: reahl/component/modelinterface.py:1630
 msgid "on"
 msgstr ""
 
-#: reahl/component/modelinterface.py:1423
+#: reahl/component/modelinterface.py:1482
 msgid "and"
 msgstr ""
 
-#: reahl/component/modelinterface.py:1423
+#: reahl/component/modelinterface.py:1482
 msgid "ad"
 msgstr ""
 
-#: reahl/component/modelinterface.py:1423
+#: reahl/component/modelinterface.py:1482
 msgid "t"
 msgstr ""
 
-#: reahl/component/modelinterface.py:1424
+#: reahl/component/modelinterface.py:1483
 msgid "st"
 msgstr ""
 
-#: reahl/component/modelinterface.py:1424
+#: reahl/component/modelinterface.py:1483
 msgid "nd"
 msgstr ""
 
-#: reahl/component/modelinterface.py:1424
+#: reahl/component/modelinterface.py:1483
 msgid "rd"
 msgstr ""
 
-#: reahl/component/modelinterface.py:1424
+#: reahl/component/modelinterface.py:1483
 msgid "th"
 msgstr ""
 
-#: reahl/component/modelinterface.py:1494
+#: reahl/component/modelinterface.py:1553
 msgid "$label should be a subset of $choice_input_values"
 msgstr ""
 
-#: reahl/component/modelinterface.py:1572
+#: reahl/component/modelinterface.py:1631
 msgid "off"
 msgstr ""
 
-#: reahl/component/modelinterface.py:1664
+#: reahl/component/modelinterface.py:1723
 msgid "$label can only accept a single file"
 msgstr ""
 
-#: reahl/component/modelinterface.py:1717
+#: reahl/component/modelinterface.py:1776
 msgid "files should be smaller than $human_max_size"
 msgstr ""
 
-#: reahl/component/modelinterface.py:1748
+#: reahl/component/modelinterface.py:1807
 msgid "files should be of type $human_accepted_types"
 msgstr ""
 
-#: reahl/component/modelinterface.py:1780
+#: reahl/component/modelinterface.py:1839
 msgid "a maximum of $max_files files may be uploaded"
 msgstr ""
 

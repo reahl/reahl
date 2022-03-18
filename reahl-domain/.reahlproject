@@ -50,6 +50,9 @@
       <egg name="reahl-web-declarative" versionlocked="True"/>
       <thirdpartyegg name="passlib" minversion="1.7.1" maxversion="1.7.9999"/>
     </deps>
+    <migrations>
+      <class locator="reahl.domain.migrations:AddPolimorphicEntityName"/>
+    </migrations>
   </version>
 
   <version number="5.1">

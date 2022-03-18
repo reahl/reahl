@@ -1,4 +1,4 @@
-# Copyright 2013-2020 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2022 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -111,7 +111,7 @@ class SessionDataProtocol(object, metaclass=ABCMeta):
     @classmethod
     @abstractmethod
     def clear_for_view(cls, view):
-        """Removes all data saved in the scope of the given :class:`reahl.web.ui.UrlBoundView`.
+        """Removes all data saved in the scope of the given :class:`reahl.web.fw.UrlBoundView`.
 
         .. versionadded:: 5.0        
         """
@@ -153,7 +153,7 @@ class UserInputProtocol(SessionDataProtocol, metaclass=ABCMeta):
     @classmethod
     @abstractmethod
     def get_persisted_for_view(cls, view, key, value_type):
-        """Returns the value associated with the given :class:`reahl.web.ui.UrlBoundView`, as previously saved using
+        """Returns the value associated with the given :class:`reahl.web.fw.UrlBoundView`, as previously saved using
            `key`.
 
            .. versionadded:: 5.0
@@ -162,7 +162,7 @@ class UserInputProtocol(SessionDataProtocol, metaclass=ABCMeta):
     @classmethod
     @abstractmethod
     def add_persisted_for_view(cls, view, key, value, value_type):
-        """Persists `value` associated with the given :class:`reahl.web.ui.UrlBoundView`,
+        """Persists `value` associated with the given :class:`reahl.web.fw.UrlBoundView`,
            to be retrieved using `key`.
 
            .. versionadded:: 5.0
@@ -171,7 +171,7 @@ class UserInputProtocol(SessionDataProtocol, metaclass=ABCMeta):
     @classmethod
     @abstractmethod
     def remove_persisted_for_view(cls, view, key):
-        """Removes previously persisted value with the given :class:`reahl.web.ui.UrlBoundView`, as previously saved using
+        """Removes previously persisted value with the given :class:`reahl.web.fw.UrlBoundView`, as previously saved using
            `key`
 
            .. versionadded:: 5.0

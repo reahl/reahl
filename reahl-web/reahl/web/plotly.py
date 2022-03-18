@@ -1,4 +1,4 @@
-# Copyright 2021 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2021, 2022 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -14,7 +14,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-Support for including `plotly.py <https://github.com/plotly/plotly.py/>_` figures on a web page.
+Support for including `plotly.py <https://github.com/plotly/plotly.py/>`_ figures on a web page.
 """
 
 

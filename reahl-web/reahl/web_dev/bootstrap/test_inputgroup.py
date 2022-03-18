@@ -1,4 +1,4 @@
-# Copyright 2015-2021 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2015-2022 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -62,7 +62,7 @@ def test_input_group(web_fixture, input_group_fixture):
     tester = WidgetTester(fixture.input_group)
 
     [outer_div] = tester.xpath('//div')
-    assert outer_div.attrib['class'] == 'input-group'
+    assert outer_div.attrib['class'] == 'has-validation input-group'
 
     if fixture.expects_before_html:
         rendered_html = tester.get_html_for('//div/input/preceding-sibling::span')

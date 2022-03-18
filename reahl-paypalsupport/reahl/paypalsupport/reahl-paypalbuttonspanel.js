@@ -1,4 +1,4 @@
-/* Copyright 2021 Reahl Software Services (Pty) Ltd. All rights reserved. */
+/* Copyright 2021, 2022 Reahl Software Services (Pty) Ltd. All rights reserved. */
 /*
     This file is part of Reahl.
 
@@ -24,7 +24,9 @@ $.widget("reahl.paypalbuttonspanel", {
     options: {
         createOrderUrl: '',
         captureOrderUrl: '',
-        returnUrl: ''
+        returnUrl: '',
+        error_announce_text: 'Error while talking to paypal:',
+        transaction_not_processed_text: 'Sorry, your transaction could not be processed.'
     },
     _create: function() {
         var o = this.options;
@@ -37,7 +39,8 @@ $.widget("reahl.paypalbuttonspanel", {
         }).render('#'+this.element.attr('id'));
     },
     createOrder: function(data, actions) {
-        return fetch(this.options.createOrderUrl, {
+        var this_ = this;
+        return fetch(this_.options.createOrderUrl, {
             method: 'post',
             redirect: 'error'
         }).then(function(res) {
@@ -48,13 +51,13 @@ $.widget("reahl.paypalbuttonspanel", {
         }).then(function(orderData) {
             return orderData.id;
         }).catch(function(reason) {
-           var errorUrl = window.location.origin+"/error?error_message="+encodeURIComponent('Error while talking to paypal:'+reason)+"&error_source_href="+encodeURIComponent(window.location.href);
+           var errorUrl = window.location.origin+"/error?error_message="+encodeURIComponent(this_.options.error_announce_text+reason)+"&error_source_href="+encodeURIComponent(window.location.href);
            window.location.href = errorUrl;
         });
     },
     onApprove: function(data, actions) {
         var this_ = this;
-        return fetch(this.options.captureOrderUrl, {
+        return fetch(this_.options.captureOrderUrl, {
             method: 'post',
             redirect: 'error'
         }).then(function(res) {
@@ -78,7 +81,7 @@ $.widget("reahl.paypalbuttonspanel", {
             }
 
             if (errorDetail) {
-                var msg = 'Sorry, your transaction could not be processed.';
+                var msg = this_.options.transaction_not_processed_text;
                 if (errorDetail.description) msg += '\n\n' + errorDetail.description;
                 if (orderData.debug_id) msg += ' (' + orderData.debug_id + ')';
                 return alert(msg); // Show a failure message (try to avoid alerts in production environments)

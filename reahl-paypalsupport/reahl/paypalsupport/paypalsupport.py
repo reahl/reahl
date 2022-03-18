@@ -1,4 +1,4 @@
-# Copyright 2021 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2021, 2022 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -26,6 +26,7 @@ from reahl.web.fw import RemoteMethod, JsonResult
 from reahl.web.ui import HTMLWidget, LiteralHTML
 from reahl.web.bootstrap.ui import Div
 from reahl.component.modelinterface import JsonField
+from reahl.component.i18n import Catalogue
 from reahl.sqlalchemysupport.sqlalchemysupport import Base
 from reahl.paypalsupport.paypallibrary import PayPalJS
 
@@ -35,7 +36,7 @@ from paypalcheckoutsdk.orders import OrdersCreateRequest
 from paypalcheckoutsdk.core import PayPalHttpClient, SandboxEnvironment, LiveEnvironment
 from sqlalchemy import Column, Integer, String, Unicode
 
-
+_ = Catalogue('reahl-paypalsupport')
 
 class PayPalClientCredentials:
     """
@@ -147,7 +148,9 @@ class PayPalButtonsPanel(HTMLWidget):
         create_order_url = self.create_order_method.get_url().as_network_absolute()
         capture_order_url = self.capture_order_method.get_url().as_network_absolute()
         options = { 'createOrderUrl': str(create_order_url),
-                    'captureOrderUrl': str(capture_order_url)
+                    'captureOrderUrl': str(capture_order_url),
+                    'error_announce_text' : _('Error while talking to PayPal:'),
+                    'transaction_not_processed_text' : _('Sorry, your transaction could not be processed.')
                   }
         return super().get_js(context=context) + \
             ['$("#%s").paypalbuttonspanel(%s);' % (self.css_id, json.dumps(options))]

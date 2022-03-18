@@ -22,15 +22,15 @@ if [ ! -f /.provisioned ]; then
     /etc/init.d/ssh start
 
     # Update localhost known_hosts
-    su $REAHL_USER -c -- bash -l -c 'ssh-keyscan -t rsa localhost > ~/.ssh/known_hosts'
+    su $REAHL_USER -c 'bash -l -c "ssh-keyscan -t rsa localhost > ~/.ssh/known_hosts"'
 
     if [ ! -z "$BOOTSTRAP_REAHL_SOURCE" ]; then
         $REAHL_SCRIPTS/scripts/installBuildDebs.sh
-        su $REAHL_USER -c -- bash -l -c "
+        su $REAHL_USER -c 'bash -l -c "
            cd $BOOTSTRAP_REAHL_SOURCE
            $VENV/bin/python scripts/bootstrap.py --script-dependencies
            $VENV/bin/python scripts/bootstrap.py --pip-installs
-        "
+        "'
     fi
 
     /etc/init.d/ssh stop

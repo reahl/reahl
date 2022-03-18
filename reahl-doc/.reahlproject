@@ -80,7 +80,7 @@
       <egg name="reahl-paypalsupport" versionlocked="True"/>
       <thirdpartyegg name="pytest" minversion="3.0"/>
       <thirdpartyegg name="setuptools" minversion="32.3.1"/>
-      <thirdpartyegg name="plotly" minversion="5.1.0" maxversion="5.1.99999"/>
+      <thirdpartyegg name="plotly" minversion="5.1.0" maxversion="5.6.99999"/>
     </deps>
   </version>
 

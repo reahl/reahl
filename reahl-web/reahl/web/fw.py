@@ -1,4 +1,4 @@
-# Copyright 2013-2021 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2022 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -874,7 +874,7 @@ class Redirect(HTTPSeeOther):
 class Detour(Redirect):
     """An exception that can be raised by a :class:`ViewPreCondition` to send the user temporarily to a different
        View (matching `target`, a ViewFactory). If `return_to` (also a ViewFactory) is specified, and a user triggers
-       a :class:`ReturnTransition`, the user will be returned to a View matching `return_to`. If `return_to` is
+       a :class:`Return`, the user will be returned to a View matching `return_to`. If `return_to` is
        not specified, the user will be returned to the View for which the :class:`ViewPreCondition` failed initially.
     """
     def __init__(self, target, return_to=None):
@@ -2452,7 +2452,7 @@ class RemoteMethod(SubResource):
 
     def cleanup_after_exception(self, input_values, ex):
         """Override this method in a subclass to trigger custom behaviour after the method
-           triggered a :class:`DomainException`."""
+           triggered a :class:`~reahl.component.exceptions.DomainException`."""
         
     def cleanup_after_success(self):
         """Override this method in a subclass to trigger custom behaviour after the method

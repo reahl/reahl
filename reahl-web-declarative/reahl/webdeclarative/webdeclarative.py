@@ -1,4 +1,4 @@
-# Copyright 2013-2020 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2022 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -49,7 +49,9 @@ class UserSession(Base, UserSessionProtocol):
 
     id = Column(Integer, primary_key=True)
     discriminator = Column('row_type', String(40))
-    __mapper_args__ = {'polymorphic_on': discriminator}
+    __mapper_args__ = {
+        'polymorphic_identity':'usersession',
+        'polymorphic_on': discriminator}
 
     idle_lifetime = Column(Integer(), nullable=False, default=0)
     last_activity = Column(DateTime(), nullable=False, default=datetime.now)
@@ -191,7 +193,9 @@ class SessionData(Base):
 
     id = Column(Integer, primary_key=True)
     discriminator = Column('row_type', String(40))
-    __mapper_args__ = {'polymorphic_on': discriminator}
+    __mapper_args__ = {
+        'polymorphic_identity': 'sessiondata',
+        'polymorphic_on': discriminator}
     
     web_session_id = Column(Integer, ForeignKey('usersession.id', ondelete='CASCADE'), index=True)
     web_session = relationship(UserSession)

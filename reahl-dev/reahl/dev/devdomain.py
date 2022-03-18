@@ -1,4 +1,4 @@
-# Copyright 2013-2021 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2022 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -24,6 +24,7 @@ import os.path
 import shutil
 import subprocess
 import logging
+import pathlib
 import email.utils
 from contextlib import contextmanager
 import datetime
@@ -2194,6 +2195,7 @@ class ProjectList(list):
                         dirs[:] = []  # This prunes the tree so it does not walk deeper in here
 
     def save(self, filename):
+        pathlib.Path(pathlib.Path(filename).parent).mkdir(parents=True, exist_ok=True)
         f = open(filename, 'w')
         f.writelines(['%s\n' % i.relative_directory for i in self])
         f.close()

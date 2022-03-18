@@ -1,4 +1,4 @@
-# Copyright 2013-2020 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2022 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -79,9 +79,12 @@ class SqlAlchemyFixture(Fixture):
         for entity in entities:
             if hasattr(entity, '__table__'):
                 entity.__table__.metadata.remove(entity.__table__)
-                # noinspection PyProtectedMember
-                if entity.__name__ in entity._decl_class_registry:
-                    # noinspection PyProtectedMember
-                    del entity._decl_class_registry[entity.__name__]
+                if hasattr(entity, 'registry'):
+                    if entity.__name__ in entity.registry._class_registry:
+                        del entity.registry._class_registry[entity.__name__]
+                else:
+                    #for older versions of SqlAlchemy like 1.2,1.3
+                    if entity.__name__ in entity._decl_class_registry:
+                        del entity._decl_class_registry[entity.__name__]
 
 

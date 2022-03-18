@@ -1,4 +1,4 @@
-# Copyright 2014-2020 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2014-2022 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -152,3 +152,10 @@ class AddViewPathToSessionData(Migration):
         self.schedule('alter', op.alter_column, 'sessiondata', 'channel_name', existing_nullable=False, nullable=True, existing_type=UnicodeText)
         self.schedule('alter', op.add_column, 'sessiondata', Column('view_path', UnicodeText, nullable=False))
 
+
+class AddPolimorphicEntityName(Migration):
+    def schedule_upgrades(self):
+        self.orm_control.assert_dialect(self, 'postgresql')
+        self.schedule('data', op.execute, 'update usersession set discriminator=\'usersession\' where discriminator is null')
+        self.schedule('data', op.execute, 'update sessiondata set discriminator=\'sessiondata\' where discriminator is null')
+        
