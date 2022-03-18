@@ -59,7 +59,6 @@ class BasicScenarios(Fixture):
                 self.define_view('/', title='Hello', page=SimplePage.factory())
 
         self.MainUI = MainUI
-        self.expected_content = self.get_file_content('expected_hello_world.html')
         self.content_includes_p = True
 
     @scenario
@@ -75,7 +74,6 @@ class BasicScenarios(Fixture):
                 home.set_page(SimplePage.factory())
 
         self.MainUI = MainUI
-        self.expected_content = self.get_file_content('expected_hello_world.html')
         self.content_includes_p = True
 
     @scenario
@@ -86,7 +84,6 @@ class BasicScenarios(Fixture):
                 self.define_view('/', title='Hello')
 
         self.MainUI = MainUI
-        self.expected_content = self.get_file_content('expected_hello_world_without_p.html')
         self.content_includes_p = False
 
 
@@ -120,9 +117,9 @@ def test_basic_assembly(web_fixture, basic_scenarios):
 
     # The headers are set correctly
     response = browser.last_response
-    assert response.content_length == len(fixture.expected_content)
     assert response.content_type == 'text/html'
     assert response.charset == 'utf-8'
+    assert str(response.cache_control) == 'no-store'
 
     # Invalid URLs do not exist
     with warnings.catch_warnings(record=True):
