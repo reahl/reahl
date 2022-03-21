@@ -1,3 +1,9 @@
+python-reahl (5.2.1) unstable; urgency=low
+	
+ * Changed dependency on Alembic to be between 0.9.6 and 1.7.x
+
+ -- Iwan Vosloo <iwan@reahl.org>  Mon, 21 Mar 2022 17:32:00 +0200
+
 python-reahl (5.2.0) unstable; urgency=low
 
  * Add Chart widget for plotly (#281).
