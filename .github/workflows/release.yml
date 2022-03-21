@@ -44,6 +44,7 @@ jobs:
 
       - name: Sign all wheels
         env:
+          SECURE_ENV_VARS: ${{ secrets.SECURE_ENV_VARS }}
           GPG_KEY:         ${{ secrets.GPG_KEY }}
           GPG_KEY_ID:      ${{ secrets.GPG_KEY_ID }}
           GPG_KEY_TRUST:   ${{ secrets.GPG_KEY_TRUST }}

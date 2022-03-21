@@ -38,7 +38,7 @@ rm -f ~/.gnupg/options ~/.gnupg/gpg.conf
 
 configure_gnupg
 
-if [ "$TRAVIS_SECURE_ENV_VARS" == 'true' ]; then
+if [ "$SECURE_ENV_VARS" == 'true' ]; then
   echo "SECRETS are available, fetching reahl GPG signing key"
 #  pip install awscli
 #  aws s3 cp s3://$AWS_BUCKET/keys.tgz.enc /tmp/keys.tgz.enc
