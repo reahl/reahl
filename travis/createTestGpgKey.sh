@@ -41,8 +41,8 @@ configure_gnupg
 if [ "$SECURE_ENV_VARS" == 'true' ]; then
   echo "SECRETS are available, fetching reahl GPG signing key"
   mkdir /tmp/keys
-  echo $GPG_KEY > /tmp/keys/key.secret.asc
-  echo $GPG_KEY_TRUST > /tmp/keys/trust.asc
+  echo "$GPG_KEY" > /tmp/keys/key.secret.asc
+  echo "$GPG_KEY_TRUST" > /tmp/keys/trust.asc
   import_gpg_keys /tmp/keys
   preset_passphrase
   echo "default-key $GPG_KEY_ID" >> ~/.gnupg/gpg.conf
