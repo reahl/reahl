@@ -1,3 +1,9 @@
+python-reahl (5.2.2) unstable; urgency=low
+
+ * Fixed links in documentation.
+
+ -- Iwan Vosloo <iwan@reahl.org>  Mon, 21 Mar 2022 19:42:00 +0200
+
 python-reahl (5.2.1) unstable; urgency=low
 
  * Upped version while working out signing issues during release process.
