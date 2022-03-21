@@ -52,7 +52,7 @@ jobs:
           . $HOME/.profile && reahl sign -sdX && reahl list -s
 
       - name: Extract signed wheels
-        run: cp -a /home/developer/.reahlworkspace/dist-egg/ /tmp/signedwheels
+        run: cp -a /home/runner/.reahlworkspace/dist-egg/ /tmp/signedwheels
 
       - name: Upload signed wheels to cache
         uses: actions/upload-artifact@v2
