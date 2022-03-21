@@ -1,6 +1,6 @@
 python-reahl (5.2.1) unstable; urgency=low
-	
- * Changed dependency on Alembic to be between 0.9.6 and 1.7.x
+
+ * Upped version while working out signing issues during release process.
 
  -- Iwan Vosloo <iwan@reahl.org>  Mon, 21 Mar 2022 17:32:00 +0200
 
