@@ -40,12 +40,6 @@ configure_gnupg
 
 if [ "$SECURE_ENV_VARS" == 'true' ]; then
   echo "SECRETS are available, fetching reahl GPG signing key"
-#  pip install awscli
-#  aws s3 cp s3://$AWS_BUCKET/keys.tgz.enc /tmp/keys.tgz.enc
-#  set +x
-#  openssl aes-256-cbc -K $encrypted_1dc025804f5b_key -iv $encrypted_1dc025804f5b_iv -in /tmp/keys.tgz.enc -out /tmp/keys.tgz -d
-#  set -x
-#  tar -C /tmp -zxvf /tmp/keys.tgz
   mkdir /tmp/keys
   echo $GPG_KEY > /tmp/keys/key.secret.asc
   echo $GPG_KEY_TRUST > /tmp/keys/trust.asc

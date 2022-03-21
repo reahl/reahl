@@ -14,6 +14,14 @@ jobs:
   deploy:
     needs: call_build
     environment: release-builds
+    env:
+      SECURE_ENV_VARS: ${{ secrets.SECURE_ENV_VARS }}
+      GPG_KEY:         ${{ secrets.GPG_KEY }}
+      GPG_KEY_ID:      ${{ secrets.GPG_KEY_ID }}
+      GPG_KEY_TRUST:   ${{ secrets.GPG_KEY_TRUST }}
+      GPG_PASSPHRASE:  ${{ secrets.GPG_PASSPHRASE }}
+      TWINE_USERNAME:  ${{ secrets.TWINE_USERNAME }}
+      TWINE_PASSWORD:  ${{ secrets.TWINE_PASSWORD }}
     runs-on:  ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
@@ -43,12 +51,6 @@ jobs:
         run: . $HOME/.profile && reahl refresh && reahl select -a
 
       - name: Sign all wheels
-        env:
-          SECURE_ENV_VARS: ${{ secrets.SECURE_ENV_VARS }}
-          GPG_KEY:         ${{ secrets.GPG_KEY }}
-          GPG_KEY_ID:      ${{ secrets.GPG_KEY_ID }}
-          GPG_KEY_TRUST:   ${{ secrets.GPG_KEY_TRUST }}
-          GPG_PASSPHRASE:  ${{ secrets.GPG_PASSPHRASE }}
         run: |
           . $HOME/.profile && reahl sign -sdX && reahl list -s
 
@@ -62,9 +64,6 @@ jobs:
           path: /tmp/signedwheels
 
       - name: Publish
-        env:
-          TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
-          TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
         run: |
           ls -la /home/runner/.reahlworkspace/dist-egg/
           . $HOME/.profile && ./travis/configurePypi.sh && reahl upload -rusdX
