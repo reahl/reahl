@@ -43,10 +43,27 @@ jobs:
         run: . $HOME/.profile && reahl refresh && reahl select -a
 
       - name: Sign all wheels
+        env:
+          GPG_KEY:         ${{ secrets.GPG_KEY }}
+          GPG_KEY_ID:      ${{ secrets.GPG_KEY_ID }}
+          GPG_KEY_TRUST:   ${{ secrets.GPG_KEY_TRUST }}
+          GPG_PASSPHRASE:  ${{ secrets.GPG_PASSPHRASE }}
         run: |
           . $HOME/.profile && reahl sign -sdX && reahl list -s
 
+      - name: Extract signed wheels
+        run: cp -a /home/developer/.reahlworkspace/dist-egg/ /tmp/signedwheels
+
+      - name: Upload signed wheels to cache
+        uses: actions/upload-artifact@v2
+        with:
+          name: signedwheels
+          path: /tmp/signedwheels
+
       - name: Publish
+        env:
+          TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
+          TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
         run: |
           ls -la /home/runner/.reahlworkspace/dist-egg/
           . $HOME/.profile && ./travis/configurePypi.sh && reahl upload -rusdX
