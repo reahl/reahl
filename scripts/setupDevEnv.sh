@@ -4,6 +4,7 @@
 
 # Setup virtualenv, virtualenvwrapper (for bash only);
 
+echo "export VENV_NAME=$VENV_NAME" >> $HOME/.profile
 cat <<'EOF' >> $HOME/.profile
 if [ -n "$BASH_VERSION" ]; then 
   export WORKON_HOME=~/.venvs
