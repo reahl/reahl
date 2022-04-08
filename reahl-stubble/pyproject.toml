@@ -1,0 +1,4 @@
+[build-system]
+requires = ["setuptools >= 32.3.1", "wheel","setuptools-git >= 1.1", "pytest-runner", "reahl-component-metadata", "pip >= 10.0.0"]
+build-backend = "setuptools.build_meta"
+
