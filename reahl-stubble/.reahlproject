@@ -3,12 +3,6 @@
     <package name="reahl"/>
   </namespaces>
 
-  <deps purpose="build">
-    <thirdpartyegg name="setuptools-git" minversion="1.1"/>
-    <thirdpartyegg name="pytest-runner"/>
-    <thirdpartyegg name="pip" minversion="10.0.0"/> 
-  </deps>
-
   <deps purpose="test">
     <thirdpartyegg name="pytest" minversion="3.0"/>
   </deps>

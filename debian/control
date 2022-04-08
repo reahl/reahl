@@ -42,6 +42,23 @@ Description: The component framework of Reahl.
  The reahl-component framework extends setuptools distribution packages to package
  and distribute more than just code.
 
+
+Package: python-reahl-component-metadata
+Architecture: all
+Depends: ${python:Depends}, ${reahl:Depends}
+Provides: ${python:Provides}
+Description: Plugin fro build tools to be able to write reahl-component metadata.
+ Reahl is a web application framework that allows a Python programmer to work in 
+ terms of useful abstractions - using a single programming language.
+ .
+ The reahl-component-metadata package extends setuptools's setup() call to take an
+ extra "component" keyword argument for packaging the extra metadata reahl-component
+ requires.
+ .
+ This package is very small and meant to be a build dependency of packages that are
+ Reahl components.
+
+
 Package: python-reahl-commands
 Architecture: all
 Depends: python-setuptools, ${python:Depends}, ${reahl:Depends}

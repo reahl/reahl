@@ -39,7 +39,7 @@ from xml.parsers.expat import ExpatError
 
 from reahl.component.shelltools import Executable
 from reahl.dev.xmlreader import XMLReader, TagNotRegisteredException
-from reahl.component.exceptions import ProgrammerError
+from reahl.component.exceptions import ProgrammerError, DomainException
 from reahl.component.eggs import ReahlEgg
 
 from reahl.dev.exceptions import NoException, StatusException, AlreadyUploadedException, NotAValidProjectException, \
@@ -1317,8 +1317,8 @@ class DebianControl:
                         if stanza.get('Package', None) == package_name]
             return stanza
         except ValueError:
-            raise AssertionError('Could not find a stanza for a package named %s in debian control file %s' % \
-                                 (package_name, self.filename))
+            raise DomainException(message='Could not find a stanza for a package named %s in debian control file %s' % \
+                                  (package_name, self.filename))
 
     @property
     def maintainer_name(self):
@@ -1725,10 +1725,6 @@ class EggProject(Project):
         self.version_history = []
         self.scheduled_jobs = []
 
-        self.static_files = []
-        self.js_attach_list = []
-        self.css_attach_list = []
-
     @property
     def entry_points(self):
         added_entry_points = [ReahlEggExport('reahl.component.eggs:ReahlEgg')]
@@ -1736,9 +1732,6 @@ class EggProject(Project):
                [entry_point
                   for version_entry in self.version_history
                   for entry_point in version_entry.as_entry_points()] + \
-               self.static_files + \
-               self.js_attach_list + \
-               self.css_attach_list + \
                self.explicitly_specified_entry_points + \
                ([self.translation_package] if self.translation_package else []) +\
                added_entry_points

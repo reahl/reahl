@@ -7,11 +7,6 @@
   <translations locator="reahl.messages"/>
   <configuration locator="reahl.doc.examples.tutorial.componentconfigbootstrap.componentconfigbootstrap:AddressConfig"/>
 
-  <deps purpose="build">
-    <thirdpartyegg name="setuptools-git" minversion="1.1"/>
-    <thirdpartyegg name="pytest-runner"/>
-  </deps>
-
   <extras name="pillow">
     <thirdpartyegg name="Pillow" minversion="2.5" maxversion="7.1.999"/>
   </extras>
