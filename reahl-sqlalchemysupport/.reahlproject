@@ -14,10 +14,6 @@
     <egg name="reahl-stubble"/>
   </deps>
 
-  <persisted>
-    <class locator="reahl.sqlalchemysupport:SchemaVersion"/>
-  </persisted>
-
   <version number="5.2">
     <deps purpose="run">
       <egg name="reahl-component" versionlocked="True"/>

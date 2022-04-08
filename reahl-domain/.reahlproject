@@ -18,23 +18,6 @@
     <egg name="reahl-browsertools"/>
   </deps>
 
-  <persisted>
-    <class locator="reahl.partymodel:Party"/>
-    <class locator="reahl.systemaccountmodel:SystemAccount"/>
-    <class locator="reahl.systemaccountmodel:LoginSession"/>
-    <class locator="reahl.systemaccountmodel:EmailAndPasswordSystemAccount"/>
-    <class locator="reahl.systemaccountmodel:AccountManagementInterface"/>
-    <class locator="reahl.systemaccountmodel:VerificationRequest"/>
-    <class locator="reahl.systemaccountmodel:VerifyEmailRequest"/>
-    <class locator="reahl.systemaccountmodel:NewPasswordRequest"/>
-    <class locator="reahl.systemaccountmodel:ActivateAccount"/>
-    <class locator="reahl.systemaccountmodel:ChangeAccountEmail"/>
-    <class locator="reahl.workflowmodel:DeferredAction"/>
-    <class locator="reahl.workflowmodel:Requirement"/>
-    <class locator="reahl.workflowmodel:Queue"/>
-    <class locator="reahl.workflowmodel:Task"/>
-  </persisted>
-
   <schedule locator="reahl.workflowmodel:DeferredAction.check_deadline"/>
 
   <version number="5.2">

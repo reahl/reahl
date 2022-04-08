@@ -20,6 +20,7 @@ import os
 import os.path
 import logging
 import itertools
+import json
 
 from pkg_resources import Requirement, get_distribution, iter_entry_points, require, resource_isdir, \
                           resource_listdir, working_set, parse_version
@@ -311,6 +312,10 @@ class ReahlEgg:
 
     def __init__(self, distribution):
         self.distribution = distribution
+        if self.distribution.has_metadata('component.json'):
+            self.metadata = json.loads(self.distribution.get_metadata('component.json'))
+        else:
+            self.metadata = {}
 
     @property
     def name(self):
@@ -355,8 +360,16 @@ class ReahlEgg:
         unparsed_dependency_entry_points = entry_point_dict.values()
         return [Dependency(self, ep) for ep in unparsed_dependency_entry_points]
 
+    def load(self, locator):
+        module_name, attr = locator.split(':')
+        module = __import__(module_name, fromlist=['__name__'], level=0)
+        try:
+            return getattr(module, attr)
+        except AttributeError as exc:
+            raise ImportError(str(exc))
+    
     def get_persisted_classes_in_order(self):
-        return self.get_ordered_classes_exported_on('reahl.persistlist')
+        return [self.load(i) for i in self.metadata.get('persisted_classes', [])]
 
     def get_migration_classes_for_version(self, version):
         return self.get_ordered_classes_exported_on('reahl.migratelist.%s' % version.version_number)

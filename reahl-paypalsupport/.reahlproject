@@ -39,8 +39,5 @@
     <packageindex repository="pypi"/>
   </distpackage>
 
-  <persisted>
-    <class locator="reahl.paypalsupport.paypalsupport:PayPalOrder"/>
-  </persisted>
 
 </project>
