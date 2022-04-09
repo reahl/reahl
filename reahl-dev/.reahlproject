@@ -28,6 +28,7 @@
   <export entrypoint="reahl.component.commands" name="SubstVars" locator="reahl.dev.devshell:SubstVars"/>
   <export entrypoint="reahl.component.commands" name="Debianise" locator="reahl.dev.devshell:Debianise"/>
   <export entrypoint="reahl.component.commands" name="Info" locator="reahl.dev.devshell:Info"/>
+  <export entrypoint="reahl.component.commands" name="MigrateReahlProject" locator="reahl.dev.devshell:MigrateReahlProject"/>
 
   <export entrypoint="reahl.component.commands" name="ExtractMessages" locator="reahl.dev.devshell:ExtractMessages"/>
   <export entrypoint="reahl.component.commands" name="MergeTranslations" locator="reahl.dev.devshell:MergeTranslations"/>

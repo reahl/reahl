@@ -30,6 +30,8 @@ from contextlib import contextmanager
 import datetime
 import pkgutil
 from tempfile import TemporaryFile
+import collections
+import json
 
 import babel
 import tzlocal
@@ -653,7 +655,13 @@ class VersionNumber:
     def as_major_minor(self):
         return VersionNumber('.'.join([self.major, self.minor]))
 
+    def __eq__(self, other):
+        return str(self) == str(other)
 
+    def __hash__(self):
+        return hash(str(self))
+
+    
 class Dependency:
     egg_type = 'egg'
 
@@ -1703,7 +1711,167 @@ class SetupMonitor:
         return self.output_ends_with('running sdist\n', 'Creating tar archive\n')
 
 
+class AddedOrderDict(collections.OrderedDict):
+    def __setitem__(self, key, value):
+        super().__setitem__(key, value)
+        self.move_to_end(key)
 
+        
+class MigratedSetupCfg:
+    def __init__(self, project):
+        self.project = project
+        
+    @property
+    def setup_cfg_filename(self):
+        return os.path.join(self.project.directory, 'setup.cfg')
+
+    def generate(self):
+        with open(self.setup_cfg_filename, 'w') as setup_file:
+            setup_file.write('[metadata]\n')
+            setup_file.write('name = %s\n' % self.project.project_name)
+            setup_file.write('version = %s\n' % self.project.version_for_setup())
+            setup_file.write('description = %s\n' % self.project.get_description_for(self.project))
+            setup_file.write('long_description = \n%s\n' % self.project.get_long_description_for(self.project))
+            setup_file.write('url = %s\n' % self.project.get_url_for(self.project))
+            setup_file.write('maintainer = %s\n' % self.project.maintainer_name)
+            setup_file.write('maintainer_email = %s\n' % self.project.maintainer_email)
+            setup_file.write('\n\n')
+
+            setup_file.write('[options]\n')
+            if self.project.include_package_data:
+                setup_file.write('include_package_data = yes')
+                setup_file.write('\n')
+            if self.project.namespaces:
+                self.generate_migrated_namespace_packages_option(setup_file)
+                setup_file.write('\n')
+            if self.project.packages_for_setup():
+                self.generate_migrated_packages_option(setup_file)
+                setup_file.write('\n')
+            if self.project.py_modules_for_setup():
+                self.generate_migrated_py_modules_option(setup_file)
+                setup_file.write('\n')
+            if self.project.run_deps:
+                self.generate_migrated_install_requires_option(setup_file)
+                setup_file.write('\n')
+            if self.project.build_deps:
+                self.generate_migrated_setup_requires_option(setup_file)
+                setup_file.write('\n')
+            if self.project.test_deps:
+                self.generate_migrated_tests_require_option(setup_file)
+                setup_file.write('\n')
+            if self.project.test_suite_for_setup():
+                setup_file.write('test_suite = %s' % self.project.test_suite_for_setup())
+                setup_file.write('\n')
+
+            setup_file.write('\n')
+            setup_file.write('component =\n')
+            json.dump(self.generate_component_json(), setup_file, indent=2)
+            setup_file.write('\n\n')
+
+            if self.get_xml_entry_point_exports():
+                self.generate_migrated_entry_points_sections(setup_file)
+            if self.project.extras_required:
+                self.generate_migrated_extras_require_sections(setup_file)
+            if self.project.package_data_for_setup():
+                self.generate_migrated_package_data_sections(setup_file)
+                
+    def generate_migrated_install_requires_option(self, setup_file):
+        setup_file.write('install_requires =\n')
+        setup_file.write('\n'.join(['  %s' % requirement for requirement in self.project.run_deps_for_setup()]))
+        setup_file.write('\n')
+
+    def generate_migrated_setup_requires_option(self, setup_file):
+        setup_file.write('setup_requires =\n')
+        setup_file.write('\n'.join(['  %s' % requirement for requirement in self.project.build_deps_for_setup()]))
+        setup_file.write('\n')
+        
+    def generate_migrated_tests_require_option(self, setup_file):
+        setup_file.write('tests_require =\n')
+        setup_file.write('\n'.join(['  %s' % requirement for requirement in self.project.test_deps_for_setup()]))
+        setup_file.write('\n')
+
+    def generate_migrated_namespace_packages_option(self, setup_file):
+        setup_file.write('namespace_packages =\n')
+        setup_file.write('\n'.join(['  %s' % name for name in self.project.namespace_packages_for_setup()]))
+        setup_file.write('\n')
+
+    def generate_migrated_packages_option(self, setup_file):
+        setup_file.write('packages =\n')
+        setup_file.write('\n'.join(['  %s' % package.name for package in self.project.namespaces]))
+        setup_file.write('\n')
+
+    def generate_migrated_py_modules_option(self, setup_file):
+        setup_file.write('py_modules =\n')
+        setup_file.write('\n'.join(['  %s' % self.project.py_modules_for_setup()]))
+        setup_file.write('\n')
+        
+    def generate_migrated_entry_points_sections(self, setup_file):
+        setup_file.write('[options.entry_points]\n')
+        ordered_entry_points = AddedOrderDict()
+        for entry_point_export in self.get_xml_entry_point_exports():
+            entries = ordered_entry_points.setdefault(entry_point_export.entry_point, [])
+            entries.append(entry_point_export)
+        for entry_point_name in ordered_entry_points.keys():
+            setup_file.write('  %s = \n' % entry_point_name)
+            for entry_point_export in ordered_entry_points[entry_point_name]:
+                setup_file.write('    %s = %s\n' % (entry_point_export.name, entry_point_export.locator.string_spec))
+            
+        setup_file.write('\n\n')
+
+    def generate_migrated_extras_require_sections(self, setup_file):
+        setup_file.write('[options.extras_require]\n')
+        for name, requirements in sorted(self.project.extras_required.items()):
+            setup_file.write('  %s = \n' % name)
+            for requirement in requirements:
+                setup_file.write('    %s\n' % requirement.as_string_for_egg())
+            
+        setup_file.write('\n\n')
+        
+    def generate_migrated_package_data_sections(self, setup_file):
+        setup_file.write('[options.package_data]\n')
+        for name, globs in sorted(self.project.package_data_for_setup().items()):
+            setup_file.write('  %s = \n' % ('*' if not name else name ))
+            for glob in globs:
+                setup_file.write('    %s\n' % glob)
+            
+        setup_file.write('\n\n')
+            
+    def get_xml_configuration(self):
+        configurations = [i for i in self.project.explicitly_specified_entry_points if i.entry_point == 'reahl.configspec' ]
+        if not configurations:
+            return None
+        else:
+            return configurations[0].locator.string_spec
+
+    def get_xml_entry_point_exports(self):
+        return [i for i in self.project.explicitly_specified_entry_points if i.entry_point not in ['reahl.configspec'] ]
+
+    def generate_component_json(self):
+        component = AddedOrderDict()
+        if self.get_xml_configuration():
+            component['configuration'] = self.get_xml_configuration()
+        if self.project.translation_package:
+            component['translations'] = self.project.translation_package.locator.package_path
+        if self.project.persist_list:
+            component['persisted'] = [persisted_class.locator.string_spec for persisted_class in self.project.persist_list]
+        if self.project.scheduled_jobs:
+            component['schedule'] = [scheduled_job.locator.string_spec for scheduled_job in self.project.scheduled_jobs]
+        if self.project.version_history:
+            component['versions'] = self.generate_versions_json()
+        return component
+
+    def generate_versions_json(self):
+        versions = AddedOrderDict()
+        for version_entry in self.project.version_history:
+            if version_entry.version != self.project.version.as_major_minor():
+                version_json = AddedOrderDict()
+                versions[str(version_entry.version)] = version_json
+                if version_entry.run_dependencies:
+                    version_json['install_requires'] = [dependency.as_string_for_egg() for dependency in version_entry.run_dependencies]
+                if version_entry.migrations:
+                    version_json['migrations'] = [migration.locator.string_spec for migration in version_entry.migrations]
+        return versions
+    
 
 
 class EggProject(Project):
@@ -1790,6 +1958,8 @@ class EggProject(Project):
             if any([isinstance(i, ConfigurationSpec) for i in self.explicitly_specified_entry_points]):
                 raise InvalidXMLException('%s is a duplicate <configuration> for egg %s. Each egg may only have one <configuration>.' % (child, self.project_name))
             self.explicitly_specified_entry_points.append(child)
+        elif isinstance(child, ScheduledJobSpec):
+            self.scheduled_jobs.append(child)
         elif isinstance(child, EntryPointExport):
             self.explicitly_specified_entry_points.append(child)
         elif isinstance(child, PersistedClassesList):
@@ -1798,8 +1968,6 @@ class EggProject(Project):
             self.version_history.append(child)
         elif isinstance(child, ExcludedPackage):
             self.excluded_packages.append(child)
-        elif isinstance(child, ScheduledJobSpec):
-            self.scheduled_jobs.append(child)
         else:
             super().inflate_child(reader, child, tag, parent)
 
@@ -1871,7 +2039,7 @@ class EggProject(Project):
     @property
     def setup_py_filename(self):
         return os.path.join(self.directory, 'setup.py')
-
+    
     @contextmanager
     def generated_setup_py(self):
         self.generate_setup_py()
@@ -1897,7 +2065,6 @@ class EggProject(Project):
             setup_file.write('        pass\n\n')
             setup_file.write('setup(\n')
             setup_file.write('    name=%s,\n' % repr(self.project_name))
-            setup_file.write('    version=%s,\n' % repr(self.version_for_setup()))
             setup_file.write('    description=%s,\n' % repr(self.get_description_for(self)))
             setup_file.write('    long_description=%s,\n' % repr(self.get_long_description_for(self)))
             setup_file.write('    url=%s,\n' % repr(self.get_url_for(self))),
@@ -1928,6 +2095,13 @@ class EggProject(Project):
 
     def version_for_setup(self):
         return str(self.version.as_upstream())
+
+    def generate_migrated_setup_cfg(self):
+        MigratedSetupCfg(self).generate()
+
+    @property
+    def setup_cfg_filename(self):
+        return os.path.join(self.directory, 'setup.cfg')
 
     @property
     def run_deps(self):

@@ -200,7 +200,7 @@ class DependencyCluster:
         return '<%s %s>' % (self.__class__.__name__, self)
 
 
-class Dependency(object):
+class Dependency:
     """
         entry point : name = module.attrs [extras]
     """
