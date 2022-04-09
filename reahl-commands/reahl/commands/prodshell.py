@@ -360,7 +360,9 @@ class ListVersionHistory(ProductionCommand):
 
     def execute(self, args):
         super().execute(args)
-        version_graph = MigrationPlan.create_version_graph_for(self.config.reahlsystem.root_egg)
+        self.context.install()
+        with self.sys_control.auto_connected():
+            version_graph = MigrationPlan.create_version_graph_for(ReahlEgg(get_distribution(self.config.reahlsystem.root_egg)), self.config.reahlsystem.orm_control)
         for key in version_graph.graph:
             print('%s [%s]' % (key, ' | '.join([str(i) for i in version_graph.graph[key]])))
 

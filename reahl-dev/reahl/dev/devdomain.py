@@ -1894,14 +1894,6 @@ class EggProject(Project):
         self.scheduled_jobs = []
 
     @property
-    def entry_points(self):
-        return [entry_point
-                  for version_entry in self.version_history
-                  for entry_point in version_entry.as_entry_points()] + \
-               self.explicitly_specified_entry_points + \
-               ([self.translation_package] if self.translation_package else [])
-
-    @property
     def tags(self):
         extras = ['component']
         if not self.chicken_project:
@@ -2029,7 +2021,6 @@ class EggProject(Project):
                      setup_requires=self.build_deps_for_setup(),
                      tests_require=self.test_deps_for_setup(),
                      test_suite=self.test_suite_for_setup(),
-                     entry_points=self.entry_points_for_setup(),
                      extras_require=self.extras_require_for_setup() )
             monitor.check_command_status(distribution.commands)
 
@@ -2076,15 +2067,6 @@ class EggProject(Project):
             setup_file.write('    setup_requires=%s,\n' % repr(self.build_deps_for_setup()))
             setup_file.write('    tests_require=%s,\n' % repr(self.test_deps_for_setup()))
             setup_file.write('    test_suite=%s,\n' % repr(self.test_suite_for_setup()))
-
-            setup_file.write('    entry_points={\n')
-            entry_points = self.entry_points_for_setup()
-            for name, values in entry_points.items():
-                setup_file.write('        %s: [\n            ' % repr(name))
-                value_string = ',\n            '.join([repr(value) for value in values])
-                setup_file.write(value_string)
-                setup_file.write('    ],\n')
-            setup_file.write('                 },\n')
 
             setup_file.write('    extras_require=%s,\n' % repr(self.extras_require_for_setup()) )
             setup_file.write('    cmdclass={\'install_test_dependencies\': InstallTestDependencies}\n' )

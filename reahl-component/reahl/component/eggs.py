@@ -204,16 +204,24 @@ class Dependency:
     """
         entry point : name = module.attrs [extras]
     """
-    def __init__(self, for_version, entry_point_spec):
+    def __init__(self, for_version, requirement):
         self.for_version = for_version
-        self.name = entry_point_spec.name
-        self.type = entry_point_spec.module_name
+        self.name = requirement.name
+        self.specs = requirement.specs
         self.min_version = None
-        if self.type == 'egg':
-            min_version = '.'.join(entry_point_spec.attrs) if entry_point_spec.attrs else None
-            if min_version != '_':
-                self.min_version = min_version
-        self.max_version = entry_point_spec.extras[0] if entry_point_spec.extras and len(entry_point_spec.extras) > 0 else None
+        self.max_version = None
+        for comparator, version in self.specs:
+            if comparator == '==':
+                self.min_version = version
+                self.max_version = version
+            elif comparator == '>=':
+                self.min_version = version
+            elif comparator == '<':
+                self.max_version = version
+            elif comparator == '>':
+                assert False, 'not implemented'
+            elif comparator == '<=':
+                assert False, 'not implemented'
 
     def get_best_version(self):
         all_versions = self.get_versions()
@@ -357,15 +365,14 @@ class ReahlEgg:
         return []
 
     def get_versions(self):
-        entry_point_dict = self.distribution.get_entry_map().get('reahl.versions', {})
-        all_versions = [Version(self, version_string) for version_string in entry_point_dict.keys()]
-
+        version_strings = list(self.metadata.get('versions', {}).keys())
+        current_major_minor = '.'.join(self.distribution.version.split('.')[:2])
+        all_versions = [Version(self, version_string) for version_string in [current_major_minor]+version_strings]
         return list(sorted([v for v in all_versions], key=lambda x: x.version_number))
 
     def get_dependencies(self, version):
-        entry_point_dict = self.distribution.get_entry_map().get('reahl.versiondeps.%s' % version, {})
-        unparsed_dependency_entry_points = entry_point_dict.values()
-        return [Dependency(self, ep) for ep in unparsed_dependency_entry_points]
+        version_dependencies = self.metadata.get('versions', {}).get(version, {}).get('install_requires', [])
+        return [Dependency(self, Requirement.parse(dep)) for dep in version_dependencies]
 
     def load(self, locator):
         module_name, attr = locator.split(':')
@@ -396,11 +403,7 @@ class ReahlEgg:
 
     @property
     def translation_package(self):
-        entry_point_dict = self.distribution.get_entry_map().get('reahl.translations')
-        if entry_point_dict:
-            return entry_point_dict[self.name].load()
-        else:
-            return None
+        return self.metadata.get('translations', None)
 
     @property
     def translation_pot_filename(self):
