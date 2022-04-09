@@ -344,6 +344,7 @@ class MigrateReahlProject(ForAllWorkspaceCommand):
     keyword = 'migratereahlproject'
     def function(self, project, args):
         project.generate_migrated_setup_cfg()
+        return 0
 
         
 class Shell(ForAllWorkspaceCommand):

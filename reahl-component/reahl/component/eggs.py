@@ -315,7 +315,14 @@ class ReahlEgg:
         if self.distribution.has_metadata('component.json'):
             self.metadata = json.loads(self.distribution.get_metadata('component.json'))
         else:
-            self.metadata = {}
+            self.metadata = None
+
+    @property
+    def is_component(self):
+        return self.metadata is not None
+
+    def __str__(self):
+        return '<%s %s>' % (self.__class__.__name__, self.distribution)
 
     @property
     def name(self):
@@ -369,7 +376,7 @@ class ReahlEgg:
             raise ImportError(str(exc))
     
     def get_persisted_classes_in_order(self):
-        return [self.load(i) for i in self.metadata.get('persisted_classes', [])]
+        return [self.load(i) for i in (self.metadata or {}).get('persisted_classes', [])]
 
     def get_migration_classes_for_version(self, version):
         return self.get_ordered_classes_exported_on('reahl.migratelist.%s' % version.version_number)
@@ -517,11 +524,5 @@ class ReahlEgg:
 
     @classmethod
     def interface_for(cls, distribution):
-        entry_map = distribution.get_entry_map('reahl.eggs')
-        if entry_map:
-            classes = list(entry_map.values())
-            assert len(classes) == 1, 'Only one eggdeb class per egg allowed'
-            return classes[0].load()(distribution)
-        else:
-            return None
-
+        egg = cls(distribution)
+        return egg if egg.is_component else None

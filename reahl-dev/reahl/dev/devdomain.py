@@ -1895,14 +1895,11 @@ class EggProject(Project):
 
     @property
     def entry_points(self):
-        added_entry_points = [ReahlEggExport('reahl.component.eggs:ReahlEgg')]
-        return self.persist_list + \
-               [entry_point
+        return [entry_point
                   for version_entry in self.version_history
                   for entry_point in version_entry.as_entry_points()] + \
                self.explicitly_specified_entry_points + \
-               ([self.translation_package] if self.translation_package else []) +\
-               added_entry_points
+               ([self.translation_package] if self.translation_package else [])
 
     @property
     def tags(self):
