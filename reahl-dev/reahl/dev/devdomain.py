@@ -25,6 +25,7 @@ import shutil
 import subprocess
 import logging
 import pathlib
+import textwrap
 import email.utils
 from contextlib import contextmanager
 import datetime
@@ -1765,7 +1766,7 @@ class MigratedSetupCfg:
 
             setup_file.write('\n')
             setup_file.write('component =\n')
-            json.dump(self.generate_component_json(), setup_file, indent=2)
+            setup_file.write(textwrap.indent(json.dumps(self.generate_component_json(), indent=2), '  '))
             setup_file.write('\n\n')
 
             if self.get_xml_entry_point_exports():
