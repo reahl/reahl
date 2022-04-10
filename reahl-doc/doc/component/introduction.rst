@@ -76,85 +76,45 @@ Defining a component
 .. seealso::
 
   :ref:`The 'hello' component <create-component>`
-     How to create a basic component using a `.reahlproject` file.
+     How to create a basic component using a `setup.cfg` file.
 
-  :doc:`../devtools/xmlref`
-     Reference documentation for a .reahlproject file.
+  :doc:`setup.cfg`
+     Reference documentation for a `setup.cfg` file.
 
-A Reahl component is just a setuptools package with extra metadata.
+A Reahl component is just a setuptools package with extra metadata. To make your project a component,
+add a `component =` key to the `[options]` section of your setup.cfg::
 
-The Reahl component infrastructure will recognise any package with an
-`entrypoint <https://setuptools.readthedocs.io/en/latest/pkg_resources.html#entry-points>`_ named 'Egg', advertised
-in the group 'reahl.eggs' which points to the :class:`reahl.component.eggs.ReahlEgg` class as a Reahl component.
+In order to help setuptools grok that option you also need to have a `pyproject.toml` file which lists
+the `reahl-component-metadata` project as a build dependency.
 
-One can create such a package using a setup.py, but due to all the extra metadata which is encoded into what setuptools
-supports, it is easier to use a .reahlproject file instead. To use a .reahlproject file, install `reahl-dev`
-in your development environment where you will build packages. With `reahl-dev` installed, the `reahl` command line tool is
-extended with extra commands providing access to setup.py functionality:
+Your package also need to require `reahl-component` by the usual means.
 
-reahl setup <usual arguments to setup.py>
-  This invokes the normal functionality provided by setup.py, but uses the your .reahlproject file as a source.
-reahl shell [-g]
-  This runs a shell command for one or more projects, each with a `.reahlproject` file. The `-g` option
-  generates a setup.py for the duration of the shell command's execution. Hence, to run a shell command
-  which expects a setup.py (such as tox), you would run, for example::
 
-    reahl shell -g tox
-
-Basics of .reahlproject
------------------------
+Basics of the component option
+------------------------------
 
 .. seealso::
 
-  :doc:`../devtools/xmlref`
-     Reference documentation for a .reahlproject file.
+  :doc:`setup.cfg`
+     Reference documentation for the `setup.cfg` file.
 
-The `.reahlproject` file contains XML with a :ref:`\<project type="egg"\> <xml_project>` tag at its root.
+The component option expects to receive data in json format. For this to work in a setup.cfg, the contents
+of the component option need to be after a dangling = and indented::
 
-In the :ref:`\<project\> <xml_project>` tag, add a :ref:`\<metadata\> <xml_metadata>` tag which specifies
-the name of your project and its version.
+.. code-block::
 
-Also add one or more :ref:`\<version\> <xml_version>` entries for each minor version of your project,
-including one that matches the major.minor part of the version specified in the metadata tag.
+   [options]
+   component =
+     {}
 
-List all the dependencies of a particular version by adding a :ref:`\<deps purpose="run"\> <xml_deps>` inside the
-appropriate :ref:`\<version\> <xml_version>` tag, and a :ref:`\<thirdpartyegg\> <xml_thirdpartyegg>` tag for each
-dependency.
 
-Each time you change `.reahlproject`, be sure to regenerate the egg metadata:
+Each time you change `setup.cfg`, be sure to regenerate the component metadata:
 
 .. code-block:: bash
 
-   reahl setup develop -N
+   python setup.py develop -N
 
-Reahl command line
-------------------
-
-The Reahl command line is installed when you install `reahl-component` and is invoked with the command `reahl`. The set
-of commands it offers depends on other Reahl components you install.
-
-Below is a list of which commands some components add:
-
-`reahl-dev`
-  Commands to work with components defined by .reahlproject files instead of setup.py files. This includes
-  the commands used in development for internationalisation (i18n).
-
-`reahl-commands`
-  Commands for working with the extra functionality provided by Reahl components. This includes managing databases,
-  schemas and performing migrations as well as dealing with things like internationalisation and configuration.
-
-`reahl-workstation`
-  When using :doc:`the Reahl development Docker image <../devmanual/devenv>` install `reahl-workstation` on your
-  host machine to provide commands to share terminal access via `Ngrok <https://ngrok.com>`_ or GUI windows with
-  `Xpra <https://xpra.org>`_.
-
-`reahl-webdev`
-  Helpful commands when doing web development using the Reahl web framework (`reahl-web`).
-
-`reahl-doc`
-  Commands for working with examples included in the overall Reahl documentation.
-
-
+   
 Persistence
 -----------
 
@@ -176,9 +136,7 @@ Set the reahlsystem.connection_uri in `reahlsystem.config.py` to an URI matching
 
 List the database support component, `reahl-sqlalchemysupport` and `reahl-component` as dependencies of your component.
 
-List each persisted class in your component using a :ref:`\<class\> <xml_class>` tag inside the single
-:ref:`\<persisted\> <xml_persisted>` tag in your :ref:`\<project\> <xml_project>`.
-
+List each persisted class of your component in the `setup.cfg`\s component option, as an element in the `persisted_classes` key.
 
 .. seealso::
 
@@ -226,18 +184,23 @@ Each version of your Reahl component can have its own set of |Migration|\s which
 version from its predecessor. The migration machinery needs access to all |Migration|\s of all versions of all
 components to be able to compute a correct dependency tree.
 
-List one or more :ref:`\<version\> <xml_version>` tags inside your :ref:`\<project\> <xml_project>` tag for each
-version of your component.
+Add a key for each major.minor version that's been released of your component in the `versions` object of the `setup.cfg`\s component option.
 
-Specify the dependencies of a version of your component inside each :ref:`\<version\> <xml_version>` tag. (A component's
-dependencies can differ from version to version.)
+For each such version, add two elements:
+ - `install_requires` containing a list of the requirements that version had; and
+ - `migrations` containing a list of the migration classes that need to run to bring the previous version's schema up to date to this version.
 
-The list of :ref:`\<version\> <xml_version>` tags in your project never changes except for adding newer versions.
+To prevent duplication, the version entry for the current release is
+not allowed to contain any requirements, since those can be gleaned
+from the currently declared requirements.
 
+If the current version does not have any migrations, it need not be
+listed at all, since it can be inferred.
+   
 .. note::
 
    A change in dependency or in database schema is seen as at least a minor version change, therefore
-   :ref:`\<version\> <xml_version>` tags only specify major.minor version numbers, not an additional patch version.
+   versions listed only specify major.minor version numbers, not an additional patch version.
 
 Each |Migration| is written such that user code only schedules each necessary change in a so-called 'phase'. The final
 order in which the |Migration| itself and each individual phase of the |Migration| will be executed is determined by Reahl
@@ -308,8 +271,8 @@ A Reahl system has a single config directory with a config file for each compone
 You specify a unique key for the config of your component, as well as what config settings you need and the
 configuration file name to be used for your component:
 
-Inherit a new class from |Configuration|. In your `.reahlproject` register this class using a
-:ref:`\<configuration\> <xml_configuration>` tag inside your :ref:`\<project\> <xml_project>`.
+Inherit a new class from |Configuration|. In the `component` option of your `setup.cfg` register this class by adding
+a `configuration` key whose value is a string conforming to an entry point locator string denoting this class.
 
 When defining config settings, you can specify default values for these settings, and also a human readable description
 of each setting. You can mark some config settings as "dangerous defaults": such defaults will produce warnings when
@@ -381,7 +344,7 @@ also provide extra translations for another component.
 
 Before you can use the Reahl command line commands for working with messages, create an empty python package in which
 messages and their translations can be saved. Once created, register this translations package
-in `.reahlproject` using a :ref:`\<translations\> <xml_translations>` tag inside your :ref:`\<project\> <xml_project>`.
+in `setup.cfg` by specifying it as a string to the `translations` key in the `component` option.
 
 .. seealso::
 
@@ -601,8 +564,8 @@ many such components does not want to have to know about all the jobs needed by 
 facilitate this, Reahl has a mechanism by which a component author can register jobs that the system runs on a regular
 basis.
 
-Use a :ref:`\<schedule\> <xml_schedule>` tag inside the :ref:`\<project\> <xml_project>` tag in your `.reahlproject` to
-register a given class method as being a regular scheduled job. The class method should not have any arguments.
+List the class methods that should be run a scheduled jobs as strings conforming to entry point syntax in the `schedule`
+key of the `component` option in `setup.cfg`.
 
 Whenever `reahl runjobs` is executed on your system's configuration directory, all the registered scheduled jobs of all
 components used by your system are executed.

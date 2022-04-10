@@ -367,12 +367,16 @@ class ReahlEgg:
     def get_versions(self):
         version_strings = list(self.metadata.get('versions', {}).keys())
         current_major_minor = '.'.join(self.distribution.version.split('.')[:2])
-        all_versions = [Version(self, version_string) for version_string in [current_major_minor]+version_strings]
+        all_versions = [Version(self, version_string) for version_string in set(version_strings+[current_major_minor])]
         return list(sorted([v for v in all_versions], key=lambda x: x.version_number))
 
     def get_dependencies(self, version):
-        version_dependencies = self.metadata.get('versions', {}).get(version, {}).get('install_requires', [])
-        return [Dependency(self, Requirement.parse(dep)) for dep in version_dependencies]
+        current_major_minor_string = '.'.join(self.distribution.version.split('.')[:2])
+        if str(version) == current_major_minor_string:
+            version_dependencies = self.distribution.requires()
+        else:
+            version_dependencies = [Requirement.parse(i) for i in self.metadata.get('versions', {}).get(version, {}).get('install_requires', [])]
+        return [Dependency(self, dep) for dep in version_dependencies]
 
     def load(self, locator):
         module_name, attr = locator.split(':')
@@ -383,23 +387,10 @@ class ReahlEgg:
             raise ImportError(str(exc))
     
     def get_persisted_classes_in_order(self):
-        return [self.load(i) for i in (self.metadata or {}).get('persisted_classes', [])]
+        return [self.load(i) for i in self.metadata.get('persisted_classes', [])]
 
     def get_migration_classes_for_version(self, version):
-        return self.get_ordered_classes_exported_on('reahl.migratelist.%s' % version.version_number)
-
-    def get_ordered_classes_exported_on(self, entry_point):
-        entry_point_dict = self.distribution.get_entry_map().get(entry_point, {})
-        found_eps = set()
-        for ep in entry_point_dict.values():
-            if ep in found_eps:
-                raise AssertionError('%s is listed twice' % ep)
-            found_eps.add(ep)
-        return [entry.load() for order, entry in sorted([(int(order), e) for order, e in entry_point_dict.items()])]
-
-    def get_classes_exported_on(self, entry_point):
-        entry_point_dict = self.distribution.get_entry_map().get(entry_point, {})
-        return [entry.load() for name, entry in entry_point_dict.items()]
+        return [self.load(i) for i in self.metadata.get('versions', {}).get(version, {}).get('migrations', [])]
 
     @property
     def translation_package(self):
@@ -413,7 +404,7 @@ class ReahlEgg:
 
     @property
     def scheduled_jobs(self):
-        return self.get_classes_exported_on('reahl.scheduled_jobs')
+        return [self.load(i) for i in self.metadata.get('schedule', [])]
     
     def do_daily_maintenance(self):
         for job in self.scheduled_jobs:

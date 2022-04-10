@@ -1864,13 +1864,12 @@ class MigratedSetupCfg:
     def generate_versions_json(self):
         versions = AddedOrderDict()
         for version_entry in self.project.version_history:
-            if version_entry.version != self.project.version.as_major_minor():
-                version_json = AddedOrderDict()
-                versions[str(version_entry.version)] = version_json
-                if version_entry.run_dependencies:
-                    version_json['install_requires'] = [dependency.as_string_for_egg() for dependency in version_entry.run_dependencies]
-                if version_entry.migrations:
-                    version_json['migrations'] = [migration.locator.string_spec for migration in version_entry.migrations]
+            version_json = AddedOrderDict()
+            versions[str(version_entry.version)] = version_json
+            if version_entry.run_dependencies and (version_entry.version != self.project.version.as_major_minor()):
+                version_json['install_requires'] = [dependency.as_string_for_egg() for dependency in version_entry.run_dependencies]
+            if version_entry.migrations:
+                version_json['migrations'] = [migration.locator.string_spec for migration in version_entry.migrations]
         return versions
     
 
@@ -2013,11 +2012,13 @@ class EggProject(Project):
                      url=self.get_url_for(self),
                      maintainer=self.maintainer_name,
                      maintainer_email=self.maintainer_email,
+
                      packages=self.packages_for_setup(),
                      py_modules=self.py_modules_for_setup(),
                      include_package_data=self.include_package_data,
                      package_data=self.package_data_for_setup(),
                      namespace_packages=self.namespace_packages_for_setup(),
+
                      install_requires=self.run_deps_for_setup(),
                      setup_requires=self.build_deps_for_setup(),
                      tests_require=self.test_deps_for_setup(),
