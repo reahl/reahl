@@ -9,50 +9,9 @@
 
   <version number="5.2">
     <deps purpose="run">
-      <thirdpartyegg name="setuptools" minversion="32.3.1"/>
+      <thirdpartyegg name="setuptools" minversion="51.0.0"/>
     </deps>
   </version>
-
-  <version number="5.1">
-    <deps purpose="run">
-      <thirdpartyegg name="setuptools" minversion="32.3.1"/>
-    </deps>
-  </version>
-
-  <version number="5.0">
-    <deps purpose="run">
-      <thirdpartyegg name="setuptools" minversion="32.3.1"/>
-    </deps>
-  </version>
-
-  <version number="4.0">
-    <deps purpose="run">
-      <thirdpartyegg name="six"/>
-      <thirdpartyegg name="setuptools" minversion="32.3.1"/>
-    </deps>
-  </version>
-
-  <version number="3.2">
-    <deps purpose="run">
-    <thirdpartyegg name="six"/>
-    </deps>
-  </version>
-
-  <version number="3.1">
-    <deps purpose="run">
-      <thirdpartyegg name="six"/>
-    </deps>
-  </version>
-
-  <version number="3.0">
-  </version>
-
-  <version number="2.1">
-  </version>
-
-  <version number="2.0">
-  </version>
-
 
   <distpackage type="wheel">
     <packageindex repository="pypi"/>

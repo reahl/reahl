@@ -1,11 +1,8 @@
 <project type="egg" packagedata="included">
-  <configuration locator="reahl.paypalsupport.paypalconfig:PayPalSiteConfig"/>
   <namespaces>
     <package name="reahl"/>
     <package name="reahl.messages"/>
   </namespaces>
-
-  <translations locator="reahl.messages"/>
 
   <deps purpose="test">
     <thirdpartyegg name="pytest" minversion="3.0"/>
@@ -24,12 +21,9 @@
         <egg name="reahl-web" versionlocked="True"/>
         <egg name="reahl-web-declarative" versionlocked="True"/>
         <egg name="reahl-domain" versionlocked="True"/>
-        <thirdpartyegg name="setuptools" minversion="32.3.1"/>
+        <thirdpartyegg name="setuptools" minversion="51.0.0"/>
         <thirdpartyegg name="paypal-checkout-serversdk"/>
       </deps>
-      <migrations>
-        <class locator="reahl.paypalsupport.migrations:CreatePaypal"/>
-      </migrations>
   </version>
 
   <distpackage type="wheel">
