@@ -344,7 +344,7 @@ also provide extra translations for another component.
 
 Before you can use the Reahl command line commands for working with messages, create an empty python package in which
 messages and their translations can be saved. Once created, register this translations package
-in `setup.cfg` by specifying it as a string to the `translations` key in the `component` option.
+in `setup.cfg` as an entry point for `reahl.translations` with its name that of your component.
 
 .. seealso::
 
