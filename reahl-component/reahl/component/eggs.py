@@ -387,14 +387,18 @@ class ReahlEgg:
             raise ImportError(str(exc))
     
     def get_persisted_classes_in_order(self):
-        return [self.load(i) for i in self.metadata.get('persisted_classes', [])]
+        return [self.load(i) for i in self.metadata.get('persisted', [])]
 
     def get_migration_classes_for_version(self, version):
         return [self.load(i) for i in self.metadata.get('versions', {}).get(version, {}).get('migrations', [])]
 
     @property
     def translation_package(self):
-        return self.metadata.get('translations', None)
+        translation_packages = [translation_entry_point for translation_entry_point in iter_entry_points('reahl.translations')
+                                if (translation_entry_point.dist is self.distribution) and (translation_entry_point.name == self.name) ]
+        if len(translation_packages) != 1:
+            return None
+        return translation_packages[0]
 
     @property
     def translation_pot_filename(self):

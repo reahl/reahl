@@ -36,7 +36,7 @@ import json
 
 import babel
 import tzlocal
-from pkg_resources import require, DistributionNotFound, VersionConflict, get_distribution, parse_version
+from pkg_resources import require, DistributionNotFound, VersionConflict, get_distribution, parse_version, iter_entry_points
 from setuptools import find_packages, setup
 from xml.parsers.expat import ExpatError
 
@@ -1851,8 +1851,6 @@ class MigratedSetupCfg:
         component = AddedOrderDict()
         if self.get_xml_configuration():
             component['configuration'] = self.get_xml_configuration()
-        if self.project.translation_package:
-            component['translations'] = self.project.translation_package.locator.package_path
         if self.project.persist_list:
             component['persisted'] = [persisted_class.locator.string_spec for persisted_class in self.project.persist_list]
         if self.project.scheduled_jobs:
@@ -1886,8 +1884,6 @@ class EggProject(Project):
         self.extras_required = {}
         self.build_deps = []
         self.test_deps = []
-
-        self.translation_package = None
 
         self.persist_list = []
         self.version_history = []
@@ -1941,8 +1937,6 @@ class EggProject(Project):
             list_to_use.extend(child)
         elif isinstance(child, NamespaceList):
             self.namespaces = child
-        elif isinstance(child, TranslationPackage):
-            self.translation_package = child
         elif isinstance(child, ConfigurationSpec):
             if any([isinstance(i, ConfigurationSpec) for i in self.explicitly_specified_entry_points]):
                 raise InvalidXMLException('%s is a duplicate <configuration> for egg %s. Each egg may only have one <configuration>.' % (child, self.project_name))
@@ -2170,9 +2164,18 @@ class EggProject(Project):
 
     @property
     def locale_dirname(self):
-        assert self.translation_package, 'No <translations.../> tag specified for project: "%s"' % (self.project_name)
-        return os.path.join(self.directory, self.translation_package.path)
+        if not self.translation_package:
+            raise DomainError(message='No reahl.translations entry point specified for project: "%s"' % (self.project_name))
+        return os.path.join(self.directory, ReahlEgg.get_egg_internal_path_for(self.translation_package))
 
+    @property
+    def interface(self):
+        return ReahlEgg.interface_for(get_distribution(self.project_name))
+
+    @property
+    def translation_package(self):
+        return self.interface.translation_package
+                            
     @property
     def locale_domain(self):
         return self.project_name
@@ -2187,7 +2190,7 @@ class EggProject(Project):
                         '--input-dirs', '.',
                         '--output-file', self.pot_filename])
         else:
-            logging.warning('No <translations.../> tag specified for project: "%s"' % (self.project_name))
+            logging.warning('No reahl.translations entry point specified for project: "%s"' % (self.project_name))
 
     @property
     def translated_domains(self):
@@ -2195,13 +2198,13 @@ class EggProject(Project):
             filenames = glob.glob(os.path.join(self.locale_dirname, '*/LC_MESSAGES/*.po'))
             return {os.path.splitext(os.path.basename(i))[0] for i in filenames}
         else:
-            logging.warning('No <translations.../> tag specified for project: "%s"' % (self.project_name))
+            logging.warning('No reahl.translations entry point specified for project: "%s"' % (self.project_name))
             return []
 
     def merge_translations(self):
         for source_dist_spec in self.translated_domains:
             try:
-                source_egg = ReahlEgg(get_distribution(source_dist_spec))
+                source_egg = ReahlEgg.interface_for(get_distribution(source_dist_spec))
             except DistributionNotFound:
                 raise EggNotFound(source_dist_spec)
             if not os.path.isdir(self.locale_dirname):
@@ -2223,7 +2226,7 @@ class EggProject(Project):
         except ValueError:
             raise InvalidLocaleString(locale)
         try:
-            source_egg = ReahlEgg(get_distribution(source_dist_spec or self.project_name))
+            source_egg = ReahlEgg.interface_for(get_distribution(source_dist_spec or self.project_name))
         except DistributionNotFound:
             raise EggNotFound(source_dist_spec or self.project_name)
         self.setup(['init_catalog',
