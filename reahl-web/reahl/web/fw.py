@@ -2929,6 +2929,9 @@ class ReahlWSGIApplication:
         self.root_user_interface_factory = UserInterfaceFactory(None, RegexPath('/', '/', {}), IdentityDictionary(), self.config.web.site_root, 'site_root')
         self.add_reahl_static_files()
 
+    def __str__(self):
+        return '<%s web.site_root=%s>' % (self.__class__.__name__, self.config.web.site_root.__name__)
+
     def add_reahl_static_files(self):
         static_files = self.config.web.frontend_libraries.packaged_files()
         self.define_static_files('/static', static_files)
@@ -3041,6 +3044,8 @@ class ReahlWSGIApplication:
     def __call__(self, environ, start_response):
         if self.start_on_first_request:
             self.ensure_started()
+        if not self.started:
+            raise ProgrammerError('%s is not started. Did you mean to set start_on_first_request=True?' % self)
         request = Request(environ, charset='utf8')
         context = self.create_context_for_request()
         context.config = self.config
