@@ -160,9 +160,10 @@ class Browser(BasicBrowser):
         relative = not url_string.startswith('/')
         if relative:
             url_string = self.get_full_path(url_string)
-        self.last_response = self.testapp.get(url_string, **kwargs)
+        extra_environ = kwargs.pop('extra_environ', {'REAHL_BROWSER_CALL':'True'})
+        self.last_response = self.testapp.get(url_string, extra_environ=extra_environ, **kwargs)
         if follow_redirects:
-            self.follow_response()
+            self.follow_response(extra_environ=extra_environ, **kwargs)
 
     def go_back(self):
         """GETs the previous location (like the back button on a browser).
@@ -175,14 +176,17 @@ class Browser(BasicBrowser):
         """
         self.open(self.last_request.url)
 
-    def follow_response(self):
+    def follow_response(self, **kwargs):
         """Assuming the last response received was a redirect, follows that response
           (and other redirect responses that may be received in the process until
           a response is received which is not a redirect.
         """
         counter = 0
         while self.status >= 300 and self.status < 400:
-            self.last_response = self.last_response.follow()
+            if not kwargs:
+                kwargs={}
+            extra_environ = kwargs.pop('extra_environ', {'REAHL_BROWSER_CALL':'True'})
+            self.last_response = self.last_response.follow(extra_environ=extra_environ, **kwargs)
             counter += 1
             assert counter <= 10, 'HTTP Redirect loop detected.'
 
@@ -195,7 +199,8 @@ class Browser(BasicBrowser):
            Other keyword arguments are passed directly on to 
            `WebTest.post <http://webtest.readthedocs.org/en/latest/api.html#webtest.app.TestApp.post>`_.
         """
-        self.last_response = self.testapp.post((url_string), form_values, **kwargs)
+        extra_environ = kwargs.pop('extra_environ', {'REAHL_BROWSER_CALL':'True'})
+        self.last_response = self.testapp.post((url_string), form_values, extra_environ=extra_environ, **kwargs)
 
     def relative(self, url_string):
         url_bits = urllib.parse.urlparse(url_string)
@@ -270,8 +275,11 @@ class Browser(BasicBrowser):
             button_name = self.xpath(xpath)[0].name
             form = self.get_form_for(xpath)
             form.action = self.relative(form.action)
-            self.last_response = form.submit(button_name, **kwargs)
-            self.follow_response()
+            if not kwargs:
+                kwargs={}
+            extra_environ = kwargs.pop('extra_environ', {'REAHL_BROWSER_CALL':'True'})
+            self.last_response = form.submit(button_name, extra_environ=extra_environ, **kwargs)
+            self.follow_response(extra_environ=extra_environ, **kwargs)
         elif button.tag == 'a':
             self.open(button.attrib['href'], **kwargs)
         elif button.tag == 'input' and button.type == 'checkbox':
