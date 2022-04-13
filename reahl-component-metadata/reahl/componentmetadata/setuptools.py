@@ -9,6 +9,6 @@ def setup_keyword(dist, attr, value):
         raise DistutilsSetupError("'component' should be a dict")
 
 
-def egg_info(cmd, basename, filename):
+def dist_info(cmd, basename, filename):
     if cmd.distribution.component:
         cmd.write_or_delete_file('component', filename, cmd.distribution.component)
