@@ -70,6 +70,8 @@ Components are not only database-aware. Similar problems are solved for componen
    tutorial which discusses these topics in more detail --- albeit in the context of the Reahl web framework. Note that
    `reahl-component` functionality is independent of the Reahl web framework.
 
+.. _define_component:
+   
 Defining a component
 --------------------
 
@@ -82,12 +84,13 @@ Defining a component
      Reference documentation for a `setup.cfg` file.
 
 A Reahl component is just a setuptools package with extra metadata. To make your project a component,
-add a `component =` key to the `[options]` section of your setup.cfg::
+add a `component =` key to the `[options]` section of your `setup.cfg`. The contents of this key is
+explained a bit more in the next section.
 
 In order to help setuptools grok that option you also need to have a `pyproject.toml` file which lists
 the `reahl-component-metadata` project as a build dependency.
 
-Your package also need to require `reahl-component` by the usual means.
+Finally, your package needs to require `reahl-component` using a `requires` or `install_requires` as usual.
 
 
 Basics of the component option

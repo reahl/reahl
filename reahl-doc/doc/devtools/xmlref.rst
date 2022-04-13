@@ -6,6 +6,14 @@
 XML reference for .reahlproject
 ===============================
 
+.. warning::
+
+   We still use a limited subset of .reahlproject functionality internally. We recommend that you :ref:`switch over to
+   using a setup.cfg with reahl-component-metadata instead of using a .reahlproject <define_component>`.
+
+   This information stays here for the moment until users have migrated away from a .reahlproject.
+
+   
 The `.reahlproject` file in the root of your project is an XML file containing all kinds of information about your
 project. It is used to create a `setup.py` on the fly. It contains other information such as how to find the 
 |Configuration| for your project.

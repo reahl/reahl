@@ -18,3 +18,6 @@ Component framework
    Support for MySQL (reahl.mysqlsupport) <mysqlsupport>
    Support for SQLite (reahl.sqlitesupport) <sqlitesupport>
    Support for SQLAlchemy (reahl.sqlalchemysupport) <sqlalchemysupport>
+
+   Reference for setup.cfg (reahl.componentmetadata) <setup.cfg>
+   
