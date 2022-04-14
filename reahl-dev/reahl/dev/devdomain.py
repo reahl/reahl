@@ -33,6 +33,7 @@ import pkgutil
 from tempfile import TemporaryFile
 import collections
 import json
+import configparser
 
 import babel
 import tzlocal
@@ -1097,7 +1098,6 @@ class ProjectMetadata:
         return 'No maintainer provided'
 
 
-
 class MetaInfo:
     @classmethod
     def get_xml_registration_info(cls):
@@ -1113,7 +1113,22 @@ class MetaInfo:
     def inflate_text(self, reader, text, parent):
         self.contents = text
 
+        
+class SetupMetadata(ProjectMetadata):
+    def __init__(self, project, config):
+        super().__init__(project)
+        self.config = config
 
+    @property
+    def project_name(self):
+        return self.config['metadata']['name']
+
+    @property
+    def version(self):
+        return self.config['metadata']['version']
+
+
+        
 class HardcodedMetadata(ProjectMetadata):
     def __init__(self, parent):
         super().__init__(parent)
@@ -1441,6 +1456,7 @@ class Project:
     @classmethod
     def from_file(cls, workspace, directory):
         project_filename = os.path.join(directory, '.reahlproject')
+        setup_cfg_filename = os.path.join(directory, 'setup.cfg')
         if os.path.isfile(project_filename):
             input_file = open(project_filename, 'r')
             try:
@@ -1450,12 +1466,16 @@ class Project:
                 raise InvalidProjectFileException(project_filename, ex)
             finally:
                 input_file.close()
+        elif os.path.isfile(setup_cfg_filename):
+            config = configparser.ConfigParser()
+            config.read(setup_cfg_filename)
+            project = Project(workspace, directory, metadata=SetupMetadata(None, config))
         else:
-            project = Project(workspace, directory)
+            raise DomainException(message='Could not find a .reahlproject or a setup.py in %s' % directory)
 
         return project
 
-    def __init__(self, workspace, directory):
+    def __init__(self, workspace, directory, metadata=None):
         self.workspace = workspace
         self.directory = directory
         self.relative_directory = os.path.relpath(directory, self.workspace.directory)
@@ -1463,7 +1483,7 @@ class Project:
         self.packages = []
         self.python_path = []
         self._tags = []
-        self.metadata = ProjectMetadata(self)
+        self.metadata = metadata or ProjectMetadata(self)
         self.source_control = SourceControlSystem(self)
 
     def inflate_attributes(self, reader, attributes, parent):
@@ -1516,6 +1536,78 @@ class Project:
 
     def list_missing_dependencies(self, for_development=None):
         pass
+
+    @property
+    def locale_dirname(self):
+        if not self.translation_package:
+            raise DomainError(message='No reahl.translations entry point specified for project: "%s"' % (self.project_name))
+        return os.path.join(self.directory, ReahlEgg.get_egg_internal_path_for(self.translation_package))
+
+    @property
+    def interface(self):
+        return ReahlEgg.interface_for(get_distribution(self.project_name))
+
+    @property
+    def translation_package(self):
+        return self.interface.translation_package_entry_point
+                            
+    @property
+    def locale_domain(self):
+        return self.project_name
+
+    @property
+    def pot_filename(self):
+        return os.path.join(self.locale_dirname, self.locale_domain)
+
+    def extract_messages(self, args):
+        if self.translation_package:
+            Executable('pybabel').check_call('extract --input-dirs . --output-file'.split()+[self.pot_filename], cwd=self.directory)
+        else:
+            logging.warning('No reahl.translations entry point specified for project: "%s"' % (self.project_name))
+
+    @property
+    def translated_domains(self):
+        if self.translation_package:
+            filenames = glob.glob(os.path.join(self.locale_dirname, '*/LC_MESSAGES/*.po'))
+            return {os.path.splitext(os.path.basename(i))[0] for i in filenames}
+        else:
+            logging.warning('No reahl.translations entry point specified for project: "%s"' % (self.project_name))
+            return []
+
+    def merge_translations(self):
+        for source_dist_spec in self.translated_domains:
+            try:
+                source_egg = ReahlEgg.interface_for(get_distribution(source_dist_spec))
+            except DistributionNotFound:
+                raise EggNotFound(source_dist_spec)
+            if not os.path.isdir(self.locale_dirname):
+                os.mkdir(self.locale_dirname)
+            Executable('pybabel').check_call(['update','--input-file', source_egg.translation_pot_filename,
+                                              '--domain', source_egg.name,
+                                              '-d', self.locale_dirname], cwd=self.directory)
+            
+    def compile_translations(self):
+        for domain in self.translated_domains:
+            Executable('pybabel').check_call(['compile',
+                                              '--domain', domain,
+                                              '-d', self.locale_dirname], cwd=self.directory)
+
+    def add_locale(self, locale, source_dist_spec):
+        try:
+            babel.parse_locale(locale)
+        except ValueError:
+            raise InvalidLocaleString(locale)
+        try:
+            source_egg = ReahlEgg.interface_for(get_distribution(source_dist_spec or self.project_name))
+        except DistributionNotFound:
+            raise EggNotFound(source_dist_spec or self.project_name)
+        Executable('pybabel').check_call(['init',
+                                          '--input-file', source_egg.translation_pot_filename,
+                                          '--domain', source_egg.name,
+                                          '-d', self.locale_dirname,
+                                          '--locale', locale], cwd=self.directory)
+        return locale
+
     #-----------[ metadata stuff ]---------------------------------------
 
     def info_completed(self):
@@ -2163,79 +2255,6 @@ class EggProject(Project):
                         py_files.add(os.path.join(dirname, filename))
         return list(py_files)
 
-    @property
-    def locale_dirname(self):
-        if not self.translation_package:
-            raise DomainError(message='No reahl.translations entry point specified for project: "%s"' % (self.project_name))
-        return os.path.join(self.directory, ReahlEgg.get_egg_internal_path_for(self.translation_package))
-
-    @property
-    def interface(self):
-        return ReahlEgg.interface_for(get_distribution(self.project_name))
-
-    @property
-    def translation_package(self):
-        return self.interface.translation_package
-                            
-    @property
-    def locale_domain(self):
-        return self.project_name
-
-    @property
-    def pot_filename(self):
-        return os.path.join(self.locale_dirname, self.locale_domain)
-
-    def extract_messages(self, args):
-        if self.translation_package:
-            self.setup(['extract_messages',
-                        '--input-dirs', '.',
-                        '--output-file', self.pot_filename])
-        else:
-            logging.warning('No reahl.translations entry point specified for project: "%s"' % (self.project_name))
-
-    @property
-    def translated_domains(self):
-        if self.translation_package:
-            filenames = glob.glob(os.path.join(self.locale_dirname, '*/LC_MESSAGES/*.po'))
-            return {os.path.splitext(os.path.basename(i))[0] for i in filenames}
-        else:
-            logging.warning('No reahl.translations entry point specified for project: "%s"' % (self.project_name))
-            return []
-
-    def merge_translations(self):
-        for source_dist_spec in self.translated_domains:
-            try:
-                source_egg = ReahlEgg.interface_for(get_distribution(source_dist_spec))
-            except DistributionNotFound:
-                raise EggNotFound(source_dist_spec)
-            if not os.path.isdir(self.locale_dirname):
-                os.mkdir(self.locale_dirname)
-            self.setup(['update_catalog',
-                        '--input-file', source_egg.translation_pot_filename,
-                        '--domain', source_egg.name,
-                        '-d', self.locale_dirname])
-
-    def compile_translations(self):
-        for domain in self.translated_domains:
-            self.setup(['compile_catalog',
-                        '--domain', domain,
-                        '-d', self.locale_dirname])
-
-    def add_locale(self, locale, source_dist_spec):
-        try:
-            babel.parse_locale(locale)
-        except ValueError:
-            raise InvalidLocaleString(locale)
-        try:
-            source_egg = ReahlEgg.interface_for(get_distribution(source_dist_spec or self.project_name))
-        except DistributionNotFound:
-            raise EggNotFound(source_dist_spec or self.project_name)
-        self.setup(['init_catalog',
-                    '--input-file', source_egg.translation_pot_filename,
-                    '--domain', source_egg.name,
-                    '-d', self.locale_dirname,
-                    '--locale', locale])
-        return locale
 
 
 class ChickenProject(EggProject):

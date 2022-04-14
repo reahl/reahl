@@ -393,16 +393,20 @@ class ReahlEgg:
         return [self.load(i) for i in self.metadata.get('versions', {}).get(version, {}).get('migrations', [])]
 
     @property
-    def translation_package(self):
+    def translation_package_entry_point(self):
         translation_packages = [translation_entry_point for translation_entry_point in iter_entry_points('reahl.translations')
                                 if (translation_entry_point.dist is self.distribution) and (translation_entry_point.name == self.name) ]
         if len(translation_packages) != 1:
             return None
         return translation_packages[0]
+    
+    @property
+    def translation_package_name(self):
+        return self.translation_package_entry_point.module_name
 
     @property
     def translation_pot_filename(self):
-        translations_package_name = self.translation_package.__name__
+        translations_package_name = self.translation_package_name
         translations_file_path = translations_package_name.replace('.', '/')
         return self.distribution.get_resource_filename(self.distribution, '%s/%s' % (translations_file_path, self.name))
 
