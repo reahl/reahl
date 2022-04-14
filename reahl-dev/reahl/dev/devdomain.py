@@ -2016,7 +2016,6 @@ class EggProject(Project):
                      install_requires=self.run_deps_for_setup(),
                      setup_requires=self.build_deps_for_setup(),
                      tests_require=self.test_deps_for_setup(),
-                     test_suite=self.test_suite_for_setup(),
                      extras_require=self.extras_require_for_setup() )
             monitor.check_command_status(distribution.commands)
 
@@ -2063,7 +2062,6 @@ class EggProject(Project):
             setup_file.write('    install_requires=%s,\n' % repr(self.run_deps_for_setup()))
             setup_file.write('    setup_requires=%s,\n' % repr(self.build_deps_for_setup()))
             setup_file.write('    tests_require=%s,\n' % repr(self.test_deps_for_setup()))
-            setup_file.write('    test_suite=%s,\n' % repr(self.test_suite_for_setup()))
 
             setup_file.write('    extras_require=%s,\n' % repr(self.extras_require_for_setup()) )
             setup_file.write('    cmdclass={\'install_test_dependencies\': InstallTestDependencies}\n' )

@@ -3,8 +3,6 @@
     <package name="reahl"/>
   </namespaces>
   
-  <configuration locator="reahl.sqlalchemysupport:SqlAlchemyConfig"/>
-
   <deps purpose="test">
     <thirdpartyegg name="pytest" minversion="3.0"/>
     <egg name="reahl-tofu"/>
@@ -21,82 +19,6 @@
       <thirdpartyegg name="SQLAlchemy" minversion="1.2.0" maxversion="1.4.999"/>
       <thirdpartyegg name="alembic" minversion="0.9.6" maxversion="1.7.999"/>
     </deps>
-  </version>
-
-  <version number="5.1">
-    <deps purpose="run">
-      <egg name="reahl-component" versionlocked="True"/>
-      <egg name="reahl-commands" versionlocked="True"/>
-      <thirdpartyegg name="SQLAlchemy" minversion="1.2.0" maxversion="1.3.999"/>
-      <thirdpartyegg name="alembic" minversion="0.9.6" maxversion="1.4.999"/>
-    </deps>
-  </version>
-
-  <version number="5.0">
-    <deps purpose="run">
-      <egg name="reahl-component" versionlocked="True"/>
-      <egg name="reahl-commands" versionlocked="True"/>
-      <thirdpartyegg name="SQLAlchemy" minversion="1.2.0" maxversion="1.3.999"/>
-      <thirdpartyegg name="alembic" minversion="0.9.6" maxversion="1.4.999"/>
-    </deps>
-  </version>
-
-  <version number="4.0">
-    <deps purpose="run">
-      <egg name="reahl-component" versionlocked="True"/>
-      <egg name="reahl-commands" versionlocked="True"/>
-      <thirdpartyegg name="sqlalchemy" minversion="1.2.0" maxversion="1.2.999"/>
-      <thirdpartyegg name="alembic" minversion="0.9.6" maxversion="0.9.999"/>
-    </deps>
-    <migrations>
-      <class locator="reahl.sqlalchemysupport.migrations:ChangesToBeMySqlCompatible"/>
-    </migrations>
-  </version>
-
-  <version number="3.2">
-    <deps purpose="run">
-      <egg name="reahl-component" versionlocked="True"/>
-      <thirdpartyegg name="sqlalchemy" minversion="0.9.2" maxversion="0.9.999"/>
-      <thirdpartyegg name="alembic" minversion="0.6" maxversion="0.6.999"/>
-    </deps>
-  </version>
-
-  <version number="3.1">
-    <deps purpose="run">
-      <egg name="reahl-component" versionlocked="True"/>
-      <thirdpartyegg name="sqlalchemy" minversion="0.9.2" maxversion="0.9.999"/>
-      <thirdpartyegg name="alembic" minversion="0.6" maxversion="0.6.999"/>
-    </deps>
-  </version>
-
-  <version number="3.0">
-    <deps purpose="run">
-      <egg name="reahl-component" versionlocked="True"/>
-      <thirdpartyegg name="sqlalchemy" minversion="0.9.2" maxversion="0.9.999"/>
-      <thirdpartyegg name="alembic" minversion="0.6" maxversion="0.6.999"/>
-    </deps>
-    <migrations>
-      <class locator="reahl.sqlalchemysupport.elixirmigration:ElixirToDeclarativeSqlAlchemySupportChanges"/>
-    </migrations>
-  </version>
-
-  <version number="2.1">
-    <deps purpose="run">
-      <egg name="reahl-component" versionlocked="True"/>
-      <thirdpartyegg name="sqlalchemy" minversion="0.7" maxversion="0.7.999"/>
-      <thirdpartyegg name="alembic" minversion="0.5" maxversion="0.5.999"/>
-    </deps>
-  </version>
-
-  <version number="2.0">
-    <deps purpose="run">
-      <egg name="reahl-component" versionlocked="True"/>
-      <thirdpartyegg name="sqlalchemy" minversion="0.7" maxversion="0.7.999"/>
-      <thirdpartyegg name="alembic" minversion="0.5" maxversion="0.5.999"/>
-    </deps>
-    <migrations>
-      <class locator="reahl.sqlalchemysupport.migrations:CreateDatabase"/>
-    </migrations>
   </version>
 
   <distpackage type="wheel">

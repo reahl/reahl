@@ -7,67 +7,12 @@
     <thirdpartyegg name="pytest" minversion="3.0"/>
   </deps>
 
-  <export entrypoint="reahl.component.databasecontrols" name="SQLiteControl" locator="reahl.sqlitesupport:SQLiteControl"/>
-
   <version number="5.2">
     <deps purpose="run">
       <egg name="reahl-component" versionlocked="True"/>
       <egg name="reahl-commands" versionlocked="True"/>
     </deps>
   </version>
-
-  <version number="5.1">
-    <deps purpose="run">
-      <egg name="reahl-component" versionlocked="True"/>
-      <egg name="reahl-commands" versionlocked="True"/>
-    </deps>
-  </version>
-
-  <version number="5.0">
-    <deps purpose="run">
-      <egg name="reahl-component" versionlocked="True"/>
-      <egg name="reahl-commands" versionlocked="True"/>
-    </deps>
-  </version>
-
-  <version number="4.0">
-    <deps purpose="run">
-      <egg name="reahl-component" versionlocked="True"/>
-      <egg name="reahl-commands" versionlocked="True"/>
-    </deps>
-  </version>
-
-  <version number="3.2">
-    <deps purpose="run">
-      <egg name="reahl-component" versionlocked="True"/>
-    </deps>
-  </version>
-
-  <version number="3.1">
-    <deps purpose="run">
-      <egg name="reahl-component" versionlocked="True"/>
-    </deps>
-  </version>
-
-  <version number="3.0">
-    <deps purpose="run">
-      <egg name="reahl-component" versionlocked="True"/>
-    </deps>
-  </version>
-
-  <version number="2.1">
-    <deps purpose="run">
-      <egg name="reahl-component" versionlocked="True"/>
-    </deps>
-  </version>
-
-  <version number="2.0">
-    <deps purpose="run">
-      <egg name="reahl-component" versionlocked="True"/>
-    </deps>
-  </version>
-
-
 
   <distpackage type="wheel">
     <packageindex repository="pypi"/>

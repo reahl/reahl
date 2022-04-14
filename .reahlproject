@@ -63,33 +63,6 @@
 
   <excludepackage name="reahl.doc.*"/>
 
-  <version number="5.2">
-  </version>
-
-  <version number="5.1">
-  </version>
-
-  <version number="5.0">
-  </version>
-  
-  <version number="4.0">
-  </version>
-
-  <version number="3.2">
-  </version>
-
-  <version number="3.1">
-  </version>
-
-  <version number="3.0">
-  </version>
-
-  <version number="2.1">
-  </version>
-
-  <version number="2.0">
-  </version>
-
   <distpackage type="wheel">
     <packageindex repository="pypi"/>
   </distpackage>
