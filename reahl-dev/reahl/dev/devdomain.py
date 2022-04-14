@@ -2049,6 +2049,7 @@ class EggProject(Project):
             setup_file.write('        pass\n\n')
             setup_file.write('setup(\n')
             setup_file.write('    name=%s,\n' % repr(self.project_name))
+            setup_file.write('    version=\'%s\',\n' % self.version_for_setup())
             setup_file.write('    description=%s,\n' % repr(self.get_description_for(self)))
             setup_file.write('    long_description=%s,\n' % repr(self.get_long_description_for(self)))
             setup_file.write('    url=%s,\n' % repr(self.get_url_for(self))),

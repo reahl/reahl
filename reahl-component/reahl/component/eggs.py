@@ -254,7 +254,8 @@ class Dependency:
 
     @property
     def is_component(self):
-        return bool(self.distribution.get_entry_map().get('reahl.versions', {}))
+        dep_egg = ReahlEgg(self.distribution)
+        return dep_egg.is_component
 
 
 class Version(object):

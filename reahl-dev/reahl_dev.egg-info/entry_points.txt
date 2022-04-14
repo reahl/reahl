@@ -14,6 +14,7 @@ ListMissingDependencies = reahl.dev.devshell:ListMissingDependencies
 ListSelections = reahl.dev.devshell:ListSelections
 MarkReleased = reahl.dev.devshell:MarkReleased
 MergeTranslations = reahl.dev.devshell:MergeTranslations
+MigrateReahlProject = reahl.dev.devshell:MigrateReahlProject
 Read = reahl.dev.devshell:Read
 Refresh = reahl.dev.devshell:Refresh
 Save = reahl.dev.devshell:Save

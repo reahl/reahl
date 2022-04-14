@@ -3,14 +3,10 @@
     <package name="reahl"/>
   </namespaces>
 
-  <export entrypoint="distutils.setup_keywords" name="component" locator="reahl.componentmetadata.setuptools:setup_keyword"/>
-  <export entrypoint="egg_info.writers" name="component.json" locator="reahl.componentmetadata.setuptools:egg_info"/>
-
   <distpackage type="wheel">
     <packageindex repository="pypi"/>
   </distpackage>
   <distpackage type="sdist">
     <packageindex repository="pypi"/>
   </distpackage>
-
 </project>
