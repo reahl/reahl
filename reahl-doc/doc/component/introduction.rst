@@ -90,7 +90,7 @@ explained a bit more in the next section.
 In order to help setuptools grok that option you also need to have a `pyproject.toml` file which lists
 the `reahl-component-metadata` project as a build dependency.
 
-Finally, your package needs to require `reahl-component` using a `requires` or `install_requires` as usual.
+Finally, your package needs to require `reahl-component` using `install_requires` as usual.
 
 
 Basics of the component option
@@ -101,7 +101,7 @@ Basics of the component option
   :doc:`setup.cfg`
      Reference documentation for the `setup.cfg` file.
 
-The component option expects to receive data in json format. For this to work in a setup.cfg, the contents
+The component option expects to receive data in json format. For this to work in a `setup.cfg`, the contents
 of the component option need to be after a dangling = and indented::
 
 .. code-block::
@@ -115,7 +115,7 @@ Each time you change `setup.cfg`, be sure to regenerate the component metadata:
 
 .. code-block:: bash
 
-   python setup.py develop -N
+   python -m pip --no-deps -e .
 
    
 Persistence
@@ -139,7 +139,7 @@ Set the reahlsystem.connection_uri in `reahlsystem.config.py` to an URI matching
 
 List the database support component, `reahl-sqlalchemysupport` and `reahl-component` as dependencies of your component.
 
-List each persisted class of your component in the `setup.cfg`\s component option, as an element in the `persisted_classes` key.
+List each persisted class of your component in the `setup.cfg`\s component option, as an element in :ref:`the "persisted" key <setup_cfg_persisted>`.
 
 .. seealso::
 
@@ -187,15 +187,15 @@ Each version of your Reahl component can have its own set of |Migration|\s which
 version from its predecessor. The migration machinery needs access to all |Migration|\s of all versions of all
 components to be able to compute a correct dependency tree.
 
-Add a key for each major.minor version that's been released of your component in the `versions` object of the `setup.cfg`\s component option.
+Add an entry for each minor release of your component in :ref:`the "versions" object <setup_cfg_versions>` of the `setup.cfg`\s component option.
 
-For each such version, add two elements:
- - `install_requires` containing a list of the requirements that version had; and
- - `migrations` containing a list of the migration classes that need to run to bring the previous version's schema up to date to this version.
+For each such version entry, add two sub-entries:
+ - :ref:`"install_requires" <setup_cfg_install_requires>`: a list of the requirements that version had; and
+ - :ref:`"migrations" <setup_cfg_install_migrations>`: a list of the migration classes that need to run to bring the previous version's schema up to date to this version.
 
 To prevent duplication, the version entry for the current release is
-not allowed to contain any requirements, since those can be gleaned
-from the currently declared requirements.
+should not contain any requirements, since those are
+the usual `install_requires` of the current distribution package.
 
 If the current version does not have any migrations, it need not be
 listed at all, since it can be inferred.
@@ -275,7 +275,7 @@ You specify a unique key for the config of your component, as well as what confi
 configuration file name to be used for your component:
 
 Inherit a new class from |Configuration|. In the `component` option of your `setup.cfg` register this class by adding
-a `configuration` key whose value is a string conforming to an entry point locator string denoting this class.
+:ref:`a "configuration" entry <setup_cfg_configuration>` for this class.
 
 When defining config settings, you can specify default values for these settings, and also a human readable description
 of each setting. You can mark some config settings as "dangerous defaults": such defaults will produce warnings when
@@ -347,7 +347,7 @@ also provide extra translations for another component.
 
 Before you can use the Reahl command line commands for working with messages, create an empty python package in which
 messages and their translations can be saved. Once created, register this translations package
-in `setup.cfg` as an entry point for `reahl.translations` with its name that of your component.
+in `setup.cfg` as :ref:`an entry point in the "reahl.translations" group <setup_cfg_translations>`.
 
 .. seealso::
 
@@ -392,7 +392,9 @@ The following useful commands from `reahl-dev` related to translations are avail
     reahl mergetranslations
     reahl compiletranslations
 
-
+.. note::
+   Remember to `python -m pip --no-deps -e .` after having changed `setup.cfg` before using these commands.
+    
 Describing the interface of your model
 --------------------------------------
 
@@ -567,11 +569,16 @@ many such components does not want to have to know about all the jobs needed by 
 facilitate this, Reahl has a mechanism by which a component author can register jobs that the system runs on a regular
 basis.
 
-List the class methods that should be run a scheduled jobs as strings conforming to entry point syntax in the `schedule`
-key of the `component` option in `setup.cfg`.
+List each callable object that should be run as a scheduled job in :ref:`the "translations" entry (a list) <setup_cfg_translations>`
+of the `component` option of your `setup.cfg`.
 
 Whenever `reahl runjobs` is executed on your system's configuration directory, all the registered scheduled jobs of all
-components used by your system are executed.
+components that are used by your system are executed.
+
+.. note::
+   We could have opted to just register all scheduled jobs as entry points. However, a package contributes its entry points
+   when it is merely installed. The scheduled jobs **for your application** should only be those jobs that are registered by
+   components it depends on.
 
 On a production system, ensure that this command is run regularly (say every 10 minutes) via your system's task
 scheduler. It is up to the code in each such registered class method to check whether it should do any work when

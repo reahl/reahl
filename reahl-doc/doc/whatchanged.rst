@@ -6,20 +6,6 @@
 What changed in version 6.0
 ===========================
 
-.. |PrimitiveInput| replace:: :class:`~reahl.web.ui.PrimitiveInput`
-.. |Widget| replace:: :class:`~reahl.web.fw.Widget`
-.. |Chart| replace:: :class:`~reahl.web.plotly.Chart`
-.. |Input| replace:: :class:`~reahl.web.ui.Input`
-.. |set_refresh_widget| replace:: :meth:`~reahl.web.ui.PrimitiveInput.set_refresh_widget`
-.. |RemoteMethod| replace:: :class:`~reahl.web.fw.RemoteMethod`
-.. |UserSessionProtocol| replace:: :class:`~reahl.web.interfaces.UserSessionProtocol`
-.. |preserve_session| replace:: :meth:`~reahl.web.interfaces.UserSessionProtocol.preserve_session`
-.. |restore_session| replace:: :meth:`~reahl.web.interfaces.UserSessionProtocol.restore_session`
-.. |get_csrf_token| replace:: :meth:`~reahl.web.interfaces.UserSessionProtocol.get_csrf_token`
-.. |PayPalButtonsPanel| replace:: :class:`~reahl.paypalsupport.paypalsupport.PayPalButtonsPanel`
-.. |PayPalOrder| replace:: :class:`~reahl.paypalsupport.paypalsupport.PayPalOrder`
-
-
 Upgrading
 ---------
 
@@ -40,18 +26,18 @@ together. This scaffolding lives in reahl-dev, and is controlled by the .reahlpr
 
 We also needed to store other metadata for our flavour of component as implemented by reahl-component, and to do that we used (and
 later on over-used) the entry points mechanism of setuptools for storing this metadata. Writing a plain setup.cfg or setup.py with all
-this data crammed in weird ways into entry points eventually became too cumbersome to even explain, which is why we continued to push
-for the use of .reahlproject which hid that from its users.
+this data crammed into entry points eventually became too cumbersome to explain, which is why we continued up to now
+to use .reahlproject which hid that from its users.
 
-We have now changed how we store extra metadata.
+We have now changed how we store extra metadata:
 
 You now should package a Reahl component using setuptools in a PEP517 compliant way without using our homegrown .reahlproject.
 
 The .reahlproject and some of its accompanying scaffolding does not go away: its use is now optional and what it can do has shrunk.
-We really intend for it to be used internally only at this point.
+We really intend for it to be used internally only at this point, and it will be removed entirely in the near future since it relies on
+executing `setuptools.setup()` -- a practice which is deprecated.
 
-If you really DO want to use a `.reahlcomponent` -- that is a separate concern and you can do that too, although there are changes to what
-you can put in it.
+If you are currently using a `.reahlproject`, you will have to migrate now to using a `setup.cfg`.
 
 
 Migrating old .reahlproject files
