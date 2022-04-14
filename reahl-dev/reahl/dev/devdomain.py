@@ -1441,16 +1441,18 @@ class Project:
     @classmethod
     def from_file(cls, workspace, directory):
         project_filename = os.path.join(directory, '.reahlproject')
-        if not os.path.isfile(project_filename):
-            raise NotAValidProjectException(project_filename)
-        input_file = open(project_filename, 'r')
-        try:
-            reader = XMLReader(all_xml_classes)
-            project = reader.read_file(input_file, (workspace, directory))
-        except (TagNotRegisteredException, ExpatError, InvalidXMLException) as ex:
-            raise InvalidProjectFileException(project_filename, ex)
-        finally:
-            input_file.close()
+        if os.path.isfile(project_filename):
+            input_file = open(project_filename, 'r')
+            try:
+                reader = XMLReader(all_xml_classes)
+                project = reader.read_file(input_file, (workspace, directory))
+            except (TagNotRegisteredException, ExpatError, InvalidXMLException) as ex:
+                raise InvalidProjectFileException(project_filename, ex)
+            finally:
+                input_file.close()
+        else:
+            project = Project(workspace, directory)
+
         return project
 
     def __init__(self, workspace, directory):
@@ -1732,7 +1734,7 @@ class MigratedSetupCfg:
             setup_file.write('name = %s\n' % self.project.project_name)
             setup_file.write('version = %s\n' % self.project.version_for_setup())
             setup_file.write('description = %s\n' % self.project.get_description_for(self.project))
-            setup_file.write('long_description = \n%s\n' % self.project.get_long_description_for(self.project))
+            setup_file.write('long_description = \n%s\n' % textwrap.indent(self.project.get_long_description_for(self.project), '  '))
             setup_file.write('url = %s\n' % self.project.get_url_for(self.project))
             setup_file.write('maintainer = %s\n' % self.project.maintainer_name)
             setup_file.write('maintainer_email = %s\n' % self.project.maintainer_email)
@@ -1803,7 +1805,7 @@ class MigratedSetupCfg:
 
     def generate_migrated_py_modules_option(self, setup_file):
         setup_file.write('py_modules =\n')
-        setup_file.write('\n'.join(['  %s' % self.project.py_modules_for_setup()]))
+        setup_file.write('\n'.join(['  %s' % i for i in self.project.py_modules_for_setup()]))
         setup_file.write('\n')
         
     def generate_migrated_entry_points_sections(self, setup_file):

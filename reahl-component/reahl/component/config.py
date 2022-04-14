@@ -245,6 +245,10 @@ class Configuration:
         
 
 class NullORMControl:
+    @property
+    def connected(self):
+        return False
+    
     def do_nothing(self, *args, **kwargs):
         pass
 

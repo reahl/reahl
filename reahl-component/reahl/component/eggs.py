@@ -330,8 +330,8 @@ class ReahlEgg:
     def is_component(self):
         return self.metadata is not None
 
-    def __str__(self):
-        return '<%s %s>' % (self.__class__.__name__, self.distribution)
+    def __repr__(self):
+        return '%s(get_distribution(%s))' % (self.__class__.__name__, self.distribution)
 
     @property
     def name(self):
@@ -348,9 +348,8 @@ class ReahlEgg:
 
     @property
     def configuration_spec(self):
-        entry_point_dict = self.distribution.get_entry_map().get('reahl.configspec', {})
-        entry_point = entry_point_dict.get('config', None)
-        return entry_point.load() if entry_point else None
+        configuration_spec_str = self.metadata.get('configuration', None)
+        return self.load(configuration_spec_str) if configuration_spec_str else None
 
     def read_config(self, config):
         if self.configuration_spec:

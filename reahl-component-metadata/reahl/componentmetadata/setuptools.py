@@ -14,6 +14,9 @@ def dist_info(cmd, basename, filename):
         cmd.write_or_delete_file('component', filename, cmd.distribution.component)
 
 
+def egg_info(cmd, basename, filename):
+    dist_info(cmd, basename, filename)
+
 
 # TODO: validate
 # - if you have component= you must have a dependency on reahl-component
