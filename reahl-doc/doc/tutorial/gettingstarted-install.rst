@@ -17,7 +17,7 @@ Install Reahl
 
    .. code-block:: bash
 
-      pip3 install reahl[declarative,sqlite,dev,doc]
+      python -m pip install reahl[declarative,sqlite,dev,doc]
 
    On platforms other than Windows, some dependencies pulled in during installation
    will also need to be compiled. To be able to compile these, you will also need:
@@ -32,7 +32,7 @@ Install Reahl
 This version of Reahl requires version 3.6 of Python or greater.
 
 Reahl depends on a lot of other software. Installing it is not just a
-straight `pip3 install reahl`. You need to install a couple of other
+straight `python -m pip install reahl`. You need to install a couple of other
 things first.
 
 If you know `Docker <https://www.docker.com>`_ then :doc:`use our
@@ -90,7 +90,7 @@ installed. Otherwise, follow the instructions below:
 
    .. code-block:: bash
 
-      pip3 install reahl[declarative,sqlite,dev,doc]
+      python -m pip install reahl[declarative,sqlite,dev,doc]
 
    Reahl is composed of different components---you only need some of them. The pip extras
    (given in :code:`[]` above) let you choose what to install. 

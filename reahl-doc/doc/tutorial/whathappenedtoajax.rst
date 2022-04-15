@@ -21,7 +21,7 @@ Changing content without refreshing (Ajax)
 
       reahl example <examplename>
 
-.. note:: See also
+.. seealso:: 
 
    - :doc:`../howto/dynamiccontenterrors`
    - :doc:`../howto/refreshingwidgets`

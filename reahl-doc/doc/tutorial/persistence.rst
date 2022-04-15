@@ -51,32 +51,30 @@ Change AddressBookPanel to query the database
    :pyobject: AddressBookPanel
 
 	      
-Register Address with .reahlproject
------------------------------------
+Register Address with setup.cfg
+-------------------------------
 
 Reahl needs to know about persisted classes so it can (for example):
 
 * create database tables
 * migrate older databases to newer schemas
 
-Register Address in your project by adding it to the `<persisted>` section of the `.reahlproject` file:
+Register Address in your project by adding it to the :ref:`the "persisted" list <setup_cfg_persisted>` in :doc:`setup.cfg <../component/setup.cfg>`:
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/addressbook1/.reahlproject
-   :language: xml
-   :start-after: <persisted>
-   :end-before:  </persisted>
-   :prepend: <persisted>
-   :append: </persisted>
+.. literalinclude:: ../../reahl/doc/examples/tutorial/addressbook1/setup.cfg
+   :language: ini
+   :start-after: component =
+   :prepend: component =
 
 
 Housekeeping and your database schema
 -------------------------------------
 
-Whenever you change a `.reahlproject` file though, be sure to run:
+Whenever you change a `setup.cfg` file though, be sure to run:
 
 .. code-block:: bash
 
-   reahl setup develop -N
+   python -m pip install --no-deps -e .
 
 To create a database, run:
 

@@ -211,17 +211,12 @@ class Dependency:
         self.min_version = None
         self.max_version = None
         for comparator, version in self.specs:
-            if comparator == '==':
-                self.min_version = version
-                self.max_version = version
-            elif comparator == '>=':
+            if comparator == '>=':
                 self.min_version = version
             elif comparator == '<':
                 self.max_version = version
-            elif comparator == '>':
-                assert False, 'not implemented'
-            elif comparator == '<=':
-                assert False, 'not implemented'
+            else:
+                raise ProgrammerError('%s uses comparator %s which is not allowed. Please use semantic versioning like: x>=1.2,<1.3')
 
     def get_best_version(self):
         all_versions = self.get_versions()

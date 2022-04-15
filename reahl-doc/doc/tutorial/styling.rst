@@ -56,7 +56,7 @@ Custom styling
 
 Out of the box, a Reahl web application uses a default set of colours
 and styling choices.  To comprehensively change these defaults
-requires one to `compile a customised version of bootstrap`
+requires one to :doc:`compile a customised version of bootstrap
 <../howto/customisingcss>` --- an advanced topic.
 
 If you just need to add some CSS op top of the defaults,

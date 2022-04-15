@@ -48,7 +48,7 @@ before trying to run it:
 
   .. code-block:: bash
 
-     reahl setup -- develop -N
+     python -m pip install --no-deps -e .
 
 - Create a database:
 
@@ -92,4 +92,4 @@ To remove a previous example from development, run:
 
 .. code-block:: bash
 
-   reahl setup -- develop -N --uninstall
+   python -m pip uninstall <name of example>

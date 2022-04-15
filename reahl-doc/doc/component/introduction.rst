@@ -6,7 +6,7 @@
 .. |Configuration| replace:: :class:`~reahl.component.config.Configuration`
 .. |StoredConfiguration| replace:: :class:`~reahl.component.config.StoredConfiguration`
 .. |configure| replace:: :meth:`~reahl.component.config.StoredConfiguration.configure`
-.. |AccessRestricted| replace:: :class:`~reahl.component.exception.AccessRestricted`
+.. |AccessRestricted| replace:: :class:`~reahl.component.exceptions.AccessRestricted`
 .. |Action| replace:: :class:`~reahl.component.modelinterface.Action`
 .. |add_validation_constraint| replace:: :meth:`~reahl.component.modelinterface.Field.add_validation_constraint`
 .. |as_input| replace:: :meth:`~reahl.component.modelinterface.Field.as_input`
@@ -87,24 +87,19 @@ A Reahl component is just a setuptools package with extra metadata. To make your
 add a `component =` key to the `[options]` section of your `setup.cfg`. The contents of this key is
 explained a bit more in the next section.
 
-In order to help setuptools grok that option you also need to have a `pyproject.toml` file which lists
-the `reahl-component-metadata` project as a build dependency.
+In order to help setuptools grok the `component =` option you also need to have a `pyproject.toml` file
+which lists `setuptools` and `reahl-component-metadata` as build dependencies.
 
-Finally, your package needs to require `reahl-component` using `install_requires` as usual.
+Finally, your package itself needs to require `reahl-component` using `install_requires` as usual.
 
 
 Basics of the component option
 ------------------------------
 
-.. seealso::
-
-  :doc:`setup.cfg`
-     Reference documentation for the `setup.cfg` file.
-
 The component option expects to receive data in json format. For this to work in a `setup.cfg`, the contents
-of the component option need to be after a dangling = and indented::
+of the component option need to be after a dangling = and indented:
 
-.. code-block::
+.. code-block:: ini
 
    [options]
    component =
@@ -115,7 +110,7 @@ Each time you change `setup.cfg`, be sure to regenerate the component metadata:
 
 .. code-block:: bash
 
-   python -m pip --no-deps -e .
+   python -m pip install --no-deps -e .
 
    
 Persistence
@@ -123,6 +118,11 @@ Persistence
 
 Persistence basics
 ~~~~~~~~~~~~~~~~~~
+
+.. seealso::
+
+  :doc:`../tutorial/persistence`
+     How to register persisted classes with your component and use the command line to create a database schema.
 
 The `reahl-component` infrastructure is extended by other Reahl components to be able to deal with differing
 implementations of ORM or database systems.
@@ -139,12 +139,7 @@ Set the reahlsystem.connection_uri in `reahlsystem.config.py` to an URI matching
 
 List the database support component, `reahl-sqlalchemysupport` and `reahl-component` as dependencies of your component.
 
-List each persisted class of your component in the `setup.cfg`\s component option, as an element in :ref:`the "persisted" key <setup_cfg_persisted>`.
-
-.. seealso::
-
-  :doc:`../tutorial/persistence`
-     How to register persisted classes with your component and use the command line to create a database schema.
+List each persisted class of your component in the `setup.cfg`\'s component option, as an element in :ref:`the "persisted" key <setup_cfg_persisted>`.
 
 You can now use the following commands (amongst others) from `reahl-commands` to manage the database::
 
@@ -154,6 +149,11 @@ You can now use the following commands (amongst others) from `reahl-commands` to
 
 Database migration
 ~~~~~~~~~~~~~~~~~~
+
+.. seealso::
+
+  :doc:`../tutorial/schemaevolution`
+     How to write migrations, define new versions of a Reahl component and upgrade a database to the new version.
 
 The author of one component has no knowledge of other components which might inhabit the same database when used
 together. However, when component A depends on component B, the author of A will know that B is being used. The classes
@@ -178,36 +178,32 @@ the whole database from one version to another, Reahl computes a dependency grap
 the components in play. It then runs different parts of each |Migration| in the correct order to ensure all database
 level dependencies and constraints are honoured.
 
-.. seealso::
-
-  :doc:`../tutorial/schemaevolution`
-     How to write migrations, define new versions of a Reahl component and upgrade a database to the new version.
-
 Each version of your Reahl component can have its own set of |Migration|\s which are performed when upgrading to that
 version from its predecessor. The migration machinery needs access to all |Migration|\s of all versions of all
 components to be able to compute a correct dependency tree.
 
-Add an entry for each minor release of your component in :ref:`the "versions" object <setup_cfg_versions>` of the `setup.cfg`\s component option.
+Add an entry for each minor release of your component in :ref:`the "versions" object <setup_cfg_versions>` of the `setup.cfg`\'s component option.
 
 For each such version entry, add two sub-entries:
- - :ref:`"install_requires" <setup_cfg_install_requires>`: a list of the requirements that version had; and
- - :ref:`"migrations" <setup_cfg_install_migrations>`: a list of the migration classes that need to run to bring the previous version's schema up to date to this version.
 
-To prevent duplication, the version entry for the current release is
-should not contain any requirements, since those are
-the usual `install_requires` of the current distribution package.
+ - :ref:`"install_requires" <setup_cfg_install_requires>`: a list of the requirements that version had; and
+ - :ref:`"migrations" <setup_cfg_migrations>`: a list of the migration classes that need to run to bring the previous version's schema up to date to this version.
+
+To prevent duplication, the version entry for the current release 
+should not contain any requirements, since those are already in
+the standard `install_requires` of `setup.cfg`.
 
 If the current version does not have any migrations, it need not be
-listed at all, since it can be inferred.
+listed at all.
    
 .. note::
 
    A change in dependency or in database schema is seen as at least a minor version change, therefore
    versions listed only specify major.minor version numbers, not an additional patch version.
 
-Each |Migration| is written such that user code only schedules each necessary change in a so-called 'phase'. The final
-order in which the |Migration| itself and each individual phase of the |Migration| will be executed is determined by Reahl
-at runtime taking all components into account.
+Each |Migration| is written such that user code does not execute changes directly, but schedules each necessary change to be done
+during a specified 'phase' of migration. The final order in which the |Migration| itself and each individual phase of the |Migration| will be executed
+is determined by Reahl at runtime taking all components into account.
 
 If you schedule more than one action in a single phase in your |Migration|, these actions will retain their order
 relative to one another.
@@ -337,6 +333,11 @@ The following useful commands from `reahl-commands` related to configuration are
 Internationalisation
 --------------------
 
+.. seealso::
+
+  :doc:`../tutorial/i18n`
+     How to make strings in your application translatable and work with translations in other languages.
+
 If a component needs a user interface in several different human languages, each string that could appear on its
 user interface is marked in such a way that tools can collect all such strings in one file. (These translatable
 strings are usually referred to as "messages".) For each additional language you need to support, you then provide a
@@ -348,11 +349,6 @@ also provide extra translations for another component.
 Before you can use the Reahl command line commands for working with messages, create an empty python package in which
 messages and their translations can be saved. Once created, register this translations package
 in `setup.cfg` as :ref:`an entry point in the "reahl.translations" group <setup_cfg_translations>`.
-
-.. seealso::
-
-  :doc:`../tutorial/i18n`
-     How to make strings in your application translatable and work with translations in other languages.
 
 
 Setting the current locale
@@ -393,7 +389,7 @@ The following useful commands from `reahl-dev` related to translations are avail
     reahl compiletranslations
 
 .. note::
-   Remember to `python -m pip --no-deps -e .` after having changed `setup.cfg` before using these commands.
+   Remember to `python -m pip install --no-deps -e .` after having changed `setup.cfg` before using these commands.
     
 Describing the interface of your model
 --------------------------------------
@@ -418,11 +414,16 @@ In an object oriented program, you might have one object representing something 
 to the same attribute of that object could be present on many different places in the user interface.
 
 Reahl component's `modelinterface` provides a way for you to describe the above requirements for an attribute of such
-an object on one place. Your user interface code can then be written with the knowledge that all these concerns have
+an object in one place. Your user interface code can then be written with the knowledge that all these concerns have
 been taken care of, and thus will be consistently applied wherever referenced.
 
 Fields and FieldIndexes
 ~~~~~~~~~~~~~~~~~~~~~~~
+
+.. seealso::
+
+  :ref:`Using Fields <fields_explained>`
+     How to use |exposed| to expose |Field| for an object.
 
 A |Field| describes one attribute of an object. There are different |Field| subclasses for things such as email
 addresses, numbers or booleans.
@@ -437,11 +438,6 @@ The |exposed| decorator is used to define all the |Field|\s available for user i
 A method decorated with |exposed| is always passed a single argument (a |FieldIndex|), and is accessible as a property
 on the instance. Describe each attribute of your object by assigning an instance of |Field| to an attribute of
 |FieldIndex| using the same name as the attribute of the object you are describing.
-
-.. seealso::
-
-  :ref:`Using Fields <fields_explained>`
-     How to use |exposed| to expose |Field| for an object.
 
 
 Accessing an object via its |exposed| |Field|\s
@@ -564,6 +560,11 @@ could signal to the user interface machinery to not even show the said button at
 Scheduled jobs
 --------------
 
+.. seealso::
+
+  :doc:`../tutorial/jobs`
+     Registering and running regular scheduled jobs.
+
 The internals of a component may require certain housekeeping tasks to be performed regularly. A user of a system with
 many such components does not want to have to know about all the jobs needed by all the components used. In order to
 facilitate this, Reahl has a mechanism by which a component author can register jobs that the system runs on a regular
@@ -585,12 +586,7 @@ scheduler. It is up to the code in each such registered class method to check wh
 invoked or whether it should wait until a future invocation. For example: a job may cleans out sessions from a database,
 but only once a day around midnight despite being invoked every 10 minutes.
 
-.. seealso::
-
-  :doc:`../tutorial/jobs`
-     Registering and running regular scheduled jobs.
-
-
 The only command from `reahl-commands` related to jobs is::
 
     reahl runjobs <configuration directory>
+

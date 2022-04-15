@@ -353,7 +353,7 @@ class ListDependencies(ProductionCommand):
 
 
 class ListVersionHistory(ProductionCommand):
-    """List full version history."""
+    """List versions of a component that are not already accounted for in the current database schema."""
     keyword = 'listversionhistory'
     def assemble(self):
         super().assemble()
