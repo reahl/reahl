@@ -15,7 +15,7 @@
     <egg name="reahl-mysqlsupport"/>
   </deps>
 
-  <version number="5.2">
+  <version number="6.0">
     <deps purpose="run">
       <thirdpartyegg name="Babel" minversion="2.1" maxversion="2.9.999"/>
       <thirdpartyegg name="python-dateutil" minversion="2.8" maxversion="2.8.999"/>

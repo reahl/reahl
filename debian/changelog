@@ -1,3 +1,9 @@
+python-reahl (6.0.0) unstable; urgency=low
+
+ * Changed to allow PEP517 conformant packaging (#302).
+
+ -- Iwan Vosloo <iwan@reahl.org>  Mon, 21 Mar 2022 19:42:00 +0200
+
 python-reahl (5.2.2) unstable; urgency=low
 
  * Fixed links in documentation.

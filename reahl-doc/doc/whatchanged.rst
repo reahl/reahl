@@ -71,4 +71,9 @@ You will from now on install packages in development mode by running::
   
 
 
-  
+Updated dependencies
+--------------------
+
+Some dependencies on thirdparty python packages have been loosened to include a higher max version:
+- setuptools should now be 51.0.0 or higher
+
