@@ -38,6 +38,7 @@ from pkg_resources import require, iter_entry_points, DistributionNotFound, Requ
 
 from reahl.component.eggs import ReahlEgg
 from reahl.component.context import ExecutionContext
+from reahl.component.exceptions import DomainException
 
 
 class ConfigurationException(Exception):
@@ -321,8 +322,8 @@ class StoredConfiguration(Configuration):
         logging.getLogger(__name__).info('Using config in %s' % self.config_directory)
         sys.path.insert(0,self.config_directory)
 
-        assert os.path.isdir(self.config_directory), \
-               'no such directory: %s' % self.config_directory
+        if not os.path.isdir(self.config_directory):
+            raise DomainException(message='no such directory: %s' % self.config_directory)
 
         self.read(ReahlSystemConfig)
         self.validate_required(ReahlSystemConfig)
