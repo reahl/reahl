@@ -570,7 +570,7 @@ many such components does not want to have to know about all the jobs needed by 
 facilitate this, Reahl has a mechanism by which a component author can register jobs that the system runs on a regular
 basis.
 
-List each callable object that should be run as a scheduled job in :ref:`the "translations" entry (a list) <setup_cfg_translations>`
+List each callable object that should be run as a scheduled job in :ref:`the "schedule" entry <setup_cfg_schedule>`
 of the `component` option of your `setup.cfg`.
 
 Whenever `reahl runjobs` is executed on your system's configuration directory, all the registered scheduled jobs of all

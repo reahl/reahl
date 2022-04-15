@@ -112,11 +112,14 @@ Making it possible for others to translate your component
 
 Create the `i18nexamplebootstrapmessages` package in the top level directory of
 the example (don't forget the __init__.py). It will house your message
-catalogue. List it in your `.reahlproject`:
+catalogue. List it :ref:`as entry point in your setup.cfg<setup_cfg_schedule>`.
+Also ensure that the relevant data files from that package will be included when
+your package is built:
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/i18nexamplebootstrap/.reahlproject
-   :start-after: <project type="egg">
-   :end-before: <version number="0.0">
+.. literalinclude:: ../../reahl/doc/examples/tutorial/i18nexamplebootstrap/setup.cfg
+   :language: ini                     
+   :start-after: [options.entry_points]
+   :prepend:     [options.entry_points]
 
 Once your "translations" package is ready, extract the catalogue from
 your source code by running:
@@ -131,8 +134,8 @@ i18nexamplebootstrapmessages/i18nexamplebootstrap.
 
 .. note::
 
-   Remember to run ``reahl setup -- develop -N`` after changing
-   the `.reahlproject` file.
+   Remember to run ``python -m pip install --no-deps -e .`` after changing
+   the `setup.cfg` file.
 
 
 

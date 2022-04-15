@@ -29,8 +29,10 @@ contents of that option is a single json object:
    component =
      {}
 
+The items listed below go inside this json object if specified.
+
 .. note::
-   Remember to include `setuptools' and `reahl-component-metadata` as build dependencies in your pyproject.toml
+   Remember to include `setuptools` and `reahl-component-metadata` as build dependencies in your pyproject.toml
    in order for this to work.
 
 .. _setup_cfg_persisted:

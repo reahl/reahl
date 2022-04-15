@@ -38,17 +38,11 @@ running (from the example's directory):
 
 .. code-block:: bash
 
-   reahl build
+   python -m build --wheel
 
 
-This `builds a wheel <https://pythonwheels.com/>`_ as specified in your :doc:`.reahlproject <../devtools/xmlref>`:
-
-.. literalinclude:: ../../reahl/doc/examples/tutorial/helloanywhere/.reahlproject
-   :language: xml
-   :start-after: <!-- packaging -->
-   :end-before: </project>
-
-Once built, the wheel is in your home directory, in: `.reahlworkspace/dist-egg`.
+This `builds a wheel <https://pythonwheels.com/>`_ in the dist/ subdirectory
+of your project.
 
 In your browser on PythonAnywhere_, go to the
 "Files" tab. Add a directory named `dist` in your home directory and

@@ -24,13 +24,12 @@ Preparation
 
 Check out the example on your development machine.
 
-In the checked-out .reahlproject, make sure you include all the necessary dependencies. Besides things like
-reahl-web-declarative, also provide a dependency for Reahl's support of the DB you use, eg reahl-sqlitesupport
+In the checked-out `setup.cfg`, make sure you include all the necessary dependencies. Besides things like
+`reahl-web-declarative`, also provide a dependency for Reahl's support of the DB you use, eg `reahl-sqlitesupport`
 for SQLite.
 
 Still on your development machine, build your project (as is done in :ref:`PythonAnywhere tutorial example <build>`).
-Copy the resultant whl file from $REAHLWORKSPACE/.reahlworkspace/dist-egg/ in your dev environment to the production
-machine in a new directory /tmp/dist .
+Copy the resultant whl file from ./dist in your dev environment to the production machine in a new directory /tmp/dist.
 
 
 Installation
@@ -61,8 +60,8 @@ On the production machine, create a venv as root and install your application:
     mkdir -p /usr/local/hellonginx
     python3 -m venv /usr/local/hellonginx/venv/
     source /usr/local/hellonginx/venv/bin/activate
-    pip install wheel
-    pip install --find-links /tmp/dist hellonginx      # Note /tmp/dist is where you copied the whl of your app earlier
+    python3 -m pip install wheel
+    python3 -m pip install --find-links /tmp/dist hellonginx      # Note /tmp/dist is where you copied the whl of your app earlier
 
 Create a config directory for hellonginx:
 
@@ -89,7 +88,7 @@ Become the www-data user and check what's installed in the venv:
 
     sudo -u www-data bash -l
     source /usr/local/hellonginx/venv/bin/activate
-    pip freeze | grep hellonginx
+    python -m pip freeze | grep hellonginx
     python -c "from hellonginxwsgi import application"
 
 If the last command completes with no errors, your app is configured correctly and you can exit out of the www-data
