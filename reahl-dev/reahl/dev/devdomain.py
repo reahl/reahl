@@ -1966,7 +1966,7 @@ class MigratedSetupCfg:
         return versions
 
     def dumps_toml(self, data):
-        outtext = '[tool.reahl-component]\n'
+        outtext = ''
         config = data.get('configuration', None)
         if config:
             outtext += 'configuration = "%s"\n' % config

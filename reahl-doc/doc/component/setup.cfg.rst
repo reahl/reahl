@@ -21,15 +21,14 @@ The component option
 --------------------
 
 To indicate that a package is a component, add a component option to setup.cfg. The
-contents of that option is a single json object:
+contents of that option is indented text in `toml format <https://toml.io/en/>`_\, and
+the simplest component has to have an empty `[tool.reahl-component]` toml section:
 
 .. code-block:: ini
                 
    [options]
    component =
-     {}
-
-The items listed below go inside this json object if specified.
+     [tool.reahl-component]
 
 .. note::
    Remember to include `setuptools` and `reahl-component-metadata` as build dependencies in your pyproject.toml
@@ -40,19 +39,18 @@ The items listed below go inside this json object if specified.
 persisted
 ^^^^^^^^^
 
-List any classes that own a part of a database schema in the "persisted" entry. Each item in this
+List any classes that own a part of a database schema in the "persisted" list. Each item in this
 list is a string, in the format of an `entry point object reference`_\:
 
 .. code-block:: ini
                 
    [options]
    component =
-     {
-       "persisted": [
+     [tool.reahl-component]
+       persisted = [
          "my.one.package:PersistedClass1",
-         "my.other.package:PersistedClass2
+         "my.other.package:PersistedClass2"
        ]
-     }
 
 
 .. _setup_cfg_versions:
@@ -60,7 +58,7 @@ list is a string, in the format of an `entry point object reference`_\:
 versions
 ^^^^^^^^
 
-Add an entry for each minor version that has been released of your package in the "versions" entry:
+Add a `[versions."major.minor"]` section for each minor version that has been released of your package:
 
 The current version (1.3 in the example below) is not included in this list **except** if it needs :ref:`migrations <setup_cfg_migrations>`.
 
@@ -74,12 +72,10 @@ The current version (1.3 in the example below) is not included in this list **ex
    [options]
    
    component =
-     {
-       "1.2": {
-       },
-       "1.0": {
-       }
-     }
+     [tool.reahl-component]
+     [versions."1.2"]
+     [versions."1.0"]
+
 
 .. _setup_cfg_install_requires:
 
@@ -103,18 +99,17 @@ duplicated here:
      reahl-component>=6.0,<6.1
      
    component =
-     {
-       "1.2": {
-         "install_requires": [
-           "reahl-component>=1.2,<1.3"
-         ]
-       },
-       "1.0": {
-         "install_requires": [
-           "reahl-component>=0.8,<1.9"
-         ]
-       }
-     }
+     [tool.reahl-component]
+     
+     [versions."1.2"]
+     install_requires = [
+       "reahl-component>=1.2,<1.3"
+     ]
+     
+     [versions."1.0"]
+     install_requires = [
+       "reahl-component>=0.8,<1.9"
+     ]
 
 
 .. note::

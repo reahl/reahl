@@ -10,7 +10,7 @@ def setup_keyword(dist, attr, value):
 
 
 def dist_info(cmd, basename, filename):
-    if cmd.distribution.component:
+    if cmd.distribution.component is not None:
         try:
             data = toml.loads(cmd.distribution.component)
         except Exception as ex:
