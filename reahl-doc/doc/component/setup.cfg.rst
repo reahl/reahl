@@ -1,6 +1,8 @@
 .. Copyright 2022 Reahl Software Services (Pty) Ltd. All rights reserved.
 
 .. _entry point object reference: https://packaging.python.org/en/latest/specifications/entry-points/#data-model
+.. _table: https://toml.io/en/v1.0.0#table
+.. _toml format: https://toml.io/en/
 .. |Migration| ..replace:: :class:`~reahl.component.migration.Migration`
 .. |Configuration| ..replace:: :class:`~reahl.component.config.Configuration`
 .. |DatabaseControl| replace:: :class:`~reahl.component.dbutils.DatabaseControl`
@@ -21,18 +23,20 @@ The component option
 --------------------
 
 To indicate that a package is a component, add a component option to setup.cfg. The
-contents of that option is indented text in `toml format <https://toml.io/en/>`_\, and
-the simplest component has to have an empty `[tool.reahl-component]` toml section:
+contents of that option is indented text in `toml format`_\.
+The simplest component just needs an empty setting:
 
 .. code-block:: ini
                 
    [options]
    component =
-     [tool.reahl-component]
 
 .. note::
    Remember to include `setuptools` and `reahl-component-metadata` as build dependencies in your pyproject.toml
    in order for this to work.
+
+.. warning::
+   The `toml format`_ used here looks superficially like ini file format which is used by the rest of this file, but it is not the same!
 
 .. _setup_cfg_persisted:
 
@@ -46,11 +50,10 @@ list is a string, in the format of an `entry point object reference`_\:
                 
    [options]
    component =
-     [tool.reahl-component]
-       persisted = [
-         "my.one.package:PersistedClass1",
-         "my.other.package:PersistedClass2"
-       ]
+     persisted = [
+       "my.one.package:PersistedClass1",
+       "my.other.package:PersistedClass2"
+     ]
 
 
 .. _setup_cfg_versions:
@@ -58,7 +61,7 @@ list is a string, in the format of an `entry point object reference`_\:
 versions
 ^^^^^^^^
 
-Add a `[versions."major.minor"]` section for each minor version that has been released of your package:
+Add a `[versions."major.minor"]` `table`_ for each minor version that has been released of your package:
 
 The current version (1.3 in the example below) is not included in this list **except** if it needs :ref:`migrations <setup_cfg_migrations>`.
 
@@ -67,12 +70,10 @@ The current version (1.3 in the example below) is not included in this list **ex
    [metadata]
    
    version = 1.3.4
-
    
    [options]
    
    component =
-     [tool.reahl-component]
      [versions."1.2"]
      [versions."1.0"]
 
@@ -83,8 +84,8 @@ install_requires
 """"""""""""""""
 
 Each version may have an "install_requires" list, which lists all other components it requires. For the current
-version, this information is automatically read from the usual `install_requires` option, which is why those should never be
-duplicated here:
+version, this information is automatically read from the usual `install_requires` option, which is why the current
+version need not be listed.
 
 .. code-block:: ini
 
@@ -99,8 +100,6 @@ duplicated here:
      reahl-component>=6.0,<6.1
      
    component =
-     [tool.reahl-component]
-     
      [versions."1.2"]
      install_requires = [
        "reahl-component>=1.2,<1.3"
@@ -114,7 +113,7 @@ duplicated here:
 
 .. note::
 
-   Only other components required should be listed here. Other packages that are not themselves components can be omitted even
+   Only requirements that are themselves components should be listed here. Other packages that are not themselves components can be omitted even
    if that version used to depend on them. 
    
    Components should be versioned using semantic versioning, hence these requirements should always be specified
@@ -145,29 +144,28 @@ reference`_) to run in order to bring the previous version of the database schem
      reahl-component>=6.0,<6.1
      
    component =
-     {
-       "1.2": {
-         "install_requires": [
-           "reahl-component>=1.2,<1.3"
-         ],
-         "migrations": [
-           "my.one.package:MigrateC",
-           "my.other.package:MigrateB"
-         ]
-       },
-       "1.0": {
-         "install_requires": [
-           "reahl-component>=0.8,<1.9"
-         ],
-         "migrations": [
-           "my.one.package:MigrateA"
-         ]
-       }
-     }
+     [versions."1.2"]
+     install_requires = [
+       "reahl-component>=1.2,<1.3"
+     ]
+     migrations = [
+       "my.one.package:MigrateC",
+       "my.other.package:MigrateB"
+     ]
+     
+     [versions."1.0"]
+     install_requires = [
+       "reahl-component>=0.8,<1.9"
+     ]
+     
+     migrations = [
+       "my.one.package:MigrateA"
+     ]
+
 
 
 If the current version of your component has a |Migration|, then it should also be included in the versions listed, but only its migrations
-should then be specified:
+should then be specified, no "install_requires":
 
 .. code-block:: ini
                 
@@ -182,31 +180,28 @@ should then be specified:
      reahl-component>=6.0,<6.1
      
    component =
-     {
-       "1.3": {
-         "migrations": [
-           "my.one.package:MigrateD"
-         ]
-       },
-       "1.2": {
-         "install_requires": [
-           "reahl-component>=1.2,<1.3"
-         ],
-         "migrations": [
-           "my.one.package:MigrateC",
-           "my.other.package:MigrateB"
-         ]
-       },
-       "1.0": {
-         "install_requires": [
-           "reahl-component>=0.8,<1.9"
-         ],
-         "migrations": [
-           "my.one.package:MigrateA"
-         ]
-       }
-     }
-
+     [versions."1.3"]
+     migrations = [
+       "my.one.package:MigrateD"
+     ]
+     
+     [versions."1.2"]
+     install_requires = [
+       "reahl-component>=1.2,<1.3"
+     ]
+     migrations = [
+       "my.one.package:MigrateC",
+       "my.other.package:MigrateB"
+     ]
+     
+     [versions."1.0"]
+     install_requires = [
+       "reahl-component>=0.8,<1.9"
+     ]
+     
+     migrations = [
+       "my.one.package:MigrateA"
+     ]
 
 
      
@@ -215,16 +210,15 @@ should then be specified:
 configuration
 ^^^^^^^^^^^^^
 
-If your project contains its own |Configuration|, specify it as the "configuration" entry. Its value is a string using
+If your project contains its own |Configuration|, specify it as the "configuration" key. Its value is a string using
 the `entry point object reference`_ format:
 
 .. code-block:: ini
                 
    [options]
    component =
-     {
-       "configuration": "my.package:MyConfiguration"
-     }
+     configuration = "my.package:MyConfiguration"
+
 
 .. _setup_cfg_schedule:
 
@@ -232,19 +226,17 @@ the `entry point object reference`_ format:
 schedule
 ^^^^^^^^
 
-List each callable object that is to be run periodically as a scheduled job in the "schedule" entry. This is a list
+List each callable object that is to be run periodically as a scheduled job in the "schedule" list. This is a list
 of such objects represented as strings, each formatted as an `entry point object reference`_:
 
 .. code-block:: ini
                 
    [options]
    component =
-     {
-       "schedule": [
-         "my.package:my_function"
-         "my.package:MyClass.a_class_method"
-       ]
-     }
+     schedule = [
+       "my.package:my_function",
+       "my.package:MyClass.a_class_method"
+     ]
 
 
 Entry points
@@ -311,3 +303,4 @@ Add additional |DatabaseControl| classes to the "reahl.component.databasecontrol
      reahl.component.databasecontrols = 
        MyNewControl = mypackage.mymodule:MyNewControl
 
+       

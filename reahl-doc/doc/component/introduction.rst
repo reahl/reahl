@@ -26,6 +26,10 @@
 .. |validate_parsed_value| replace:: :meth:`~reahl.component.modelinterface.ValidationConstraint.validate_parsed_value`
 .. |ValidationConstraint| replace:: :class:`~reahl.component.modelinterface.ValidationConstraint`
 
+.. _toml format: https://toml.io/en/
+.. _table: https://toml.io/en/v1.0.0#table
+
+                                    
 Component framework (reahl-component)
 =====================================
 
@@ -96,14 +100,14 @@ Finally, your package itself needs to require `reahl-component` using `install_r
 Basics of the component option
 ------------------------------
 
-The component option expects to receive data in json format. For this to work in a `setup.cfg`, the contents
+The component option expects to receive data in `toml format`_. For this to work in a `setup.cfg`, the contents
 of the component option need to be after a dangling = and indented:
 
 .. code-block:: ini
 
    [options]
    component =
-     {}
+     # contents come here, but this comment can be omitted
 
 
 Each time you change `setup.cfg`, be sure to regenerate the component metadata:
@@ -182,14 +186,14 @@ Each version of your Reahl component can have its own set of |Migration|\s which
 version from its predecessor. The migration machinery needs access to all |Migration|\s of all versions of all
 components to be able to compute a correct dependency tree.
 
-Add an entry for each minor release of your component in :ref:`the "versions" object <setup_cfg_versions>` of the `setup.cfg`\'s component option.
+Add a `table`_ for each minor release of your component :ref:`in the 'setup.cfg' component option <setup_cfg_install_requires>`.
 
-For each such version entry, add two sub-entries:
+For each such version entry, add two entries:
 
  - :ref:`"install_requires" <setup_cfg_install_requires>`: a list of the requirements that version had; and
  - :ref:`"migrations" <setup_cfg_migrations>`: a list of the migration classes that need to run to bring the previous version's schema up to date to this version.
 
-To prevent duplication, the version entry for the current release 
+To prevent duplication, the version `table`_ matching the current version
 should not contain any requirements, since those are already in
 the standard `install_requires` of `setup.cfg`.
 
