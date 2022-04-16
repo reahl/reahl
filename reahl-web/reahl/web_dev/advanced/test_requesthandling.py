@@ -271,7 +271,9 @@ def test_web_session_handling(reahl_system_fixture, web_fixture):
                 def resource_for(self, request):
                     return ResourceStub()
 
-            browser = Browser(ReahlWSGIApplicationStub2(web_fixture.config))
+            app = ReahlWSGIApplicationStub2(web_fixture.config)
+            app.assume_started()
+            browser = Browser(app)
 
             # A session is obtained, and the correct params passed to the hook methods
             assert not UserSessionStub.session  # Before the request, the session is not yet set
@@ -294,7 +296,9 @@ def test_handling_HTTPError_exceptions(web_fixture):
         def resource_for(self, request):
             raise HTTPNotFound()
 
-    browser = Browser(ReahlWSGIApplicationStub2(web_fixture.config))
+    app = ReahlWSGIApplicationStub2(web_fixture.config)
+    app.assume_started()
+    browser = Browser(app)
 
     browser.open('/', status=404)
 
@@ -326,7 +330,9 @@ def test_internal_redirects(web_fixture):
         def resource_for(self, request):
             return ResourceStub()
 
-    browser = Browser(ReahlWSGIApplicationStub2(fixture.config))
+    app = ReahlWSGIApplicationStub2(web_fixture.config)
+    app.assume_started()
+    browser = Browser(app)
 
     browser.open('/')
 
@@ -346,6 +352,7 @@ def test_handling_uncaught_exceptions(web_fixture):
 
 
     app = ReahlWSGIApplicationStub2(web_fixture.config)
+    app.assume_started()
     browser = Browser(app)
 
     with CallMonitor(app.system_control.finalise_session) as monitor:

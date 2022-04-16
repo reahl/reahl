@@ -86,7 +86,9 @@ def test_library_files(web_fixture, library_fixture):
     config.web.frontend_libraries.clear()
     config.web.frontend_libraries.add(library_fixture.MyLibrary())
 
-    browser = Browser(ReahlWSGIApplication(config))
+    app = ReahlWSGIApplication(config)
+    app.assume_started()
+    browser = Browser(app)
 
     browser.open('/static/somefile.js')
     assert browser.raw_html == 'contents - js'
@@ -107,8 +109,9 @@ def test_standard_reahl_files(web_fixture):
     """The framework includes certain frontent frameworks by default."""
 
     config = web_fixture.config
-    wsgi_app = ReahlWSGIApplication(config)
-    browser = Browser(wsgi_app)
+    app = ReahlWSGIApplication(config)
+    app.assume_started()
+    browser = Browser(app)
 
     browser.open('/static/html5shiv-printshiv-3.7.3.js')
     assert browser.last_response.content_length > 0

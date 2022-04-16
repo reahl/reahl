@@ -210,7 +210,9 @@ class WebFixture(Fixture):
 
         site_root = site_root or MainUI
         config.web.site_root = site_root
-        return wsgi_app_class(config)
+        app = wsgi_app_class(config)
+        app.assume_started()
+        return app
 
     @property
     def current_location(self):
