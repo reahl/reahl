@@ -10,8 +10,12 @@ def setup_keyword(dist, attr, value):
 
 
 def dist_info(cmd, basename, filename):
-    data = toml.loads(cmd.distribution.component)
     if cmd.distribution.component:
+        try:
+            data = toml.loads(cmd.distribution.component)
+        except Exception as ex:
+            raise DistutilsSetupError("component = is not valid toml: %s" % ex)
+            
         cmd.write_or_delete_file('component', filename, cmd.distribution.component)
 
 

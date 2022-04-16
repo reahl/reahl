@@ -32,5 +32,6 @@ reahl_dev.egg-info/component.json
 reahl_dev.egg-info/dependency_links.txt
 reahl_dev.egg-info/entry_points.txt
 reahl_dev.egg-info/namespace_packages.txt
+reahl_dev.egg-info/reahl-component.toml
 reahl_dev.egg-info/requires.txt
 reahl_dev.egg-info/top_level.txt
