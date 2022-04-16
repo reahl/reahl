@@ -1861,7 +1861,7 @@ class MigratedSetupCfg:
 
             setup_file.write('\n')
             setup_file.write('component =\n')
-            setup_file.write(textwrap.indent(json.dumps(self.generate_component_json(), indent=2), '  '))
+            setup_file.write(textwrap.indent(self.dumps_toml(self.generate_component_json()), '  '))
             setup_file.write('\n\n')
 
             if self.get_xml_entry_point_exports():
@@ -1964,7 +1964,40 @@ class MigratedSetupCfg:
             if version_entry.migrations:
                 version_json['migrations'] = [migration.locator.string_spec for migration in version_entry.migrations]
         return versions
-    
+
+    def dumps_toml(self, data):
+        outtext = '[tool.reahl-component]\n'
+        config = data.get('configuration', None)
+        if config:
+            outtext += 'configuration = "%s"\n' % config
+        persisted = data.get('persisted', None)
+        if persisted:
+            outtext += self.dumps_toml_list('persisted', persisted)
+        schedule = data.get('schedule', None)
+        if schedule:
+            outtext += self.dumps_toml_list('schedule', schedule)
+        versions = data.get('versions', [])
+        for version_name, version_data in sorted(versions.items(), reverse=True, key=lambda i:i[0]):
+            outtext += self.dumps_toml_version_section(version_name, version_data)
+        return outtext
+            
+    def dumps_toml_list(self, name, the_list):
+        head = '%s = [\n' % name
+        body = ''
+        body += ',\n'.join(['"%s"' % i for i in the_list])
+        body += '\n'
+        tail =  ']\n'
+        return head+textwrap.indent(body, '  ')+tail
+
+    def dumps_toml_version_section(self, name, data):
+        head = '[versions.\'%s\']\n' % name
+        body = '' 
+        if 'install_requires' in data:
+            body += self.dumps_toml_list('install_requires', data['install_requires'])
+        if 'migrations' in data:
+            body += self.dumps_toml_list('migrations', data['migrations'])
+        
+        return head+body
 
 
 class EggProject(Project):
