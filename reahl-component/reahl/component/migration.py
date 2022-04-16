@@ -16,7 +16,6 @@
 
 """Support for database schema migration."""
 
-from pkg_resources import parse_version
 import logging
 import warnings
 import inspect

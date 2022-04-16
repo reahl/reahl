@@ -34,10 +34,11 @@ from tempfile import TemporaryFile
 import collections
 import json
 import configparser
+import tzlocal
+
+import pkg_resources
 
 import babel
-import tzlocal
-from pkg_resources import require, DistributionNotFound, VersionConflict, get_distribution, parse_version, iter_entry_points
 from setuptools import find_packages, setup
 from xml.parsers.expat import ExpatError
 
@@ -721,8 +722,8 @@ class Dependency:
     @property
     def is_installed(self):
         try:
-            require(self.as_string_for_egg())
-        except (DistributionNotFound, VersionConflict):
+            pkg_resources.require(self.as_string_for_egg())
+        except (pkg_resources.DistributionNotFound, pkg_resources.VersionConflict):
             return False
         return True
 
@@ -1545,7 +1546,7 @@ class Project:
 
     @property
     def interface(self):
-        return ReahlEgg.interface_for(get_distribution(self.project_name))
+        return ReahlEgg.interface_for(pkg_resources.get_distribution(self.project_name))
 
     @property
     def translation_package(self):
@@ -1577,8 +1578,8 @@ class Project:
     def merge_translations(self):
         for source_dist_spec in self.translated_domains:
             try:
-                source_egg = ReahlEgg.interface_for(get_distribution(source_dist_spec))
-            except DistributionNotFound:
+                source_egg = ReahlEgg.interface_for(pkg_resources.get_distribution(source_dist_spec))
+            except pkg_resources.DistributionNotFound:
                 raise EggNotFound(source_dist_spec)
             if not os.path.isdir(self.locale_dirname):
                 os.mkdir(self.locale_dirname)
@@ -1598,8 +1599,8 @@ class Project:
         except ValueError:
             raise InvalidLocaleString(locale)
         try:
-            source_egg = ReahlEgg.interface_for(get_distribution(source_dist_spec or self.project_name))
-        except DistributionNotFound:
+            source_egg = ReahlEgg.interface_for(pkg_resources.get_distribution(source_dist_spec or self.project_name))
+        except pkg_resources.DistributionNotFound:
             raise EggNotFound(source_dist_spec or self.project_name)
         Executable('pybabel').check_call(['init',
                                           '--input-file', source_egg.translation_pot_filename,
@@ -2174,7 +2175,7 @@ class EggProject(Project):
     @property
     def run_deps(self):
         if self.version_history:
-            return list(sorted(self.version_history, key=lambda x : parse_version(str(x.version))))[-1].run_dependencies
+            return list(sorted(self.version_history, key=lambda x : pkg_resources.parse_version(str(x.version))))[-1].run_dependencies
         else:
             return []
 

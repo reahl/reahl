@@ -21,7 +21,6 @@
         <egg name="reahl-web" versionlocked="True"/>
         <egg name="reahl-web-declarative" versionlocked="True"/>
         <egg name="reahl-domain" versionlocked="True"/>
-        <thirdpartyegg name="setuptools" minversion="51.0.0"/>
         <thirdpartyegg name="paypal-checkout-serversdk"/>
       </deps>
   </version>

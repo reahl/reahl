@@ -34,7 +34,7 @@ import inspect
 import logging.config
 from contextlib import contextmanager
 
-from pkg_resources import require, iter_entry_points, DistributionNotFound, Requirement
+import pkg_resources
 
 from reahl.component.eggs import ReahlEgg
 from reahl.component.context import ExecutionContext
@@ -158,13 +158,13 @@ class EntryPointClassList(ConfigSetting):
         
     def __get__(self, instance, owner):
         classes = []
-        for i in iter_entry_points(self.name):
+        for i in pkg_resources.iter_entry_points(self.name):
             try:
                 classes.append(i.load())
             except ImportError as e:
                 print('\nWARNING: Cannot import %s, from %s' % (i, i.dist), file=sys.stderr)
                 print(e, file=sys.stderr)
-            except DistributionNotFound as e:
+            except pkg_resources.DistributionNotFound as e:
                 print('\nWARNING: Cannot find %s, required by %s' % (e, i.dist), file=sys.stderr)
                 
         return classes
@@ -266,7 +266,7 @@ class ReahlSystemConfig(Configuration):
     config_key = 'reahlsystem'
     root_egg = ConfigSetting(description='The root egg of the project', default=os.path.basename(os.getcwd()), dangerous=True)
     connection_uri = ConfigSetting(description='The database connection URI',
-                                   default=DeferredDefault(lambda c: 'sqlite:///%s.db' % (os.path.join(os.getcwd(), Requirement.parse(c.root_egg).project_name))), dangerous=True)
+                                   default=DeferredDefault(lambda c: 'sqlite:///%s.db' % (os.path.join(os.getcwd(), pkg_resources.Requirement.parse(c.root_egg).project_name))), dangerous=True)
     orm_control = ConfigSetting(default=NullORMControl(), description='The ORM control object to be used', automatic=True)
     debug = ConfigSetting(default=True, description='Enables more verbose logging', dangerous=True)
     databasecontrols = EntryPointClassList('reahl.component.databasecontrols', description='All available DatabaseControl classes')
@@ -328,7 +328,7 @@ class StoredConfiguration(Configuration):
         self.read(ReahlSystemConfig)
         self.validate_required(ReahlSystemConfig)
 
-        require(self.reahlsystem.root_egg)
+        pkg_resources.require(self.reahlsystem.root_egg)
 
         self.configure_components()
         if validate:

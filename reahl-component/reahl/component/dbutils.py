@@ -25,7 +25,7 @@ import re
 from contextlib import contextmanager
 import urllib.parse
 
-from pkg_resources import get_distribution
+import pkg_resources 
 
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.eggs import ReahlEgg
@@ -157,7 +157,7 @@ class SystemControl:
 
     def migrate_db(self, explain=False):
         """Runs the database migrations relevant to the current system."""
-        self.orm_control.migrate_db(ReahlEgg.interface_for(get_distribution(self.config.reahlsystem.root_egg)), explain=explain)
+        self.orm_control.migrate_db(ReahlEgg.interface_for(pkg_resources.get_distribution(self.config.reahlsystem.root_egg)), explain=explain)
         return 0
 
     def diff_db(self, output_sql=False):
