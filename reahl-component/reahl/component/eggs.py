@@ -315,8 +315,8 @@ class ReahlEgg:
 
     def __init__(self, distribution):
         self.distribution = distribution
-        if self.distribution.has_metadata('component.json'):
-            self.metadata = json.loads(self.distribution.get_metadata('component.json'))
+        if self.distribution.has_metadata('reahl-component.toml'):
+            self.metadata = toml.loads(self.distribution.get_metadata('reahl-component.toml')).get('tools.reahl-component', None)
         else:
             self.metadata = None
 

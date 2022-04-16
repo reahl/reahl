@@ -34,7 +34,7 @@ Web framework (reahl-web)
 .. toctree::
    :maxdepth: 1
 
-   tutorial/index
+   Tutorial <tutorial/index>
    howto/index
 
 Other projects

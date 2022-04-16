@@ -22,6 +22,7 @@
       <thirdpartyegg name="wrapt" minversion="1.11.0" maxversion="1.13.999"/>
       <thirdpartyegg name="setuptools" minversion="51.0.0"/>
       <thirdpartyegg name="pip" minversion="10.0.0"/>
+      <thirdpartyegg name="toml"/>
     </deps>
   </version>
 

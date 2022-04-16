@@ -3,6 +3,12 @@
     <package name="reahl"/>
   </namespaces>
 
+  <version number="6.0">
+    <deps purpose="run">
+      <thirdpartyegg name="toml"/>
+    </deps>
+  </version>
+
   <distpackage type="wheel">
     <packageindex repository="pypi"/>
   </distpackage>
