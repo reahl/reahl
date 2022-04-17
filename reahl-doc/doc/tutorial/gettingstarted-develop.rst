@@ -117,14 +117,14 @@ The directory structure of `hello`::
   hello/
   ├── etc/           - A directory for configuration files
   ├── hello.py       - A Python file containing the source of the app
-  ├── pyproject.toml - The standard way for python projects to state how they will be built
-  └── setup.cfg      - The standard metadata file for setuptools projects
+  ├── pyproject.toml - The standard (PEP518) python build system configuration
+  └── setup.cfg      - Normal configuration for setuptools 
 
 
 
 The `setup.cfg` file contains info about the component. To start,
-just give your component a name, specify an empty json object for the
-`component =` option and list the other components that this one depends on:
+just give your component a name, specify an empty 
+`component =` option and list the requirements of your component:
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/hello/setup.cfg
 
@@ -158,8 +158,8 @@ You need one config setting to be able to run an application. In the config dire
   ├── etc/
   │   └── web.config.py
   ├── hello.py
-  ├── pyproject.toml - The standard way for python projects to state how they will be built
-  └── setup.cfg      - The standard metadata file for setuptools projects
+  ├── pyproject.toml - The standard (PEP518) python build system configuration
+  └── setup.cfg      - Normal configuration for setuptools 
 
 Config files contain Python code, but you can use dotted notation to
 access settings:

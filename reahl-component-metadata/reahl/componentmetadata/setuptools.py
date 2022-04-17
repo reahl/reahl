@@ -4,6 +4,7 @@ import sys
 from distutils.errors import DistutilsSetupError
 
 def setup_keyword(dist, attr, value):
+    raise DistutilsSetupError("boo")
     data = toml.loads(value)
     if False: 
         raise DistutilsSetupError("'component' should be valid toml")

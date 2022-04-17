@@ -39,9 +39,7 @@ To register this job with the component, list it in :ref:`the "schedule" entry <
 the `component` option of your `setup.cfg` file:
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/jobsbootstrap/setup.cfg
-   :start-after:  "schedule": [
-   :prepend:      "schedule": [
-   :end-before:     }
+   :start-after:  # Register the job:
 
 
 A job, such as `Address.clear_added_flags()` should

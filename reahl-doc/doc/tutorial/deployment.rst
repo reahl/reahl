@@ -44,6 +44,10 @@ running (from the example's directory):
 This `builds a wheel <https://pythonwheels.com/>`_ in the dist/ subdirectory
 of your project.
 
+.. note::
+   To use this command, you have to have the `build project <https://pypi.org/project/build/>`_ installed:
+   ``python -m pip install build``
+
 In your browser on PythonAnywhere_, go to the
 "Files" tab. Add a directory named `dist` in your home directory and
 upload the wheel into `dist`.

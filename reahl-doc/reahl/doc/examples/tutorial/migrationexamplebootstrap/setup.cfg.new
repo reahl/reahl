@@ -26,6 +26,7 @@ component =
   persisted = [
     "reahl.doc.examples.tutorial.migrationexamplebootstrap.migrationexamplebootstrap:Address"
   ]
+  # List all major.minor versions:
   [versions."0.1"]
     migrations = [
       "reahl.doc.examples.tutorial.migrationexamplebootstrap.migrationexamplebootstrap:AddDate"
