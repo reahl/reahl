@@ -21,7 +21,7 @@ def validate_component(toml_string):
     allowed_top_level_keys = set(['metadata_version', 'configuration', 'persisted', 'schedule', 'versions'])
     unsupported_keys = set(data.keys()) - allowed_top_level_keys
     if unsupported_keys:
-        raise DistutilsSetupError('Unsupported settings for "option =": %s' % (', '.join(unsupported_keys)))
+        raise DistutilsSetupError('Unsupported settings for "component =": %s' % (', '.join(unsupported_keys)))
 
     if 'configuration' in data:
         if not isinstance(data['configuration'], str):
