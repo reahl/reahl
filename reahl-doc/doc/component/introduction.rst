@@ -92,7 +92,7 @@ add a `component =` key to the `[options]` section of your `setup.cfg`. The cont
 explained a bit more in the next section.
 
 In order to help setuptools grok the `component =` option you also need to have a `pyproject.toml` file
-which lists `setuptools` and `reahl-component-metadata` as build dependencies.
+which lists `setuptools`, `toml`, and `reahl-component-metadata` as build dependencies.
 
 Finally, your package itself needs to require `reahl-component` using `install_requires` as usual.
 

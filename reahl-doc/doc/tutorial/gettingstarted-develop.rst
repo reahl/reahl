@@ -121,6 +121,9 @@ The directory structure of `hello`::
   └── setup.cfg      - Normal configuration for setuptools 
 
 
+The `pyproject.toml` file should include as build dependencies: 'setuptools, 'toml' and 'reahl-component-metadata':
+
+.. literalinclude:: ../../reahl/doc/examples/tutorial/hello/pyproject.toml
 
 The `setup.cfg` file contains info about the component. To start,
 just give your component a name, specify an empty 
@@ -137,7 +140,6 @@ Development mode
 
 Components are `setuptools projects
 <https://setuptools.readthedocs.io>`_ with some extra metadata added.
-
 
 When you are still busy developing a project, install your project in
 `"development mode"

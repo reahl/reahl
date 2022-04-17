@@ -3,20 +3,44 @@ import sys
 
 from distutils.errors import DistutilsSetupError
 
-def setup_keyword(dist, attr, value):
-    raise DistutilsSetupError("boo")
-    data = toml.loads(value)
-    if False: 
-        raise DistutilsSetupError("'component' should be valid toml")
 
+def validate_list_of_str(name, data):
+    if name in data:
+        if not isinstance(data[name], list):
+            raise DistutilsSetupError('"%s" should be a list' % name)
+        elif not all([isinstance(i, str) for i in data[name]]):
+            raise DistutilsSetupError('"%s" should be a list of strings' % name)
+
+    
+def validate_component(toml_string):
+    try:
+        data = toml.loads(toml_string)
+    except Exception as ex:
+        raise DistutilsSetupError("component = is not valid toml: %s" % ex)
+
+    allowed_top_level_keys = set(['metadata_version', 'configuration', 'persisted', 'schedule', 'versions'])
+    unsupported_keys = set(data.keys()) - allowed_top_level_keys
+    if unsupported_keys:
+        raise DistutilsSetupError('Unsupported settings for "option =": %s' % (', '.join(unsupported_keys)))
+
+    validate_list_of_str('configuration', data)
+    validate_list_of_str('persisted', data)
+    validate_list_of_str('schedule', data)
+            
+    if 'versions' in data:
+        if not isinstance(data['versions'], list):
+            raise DistutilsSetupError('"versions" should be a list')
+        for version in data['versions']:
+            validate_list_of_str('migrations', version)
+            validate_list_of_str('install_requires', version)
+
+            
+def setup_keyword(dist, attr, value):
+    validate_component(value)
 
 def dist_info(cmd, basename, filename):
     if cmd.distribution.component is not None:
-        try:
-            data = toml.loads(cmd.distribution.component)
-        except Exception as ex:
-            raise DistutilsSetupError("component = is not valid toml: %s" % ex)
-            
+        validate_component(cmd.distribution.component)
         cmd.write_or_delete_file('component', filename, cmd.distribution.component)
 
 
@@ -24,5 +48,3 @@ def egg_info(cmd, basename, filename):
     dist_info(cmd, basename, filename)
 
 
-# TODO: validate
-# - if you have component= you must have a dependency on reahl-component
