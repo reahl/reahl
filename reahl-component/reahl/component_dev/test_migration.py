@@ -58,6 +58,9 @@ class ReahlEggStub(ReahlEgg):
         self.version_info = version_info
         self.dependencies = {}
 
+    def create_metadata(self, distribution):
+        return {}
+        
     @property
     def name(self):
         return self._name
@@ -69,9 +72,6 @@ class ReahlEggStub(ReahlEgg):
     @property
     def installed_version(self):
         return self.get_versions()[-1]
-
-    def get_ordered_classes_exported_on(self, entry_point):
-        return []
 
     def get_migration_classes_for_version(self, version):
         return self.version_info[str(version.version_number)]

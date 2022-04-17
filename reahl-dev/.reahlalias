@@ -1,1 +1,1 @@
-  unit setup -- -q pytest --addopts '-s --pyargs reahl.dev_dev'
+  unit shell pytest -s --pyargs reahl.dev_dev

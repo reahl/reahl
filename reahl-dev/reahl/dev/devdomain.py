@@ -44,7 +44,7 @@ from xml.parsers.expat import ExpatError
 
 from reahl.component.shelltools import Executable
 from reahl.dev.xmlreader import XMLReader, TagNotRegisteredException
-from reahl.component.exceptions import ProgrammerError, DomainException
+from reahl.component.exceptions import ProgrammerError
 from reahl.component.eggs import ReahlEgg
 
 from reahl.dev.exceptions import NoException, StatusException, AlreadyUploadedException, NotAValidProjectException, \
@@ -1342,8 +1342,8 @@ class DebianControl:
                         if stanza.get('Package', None) == package_name]
             return stanza
         except ValueError:
-            raise DomainException(message='Could not find a stanza for a package named %s in debian control file %s' % \
-                                  (package_name, self.filename))
+            raise NotAValidProjectException('Could not find a stanza for a package named %s in debian control file %s' % \
+                                            (package_name, self.filename))
 
     @property
     def maintainer_name(self):
@@ -1472,7 +1472,7 @@ class Project:
             config.read(setup_cfg_filename)
             project = Project(workspace, directory, metadata=SetupMetadata(None, config))
         else:
-            raise DomainException(message='Could not find a .reahlproject or a setup.py in %s' % directory)
+            raise NotAValidProjectException('Could not find a .reahlproject or a setup.py in %s' % directory)
 
         return project
 
@@ -2254,13 +2254,6 @@ class EggProject(Project):
 
     def test_suite_for_setup(self):
         return self.test_suite
-
-    def entry_points_for_setup(self):
-        entry_point_dict = {}
-        for entry_point_name, entry_point in [(i.entry_point, i) for i in self.entry_points]:
-            exports = entry_point_dict.setdefault(entry_point_name, [])
-            exports.append('%s = %s' % (entry_point.name, entry_point.locator.string_spec))
-        return entry_point_dict
 
     def extras_require_for_setup(self):
         return dict( [ (name, [dep.as_string_for_egg() for dep in dependencies])

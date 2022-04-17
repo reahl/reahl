@@ -1,1 +1,1 @@
-  unit setup -- check
+  unit shell echo 'no tests'

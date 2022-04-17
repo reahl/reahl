@@ -53,14 +53,11 @@ reahlsystem.debug = False
     def set_up_easter_egg(self):
         self.config_bootstrap_file
         easter_egg.clear()
+        easter_egg.stubbed_metadata['reahl-component.toml'] = ''
         ReahlEgg.clear_cache()
 
     def set_config_spec(self, egg, code_locator_string):
-        line = 'config = %s' % code_locator_string
-        egg.add_entry_point_from_line('reahl.configspec', line)
-
-        line = 'Egg = reahl.component.eggs:ReahlEgg' 
-        egg.add_entry_point_from_line('reahl.eggs', line)
+        egg.stubbed_metadata['reahl-component.toml'] = 'configuration = "%s"' % code_locator_string
 
 
 

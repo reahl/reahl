@@ -21,6 +21,7 @@ import os.path
 import logging
 import itertools
 import toml
+import functools
 
 import pkg_resources
 
@@ -315,10 +316,13 @@ class ReahlEgg:
 
     def __init__(self, distribution):
         self.distribution = distribution
-        if self.distribution.has_metadata('reahl-component.toml'):
-            self.metadata = toml.loads(self.distribution.get_metadata('reahl-component.toml'))
+        self.metadata = self.create_metadata(distribution)
+
+    def create_metadata(self, distribution):
+        if distribution.has_metadata('reahl-component.toml'):
+            return toml.loads(distribution.get_metadata('reahl-component.toml'))
         else:
-            self.metadata = None
+            return None
 
     @property
     def is_component(self):
@@ -373,10 +377,13 @@ class ReahlEgg:
         return [Dependency(self, dep) for dep in version_dependencies]
 
     def load(self, locator):
-        module_name, attr = locator.split(':')
+        module_name, module_object = locator.split(':')
         module = __import__(module_name, fromlist=['__name__'], level=0)
+        attrs = module_object.split('.')
+        if not attrs:
+            return module
         try:
-            return getattr(module, attr)
+            return functools.reduce(getattr, iter(attrs), module)
         except AttributeError as exc:
             raise ImportError(str(exc))
     

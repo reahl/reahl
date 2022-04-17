@@ -456,8 +456,6 @@ def test_setup_project_file_queries():
                 'reahl.versions': ['0.0 = 0.0']
                 }
 
-    assert project.entry_points_for_setup() == expected_value
-
     assert project.python_path == ['stuff','stuff2']
 
     assert project.tags == ['sometag', 'component', 'toplevel']
