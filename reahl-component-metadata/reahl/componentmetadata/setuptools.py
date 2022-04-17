@@ -23,13 +23,16 @@ def validate_component(toml_string):
     if unsupported_keys:
         raise DistutilsSetupError('Unsupported settings for "option =": %s' % (', '.join(unsupported_keys)))
 
-    validate_list_of_str('configuration', data)
+    if 'configuration' in data:
+        if not isinstance(data['configuration'], str):
+            raise DistutilsSetupError('"configuration" should be a str')
+            
     validate_list_of_str('persisted', data)
     validate_list_of_str('schedule', data)
             
     if 'versions' in data:
-        if not isinstance(data['versions'], list):
-            raise DistutilsSetupError('"versions" should be a list')
+        if not isinstance(data['versions'], dict):
+            raise DistutilsSetupError('"versions" should be a dict')
         for version in data['versions']:
             validate_list_of_str('migrations', version)
             validate_list_of_str('install_requires', version)

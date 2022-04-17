@@ -2137,8 +2137,7 @@ class EggProject(Project):
 
                      packages=self.packages_for_setup(),
                      py_modules=self.py_modules_for_setup(),
-                     include_package_data=self.include_package_data,
-                     package_data=self.package_data_for_setup(),
+
                      namespace_packages=self.namespace_packages_for_setup(),
 
                      install_requires=self.run_deps_for_setup(),
@@ -2185,7 +2184,6 @@ class EggProject(Project):
             setup_file.write('    packages=%s,\n' % repr(self.packages_for_setup()))
             setup_file.write('    py_modules=%s,\n' % repr(self.py_modules_for_setup()))
             setup_file.write('    include_package_data=%s,\n' % repr(self.include_package_data))
-            setup_file.write('    package_data=%s,\n' % repr(self.package_data_for_setup()))
             setup_file.write('    namespace_packages=%s,\n' % repr(self.namespace_packages_for_setup()))
             setup_file.write('    install_requires=%s,\n' % repr(self.run_deps_for_setup()))
             setup_file.write('    setup_requires=%s,\n' % repr(self.build_deps_for_setup()))
