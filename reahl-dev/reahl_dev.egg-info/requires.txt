@@ -7,3 +7,4 @@ wheel>=0.34.0
 tzlocal<4.1.9999,>=2.0.0
 setuptools>=51.0.0
 pip>=10.0.0
+toml

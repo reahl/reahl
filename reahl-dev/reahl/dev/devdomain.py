@@ -37,7 +37,7 @@ import configparser
 import tzlocal
 
 import pkg_resources
-
+import toml
 import babel
 from setuptools import find_packages, setup
 from xml.parsers.expat import ExpatError
@@ -2155,6 +2155,9 @@ class EggProject(Project):
     @property
     def setup_py_filename(self):
         return os.path.join(self.directory, 'setup.py')
+    @property
+    def pyproject_toml_filename(self):
+        return os.path.join(self.directory, 'pyproject.toml')
     
     @contextmanager
     def generated_setup_py(self):
@@ -2220,7 +2223,8 @@ class EggProject(Project):
         return [dep.as_string_for_egg() for dep in self.run_deps]
 
     def build_deps_for_setup(self):
-        return [dep.as_string_for_egg() for dep in self.build_deps]
+        toml_config = toml.load(self.pyproject_toml_filename)
+        return toml_config['build-system']['requires']
 
     def test_deps_for_setup(self):
         return [dep.as_string_for_egg() for dep in self.test_deps]
