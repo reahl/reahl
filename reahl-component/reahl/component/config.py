@@ -342,6 +342,7 @@ class StoredConfiguration(Configuration):
         else:
             logging.basicConfig()
         logging.captureWarnings(True)
+        logging.getLogger('').setLevel(logging.DEBUG)
 
     def configure_components(self):
         eggs = ReahlEgg.get_all_relevant_interfaces(self.reahlsystem.root_egg)
