@@ -4,11 +4,6 @@
     <package name="reahl.messages"/>
   </namespaces>
 
-  <deps purpose="build">
-    <thirdpartyegg name="setuptools-git" minversion="1.1"/>
-    <thirdpartyegg name="pytest-runner"/>
-  </deps>
-
   <deps purpose="test">
     <thirdpartyegg name="pytest" minversion="3.0"/>
     <thirdpartyegg name="plotly" minversion="5.1.0" maxversion="5.6.99999"/>
