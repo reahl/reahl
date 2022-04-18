@@ -4,6 +4,10 @@
   </namespaces>
   
   <deps purpose="build">
+    <thirdpartyegg name="setuptools" minversion="51.0.0"/>
+    <thirdpartyegg name="wheel"/>
+    <thirdpartyegg name="toml"/>
+    <thirdpartyegg name="reahl-component-metadata"/>
     <thirdpartyegg name="setuptools-git" minversion="1.1"/>
     <thirdpartyegg name="pytest-runner"/>
   </deps>
