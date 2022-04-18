@@ -8,6 +8,11 @@
     <thirdpartyegg name="Pillow" minversion="2.5" maxversion="7.1.999"/>
   </extras>
 
+  <deps purpose="build">
+    <thirdpartyegg name="setuptools-git" minversion="1.1"/>
+    <thirdpartyegg name="pytest-runner"/>
+  </deps>
+
   <deps purpose="test">
     <thirdpartyegg name="pytest" minversion="3.0"/>
     <thirdpartyegg name="Sphinx"/>

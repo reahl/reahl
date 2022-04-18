@@ -6,6 +6,7 @@ LICENSE
 MANIFEST.in
 pyproject.toml
 setup.cfg
+setup.py
 tox.ini
 reahl/__init__.py
 reahl/dev/__init__.py
