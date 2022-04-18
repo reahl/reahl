@@ -27,7 +27,6 @@ from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
 
 from reahl.component_dev.test_migration import ReahlEggStub
 
-import pkg_resources; print(pkg_resources.require('reahl-sqlalchemysupport'))
 
 @with_fixtures(ReahlSystemFixture)
 def test_egg_schema_version_changes(reahl_system_fixture):
