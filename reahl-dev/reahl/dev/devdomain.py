@@ -79,6 +79,12 @@ class Git:
                 [timestamp] = [line.replace('\n','') for line in out]
         return datetime.datetime.strptime(timestamp, '"%Y-%m-%d %H:%M:%S %z"')
 
+    def config(self, key, value, apply_globally=False):
+        with open(os.devnull, 'w') as DEVNULL:
+            scope = '--global' if apply_globally else '--local'
+            return_code = Executable('git').call(['config', scope, key, value], cwd=self.directory, stdout=DEVNULL, stderr=DEVNULL)
+        return return_code == 0
+
     def is_version_controlled(self):
         return self.uses_git()
 
