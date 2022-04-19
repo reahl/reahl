@@ -2223,8 +2223,11 @@ class EggProject(Project):
         return [dep.as_string_for_egg() for dep in self.run_deps]
 
     def build_deps_for_setup(self):
-        toml_config = toml.load(self.pyproject_toml_filename)
-        return toml_config['build-system']['requires']
+        deps = [dep.as_string_for_egg() for dep in self.build_deps]
+        if os.path.isfile(self.pyproject_toml_filename):
+            toml_config = toml.load(self.pyproject_toml_filename)
+            deps += toml_config['build-system']['requires']
+        return list(sorted(set(deps)))
 
     def test_deps_for_setup(self):
         return [dep.as_string_for_egg() for dep in self.test_deps]
