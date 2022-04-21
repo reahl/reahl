@@ -260,10 +260,11 @@ class SqlAlchemyControl(ORMControl):
 
         config = context.config
         db_api_connection_creator = context.system_control.db_control.get_dbapi_connection_creator()
-
+        
         create_args = {'pool_pre_ping': True}
         if auto_commit:
             create_args['isolation_level'] = 'AUTOCOMMIT'
+            create_args['execution_options'] = {'isolation_level': 'AUTOCOMMIT'}
         if db_api_connection_creator:
             create_args['creator']=db_api_connection_creator
 
