@@ -23,7 +23,6 @@ from bs4 import BeautifulSoup
 
 import pip
 import pkg_resources
-from pkg_resources import parse_version
 
 
 class PypiPackage:
@@ -101,7 +100,7 @@ class PypiPackage:
         return href.split('/')[-1]
 
     def other_version_is_newer(self, other_raw_version):
-        return parse_version(other_raw_version) > self.installed_version
+        return pkg_resources.parse_version(other_raw_version) > self.installed_version
 
     def available_newer_versions(self):
         newer_versions = []

@@ -56,7 +56,9 @@ def dist_info(cmd, basename, filename):
     if cmd.distribution.component is not None:
         component_metadata = ComponentMetadata.from_string(cmd.distribution.component)
         component_metadata.validate()
-        cmd.write_or_delete_file('component', filename, component_metadata.as_toml_string())
+        cmd.write_file('component', filename, component_metadata.as_toml_string())
+    else:
+        cmd.write_or_delete_file('component', filename, '')
 
 
 def egg_info(cmd, basename, filename):

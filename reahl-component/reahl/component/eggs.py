@@ -22,7 +22,6 @@ import logging
 import itertools
 import toml
 import functools
-import packaging.version
 
 import pkg_resources
 
@@ -314,7 +313,7 @@ class Version(object):
 
 class ReahlEgg:
     interface_cache = {}
-    metadata_version = packaging.version.parse('1.0.0')
+    metadata_version = pkg_resources.parse_version('1.0.0')
     def __init__(self, distribution):
         self.distribution = distribution
         self.metadata = self.create_metadata(distribution)
@@ -333,9 +332,9 @@ class ReahlEgg:
         except KeyError:
             raise ProgrammerError('Component metadata version not found for %s' % self.distribution)
 
-        metadata_version = packaging.version.parse(metadata_version_string)
-        supported_version_min = packaging.version.parse('%s.%s' % (self.metadata_version.major, self.metadata_version.minor))
-        supported_version_max = packaging.version.parse('%s.%s' % (self.metadata_version.major, self.metadata_version.minor+1))
+        metadata_version = pkg_resources.parse_version(metadata_version_string)
+        supported_version_min = pkg_resources.parse_version('%s.%s' % (self.metadata_version.major, self.metadata_version.minor))
+        supported_version_max = pkg_resources.parse_version('%s.%s' % (self.metadata_version.major, self.metadata_version.minor+1))
 
         if not(metadata_version >= supported_version_min and metadata_version < supported_version_max):
             raise ProgrammerError('Component metadata version %s for %s is incompatible with the installed version of reahl-component' % (metadata_version, self.distribution))
@@ -367,12 +366,16 @@ class ReahlEgg:
         return self.load(configuration_spec_str) if configuration_spec_str else None
 
     def get_versions(self):
+        if not self.is_component:
+            raise ProgrammerError('%s is not a reahl component, thus cannot have historical versions' % self.distributions)
         version_strings = list(self.metadata.get('versions', {}).keys())
         current_major_minor = '.'.join(self.distribution.version.split('.')[:2])
         all_versions = [Version(self, version_string) for version_string in set(version_strings+[current_major_minor])]
         return list(sorted([v for v in all_versions], key=lambda x: x.version_number))
 
     def get_dependencies(self, version):
+        if not self.is_component:
+            raise ProgrammerError('%s is not a reahl component, thus cannot have historical versions' % self.distributions)
         current_major_minor_string = '.'.join(self.distribution.version.split('.')[:2])
         if str(version) == current_major_minor_string:
             version_dependencies = self.distribution.requires()
@@ -524,12 +527,11 @@ class ReahlEgg:
 
         for i in cls.compute_ordered_dependent_distributions(main_egg):
             interface = cls.interface_for(i)
-            if interface:
+            if interface.is_component:
                 interfaces.append(interface)
 
         return interfaces
 
     @classmethod
     def interface_for(cls, distribution):
-        egg = cls(distribution)
-        return egg if egg.is_component else None
+        return cls(distribution)

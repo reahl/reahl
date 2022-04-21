@@ -39,7 +39,7 @@ import tzlocal
 import pkg_resources
 import toml
 import babel
-from setuptools import find_packages, setup
+import setuptools
 from xml.parsers.expat import ExpatError
 
 from reahl.component.shelltools import Executable
@@ -2131,7 +2131,7 @@ class EggProject(Project):
     def setup(self, setup_command, script_name=''):
         with self.paths_set():
             with SetupMonitor() as monitor:
-                distribution = setup(script_name=script_name,
+                distribution = setuptools.setup(script_name=script_name,
                      script_args=setup_command,
                      name=self.project_name,
                      version=self.version_for_setup(),
@@ -2237,7 +2237,7 @@ class EggProject(Project):
         exclusions += ['%s.*' % i.name for i in self.excluded_packages]
         # Adding self.namespace_packages... is to work around https://github.com/pypa/setuptools/issues/97
         ns_packages = self.namespace_packages_for_setup()
-        packages = list(set([i for i in find_packages(where=self.directory, exclude=exclusions)]+ns_packages))
+        packages = list(set([i for i in setuptools.find_packages(where=self.directory, exclude=exclusions)]+ns_packages))
         packages.sort()
         return packages
 
