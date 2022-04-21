@@ -17,15 +17,23 @@
 
 
 
-from sqlalchemy import Column, String, Unicode, Integer,  PrimaryKeyConstraint, UniqueConstraint
+from sqlalchemy import Column, String, Unicode, UnicodeText, Integer,  PrimaryKeyConstraint, UniqueConstraint
 from alembic import op
 
 from reahl.component.migration import Migration
 
 
+class AdjustJsonForMySqlCompatibility(Migration):
+    def schedule_upgrades(self):
+        self.orm_control.assert_dialect(self, 'postgresql', 'mysql')
+        self.schedule('alter', op.alter_column, 'payment_paypal_order', 
+                      'json_string', type_=UnicodeText(), existing_type=Unicode()
+                      )
+
+        
 class CreatePaypal(Migration):
     def schedule_upgrades(self):
-        self.orm_control.assert_dialect(self, 'postgresql')
+        self.orm_control.assert_dialect(self, 'postgresql', 'mysql')
         self.schedule('alter', op.create_table, 'payment_paypal_order',
                       Column('id', Integer(), nullable=False),
                       Column('paypal_id', String(length=20)),

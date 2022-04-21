@@ -344,14 +344,11 @@ class RemoveDeadApacheDigestColumn(Migration):
 
 class AddPolimorphicEntityName(Migration):
     def schedule_upgrades(self):
-        self.orm_control.assert_dialect(self, 'postgresql')
+        self.orm_control.assert_dialect(self, 'postgresql', 'mysql')
         self.schedule('data', op.execute, 'update systemaccount set row_type=\'systemaccount\' where row_type is null')
         self.schedule('data', op.execute, 'update loginsession set row_type=\'loginsession\' where row_type is null')
         self.schedule('data', op.execute, 'update deferredaction set row_type=\'deferredaction\' where row_type is null')
         self.schedule('data', op.execute, 'update requirement set row_type=\'requirement\' where row_type is null')
-
-        self.schedule('alter', op.add_column, 'task', Column('row_type', String(40)))        
         self.schedule('data', op.execute, 'update task set row_type=\'task\' where row_type is null')
-
         self.schedule('data', op.execute, 'update usersession set row_type=\'usersession\' where row_type is null')
         

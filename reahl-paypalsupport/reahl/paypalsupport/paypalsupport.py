@@ -34,7 +34,7 @@ from reahl.paypalsupport.paypallibrary import PayPalJS
 from paypalcheckoutsdk.orders import OrdersCaptureRequest, OrdersCreateRequest
 from paypalcheckoutsdk.orders import OrdersCreateRequest
 from paypalcheckoutsdk.core import PayPalHttpClient, SandboxEnvironment, LiveEnvironment
-from sqlalchemy import Column, Integer, String, Unicode
+from sqlalchemy import Column, Integer, String, UnicodeText
 
 _ = Catalogue('reahl-paypalsupport')
 
@@ -66,7 +66,7 @@ class PayPalOrder(Base):
     id = Column(Integer, primary_key=True)
     paypal_id = Column(String(length=20), unique=True, nullable=True)  #: The ID of the corresponding order on PayPal.
     status = Column(String(length=10))     #: If not None, the status of this order on PayPal's side.
-    json_string = Column(Unicode)          #: The json specification of how to create this order on PayPal
+    json_string = Column(UnicodeText)  #: The json specification of how to create this order on PayPal
 
     def get_http_client(self, credentials):
         if credentials.sandboxed:
