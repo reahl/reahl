@@ -70,6 +70,15 @@ You will from now on install packages in development mode by running::
   python -m pip install --no-deps -e .
   
 
+Some of our packages are not Reahl components anymore
+-----------------------------------------------------
+
+In order to simplify usage where we can, some of our packages are now normal PyPI distributions, and not Reahl components themselves:
+
+- reahl-browsertools
+- reahl-stubble
+  
+  
 
 Updated dependencies
 --------------------
@@ -77,3 +86,5 @@ Updated dependencies
 Some dependencies on thirdparty python packages have been loosened to include a higher max version:
 - setuptools should now be 51.0.0 or higher
 
+
+  

@@ -120,6 +120,7 @@ version need not be listed.
    with a min (included) and max (excluded) version:  acomponent>=3.0,<3.1. A requirement does not have to be tied to one minor
    version though, it can span multiple: acomponent>=3.0,<6.1
 
+   You should not use version 0.0 - it is assumed the database schema is always empty for this version.
    
 
      
