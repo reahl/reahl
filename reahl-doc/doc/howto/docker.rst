@@ -215,7 +215,7 @@ Changes for a MySQL database
 
 Modify these files that have been annotated with references to MySQL:
 
-    - .reahlproject
+    - setup.cfg
         Replace the dependency on "reahl-postgresqlsupport" with "reahl-mysqlsupport"
     - prod/etc/reahl.config.d
         Modify the config to contain the MySQL required settings
