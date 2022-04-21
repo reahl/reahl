@@ -1,6 +1,6 @@
 .. Copyright 2022 Reahl Software Services (Pty) Ltd. All rights reserved.
 
-.. |RemoteMethod| replace:: :class:`~reahl.web.fw.RemotMethod`
+.. |RemoteMethod| replace:: :class:`~reahl.web.fw.RemoteMethod`
 
 
 Protection against cross site request forgery (CSRF) attacks
