@@ -69,4 +69,12 @@ Production deployment
    nginx
    docker
 
+   
+Other
+-----
 
+.. toctree::
+   :maxdepth: 1
+
+   csrf
+   

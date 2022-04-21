@@ -77,8 +77,8 @@ class WebConfig(Configuration):
     csrf_key = ConfigSetting(default='unsafekey',
                              description='Used to sign CSRF tokens for a site. Set this to a secret long string unique to your deployment.',
                              dangerous=True)
-    csrf_timeout_seconds = ConfigSetting(default=60*5,
-                                         description='Forms have to be submitted within this time after being rendered.')
+    csrf_timeout_seconds = ConfigSetting(default=60*15,
+                                         description='Forms have to be submitted within this time (in seconds) after being rendered.')
                                        
     @property
     def secure_key_name(self):
