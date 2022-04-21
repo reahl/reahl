@@ -22,6 +22,7 @@ import logging
 import itertools
 import toml
 import functools
+import packaging.version
 
 import pkg_resources
 
@@ -313,10 +314,12 @@ class Version(object):
 
 class ReahlEgg:
     interface_cache = {}
-
+    metadata_version = packaging.version.parse('1.0.0')
     def __init__(self, distribution):
         self.distribution = distribution
         self.metadata = self.create_metadata(distribution)
+        if self.metadata is not None:
+            self.validate_version()
 
     def create_metadata(self, distribution):
         if distribution.has_metadata('reahl-component.toml'):
@@ -324,6 +327,20 @@ class ReahlEgg:
         else:
             return None
 
+    def validate_version(self):
+        try:
+            metadata_version_string = self.metadata['metadata_version']
+        except KeyError:
+            raise ProgrammerError('Component metadata version not found for %s' % self.distribution)
+
+        metadata_version = packaging.version.parse(metadata_version_string)
+        supported_version_min = packaging.version.parse('%s.%s' % (self.metadata_version.major, self.metadata_version.minor))
+        supported_version_max = packaging.version.parse('%s.%s' % (self.metadata_version.major, self.metadata_version.minor+1))
+
+        if not(metadata_version >= supported_version_min and metadata_version < supported_version_max):
+            raise ProgrammerError('Component metadata version %s for %s is incompatible with the installed version of reahl-component' % (metadata_version, self.distribution))
+
+        
     @property
     def is_component(self):
         return self.metadata is not None
@@ -348,19 +365,6 @@ class ReahlEgg:
     def configuration_spec(self):
         configuration_spec_str = self.metadata.get('configuration', None)
         return self.load(configuration_spec_str) if configuration_spec_str else None
-
-    def read_config(self, config):
-        if self.configuration_spec:
-            config.read(self.configuration_spec)
-
-    def validate_config(self, config):
-        if self.configuration_spec:
-            config.validate_required(self.configuration_spec)
-
-    def list_config(self, config):
-        if self.configuration_spec:
-            return config.list_required(self.configuration_spec)
-        return []
 
     def get_versions(self):
         version_strings = list(self.metadata.get('versions', {}).keys())
@@ -391,7 +395,7 @@ class ReahlEgg:
         return [self.load(i) for i in self.metadata.get('persisted', [])]
 
     def get_migration_classes_for_version(self, version):
-        return [self.load(i) for i in self.metadata.get('versions', {}).get(version, {}).get('migrations', [])]
+        return [self.load(i) for i in self.metadata.get('versions', {}).get(version.version_number_string, {}).get('migrations', [])]
 
     @property
     def translation_package_entry_point(self):

@@ -59,7 +59,7 @@ class ReahlEggStub(ReahlEgg):
         self.dependencies = {}
 
     def create_metadata(self, distribution):
-        return {}
+        return {'metadata_version': ReahlEgg.metadata_version}
         
     @property
     def name(self):

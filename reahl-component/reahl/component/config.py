@@ -347,20 +347,23 @@ class StoredConfiguration(Configuration):
         eggs = ReahlEgg.get_all_relevant_interfaces(self.reahlsystem.root_egg)
         for egg in reversed(eggs):
             logging.getLogger(__name__).debug('going to read config for %s' % egg)
-            egg.read_config(self)
+            if egg.configuration_spec:
+                self.read(egg.configuration_spec)
 
     def validate_components(self):
         eggs = ReahlEgg.get_all_relevant_interfaces(self.reahlsystem.root_egg)
         for egg in reversed(eggs):
             logging.getLogger(__name__).debug('going to validate config for %s' % egg)
-            egg.validate_config(self)
+            if egg.configuration_spec:
+                self.validate_required(egg.configuration_spec)
 
     def list_all(self):
         all_items = []
         all_items.extend(self.list_required(ReahlSystemConfig))
         eggs = ReahlEgg.get_all_relevant_interfaces(self.reahlsystem.root_egg)
         for egg in reversed(eggs):
-            all_items.extend(egg.list_config(self))
+            if egg.configuration_spec:
+                all_items.extend(self.list_required(egg.configuration_spec))
         return all_items
 
     def read(self, configuration_class):
