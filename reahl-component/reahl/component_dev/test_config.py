@@ -53,11 +53,11 @@ reahlsystem.debug = False
     def set_up_easter_egg(self):
         self.config_bootstrap_file
         easter_egg.clear()
-        easter_egg.stubbed_metadata['reahl-component.toml'] = ''
+        easter_egg.stubbed_metadata['reahl-component.toml'] = 'metadata_version = "1.0.0"'
         ReahlEgg.clear_cache()
 
     def set_config_spec(self, egg, code_locator_string):
-        egg.stubbed_metadata['reahl-component.toml'] = 'configuration = "%s"' % code_locator_string
+        egg.stubbed_metadata['reahl-component.toml'] = 'metadata_version = "1.0.0"\nconfiguration = "%s"' % code_locator_string
 
 
 

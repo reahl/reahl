@@ -54,7 +54,7 @@ def test_interface_with_meta_info():
     easter_egg.add_dependency('reahl-component')
 
     # An egg is a component if it has reahl-component.tom metadata
-    easter_egg.stubbed_metadata['reahl-component.toml'] = ''
+    easter_egg.stubbed_metadata['reahl-component.toml'] = 'metadata_version = "1.0.0"'
    
     # Interfaces can be queried in dependency order too
     interfaces_in_order = ReahlEgg.compute_all_relevant_interfaces(easter_egg.as_requirement_string())
@@ -67,6 +67,7 @@ def test_interface_with_meta_info():
     assert interface.get_persisted_classes_in_order() == []
 
     easter_egg.stubbed_metadata['reahl-component.toml'] = '''
+    metadata_version = "1.0.0"
     [versions."1.0"]
     '''
     
@@ -74,6 +75,7 @@ def test_interface_with_meta_info():
     assert versions[-1] == interface.installed_version
 
     easter_egg.stubbed_metadata['reahl-component.toml'] = '''
+    metadata_version = "1.0.0"
     translations = "reahl.messages"
     '''
     easter_egg.add_entry_point_from_line('reahl.translations', '%s = reahl.messages' % easter_egg.project_name)
