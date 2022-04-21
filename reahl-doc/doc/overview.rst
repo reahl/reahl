@@ -102,7 +102,7 @@ dealing with Reahl components using an extensible command line
 tool. This includes a web server for development purposes and a number
 of special tofu Fixtures that are useful when developing Reahl.
 
-The development tools are introduced in :doc:`devtools/introduction`
+The development tools are introduced in :doc:`devtools/introduction`.
 
 
   

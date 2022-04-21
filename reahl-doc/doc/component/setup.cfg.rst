@@ -3,8 +3,8 @@
 .. _entry point object reference: https://packaging.python.org/en/latest/specifications/entry-points/#data-model
 .. _table: https://toml.io/en/v1.0.0#table
 .. _toml format: https://toml.io/en/
-.. |Migration| ..replace:: :class:`~reahl.component.migration.Migration`
-.. |Configuration| ..replace:: :class:`~reahl.component.config.Configuration`
+.. |Migration| replace:: :class:`~reahl.component.migration.Migration`
+.. |Configuration| replace:: :class:`~reahl.component.config.Configuration`
 .. |DatabaseControl| replace:: :class:`~reahl.component.dbutils.DatabaseControl`
 .. |Command| replace:: :class:`~reahl.component.shelltools.Command`
 
