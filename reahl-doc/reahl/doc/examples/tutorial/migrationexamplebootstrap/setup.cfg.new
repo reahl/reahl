@@ -1,6 +1,6 @@
 [metadata]
 name = migrationexamplebootstrap
-version = 0.1
+version = 0.2
 
 [options]
 py_modules =
@@ -26,11 +26,11 @@ component =
     "reahl.doc.examples.tutorial.migrationexamplebootstrap.migrationexamplebootstrap:Address"
   ]
   # List all major.minor versions:
-  [versions."0.1"]
+  [versions."0.2"]
     migrations = [
       "reahl.doc.examples.tutorial.migrationexamplebootstrap.migrationexamplebootstrap:AddDate"
     ]
-  [versions."0.0"]
+  [versions."0.1"]
     install_requires = [
       "reahl-web>=6.0,<6.1",
       "reahl-component>=6.0,<6.1",

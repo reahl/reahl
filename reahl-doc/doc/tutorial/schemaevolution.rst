@@ -70,8 +70,8 @@ Now change the application to a newer version:
 
 - comment out the 'TODO' version of `added_date` in the Address class, and uncomment the
   version with the Column (this simulates a change in schema)
-- edit the `setup.cfg` file and :ref:`add a new version table <setup_cfg_versions>` for 0.1 which
-  includes a migration. Also create a version table for 0.0 (the previous version) to keep track
+- edit the `setup.cfg` file and :ref:`add a new version table <setup_cfg_versions>` for 0.2 which
+  includes a migration. Also create a version table for 0.1 (the previous version) to keep track
   of what that version used to depend on:
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/migrationexamplebootstrap/setup.cfg.new
@@ -79,7 +79,7 @@ Now change the application to a newer version:
 
 
 - edit the `setup.cfg` file and increase the version of the 
-  :ref:`component <create-component>` to 0.1:
+  :ref:`component <create-component>` to 0.2:
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/migrationexamplebootstrap/setup.cfg.new
    :start-after:  [metadata]
@@ -88,7 +88,7 @@ Now change the application to a newer version:
 
 .. note::
 
-   Your :ref:`component <create-component>` had version 0.0 at first.
+   Your :ref:`component <create-component>` had version 0.1 at first.
    In order to trigger a migration, you need a new, higher version.
    Database schema changes require new major or minor version; patch versions
    are ignored.
@@ -128,8 +128,8 @@ code that makes the schema changes:
 Register each of your |Migration|\s :ref:`in the 'setup.cfg' file <setup_cfg_migrations>`, in :ref:`the version table <setup_cfg_versions>` each migration is for:
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/migrationexamplebootstrap/setup.cfg.new
-   :start-after: [versions."0.1"]
-   :end-before:  [versions."0.0"]
+   :start-after: [versions."0.2"]
+   :end-before:  [versions."0.1"]
 
 
 The `migratedb` command checks to see which version of your component
