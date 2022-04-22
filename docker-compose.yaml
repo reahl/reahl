@@ -7,7 +7,7 @@ services:
     container_name: reahl
     restart: always
     init: true
-    image: iwanvosloo/reahl-dev:5.2
+    image: iwanvosloo/reahl-dev:6.0
     build:
       context: .
       dockerfile: Dockerfile
