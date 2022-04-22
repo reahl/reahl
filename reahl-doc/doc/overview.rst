@@ -6,23 +6,20 @@ Documentation overview
 Introduction
 ------------
 
-Although many of the Reahl packages can be used independently, the
-following introductory materials cover all Reahl packages written
-in terms of a user of the Reahl web framework (reahl-web):
-
-- The :doc:`Getting started guide <tutorial/gettingstarted-install>` will enable you to
-  install all the Reahl packages, and start experimenting.
-
-- To start learning all of Reahl in earnest, you can work through the :doc:`web
-  application tutorial <tutorial/index>`.
-
-- The :doc:`programmer's guide <devmanual/index>` contains information
-  on how we work and how the internals of Reahl is structured.
-
-The main components of Reahl are illustrated in the figure below:
+Reahl comprises several different sets of components that can be used
+independently of one another:
 
 .. figure:: overview.png
    :alt: A visual depiction of Reahl components and how they depend on each other.
+
+
+.. seealso:: 
+
+   For a web-centric introduction to all the components used:
+   
+   - The :doc:`Getting started guide <tutorial/gettingstarted-install>`.
+   - The :doc:`web application tutorial <tutorial/index>`.
+   - The :doc:`programmer's guide <devmanual/index>`.
   
 
 Component framework
@@ -38,7 +35,7 @@ The core of the Reahl component framework is implemented in
 implemented in separate components: `reahl-postgresqlsupport`,
 `reahl-sqlalchemysupport`, `reahl-sqllitesupport` and `reahl-mysqlsupport`.
 
-All of these components are discussed under the heading of
+All of these components are introduced under the heading of
 :doc:`component/introduction`.
 
 
@@ -54,7 +51,7 @@ of the technology used for object persistence. This core is in the
 are persisted though -- an implementation of these using SqlAlchemy's 
 declarative is provided in `reahl-web-declarative`.
 
-These components are discussed under :doc:`web/index`.
+These components are introduced in the :doc:`web application tutorial <tutorial/index>`.
 
 End-user functionality
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -67,7 +64,7 @@ whereas `reahl-domainui` provides the related web user interfaces.
 
 Simple support for sending emails is provided by `reahl-mailutil`.
 
-All these are discussed in :doc:`domain/index`.
+All these are also introduced in the :doc:`web application tutorial <tutorial/index>`.
 
 Browser tools
 ~~~~~~~~~~~~~
@@ -105,7 +102,7 @@ dealing with Reahl components using an extensible command line
 tool. This includes a web server for development purposes and a number
 of special tofu Fixtures that are useful when developing Reahl.
 
-The development tools are discussed in detail in :doc:`devtools/index`
+The development tools are introduced in :doc:`devtools/introduction`.
 
 
   

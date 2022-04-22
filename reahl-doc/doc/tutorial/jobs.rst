@@ -35,12 +35,11 @@ The `tutorial.jobsbootstrap` example needs its
    :pyobject: Address
 
 
-To register this job with the component, add a `<schedule>` tag in the
-`.reahlproject` file:
+To register this job with the component, list it in :ref:`the "schedule" entry <setup_cfg_schedule>` of
+the `component` option of your `setup.cfg` file:
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/jobsbootstrap/.reahlproject
-   :start-after:   </persisted>
-   :end-before:   </project>
+.. literalinclude:: ../../reahl/doc/examples/tutorial/jobsbootstrap/setup.cfg
+   :start-after:  # Register the job:
 
 
 A job, such as `Address.clear_added_flags()` should

@@ -1,1 +1,1 @@
-  unit setup -- -q pytest --addopts '-s --pyargs reahl.webdeclarative_dev'
+  unit shell pytest -s --pyargs reahl.webdeclarative_dev

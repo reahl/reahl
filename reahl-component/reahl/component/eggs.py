@@ -1,4 +1,4 @@
-# Copyright 2013-2021 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2022 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -20,9 +20,10 @@ import os
 import os.path
 import logging
 import itertools
+import toml
+import functools
 
-from pkg_resources import Requirement, get_distribution, iter_entry_points, require, resource_isdir, \
-                          resource_listdir, working_set, parse_version
+import pkg_resources
 
 from reahl.component.decorators import memoized
 from reahl.component.exceptions import DomainException, ProgrammerError
@@ -199,20 +200,23 @@ class DependencyCluster:
         return '<%s %s>' % (self.__class__.__name__, self)
 
 
-class Dependency(object):
+class Dependency:
     """
         entry point : name = module.attrs [extras]
     """
-    def __init__(self, for_version, entry_point_spec):
+    def __init__(self, for_version, requirement):
         self.for_version = for_version
-        self.name = entry_point_spec.name
-        self.type = entry_point_spec.module_name
+        self.name = requirement.name
+        self.specs = requirement.specs
         self.min_version = None
-        if self.type == 'egg':
-            min_version = '.'.join(entry_point_spec.attrs) if entry_point_spec.attrs else None
-            if min_version != '_':
-                self.min_version = min_version
-        self.max_version = entry_point_spec.extras[0] if entry_point_spec.extras and len(entry_point_spec.extras) > 0 else None
+        self.max_version = None
+        for comparator, version in self.specs:
+            if comparator == '>=':
+                self.min_version = version
+            elif comparator == '<':
+                self.max_version = version
+            else:
+                raise ProgrammerError('%s uses comparator %s which is not allowed. Please use semantic versioning like: x>=1.2,<1.3')
 
     def get_best_version(self):
         all_versions = self.get_versions()
@@ -239,13 +243,14 @@ class Dependency(object):
     @property
     def distribution(self):
         try:
-            return get_distribution(self.name)
+            return pkg_resources.get_distribution(self.name)
         except:
             return None
 
     @property
     def is_component(self):
-        return bool(self.distribution.get_entry_map().get('reahl.versions', {}))
+        dep_egg = ReahlEgg(self.distribution)
+        return dep_egg.is_component
 
 
 class Version(object):
@@ -262,7 +267,7 @@ class Version(object):
 
     @property
     def version_number(self):
-        return parse_version(self.version_number_string)
+        return pkg_resources.parse_version(self.version_number_string)
 
     def __eq__(self, other):
         return str(self) == str(other)
@@ -279,10 +284,10 @@ class Version(object):
     def matches_versions(self, min_version, max_version):
         if not min_version:
             return True
-        candidate_version = parse_version(self.version_number_string)
+        candidate_version = pkg_resources.parse_version(self.version_number_string)
         [major, minor] = min_version.split('.')[:2]
-        min_version = parse_version(min_version)
-        max_version = parse_version(max_version or '%s.%s.%s' % (major, minor, '9999'))
+        min_version = pkg_resources.parse_version(min_version)
+        max_version = pkg_resources.parse_version(max_version or '%s.%s.%s' % (major, minor, '9999'))
         return min_version <= candidate_version < max_version
 
     def get_migration_classes(self):
@@ -302,15 +307,45 @@ class Version(object):
         return False
 
     def is_up_to_date(self, orm_control):
-        installed_version_number = parse_version(orm_control.schema_version_for(self.egg, default='0.0'))
+        installed_version_number = pkg_resources.parse_version(orm_control.schema_version_for(self.egg, default='0.0'))
         return installed_version_number >= self.version_number
 
 
 class ReahlEgg:
     interface_cache = {}
-
+    metadata_version = pkg_resources.parse_version('1.0.0')
     def __init__(self, distribution):
         self.distribution = distribution
+        self.metadata = self.create_metadata(distribution)
+        if self.metadata is not None:
+            self.validate_version()
+
+    def create_metadata(self, distribution):
+        if distribution.has_metadata('reahl-component.toml'):
+            return toml.loads(distribution.get_metadata('reahl-component.toml'))
+        else:
+            return None
+
+    def validate_version(self):
+        try:
+            metadata_version_string = self.metadata['metadata_version']
+        except KeyError:
+            raise ProgrammerError('Component metadata version not found for %s' % self.distribution)
+
+        metadata_version = pkg_resources.parse_version(metadata_version_string)
+        supported_version_min = pkg_resources.parse_version('%s.%s' % (self.metadata_version.major, self.metadata_version.minor))
+        supported_version_max = pkg_resources.parse_version('%s.%s' % (self.metadata_version.major, self.metadata_version.minor+1))
+
+        if not(metadata_version >= supported_version_min and metadata_version < supported_version_max):
+            raise ProgrammerError('Component metadata version %s for %s is incompatible with the installed version of reahl-component' % (metadata_version, self.distribution))
+
+        
+    @property
+    def is_component(self):
+        return self.metadata is not None
+
+    def __repr__(self):
+        return '<%s(pkg_resources.get_distribution(%s))>' % (self.__class__.__name__, repr(self.distribution))
 
     @property
     def name(self):
@@ -327,70 +362,65 @@ class ReahlEgg:
 
     @property
     def configuration_spec(self):
-        entry_point_dict = self.distribution.get_entry_map().get('reahl.configspec', {})
-        entry_point = entry_point_dict.get('config', None)
-        return entry_point.load() if entry_point else None
-
-    def read_config(self, config):
-        if self.configuration_spec:
-            config.read(self.configuration_spec)
-
-    def validate_config(self, config):
-        if self.configuration_spec:
-            config.validate_required(self.configuration_spec)
-
-    def list_config(self, config):
-        if self.configuration_spec:
-            return config.list_required(self.configuration_spec)
-        return []
+        configuration_spec_str = self.metadata.get('configuration', None)
+        return self.load(configuration_spec_str) if configuration_spec_str else None
 
     def get_versions(self):
-        entry_point_dict = self.distribution.get_entry_map().get('reahl.versions', {})
-        all_versions = [Version(self, version_string) for version_string in entry_point_dict.keys()]
-
+        if not self.is_component:
+            raise ProgrammerError('%s is not a reahl component, thus cannot have historical versions' % self.distributions)
+        version_strings = list(self.metadata.get('versions', {}).keys())
+        current_major_minor = '.'.join(self.distribution.version.split('.')[:2])
+        all_versions = [Version(self, version_string) for version_string in set(version_strings+[current_major_minor])]
         return list(sorted([v for v in all_versions], key=lambda x: x.version_number))
 
     def get_dependencies(self, version):
-        entry_point_dict = self.distribution.get_entry_map().get('reahl.versiondeps.%s' % version, {})
-        unparsed_dependency_entry_points = entry_point_dict.values()
-        return [Dependency(self, ep) for ep in unparsed_dependency_entry_points]
+        if not self.is_component:
+            raise ProgrammerError('%s is not a reahl component, thus cannot have historical versions' % self.distributions)
+        current_major_minor_string = '.'.join(self.distribution.version.split('.')[:2])
+        if str(version) == current_major_minor_string:
+            version_dependencies = self.distribution.requires()
+        else:
+            version_dependencies = [pkg_resources.Requirement.parse(i) for i in self.metadata.get('versions', {}).get(version, {}).get('install_requires', [])]
+        return [Dependency(self, dep) for dep in version_dependencies]
 
+    def load(self, locator):
+        module_name, module_object = locator.split(':')
+        module = __import__(module_name, fromlist=['__name__'], level=0)
+        attrs = module_object.split('.')
+        if not attrs:
+            return module
+        try:
+            return functools.reduce(getattr, iter(attrs), module)
+        except AttributeError as exc:
+            raise ImportError(str(exc))
+    
     def get_persisted_classes_in_order(self):
-        return self.get_ordered_classes_exported_on('reahl.persistlist')
+        return [self.load(i) for i in self.metadata.get('persisted', [])]
 
     def get_migration_classes_for_version(self, version):
-        return self.get_ordered_classes_exported_on('reahl.migratelist.%s' % version.version_number)
-
-    def get_ordered_classes_exported_on(self, entry_point):
-        entry_point_dict = self.distribution.get_entry_map().get(entry_point, {})
-        found_eps = set()
-        for ep in entry_point_dict.values():
-            if ep in found_eps:
-                raise AssertionError('%s is listed twice' % ep)
-            found_eps.add(ep)
-        return [entry.load() for order, entry in sorted([(int(order), e) for order, e in entry_point_dict.items()])]
-
-    def get_classes_exported_on(self, entry_point):
-        entry_point_dict = self.distribution.get_entry_map().get(entry_point, {})
-        return [entry.load() for name, entry in entry_point_dict.items()]
+        return [self.load(i) for i in self.metadata.get('versions', {}).get(version.version_number_string, {}).get('migrations', [])]
 
     @property
-    def translation_package(self):
-        entry_point_dict = self.distribution.get_entry_map().get('reahl.translations')
-        if entry_point_dict:
-            return entry_point_dict[self.name].load()
-        else:
+    def translation_package_entry_point(self):
+        translation_packages = [translation_entry_point for translation_entry_point in pkg_resources.iter_entry_points('reahl.translations')
+                                if (translation_entry_point.dist is self.distribution) and (translation_entry_point.name == self.name) ]
+        if len(translation_packages) != 1:
             return None
+        return translation_packages[0]
+    
+    @property
+    def translation_package_name(self):
+        return self.translation_package_entry_point.module_name
 
     @property
     def translation_pot_filename(self):
-        translations_package_name = self.translation_package.__name__
+        translations_package_name = self.translation_package_name
         translations_file_path = translations_package_name.replace('.', '/')
         return self.distribution.get_resource_filename(self.distribution, '%s/%s' % (translations_file_path, self.name))
 
     @property
     def scheduled_jobs(self):
-        return self.get_classes_exported_on('reahl.scheduled_jobs')
+        return [self.load(i) for i in self.metadata.get('schedule', [])]
     
     def do_daily_maintenance(self):
         for job in self.scheduled_jobs:
@@ -421,19 +451,19 @@ class ReahlEgg:
         domains_in_use = [e.name for e in egg_interfaces]
 
         languages_for_eggs = {}
-        for translation_entry_point in iter_entry_points('reahl.translations'):
+        for translation_entry_point in pkg_resources.iter_entry_points('reahl.translations'):
             requirement = translation_entry_point.dist.as_requirement()
             egg_internal_path = cls.get_egg_internal_path_for(translation_entry_point)
-            if resource_isdir(requirement, egg_internal_path):
-                languages = [d for d in resource_listdir(requirement, egg_internal_path)
-                             if (resource_isdir(requirement, '%s/%s' % (egg_internal_path, d)) and not d.startswith('__'))]
+            if pkg_resources.resource_isdir(requirement, egg_internal_path):
+                languages = [d for d in pkg_resources.resource_listdir(requirement, egg_internal_path)
+                             if (pkg_resources.resource_isdir(requirement, '%s/%s' % (egg_internal_path, d)) and not d.startswith('__'))]
             else:
                 logging.error('Translations of %s not found in %s' % (requirement, egg_internal_path))
                 languages = []
 
             for language in languages:
                 language_path = '%s/%s/LC_MESSAGES' % (egg_internal_path, language)
-                domains = [d[:-3] for d in resource_listdir(requirement, language_path) if d.endswith('.mo')]
+                domains = [d[:-3] for d in pkg_resources.resource_listdir(requirement, language_path) if d.endswith('.mo')]
                 for domain in domains:
                     if domain in domains_in_use:
                         languages = languages_for_eggs.setdefault(domain, set())
@@ -470,13 +500,13 @@ class ReahlEgg:
     @classmethod
     def topological_sort(cls, distributions):
         def find_dependencies(dist):
-            dependencies = [working_set.find(i) for i in dist.requires()]
+            dependencies = [pkg_resources.working_set.find(i) for i in dist.requires()]
             my_requirements =  dist.requires()
             #we want the subset of stuff in the basket we actually depend on, not just the basket itself
             basket_requirements = [i for i in my_requirements
                                    if i.extras]
             for basket in basket_requirements:
-                dependencies.extend([working_set.find(Requirement.parse(i)) for i in basket.extras])
+                dependencies.extend([pkg_resources.working_set.find(pkg_resources.Requirement.parse(i)) for i in basket.extras])
             return dependencies
             
         return DependencyGraph.from_vertices(distributions, find_dependencies).topological_sort()
@@ -484,7 +514,7 @@ class ReahlEgg:
 
     @classmethod 
     def get_eggs_for(cls, main_egg):
-        distributions = require(main_egg)
+        distributions = pkg_resources.require(main_egg)
         return list(set(distributions)) # To get rid of duplicates
 
     @classmethod
@@ -497,18 +527,11 @@ class ReahlEgg:
 
         for i in cls.compute_ordered_dependent_distributions(main_egg):
             interface = cls.interface_for(i)
-            if interface:
+            if interface.is_component:
                 interfaces.append(interface)
 
         return interfaces
 
     @classmethod
     def interface_for(cls, distribution):
-        entry_map = distribution.get_entry_map('reahl.eggs')
-        if entry_map:
-            classes = list(entry_map.values())
-            assert len(classes) == 1, 'Only one eggdeb class per egg allowed'
-            return classes[0].load()(distribution)
-        else:
-            return None
-
+        return cls(distribution)

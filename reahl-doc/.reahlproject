@@ -4,14 +4,6 @@
     <package name="reahl.messages"/>
   </namespaces>
 
-  <translations locator="reahl.messages"/>
-  <configuration locator="reahl.doc.examples.tutorial.componentconfigbootstrap.componentconfigbootstrap:AddressConfig"/>
-
-  <deps purpose="build">
-    <thirdpartyegg name="setuptools-git" minversion="1.1"/>
-    <thirdpartyegg name="pytest-runner"/>
-  </deps>
-
   <extras name="pillow">
     <thirdpartyegg name="Pillow" minversion="2.5" maxversion="7.1.999"/>
   </extras>
@@ -20,6 +12,7 @@
     <thirdpartyegg name="pytest" minversion="3.0"/>
     <thirdpartyegg name="Sphinx"/>
     <thirdpartyegg name="sphinxcontrib-plantuml"/>
+    <thirdpartyegg name="flaky" minversion="3.7.0"/>
     <egg name="reahl-tofu"/>
     <egg name="reahl-stubble"/>
     <egg name="reahl-dev"/>
@@ -30,43 +23,7 @@
     <egg name="reahl-mysqlsupport"/>
   </deps>
 
-    <persisted>
-        <class locator="reahl.doc.examples.features.persistence.persistence:Comment"/>
-        <class locator="reahl.doc.examples.features.dynamiccontent.dynamiccontent:Calculator"/>
-        <class locator="reahl.doc.examples.web.fileupload.fileupload:Comment"/>
-        <class locator="reahl.doc.examples.web.fileupload.fileupload:AttachedFile"/>
-        <class locator="reahl.doc.examples.tutorial.test_model2:Address"/>
-        <class locator="reahl.doc.examples.tutorial.addressbook2.addressbook2:Address"/>
-        <class locator="reahl.doc.examples.tutorial.addressbook2bootstrap.addressbook2bootstrap:Address"/>
-        <class locator="reahl.doc.examples.tutorial.addressbook1.addressbook1:Address"/>
-        <class locator="reahl.doc.examples.tutorial.pageflow1.pageflow1:Address"/>
-        <class locator="reahl.doc.examples.tutorial.parameterised1.parameterised1:Address"/>
-        <class locator="reahl.doc.examples.tutorial.parameterised2.parameterised2:Address"/>
-        <class locator="reahl.doc.examples.tutorial.sessionscopebootstrap.sessionscopebootstrap:User"/>
-        <class locator="reahl.doc.examples.tutorial.sessionscopebootstrap.sessionscopebootstrap:LoginSession"/>
-        <class locator="reahl.doc.examples.tutorial.accessbootstrap.accessbootstrap:AddressBook"/>
-        <class locator="reahl.doc.examples.tutorial.accessbootstrap.accessbootstrap:Collaborator"/>
-        <class locator="reahl.doc.examples.tutorial.accessbootstrap.accessbootstrap:Address"/>
-        <class locator="reahl.doc.examples.tutorial.i18nexamplebootstrap.i18nexamplebootstrap:Address"/>
-        <class locator="reahl.doc.examples.tutorial.componentconfigbootstrap.componentconfigbootstrap:Address"/>
-        <class locator="reahl.doc.examples.tutorial.migrationexamplebootstrap.migrationexamplebootstrap:Address"/>
-        <class locator="reahl.doc.examples.tutorial.jobsbootstrap.jobsbootstrap:Address"/>
-        <class locator="reahl.doc.examples.tutorial.tablebootstrap.tablebootstrap:Address"/>
-        <class locator="reahl.doc.examples.tutorial.datatablebootstrap.datatablebootstrap:Address"/>
-        <class locator="reahl.doc.examples.tutorial.dynamiccontent.dynamiccontent:InvestmentOrder"/>
-        <class locator="reahl.doc.examples.tutorial.dynamiccontent.dynamiccontent:Allocation"/>
-        <class locator="reahl.doc.examples.howtos.paymentpaypal.paymentpaypal:ShoppingCart"/>
-        <class locator="reahl.doc.examples.howtos.responsivedisclosure.responsivedisclosure:InvestmentOrder"/>
-        <class locator="reahl.doc.examples.howtos.responsivedisclosure.responsivedisclosure:Allocation"/>
-        <class locator="reahl.doc.examples.howtos.responsivedisclosure.responsivedisclosure:IDDocument"/>
-       </persisted>
-
-  <schedule locator="reahl.doc.examples.tutorial.jobsbootstrap.jobsbootstrap:Address.clear_added_flags"/>
-
-  <export entrypoint="reahl.component.commands" name="GetExample" locator="reahl.doc.commands:GetExample"/>
-  <export entrypoint="reahl.component.commands" name="ListExamples" locator="reahl.doc.commands:ListExamples"/>
-
-  <version number="5.2">
+  <version number="6.0">
     <deps purpose="run">
       <egg name="reahl-web" versionlocked="True"/>
       <egg name="reahl-component" versionlocked="True"/>
@@ -78,108 +35,9 @@
       <egg name="reahl-dev" versionlocked="True"/>
       <egg name="reahl-paypalsupport" versionlocked="True"/>
       <thirdpartyegg name="pytest" minversion="3.0"/>
-      <thirdpartyegg name="setuptools" minversion="32.3.1"/>
+      <thirdpartyegg name="setuptools" minversion="51.0.0"/>
       <thirdpartyegg name="plotly" minversion="5.1.0" maxversion="5.6.99999"/>
     </deps>
-  </version>
-
-  <version number="5.1">
-    <deps purpose="run">
-      <egg name="reahl-web" versionlocked="True"/>
-      <egg name="reahl-component" versionlocked="True"/>
-      <egg name="reahl-sqlalchemysupport" versionlocked="True"/>
-      <egg name="reahl-web-declarative" versionlocked="True"/>
-      <egg name="reahl-domain" versionlocked="True"/>
-      <egg name="reahl-domainui" versionlocked="True"/>
-      <egg name="reahl-commands" versionlocked="True"/>
-      <egg name="reahl-dev" versionlocked="True"/>
-      <thirdpartyegg name="pytest" minversion="3.0"/>
-      <thirdpartyegg name="setuptools" minversion="32.3.1"/>
-    </deps>
-  </version>
-
-  <version number="5.0">
-    <deps purpose="run">
-      <egg name="reahl-web" versionlocked="True"/>
-      <egg name="reahl-component" versionlocked="True"/>
-      <egg name="reahl-sqlalchemysupport" versionlocked="True"/>
-      <egg name="reahl-web-declarative" versionlocked="True"/>
-      <egg name="reahl-domain" versionlocked="True"/>
-      <egg name="reahl-domainui" versionlocked="True"/>
-      <egg name="reahl-commands" versionlocked="True"/>
-      <thirdpartyegg name="pytest" minversion="3.0"/>
-      <thirdpartyegg name="setuptools" minversion="32.3.1"/>
-    </deps>
-  </version>
-
-  <version number="4.0">
-    <deps purpose="run">
-      <egg name="reahl-web" versionlocked="True"/>
-      <egg name="reahl-component" versionlocked="True"/>
-      <egg name="reahl-sqlalchemysupport" versionlocked="True"/>
-      <egg name="reahl-web-declarative" versionlocked="True"/>
-      <egg name="reahl-domain" versionlocked="True"/>
-      <egg name="reahl-domainui" versionlocked="True"/>
-      <egg name="reahl-commands" versionlocked="True"/>
-      <thirdpartyegg name="pytest" minversion="3.0"/>
-      <thirdpartyegg name="setuptools" minversion="32.3.1"/>
-    </deps>
-  </version>
-
-  <version number="3.2">
-    <deps purpose="run">
-      <egg name="reahl-web" versionlocked="True"/>
-      <egg name="reahl-component" versionlocked="True"/>
-      <egg name="reahl-sqlalchemysupport" versionlocked="True"/>
-      <egg name="reahl-web-declarative" versionlocked="True"/>
-      <egg name="reahl-domain" versionlocked="True"/>
-      <egg name="reahl-domainui" versionlocked="True"/>
-      <thirdpartyegg name="nose" versionlocked="True"/>
-    </deps>
-  </version>
-
-  <version number="3.1">
-      <deps purpose="run">
-        <egg name="reahl-web" versionlocked="True"/>
-        <egg name="reahl-component" versionlocked="True"/>
-        <egg name="reahl-sqlalchemysupport" versionlocked="True"/>
-        <egg name="reahl-web-declarative" versionlocked="True"/>
-        <egg name="reahl-domain" versionlocked="True"/>
-        <egg name="reahl-domainui" versionlocked="True"/>
-      </deps>
-  </version>
-
-  <version number="3.0">
-    <deps purpose="run">
-        <egg name="reahl-web" versionlocked="True"/>
-        <egg name="reahl-component" versionlocked="True"/>
-        <egg name="reahl-sqlalchemysupport" versionlocked="True"/>
-        <egg name="reahl-web-declarative" versionlocked="True"/>
-        <egg name="reahl-domain" versionlocked="True"/>
-        <egg name="reahl-domainui" versionlocked="True"/>
-    </deps>
-  </version>
-
-  <version number="2.1">
-      <deps purpose="run">
-          <egg name="reahl-web" versionlocked="True"/>
-          <egg name="reahl-component" versionlocked="True"/>
-          <egg name="reahl-sqlalchemysupport" versionlocked="True"/>
-          <egg name="reahl-web-elixirimpl" versionlocked="True"/>
-          <egg name="reahl-domain" versionlocked="True"/>
-          <egg name="reahl-domainui" versionlocked="True"/>
-      </deps>
-  </version>
-
-  <version number="2.0">
-      <deps purpose="run">
-          <egg name="reahl-web" versionlocked="True"/>
-          <egg name="reahl-component" versionlocked="True"/>
-          <egg name="reahl-sqlalchemysupport" versionlocked="True"/>
-          <egg name="reahl-web-elixirimpl" versionlocked="True"/>
-          <egg name="reahl-domain" versionlocked="True"/>
-          <egg name="reahl-domainui" versionlocked="True"/>
-      </deps>
   </version>
 
   <distpackage type="wheel">

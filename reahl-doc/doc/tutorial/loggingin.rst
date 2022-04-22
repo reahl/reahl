@@ -42,13 +42,13 @@ The user and system account functionality is in the `reahl-domain` component,
 in the module :mod:`reahl.domain.systemaccountmodel`.
 
 To be able to use it in your code, list the `reahl-domain` component as a dependency in the
-`.reahlproject` file of your own project:
+`setup.cfg` file of your own project:
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/login1bootstrap/.reahlproject
-   :language: xml
+.. literalinclude:: ../../reahl/doc/examples/tutorial/login1bootstrap/setup.cfg
+   :language: ini
 
-.. note:: Remember, each time you change a `.reahlproject` file, you need to
-          run ``reahl setup -- develop -N``, as explained in :doc:`persistence`.
+.. note:: Remember, each time you change a `setup.cfg` file, as explained in :doc:`persistence`, you need to
+          run: ``python -m pip install --no-deps -e .``
 
 
 Use |currentSession| in your code to find the current |LoginSession|.

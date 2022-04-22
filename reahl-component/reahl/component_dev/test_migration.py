@@ -1,4 +1,4 @@
-# Copyright 2013-2021 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2022 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -58,6 +58,9 @@ class ReahlEggStub(ReahlEgg):
         self.version_info = version_info
         self.dependencies = {}
 
+    def create_metadata(self, distribution):
+        return {'metadata_version': str(ReahlEgg.metadata_version)}
+        
     @property
     def name(self):
         return self._name
@@ -69,9 +72,6 @@ class ReahlEggStub(ReahlEgg):
     @property
     def installed_version(self):
         return self.get_versions()[-1]
-
-    def get_ordered_classes_exported_on(self, entry_point):
-        return []
 
     def get_migration_classes_for_version(self, version):
         return self.version_info[str(version.version_number)]

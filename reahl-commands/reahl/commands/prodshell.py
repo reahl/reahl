@@ -1,4 +1,4 @@
-# Copyright 2013-2020 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2022 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -20,10 +20,9 @@
 import os.path
 import os
 import shutil
-
 import inspect
 
-from pkg_resources import DistributionNotFound, get_distribution
+import pkg_resources
 
 from reahl.component.dbutils import SystemControl
 from reahl.component.shelltools import Command
@@ -41,7 +40,7 @@ class ComponentInfo(Command):
         self.parser.add_argument('component_name', type=str,  help='the name of a component')
 
     def execute(self, args):
-        egg = ReahlEgg(get_distribution(args.component_name))
+        egg = ReahlEgg(pkg_resources.get_distribution(args.component_name))
         print('Name: %s' % egg.name)
         print('Version: %s' % egg.version)
         configuration_class = egg.configuration_spec
@@ -78,7 +77,7 @@ class ProductionCommand(Command):
     def create_context(self, config_directory):
         try:
             self.context = ExecutionContext.for_config_directory(config_directory)
-        except DistributionNotFound as ex:
+        except pkg_resources.DistributionNotFound as ex:
             ex.args = ('%s (In development? Did you forget to do a "reahl setup -- develop -N"?)' % ex.args[0],)
             raise
         self.context.install()
@@ -353,14 +352,16 @@ class ListDependencies(ProductionCommand):
 
 
 class ListVersionHistory(ProductionCommand):
-    """List full version history."""
+    """List versions of a component that are not already accounted for in the current database schema."""
     keyword = 'listversionhistory'
     def assemble(self):
         super().assemble()
 
     def execute(self, args):
         super().execute(args)
-        version_graph = MigrationPlan.create_version_graph_for(self.config.reahlsystem.root_egg)
+        self.context.install()
+        with self.sys_control.auto_connected():
+            version_graph = MigrationPlan.create_version_graph_for(ReahlEgg(pkg_resources.get_distribution(self.config.reahlsystem.root_egg)), self.config.reahlsystem.orm_control)
         for key in version_graph.graph:
             print('%s [%s]' % (key, ' | '.join([str(i) for i in version_graph.graph[key]])))
 

@@ -1,5 +1,7 @@
 import threading
 
+from flaky import flaky
+
 from reahl.tofu import Fixture
 from reahl.tofu.pytestsupport import with_fixtures
 
@@ -49,6 +51,7 @@ def test_logging_in(web_fixture, session_scope_fixture):
     
 
 @with_fixtures(WebFixture, SessionScopeFixture)
+@flaky(max_runs=3, min_passes=1)
 def test_email_retained(web_fixture, session_scope_fixture):
     """The email address used when last logged in is always pre-populated on the Log in page."""
 

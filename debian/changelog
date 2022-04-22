@@ -1,3 +1,10 @@
+python-reahl (6.0.0) unstable; urgency=low
+
+ * Changed to allow PEP517 conformant packaging (#302).
+ * Fixed column type to work on mysql (#346).
+
+ -- Iwan Vosloo <iwan@reahl.org>  Mon, 22 Apr 2022 07:28:00 +0200
+
 python-reahl (5.2.2) unstable; urgency=low
 
  * Fixed links in documentation.

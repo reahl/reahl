@@ -3,22 +3,8 @@
 
 
 
-What changed in version 5.2
+What changed in version 6.0
 ===========================
-
-.. |PrimitiveInput| replace:: :class:`~reahl.web.ui.PrimitiveInput`
-.. |Widget| replace:: :class:`~reahl.web.fw.Widget`
-.. |Chart| replace:: :class:`~reahl.web.plotly.Chart`
-.. |Input| replace:: :class:`~reahl.web.ui.Input`
-.. |set_refresh_widget| replace:: :meth:`~reahl.web.ui.PrimitiveInput.set_refresh_widget`
-.. |RemoteMethod| replace:: :class:`~reahl.web.fw.RemoteMethod`
-.. |UserSessionProtocol| replace:: :class:`~reahl.web.interfaces.UserSessionProtocol`
-.. |preserve_session| replace:: :meth:`~reahl.web.interfaces.UserSessionProtocol.preserve_session`
-.. |restore_session| replace:: :meth:`~reahl.web.interfaces.UserSessionProtocol.restore_session`
-.. |get_csrf_token| replace:: :meth:`~reahl.web.interfaces.UserSessionProtocol.get_csrf_token`
-.. |PayPalButtonsPanel| replace:: :class:`~reahl.paypalsupport.paypalsupport.PayPalButtonsPanel`
-.. |PayPalOrder| replace:: :class:`~reahl.paypalsupport.paypalsupport.PayPalOrder`
-
 
 Upgrading
 ---------
@@ -31,100 +17,74 @@ new virtualenv, then migrate your database:
    reahl migratedb etc
    
 
-Graphing support
-----------------
+Doing "away with" .reahlproject
+-------------------------------
 
-This release includes support for rendering Graphs. Instead of writing our own graphing library, we have added |Chart|
-which renders a Figure created using `the Plotly Python library <https://github.com/plotly/plotly.py/>`_.
+The .reahlproject file is one aspect of a home-grown way we use internally to develop Reahl itself: Reahl comprises
+several individually distributed components and this requires some scaffolding to help us deal with all of these components
+together. This scaffolding lives in reahl-dev, and is controlled by the .reahlproject file.
 
-See the relevant HOWTOs for more information:
+We also needed to store other metadata for our flavour of component as implemented by reahl-component, and to do that we used (and
+later on over-used) the entry points mechanism of setuptools for storing this metadata. Writing a plain setup.cfg or setup.py with all
+this data crammed into entry points eventually became too cumbersome to explain, which is why we continued up to now
+to use .reahlproject which hid that from its users.
 
-:doc:`howto/plotly`
-  An example that shows the basics of using a |Chart|.
+We have now changed how we store extra metadata:
 
-:doc:`howto/plotly2`
-  An example showing how to update a |Chart| efficiently in response to user actions.
+You now should package a Reahl component using setuptools in a PEP517 compliant way without using our homegrown .reahlproject.
 
+The .reahlproject and some of its accompanying scaffolding does not go away: its use is now optional and what it can do has shrunk.
+We really intend for it to be used internally only at this point, and it will be removed entirely in the near future since it relies on
+executing `setuptools.setup()` -- a practice which is deprecated.
 
-PayPal support
---------------
-
-Added |PayPalButtonsPanel| which you can use to setup standard paypal payments. The panel displays the `PayPalButton <https://developer.paypal.com/docs/checkout/standard/>`_
-for processing a given |PayPalOrder| providing seamless integration to PayPal using the `PayPal REST API <https://developer.paypal.com/api/orders/v2/>`_.
-
-See the HOWTO for more information:
-
-:doc:`howto/paypal`
-  Add a |PayPalButtonsPanel| to your own shoppingcart for `PayPal <https://www.paypal.com>`_ payments.
+If you are currently using a `.reahlproject`, you will have to migrate now to using a `setup.cfg`.
 
 
-Cross site request forgery (CSRF) protection
---------------------------------------------
+Migrating old .reahlproject files
+---------------------------------
 
-When a user is logged into a web application, their browser will automatically identify them as such on subsequent
-requests from the browser. An attacker can then trick the user to click on a link (such as from a malicious email)
-which is opened by the logged in browser and then performs an action on behalf of the logged-in user.
+If you have a project with a .reahlproject file, first run inside of its root directory::
 
-This kind of attack is called Cross site request forgery, or CSRF for short.
+  reahl migratereahlproject
 
-In this version, Reahl protects against a CSRF exploit by default. Each form always includes a hidden input with a value
-linked to the current session and signed by a secret key (which is kept on the server). When it is submitted, the server
-checks that the signature matches and that the hidden input was generated recently.
+This creates a `setup.cfg` file with all the information you used to have in the `.reahlproject`.
 
-If you need to use JavaScript to invoke a |RemoteMethod|, do so using Jquery. This ensures that the correct CSRF token
-is sent with such a JavaScript call as well.
+Note however that it will put hardcoded lists of things like packages etc. So the idea is that you then edit
+the `setup.cfg` to your liking, removing such hardcoded values where needed.
 
-The secret key can be configured in web.config.py as `web.csrf_key`. This key is defaulted to an insecure value ---
-remember to set to a value of your choice on each production server.
+Secondly, create a `pyproject.toml` file next to your `setup.cfg` in which you list both setuptools and the newly minted
+`reahl-component-metadata` as build dependencies, for example:
 
-The timeout can be configured in web.config.py as `web.csrf_timeout_seconds`.
-
-.. note:: The web.csrf_timeout_seconds timeout should always be shorter than session_lifetime.
+  .. literalinclude:: ../pyproject.toml
 
 
-Implemention interfaces
------------------------
+New habits
+----------
 
-In order to accommodate CSRF protection three methods are added to |UserSessionProtocol|\: |preserve_session|,
-|restore_session|, and |get_csrf_token|.
+Whenever you used to run::
 
+  reahl setup develop -N  # which is the equivalent of python setup.py develop -N 
 
-API changes
------------
+You will from now on install packages in development mode by running::
 
-A |PrimitiveInput| is instructed to refresh a |Widget| upon change of the |Input|. This has always been done by
-passing the `refresh_widget` keyword argument upon construction. The |set_refresh_widget| method has been added so that
-this can be done at a later stage in order to simplify the order in which cooperating objects can be created.
+  python -m pip install --no-deps -e .
+  
 
-The keyword argument `disable_csrf_check` was added to the `__init__` of |RemoteMethod| to enable selective exclusion
-of a |RemoteMethod| from CSRF restrictions.
+Some of our packages are not Reahl components anymore
+-----------------------------------------------------
+
+In order to simplify usage where we can, some of our packages are now normal PyPI distributions, and not Reahl components themselves:
+
+- reahl-browsertools
+- reahl-stubble
+  
+  
 
 Updated dependencies
 --------------------
 
-Some included thirdparty JavaScript and CSS libraries were updated:
-
-- The dependency on cssmin was removed, in favour of rcssmin 1.1.0.
-- The dependency on slimit was removed, in favour of rjsmin 1.2.0.
-- jQuery was upgraded from 3.5.1 to 3.6.0.
-- jQueryUI was upgraded from 1.12.1 to 1.13.1.
-- underscore.js was upgraded from 1.13.1 to 1.13.2.
-- plotly.js was upgraded from 2.2.0 to 2.9.0.
-- Bootstrap was upgraded from 4.5.3 to 4.6.1.
-
 Some dependencies on thirdparty python packages have been loosened to include a higher max version:
+- setuptools should now be 51.0.0 or higher
 
-- babel is allowed from 2.1.0 to 2.9.x
-- twine is allowed from 1.15.0 to 3.8.x
-- tzlocal is allowed from 2.0.0 to 4.1.x
-- wheel is allowed from 0.34.0 to any larger version
-- plotly is allowed from 5.1.0 to 5.6.x
-- docutils is allowed from 0.14.0 to 0.18.x
-- pygments is allowed from 2.1.0 to 2.11.x
-- mysqlclient is allowed from 1.3.0 to 2.1.x
-- wrapt is allowed from 1.11.0 to 1.13.x
-- beautifulsoup4 is allowed from 4.6.0 to 4.10.x
-- SQLAlchemy is allowed from 1.2 to 1.4
-- alembic is allowed from 0.9 to 1.7
 
   

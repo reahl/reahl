@@ -1,1 +1,1 @@
-  unit setup -- -q pytest --addopts '-s --pyargs reahl.web_dev --tb=short -p no:warnings'
+  unit shell pytest -s --pyargs reahl.web_dev --tb=short -p no:warnings

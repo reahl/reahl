@@ -339,6 +339,14 @@ class Info(ForAllWorkspaceCommand):
         return 0
 
 
+class MigrateReahlProject(ForAllWorkspaceCommand):
+    """Writes a hardcoded setup.cfg file from an existing .reahlproject."""
+    keyword = 'migratereahlproject'
+    def function(self, project, args):
+        project.generate_migrated_setup_cfg()
+        return 0
+
+        
 class Shell(ForAllWorkspaceCommand):
     """Executes a shell command in each selected project, from each project's own root directory."""
     keyword = 'shell'

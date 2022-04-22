@@ -117,9 +117,10 @@ hardcoding these in the source code of your app.
 .. literalinclude:: ../../reahl/doc/examples/howtos/paymentpaypal/paymentpaypal.py
    :pyobject: PaymentPayPalConfig
 
-Remember to also include this |Configuration| in your `.reahlproject`:
+Remember to also include this |Configuration| in your `setup.cfg`:
 
-.. literalinclude:: ../../reahl/doc/examples/howtos/paymentpaypal/.reahlproject
+.. literalinclude:: ../../reahl/doc/examples/howtos/paymentpaypal/setup.cfg
+   :language: ini
 
 Create a `paymentpaypal.config.py` file in your configuration directory, with the necessary settings:
 

@@ -260,10 +260,11 @@ class SqlAlchemyControl(ORMControl):
 
         config = context.config
         db_api_connection_creator = context.system_control.db_control.get_dbapi_connection_creator()
-
+        
         create_args = {'pool_pre_ping': True}
         if auto_commit:
             create_args['isolation_level'] = 'AUTOCOMMIT'
+            create_args['execution_options'] = {'isolation_level': 'AUTOCOMMIT'}
         if db_api_connection_creator:
             create_args['creator']=db_api_connection_creator
 
@@ -413,8 +414,9 @@ class SqlAlchemyControl(ORMControl):
             egg_version = str(egg.installed_version.version_number)
         existing_versions = Session.query(SchemaVersion).filter_by(egg_name=egg_name)
         already_created = existing_versions.count() > 0
-        assert not already_created, 'The schema for the "%s" egg has already been created previously at version %s' % \
-            (egg_name, existing_versions.one().version)
+        if already_created:
+            raise DomainException(message='The schema for the "%s" egg has already been created previously at version %s' % \
+                                  (egg_name, existing_versions.one().version))
         Session.add(SchemaVersion(version=egg_version, egg_name=egg_name))
 
     def remove_schema_version_for(self, egg=None, egg_name=None, fail_if_not_found=True):

@@ -155,7 +155,6 @@ class AddViewPathToSessionData(Migration):
 
 class AddPolimorphicEntityName(Migration):
     def schedule_upgrades(self):
-        self.orm_control.assert_dialect(self, 'postgresql')
-        self.schedule('data', op.execute, 'update usersession set discriminator=\'usersession\' where discriminator is null')
-        self.schedule('data', op.execute, 'update sessiondata set discriminator=\'sessiondata\' where discriminator is null')
+        self.orm_control.assert_dialect(self, 'postgresql', 'mysql')
+        self.schedule('data', op.execute, 'update sessiondata set row_type=\'sessiondata\' where row_type is null')
         

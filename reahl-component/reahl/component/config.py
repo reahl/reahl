@@ -1,4 +1,4 @@
-# Copyright 2013-2021 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2022 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -34,10 +34,11 @@ import inspect
 import logging.config
 from contextlib import contextmanager
 
-from pkg_resources import require, iter_entry_points, DistributionNotFound, Requirement
+import pkg_resources
 
 from reahl.component.eggs import ReahlEgg
 from reahl.component.context import ExecutionContext
+from reahl.component.exceptions import DomainException
 
 
 class ConfigurationException(Exception):
@@ -157,13 +158,13 @@ class EntryPointClassList(ConfigSetting):
         
     def __get__(self, instance, owner):
         classes = []
-        for i in iter_entry_points(self.name):
+        for i in pkg_resources.iter_entry_points(self.name):
             try:
                 classes.append(i.load())
             except ImportError as e:
                 print('\nWARNING: Cannot import %s, from %s' % (i, i.dist), file=sys.stderr)
                 print(e, file=sys.stderr)
-            except DistributionNotFound as e:
+            except pkg_resources.DistributionNotFound as e:
                 print('\nWARNING: Cannot find %s, required by %s' % (e, i.dist), file=sys.stderr)
                 
         return classes
@@ -245,6 +246,10 @@ class Configuration:
         
 
 class NullORMControl:
+    @property
+    def connected(self):
+        return False
+    
     def do_nothing(self, *args, **kwargs):
         pass
 
@@ -261,7 +266,7 @@ class ReahlSystemConfig(Configuration):
     config_key = 'reahlsystem'
     root_egg = ConfigSetting(description='The root egg of the project', default=os.path.basename(os.getcwd()), dangerous=True)
     connection_uri = ConfigSetting(description='The database connection URI',
-                                   default=DeferredDefault(lambda c: 'sqlite:///%s.db' % (os.path.join(os.getcwd(), Requirement.parse(c.root_egg).project_name))), dangerous=True)
+                                   default=DeferredDefault(lambda c: 'sqlite:///%s.db' % (os.path.join(os.getcwd(), pkg_resources.Requirement.parse(c.root_egg).project_name))), dangerous=True)
     orm_control = ConfigSetting(default=NullORMControl(), description='The ORM control object to be used', automatic=True)
     debug = ConfigSetting(default=True, description='Enables more verbose logging', dangerous=True)
     databasecontrols = EntryPointClassList('reahl.component.databasecontrols', description='All available DatabaseControl classes')
@@ -317,13 +322,13 @@ class StoredConfiguration(Configuration):
         logging.getLogger(__name__).info('Using config in %s' % self.config_directory)
         sys.path.insert(0,self.config_directory)
 
-        assert os.path.isdir(self.config_directory), \
-               'no such directory: %s' % self.config_directory
+        if not os.path.isdir(self.config_directory):
+            raise DomainException(message='no such directory: %s' % self.config_directory)
 
         self.read(ReahlSystemConfig)
         self.validate_required(ReahlSystemConfig)
 
-        require(self.reahlsystem.root_egg)
+        pkg_resources.require(self.reahlsystem.root_egg)
 
         self.configure_components()
         if validate:
@@ -342,20 +347,23 @@ class StoredConfiguration(Configuration):
         eggs = ReahlEgg.get_all_relevant_interfaces(self.reahlsystem.root_egg)
         for egg in reversed(eggs):
             logging.getLogger(__name__).debug('going to read config for %s' % egg)
-            egg.read_config(self)
+            if egg.configuration_spec:
+                self.read(egg.configuration_spec)
 
     def validate_components(self):
         eggs = ReahlEgg.get_all_relevant_interfaces(self.reahlsystem.root_egg)
         for egg in reversed(eggs):
             logging.getLogger(__name__).debug('going to validate config for %s' % egg)
-            egg.validate_config(self)
+            if egg.configuration_spec:
+                self.validate_required(egg.configuration_spec)
 
     def list_all(self):
         all_items = []
         all_items.extend(self.list_required(ReahlSystemConfig))
         eggs = ReahlEgg.get_all_relevant_interfaces(self.reahlsystem.root_egg)
         for egg in reversed(eggs):
-            all_items.extend(egg.list_config(self))
+            if egg.configuration_spec:
+                all_items.extend(self.list_required(egg.configuration_spec))
         return all_items
 
     def read(self, configuration_class):

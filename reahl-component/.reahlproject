@@ -4,13 +4,6 @@
     <package name="reahl.messages"/>
   </namespaces>
 
-  <translations locator="reahl.messages"/>
-
-  <deps purpose="build">
-    <thirdpartyegg name="setuptools-git" minversion="1.1"/>
-    <thirdpartyegg name="pytest-runner"/>
-  </deps>
-
   <deps purpose="test">
     <thirdpartyegg name="pytest" minversion="3.0"/>
     <thirdpartyegg name="graphviz"/>
@@ -22,96 +15,15 @@
     <egg name="reahl-mysqlsupport"/>
   </deps>
 
-  <script name="reahl" locator="reahl.component.shelltools:ReahlCommandline.execute_one"/>
-  
-  <export entrypoint="reahl.component.commands" name="AddAlias" locator="reahl.component.shelltools:AddAlias"/>
-  <export entrypoint="reahl.component.commands" name="RemoveAlias" locator="reahl.component.shelltools:RemoveAlias"/>
-
-  <export entrypoint="reahl.component.databasecontrols" name="NullDatabaseControl" locator="reahl.component.dbutils:NullDatabaseControl"/>
-
-  <version number="5.2">
+  <version number="6.0">
     <deps purpose="run">
       <thirdpartyegg name="Babel" minversion="2.1" maxversion="2.9.999"/>
       <thirdpartyegg name="python-dateutil" minversion="2.8" maxversion="2.8.999"/>
       <thirdpartyegg name="wrapt" minversion="1.11.0" maxversion="1.13.999"/>
-      <thirdpartyegg name="setuptools" minversion="32.3.1"/>
+      <thirdpartyegg name="setuptools" minversion="51.0.0"/>
       <thirdpartyegg name="pip" minversion="10.0.0"/>
+      <thirdpartyegg name="toml"/>
     </deps>
-  </version>
-
-  <version number="5.1">
-    <deps purpose="run">
-      <thirdpartyegg name="Babel" minversion="2.1" maxversion="2.8.999"/>
-      <thirdpartyegg name="python-dateutil" minversion="2.8" maxversion="2.8.999"/>
-      <thirdpartyegg name="wrapt" minversion="1.11.0" maxversion="1.12.999"/>
-      <thirdpartyegg name="setuptools" minversion="32.3.1"/>
-      <thirdpartyegg name="pip" minversion="10.0.0"/>
-    </deps>
-  </version>
-
-  <version number="5.0">
-    <deps purpose="run">
-      <thirdpartyegg name="Babel" minversion="2.1" maxversion="2.8.999"/>
-      <thirdpartyegg name="python-dateutil" minversion="2.8" maxversion="2.8.999"/>
-      <thirdpartyegg name="wrapt" minversion="1.11.0" maxversion="1.12.999"/>
-      <thirdpartyegg name="setuptools" minversion="32.3.1"/> 
-      <thirdpartyegg name="pip" minversion="10.0.0"/> 
-    </deps>
-  </version>
-  
-  <version number="4.0">
-    <deps purpose="run">
-      <thirdpartyegg name="six"/>
-      <thirdpartyegg name="Babel" minversion="2.1" maxversion="2.1.999"/>
-      <thirdpartyegg name="python-dateutil" minversion="2.2" maxversion="2.2.999"/>
-      <thirdpartyegg name="wrapt" minversion="1.10.2" maxversion="1.10.999"/>
-      <thirdpartyegg name="setuptools" minversion="32.3.1"/>
-      <thirdpartyegg name="pip" minversion="10.0.0"/>
-    </deps>
-  </version>
-
-  <version number="3.2">
-    <deps purpose="run">
-      <thirdpartyegg name="six"/>
-      <thirdpartyegg name="Babel" minversion="2.1" maxversion="2.1.999"/>
-      <thirdpartyegg name="python-dateutil" minversion="2.2" maxversion="2.2.999"/>
-      <thirdpartyegg name="wrapt" minversion="1.10.2" maxversion="1.10.999"/>
-    </deps>
-  </version>
-
-  <version number="3.1">
-    <deps purpose="run">
-      <thirdpartyegg name="six"/>
-      <thirdpartyegg name="Babel" minversion="2.1" maxversion="2.1.999"/>
-      <thirdpartyegg name="python-dateutil" minversion="2.2" maxversion="2.2.999"/>
-      <thirdpartyegg name="wrapt" minversion="1.10.2" maxversion="1.10.999"/>
-    </deps>
-  </version>
-
-  <version number="3.0">
-      <deps purpose="run">
-        <thirdpartyegg name="six"/>
-        <thirdpartyegg name="Babel" minversion="1.3" maxversion="1.3.9999"/>
-        <thirdpartyegg name="python-dateutil" minversion="2.2" maxversion="2.2.999"/>
-        <thirdpartyegg name="decorator" minversion="3.4" maxversion="3.4"/>
-      </deps>
-  </version>
-
-  <version number="2.1">
-    <deps purpose="run">
-      <thirdpartyegg name="six"/>
-      <thirdpartyegg name="Babel" minversion="0.9" maxversion="0.10"/>
-      <thirdpartyegg name="python-dateutil" minversion="1.5" maxversion="1.6"/>
-      <thirdpartyegg name="decorator" minversion="3.4" maxversion="3.4"/>
-    </deps>
-  </version>
-
-  <version number="2.0">
-      <deps purpose="run">
-          <thirdpartyegg name="Babel" minversion="0.9" maxversion="0.10"/>
-          <thirdpartyegg name="python-dateutil" minversion="1.5" maxversion="1.6"/>
-          <thirdpartyegg name="decorator" minversion="3.4" maxversion="3.4"/>
-      </deps>
   </version>
 
   <distpackage type="wheel">

@@ -2,11 +2,6 @@
   <sourcecontrol type="git"/>
   <metadata type="debian" url="http://www.reahl.org"/>
 
-  <deps purpose="build">
-    <thirdpartyegg name="setuptools-git" minversion="1.1"/>
-    <thirdpartyegg name="pytest-runner"/>
-  </deps>
-
   <deps purpose="test">
     <thirdpartyegg name="pytest" minversion="3.0"/>
   </deps>
@@ -67,33 +62,6 @@
   </extras>
 
   <excludepackage name="reahl.doc.*"/>
-
-  <version number="5.2">
-  </version>
-
-  <version number="5.1">
-  </version>
-
-  <version number="5.0">
-  </version>
-  
-  <version number="4.0">
-  </version>
-
-  <version number="3.2">
-  </version>
-
-  <version number="3.1">
-  </version>
-
-  <version number="3.0">
-  </version>
-
-  <version number="2.1">
-  </version>
-
-  <version number="2.0">
-  </version>
 
   <distpackage type="wheel">
     <packageindex repository="pypi"/>

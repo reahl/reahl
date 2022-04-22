@@ -1,4 +1,4 @@
-# Copyright 2013-2021 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2022 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -16,7 +16,6 @@
 
 """Support for database schema migration."""
 
-from pkg_resources import parse_version
 import logging
 import warnings
 import inspect

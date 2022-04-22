@@ -1,4 +1,4 @@
-# Copyright 2013-2021 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2022 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -455,8 +455,6 @@ def test_setup_project_file_queries():
                 'reahl.versiondeps.0.0': ['reahl-xmlreader-run = egg:_'],
                 'reahl.versions': ['0.0 = 0.0']
                 }
-
-    assert project.entry_points_for_setup() == expected_value
 
     assert project.python_path == ['stuff','stuff2']
 

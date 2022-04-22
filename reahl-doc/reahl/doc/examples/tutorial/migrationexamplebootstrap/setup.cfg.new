@@ -1,0 +1,45 @@
+[metadata]
+name = migrationexamplebootstrap
+version = 0.2
+
+[options]
+py_modules =
+  migrationexamplebootstrap
+
+install_requires =
+  reahl-web>=6.0,<6.1
+  reahl-component>=6.0,<6.1
+  reahl-sqlalchemysupport>=6.0,<6.1
+  reahl-sqlitesupport>=6.0,<6.1
+  reahl-web-declarative>=6.0,<6.1
+
+tests_require =
+  pytest>=3.0
+  reahl-tofu
+  reahl-stubble
+  reahl-dev
+  reahl-webdev
+  reahl-browsertools
+
+component = 
+  persisted = [
+    "reahl.doc.examples.tutorial.migrationexamplebootstrap.migrationexamplebootstrap:Address"
+  ]
+  # List all major.minor versions:
+  [versions."0.2"]
+    migrations = [
+      "reahl.doc.examples.tutorial.migrationexamplebootstrap.migrationexamplebootstrap:AddDate"
+    ]
+  [versions."0.1"]
+    install_requires = [
+      "reahl-web>=6.0,<6.1",
+      "reahl-component>=6.0,<6.1",
+      "reahl-sqlalchemysupport>=6.0,<6.1",
+      "reahl-sqlitesupport>=6.0,<6.1",
+      "reahl-web-declarative>=6.0,<6.1"
+    ]
+
+
+
+
+

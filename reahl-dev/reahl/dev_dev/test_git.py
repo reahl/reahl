@@ -1,4 +1,4 @@
-# Copyright 2016-2020 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2016-2022 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -62,6 +62,8 @@ def test_is_checked_in(git_fixture):
 def test_last_commit_time(git_fixture):
     fixture = git_fixture
     git = Git(fixture.git_directory.name)
+    git.config('user.name', 'Tester')
+    git.config('user.email', 'test@reahl.org')
     git.commit('testing', allow_empty=True)
 
     assert_recent( git.last_commit_time )
@@ -71,6 +73,8 @@ def test_last_commit_time(git_fixture):
 def test_tag_related(git_fixture):
     fixture = git_fixture
     git = Git(fixture.git_directory.name)
+    git.config('user.name', 'Tester')
+    git.config('user.email', 'test@reahl.org')
     git.commit('testing', allow_empty=True)
 
     assert git.get_tags() == []

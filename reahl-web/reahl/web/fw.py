@@ -32,21 +32,18 @@ import threading
 from contextlib import contextmanager
 from datetime import datetime
 import itertools
-
-
 import functools
 import io
 import locale
 import os
 import os.path
-import pkg_resources
 import re
 import tempfile
 import warnings
 from collections import OrderedDict
-from pkg_resources import Requirement
 import urllib.parse
 
+import pkg_resources
 import rjsmin
 import rcssmin
 
@@ -2697,7 +2694,7 @@ class PackagedFile(FileOnDisk):
         self.egg_name = egg_name
         self.directory_name = directory_name
         egg_relative_name = '/'.join([directory_name, relative_name])
-        full_path = pkg_resources.resource_filename(Requirement.parse(egg_name), egg_relative_name)
+        full_path = pkg_resources.resource_filename(pkg_resources.Requirement.parse(egg_name), egg_relative_name)
         super().__init__(full_path, relative_name)
 
 

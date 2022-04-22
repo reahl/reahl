@@ -34,7 +34,7 @@ You can get a local copy of *this* example by using the
 
   reahl example tutorial.hello
   cd hello
-  reahl setup develop -N
+  python -m pip install --no-deps -e .
   reahl createdbuser etc
   reahl createdb etc
   reahl createdbtables etc
@@ -102,54 +102,52 @@ The 'hello' project is a :doc:`Reahl component <../component/introduction>`.
    - We use *component* to refer to a `project
      <https://packaging.python.org/glossary/#term-project>`_ that is
      packaged as `a distribution package
-     <https://packaging.python.org/glossary/#term-distribution-package>`_.
+     <https://packaging.python.org/glossary/#term-distribution-package>`_ and
+     which additionally uses the :doc:`reahl component infrastructure <../component/introduction>`.
 
-Create a component by putting all your code into a directory
-containing a `.reahlproject` file with info about the component.
+Create a component by `creating a setuptools package with 'pyproject.toml' and 'setup.cfg' files <define_component>`_.
+
+You did this above by running::
+
+  reahl example tutorial.hello
+
 
 The directory structure of `hello`::
 
   hello/
-  ├── etc/          - A directory for configuration files
-  ├── hello.py      - A Python file containing the source of the app
-  └── .reahlproject - Metadata about this component
+  ├── etc/           - A directory for configuration files
+  ├── hello.py       - A Python file containing the source of the app
+  ├── pyproject.toml - The standard (PEP518) python build system configuration
+  └── setup.cfg      - Normal configuration for setuptools 
 
 
+The `pyproject.toml` file should include as build dependencies: 'setuptools, 'toml' and 'reahl-component-metadata':
 
-The `.reahlproject` file contains info about the component. To start,
-just list the other components that this one depends on (like
-component import statements):
+.. literalinclude:: ../../reahl/doc/examples/tutorial/hello/pyproject.toml
 
-.. code-block:: xml
+The `setup.cfg` file contains info about the component. To start,
+just give your component a name, specify an empty 
+`component =` option and list the requirements of your component:
 
-   <project type="egg">
-     <version number="0.0">
-       <deps purpose="run">
-         <egg name="reahl-component"/>
-         <egg name="reahl-web"/>
-         <egg name="reahl-sqlalchemysupport"/>
-         <egg name="reahl-web-declarative"/>
-       </deps>
-     </version>
-   </project>
+.. literalinclude:: ../../reahl/doc/examples/tutorial/hello/setup.cfg
 
+More information on the Reahl component infrastructure is in :doc:`its own introduction <../component/introduction>`.     
+     
 .. _preparing-for-development:
 
 Development mode
 ----------------
 
 Components are `setuptools projects
-<https://setuptools.readthedocs.io>`_ with a `.reahlproject` file from
-which we generate a standardised `setup.py` file.
+<https://setuptools.readthedocs.io>`_ with some extra metadata added.
 
-When you are still busy developing a project, you must install it in
+When you are still busy developing a project, install your project in
 `"development mode"
 <http://setuptools.readthedocs.io/en/latest/setuptools.html?#development-mode>`_. From
 *within* the newly created `hello` directory, run::
 
-  reahl setup develop -N
+  python -m pip install --no-deps -e .
 
-This does a ``python setup.py develop -N`` using the `.reahlproject` file.
 
 
 Configuration
@@ -162,7 +160,8 @@ You need one config setting to be able to run an application. In the config dire
   ├── etc/
   │   └── web.config.py
   ├── hello.py
-  └── .reahlproject
+  ├── pyproject.toml - The standard (PEP518) python build system configuration
+  └── setup.cfg      - Normal configuration for setuptools 
 
 Config files contain Python code, but you can use dotted notation to
 access settings:

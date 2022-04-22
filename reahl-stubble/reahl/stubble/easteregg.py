@@ -1,4 +1,4 @@
-# Copyright 2013-2020 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2022 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -66,7 +66,23 @@ class EasterEgg(pkg_resources.Distribution):
                                         version = '1.0',
                                         metadata=self.metadata_provider)
         self.entry_points = {}
+        self.stubbed_metadata = {}
 
+    def has_metadata(self, name):
+        if name in self.stubbed_metadata:
+            return True
+        try:
+            super()._get_metadata(name)
+        except KeyError:
+            return False
+        return True
+    
+    def get_metadata(self, name):
+        if name in self.stubbed_metadata:
+            return self.stubbed_metadata[name]
+        else:
+            return super()._get_metadata(name)
+        
     def as_requirement_string(self):
         return str(self.as_requirement())
 

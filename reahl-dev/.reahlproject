@@ -3,48 +3,11 @@
     <package name="reahl"/>
   </namespaces>
   
-  <deps purpose="build">
-    <thirdpartyegg name="setuptools-git" minversion="1.1"/>
-    <thirdpartyegg name="pytest-runner"/>
-  </deps>
-
   <deps purpose="test">
     <thirdpartyegg name="pytest" minversion="3.0"/>
   </deps>
 
-
-  <export entrypoint="reahl.component.commands" name="Refresh" locator="reahl.dev.devshell:Refresh"/>
-  <export entrypoint="reahl.component.commands" name="ExplainLegend" locator="reahl.dev.devshell:ExplainLegend"/>
-  <export entrypoint="reahl.component.commands" name="List" locator="reahl.dev.devshell:List"/>
-  <export entrypoint="reahl.component.commands" name="Select" locator="reahl.dev.devshell:Select"/>
-  <export entrypoint="reahl.component.commands" name="ClearSelection" locator="reahl.dev.devshell:ClearSelection"/>
-  <export entrypoint="reahl.component.commands" name="ListSelections" locator="reahl.dev.devshell:ListSelections"/>
-  <export entrypoint="reahl.component.commands" name="Save" locator="reahl.dev.devshell:Save"/>
-  <export entrypoint="reahl.component.commands" name="Read" locator="reahl.dev.devshell:Read"/>
-  <export entrypoint="reahl.component.commands" name="DeleteSelection" locator="reahl.dev.devshell:DeleteSelection"/>
-  <export entrypoint="reahl.component.commands" name="Shell" locator="reahl.dev.devshell:Shell"/>
-  <export entrypoint="reahl.component.commands" name="Setup" locator="reahl.dev.devshell:Setup"/>
-  <export entrypoint="reahl.component.commands" name="Build" locator="reahl.dev.devshell:Build"/>
-  <export entrypoint="reahl.component.commands" name="Sign" locator="reahl.dev.devshell:Sign"/>
-  <export entrypoint="reahl.component.commands" name="ListMissingDependencies" locator="reahl.dev.devshell:ListMissingDependencies"/>
-  <export entrypoint="reahl.component.commands" name="DebInstall" locator="reahl.dev.devshell:DebInstall"/>
-  <export entrypoint="reahl.component.commands" name="Upload" locator="reahl.dev.devshell:Upload"/>
-  <export entrypoint="reahl.component.commands" name="MarkReleased" locator="reahl.dev.devshell:MarkReleased"/>
-  <export entrypoint="reahl.component.commands" name="SubstVars" locator="reahl.dev.devshell:SubstVars"/>
-  <export entrypoint="reahl.component.commands" name="Debianise" locator="reahl.dev.devshell:Debianise"/>
-  <export entrypoint="reahl.component.commands" name="Info" locator="reahl.dev.devshell:Info"/>
-
-  <export entrypoint="reahl.component.commands" name="ExtractMessages" locator="reahl.dev.devshell:ExtractMessages"/>
-  <export entrypoint="reahl.component.commands" name="MergeTranslations" locator="reahl.dev.devshell:MergeTranslations"/>
-  <export entrypoint="reahl.component.commands" name="CompileTranslations" locator="reahl.dev.devshell:CompileTranslations"/>
-  <export entrypoint="reahl.component.commands" name="AddLocale" locator="reahl.dev.devshell:AddLocale"/>
-
-  <export entrypoint="reahl.component.commands" name="UpdateAptRepository" locator="reahl.dev.devshell:UpdateAptRepository"/>
-  <export entrypoint="reahl.component.commands" name="ServeSMTP" locator="reahl.dev.mailtest:ServeSMTP"/>
-
-  <export entrypoint="reahl.component.commands" name="UpdateCopyright" locator="reahl.dev.devshell:UpdateCopyright"/>
-
-  <version number="5.2">
+  <version number="6.0">
     <deps purpose="run">
       <egg name="reahl-component" versionlocked="True"/>
       <egg name="reahl-tofu" versionlocked="True"/>
@@ -53,101 +16,10 @@
       <thirdpartyegg name="twine" minversion="1.15.0" maxversion="3.8.9999"/>
       <thirdpartyegg name="wheel" minversion="0.34.0"/>
       <thirdpartyegg name="tzlocal" minversion="2.0.0" maxversion="4.1.9999"/>
-      <thirdpartyegg name="setuptools" minversion="32.3.1"/> 
+      <thirdpartyegg name="setuptools" minversion="51.0.0"/> 
       <thirdpartyegg name="pip" minversion="10.0.0"/> 
+      <thirdpartyegg name="toml"/> 
     </deps>
-  </version>
-
-  <version number="5.1">
-    <deps purpose="run">
-      <egg name="reahl-component" versionlocked="True"/>
-      <egg name="reahl-tofu" versionlocked="True"/>
-      <egg name="reahl-stubble" versionlocked="True"/>
-      <thirdpartyegg name="Babel" minversion="2.1" maxversion="2.8.999"/>
-      <thirdpartyegg name="twine" minversion="1.15.0" maxversion="3.1.9999"/>
-      <thirdpartyegg name="wheel" minversion="0.34.0" maxversion="0.34.9999"/>
-      <thirdpartyegg name="tzlocal" minversion="2.0.0" maxversion="2.0.9999"/>
-      <thirdpartyegg name="setuptools" minversion="32.3.1"/> 
-      <thirdpartyegg name="pip" minversion="10.0.0"/> 
-    </deps>
-  </version>
-
-  <version number="5.0">
-    <deps purpose="run">
-      <egg name="reahl-component" versionlocked="True"/>
-      <egg name="reahl-tofu" versionlocked="True"/>
-      <egg name="reahl-stubble" versionlocked="True"/>
-      <thirdpartyegg name="Babel" minversion="2.1" maxversion="2.8.999"/>
-      <thirdpartyegg name="twine" minversion="1.15.0" maxversion="3.1.9999"/>
-      <thirdpartyegg name="wheel" minversion="0.34.0" maxversion="0.34.9999"/>
-      <thirdpartyegg name="tzlocal" minversion="2.0.0" maxversion="2.0.9999"/>
-      <thirdpartyegg name="setuptools" minversion="32.3.1"/>
-      <thirdpartyegg name="pip" minversion="10.0.0"/>
-    </deps>
-  </version>
-
-  <version number="4.0">
-    <deps purpose="run">
-      <egg name="reahl-component" versionlocked="True"/>
-      <egg name="reahl-tofu" versionlocked="True"/>
-      <egg name="reahl-stubble" versionlocked="True"/>
-      <thirdpartyegg name="six"/>
-      <thirdpartyegg name="Babel" minversion="2.1" maxversion="2.1.999"/>
-      <thirdpartyegg name="twine" minversion="1.11.0" maxversion="1.11.9999"/>
-      <thirdpartyegg name="wheel" minversion="0.29.0" maxversion="0.29.9999"/>
-      <thirdpartyegg name="tzlocal" minversion="1.2.0" maxversion="1.2.9999"/>
-      <thirdpartyegg name="setuptools" minversion="32.3.1"/>
-      <thirdpartyegg name="pip" minversion="10.0.0"/>
-    </deps>
-  </version>
-
-  <version number="3.2">
-    <deps purpose="run">
-      <egg name="reahl-component" versionlocked="True"/>
-      <egg name="reahl-tofu" versionlocked="True"/>
-      <egg name="reahl-bzrsupport" versionlocked="True"/>
-      <thirdpartyegg name="Babel" minversion="2.1" maxversion="2.1.999"/>
-      <thirdpartyegg name="twine" minversion="1.4.0" maxversion="1.4.9999"/>
-      <thirdpartyegg name="wheel" minversion="0.24.0" maxversion="0.24.9999"/>
-    </deps>
-  </version>
-
-  <version number="3.1">
-    <deps purpose="run">
-      <egg name="reahl-component" versionlocked="True"/>
-      <egg name="reahl-tofu" versionlocked="True"/>
-      <egg name="reahl-bzrsupport" versionlocked="True"/>
-      <thirdpartyegg name="Babel" minversion="2.1" maxversion="2.1.999"/>
-      <thirdpartyegg name="twine" minversion="1.4.0" maxversion="1.4.9999"/>
-      <thirdpartyegg name="wheel" minversion="0.24.0" maxversion="0.24.9999"/>
-    </deps>
-  </version>
-
-  <version number="3.0">
-      <deps purpose="run">
-        <egg name="reahl-component" versionlocked="True"/>
-        <egg name="reahl-tofu" versionlocked="True"/>
-        <egg name="reahl-bzrsupport" versionlocked="True"/>
-        <thirdpartyegg name="Babel" minversion="1.3" maxversion="1.3.9999"/>
-      </deps>
-  </version>
-
-  <version number="2.1">
-    <deps purpose="run">
-      <egg name="reahl-component" versionlocked="True"/>
-      <egg name="reahl-tofu" versionlocked="True"/>
-      <egg name="reahl-bzrsupport" versionlocked="True"/>
-      <thirdpartyegg name="Babel" minversion="0.9" maxversion="0.10"/>
-    </deps>
-  </version>
-
-  <version number="2.0">
-      <deps purpose="run">
-          <egg name="reahl-component" versionlocked="True"/>
-          <egg name="reahl-tofu" versionlocked="True"/>
-          <egg name="reahl-bzrsupport" versionlocked="True"/>
-          <thirdpartyegg name="Babel" minversion="0.9" maxversion="0.10"/>
-      </deps>
   </version>
 
   <distpackage type="wheel">

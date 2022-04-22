@@ -1,17 +1,8 @@
 <project type="egg" packagedata="included">
-  <configuration locator="reahl.systemaccountmodel:SystemAccountConfig"/>
-
   <namespaces>
     <package name="reahl"/>
     <package name="reahl.messages"/>
   </namespaces>
-
-  <translations locator="reahl.messages"/>
-
-  <deps purpose="build">
-    <thirdpartyegg name="setuptools-git" minversion="1.1"/>
-    <thirdpartyegg name="pytest-runner"/>
-  </deps>
 
   <deps purpose="test">
     <thirdpartyegg name="pytest" minversion="3.0"/>
@@ -23,26 +14,7 @@
     <egg name="reahl-browsertools"/>
   </deps>
 
-  <persisted>
-    <class locator="reahl.partymodel:Party"/>
-    <class locator="reahl.systemaccountmodel:SystemAccount"/>
-    <class locator="reahl.systemaccountmodel:LoginSession"/>
-    <class locator="reahl.systemaccountmodel:EmailAndPasswordSystemAccount"/>
-    <class locator="reahl.systemaccountmodel:AccountManagementInterface"/>
-    <class locator="reahl.systemaccountmodel:VerificationRequest"/>
-    <class locator="reahl.systemaccountmodel:VerifyEmailRequest"/>
-    <class locator="reahl.systemaccountmodel:NewPasswordRequest"/>
-    <class locator="reahl.systemaccountmodel:ActivateAccount"/>
-    <class locator="reahl.systemaccountmodel:ChangeAccountEmail"/>
-    <class locator="reahl.workflowmodel:DeferredAction"/>
-    <class locator="reahl.workflowmodel:Requirement"/>
-    <class locator="reahl.workflowmodel:Queue"/>
-    <class locator="reahl.workflowmodel:Task"/>
-  </persisted>
-
-  <schedule locator="reahl.workflowmodel:DeferredAction.check_deadline"/>
-
-  <version number="5.2">
+  <version number="6.0">
     <deps purpose="run">
       <egg name="reahl-component" versionlocked="True"/>
       <egg name="reahl-mailutil" versionlocked="True"/>
@@ -54,98 +26,6 @@
       <class locator="reahl.domain.migrations:AddPolimorphicEntityName"/>
     </migrations>
   </version>
-
-  <version number="5.1">
-    <deps purpose="run">
-      <egg name="reahl-component" versionlocked="True"/>
-      <egg name="reahl-mailutil" versionlocked="True"/>
-      <egg name="reahl-sqlalchemysupport" versionlocked="True"/>
-      <egg name="reahl-web-declarative" versionlocked="True"/>
-      <thirdpartyegg name="passlib" minversion="1.7.1" maxversion="1.7.9999"/>
-    </deps>
-  </version>
-
-  <version number="5.0">
-    <deps purpose="run">
-      <egg name="reahl-component" versionlocked="True"/>
-      <egg name="reahl-mailutil" versionlocked="True"/>
-      <egg name="reahl-sqlalchemysupport" versionlocked="True"/>
-      <egg name="reahl-web-declarative" versionlocked="True"/>
-      <thirdpartyegg name="passlib" minversion="1.7.1" maxversion="1.7.9999"/>
-    </deps>
-  </version>
-
-  <version number="4.0">
-    <deps purpose="run">
-      <egg name="reahl-component" versionlocked="True"/>
-      <egg name="reahl-mailutil" versionlocked="True"/>
-      <egg name="reahl-sqlalchemysupport" versionlocked="True"/>
-      <egg name="reahl-web-declarative" versionlocked="True"/>
-      <thirdpartyegg name="passlib" minversion="1.7.1" maxversion="1.7.9999"/>
-    </deps>
-    <migrations>
-      <class locator="reahl.domain.migrations:ChangeSchemaToBeMySqlCompatible"/>
-      <class locator="reahl.domain.migrations:ChangePasswordHash"/>
-      <class locator="reahl.domain.migrations:RemoveDeadApacheDigestColumn"/>
-    </migrations>
-  </version>
-
-  <version number="3.2">
-    <deps purpose="run">
-      <egg name="reahl-component" versionlocked="True"/>
-      <egg name="reahl-mailutil" versionlocked="True"/>
-      <egg name="reahl-sqlalchemysupport" versionlocked="True"/>
-      <egg name="reahl-web-declarative" versionlocked="True"/>
-    </deps>
-  </version>
-
-  <version number="3.1">
-    <deps purpose="run">
-      <egg name="reahl-component" versionlocked="True"/>
-      <egg name="reahl-mailutil" versionlocked="True"/>
-      <egg name="reahl-sqlalchemysupport" versionlocked="True"/>
-      <egg name="reahl-web-declarative" versionlocked="True"/>
-    </deps>
-    <migrations>
-      <class locator="reahl.domain.migrations:AddLoginSession"/>
-    </migrations>
-  </version>
-
-  <version number="3.0">
-    <deps purpose="run">
-      <egg name="reahl-component" versionlocked="True"/>
-      <egg name="reahl-mailutil" versionlocked="True"/>
-      <egg name="reahl-interfaces" versionlocked="True"/>
-      <egg name="reahl-sqlalchemysupport" versionlocked="True"/>
-    </deps>
-    <migrations>
-      <class locator="reahl.domain.migrations:ElixirToDeclarativeDomainChanges"/>
-    </migrations>
-  </version>
-
-  <version number="2.1">
-    <deps purpose="run">
-      <egg name="reahl-component" versionlocked="True"/>
-      <egg name="reahl-mailutil" versionlocked="True"/>
-      <egg name="reahl-interfaces" versionlocked="True"/>
-      <egg name="reahl-sqlalchemysupport" versionlocked="True"/>
-      <thirdpartyegg name="elixir" minversion="0.7" maxversion="0.8"/>
-    </deps>
-  </version>
-
-  <version number="2.0">
-    <deps purpose="run">
-      <egg name="reahl-component" versionlocked="True"/>
-      <egg name="reahl-mailutil" versionlocked="True"/>
-      <egg name="reahl-interfaces" versionlocked="True"/>
-      <egg name="reahl-sqlalchemysupport" versionlocked="True"/>
-      <thirdpartyegg name="elixir" minversion="0.7" maxversion="0.8"/>
-    </deps>
-    <migrations>
-        <class locator="reahl.domain.migrations:CreateDatabase"/>
-    </migrations>
-  </version>
-
 
   <distpackage type="wheel">
     <packageindex repository="pypi"/>

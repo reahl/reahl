@@ -72,7 +72,7 @@ def clean_workspace(reahl_workspace):
 def clean_egg_info_dirs():
     for current_directory, directories, files in os.walk(os.getcwd()):
         for d in directories:
-            if d.endswith('egg-info') and not d in ['reahl_dev.egg-info']:
+            if (d.endswith('egg-info') or d.endswith('dist-info')) and not d in ['reahl_dev.egg-info','reahl_dev.dist-info']:
                 shutil.rmtree(os.path.join(current_directory, d))
 
 def remove_versions_from_requirements(requires_file):
@@ -262,7 +262,7 @@ reahl_workspace = read_env_variable('REAHLWORKSPACE',
                     'Please set the environment variable REAHLWORKSPACE to point to a parent directory of %s' \
                           % (os.getcwd()))
 reahl_dev_requires_file = os.path.join(os.getcwd(), 'reahl-dev', 'reahl_dev.egg-info', 'requires.txt')
-core_project_dirs = ['reahl-component', 'reahl-stubble', 'reahl-tofu', 'reahl-dev']
+core_project_dirs = ['reahl-component-metadata', 'reahl-component', 'reahl-stubble', 'reahl-tofu', 'reahl-dev']
 
 clean_virtual_env()
 clean_workspace(reahl_workspace)

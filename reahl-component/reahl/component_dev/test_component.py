@@ -1,4 +1,4 @@
-# Copyright 2013-2020 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2022 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -53,10 +53,9 @@ def test_interface_with_meta_info():
     easter_egg.clear()
     easter_egg.add_dependency('reahl-component')
 
-    # The interface for a component is published via the reahl.eggs entry point
-    line = 'Egg = reahl.component.eggs:ReahlEgg'
-    easter_egg.add_entry_point_from_line('reahl.eggs', line)
-
+    # An egg is a component if it has reahl-component.tom metadata
+    easter_egg.stubbed_metadata['reahl-component.toml'] = 'metadata_version = "1.0.0"'
+   
     # Interfaces can be queried in dependency order too
     interfaces_in_order = ReahlEgg.compute_all_relevant_interfaces(easter_egg.as_requirement_string())
     assert len(interfaces_in_order) == 2   # That of reahl-component itself, and of the easteregg
@@ -67,12 +66,22 @@ def test_interface_with_meta_info():
 
     assert interface.get_persisted_classes_in_order() == []
 
-    easter_egg.add_entry_point_from_line('reahl.versions', '1.0 = 1.0')
+    easter_egg.stubbed_metadata['reahl-component.toml'] = '''
+    metadata_version = "1.0.0"
+    [versions."1.0"]
+    '''
+    
     versions = interface.get_versions()
     assert versions[-1] == interface.installed_version
 
+    easter_egg.stubbed_metadata['reahl-component.toml'] = '''
+    metadata_version = "1.0.0"
+    translations = "reahl.messages"
+    '''
     easter_egg.add_entry_point_from_line('reahl.translations', '%s = reahl.messages' % easter_egg.project_name)
-    assert interface.translation_package.__name__ == 'reahl.messages'
+    assert interface.translation_package_name == 'reahl.messages'
+    assert interface.translation_package_entry_point.name == 'test'
+    assert interface.translation_package_entry_point.module_name == 'reahl.messages'
     
     # Hooks for allowing a component to do its own housekeeping
     with expected(NoException):

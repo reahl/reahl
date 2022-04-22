@@ -25,16 +25,21 @@ import shutil
 import subprocess
 import logging
 import pathlib
+import textwrap
 import email.utils
 from contextlib import contextmanager
 import datetime
 import pkgutil
 from tempfile import TemporaryFile
-
-import babel
+import collections
+import json
+import configparser
 import tzlocal
-from pkg_resources import require, DistributionNotFound, VersionConflict, get_distribution, parse_version
-from setuptools import find_packages, setup
+
+import pkg_resources
+import toml
+import babel
+import setuptools
 from xml.parsers.expat import ExpatError
 
 from reahl.component.shelltools import Executable
@@ -73,6 +78,12 @@ class Git:
                 out.seek(0)
                 [timestamp] = [line.replace('\n','') for line in out]
         return datetime.datetime.strptime(timestamp, '"%Y-%m-%d %H:%M:%S %z"')
+
+    def config(self, key, value, apply_globally=False):
+        with open(os.devnull, 'w') as DEVNULL:
+            scope = '--global' if apply_globally else '--local'
+            return_code = Executable('git').call(['config', scope, key, value], cwd=self.directory, stdout=DEVNULL, stderr=DEVNULL)
+        return return_code == 0
 
     def is_version_controlled(self):
         return self.uses_git()
@@ -653,7 +664,13 @@ class VersionNumber:
     def as_major_minor(self):
         return VersionNumber('.'.join([self.major, self.minor]))
 
+    def __eq__(self, other):
+        return str(self) == str(other)
 
+    def __hash__(self):
+        return hash(str(self))
+
+    
 class Dependency:
     egg_type = 'egg'
 
@@ -711,8 +728,8 @@ class Dependency:
     @property
     def is_installed(self):
         try:
-            require(self.as_string_for_egg())
-        except (DistributionNotFound, VersionConflict):
+            pkg_resources.require(self.as_string_for_egg())
+        except (pkg_resources.DistributionNotFound, pkg_resources.VersionConflict):
             return False
         return True
 
@@ -1088,7 +1105,6 @@ class ProjectMetadata:
         return 'No maintainer provided'
 
 
-
 class MetaInfo:
     @classmethod
     def get_xml_registration_info(cls):
@@ -1104,7 +1120,22 @@ class MetaInfo:
     def inflate_text(self, reader, text, parent):
         self.contents = text
 
+        
+class SetupMetadata(ProjectMetadata):
+    def __init__(self, project, config):
+        super().__init__(project)
+        self.config = config
 
+    @property
+    def project_name(self):
+        return self.config['metadata']['name']
+
+    @property
+    def version(self):
+        return self.config['metadata']['version']
+
+
+        
 class HardcodedMetadata(ProjectMetadata):
     def __init__(self, parent):
         super().__init__(parent)
@@ -1317,8 +1348,8 @@ class DebianControl:
                         if stanza.get('Package', None) == package_name]
             return stanza
         except ValueError:
-            raise AssertionError('Could not find a stanza for a package named %s in debian control file %s' % \
-                                 (package_name, self.filename))
+            raise NotAValidProjectException('Could not find a stanza for a package named %s in debian control file %s' % \
+                                            (package_name, self.filename))
 
     @property
     def maintainer_name(self):
@@ -1432,19 +1463,26 @@ class Project:
     @classmethod
     def from_file(cls, workspace, directory):
         project_filename = os.path.join(directory, '.reahlproject')
-        if not os.path.isfile(project_filename):
-            raise NotAValidProjectException(project_filename)
-        input_file = open(project_filename, 'r')
-        try:
-            reader = XMLReader(all_xml_classes)
-            project = reader.read_file(input_file, (workspace, directory))
-        except (TagNotRegisteredException, ExpatError, InvalidXMLException) as ex:
-            raise InvalidProjectFileException(project_filename, ex)
-        finally:
-            input_file.close()
+        setup_cfg_filename = os.path.join(directory, 'setup.cfg')
+        if os.path.isfile(project_filename):
+            input_file = open(project_filename, 'r')
+            try:
+                reader = XMLReader(all_xml_classes)
+                project = reader.read_file(input_file, (workspace, directory))
+            except (TagNotRegisteredException, ExpatError, InvalidXMLException) as ex:
+                raise InvalidProjectFileException(project_filename, ex)
+            finally:
+                input_file.close()
+        elif os.path.isfile(setup_cfg_filename):
+            config = configparser.ConfigParser()
+            config.read(setup_cfg_filename)
+            project = Project(workspace, directory, metadata=SetupMetadata(None, config))
+        else:
+            raise NotAValidProjectException('Could not find a .reahlproject or a setup.py in %s' % directory)
+
         return project
 
-    def __init__(self, workspace, directory):
+    def __init__(self, workspace, directory, metadata=None):
         self.workspace = workspace
         self.directory = directory
         self.relative_directory = os.path.relpath(directory, self.workspace.directory)
@@ -1452,7 +1490,7 @@ class Project:
         self.packages = []
         self.python_path = []
         self._tags = []
-        self.metadata = ProjectMetadata(self)
+        self.metadata = metadata or ProjectMetadata(self)
         self.source_control = SourceControlSystem(self)
 
     def inflate_attributes(self, reader, attributes, parent):
@@ -1505,6 +1543,78 @@ class Project:
 
     def list_missing_dependencies(self, for_development=None):
         pass
+
+    @property
+    def locale_dirname(self):
+        if not self.translation_package:
+            raise DomainError(message='No reahl.translations entry point specified for project: "%s"' % (self.project_name))
+        return os.path.join(self.directory, ReahlEgg.get_egg_internal_path_for(self.translation_package))
+
+    @property
+    def interface(self):
+        return ReahlEgg.interface_for(pkg_resources.get_distribution(self.project_name))
+
+    @property
+    def translation_package(self):
+        return self.interface.translation_package_entry_point
+                            
+    @property
+    def locale_domain(self):
+        return self.project_name
+
+    @property
+    def pot_filename(self):
+        return os.path.join(self.locale_dirname, self.locale_domain)
+
+    def extract_messages(self, args):
+        if self.translation_package:
+            Executable('pybabel').check_call('extract --input-dirs . --output-file'.split()+[self.pot_filename], cwd=self.directory)
+        else:
+            logging.warning('No reahl.translations entry point specified for project: "%s"' % (self.project_name))
+
+    @property
+    def translated_domains(self):
+        if self.translation_package:
+            filenames = glob.glob(os.path.join(self.locale_dirname, '*/LC_MESSAGES/*.po'))
+            return {os.path.splitext(os.path.basename(i))[0] for i in filenames}
+        else:
+            logging.warning('No reahl.translations entry point specified for project: "%s"' % (self.project_name))
+            return []
+
+    def merge_translations(self):
+        for source_dist_spec in self.translated_domains:
+            try:
+                source_egg = ReahlEgg.interface_for(pkg_resources.get_distribution(source_dist_spec))
+            except pkg_resources.DistributionNotFound:
+                raise EggNotFound(source_dist_spec)
+            if not os.path.isdir(self.locale_dirname):
+                os.mkdir(self.locale_dirname)
+            Executable('pybabel').check_call(['update','--input-file', source_egg.translation_pot_filename,
+                                              '--domain', source_egg.name,
+                                              '-d', self.locale_dirname], cwd=self.directory)
+            
+    def compile_translations(self):
+        for domain in self.translated_domains:
+            Executable('pybabel').check_call(['compile',
+                                              '--domain', domain,
+                                              '-d', self.locale_dirname], cwd=self.directory)
+
+    def add_locale(self, locale, source_dist_spec):
+        try:
+            babel.parse_locale(locale)
+        except ValueError:
+            raise InvalidLocaleString(locale)
+        try:
+            source_egg = ReahlEgg.interface_for(pkg_resources.get_distribution(source_dist_spec or self.project_name))
+        except pkg_resources.DistributionNotFound:
+            raise EggNotFound(source_dist_spec or self.project_name)
+        Executable('pybabel').check_call(['init',
+                                          '--input-file', source_egg.translation_pot_filename,
+                                          '--domain', source_egg.name,
+                                          '-d', self.locale_dirname,
+                                          '--locale', locale], cwd=self.directory)
+        return locale
+
     #-----------[ metadata stuff ]---------------------------------------
 
     def info_completed(self):
@@ -1703,7 +1813,197 @@ class SetupMonitor:
         return self.output_ends_with('running sdist\n', 'Creating tar archive\n')
 
 
+class AddedOrderDict(collections.OrderedDict):
+    def __setitem__(self, key, value):
+        super().__setitem__(key, value)
+        self.move_to_end(key)
 
+        
+class MigratedSetupCfg:
+    def __init__(self, project):
+        self.project = project
+        
+    @property
+    def setup_cfg_filename(self):
+        return os.path.join(self.project.directory, 'setup.cfg')
+
+    def generate(self):
+        with open(self.setup_cfg_filename, 'w') as setup_file:
+            setup_file.write('[metadata]\n')
+            setup_file.write('name = %s\n' % self.project.project_name)
+            setup_file.write('version = %s\n' % self.project.version_for_setup())
+            setup_file.write('description = %s\n' % self.project.get_description_for(self.project))
+            setup_file.write('long_description = \n%s\n' % textwrap.indent(self.project.get_long_description_for(self.project), '  '))
+            setup_file.write('url = %s\n' % self.project.get_url_for(self.project))
+            setup_file.write('maintainer = %s\n' % self.project.maintainer_name)
+            setup_file.write('maintainer_email = %s\n' % self.project.maintainer_email)
+            setup_file.write('\n\n')
+
+            setup_file.write('[options]\n')
+            if self.project.include_package_data:
+                setup_file.write('include_package_data = yes')
+                setup_file.write('\n')
+            if self.project.namespaces:
+                self.generate_migrated_namespace_packages_option(setup_file)
+                setup_file.write('\n')
+            if self.project.packages_for_setup():
+                self.generate_migrated_packages_option(setup_file)
+                setup_file.write('\n')
+            if self.project.py_modules_for_setup():
+                self.generate_migrated_py_modules_option(setup_file)
+                setup_file.write('\n')
+            if self.project.run_deps:
+                self.generate_migrated_install_requires_option(setup_file)
+                setup_file.write('\n')
+            if self.project.build_deps:
+                self.generate_migrated_setup_requires_option(setup_file)
+                setup_file.write('\n')
+            if self.project.test_deps:
+                self.generate_migrated_tests_require_option(setup_file)
+                setup_file.write('\n')
+            if self.project.test_suite_for_setup():
+                setup_file.write('test_suite = %s' % self.project.test_suite_for_setup())
+                setup_file.write('\n')
+
+            setup_file.write('\n')
+            setup_file.write('component =\n')
+            setup_file.write(textwrap.indent(self.dumps_toml(self.generate_component_json()), '  '))
+            setup_file.write('\n\n')
+
+            if self.get_xml_entry_point_exports():
+                self.generate_migrated_entry_points_sections(setup_file)
+            if self.project.extras_required:
+                self.generate_migrated_extras_require_sections(setup_file)
+            if self.project.package_data_for_setup():
+                self.generate_migrated_package_data_sections(setup_file)
+                
+    def generate_migrated_install_requires_option(self, setup_file):
+        setup_file.write('install_requires =\n')
+        setup_file.write('\n'.join(['  %s' % requirement for requirement in self.project.run_deps_for_setup()]))
+        setup_file.write('\n')
+
+    def generate_migrated_setup_requires_option(self, setup_file):
+        setup_file.write('setup_requires =\n')
+        setup_file.write('\n'.join(['  %s' % requirement for requirement in self.project.build_deps_for_setup()]))
+        setup_file.write('\n')
+        
+    def generate_migrated_tests_require_option(self, setup_file):
+        setup_file.write('tests_require =\n')
+        setup_file.write('\n'.join(['  %s' % requirement for requirement in self.project.test_deps_for_setup()]))
+        setup_file.write('\n')
+
+    def generate_migrated_namespace_packages_option(self, setup_file):
+        setup_file.write('namespace_packages =\n')
+        setup_file.write('\n'.join(['  %s' % name for name in self.project.namespace_packages_for_setup()]))
+        setup_file.write('\n')
+
+    def generate_migrated_packages_option(self, setup_file):
+        setup_file.write('packages =\n')
+        setup_file.write('\n'.join(['  %s' % package.name for package in self.project.namespaces]))
+        setup_file.write('\n')
+
+    def generate_migrated_py_modules_option(self, setup_file):
+        setup_file.write('py_modules =\n')
+        setup_file.write('\n'.join(['  %s' % i for i in self.project.py_modules_for_setup()]))
+        setup_file.write('\n')
+        
+    def generate_migrated_entry_points_sections(self, setup_file):
+        setup_file.write('[options.entry_points]\n')
+        ordered_entry_points = AddedOrderDict()
+        for entry_point_export in self.get_xml_entry_point_exports():
+            entries = ordered_entry_points.setdefault(entry_point_export.entry_point, [])
+            entries.append(entry_point_export)
+        for entry_point_name in ordered_entry_points.keys():
+            setup_file.write('  %s = \n' % entry_point_name)
+            for entry_point_export in ordered_entry_points[entry_point_name]:
+                setup_file.write('    %s = %s\n' % (entry_point_export.name, entry_point_export.locator.string_spec))
+            
+        setup_file.write('\n\n')
+
+    def generate_migrated_extras_require_sections(self, setup_file):
+        setup_file.write('[options.extras_require]\n')
+        for name, requirements in sorted(self.project.extras_required.items()):
+            setup_file.write('  %s = \n' % name)
+            for requirement in requirements:
+                setup_file.write('    %s\n' % requirement.as_string_for_egg())
+            
+        setup_file.write('\n\n')
+        
+    def generate_migrated_package_data_sections(self, setup_file):
+        setup_file.write('[options.package_data]\n')
+        for name, globs in sorted(self.project.package_data_for_setup().items()):
+            setup_file.write('  %s = \n' % ('*' if not name else name ))
+            for glob in globs:
+                setup_file.write('    %s\n' % glob)
+            
+        setup_file.write('\n\n')
+            
+    def get_xml_configuration(self):
+        configurations = [i for i in self.project.explicitly_specified_entry_points if i.entry_point == 'reahl.configspec' ]
+        if not configurations:
+            return None
+        else:
+            return configurations[0].locator.string_spec
+
+    def get_xml_entry_point_exports(self):
+        return [i for i in self.project.explicitly_specified_entry_points if i.entry_point not in ['reahl.configspec'] ]
+
+    def generate_component_json(self):
+        component = AddedOrderDict()
+        if self.get_xml_configuration():
+            component['configuration'] = self.get_xml_configuration()
+        if self.project.persist_list:
+            component['persisted'] = [persisted_class.locator.string_spec for persisted_class in self.project.persist_list]
+        if self.project.scheduled_jobs:
+            component['schedule'] = [scheduled_job.locator.string_spec for scheduled_job in self.project.scheduled_jobs]
+        if self.project.version_history:
+            component['versions'] = self.generate_versions_json()
+        return component
+
+    def generate_versions_json(self):
+        versions = AddedOrderDict()
+        for version_entry in self.project.version_history:
+            version_json = AddedOrderDict()
+            versions[str(version_entry.version)] = version_json
+            if version_entry.run_dependencies and (version_entry.version != self.project.version.as_major_minor()):
+                version_json['install_requires'] = [dependency.as_string_for_egg() for dependency in version_entry.run_dependencies]
+            if version_entry.migrations:
+                version_json['migrations'] = [migration.locator.string_spec for migration in version_entry.migrations]
+        return versions
+
+    def dumps_toml(self, data):
+        outtext = ''
+        config = data.get('configuration', None)
+        if config:
+            outtext += 'configuration = "%s"\n' % config
+        persisted = data.get('persisted', None)
+        if persisted:
+            outtext += self.dumps_toml_list('persisted', persisted)
+        schedule = data.get('schedule', None)
+        if schedule:
+            outtext += self.dumps_toml_list('schedule', schedule)
+        versions = data.get('versions', [])
+        for version_name, version_data in sorted(versions.items(), reverse=True, key=lambda i:i[0]):
+            outtext += self.dumps_toml_version_section(version_name, version_data)
+        return outtext
+            
+    def dumps_toml_list(self, name, the_list):
+        head = '%s = [\n' % name
+        body = ''
+        body += ',\n'.join(['"%s"' % i for i in the_list])
+        body += '\n'
+        tail =  ']\n'
+        return head+textwrap.indent(body, '  ')+tail
+
+    def dumps_toml_version_section(self, name, data):
+        head = '[versions.\'%s\']\n' % name
+        body = '' 
+        if 'install_requires' in data:
+            body += self.dumps_toml_list('install_requires', data['install_requires'])
+        if 'migrations' in data:
+            body += self.dumps_toml_list('migrations', data['migrations'])
+        
+        return head+body
 
 
 class EggProject(Project):
@@ -1719,29 +2019,9 @@ class EggProject(Project):
         self.build_deps = []
         self.test_deps = []
 
-        self.translation_package = None
-
         self.persist_list = []
         self.version_history = []
         self.scheduled_jobs = []
-
-        self.static_files = []
-        self.js_attach_list = []
-        self.css_attach_list = []
-
-    @property
-    def entry_points(self):
-        added_entry_points = [ReahlEggExport('reahl.component.eggs:ReahlEgg')]
-        return self.persist_list + \
-               [entry_point
-                  for version_entry in self.version_history
-                  for entry_point in version_entry.as_entry_points()] + \
-               self.static_files + \
-               self.js_attach_list + \
-               self.css_attach_list + \
-               self.explicitly_specified_entry_points + \
-               ([self.translation_package] if self.translation_package else []) +\
-               added_entry_points
 
     @property
     def tags(self):
@@ -1791,12 +2071,12 @@ class EggProject(Project):
             list_to_use.extend(child)
         elif isinstance(child, NamespaceList):
             self.namespaces = child
-        elif isinstance(child, TranslationPackage):
-            self.translation_package = child
         elif isinstance(child, ConfigurationSpec):
             if any([isinstance(i, ConfigurationSpec) for i in self.explicitly_specified_entry_points]):
                 raise InvalidXMLException('%s is a duplicate <configuration> for egg %s. Each egg may only have one <configuration>.' % (child, self.project_name))
             self.explicitly_specified_entry_points.append(child)
+        elif isinstance(child, ScheduledJobSpec):
+            self.scheduled_jobs.append(child)
         elif isinstance(child, EntryPointExport):
             self.explicitly_specified_entry_points.append(child)
         elif isinstance(child, PersistedClassesList):
@@ -1805,8 +2085,6 @@ class EggProject(Project):
             self.version_history.append(child)
         elif isinstance(child, ExcludedPackage):
             self.excluded_packages.append(child)
-        elif isinstance(child, ScheduledJobSpec):
-            self.scheduled_jobs.append(child)
         else:
             super().inflate_child(reader, child, tag, parent)
 
@@ -1853,7 +2131,7 @@ class EggProject(Project):
     def setup(self, setup_command, script_name=''):
         with self.paths_set():
             with SetupMonitor() as monitor:
-                distribution = setup(script_name=script_name,
+                distribution = setuptools.setup(script_name=script_name,
                      script_args=setup_command,
                      name=self.project_name,
                      version=self.version_for_setup(),
@@ -1862,23 +2140,25 @@ class EggProject(Project):
                      url=self.get_url_for(self),
                      maintainer=self.maintainer_name,
                      maintainer_email=self.maintainer_email,
+
                      packages=self.packages_for_setup(),
                      py_modules=self.py_modules_for_setup(),
-                     include_package_data=self.include_package_data,
-                     package_data=self.package_data_for_setup(),
+
                      namespace_packages=self.namespace_packages_for_setup(),
+
                      install_requires=self.run_deps_for_setup(),
                      setup_requires=self.build_deps_for_setup(),
                      tests_require=self.test_deps_for_setup(),
-                     test_suite=self.test_suite_for_setup(),
-                     entry_points=self.entry_points_for_setup(),
                      extras_require=self.extras_require_for_setup() )
             monitor.check_command_status(distribution.commands)
 
     @property
     def setup_py_filename(self):
         return os.path.join(self.directory, 'setup.py')
-
+    @property
+    def pyproject_toml_filename(self):
+        return os.path.join(self.directory, 'pyproject.toml')
+    
     @contextmanager
     def generated_setup_py(self):
         self.generate_setup_py()
@@ -1904,7 +2184,7 @@ class EggProject(Project):
             setup_file.write('        pass\n\n')
             setup_file.write('setup(\n')
             setup_file.write('    name=%s,\n' % repr(self.project_name))
-            setup_file.write('    version=%s,\n' % repr(self.version_for_setup()))
+            setup_file.write('    version=\'%s\',\n' % self.version_for_setup())
             setup_file.write('    description=%s,\n' % repr(self.get_description_for(self)))
             setup_file.write('    long_description=%s,\n' % repr(self.get_long_description_for(self)))
             setup_file.write('    url=%s,\n' % repr(self.get_url_for(self))),
@@ -1913,21 +2193,10 @@ class EggProject(Project):
             setup_file.write('    packages=%s,\n' % repr(self.packages_for_setup()))
             setup_file.write('    py_modules=%s,\n' % repr(self.py_modules_for_setup()))
             setup_file.write('    include_package_data=%s,\n' % repr(self.include_package_data))
-            setup_file.write('    package_data=%s,\n' % repr(self.package_data_for_setup()))
             setup_file.write('    namespace_packages=%s,\n' % repr(self.namespace_packages_for_setup()))
             setup_file.write('    install_requires=%s,\n' % repr(self.run_deps_for_setup()))
             setup_file.write('    setup_requires=%s,\n' % repr(self.build_deps_for_setup()))
             setup_file.write('    tests_require=%s,\n' % repr(self.test_deps_for_setup()))
-            setup_file.write('    test_suite=%s,\n' % repr(self.test_suite_for_setup()))
-
-            setup_file.write('    entry_points={\n')
-            entry_points = self.entry_points_for_setup()
-            for name, values in entry_points.items():
-                setup_file.write('        %s: [\n            ' % repr(name))
-                value_string = ',\n            '.join([repr(value) for value in values])
-                setup_file.write(value_string)
-                setup_file.write('    ],\n')
-            setup_file.write('                 },\n')
 
             setup_file.write('    extras_require=%s,\n' % repr(self.extras_require_for_setup()) )
             setup_file.write('    cmdclass={\'install_test_dependencies\': InstallTestDependencies}\n' )
@@ -1936,10 +2205,17 @@ class EggProject(Project):
     def version_for_setup(self):
         return str(self.version.as_upstream())
 
+    def generate_migrated_setup_cfg(self):
+        MigratedSetupCfg(self).generate()
+
+    @property
+    def setup_cfg_filename(self):
+        return os.path.join(self.directory, 'setup.cfg')
+
     @property
     def run_deps(self):
         if self.version_history:
-            return list(sorted(self.version_history, key=lambda x : parse_version(str(x.version))))[-1].run_dependencies
+            return list(sorted(self.version_history, key=lambda x : pkg_resources.parse_version(str(x.version))))[-1].run_dependencies
         else:
             return []
 
@@ -1947,7 +2223,11 @@ class EggProject(Project):
         return [dep.as_string_for_egg() for dep in self.run_deps]
 
     def build_deps_for_setup(self):
-        return [dep.as_string_for_egg() for dep in self.build_deps]
+        deps = [dep.as_string_for_egg() for dep in self.build_deps]
+        if os.path.isfile(self.pyproject_toml_filename):
+            toml_config = toml.load(self.pyproject_toml_filename)
+            deps += toml_config['build-system']['requires']
+        return list(sorted(set(deps)))
 
     def test_deps_for_setup(self):
         return [dep.as_string_for_egg() for dep in self.test_deps]
@@ -1957,7 +2237,7 @@ class EggProject(Project):
         exclusions += ['%s.*' % i.name for i in self.excluded_packages]
         # Adding self.namespace_packages... is to work around https://github.com/pypa/setuptools/issues/97
         ns_packages = self.namespace_packages_for_setup()
-        packages = list(set([i for i in find_packages(where=self.directory, exclude=exclusions)]+ns_packages))
+        packages = list(set([i for i in setuptools.find_packages(where=self.directory, exclude=exclusions)]+ns_packages))
         packages.sort()
         return packages
 
@@ -1986,13 +2266,6 @@ class EggProject(Project):
     def test_suite_for_setup(self):
         return self.test_suite
 
-    def entry_points_for_setup(self):
-        entry_point_dict = {}
-        for entry_point_name, entry_point in [(i.entry_point, i) for i in self.entry_points]:
-            exports = entry_point_dict.setdefault(entry_point_name, [])
-            exports.append('%s = %s' % (entry_point.name, entry_point.locator.string_spec))
-        return entry_point_dict
-
     def extras_require_for_setup(self):
         return dict( [ (name, [dep.as_string_for_egg() for dep in dependencies])
                        for name, dependencies in self.extras_required.items()] )
@@ -2020,70 +2293,6 @@ class EggProject(Project):
                         py_files.add(os.path.join(dirname, filename))
         return list(py_files)
 
-    @property
-    def locale_dirname(self):
-        assert self.translation_package, 'No <translations.../> tag specified for project: "%s"' % (self.project_name)
-        return os.path.join(self.directory, self.translation_package.path)
-
-    @property
-    def locale_domain(self):
-        return self.project_name
-
-    @property
-    def pot_filename(self):
-        return os.path.join(self.locale_dirname, self.locale_domain)
-
-    def extract_messages(self, args):
-        if self.translation_package:
-            self.setup(['extract_messages',
-                        '--input-dirs', '.',
-                        '--output-file', self.pot_filename])
-        else:
-            logging.warning('No <translations.../> tag specified for project: "%s"' % (self.project_name))
-
-    @property
-    def translated_domains(self):
-        if self.translation_package:
-            filenames = glob.glob(os.path.join(self.locale_dirname, '*/LC_MESSAGES/*.po'))
-            return {os.path.splitext(os.path.basename(i))[0] for i in filenames}
-        else:
-            logging.warning('No <translations.../> tag specified for project: "%s"' % (self.project_name))
-            return []
-
-    def merge_translations(self):
-        for source_dist_spec in self.translated_domains:
-            try:
-                source_egg = ReahlEgg(get_distribution(source_dist_spec))
-            except DistributionNotFound:
-                raise EggNotFound(source_dist_spec)
-            if not os.path.isdir(self.locale_dirname):
-                os.mkdir(self.locale_dirname)
-            self.setup(['update_catalog',
-                        '--input-file', source_egg.translation_pot_filename,
-                        '--domain', source_egg.name,
-                        '-d', self.locale_dirname])
-
-    def compile_translations(self):
-        for domain in self.translated_domains:
-            self.setup(['compile_catalog',
-                        '--domain', domain,
-                        '-d', self.locale_dirname])
-
-    def add_locale(self, locale, source_dist_spec):
-        try:
-            babel.parse_locale(locale)
-        except ValueError:
-            raise InvalidLocaleString(locale)
-        try:
-            source_egg = ReahlEgg(get_distribution(source_dist_spec or self.project_name))
-        except DistributionNotFound:
-            raise EggNotFound(source_dist_spec or self.project_name)
-        self.setup(['init_catalog',
-                    '--input-file', source_egg.translation_pot_filename,
-                    '--domain', source_egg.name,
-                    '-d', self.locale_dirname,
-                    '--locale', locale])
-        return locale
 
 
 class ChickenProject(EggProject):
