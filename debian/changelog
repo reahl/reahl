@@ -1,3 +1,9 @@
+python-reahl (6.0.1) unstable; urgency=low
+
+ * Fixed packaging to include example toml and cfg files (#350).
+
+ -- Iwan Vosloo <iwan@reahl.org>  Mon, 27 Apr 2022 16:28:00 +0200
+
 python-reahl (6.0.0) unstable; urgency=low
 
  * Changed to allow PEP517 conformant packaging (#302).
