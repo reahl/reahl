@@ -1,8 +1,14 @@
+python-reahl (6.0.2) unstable; urgency=low
+
+ * Fixed packaging to include example etc files (#352).
+
+ -- Iwan Vosloo <iwan@reahl.org>  Fri, 27 Apr 2022 07:56:00 +0200
+
 python-reahl (6.0.1) unstable; urgency=low
 
  * Fixed packaging to include example toml and cfg files (#350).
 
- -- Iwan Vosloo <iwan@reahl.org>  Mon, 27 Apr 2022 16:28:00 +0200
+ -- Iwan Vosloo <iwan@reahl.org>  Thu, 27 Apr 2022 16:28:00 +0200
 
 python-reahl (6.0.0) unstable; urgency=low
 
