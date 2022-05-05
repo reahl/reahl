@@ -585,6 +585,25 @@ class InlineFormLayout(FormLayout):
         help_text.append_class('ml-2')
         return help_text
 
+    def add_input(self, html_input, hide_label=False, help_text=None, space_before=False, space_after=False):
+        """Adds an input to the Form.
+
+           :param html_input: (See :meth:`~reahl.web.bootstrap.Forms.FormLayout.add_input`).
+           :keyword hide_label: (See :meth:`~reahl.web.bootstrap.Forms.FormLayout.add_input`).
+           :keyword help_text: (See :meth:`~reahl.web.bootstrap.Forms.FormLayout.add_input`).
+           :keyword space_before: If True, render with a margin before the input.
+           :keyword space_after: If True, render with a margin after the input.
+
+           .. versionchanged:: 6.1
+              Added space_before and space_after kwargs.
+        """
+        added = super().add_input(html_input, hide_label=hide_label)
+        if space_before:
+            added.append_class('ml-2')
+        if space_after:
+            added.append_class('mr-2')
+        return added
+    
 
 class MarginLayout(Layout):
     """

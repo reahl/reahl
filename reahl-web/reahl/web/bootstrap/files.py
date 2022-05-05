@@ -79,7 +79,7 @@ class FileInput(reahl.web.ui.WrappedInput):
     user clicks on the 'Choose file' button, the browser's file choice
     dialog is activated. Once chosen the file name that was chosen is
     shown in the status area. The last button will upload this file
-    when clicked (it is automatically clicked is the user's JavaScript
+    when clicked (it is automatically clicked if the user's JavaScript
     is enabled).
 
     :param form: (See :class:`~reahl.web.ui.Input`)

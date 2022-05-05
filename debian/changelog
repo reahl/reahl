@@ -1,3 +1,11 @@
+python-reahl (6.1.0) unstable; urgency=low
+
+ * Added left_aligned kwarg to NavbarLayout.add.
+ * Added space_before and space_after to InlineFormLayout.add_input.
+ * Added placeholder to PasswordInput.
+
+ -- Iwan Vosloo <iwan@reahl.org>  Fri, 27 Apr 2022 07:56:00 +0200
+
 python-reahl (6.0.2) unstable; urgency=low
 
  * Fixed packaging to include example etc files (#352).
