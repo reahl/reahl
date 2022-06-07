@@ -13,12 +13,12 @@ do
         fi
     else
         cd $out
-        reahl setup -- develop -N
+        python -m pip install --no-deps -e .
         if reahl unit 
         then
             result="."
         fi
-        reahl setup -- develop -N --uninstall
+        python -m pip uninstall $(python -c 'from setuptools.config.setupcfg import read_configuration as c; print(c("setup.cfg")["metadata"]["name"])')
         cd -
     fi
     results["$i"]=$result

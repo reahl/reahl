@@ -78,7 +78,7 @@ class ProductionCommand(Command):
         try:
             self.context = ExecutionContext.for_config_directory(config_directory)
         except pkg_resources.DistributionNotFound as ex:
-            ex.args = ('%s (In development? Did you forget to do a "reahl setup -- develop -N"?)' % ex.args[0],)
+            ex.args = ('%s (In development? Did you forget to do a "python -m pip install --no-deps -e ."?)' % ex.args[0],)
             raise
         self.context.install()
         self.context.system_control = SystemControl(self.context.config)

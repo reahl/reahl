@@ -127,6 +127,6 @@ class NoSuchProjectException(Exception):
 
 class CouldNotConfigureServer(Exception):
     def __init__(self, ex):
-        message = '\nCould not configure server: %s\nDid you perhaps forget to: "reahl setup -- develop -N" ?' % ex
+        message = '\nCould not configure server: %s\nDid you perhaps forget to: "python -m pip install --no-deps -e ." ?' % ex
         super().__init__(message)
     
