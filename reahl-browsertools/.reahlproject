@@ -11,7 +11,7 @@
     <egg name="reahl-stubble"/>
   </deps>
 
-  <version number="6.0">
+  <version number="6.1">
       <deps purpose="run">
         <thirdpartyegg name="lxml" minversion="4.2" maxversion="4.7.999"/>
         <thirdpartyegg name="WebTest" minversion="2.0" maxversion="2.0.999"/>

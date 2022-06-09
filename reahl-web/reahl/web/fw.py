@@ -2937,15 +2937,16 @@ class ReahlWSGIApplication:
         self.root_user_interface_factory.predefine_user_interface(ui_factory)
         return ui_factory
 
-    def start(self, connect=True):
+    def start(self):
         """Starts the ReahlWSGIApplication by "connecting" to the database. What "connecting" means may differ
            depending on the persistence mechanism in use. It could include enhancing classes for persistence, etc."""
-        self.should_disconnect = connect
         context = ExecutionContext(name='%s.start()' % self.__class__.__name__).install()
         context.config = self.config
         context.system_control = self.system_control
-        if connect: #and not self.system_control.connected:
+        self.should_disconnect = False
+        if not self.system_control.connected:
             self.system_control.connect()
+            self.should_disconnect = True
         self.started = True
 
     def stop(self):

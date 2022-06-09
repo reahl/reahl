@@ -7,7 +7,7 @@
     <thirdpartyegg name="pytest" minversion="3.0"/>
   </deps>
 
-  <version number="6.0">
+  <version number="6.1">
       <deps purpose="run">
         <egg name="reahl-component" versionlocked="True"/>
         <egg name="reahl-commands" versionlocked="True"/>

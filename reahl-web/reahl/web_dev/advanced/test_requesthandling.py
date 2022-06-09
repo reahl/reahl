@@ -121,7 +121,7 @@ class ReahlWSGIApplicationSlowStartingStub(ReahlWSGIApplication):
     def unblock_start(self):
         self.start_delay_lock.release()
 
-    def start(self, connect=True):
+    def start(self):
         # Whichever thread gets here first, should get to the second acquire and then block to simulate its taking long to start.
         # The second thread to arrive should break on the first acquire. This test checks that we prevent that from ever happening
         # by making sure only the first thread ever gets to connect.

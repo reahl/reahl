@@ -1,6 +1,6 @@
-reahl-component<6.1,>=6.0
-reahl-tofu<6.1,>=6.0
-reahl-stubble<6.1,>=6.0
+reahl-component<6.2,>=6.1
+reahl-tofu<6.2,>=6.1
+reahl-stubble<6.2,>=6.1
 Babel<2.9.999,>=2.1
 twine<3.8.9999,>=1.15.0
 wheel>=0.34.0

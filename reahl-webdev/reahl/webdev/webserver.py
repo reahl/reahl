@@ -437,7 +437,7 @@ class ReahlWebServer:
         self.port = int(config.web.default_http_port)
         self.encrypted_port = int(config.web.encrypted_http_port)
         certfile = pkg_resources.resource_filename(__name__, 'reahl_development_cert.pem')
-        self.reahl_wsgi_app = WrappedApp(ReahlWSGIApplication(config))
+        self.reahl_wsgi_app = WrappedApp(ReahlWSGIApplication(config, start_on_first_request=True))
         try:
             self.httpd = ReahlWSGIServer.make_server('', self.port, self.reahl_wsgi_app)
             self.httpsd = SSLCapableWSGIServer.make_server('', self.encrypted_port, certfile, self.reahl_wsgi_app)
@@ -486,13 +486,14 @@ class ReahlWebServer:
         finally:
             self.stop()
 
-    def start(self, in_separate_thread=True,  connect=False):
+    def start(self, in_separate_thread=True):
         """Starts the webserver and web application.
         
            :keyword in_separate_thread: If False, the server handles requests in the same thread as your tests.
-           :keyword connect: If True, also connects to the database.
+
+           .. versionchanged:: 6.1 
+              Removed connect= kwarg - the ReahlWSGIApplication is now responsible for connecting when it is started which it will do if it detects that is not connected
         """
-        self.reahl_wsgi_app.start(connect=connect)
         self.in_separate_thread = in_separate_thread
 
         if self.in_separate_thread:

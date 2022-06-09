@@ -597,7 +597,7 @@ class InlineFormLayout(FormLayout):
            .. versionchanged:: 6.1
               Added space_before and space_after kwargs.
         """
-        added = super().add_input(html_input, hide_label=hide_label)
+        added = super().add_input(html_input, hide_label=hide_label, help_text=help_text)
         if space_before:
             added.append_class('ml-2')
         if space_after:

@@ -74,7 +74,7 @@ class ServeCurrentProject(WorkspaceCommand):
                         print('\nPress %s to terminate\n\n' % terminate_keys, flush=True)
                         raise CouldNotConfigureServer(ex)
 
-                    reahl_server.start(connect=True)
+                    reahl_server.start()
                     print('\n\nServing http on port %s, https on port %s (config=%s, flush=True)' % \
                                      (reahl_server.port, reahl_server.encrypted_port, config_directory))
                     terminate_keys = 'Ctrl+Break' if platform.system() == 'Windows' else 'Ctrl+C'

@@ -3,7 +3,7 @@
     <package name="reahl"/>
   </namespaces>
 
-  <version number="6.0">
+  <version number="6.1">
     <deps purpose="run">
       <thirdpartyegg name="toml"/>
     </deps>
