@@ -1,3 +1,9 @@
+python-reahl (6.0.3) unstable; urgency=low
+
+ * Listing examples bug fix (#354).
+
+ -- Iwan Vosloo <iwan@reahl.org>  Fri, 13 May 2022 07:56:00 +0200
+
 python-reahl (6.0.2) unstable; urgency=low
 
  * Fixed packaging to include example etc files (#352).
