@@ -23,7 +23,7 @@
     <egg name="reahl-mysqlsupport"/>
   </deps>
 
-  <version number="6.0">
+  <version number="6.1">
     <deps purpose="run">
       <egg name="reahl-web" versionlocked="True"/>
       <egg name="reahl-component" versionlocked="True"/>

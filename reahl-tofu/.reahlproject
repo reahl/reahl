@@ -7,7 +7,7 @@
     <thirdpartyegg name="pytest" minversion="3.0"/>
   </deps>
 
-  <version number="6.0">
+  <version number="6.1">
     <deps purpose="run">
       <egg name="reahl-component" versionlocked="True"/>
       <thirdpartyegg name="wrapt" minversion="1.11.0" maxversion="1.13.999"/>

@@ -167,7 +167,7 @@ class WebServerFixture(Fixture):
 
     @set_up
     def start_servers(self):
-        self.reahl_server.start(in_separate_thread=False, connect=False)
+        self.reahl_server.start(in_separate_thread=False)
 
     def is_instantiated(self, name):
         return name in self.__dict__

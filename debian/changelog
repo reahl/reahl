@@ -1,27 +1,30 @@
-python-reahl (6.0.3) unstable; urgency=low
+python-reahl (6.1.0) unstable; urgency=low
 
  * Listing examples bug fix (#354).
+ * Added left_aligned kwarg to NavbarLayout.add.
+ * Added space_before and space_after to InlineFormLayout.add_input.
+ * Added placeholder to PasswordInput.
 
- -- Iwan Vosloo <iwan@reahl.org>  Fri, 13 May 2022 07:56:00 +0200
+ -- Iwan Vosloo <iwan@reahl.org>  Fri, 27 Apr 2022 07:56:00 +0200
 
 python-reahl (6.0.2) unstable; urgency=low
 
  * Fixed packaging to include example etc files (#352).
 
- -- Iwan Vosloo <iwan@reahl.org>  Fri, 27 Apr 2022 07:56:00 +0200
+ -- Iwan Vosloo <iwan@reahl.org>  Fri, 29 Apr 2022 07:56:00 +0200
 
 python-reahl (6.0.1) unstable; urgency=low
 
  * Fixed packaging to include example toml and cfg files (#350).
 
- -- Iwan Vosloo <iwan@reahl.org>  Thu, 27 Apr 2022 16:28:00 +0200
+ -- Iwan Vosloo <iwan@reahl.org>  Wed, 27 Apr 2022 16:28:00 +0200
 
 python-reahl (6.0.0) unstable; urgency=low
 
  * Changed to allow PEP517 conformant packaging (#302).
  * Fixed column type to work on mysql (#346).
 
- -- Iwan Vosloo <iwan@reahl.org>  Mon, 22 Apr 2022 07:28:00 +0200
+ -- Iwan Vosloo <iwan@reahl.org>  Fri, 22 Apr 2022 07:28:00 +0200
 
 python-reahl (5.2.2) unstable; urgency=low
 

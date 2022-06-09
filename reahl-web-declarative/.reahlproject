@@ -15,7 +15,7 @@
     <egg name="reahl-postgresqlsupport"/>
   </deps>
 
-  <version number="6.0">
+  <version number="6.1">
     <deps purpose="run">
       <egg name="reahl-sqlalchemysupport" versionlocked="True"/>
       <egg name="reahl-web" versionlocked="True"/>

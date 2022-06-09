@@ -148,11 +148,15 @@ class NavbarLayout(Layout):
         return self.brand
 
     @arg_checks(widget=IsInstance((reahl.web.bootstrap.navs.Nav, Form, TextNode)))
-    def add(self, widget):
+    def add(self, widget, left_aligned=False):
         """Adds the given Form or Nav `widget` to the Navbar.
 
         :param widget: A :class:`~reahl.web.bootstrap.navs.Nav`, :class:`~reahl.web.bootstrap.ui.Form` or
                        :class:`~reahl.web.bootstrap.ui.TextNode` to add.
+        :keyword left_aligned: If True, render space to the right of widget. 
+
+        .. versionchanged:: 6.1
+           Added left_aligned keyword.
         """
         if isinstance(widget, reahl.web.bootstrap.navs.Nav):
             widget.append_class('navbar-nav')
@@ -163,6 +167,8 @@ class NavbarLayout(Layout):
             span.add_child(widget)
             span.append_class('navbar-text')
             widget = span
+        if left_aligned:
+            widget.append_class('mr-auto')
         return self.contents_container.add_child(widget)
 
     def add_toggle(self, target_html_element, text=None, left_aligned=False):

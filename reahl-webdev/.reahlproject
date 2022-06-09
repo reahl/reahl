@@ -15,7 +15,7 @@
     <thirdpartyegg name="Pillow" minversion="2.5" maxversion="7.1.999"/>
   </extras>
 
-  <version number="6.0">
+  <version number="6.1">
       <deps purpose="run">
         <egg name="reahl-web" versionlocked="True"/>
         <egg name="reahl-dev" versionlocked="True"/>

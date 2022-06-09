@@ -177,7 +177,8 @@ $.widget('reahl.hashchange', {
     },
     reloadPage: function() {
         $('body').block(blockOptions({cursor: 'wait'}));
-        location.reload(true);
+        window.location.replace(window.location.href.replace('#', '?'));
+//        location.reload(true);
     },
     getArguments: function() {
         return this.arguments;
@@ -238,7 +239,7 @@ $.widget('reahl.hashchange', {
                     if (xhr.getResponseHeader("content-type").startsWith("application/json")) {
                         if (data.exception) {
                             alert(data.exception)
-                            window.location.replace(window.location.href);
+                            _this.reloadPage();
                         } else {
                             _this.element.find('form').each(function (i, form) {
                                 $(form).validate().destroy();
