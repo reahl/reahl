@@ -3038,6 +3038,8 @@ class ReahlWSGIApplication:
     def __call__(self, environ, start_response):
         if self.start_on_first_request:
             self.ensure_started()
+        if not self.started and self.config.strict_checking:
+            raise ProgrammerError('%s is not started. Did you mean to set start_on_first_request=True?' % self)
         request = Request(environ, charset='utf8')
         context = self.create_context_for_request()
         context.config = self.config
