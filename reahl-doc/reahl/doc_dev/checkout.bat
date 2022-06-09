@@ -16,9 +16,9 @@ for /F %%i in %EXAMPLE_LIST% do (
         if exist !EXAMPLE_DIR_OR_FILE!\NUL  (
             echo ---Example [%%i] is in a directory: !EXAMPLE_DIR_OR_FILE!
             cd !EXAMPLE_DIR_OR_FILE!
-            reahl setup -- develop -N
+            python -m pip install --no-deps -e .
             reahl unit
-            reahl setup -- develop -N --uninstall
+            python -m pip uninstall !EXAMPLE_DIR_OR_FILE!
             cd %REAHL_TMP%
         ) else (
             echo ---Example [%%i] is in a file: !EXAMPLE_DIR_OR_FILE!
