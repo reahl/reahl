@@ -7,7 +7,7 @@ do
     out=$(cd /tmp; reahl example -f $i | awk '/Checking out to/ {print $4}')
     if [ -f $out ]
     then
-        if nosetests $out
+        if pytest $out
         then 
             result="."
         fi
