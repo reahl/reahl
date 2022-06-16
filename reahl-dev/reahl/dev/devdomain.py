@@ -2177,7 +2177,7 @@ class EggProject(Project):
             setup_file.write('    def run(self):\n')
             setup_file.write('        import sys\n')
             setup_file.write('        import subprocess\n')
-            setup_file.write('        if self.distribution.tests_require: subprocess.check_call([sys.executable, "-m", "pip", "install", "-q"]+self.distribution.tests_require)\n')
+            setup_file.write('        if self.distribution.tests_require: subprocess.check_call([sys.executable, "-m", "pip", "install", "-q"]+%s)\n' % repr(self.test_deps_for_setup()))
             setup_file.write('\n')
             setup_file.write('    def initialize_options(self):\n')
             setup_file.write('        pass\n')
