@@ -2122,12 +2122,17 @@ class EggProject(Project):
         return os.path.join(self.directory, '%s.egg-info' % self.project_name_pythonised)
 
     def list_missing_dependencies(self, for_development=False):
-        deps = self.run_deps
+        all_deps = self.run_deps_for_setup()
         if for_development:
-            deps = self.run_deps + self.build_deps + self.test_deps + self.extras
-        dependencies = [ i for i in deps
-                         if (not i.is_in_development) and (not i.is_installed) ]
-        return [i.as_string_for_egg().replace(' ', '') for i in dependencies]
+            all_deps = self.run_deps_for_setup()+self.build_deps_for_setup()+self.test_deps_for_setup()+[i for extras in self.extras_require_for_setup().values() for i in extras]
+        def is_installed(dep):
+            try:
+               pkg_resources.require(dep)
+            except:
+               return False
+            return True
+        missing = [dep for dep in all_deps if not is_installed(dep)]
+        return [i.replace(' ', '') for i in missing]
 
     def setup(self, setup_command, script_name=''):
         with self.paths_set():
