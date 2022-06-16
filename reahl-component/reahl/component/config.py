@@ -312,7 +312,7 @@ class StoredConfiguration(Configuration):
                 os.environ['LC_ALL'] = 'en_US.UTF-8'
                 os.environ['LANG'] = 'en_US.UTF-8'
                 
-    def configure(self, validate=True):
+    def configure(self, validate=True, include_test_dependencies=[]):
         """Read and optionally validate the configuration.
 
         :keyword validate: If True (the default), also check that all required config is specified and warns about dangerous defaults.
@@ -330,7 +330,7 @@ class StoredConfiguration(Configuration):
 
         pkg_resources.require(self.reahlsystem.root_egg)
 
-        self.configure_components()
+        self.configure_components(include_test_dependencies)
         if validate:
             self.validate_components()
 #        sys.path.remove(self.config_directory)
@@ -343,8 +343,8 @@ class StoredConfiguration(Configuration):
             logging.basicConfig()
         logging.captureWarnings(True)
 
-    def configure_components(self):
-        eggs = ReahlEgg.get_all_relevant_interfaces(self.reahlsystem.root_egg)
+    def configure_components(self, include_test_dependencies):
+        eggs = ReahlEgg.get_all_relevant_interfaces(self.reahlsystem.root_egg, include_test_dependencies=include_test_dependencies)
         for egg in reversed(eggs):
             logging.getLogger(__name__).debug('going to read config for %s' % egg)
             if egg.configuration_spec:

@@ -4,6 +4,9 @@ python-reahl (6.1.0) unstable; urgency=low
  * Added left_aligned kwarg to NavbarLayout.add.
  * Added space_before and space_after to InlineFormLayout.add_input.
  * Added placeholder to PasswordInput.
+ * Fixed incorrect handling of timeouts (#383).
+ * Made create_args for sqlalchemy configurable (#232).
+ * Read and configure test dependencies from fixture (#237).
 
  -- Iwan Vosloo <iwan@reahl.org>  Fri, 27 Apr 2022 07:56:00 +0200
 

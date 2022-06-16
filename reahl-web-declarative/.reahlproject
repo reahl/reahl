@@ -3,18 +3,6 @@
     <package name="reahl"/>
   </namespaces>
 
-  <deps purpose="test">
-    <thirdpartyegg name="WebOb" minversion="1.8" maxversion="1.8.999"/>
-    <thirdpartyegg name="pytest" minversion="3.0"/>
-    <egg name="reahl-tofu"/>
-    <egg name="reahl-stubble"/>
-    <egg name="reahl-dev"/>
-    <egg name="reahl-webdev"/>
-    <egg name="reahl-browsertools"/>
-    <egg name="reahl-domain"/>
-    <egg name="reahl-postgresqlsupport"/>
-  </deps>
-
   <version number="6.1">
     <deps purpose="run">
       <egg name="reahl-sqlalchemysupport" versionlocked="True"/>

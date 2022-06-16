@@ -8,21 +8,6 @@
     <thirdpartyegg name="Pillow" minversion="2.5" maxversion="7.1.999"/>
   </extras>
 
-  <deps purpose="test">
-    <thirdpartyegg name="pytest" minversion="3.0"/>
-    <thirdpartyegg name="Sphinx"/>
-    <thirdpartyegg name="sphinxcontrib-plantuml"/>
-    <thirdpartyegg name="flaky" minversion="3.7.0"/>
-    <egg name="reahl-tofu"/>
-    <egg name="reahl-stubble"/>
-    <egg name="reahl-dev"/>
-    <egg name="reahl-webdev"/>
-    <egg name="reahl-browsertools"/>
-    <egg name="reahl-postgresqlsupport"/>
-    <egg name="reahl-sqlitesupport"/>
-    <egg name="reahl-mysqlsupport"/>
-  </deps>
-
   <version number="6.1">
     <deps purpose="run">
       <egg name="reahl-web" versionlocked="True"/>

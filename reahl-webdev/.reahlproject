@@ -3,14 +3,6 @@
     <package name="reahl"/>
   </namespaces>
 
-  <deps purpose="test">
-    <thirdpartyegg name="pytest" minversion="3.0"/>
-    <egg name="reahl-doc"/>
-    <egg name="reahl-tofu"/>
-    <egg name="reahl-postgresqlsupport"/>
-    <egg name="reahl-stubble"/>
-  </deps>
-
   <extras name="pillow">
     <thirdpartyegg name="Pillow" minversion="2.5" maxversion="7.1.999"/>
   </extras>

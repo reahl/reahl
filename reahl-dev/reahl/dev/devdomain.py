@@ -2131,6 +2131,16 @@ class EggProject(Project):
     def setup(self, setup_command, script_name=''):
         with self.paths_set():
             with SetupMonitor() as monitor:
+                requires = {}
+                if self.run_deps_for_setup():
+                    requires['install_requires'] = self.run_deps_for_setup()
+                if self.build_deps_for_setup():
+                    requires['setup_requires'] = self.build_deps_for_setup()
+                if self.test_deps_for_setup():
+                    requires['tests_require'] = self.test_deps_for_setup()
+                if self.extras_require_for_setup():
+                    requires['extras_require'] = self.extras_require_for_setup()
+
                 distribution = setuptools.setup(script_name=script_name,
                      script_args=setup_command,
                      name=self.project_name,
@@ -2146,10 +2156,7 @@ class EggProject(Project):
 
                      namespace_packages=self.namespace_packages_for_setup(),
 
-                     install_requires=self.run_deps_for_setup(),
-                     setup_requires=self.build_deps_for_setup(),
-                     tests_require=self.test_deps_for_setup(),
-                     extras_require=self.extras_require_for_setup() )
+                     **requires)
             monitor.check_command_status(distribution.commands)
 
     @property

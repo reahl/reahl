@@ -3092,9 +3092,11 @@ class ReahlWSGIApplication:
                         response = UncaughtError(resource.view, resource.view.user_interface.root_ui, resource.view.user_interface, e)
 
                 context.session.set_session_key(response)
-                for chunk in response(environ, start_response):
-                    yield chunk
+                
             finally:
                self.system_control.finalise_session()
+               
+            for chunk in response(environ, start_response):
+                yield chunk
 
 
