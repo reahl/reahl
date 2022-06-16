@@ -2131,7 +2131,10 @@ class EggProject(Project):
             except:
                return False
             return True
-        missing = [dep for dep in all_deps if not is_installed(dep)]
+        def is_in_workspace(dep):
+            name = dep.split('<')[0].split('>')[0]
+            return self.workspace.has_project_named(name)
+        missing = [dep for dep in all_deps if (not is_installed(dep)) and (not is_in_workspace(dep))]
         return [i.replace(' ', '') for i in missing]
 
     def setup(self, setup_command, script_name=''):
