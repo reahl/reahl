@@ -100,8 +100,8 @@ jobs:
       - name: Show PATH
         run: echo $PATH
         
-      - name: Version of tox
-        run: which tox && tox --version
+      - name: Install correct tox
+        run: python -m pip install tox>=3.14,<3.14.999
 
       - name: Install reahl-dev
         run: pip install --pre reahl-dev reahl-commands reahl-postgresqlsupport #uses wheels as specified in $HOME/.pip/pip.conf
