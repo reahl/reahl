@@ -50,7 +50,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Install dependencies
-        run: python -m pip install --upgrade pip
+        run: python -m pip install --upgrade pip setuptools
 
       - name: Download wheels
         uses: actions/download-artifact@v2
@@ -111,6 +111,7 @@ jobs:
 
       - name: Create db user for Tests
         run: . $HOME/.profile && reahl createdbuser -U runner travis/etc
+
       - name: Run Tests
         run: . $HOME/.profile && reahl shell -sdXg tox
 
