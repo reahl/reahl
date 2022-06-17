@@ -18,7 +18,7 @@ do
         then
             result="."
         fi
-        python -m pip uninstall $(python -c 'from setuptools.config import read_configuration as c; print(c("setup.cfg")["metadata"]["name"])')
+        python -m pip uninstall $(python -c 'from setuptools.config.setupcfg import read_configuration as c; print(c("setup.cfg")["metadata"]["name"])')
         cd -
     fi
     results["$i"]=$result

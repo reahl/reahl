@@ -23,7 +23,7 @@ import copy
 import pkg_resources
 import contextlib
 
-from setuptools.config import read_configuration
+from setuptools.config.setupcfg import read_configuration
 
 from reahl.tofu import Fixture, set_up, tear_down, scope, uses
 from reahl.component.exceptions import ProgrammerError
