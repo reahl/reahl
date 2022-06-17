@@ -12,7 +12,7 @@ if [ -n "$VENV_NAME" ]; then
     . /usr/share/virtualenvwrapper/virtualenvwrapper.sh
     workon $VENV_NAME
   fi
-  EOF
+EOF
 fi
 
 # Setup environment
