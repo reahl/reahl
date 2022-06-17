@@ -35,7 +35,7 @@ import collections
 import json
 import configparser
 import tzlocal
-import setuptools.config.setupcfg 
+import setuptools.config
 
 import pkg_resources
 import toml
@@ -2241,7 +2241,7 @@ class EggProject(Project):
 
     @property
     def setup_cfg(self):
-        return setuptools.config.setupcfg.read_configuration(self.setup_cfg_filename)
+        return setuptools.config.read_configuration(self.setup_cfg_filename)
     
     def test_deps_for_setup(self):
         reahlproject_deps = [dep.as_string_for_egg() for dep in self.test_deps]
