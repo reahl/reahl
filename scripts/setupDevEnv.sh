@@ -4,14 +4,16 @@
 
 # Setup virtualenv, virtualenvwrapper (for bash only);
 
-echo "export VENV_NAME=$VENV_NAME" >> $HOME/.profile
-cat <<'EOF' >> $HOME/.profile
-if [ -n "$BASH_VERSION" ]; then 
-  export WORKON_HOME=~/.venvs
-  . /usr/share/virtualenvwrapper/virtualenvwrapper.sh
-  workon $VENV_NAME
+if [ -n "$VENV_NAME" ]; then
+  echo "export VENV_NAME=$VENV_NAME" >> $HOME/.profile
+  cat <<'EOF' >> $HOME/.profile
+  if [ -n "$BASH_VERSION" ]; then 
+    export WORKON_HOME=~/.venvs
+    . /usr/share/virtualenvwrapper/virtualenvwrapper.sh
+    workon $VENV_NAME
+  fi
+  EOF
 fi
-EOF
 
 # Setup environment
 echo "if [ -z \"\$DISPLAY\" ]; then export DISPLAY=:100; fi" >> $HOME/.profile
