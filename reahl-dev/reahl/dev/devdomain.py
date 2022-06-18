@@ -2245,7 +2245,9 @@ class EggProject(Project):
 
     @property
     def setup_cfg(self):
-        return read_configuration(self.setup_cfg_filename)
+        if pathlib.Path(self.setup_cfg_filename).exists():
+          return read_configuration(self.setup_cfg_filename)
+        return {}
     
     def test_deps_for_setup(self):
         reahlproject_deps = [dep.as_string_for_egg() for dep in self.test_deps]
