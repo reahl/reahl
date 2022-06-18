@@ -14,7 +14,7 @@
         <thirdpartyegg name="beautifulsoup4" minversion="4.6" maxversion="4.10.999"/>
         <thirdpartyegg name="WebOb" minversion="1.8" maxversion="1.8.999"/>
         <thirdpartyegg name="Babel" minversion="2.1" maxversion="2.9.999"/>
-        <thirdpartyegg name="setuptools" minversion="62.4.0"/>
+        <thirdpartyegg name="setuptools" minversion="51.0.0"/>
         <thirdpartyegg name="lxml" minversion="4.2" maxversion="4.7.999"/>
       </deps>
   </version>

@@ -11,7 +11,7 @@
         <egg name="reahl-web" versionlocked="True"/>
         <egg name="reahl-web-declarative" versionlocked="True"/>
         <egg name="reahl-domain" versionlocked="True"/>
-        <thirdpartyegg name="setuptools" minversion="62.4.0"/>
+        <thirdpartyegg name="setuptools" minversion="51.0.0"/>
       </deps>
   </version>
 

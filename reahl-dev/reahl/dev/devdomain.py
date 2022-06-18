@@ -35,7 +35,11 @@ import collections
 import json
 import configparser
 import tzlocal
-import setuptools.config.setupcfg 
+
+try:
+  from setuptools.config.setupcfg import read_configuration
+except ImportError:
+  from setuptools.config import read_configuration
 
 import pkg_resources
 import toml
@@ -2185,7 +2189,7 @@ class EggProject(Project):
             setup_file.write('    def run(self):\n')
             setup_file.write('        import sys\n')
             setup_file.write('        import subprocess\n')
-            setup_file.write('        if self.distribution.tests_require: subprocess.check_call([sys.executable, "-m", "pip", "install", "-q"]+%s)\n' % repr(self.test_deps_for_setup()+self.build_deps_for_setup()))
+            setup_file.write('        if self.distribution.tests_require: subprocess.check_call([sys.executable, "-m", "pip", "install", "-q"]+%s)\n' % repr(self.test_deps_for_setup()))
             setup_file.write('\n')
             setup_file.write('    def initialize_options(self):\n')
             setup_file.write('        pass\n')
@@ -2241,7 +2245,7 @@ class EggProject(Project):
 
     @property
     def setup_cfg(self):
-        return setuptools.config.setupcfg.read_configuration(self.setup_cfg_filename)
+        return read_configuration(self.setup_cfg_filename)
     
     def test_deps_for_setup(self):
         reahlproject_deps = [dep.as_string_for_egg() for dep in self.test_deps]
