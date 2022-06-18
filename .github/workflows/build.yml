@@ -49,9 +49,6 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Install dependencies
-        run: python -m pip install --upgrade pip setuptools
-
       - name: Download wheels
         uses: actions/download-artifact@v2
         with:
@@ -70,13 +67,15 @@ jobs:
           chmod 0755 ~/
           ls -la ~/.ssh
 
+      - name: Create our own venv (so we can install newer setuptools)
+        run: mkdir $HOME/.venvs && python -m venv $HOME/.venvs/reahl
+          
       - name: Setup Test env
         run: |
           sudo apt-get install tox
           sudo ./scripts/installDebs.sh
           sudo ./scripts/installDevEnvDebs.sh
-          ./scripts/setupDevEnv.sh 
-
+          VENV_NAME=reahl ./scripts/setupDevEnv.sh 
 
       # Version checks of these things are useful for debugging
       - name: Version of GIT
@@ -100,11 +99,14 @@ jobs:
       - name: Show PATH
         run: echo $PATH
         
+      - name: Install latest pip
+        run: . $HOME/.profile && python -m pip install -U pip 
+
       - name: Install correct tox
-        run: python -m pip install "tox>=3.14,<3.14.999"
+        run: . $HOME/.profile && python -m pip install "tox>=3.14,<3.14.999" 
 
       - name: Install reahl-dev
-        run: pip install --pre reahl-dev reahl-commands reahl-postgresqlsupport #uses wheels as specified in $HOME/.pip/pip.conf
+        run: . $HOME/.profile && pip install --pre reahl-dev reahl-commands reahl-postgresqlsupport #uses wheels as specified in $HOME/.pip/pip.conf
 
       - name: Venv check
         run: . $HOME/.profile && pip list
