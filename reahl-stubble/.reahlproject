@@ -5,7 +5,7 @@
 
   <version number="6.1">
     <deps purpose="run">
-      <thirdpartyegg name="setuptools" minversion="51.0.0" maxversion="62.1.0"/>
+      <thirdpartyegg name="setuptools" minversion="51.0.0"/>
     </deps>
   </version>
 

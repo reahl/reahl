@@ -16,7 +16,7 @@
         <thirdpartyegg name="selenium" minversion="2.42" maxversion="3.141.9999"/>
         <thirdpartyegg name="watchdog" minversion="0.8.3" maxversion="0.10.999"/>
         <thirdpartyegg name="WebOb" minversion="1.8" maxversion="1.8.999"/>
-        <thirdpartyegg name="setuptools" minversion="51.0.0" maxversion="62.1.0"/>
+        <thirdpartyegg name="setuptools" minversion="51.0.0"/>
         <thirdpartyegg name="prompt_toolkit" minversion="2.0.10" maxversion="2.0.999"/>
       </deps>
   </version>

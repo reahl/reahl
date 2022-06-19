@@ -100,8 +100,6 @@ jobs:
       - name: Show PATH
         run: echo $PATH
 
-
-
       - name: Install reahl-dev
         run: pip install --pre reahl-dev reahl-commands reahl-postgresqlsupport #uses wheels as specified in $HOME/.pip/pip.conf
 
