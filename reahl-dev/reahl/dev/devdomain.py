@@ -36,6 +36,11 @@ import json
 import configparser
 import tzlocal
 
+try:
+  from setuptools.config.setupcfg import read_configuration
+except ImportError:
+  from setuptools.config import read_configuration
+
 import pkg_resources
 import toml
 import babel
@@ -2121,12 +2126,20 @@ class EggProject(Project):
         return os.path.join(self.directory, '%s.egg-info' % self.project_name_pythonised)
 
     def list_missing_dependencies(self, for_development=False):
-        deps = self.run_deps
+        all_deps = self.run_deps_for_setup()
         if for_development:
-            deps = self.run_deps + self.build_deps + self.test_deps + self.extras
-        dependencies = [ i for i in deps
-                         if (not i.is_in_development) and (not i.is_installed) ]
-        return [i.as_string_for_egg().replace(' ', '') for i in dependencies]
+            all_deps = self.run_deps_for_setup()+self.build_deps_for_setup()+self.test_deps_for_setup()+[i for extras in self.extras_require_for_setup().values() for i in extras]
+        def is_installed(dep):
+            try:
+               pkg_resources.require(dep)
+            except:
+               return False
+            return True
+        def is_in_workspace(dep):
+            name = dep.split('<')[0].split('>')[0]
+            return self.workspace.has_project_named(name)
+        missing = [dep for dep in all_deps if (not is_installed(dep)) and (not is_in_workspace(dep))]
+        return [i.replace(' ', '') for i in missing]
 
     def setup(self, setup_command, script_name=''):
         with self.paths_set():
@@ -2149,7 +2162,8 @@ class EggProject(Project):
                      install_requires=self.run_deps_for_setup(),
                      setup_requires=self.build_deps_for_setup(),
                      tests_require=self.test_deps_for_setup(),
-                     extras_require=self.extras_require_for_setup() )
+                     extras_require=self.extras_require_for_setup() 
+                )
             monitor.check_command_status(distribution.commands)
 
     @property
@@ -2175,7 +2189,7 @@ class EggProject(Project):
             setup_file.write('    def run(self):\n')
             setup_file.write('        import sys\n')
             setup_file.write('        import subprocess\n')
-            setup_file.write('        if self.distribution.tests_require: subprocess.check_call([sys.executable, "-m", "pip", "install", "-q"]+self.distribution.tests_require)\n')
+            setup_file.write('        if self.distribution.tests_require: subprocess.check_call([sys.executable, "-m", "pip", "install", "-q"]+%s)\n' % repr(self.test_deps_for_setup()))
             setup_file.write('\n')
             setup_file.write('    def initialize_options(self):\n')
             setup_file.write('        pass\n')
@@ -2229,8 +2243,16 @@ class EggProject(Project):
             deps += toml_config['build-system']['requires']
         return list(sorted(set(deps)))
 
+    @property
+    def setup_cfg(self):
+        if pathlib.Path(self.setup_cfg_filename).exists():
+          return read_configuration(self.setup_cfg_filename)
+        return {}
+    
     def test_deps_for_setup(self):
-        return [dep.as_string_for_egg() for dep in self.test_deps]
+        reahlproject_deps = [dep.as_string_for_egg() for dep in self.test_deps]
+        setup_cfg_deps = self.setup_cfg.get('options', {}).get('tests_require', [])
+        return reahlproject_deps + setup_cfg_deps
 
     def packages_for_setup(self):
         exclusions = [i.name for i in self.excluded_packages]

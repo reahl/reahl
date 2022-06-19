@@ -23,6 +23,11 @@ import copy
 import pkg_resources
 import contextlib
 
+try:
+  from setuptools.config.setupcfg import read_configuration
+except ImportError:
+  from setuptools.config import read_configuration
+
 from reahl.tofu import Fixture, set_up, tear_down, scope, uses
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.context import ExecutionContext
@@ -94,7 +99,7 @@ class ReahlSystemSessionFixture(ContextAwareFixture):
         """
         config = StoredConfiguration('etc/')
         try:
-            config.configure()
+            config.configure(include_test_dependencies=self.test_dependencies)
         except pkg_resources.DistributionNotFound as ex:
             raise CouldNotConfigureServer(ex).with_traceback(sys.exc_info()[2])
 
@@ -112,7 +117,10 @@ class ReahlSystemSessionFixture(ContextAwareFixture):
         return SystemControl(self.config)
 
     def new_test_dependencies(self):
-        return []
+        try:
+            return read_configuration('setup.cfg')['options']['tests_require']
+        except KeyError:
+            return []
 
     @set_up
     def init_database(self):
@@ -174,6 +182,7 @@ class ReahlSystemFixture(ContextAwareFixture):
         return reahlsystem
             
 
+    
 class MonitoredInvocation:
     def __init__(self, method, commandline_arguments, args, kwargs):
         self.method = method

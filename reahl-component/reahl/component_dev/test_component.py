@@ -31,7 +31,7 @@ def test_flattened_tree_of_eggs():
     easter_egg.add_dependency('reahl-component')
 
     # All eggs for a root egg can be found in dependency order
-    components_in_order = ReahlEgg.compute_ordered_dependent_distributions(easter_egg.as_requirement_string())
+    components_in_order = ReahlEgg.compute_ordered_dependent_distributions(easter_egg.as_requirement_string(), [])
     component_names_in_order = [i.project_name for i in components_in_order]
     # (many valid topological sorts are possible and the algorithm is nondeterministic in some aspects that
     #  do not matter, hence many possible valid orderings are possible for this dependency tree)
@@ -57,7 +57,7 @@ def test_interface_with_meta_info():
     easter_egg.stubbed_metadata['reahl-component.toml'] = 'metadata_version = "1.0.0"'
    
     # Interfaces can be queried in dependency order too
-    interfaces_in_order = ReahlEgg.compute_all_relevant_interfaces(easter_egg.as_requirement_string())
+    interfaces_in_order = ReahlEgg.compute_all_relevant_interfaces(easter_egg.as_requirement_string(), [])
     assert len(interfaces_in_order) == 2   # That of reahl-component itself, and of the easteregg
     [interface] = [i for i in interfaces_in_order if i.distribution is easter_egg]
 

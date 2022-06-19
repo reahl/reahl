@@ -41,7 +41,7 @@ from reahl.component.dbutils import ORMControl
 from reahl.component.context import ExecutionContext, NoContextFound
 from reahl.component.modelinterface import Field, IntegerConstraint
 from reahl.component.exceptions import ProgrammerError, DomainException
-from reahl.component.config import Configuration
+from reahl.component.config import Configuration, ConfigSetting
 
 _ = Catalogue('reahl-sqlalchemysupport')
 
@@ -49,6 +49,9 @@ _ = Catalogue('reahl-sqlalchemysupport')
 class SqlAlchemyConfig(Configuration):
     filename = 'sqlalchemy.config.py'
     config_key = 'sqlalchemy'
+
+    engine_create_args = ConfigSetting(description='Extra create arguments passed to sqlalchemy.create_engine()',
+                                       default={'pool_pre_ping': True})
 
     def do_injections(self, config):
         if not isinstance(config.reahlsystem.orm_control, SqlAlchemyControl):
@@ -261,10 +264,35 @@ class SqlAlchemyControl(ORMControl):
         config = context.config
         db_api_connection_creator = context.system_control.db_control.get_dbapi_connection_creator()
         
-        create_args = {'pool_pre_ping': True}
+        create_args = config.sqlalchemy.engine_create_args.copy()
         if auto_commit:
             create_args['isolation_level'] = 'AUTOCOMMIT'
             create_args['execution_options'] = {'isolation_level': 'AUTOCOMMIT'}
+        if db_api_connection_creator:
+            create_args['creator']=db_api_connection_creator
+
+        self.engine = create_engine(config.reahlsystem.connection_uri, **create_args)
+        self.engine.echo = self.echo
+        self.engine.connect()
+        metadata.bind = self.engine
+        Session.configure(bind=self.engine)
+
+        self.instrument_classes_for(config.reahlsystem.root_egg)
+
+    def connect2(self, auto_commit=False):
+        """Creates the SQLAlchemy Engine, bind it to the metadata and instrument the persisted classes
+           for the current reahlsystem.root_egg."""
+        assert not self.connected
+        context = ExecutionContext.get_context()
+
+        config = context.config
+        db_api_connection_creator = context.system_control.db_control.get_dbapi_connection_creator()
+
+        create_args = {'poolclass': QueuePool, 'pool_size':1, 'max_overflow':0, 'pool_pre_ping': True, 'pool_recycle':280}
+        if auto_commit:
+            create_args['isolation_level'] = 'AUTOCOMMIT'
+            create_args['execution_options'] = {'isolation_level': 'AUTOCOMMIT'}
+
         if db_api_connection_creator:
             create_args['creator']=db_api_connection_creator
 

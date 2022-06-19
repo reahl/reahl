@@ -487,14 +487,14 @@ class ReahlEgg:
         cls.interface_cache.clear()
 
     @classmethod
-    def get_all_relevant_interfaces(cls, main_egg):
+    def get_all_relevant_interfaces(cls, main_egg, include_test_dependencies=[]):
         # (We cache the result of this computation, since it is
         #  quite expensive and is called often in the tests.)
-        interfaces = cls.interface_cache.get(main_egg, None)
+        interfaces = cls.interface_cache.get((main_egg, '|'.join(include_test_dependencies)), None)
         if interfaces:
             return interfaces
-        interfaces = cls.compute_all_relevant_interfaces(main_egg)
-        cls.interface_cache[main_egg] = interfaces
+        interfaces = cls.compute_all_relevant_interfaces(main_egg, include_test_dependencies)
+        cls.interface_cache[(main_egg, '|'.join(include_test_dependencies))] = interfaces
         return interfaces
 
     @classmethod
@@ -513,19 +513,19 @@ class ReahlEgg:
 
 
     @classmethod 
-    def get_eggs_for(cls, main_egg):
-        distributions = pkg_resources.require(main_egg)
+    def get_eggs_for(cls, main_egg, include_test_dependencies):
+        distributions = pkg_resources.require([main_egg]+include_test_dependencies)
         return list(set(distributions)) # To get rid of duplicates
 
     @classmethod
-    def compute_ordered_dependent_distributions(cls, main_egg):
-        return cls.topological_sort(cls.get_eggs_for(main_egg))
+    def compute_ordered_dependent_distributions(cls, main_egg, include_test_dependencies):
+        return cls.topological_sort(cls.get_eggs_for(main_egg, include_test_dependencies))
     
     @classmethod
-    def compute_all_relevant_interfaces(cls, main_egg):
+    def compute_all_relevant_interfaces(cls, main_egg, include_test_dependencies):
         interfaces = []
 
-        for i in cls.compute_ordered_dependent_distributions(main_egg):
+        for i in cls.compute_ordered_dependent_distributions(main_egg, include_test_dependencies):
             interface = cls.interface_for(i)
             if interface.is_component:
                 interfaces.append(interface)

@@ -280,8 +280,8 @@ if "--script-dependencies" in sys.argv:
        print('Successfully installed prerequisites - please re-run with --pip-installs')
        
 elif "--pip-installs" in sys.argv:
-   success = ensure_reahl_project_dependencies_installed()
-   print_final_message(success=success)
+    success = ensure_reahl_project_dependencies_installed()
+    print_final_message(success=success)
 else:
-   print('Usage: %s [--script-dependencies|--pip-installs]' % sys.argv[0])
-   exit(123)
+    print('Usage: %s [--script-dependencies|--pip-installs]' % sys.argv[0])
+    exit(123)

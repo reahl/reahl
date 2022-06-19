@@ -3,15 +3,12 @@
     <package name="reahl"/>
   </namespaces>
   
-  <deps purpose="test">
-    <thirdpartyegg name="pytest" minversion="3.0"/>
-  </deps>
-
   <version number="6.1">
     <deps purpose="run">
       <egg name="reahl-component" versionlocked="True"/>
       <egg name="reahl-tofu" versionlocked="True"/>
       <egg name="reahl-stubble" versionlocked="True"/>
+      <egg name="reahl-sqlalchemysupport" versionlocked="True"/>
       <thirdpartyegg name="Babel" minversion="2.1" maxversion="2.9.999"/>
       <thirdpartyegg name="twine" minversion="1.15.0" maxversion="4.0.9999"/>
       <thirdpartyegg name="wheel" minversion="0.34.0"/>
