@@ -1235,6 +1235,11 @@ class Widget:
             for widget in child.contained_widgets():
                 yield widget
 
+    @property
+    def is_check_form_related_errors(self):
+        config = ExecutionContext.get_context().config
+        return config.web.form_related_error_checks_enabled
+
     is_Form = False
     is_Input = False
     def check_form_related_programmer_errors(self):
@@ -1279,7 +1284,8 @@ class Widget:
         self.slot_contents['reahl_footer'] = FooterContent(self)
         self.fill_slots(self.slot_contents)
         self.attach_out_of_bound_widgets(view.out_of_bound_widgets)
-        self.check_form_related_programmer_errors()
+        if self.is_check_form_related_errors:
+            self.check_form_related_programmer_errors()
 
     @property
     def available_slots(self):

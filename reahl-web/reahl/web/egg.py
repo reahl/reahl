@@ -79,7 +79,8 @@ class WebConfig(Configuration):
                              dangerous=True)
     csrf_timeout_seconds = ConfigSetting(default=60*15,
                                          description='Forms have to be submitted within this time (in seconds) after being rendered.')
-                                       
+    form_related_error_checks_enabled = ConfigSetting(default=True, description='Disable the excecution of form related checks')
+
     @property
     def secure_key_name(self):
         return '%s_secure' % self.session_key_name
