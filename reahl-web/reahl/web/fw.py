@@ -60,6 +60,7 @@ from webob.multidict import MultiDict
 from reahl.component.config import StoredConfiguration
 from reahl.component.context import ExecutionContext
 from reahl.component.dbutils import SystemControl
+from reahl.component.decorators import memoized
 from reahl.component.exceptions import ArgumentCheckedCallable
 from reahl.component.exceptions import DomainException
 from reahl.component.exceptions import IsInstance
@@ -1991,10 +1992,12 @@ class UrlBoundView(View):
         return client_state_string
 
     @property
+    @memoized
     def construction_client_side_state_as_dict_of_lists(self):
         return urllib.parse.parse_qs(self.construction_client_side_state, keep_blank_values=True)
 
     @property
+    @memoized
     def current_POSTed_state_as_dict_of_lists(self):
         return urllib.parse.parse_qs(self.current_POSTed_client_side_state, keep_blank_values=True)
 
