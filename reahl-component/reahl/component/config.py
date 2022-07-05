@@ -272,6 +272,7 @@ class ReahlSystemConfig(Configuration):
     databasecontrols = EntryPointClassList('reahl.component.databasecontrols', description='All available DatabaseControl classes')
     translation_packages = EntryPointClassList('reahl.translations', description='All available packages containing translation messages')
     serialise_parallel_requests = ConfigSetting(default=False, description='Whether concurrent requests to the web application should be forcibly serialised')
+    arg_checks_enabled = ConfigSetting(default=True, description='Disable the excecution of @arg_checks')
 
 
 class ConfigAsDict(dict):

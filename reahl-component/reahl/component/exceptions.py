@@ -25,7 +25,8 @@ import inspect
 
 from collections.abc import Callable
 
-
+from reahl.component.context import ExecutionContext
+from reahl.component.context import ExecutionContext, NoContextFound
 
 
 class DomainException(Exception):
@@ -238,6 +239,9 @@ class ArgumentCheckedCallable:
 
 
 def arg_checks(**checks):
+    def noop(f):
+        return f
+
     def catch_wrapped(f):
         if inspect.ismethoddescriptor(f):
             f.__func__.arg_checks = checks
@@ -247,6 +251,15 @@ def arg_checks(**checks):
         def check_call(wrapped, instance, args, kwargs):
             return ArgumentCheckedCallable(wrapped)(*args, **kwargs)
         return check_call(f)
-    return catch_wrapped
+
+    wrapped = catch_wrapped
+    try:
+        config = ExecutionContext.get_context().config
+        if not config.reahlsystem.runtime_arg_checks_enabled:
+            wrapped = noop
+    except NoContextFound:
+        pass
+
+    return wrapped
 
 
