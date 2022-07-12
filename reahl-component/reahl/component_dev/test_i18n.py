@@ -23,7 +23,6 @@ from reahl.stubble import stubclass, InitMonitor, EmptyStub
 
 from reahl.component.context import ExecutionContext
 from reahl.component.i18n import Catalogue, SystemWideCatalogue
-from reahl.component.config import Configuration, ConfigSetting
 
 
 @stubclass(ExecutionContext)

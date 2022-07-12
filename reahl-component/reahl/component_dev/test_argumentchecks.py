@@ -18,9 +18,12 @@
 
 from reahl.tofu import Fixture, scenario, expected, NoException
 from reahl.tofu.pytestsupport import with_fixtures
+from reahl.stubble import CallMonitor
 from reahl.component.exceptions import IncorrectArgumentError, arg_checks, IsInstance, IsSubclass, \
      ArgumentCheckedCallable, NotYetAvailable
+from reahl.component.context import ExecutionContext
 from reahl.component.decorators import deprecated
+from reahl.component.config import Configuration, ReahlSystemConfig
 
 
 class ArgumentCheckScenarios(Fixture):
@@ -129,6 +132,34 @@ def test_checking_arguments(argument_check_fixture):
 
     with expected(wrapped_exception):
         ArgumentCheckedCallable(fixture.callable, explanation='some message').checkargs(*fixture.args, **fixture.kwargs)
+
+
+def test_disable_argument_checks():
+    """Config setting overrides executing checks"""
+
+    config = Configuration()
+    config.reahlsystem = ReahlSystemConfig()
+    config.reahlsystem.runtime_checking_enabled = False
+
+    arg_check = IsInstance(int)
+    class ModelObject:
+        @arg_checks(y=arg_check)
+        def do_something(self, y):
+            pass
+
+    with ExecutionContext() as context,\
+         CallMonitor(arg_check.is_valid) as monitor:
+        assert len(monitor.calls) == 0
+
+        #case implicit
+        context.config = config
+        model_object = ModelObject()
+        model_object.do_something(5)
+        assert len(monitor.calls) == 0
+
+        #case explicit
+        ArgumentCheckedCallable(model_object.do_something).checkargs(5)
+        assert len(monitor.calls) == 0
 
 
 def test_stubbable_is_instance():
