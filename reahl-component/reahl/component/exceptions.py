@@ -205,6 +205,14 @@ class ArgumentCheckedCallable:
         return self.target(*args, **kwargs)
 
     def checkargs(self, *args, **kwargs):
+
+        try:
+            config = ExecutionContext.get_context().config
+            if not config.reahlsystem.runtime_checking_enabled:
+                return
+        except (NoContextFound, AttributeError):
+            pass
+
         if isinstance(self.target, PartialCallableObjectProxy):
             to_check = self.target.__call__
         elif inspect.ismethod(self.target):
@@ -239,9 +247,6 @@ class ArgumentCheckedCallable:
 
 
 def arg_checks(**checks):
-    def noop(f):
-        return f
-
     def catch_wrapped(f):
         if inspect.ismethoddescriptor(f):
             f.__func__.arg_checks = checks
@@ -249,17 +254,15 @@ def arg_checks(**checks):
             f.arg_checks = checks
         @wrapt.decorator
         def check_call(wrapped, instance, args, kwargs):
+            try:
+                config = ExecutionContext.get_context().config
+                if not config.reahlsystem.runtime_checking_enabled:
+                    return wrapped(*args, **kwargs)
+            except (NoContextFound, AttributeError):
+                pass
             return ArgumentCheckedCallable(wrapped)(*args, **kwargs)
         return check_call(f)
 
-    wrapped = catch_wrapped
-    try:
-        config = ExecutionContext.get_context().config
-        if not config.reahlsystem.runtime_arg_checks_enabled:
-            wrapped = noop
-    except NoContextFound:
-        pass
-
-    return wrapped
+    return catch_wrapped
 
 

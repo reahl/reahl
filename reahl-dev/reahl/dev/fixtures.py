@@ -53,12 +53,16 @@ class ContextAwareFixture(Fixture):
         raise ProgrammerError('No ExecutionContext defined for %s. You must override new_context() or set an attribute or @property named "context"' % self)
 
     def __enter__(self):
-        self.context.install(lambda f: isinstance(f.f_locals.get('self', None), WithFixtureDecorator))
+        self.context.install(stop=lambda f: isinstance(f.f_locals.get('self', None), WithFixtureDecorator))
         return super().__enter__()
 
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.context.uninstall()
+        super().__exit__(exc_type, exc_val, exc_tb)
+
     def run_tear_down_actions(self):
-        self.context.install()
-        return super().run_tear_down_actions()
+        with self.context:
+            return super().run_tear_down_actions()
 
 
 @scope('session')
@@ -107,9 +111,9 @@ class ReahlSystemSessionFixture(ContextAwareFixture):
 
     def new_context(self, config=None, system_control=None):
         """The :class:`~reahl.component.context.ExecutionContext` within which all tests are run."""
-        context = ExecutionContext(name=self.__class__.__name__).install()
-        context.config = config or self.config
-        context.system_control = system_control or self.system_control
+        with ExecutionContext(name=self.__class__.__name__) as context:
+            context.config = config or self.config
+            context.system_control = system_control or self.system_control
         return context
 
     def new_system_control(self):

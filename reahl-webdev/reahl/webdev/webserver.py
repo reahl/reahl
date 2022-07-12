@@ -26,7 +26,7 @@ import sys
 import traceback
 import socket
 import ssl
-from contextlib import contextmanager
+import contextlib
 import logging
 import functools
 import pkg_resources
@@ -448,24 +448,25 @@ class ReahlWebServer:
             raise AssertionError(message)
 
     def main_loop(self, context=None):
-        if context:
-            context.install()
-        while self.running:
-            try:
-                self.httpd.serve_async(in_separate_thread=self.in_separate_thread)
-                self.httpsd.serve_async(in_separate_thread=self.in_separate_thread)
-            except:  
-                # When running as a stand-alone server, we keep the server running, but else break so tests break
-                if self.in_separate_thread and self.running:
-                    print(traceback.format_exc(), file=sys.stderr)
-                else:
-                    raise
+
+        context = context or contextlib.nullcontext()
+        with context:
+            while self.running:
+                try:
+                    self.httpd.serve_async(in_separate_thread=self.in_separate_thread)
+                    self.httpsd.serve_async(in_separate_thread=self.in_separate_thread)
+                except:
+                    # When running as a stand-alone server, we keep the server running, but else break so tests break
+                    if self.in_separate_thread and self.running:
+                        print(traceback.format_exc(), file=sys.stderr)
+                    else:
+                        raise
 
     def start_thread(self):
         assert not self.running
         self.running = True
         try:
-            context = ExecutionContext.get_context()
+            context = ExecutionContext.get_context().copy()
         except NoContextFound:
             context = None
         self.httpd_thread = Thread(target=functools.partial(self.main_loop, context))
@@ -537,7 +538,7 @@ class ReahlWebServer:
         for handler in self.handlers.values():
             handler.reinstall()
 
-    @contextmanager
+    @contextlib.contextmanager
     def paused(self, wait_till_done_serving=True):
         self.restore_handlers()
         try:
@@ -549,7 +550,7 @@ class ReahlWebServer:
             finally:
                 self.reinstall_handlers()
 
-    @contextmanager
+    @contextlib.contextmanager
     def in_background(self, wait_till_done_serving=True):
         """Returns a context manager. Within the context of this context manager, the webserver is temporarily run
            in a separate thread. After the context managed by this context manager is exited, the server reverts to 

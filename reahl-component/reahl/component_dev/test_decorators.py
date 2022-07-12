@@ -23,6 +23,7 @@ import itertools
 
 import pkg_resources
 
+from reahl.dev.fixtures import ReahlSystemFixture
 from reahl.stubble import EmptyStub
 from reahl.tofu import Fixture, scenario
 from reahl.tofu.pytestsupport import with_fixtures
@@ -74,8 +75,8 @@ class ClassDeprecationScenarios(Fixture):
         self.ADeprecatedClass = ADeprecatedClass
 
 
-@with_fixtures(ClassDeprecationScenarios)
-def test_deprecating_a_class(class_deprecation_scenarios):
+@with_fixtures(ReahlSystemFixture, ClassDeprecationScenarios)
+def test_deprecating_a_class(reahl_system_fixture, class_deprecation_scenarios):
     """When @deprecated is used on a class, constructing the class or calling class methods 
        emit a deprecation warning. This only works when the Deprecated class has an __init__ or inherits 
        from another class with an __init__."""

@@ -87,22 +87,22 @@ def test_carousel_basics(web_fixture):
 def test_i18n(web_fixture):
     """User-visible labels are internationalised."""
 
-    context = LocaleContextStub(locale='af').install()
-    context.config = web_fixture.config
-    context.session = web_fixture.context.session
-    context.request = webob.Request.blank('/', charset='utf8')
-    
-    widget = Carousel(web_fixture.view, 'my_carousel_id')
+    with LocaleContextStub(locale='af') as context:
+        context.config = web_fixture.config
+        context.session = web_fixture.context.session
+        context.request = webob.Request.blank('/', charset='utf8')
 
-    [main_div] = widget.children
-    [indicator_list, carousel_inner, left_control, right_control] = main_div.children
+        widget = Carousel(web_fixture.view, 'my_carousel_id')
 
-    def check_control(control, label):
-        [icon, text] = control.children
-        assert text.children[0].value == label
+        [main_div] = widget.children
+        [indicator_list, carousel_inner, left_control, right_control] = main_div.children
 
-    check_control(left_control, 'Vorige')
-    check_control(right_control, 'Volgende')
+        def check_control(control, label):
+            [icon, text] = control.children
+            assert text.children[0].value == label
+
+        check_control(left_control, 'Vorige')
+        check_control(right_control, 'Volgende')
 
 
 @with_fixtures(WebFixture, CarouselFixture)

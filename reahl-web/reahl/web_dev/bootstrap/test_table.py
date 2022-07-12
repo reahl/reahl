@@ -266,16 +266,16 @@ def test_sorting(web_fixture, data_table_fixture):
 def test_sorting_i18n(web_fixture, data_table_fixture):
     """Sorting works correctly when the current View is translated to another i18n locale."""
 
-    LocaleContextStub(locale='af').install()
+    with LocaleContextStub(locale='af'):
 
-    web_fixture.reahl_server.set_app(data_table_fixture.wsgi_app)
-    browser = web_fixture.driver_browser
-    browser.open('/af/')
+        web_fixture.reahl_server.set_app(data_table_fixture.wsgi_app)
+        browser = web_fixture.driver_browser
+        browser.open('/af/')
 
-    assert not data_table_fixture.is_column_sorted(1, 'ascending')
-    assert not data_table_fixture.is_column_sorted(1, 'descending')
-    browser.click(data_table_fixture.xpath_for_sort_link_for_column(1))
-    assert data_table_fixture.is_column_sorted(1, 'ascending')
+        assert not data_table_fixture.is_column_sorted(1, 'ascending')
+        assert not data_table_fixture.is_column_sorted(1, 'descending')
+        browser.click(data_table_fixture.xpath_for_sort_link_for_column(1))
+        assert data_table_fixture.is_column_sorted(1, 'ascending')
 
 
 @with_fixtures(WebFixture, DataTableFixture)

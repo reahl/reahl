@@ -8,20 +8,20 @@ from reahl.doc.examples.tutorial.migrationexamplebootstrap.migrationexampleboots
 
 config = StoredConfiguration(sys.argv[1])
 config.configure()
-context = ExecutionContext().install()
-context.config = config
-context.system_control = SystemControl(config)
+with ExecutionContext() as context:
+    context.config = config
+    context.system_control = SystemControl(config)
 
-try:
-    context.system_control.orm_control.connect()
-    metadata.create_all()
+    try:
+        context.system_control.orm_control.connect()
+        metadata.create_all()
 
-    Session.add(Address(name='John Doe', email_address='johndoe@some.org'))
-    Session.add(Address(name='Jane Johnson', email_address='janejohnson@some.org'))
-    Session.add(Address(name='Jack Black', email_address='jackblack@some.org'))
+        Session.add(Address(name='John Doe', email_address='johndoe@some.org'))
+        Session.add(Address(name='Jane Johnson', email_address='janejohnson@some.org'))
+        Session.add(Address(name='Jack Black', email_address='jackblack@some.org'))
 
-    context.system_control.orm_control.commit()
+        context.system_control.orm_control.commit()
 
-finally:
-    context.system_control.orm_control.disconnect()
+    finally:
+        context.system_control.orm_control.disconnect()
 
