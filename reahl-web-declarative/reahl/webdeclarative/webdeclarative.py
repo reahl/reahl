@@ -276,24 +276,14 @@ class UserInput(SessionData, UserInputProtocol):
 
     @classmethod
     def get_previously_saved_for(cls, view, form, key, value_type):
-        if True:
-            #new way
-            if view.cached_session_data is None:
-                view.cached_session_data = cls.find_all_for_view(view).all()
+        if view.cached_session_data is None:
+            view.cached_session_data = cls.find_all_for_view(view).all()
 
-            channel_name = form.channel_name if form else None
-            values = [i.value for i in view.cached_session_data if i.key == key and i.channel_name == channel_name]
+        channel_name = form.channel_name if form else None
+        values = [i.value for i in view.cached_session_data if i.key == key and i.channel_name == channel_name]
 
-            if len(values) == 0:
-                return None
-        else:
-            #old way
-            query = cls.find_for(view, form=form).filter_by(key=key)
-            if query.count() == 0:
-                return None
-
-            values = [i.value for i in query.all()]
-
+        if len(values) == 0:
+            return None
 
         if value_type is str:
             assert len(values) == 1, 'There are %s saved values for "%s", but there should only be one' % (len(values), key)
@@ -311,6 +301,7 @@ class UserInput(SessionData, UserInputProtocol):
 
     @classmethod
     def save_value_for(cls, view, form, key, value, value_type):
+        view.cached_session_data = None
         for i in cls.find_for(view, form=form).filter_by(key=key):
             Session.delete(i)
 
