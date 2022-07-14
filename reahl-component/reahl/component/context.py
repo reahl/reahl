@@ -16,16 +16,20 @@
 
 
 import inspect
-import contextvars
 from reahl.component.decorators import  deprecated, memoized
 
+
+try:
+    import contextvars
+    execution_context_var = contextvars.ContextVar('reahl.component.context.ExecutionContext')
+except:
+    execution_context_var = None
 
 
 class NoContextFound(Exception):
     pass
 
 
-execution_context_var = contextvars.ContextVar('reahl.component.context.ExecutionContext')
 
 
 class ExecutionContext:

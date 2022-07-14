@@ -263,7 +263,13 @@ class ReahlSystemConfig(Configuration):
 
     def do_injections(self, config):
         if self.use_context_var_for_context:
-            ExecutionContext.use_context_var = True
+            try:
+                import contextvars
+            except:
+                warnings.warn('Ignoring reahlsystem.use_context_var_for_context. Contextvars not available for this platform', UserWarning)
+                ExecutionContext.use_context_var = False
+            else:
+                ExecutionContext.use_context_var = True
 
 
 class ConfigAsDict(dict):
