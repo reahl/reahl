@@ -7,9 +7,8 @@ python-reahl (6.1.0) unstable; urgency=low
  * Fixed incorrect handling of timeouts (#383).
  * Made create_args for sqlalchemy configurable (#232).
  * Read and configure test dependencies from fixture (#237).
- * Add config setting runtime_checking_enabled to be able to toggle the execution of runtime checks (#358).
- * Add config setting use_context_var_for_context to switch between implementations of ExecutionContext (#359).
- * ExecutionContext can now be used as ContextManager.
+ * Enable to toggle the execution of runtime checks (#358).
+ * Implement ExecutionContext with contextvars, mandating it to be used as ContextManager from now on (#359).
 
  -- Iwan Vosloo <iwan@reahl.org>  Fri, 12 Jul 2022 07:56:00 +0200
 

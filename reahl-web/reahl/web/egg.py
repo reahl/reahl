@@ -91,7 +91,3 @@ class WebConfig(Configuration):
         self.frontend_libraries = LibraryIndex(JQuery(), JsCookie(), JQueryUI(), Underscore(), HTML5Shiv(), IE9(), Reahl(), Holder(),
                                                Popper(),  # must be before Bootstrap in html script includes
                                                Bootstrap4(), ReahlBootstrap4Additions(), PlotlyJS())
-
-    def do_injections(self, config):
-        if config.reahlsystem.use_context_var_for_context:
-            ExecutionContext.use_context_var = True

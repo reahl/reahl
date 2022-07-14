@@ -261,6 +261,9 @@ class ReahlSystemConfig(Configuration):
     runtime_checking_enabled = ConfigSetting(default=True, description='If False, skip runtime programmer checks for enhanced performance.')
     use_context_var_for_context = ConfigSetting(default=False, description='If True, use python contextvar as scope for ExecutionContext.')
 
+    def do_injections(self, config):
+        if self.use_context_var_for_context:
+            ExecutionContext.use_context_var = True
 
 
 class ConfigAsDict(dict):

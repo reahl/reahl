@@ -17,12 +17,15 @@
 
 import inspect
 import contextvars
+from reahl.component.decorators import  deprecated
 
 
 class NoContextFound(Exception):
     pass
 
+
 execution_context_var = contextvars.ContextVar('reahl.component.context.ExecutionContext')
+
 
 class ExecutionContext:
     """Most code execute "in the scope of" some ExecutionContext. Such code can obtain
@@ -98,14 +101,13 @@ class ExecutionContext:
         return context
 
     def __enter__(self):
-        self.install()
+        self.install_with_context_vars_or_frames()
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.uninstall()
 
-    def install(self, stop=None):
-        """Installs the ExecutionContext in the current scope so that it will be found by code called after it is installed. """
+    def install_with_context_vars_or_frames(self, stop=None):
         if not self.use_context_var:
             return self.install_using_frames(stop=stop)
         try:
@@ -116,13 +118,23 @@ class ExecutionContext:
         self.ctx_token = execution_context_var.set(self)
         return self
 
+
+    @deprecated('Use `with ExecutionContext(): ...` instead, in order to exit the context explicitly as well.', '6.1')
+    def install(self, stop=None):
+        """Installs the ExecutionContext in the current scope so that it will be found by code called after it is installed.
+
+           .. versionchanged:: 6.1
+              Deprecated install. Use ExecutionContext as ContextManager instead.
+
+        """
+        return self.install_with_context_vars_or_frames(stop=stop)
+
     def uninstall(self):
         if not self.use_context_var:
             return
         execution_context_var.reset(self.ctx_token)
 
     def install_using_frames(self, stop=None):
-        """Installs the ExecutionContext in the current scope so that it will be found by code called after it is installed. """
         f = inspect.currentframe()
         if not stop:
             def stop(ff):

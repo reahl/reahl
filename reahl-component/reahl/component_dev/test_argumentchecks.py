@@ -133,33 +133,41 @@ def test_checking_arguments(argument_check_fixture):
     with expected(wrapped_exception):
         ArgumentCheckedCallable(fixture.callable, explanation='some message').checkargs(*fixture.args, **fixture.kwargs)
 
+class ArgsCheckDisableFixture(Fixture):
 
-def test_disable_argument_checks():
+    def new_config(self):
+        config = Configuration()
+        config.reahlsystem = ReahlSystemConfig()
+        return config
+
+    @scenario
+    def enable_checks(self):
+        self.expected_exception = IsInstance
+        self.config.reahlsystem.runtime_checking_enabled = True
+
+    @scenario
+    def disable_checks(self):
+        self.expected_exception = NoException
+        self.config.reahlsystem.runtime_checking_enabled = False
+
+
+@with_fixtures(ArgsCheckDisableFixture)
+def test_disable_argument_checks(args_check_fixture):
     """Config setting overrides executing checks"""
 
-    config = Configuration()
-    config.reahlsystem = ReahlSystemConfig()
-    config.reahlsystem.runtime_checking_enabled = False
-
-    arg_check = IsInstance(int)
     class ModelObject:
-        @arg_checks(y=arg_check)
+        @arg_checks(y=IsInstance(int))
         def do_something(self, y):
             pass
 
-    with ExecutionContext() as context,\
-         CallMonitor(arg_check.is_valid) as monitor:
-        assert len(monitor.calls) == 0
+    with ExecutionContext() as context:
+        context.config = args_check_fixture.config
 
-        #case implicit
-        context.config = config
         model_object = ModelObject()
-        model_object.do_something(5)
-        assert len(monitor.calls) == 0
-
-        #case explicit
-        ArgumentCheckedCallable(model_object.do_something).checkargs(5)
-        assert len(monitor.calls) == 0
+        with expected(args_check_fixture.expected_exception):
+            model_object.do_something('5')
+        with expected(args_check_fixture.expected_exception):
+            ArgumentCheckedCallable(model_object.do_something).checkargs('5')
 
 
 def test_stubbable_is_instance():
