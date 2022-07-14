@@ -17,7 +17,8 @@
 
 import inspect
 import contextvars
-from reahl.component.decorators import  deprecated
+from reahl.component.decorators import  deprecated, memoized
+
 
 
 class NoContextFound(Exception):
@@ -148,6 +149,7 @@ class ExecutionContext:
         return self
 
     @property
+    @memoized
     def interface_locale(self):
         """Returns a string identifying the current locale."""
         session = getattr(self, 'session', None)

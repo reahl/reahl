@@ -1865,6 +1865,7 @@ class UrlBoundView(View):
         self.page_factory = page_factory
         self.page = None
         self.assemble(**view_arguments)
+        self.cached_session_data = None
 
     def allowed(self):
         return True
