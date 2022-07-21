@@ -84,8 +84,12 @@ class MyDomainObject(Base):
     __tablename__ = 'optimistic_concurrency_domain_object'
 
     id = Column(Integer, primary_key=True)
-    some_field_value = Column(UnicodeText, default='123')
-    counter = Column(Integer, default=0)
+    some_field_value = Column(UnicodeText)
+    counter = Column(Integer)
+
+    def __init__(self):
+        self.counter = 0
+        self.some_field_value = '123'
 
     @exposed
     def fields(self, fields):
