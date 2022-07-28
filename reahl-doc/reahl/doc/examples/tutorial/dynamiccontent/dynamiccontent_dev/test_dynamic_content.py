@@ -53,5 +53,6 @@ def test_example(web_fixture, dynamic_example_fixture):
 
     # Check successful submit
     browser.click(XPath.button_labelled('Submit'))
-    browser.wait_for_element_not_visible(fixture.domain_exception_alert)  
+    browser.wait_for_element_not_visible(fixture.domain_exception_alert)
+
 

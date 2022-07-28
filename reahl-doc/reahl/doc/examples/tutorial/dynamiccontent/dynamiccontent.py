@@ -104,7 +104,8 @@ class InvestmentOrder(Base):
     id              = Column(Integer, primary_key=True)
     amount          = Column(Integer)
     amount_or_percentage = Column(UnicodeText)
-    allocations     = relationship('reahl.doc.examples.tutorial.dynamiccontent.dynamiccontent.Allocation', back_populates='investment_order', lazy='immediate')
+    allocations     = relationship('reahl.doc.examples.tutorial.dynamiccontent.dynamiccontent.Allocation',
+                                   back_populates='investment_order', lazy='immediate', cascade="all, delete-orphan")
 
     @exposed
     def fields(self, fields):
@@ -120,11 +121,14 @@ class InvestmentOrder(Base):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.clear()
+
+    def clear(self):
         self.amount_or_percentage = 'percentage'
         self.amount = 0
-        if not self.allocations:
-            Allocation(self, 'Fund A')
-            Allocation(self, 'Fund B')
+        self.allocations = [
+            Allocation(self, 'Fund A'),
+            Allocation(self, 'Fund B')]
 
     @property
     def is_in_percentage(self):
@@ -161,7 +165,7 @@ class InvestmentOrder(Base):
             allocation_size = allocation.percentage if self.is_in_percentage else allocation.amount
             print('\t\tFund %s(%s): %s (%s)' % (allocation.fund, allocation.fund_code, allocation_size, allocation.amount))
 
-        Session.delete(self)
+        self.clear()
 
 
 class Allocation(Base):
