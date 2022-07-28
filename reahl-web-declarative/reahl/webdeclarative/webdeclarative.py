@@ -226,13 +226,7 @@ class SessionData(Base):
         assert (not form) or (form.view is view)
         web_session = ExecutionContext.get_context().session
         channel_name = form.channel_name if form else None
-        query = Session.query(cls).filter_by(web_session=web_session, view_path=view.full_path, ui_name=view.user_interface.name, channel_name=channel_name)
-        return query
-
-    @classmethod
-    def find_all_for_view(cls, view):
-        web_session = ExecutionContext.get_context().session
-        return Session.query(cls).filter_by(web_session=web_session, view_path=view.full_path, ui_name=view.user_interface.name)
+        return Session.query(cls).filter_by(web_session=web_session, view_path=view.full_path, ui_name=view.user_interface.name, channel_name=channel_name)
 
     @classmethod
     def save_for(cls, view, form=None, **kwargs):
@@ -276,14 +270,11 @@ class UserInput(SessionData, UserInputProtocol):
 
     @classmethod
     def get_previously_saved_for(cls, view, form, key, value_type):
-        if view.cached_session_data is None:
-            view.cached_session_data = cls.find_all_for_view(view).all()
-
-        channel_name = form.channel_name if form else None
-        values = [i.value for i in view.cached_session_data if i.key == key and i.channel_name == channel_name]
-
-        if len(values) == 0:
+        query = cls.find_for(view, form=form).filter_by(key=key)
+        if query.count() == 0:
             return None
+
+        values = [i.value for i in query.all()]
 
         if value_type is str:
             assert len(values) == 1, 'There are %s saved values for "%s", but there should only be one' % (len(values), key)
