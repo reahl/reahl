@@ -279,31 +279,6 @@ class SqlAlchemyControl(ORMControl):
 
         self.instrument_classes_for(config.reahlsystem.root_egg)
 
-    def connect2(self, auto_commit=False):
-        """Creates the SQLAlchemy Engine, bind it to the metadata and instrument the persisted classes
-           for the current reahlsystem.root_egg."""
-        assert not self.connected
-        context = ExecutionContext.get_context()
-
-        config = context.config
-        db_api_connection_creator = context.system_control.db_control.get_dbapi_connection_creator()
-
-        create_args = {'poolclass': QueuePool, 'pool_size':1, 'max_overflow':0, 'pool_pre_ping': True, 'pool_recycle':280}
-        if auto_commit:
-            create_args['isolation_level'] = 'AUTOCOMMIT'
-            create_args['execution_options'] = {'isolation_level': 'AUTOCOMMIT'}
-
-        if db_api_connection_creator:
-            create_args['creator']=db_api_connection_creator
-
-        self.engine = create_engine(config.reahlsystem.connection_uri, **create_args)
-        self.engine.echo = self.echo
-        self.engine.connect()
-        metadata.bind = self.engine
-        Session.configure(bind=self.engine)
-
-        self.instrument_classes_for(config.reahlsystem.root_egg)
-
     def instrument_classes_for(self, root_egg):
         all_classes = []
         for i in ReahlEgg.get_all_relevant_interfaces(root_egg):

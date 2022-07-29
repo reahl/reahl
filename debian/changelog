@@ -7,8 +7,11 @@ python-reahl (6.1.0) unstable; urgency=low
  * Fixed incorrect handling of timeouts (#383).
  * Made create_args for sqlalchemy configurable (#232).
  * Read and configure test dependencies from fixture (#237).
+ * Enable to toggle the execution of runtime checks and other performance enhancements (#358).
+ * Implement ExecutionContext with contextvars, mandating it to be used as ContextManager from now on (#359).
+ * Cache session data on UrlBoundView (#365)
 
- -- Iwan Vosloo <iwan@reahl.org>  Fri, 27 Apr 2022 07:56:00 +0200
+ -- Iwan Vosloo <iwan@reahl.org>  Fri, 12 Jul 2022 07:56:00 +0200
 
 python-reahl (6.0.2) unstable; urgency=low
 

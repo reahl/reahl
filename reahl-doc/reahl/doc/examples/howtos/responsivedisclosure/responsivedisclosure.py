@@ -170,8 +170,10 @@ class InvestmentOrder(Base):
     surname         = Column(UnicodeText)
     amount          = Column(Integer)
     amount_or_percentage = Column(UnicodeText)
-    allocations     = relationship('reahl.doc.examples.howtos.responsivedisclosure.responsivedisclosure.Allocation', back_populates='investment_order', lazy='immediate')
-    id_document     = relationship('reahl.doc.examples.howtos.responsivedisclosure.responsivedisclosure.IDDocument', uselist=False, back_populates='investment_order')
+    allocations     = relationship('reahl.doc.examples.howtos.responsivedisclosure.responsivedisclosure.Allocation',
+                                   back_populates='investment_order', lazy='immediate', cascade="all, delete-orphan")
+    id_document     = relationship('reahl.doc.examples.howtos.responsivedisclosure.responsivedisclosure.IDDocument',
+                                   uselist=False, back_populates='investment_order', cascade="all, delete-orphan")
 
     @exposed
     def fields(self, fields):
@@ -194,6 +196,9 @@ class InvestmentOrder(Base):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.clear()
+
+    def clear(self):
         self.amount_or_percentage = 'percentage'
         self.name = None
         self.surname = None
@@ -201,11 +206,11 @@ class InvestmentOrder(Base):
         self.existing_account_number = None
         self.new_or_existing = None
         self.agreed_to_terms = False
-        if not self.allocations:
-            Allocation(self, 'Fund A')
+        self.allocations = [
+            Allocation(self, 'Fund A'),
             Allocation(self, 'Fund B')
-        if not self.id_document:
-            self.id_document = IDDocument(investment_order=self)
+        ]
+        self.id_document = IDDocument(investment_order=self)
 
     @property
     def is_in_percentage(self):
@@ -249,7 +254,7 @@ class InvestmentOrder(Base):
             allocation_size = allocation.percentage if self.is_in_percentage else allocation.amount
             print('\t\tFund %s(%s): %s (%s)' % (allocation.fund, allocation.fund_code, allocation_size, allocation.amount))
 
-        Session.delete(self)
+        self.clear()
 
 
 class Allocation(Base):
@@ -300,12 +305,16 @@ class IDDocument(Base):
 
     id         = Column(Integer, primary_key=True)
     
-    document_type = Column(UnicodeText, default='id_card')
+    document_type = Column(UnicodeText)
     id_card_number     = Column(UnicodeText)
     passport_number = Column(UnicodeText)
     country = Column(UnicodeText)
     investment_id = Column(Integer, ForeignKey(InvestmentOrder.id))
     investment_order  = relationship('reahl.doc.examples.howtos.responsivedisclosure.responsivedisclosure.InvestmentOrder', back_populates='id_document')
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.document_type = 'id_card'
 
     @exposed
     def fields(self, fields):

@@ -80,8 +80,8 @@ class ProductionCommand(Command):
         except pkg_resources.DistributionNotFound as ex:
             ex.args = ('%s (In development? Did you forget to do a "python -m pip install --no-deps -e ."?)' % ex.args[0],)
             raise
-        self.context.install()
-        self.context.system_control = SystemControl(self.context.config)
+        with self.context:
+            self.context.system_control = SystemControl(self.context.config)
 
     @property
     def sys_control(self):
@@ -109,34 +109,34 @@ class ListConfig(ProductionCommand):
 
     def execute(self, args):
         super().execute(args)
-        self.context.install()
 
-        print('Listing config for %s' % self.directory)
-        config = StoredConfiguration(self.directory)
-        config.configure(validate=False)
-        for config_file, key, value, setting in config.list_all():
-            to_print = '%-35s' % key
-            if args.print_files:
-                to_print += '\t%s' % config_file
-            if args.print_values:
-                to_print += '\t%s' % value
-            if args.print_defaults:
-                if setting.defaulted:
-                    message = str(setting.default)
-                    if setting.dangerous:
-                        message += ' (DANGEROUS DEFAULT)'
-                elif setting.automatic:
-                    message = 'AUTOMATIC'
+        with self.context:
+            print('Listing config for %s' % self.directory)
+            config = StoredConfiguration(self.directory)
+            config.configure(validate=False)
+            for config_file, key, value, setting in config.list_all():
+                to_print = '%-35s' % key
+                if args.print_files:
+                    to_print += '\t%s' % config_file
+                if args.print_values:
+                    to_print += '\t%s' % value
+                if args.print_defaults:
+                    if setting.defaulted:
+                        message = str(setting.default)
+                        if setting.dangerous:
+                            message += ' (DANGEROUS DEFAULT)'
+                    elif setting.automatic:
+                        message = 'AUTOMATIC'
+                    else:
+                        message = 'NO DEFAULT'
+                    to_print += '\t%s' % message
+                if args.print_description:
+                    to_print += '\t%s' % setting.description
+
+                if args.print_missing_only and not isinstance(value, MissingValue):
+                    pass
                 else:
-                    message = 'NO DEFAULT'
-                to_print += '\t%s' % message
-            if args.print_description:
-                to_print += '\t%s' % setting.description
-
-            if args.print_missing_only and not isinstance(value, MissingValue):
-                pass
-            else:
-                print(to_print)
+                    print(to_print)
 
 
 class CheckConfig(ProductionCommand):
@@ -270,9 +270,9 @@ class SizeDB(ProductionCommand):
     keyword = 'sizedb'
     def execute(self, args):
         super().execute(args)
-        self.context.install()
-        with self.sys_control.auto_connected():
-            print('Database size: %s' % self.sys_control.size_database())
+        with self.context:
+            with self.sys_control.auto_connected():
+                print('Database size: %s' % self.sys_control.size_database())
         return 0
 
 
@@ -281,8 +281,7 @@ class CreateDBTables(ProductionCommand):
     keyword = 'createdbtables'
     def execute(self, args):
         super().execute(args)
-        self.context.install()
-        with self.sys_control.auto_connected():
+        with self.context, self.sys_control.auto_connected():
             return self.sys_control.create_db_tables()
 
 
@@ -291,8 +290,7 @@ class DropDBTables(ProductionCommand):
     keyword = 'dropdbtables'
     def execute(self, args):
         super().execute(args)
-        self.context.install()
-        with self.sys_control.auto_connected():
+        with self.context, self.sys_control.auto_connected():
             return self.sys_control.drop_db_tables()
 
 
@@ -307,12 +305,12 @@ class MigrateDB(ProductionCommand):
 
     def execute(self, args):
         super().execute(args)
-        self.context.install()
-        try:
-            self.sys_control.connect(auto_commit=True)
-            return self.sys_control.migrate_db(explain=args.explain)
-        finally:
-            self.sys_control.disconnect()
+        with self.context:
+            try:
+                self.sys_control.connect(auto_commit=True)
+                return self.sys_control.migrate_db(explain=args.explain)
+            finally:
+                self.sys_control.disconnect()
 
 
 class DiffDB(ProductionCommand):
@@ -325,8 +323,7 @@ class DiffDB(ProductionCommand):
 
     def execute(self, args):
         super().execute(args)
-        self.context.install()
-        with self.sys_control.auto_connected():
+        with self.context, self.sys_control.auto_connected():
             changes = self.sys_control.diff_db(output_sql=args.output_sql)
             if not changes:
                 print('No difference detected')
@@ -341,13 +338,13 @@ class ListDependencies(ProductionCommand):
         
     def execute(self, args):
         super().execute(args)
-        self.context.install()
-        distributions = ReahlEgg.compute_ordered_dependent_distributions(self.config.reahlsystem.root_egg)
-        for distribution in distributions:
-            deps = ''
-            if args.verbose:
-                deps = '[%s]' % (' | '.join([str(i) for i in distribution.requires()]))
-            print('%s %s' % (distribution, deps))
+        with self.context:
+            distributions = ReahlEgg.compute_ordered_dependent_distributions(self.config.reahlsystem.root_egg)
+            for distribution in distributions:
+                deps = ''
+                if args.verbose:
+                    deps = '[%s]' % (' | '.join([str(i) for i in distribution.requires()]))
+                print('%s %s' % (distribution, deps))
         return 0
 
 
@@ -359,11 +356,11 @@ class ListVersionHistory(ProductionCommand):
 
     def execute(self, args):
         super().execute(args)
-        self.context.install()
-        with self.sys_control.auto_connected():
-            version_graph = MigrationPlan.create_version_graph_for(ReahlEgg(pkg_resources.get_distribution(self.config.reahlsystem.root_egg)), self.config.reahlsystem.orm_control)
-        for key in version_graph.graph:
-            print('%s [%s]' % (key, ' | '.join([str(i) for i in version_graph.graph[key]])))
+        with self.context:
+            with self.sys_control.auto_connected():
+                version_graph = MigrationPlan.create_version_graph_for(ReahlEgg(pkg_resources.get_distribution(self.config.reahlsystem.root_egg)), self.config.reahlsystem.orm_control)
+            for key in version_graph.graph:
+                print('%s [%s]' % (key, ' | '.join([str(i) for i in version_graph.graph[key]])))
 
         return 0
 
@@ -373,8 +370,7 @@ class RunJobs(ProductionCommand):
     keyword = 'runjobs'
     def execute(self, args):
         super().execute(args)
-        self.context.install()
-        with self.sys_control.auto_connected():
+        with self.context, self.sys_control.auto_connected():
             self.sys_control.do_daily_maintenance()
         return 0
 

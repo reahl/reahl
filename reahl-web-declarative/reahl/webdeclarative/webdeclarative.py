@@ -26,10 +26,10 @@ import hashlib
 import urllib.parse
 from datetime import datetime, timedelta
 
-
-
 from sqlalchemy import Column, Integer, BigInteger, LargeBinary, PickleType, String, UnicodeText, ForeignKey, DateTime
 from sqlalchemy.orm import relationship, deferred
+from sqlalchemy import event
+from sqlalchemy.inspection import inspect
 
 from reahl.sqlalchemysupport import Session, Base
 from reahl.component.eggs import ReahlEgg
@@ -206,40 +206,62 @@ class SessionData(Base):
 
     @classmethod
     def clear_for_form(cls, form):
-        for stale in cls.find_for(form.view, form=form).all():
-            Session.delete(stale)
+        for stale in cls.find_for_cached(form.view, form=form):
+            cls.delete_cached(form.view, stale)
 
     @classmethod
     def clear_for_view(cls, view):
-        for stale in cls.find_for(view, form=None).all():
-            Session.delete(stale)
+        for stale in cls.find_for_cached(view, form=None):
+            cls.delete_cached(view, stale)
 
     @classmethod
     def clear_all_view_data(cls, view):
         web_session = ExecutionContext.get_context().session
         items = Session.query(cls).filter_by(web_session=web_session, view_path=view.full_path, ui_name=view.user_interface.name)
         for stale in items:
-            Session.delete(stale)
-        
-    @classmethod
-    def find_for(cls, view, form=None):
-        assert (not form) or (form.view is view)
-        web_session = ExecutionContext.get_context().session
-        channel_name = form.channel_name if form else None
-        return Session.query(cls).filter_by(web_session=web_session, view_path=view.full_path, ui_name=view.user_interface.name, channel_name=channel_name)
+            cls.delete_cached(view, stale)
 
     @classmethod
-    def save_for(cls, view, form=None, **kwargs):
+    def find_all_cached(cls, view):
+        if view.cached_session_data is None:
+
+            @event.listens_for(Session(), 'after_soft_rollback')
+            def clear_cache(session, previous_transaction):
+                view.cached_session_data = None
+
+            web_session = ExecutionContext.get_context().session
+            query = Session.query(SessionData).filter_by(web_session=web_session, view_path=view.full_path, ui_name=view.user_interface.name)
+            view.cached_session_data = query.all()
+
+        return [i for i in view.cached_session_data if isinstance(i, cls)]
+
+
+    @classmethod
+    def find_for_cached(cls, view, form=None):
+        assert (not form) or (form.view is view)
+        channel_name = form.channel_name if form else None
+        return [i for i in cls.find_all_cached(view) if i.channel_name == channel_name]
+
+    @classmethod
+    def save_for_cached(cls, view, form=None, **kwargs):
         assert (not form) or (form.view is view)
         channel_name = form.channel_name if form else None
         web_session = ExecutionContext.get_context().session
         instance = cls(web_session=web_session, view_path=view.full_path, ui_name=view.user_interface.name, channel_name=channel_name, **kwargs)
         Session.add(instance)
+        view.cached_session_data.append(instance)
         return instance
+
+    @classmethod
+    def delete_cached(cls, view, instance):
+        if inspect(instance).persistent:
+            Session.delete(instance)
+        view.cached_session_data.remove(instance)
 
     __hash__ = None
     def __eq__(self, other):
-        return self.web_session == other.web_session and \
+        return isinstance(other, self.__class__) and \
+               self.web_session == other.web_session and \
                self.ui_name == other.ui_name and \
                self.channel_name == other.channel_name
 
@@ -269,11 +291,9 @@ class UserInput(SessionData, UserInputProtocol):
 
     @classmethod
     def get_previously_saved_for(cls, view, form, key, value_type):
-        query = cls.find_for(view, form=form).filter_by(key=key)
-        if query.count() == 0:
+        values = [i.value for i in cls.find_for_cached(view, form=form) if i.key == key]
+        if not values:
             return None
-
-        values = [i.value for i in query.all()]
 
         if value_type is str:
             assert len(values) == 1, 'There are %s saved values for "%s", but there should only be one' % (len(values), key)
@@ -291,19 +311,19 @@ class UserInput(SessionData, UserInputProtocol):
 
     @classmethod
     def save_value_for(cls, view, form, key, value, value_type):
-        for i in cls.find_for(view, form=form).filter_by(key=key):
-            Session.delete(i)
+        for i in [e for e in cls.find_for_cached(view, form=form) if e.key == key]:
+            cls.delete_cached(view, i)
 
         if value_type is str:
             assert isinstance(value, str), 'Cannot handle the value: ' + str(value)
-            cls.save_for(view, form=form, key=key, value=value)
+            cls.save_for_cached(view, form=form, key=key, value=value)
         elif value_type is list:
             assert all([isinstance(i, str) for i in value]), 'Cannot handle the value: ' + str(value)
             if value:
                 for i in value:
-                    cls.save_for(view, form=form, key=key, value=i)
+                    cls.save_for_cached(view, form=form, key=key, value=i)
             else:
-                cls.save_for(view, form=form, key=key, value=None)
+                cls.save_for_cached(view, form=form, key=key, value=None)
         else:
             assert None, 'Cannot persist values of type: %s' % value_type
 
@@ -317,9 +337,8 @@ class UserInput(SessionData, UserInputProtocol):
 
     @classmethod
     def remove_persisted_for_view(cls, view, key):
-        for previous in cls.find_for(view, form=None).filter_by(key=key):
-            Session.delete(previous)
-
+        for previous in [i for i in cls.find_for_cached(view, form=None) if i.key == key]:
+            cls.delete_cached(view, previous)
 
 class PersistedException(SessionData, PersistedExceptionProtocol):
     """An implementation of :class:`reahl.web.interfaces.PersistedExceptionProtocol`. It represents
@@ -337,34 +356,34 @@ class PersistedException(SessionData, PersistedExceptionProtocol):
 
     @classmethod
     def save_exception_for_form(cls, form, **kwargs):
-        return cls.save_for(form.view, form=form, **kwargs)
+        return cls.save_for_cached(form.view, form=form, **kwargs)
 
     @classmethod
     def for_input(cls, form, input_name):
-        return super().find_for(form.view, form=form).filter_by(input_name=input_name)
+        return [i for i in super().find_for_cached(form.view, form=form) if i.input_name == input_name]
 
     @classmethod
     def clear_for_form_except_inputs(cls, form):
-        for stale in cls.for_input(form, None).all():
-            Session.delete(stale)
+        for stale in cls.for_input(form, None):
+            cls.delete_cached(form.view, stale)
 
     @classmethod
     def clear_for_all_inputs(cls, form):
-        for e in super().find_for(form.view, form=form).filter(cls.input_name is not None):
-            Session.delete(e)
+        for e in [i for i in super().find_for_cached(form.view, form=form) if i.input_name is not None]:
+            cls.delete_cached(form.view, e)
 
     @classmethod
     def get_exception_for_form(cls, form):
         persisted = cls.for_input(form, None)
-        if persisted.count() == 1:
-            return persisted.one().exception
+        if len(persisted) == 1:
+            return persisted[0].exception
         return None
 
     @classmethod
     def get_exception_for_input(cls, form, input_name):
         persisted = cls.for_input(form, input_name)
-        if persisted.count() == 1:
-            return persisted.one().exception
+        if len(persisted) == 1:
+            return persisted[0].exception
         return None
 
 
@@ -403,8 +422,7 @@ class PersistedFile(SessionData, PersistedFileProtocol):
 
     @classmethod
     def get_persisted_for_form(cls, form, input_name):
-        query = cls.find_for(form.view, form=form).filter_by(input_name=input_name)
-        return query.all()
+        return [i for i in cls.find_for_cached(form.view, form=form) if i.input_name == input_name]
 
     @classmethod
     def add_persisted_for_form(cls, form, input_name, uploaded_file):
@@ -412,17 +430,18 @@ class PersistedFile(SessionData, PersistedFileProtocol):
         file_data = uploaded_file.contents
         mime_type = uploaded_file.mime_type
         size = uploaded_file.size
-        return cls.save_for(form.view, form=form, input_name=input_name, filename=filename, file_data=file_data, mime_type=mime_type, size=size)
+        return cls.save_for_cached(form.view, form=form, input_name=input_name, filename=filename, file_data=file_data,
+                                   mime_type=mime_type, size=size)
 
     @classmethod
     def remove_persisted_for_form(cls, form, input_name, filename):
-        persisted = cls.find_for(form.view, form=form).filter_by(input_name=input_name).filter_by(filename=filename)
-        for persisted_file in persisted.all():
-            Session.delete(persisted_file)
+        persisted = [i for i in cls.find_for_cached(form.view, form=form) if i.input_name == input_name and i.filename == filename]
+        for persisted_file in persisted:
+            cls.delete_cached(form.view, persisted_file)
 
     @classmethod
     def is_uploaded_for_form(cls, form, input_name, filename):
-        return PersistedFile.find_for(form.view, form=form).filter_by(input_name=input_name).filter_by(filename=filename).count() == 1
+        return len([i for i in PersistedFile.find_for_cached(form.view, form=form) if i.input_name == input_name and i.filename == filename]) == 1
     
 
 class WebDeclarativeConfig(Configuration):

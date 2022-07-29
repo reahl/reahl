@@ -60,6 +60,7 @@ from webob.multidict import MultiDict
 from reahl.component.config import StoredConfiguration
 from reahl.component.context import ExecutionContext
 from reahl.component.dbutils import SystemControl
+from reahl.component.decorators import memoized
 from reahl.component.exceptions import ArgumentCheckedCallable
 from reahl.component.exceptions import DomainException
 from reahl.component.exceptions import IsInstance
@@ -1234,6 +1235,11 @@ class Widget:
             for widget in child.contained_widgets():
                 yield widget
 
+    @property
+    def is_runtime_checking_enabled(self):
+        config = ExecutionContext.get_context().config
+        return config.reahlsystem.runtime_checking_enabled
+
     is_Form = False
     is_Input = False
     def check_form_related_programmer_errors(self):
@@ -1278,7 +1284,8 @@ class Widget:
         self.slot_contents['reahl_footer'] = FooterContent(self)
         self.fill_slots(self.slot_contents)
         self.attach_out_of_bound_widgets(view.out_of_bound_widgets)
-        self.check_form_related_programmer_errors()
+        if self.is_runtime_checking_enabled:
+            self.check_form_related_programmer_errors()
 
     @property
     def available_slots(self):
@@ -1858,6 +1865,7 @@ class UrlBoundView(View):
         self.page_factory = page_factory
         self.page = None
         self.assemble(**view_arguments)
+        self.cached_session_data = None
 
     def allowed(self):
         return True
@@ -1991,6 +1999,7 @@ class UrlBoundView(View):
         return client_state_string
 
     @property
+    @memoized
     def construction_client_side_state_as_dict_of_lists(self):
         return urllib.parse.parse_qs(self.construction_client_side_state, keep_blank_values=True)
 
@@ -2920,11 +2929,11 @@ class ReahlWSGIApplication:
         self.request_lock = threading.Lock()
         self.config = config
         self.system_control = SystemControl(self.config)
-        context = ExecutionContext(name='%s.__init__()' % self.__class__.__name__).install()
-        context.config = self.config
-        context.system_control = self.system_control
-        self.root_user_interface_factory = UserInterfaceFactory(None, RegexPath('/', '/', {}), IdentityDictionary(), self.config.web.site_root, 'site_root')
-        self.add_reahl_static_files()
+        with ExecutionContext(name='%s.__init__()' % self.__class__.__name__) as context:
+            context.config = self.config
+            context.system_control = self.system_control
+            self.root_user_interface_factory = UserInterfaceFactory(None, RegexPath('/', '/', {}), IdentityDictionary(), self.config.web.site_root, 'site_root')
+            self.add_reahl_static_files()
 
     def add_reahl_static_files(self):
         static_files = self.config.web.frontend_libraries.packaged_files()
@@ -2940,23 +2949,23 @@ class ReahlWSGIApplication:
     def start(self):
         """Starts the ReahlWSGIApplication by "connecting" to the database. What "connecting" means may differ
            depending on the persistence mechanism in use. It could include enhancing classes for persistence, etc."""
-        context = ExecutionContext(name='%s.start()' % self.__class__.__name__).install()
-        context.config = self.config
-        context.system_control = self.system_control
         self.should_disconnect = False
-        if not self.system_control.connected:
-            self.system_control.connect()
-            self.should_disconnect = True
+        with ExecutionContext(name='%s.start()' % self.__class__.__name__) as context:
+            context.config = self.config
+            context.system_control = self.system_control
+            if not self.system_control.connected:
+                self.system_control.connect()
+                self.should_disconnect = True
         self.started = True
 
     def stop(self):
         """Stops the ReahlWSGIApplication by "disconnecting" from the database. What "disconnecting" means may differ
            depending on the persistence mechanism in use."""
-        context = ExecutionContext(name='%s.stop()' % self.__class__.__name__).install()
-        context.config = self.config
-        context.system_control = self.system_control
-        if self.should_disconnect and self.system_control.connected:
-            self.system_control.disconnect()
+        with ExecutionContext(name='%s.stop()' % self.__class__.__name__) as context:
+            context.config = self.config
+            context.system_control = self.system_control
+            if self.should_disconnect and self.system_control.connected:
+                self.system_control.disconnect()
 
     def resource_for(self, request):
         root_ui = target_ui = current_view = None
@@ -3046,8 +3055,7 @@ class ReahlWSGIApplication:
         context.config = self.config
         context.request = request
         context.system_control = self.system_control
-        context.install()
-        with self.concurrency_manager:
+        with context, self.concurrency_manager:
             with self.system_control.nested_transaction():
                 self.config.web.session_class.initialise_web_session_on(context)
                 context.session.set_last_activity_time()
@@ -3098,5 +3106,4 @@ class ReahlWSGIApplication:
                
             for chunk in response(environ, start_response):
                 yield chunk
-
 

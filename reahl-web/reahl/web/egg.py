@@ -20,6 +20,7 @@ Configuration for reahl-web.
 
 import os
 
+from reahl.component.context import ExecutionContext
 from reahl.component.config import Configuration, ConfigSetting
 from reahl.web.libraries import LibraryIndex, JQuery, JQueryUI, Underscore, HTML5Shiv, IE9, Reahl, Holder, Popper, \
     Bootstrap4, ReahlBootstrap4Additions, JsCookie, PlotlyJS
@@ -79,7 +80,7 @@ class WebConfig(Configuration):
                              dangerous=True)
     csrf_timeout_seconds = ConfigSetting(default=60*15,
                                          description='Forms have to be submitted within this time (in seconds) after being rendered.')
-                                       
+
     @property
     def secure_key_name(self):
         return '%s_secure' % self.session_key_name
@@ -90,4 +91,3 @@ class WebConfig(Configuration):
         self.frontend_libraries = LibraryIndex(JQuery(), JsCookie(), JQueryUI(), Underscore(), HTML5Shiv(), IE9(), Reahl(), Holder(),
                                                Popper(),  # must be before Bootstrap in html script includes
                                                Bootstrap4(), ReahlBootstrap4Additions(), PlotlyJS())
-

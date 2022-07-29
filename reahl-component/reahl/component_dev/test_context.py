@@ -17,10 +17,30 @@
 
 
 from reahl.stubble import EmptyStub
+from reahl.tofu import Fixture, scenario, with_fixtures, set_up, tear_down
 from reahl.component.context import ExecutionContext
 
+class ContextImplementationFixture(Fixture):
 
-def test_execution_context_basics():
+    @set_up
+    def record_original_implementation_setting(self):
+        self.original_use_context_var = ExecutionContext.use_context_var
+
+    @tear_down
+    def restore_original_implementation_setting(self):
+        ExecutionContext.use_context_var = self.original_use_context_var
+
+    @scenario
+    def use_frames(self):
+        ExecutionContext.use_context_var = False
+
+    @scenario
+    def use_contextvars(self):
+        ExecutionContext.use_context_var = True
+
+
+@with_fixtures(ContextImplementationFixture)
+def test_execution_context_basics(context_implementation_fixture):
     """An ExecutionContext is like a global variable for a particular call stack. To create an
        ExecutionContext for a call stack, use it in a with statement."""
 
@@ -29,28 +49,30 @@ def test_execution_context_basics():
     def do_high_level_something():
         return do_something()
 
-    some_context = ExecutionContext().install()
+    with ExecutionContext() as some_context:
 
-    found_context = do_high_level_something()
+        found_context = do_high_level_something()
 
-    assert found_context is some_context
+        assert found_context is some_context
 
 
-def test_execution_context_stacking():
+@with_fixtures(ContextImplementationFixture)
+def test_execution_context_stacking(context_implementation_fixture):
     """When an ExecutionContext overrides a deeper one on the call stack, it will retain the same id."""
-    some_context = ExecutionContext().install()
+    with ExecutionContext() as some_context:
 
-    def deeper_code():
-        deeper_context = ExecutionContext().install()
-        assert ExecutionContext.get_context_id() == some_context.id
-        return deeper_context
+        def deeper_code():
+            with ExecutionContext() as deeper_context:
+                assert ExecutionContext.get_context_id() == some_context.id
+                return deeper_context
 
-    deeper_context = deeper_code()
-    assert some_context is not deeper_context
-    assert some_context.id == deeper_context.id
+        deeper_context = deeper_code()
+        assert some_context is not deeper_context
+        assert some_context.id == deeper_context.id
 
 
-def test_contents():
+@with_fixtures(ContextImplementationFixture)
+def test_contents(context_implementation_fixture):
     """A Session, Config or SystemControl may be set on the ExecutionContext."""
     some_context = ExecutionContext()
 
@@ -65,8 +87,6 @@ def test_contents():
     assert some_context.session is session
     assert some_context.config is config
     assert some_context.system_control is system_control
-
-
 
 
 

@@ -79,22 +79,8 @@ class ConfigSetting:
         else:
             return self.default
         
-    def is_localised(self, obj):
-        name = self.name(type(obj))
-        for key in dir(obj):
-            if key.startswith('%s_' % name):
-                return True
-        return False
-        
     def __get__(self, obj, objtype):
         setting_name = self.name(type(obj))
-        if self.is_localised(obj):
-            context = ExecutionContext.get_context()
-            locale = context.interface_locale if context else ''
-            try:
-                return obj.__dict__['%s_%s' % (setting_name, locale)]
-            except KeyError:
-                pass
 
         if self.is_set(obj):
             return obj.__dict__[setting_name]
@@ -272,6 +258,18 @@ class ReahlSystemConfig(Configuration):
     databasecontrols = EntryPointClassList('reahl.component.databasecontrols', description='All available DatabaseControl classes')
     translation_packages = EntryPointClassList('reahl.translations', description='All available packages containing translation messages')
     serialise_parallel_requests = ConfigSetting(default=False, description='Whether concurrent requests to the web application should be forcibly serialised')
+    runtime_checking_enabled = ConfigSetting(default=True, description='If False, skip runtime programmer checks for enhanced performance.')
+    use_context_var_for_context = ConfigSetting(default=False, description='If True, use python contextvar as scope for ExecutionContext.')
+
+    def do_injections(self, config):
+        if self.use_context_var_for_context:
+            try:
+                import contextvars
+            except:
+                warnings.warn('Ignoring reahlsystem.use_context_var_for_context. Contextvars not available for this platform', UserWarning)
+                ExecutionContext.use_context_var = False
+            else:
+                ExecutionContext.use_context_var = True
 
 
 class ConfigAsDict(dict):

@@ -16,10 +16,20 @@
 
 
 import inspect
+from reahl.component.decorators import  deprecated, memoized
+
+
+try:
+    import contextvars
+    execution_context_var = contextvars.ContextVar('reahl.component.context.ExecutionContext')
+except:
+    execution_context_var = None
 
 
 class NoContextFound(Exception):
     pass
+
+
 
 
 class ExecutionContext:
@@ -34,7 +44,8 @@ class ExecutionContext:
        
        .. attribute:: system_control
     """
-
+    use_context_var = False
+    
     @classmethod
     def for_config_directory(cls, config_directory):
         from reahl.component.config import StoredConfiguration # Here, to avoid circular dependency
@@ -50,8 +61,23 @@ class ExecutionContext:
         """Returns a unique, hashable identifier identifying the current call context."""
         return cls.get_context().id
 
+
     @classmethod
     def get_context(cls):
+        """Returns the current call context, or raises :class:`NoContextFound` if there is none."""
+        if not cls.use_context_var:
+            return cls.get_context_using_frames()
+        try:
+            context = execution_context_var.get()
+        except LookupError:
+            context = None
+        if not context:
+            raise NoContextFound('No %s is active in the call stack' % cls)
+
+        return context
+
+    @classmethod
+    def get_context_using_frames(cls):
         """Returns the current call context, or raises :class:`NoContextFound` if there is none."""
         context = None
         f = inspect.currentframe()
@@ -72,16 +98,54 @@ class ExecutionContext:
             self.parent_context = None
         self.id = (self.parent_context.id if isinstance(self.parent_context, ExecutionContext) else id(self))
 
+    def copy(self):
+        context = self.__class__(name='ExecutionContext.copy()', parent_context=self)
+        for name in self.__dict__:
+            if name not in ['id', 'name','parent_context']:
+                context.__setattr__(name, self.__dict__[name])
+        return context
+
+    def __enter__(self):
+        self.install_with_context_vars_or_frames()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.uninstall()
+
+    def install_with_context_vars_or_frames(self, stop=None):
+        if not self.use_context_var:
+            return self.install_using_frames(stop=stop)
+        try:
+            if execution_context_var.get() == self:
+                raise Exception('Context already installed')
+        except LookupError:
+            pass
+        self.ctx_token = execution_context_var.set(self)
+        return self
+
+
+    @deprecated('Use `with ExecutionContext(): ...` instead, in order to exit the context explicitly as well.', '6.1')
     def install(self, stop=None):
-        """Installs the ExecutionContext in the current scope so that it will be found by code called after it is installed. """
+        """Installs the ExecutionContext in the current scope so that it will be found by code called after it is installed.
+
+           .. versionchanged:: 6.1
+              Deprecated install. Use ExecutionContext as ContextManager instead.
+
+        """
+        return self.install_with_context_vars_or_frames(stop=stop)
+
+    def uninstall(self):
+        if not self.use_context_var:
+            return
+        execution_context_var.reset(self.ctx_token)
+
+    def install_using_frames(self, stop=None):
         f = inspect.currentframe()
-        i = 0
         if not stop:
             def stop(ff):
-                return i >= 1
+                return not isinstance(ff.f_locals.get('self', None), ExecutionContext)
         while not stop(f):
             calling_frame = f.f_back
-            i += 1
             del f
             f = calling_frame
         calling_frame.f_locals['__reahl_context__'] = self
@@ -89,6 +153,7 @@ class ExecutionContext:
         return self
 
     @property
+    @memoized
     def interface_locale(self):
         """Returns a string identifying the current locale."""
         session = getattr(self, 'session', None)
