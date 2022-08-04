@@ -77,7 +77,8 @@ class TextInput(reahl.web.ui.TextInput):
                      looses focus.
        :keyword placeholder: If given a string, placeholder is displayed in the TextInput if the TextInput
                      is empty in order to provide a hint to the user of what may be entered into the TextInput.
-                     If given True instead of a string, the label of the TextInput is used.
+                     If given True instead of a string, the placeholder_source (default is label of the TextInput) value is used.
+       :keyword placeholder_source: If placeholder is True, the strings 'label' or 'field default' is used to determine which text to use  for the placeholder.
        :keyword refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
        :keyword ignore_concurrent_change: (See :class:`~reahl.web.ui.PrimitiveInput`)
 
@@ -86,9 +87,13 @@ class TextInput(reahl.web.ui.TextInput):
 
        .. versionchanged:: 5.0
           Added `ignore_concurrent_change`
+          
+       .. versionchanged:: 6.2
+          Added `placeholder_source`
+          
     """
-    def __init__(self, form, bound_field, fuzzy=False, placeholder=False, refresh_widget=None, ignore_concurrent_change=False):
-        super().__init__(form, bound_field, fuzzy=fuzzy, placeholder=placeholder, refresh_widget=refresh_widget, ignore_concurrent_change=ignore_concurrent_change)
+    def __init__(self, form, bound_field, fuzzy=False, placeholder=False, placeholder_source='label', refresh_widget=None, ignore_concurrent_change=False):
+        super().__init__(form, bound_field, fuzzy=fuzzy, placeholder=placeholder, placeholder_source=placeholder_source, refresh_widget=refresh_widget, ignore_concurrent_change=ignore_concurrent_change)
         self.append_class('form-control')
 
 
