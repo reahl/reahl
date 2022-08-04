@@ -268,9 +268,9 @@ class InputScenarios(SimpleInputFixture):
         self.field = MultiChoiceField(choices)
         self.field.bind('an_attribute', self.model_object)
 
-        self.widget = self.form.add_child(SelectInput(self.form, self.field))
+        self.widget = self.form.add_child(SelectInput(self.form, self.field, size=2))
         options = '<option id="id-test-an_attribute-91--93--1" value="1">One</option><option id="id-test-an_attribute-91--93--2" selected="selected" value="2">Two</option>'
-        self.expected_html = '<select name="test-an_attribute[]" id="id-test-an_attribute-91--93-" form="test" multiple="multiple" class="reahl-primitiveinput">%s</select>' % (options)
+        self.expected_html = '<select name="test-an_attribute[]" id="id-test-an_attribute-91--93-" form="test" multiple="multiple" size="2" class="reahl-primitiveinput">%s</select>' % (options)
         self.bound_field = self.widget.bound_field
 
     @scenario

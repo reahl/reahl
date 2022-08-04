@@ -10,6 +10,7 @@ python-reahl (6.1.0) unstable; urgency=low
  * Enable to toggle the execution of runtime checks and other performance enhancements (#358).
  * Implement ExecutionContext with contextvars, mandating it to be used as ContextManager from now on (#359).
  * Cache session data on UrlBoundView (#365)
+ * Added size to SelectInput (#362)
 
  -- Iwan Vosloo <iwan@reahl.org>  Fri, 12 Jul 2022 07:56:00 +0200
 

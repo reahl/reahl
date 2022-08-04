@@ -77,7 +77,8 @@ class TextInput(reahl.web.ui.TextInput):
                      looses focus.
        :keyword placeholder: If given a string, placeholder is displayed in the TextInput if the TextInput
                      is empty in order to provide a hint to the user of what may be entered into the TextInput.
-                     If given True instead of a string, the label of the TextInput is used.
+                     If given True instead of a string, the placeholder_source (default is label of the TextInput) value is used.
+       :keyword placeholder_source: If placeholder is True, the strings 'label' or 'field default' is used to determine which text to use  for the placeholder.
        :keyword refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
        :keyword ignore_concurrent_change: (See :class:`~reahl.web.ui.PrimitiveInput`)
 
@@ -138,6 +139,7 @@ class SelectInput(reahl.web.ui.SelectInput):
 
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
+       :keyword size: Number of rows in the list that should be visible at one time, if the associated field allows multiple selections.
        :keyword refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
        :keyword ignore_concurrent_change: (See :class:`~reahl.web.ui.PrimitiveInput`)
 
@@ -147,8 +149,8 @@ class SelectInput(reahl.web.ui.SelectInput):
        .. versionchanged:: 5.0
           Added `ignore_concurrent_change`
     """
-    def __init__(self, form, bound_field, refresh_widget=None, ignore_concurrent_change=False):
-        super().__init__(form, bound_field, refresh_widget=refresh_widget, ignore_concurrent_change=ignore_concurrent_change)
+    def __init__(self, form, bound_field, size=None, refresh_widget=None, ignore_concurrent_change=False):
+        super().__init__(form, bound_field, size=size, refresh_widget=refresh_widget, ignore_concurrent_change=ignore_concurrent_change)
         self.append_class('custom-select')
 
 

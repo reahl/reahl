@@ -1948,8 +1948,16 @@ class SelectInput(PrimitiveInput):
 
        :param form: (See :class:`~reahl.web.ui.Input`)
        :keyword refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
+       :keyword size: Number of rows in the list that should be visible at one time, if the associated field allows multiple selections.
+
+       .. versionchanged: 6.2
+          Added keyword parameter size
 
     """
+    def __init__(self, form, bound_field, size=None, refresh_widget=None, ignore_concurrent_change=False):
+        self.size = size
+        super().__init__(form, bound_field, refresh_widget=refresh_widget, ignore_concurrent_change=ignore_concurrent_change)
+
     def create_html_widget(self):
         html_select = HTMLElement(self.view, 'select', children_allowed=True)
         html_select.set_attribute('name', self.name)
@@ -1966,6 +1974,8 @@ class SelectInput(PrimitiveInput):
         html_select.set_attribute('form', self.form.css_id)
         if self.bound_field.allows_multiple_selections:
             html_select.set_attribute('multiple', 'multiple')
+            if self.size:
+                html_select.set_attribute('size', '%s' % self.size)
 
         return html_select
 
