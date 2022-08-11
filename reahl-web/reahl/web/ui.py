@@ -2091,10 +2091,12 @@ class TextInput(PrimitiveInput):
                      such "fuzzy input". If fuzzy=True, the typed value will be changed on the fly to
                      the system's interpretation of what the user originally typed as soon as the TextInput
                      looses focus.
-       :keyword placeholder: If given a string, placeholder is displayed in the TextInput if the TextInput
+       :keyword placeholder: If given, a placeholder is displayed in the TextInput if the TextInput
                      is empty in order to provide a hint to the user of what may be entered into the TextInput.
-                     If given True instead of a string, the placeholder_source (default is label of the TextInput) value is used.
-       :keyword placeholder_source: If placeholder is True, the strings 'label' or 'field default' is used to determine which text to use  for the placeholder.
+                     If given a string, that string is used.
+                     If given True instead of a string, use:
+                        - default of the field when the field is not required
+                        - else, the label.
        :keyword refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
        :keyword ignore_concurrent_change: (See :class:`~reahl.web.ui.PrimitiveInput`)
 
@@ -2108,19 +2110,19 @@ class TextInput(PrimitiveInput):
           Added `ignore_concurrent_change`
 
        .. versionchanged:: 6.2
-          Added `placeholder_source`
+          Changed `placeholder to display the default of the field under certain conditions`
 
     """
-    def __init__(self, form, bound_field, fuzzy=False, placeholder=False, placeholder_source='label', refresh_widget=None, ignore_concurrent_change=False):
+    def __init__(self, form, bound_field, fuzzy=False, placeholder=False, refresh_widget=None, ignore_concurrent_change=False):
         super().__init__(form, bound_field, refresh_widget=refresh_widget, ignore_concurrent_change=ignore_concurrent_change)
         self.append_class('reahl-textinput')
         if placeholder:
             placeholder_text = placeholder
             if placeholder is True:
-                placeholder_sources = {'label': self.label, 'field default': self.bound_field.default}
-                if placeholder_source not in placeholder_sources:
-                    raise ProgrammerError('Placeholder source %s is not valid. Valid values are: %s' % (placeholder_source, ','.join(placeholder_sources.keys())))
-                placeholder_text = placeholder_sources[placeholder_source]
+                if not self.value and not self.bound_field.required and self.bound_field.default:
+                    placeholder_text = self.bound_field.default
+                else:
+                    placeholder_text = self.label
             self.set_attribute('placeholder', placeholder_text)
             self.set_attribute('aria-label', placeholder_text)
 

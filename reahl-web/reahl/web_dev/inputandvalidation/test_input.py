@@ -187,9 +187,10 @@ class InputScenarios(SimpleInputFixture):
 
     @scenario
     def text_input_placeholder_from_field_default(self):
+        self.field_fixture.model_object.an_attribute = None
         field_with_default = self.new_field(default='my field default')
-        self.widget = TextInput(self.form, field_with_default, placeholder=True, placeholder_source='field default')
-        self.expected_html = '<input name="test-an_attribute" id="id-test-an_attribute" aria-label="my field default" form="test" placeholder="my field default" type="text" value="field value" class="reahl-primitiveinput reahl-textinput">'
+        self.widget = TextInput(self.form, field_with_default, placeholder=True)
+        self.expected_html = '<input name="test-an_attribute" id="id-test-an_attribute" aria-label="my field default" form="test" placeholder="my field default" type="text" value="" class="reahl-primitiveinput reahl-textinput">'
         self.bound_field = self.widget.bound_field
 
     @scenario

@@ -132,11 +132,11 @@ def test_validation(fixture):
 def test_field_metadata(fixture):
     """Fields provide metadata about their contents"""
 
-    field = Field(default=2, required=True, label='A field')
+    field = Field(default=2, required=False, label='A field')
     field.bind('fieldname', fixture.model_object)
 
     assert field.label == 'A field'
-    assert field.required
+    assert not field.required
     assert field.variable_name == 'fieldname'
     assert field.get_model_value() == 2
 
@@ -291,6 +291,15 @@ def test_when_initial_value_is_read():
         a.activate_global_field_data_store(state_dict)
 
         assert a.initial_value != a.x
+
+
+def test_default_and_required_error():
+    """Default and required cannot be both set."""
+    with ExecutionContext():
+        with expected(ProgrammerError, test='Both required and default are provided.'
+                                            ' Default is only used when no value is provided by the user.'
+                                            ' Required prevents this from happening.'):
+            Field(required=True, default='something')
 
 
 def test_namespaces():
