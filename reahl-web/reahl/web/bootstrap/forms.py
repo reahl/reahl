@@ -77,8 +77,7 @@ class TextInput(reahl.web.ui.TextInput):
                      looses focus.
        :keyword placeholder: If given a string, placeholder is displayed in the TextInput if the TextInput
                      is empty in order to provide a hint to the user of what may be entered into the TextInput.
-                     If given True instead of a string, the placeholder_source (default is label of the TextInput) value is used.
-       :keyword placeholder_source: If placeholder is True, the strings 'label' or 'field default' is used to determine which text to use  for the placeholder.
+                     If given True instead of a string, the label of the TextInput is used.
        :keyword refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
        :keyword ignore_concurrent_change: (See :class:`~reahl.web.ui.PrimitiveInput`)
 
