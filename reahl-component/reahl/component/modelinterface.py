@@ -1319,7 +1319,7 @@ class CurrentUser(Field):
             party = account.owner
         else:
             party = None
-        super().__init__(required=True, default=party)
+        super().__init__(required=party is None, default=party)
         self.bind('current_account', self)
         
     def parse_input(self, unparsed_input):
