@@ -186,6 +186,14 @@ class InputScenarios(SimpleInputFixture):
         self.bound_field = self.widget.bound_field
 
     @scenario
+    def text_input_placeholder_from_field_default(self):
+        self.field_fixture.model_object.an_attribute = None
+        field_with_default = self.new_field(default='my field default')
+        self.widget = TextInput(self.form, field_with_default, placeholder=True)
+        self.expected_html = '<input name="test-an_attribute" id="id-test-an_attribute" aria-label="my field default" form="test" placeholder="my field default" type="text" value="" class="reahl-primitiveinput reahl-textinput">'
+        self.bound_field = self.widget.bound_field
+
+    @scenario
     def input_label(self):
         html_input = TextInput(self.form, self.field)
         self.widget = Label(self.web_fixture.view, for_input=html_input)
@@ -268,9 +276,9 @@ class InputScenarios(SimpleInputFixture):
         self.field = MultiChoiceField(choices)
         self.field.bind('an_attribute', self.model_object)
 
-        self.widget = self.form.add_child(SelectInput(self.form, self.field))
+        self.widget = self.form.add_child(SelectInput(self.form, self.field, size=2))
         options = '<option id="id-test-an_attribute-91--93--1" value="1">One</option><option id="id-test-an_attribute-91--93--2" selected="selected" value="2">Two</option>'
-        self.expected_html = '<select name="test-an_attribute[]" id="id-test-an_attribute-91--93-" form="test" multiple="multiple" class="reahl-primitiveinput">%s</select>' % (options)
+        self.expected_html = '<select name="test-an_attribute[]" id="id-test-an_attribute-91--93-" form="test" multiple="multiple" size="2" class="reahl-primitiveinput">%s</select>' % (options)
         self.bound_field = self.widget.bound_field
 
     @scenario

@@ -726,6 +726,10 @@ class Field:
     def __init__(self, default=None, required=False, required_message=None, label=None,
                  readable=None, writable=None, disallowed_message=None,
                  min_length=None, max_length=None):
+        if required and default:
+            raise ProgrammerError('Both required and default are provided.'
+                                  ' Default is only used when no value is provided by the user.'
+                                  ' Required prevents this from happening.')
         self._name = None
         self.namespace = []
         self.storage_object = None
@@ -1315,7 +1319,7 @@ class CurrentUser(Field):
             party = account.owner
         else:
             party = None
-        super().__init__(required=True, default=party)
+        super().__init__(required=party is None, default=party)
         self.bind('current_account', self)
         
     def parse_input(self, unparsed_input):

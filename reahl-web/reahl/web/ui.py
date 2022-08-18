@@ -1948,8 +1948,16 @@ class SelectInput(PrimitiveInput):
 
        :param form: (See :class:`~reahl.web.ui.Input`)
        :keyword refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
+       :keyword size: Number of rows in the list that should be visible at one time, if the associated field allows multiple selections.
+
+       .. versionchanged: 6.2
+          Added keyword parameter size
 
     """
+    def __init__(self, form, bound_field, size=None, refresh_widget=None, ignore_concurrent_change=False):
+        self.size = size
+        super().__init__(form, bound_field, refresh_widget=refresh_widget, ignore_concurrent_change=ignore_concurrent_change)
+
     def create_html_widget(self):
         html_select = HTMLElement(self.view, 'select', children_allowed=True)
         html_select.set_attribute('name', self.name)
@@ -1966,6 +1974,8 @@ class SelectInput(PrimitiveInput):
         html_select.set_attribute('form', self.form.css_id)
         if self.bound_field.allows_multiple_selections:
             html_select.set_attribute('multiple', 'multiple')
+            if self.size:
+                html_select.set_attribute('size', '%s' % self.size)
 
         return html_select
 
@@ -2091,9 +2101,12 @@ class TextInput(PrimitiveInput):
                      such "fuzzy input". If fuzzy=True, the typed value will be changed on the fly to
                      the system's interpretation of what the user originally typed as soon as the TextInput
                      looses focus.
-       :keyword placeholder: If given a string, placeholder is displayed in the TextInput if the TextInput
+       :keyword placeholder: If given, a placeholder is displayed in the TextInput if the TextInput
                      is empty in order to provide a hint to the user of what may be entered into the TextInput.
-                     If given True instead of a string, the label of the TextInput is used.
+                     If given a string, that string is used.
+                     If given True instead of a string, use:
+                        - default of the field when the field is not required
+                        - else, the label.
        :keyword refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
        :keyword ignore_concurrent_change: (See :class:`~reahl.web.ui.PrimitiveInput`)
 
@@ -2106,12 +2119,20 @@ class TextInput(PrimitiveInput):
        .. versionchanged:: 5.0
           Added `ignore_concurrent_change`
 
+       .. versionchanged:: 6.2
+          Changed `placeholder to display the default of the field under certain conditions`
+
     """
     def __init__(self, form, bound_field, fuzzy=False, placeholder=False, refresh_widget=None, ignore_concurrent_change=False):
         super().__init__(form, bound_field, refresh_widget=refresh_widget, ignore_concurrent_change=ignore_concurrent_change)
         self.append_class('reahl-textinput')
         if placeholder:
-            placeholder_text = self.label if placeholder is True else placeholder
+            placeholder_text = placeholder
+            if placeholder is True:
+                if not self.value and not self.bound_field.required and self.bound_field.default:
+                    placeholder_text = self.bound_field.default
+                else:
+                    placeholder_text = self.label
             self.set_attribute('placeholder', placeholder_text)
             self.set_attribute('aria-label', placeholder_text)
 
