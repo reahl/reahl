@@ -213,7 +213,7 @@ class HashChangeHandler:
 
     @property
     def argument_defaults(self):
-        field_defaults = self.for_fields.as_input_kwargs(using_name_in_input=True) # TODO: should this not sometimes be i.user_input????
+        field_defaults = self.for_fields.as_input_kwargs() # TODO: should this not sometimes be i.user_input????
         argument_defaults = ['"%s": "%s"' % (name, default_value or '') \
                              for name, default_value in field_defaults.items()]
         return '{%s}' % ','.join(argument_defaults)
@@ -298,7 +298,7 @@ class HTMLElement(Widget):
 
         if not self.css_id_is_set:
             raise ProgrammerError('%s does not have a css_id set. A fixed css_id is mandatory when a Widget self-refreshes' % self)
-#        assert all([(field in self.query_fields.values()) for field in for_fields])
+        assert all([(self.query_fields.contains_instantiated_value(field)) for field in for_fields])
 
         self.add_hash_change_handler(StandaloneFieldIndex.from_list(for_fields) if for_fields else self.query_fields)
         if on_refresh:

@@ -73,62 +73,92 @@ class FieldIndex:
     def __init__(self, storage_object):
         super().__init__()
         self.fields = {}
+        self.field_factories = {}
         self.storage_object = storage_object
 
     def __setattr__(self, name, value):
+        assert not isinstance(value, tuple)
         if isinstance(value, Field):
             self.fields[name] = value
             if not value.is_bound:
                 value.bind(str(name), self.storage_object)
-        super().__setattr__(name, value)
 
+        if callable(value):
+            self.field_factories[name] = (value, self.storage_object)
+        else:
+            super().__setattr__(name, value)
+
+    def __getattr__(self, name):
+        factory, storage_object = self.field_factories[name]
+        field = factory(storage_object)
+        field.bind(name, storage_object)
+        setattr(self, name, field)
+        return field
+        
     def set(self, name, value):
         return setattr(self, name, value)
 
     def keys(self):
-        return self.fields.keys()
+        return list(self.fields.keys()) + [key for key in self.field_factories.keys() if key not in self.fields]
 
-    # can enable_refresh
+    def contains_instantiated_value(self, field):
+        return field in self.fields.values()
+        
+    def instantiate_fields_from_factories(self):
+        for name, (factory, storage_object) in self.field_factories.items():
+            if name not in self.fields:
+                bound_field = factory(storage_object)
+                bound_field.bind(name, storage_object)
+                setattr(self, name, bound_field)
+                
     def values(self):
+        self.instantiate_fields_from_factories()
         return self.fields.values()
 
-    # Evaluated Fields
     def items(self):
+        self.instantiate_fields_from_factories()
         return self.fields.items()
 
-    # Evaluated Fields
     def as_kwargs(self):
         return dict([(name, field.get_model_value()) for name, field in self.items()])
 
-    # Evaluated Fields
     def as_input_kwargs(self, qualify_names=True):
         if qualify_names:
             return dict([(field.name_in_input, field.as_input()) for field in self.values()])
         else:
             return dict([(field.name, field.as_input()) for field in self.values()])
     
-    # Evaluated Fields
     def accept_input(self, input_dict, ignore_validation=False):
         for name, field in self.items():
             field.from_disambiguated_input(input_dict, ignore_validation=ignore_validation)
             
-    # Field factories
     def update(self, other):
-        for name, value in other.items():
-            setattr(self, name, value)
+        if isinstance(other, dict):
+            for name, value in other.items():
+                setattr(self, name, value)
+        else:
+            self.fields.update(other.fields)
+            for name, value in other.fields.items():
+                setattr(self, name, value)
+            self.field_factories.update(other.field_factories)
 
-    # Field factories
     def update_copies(self, other):
-        for name, value in other.items():
-            setattr(self, name, value.copy())
+        if isinstance(other, dict):
+            for name, value in other.items():
+                setattr(self, name, value.copy())
+        else:
+            for name, value in other.fields.items():
+                self.fields[name] = copied_value = value.copy()
+                setattr(self, name, copied_value)
+            self.field_factories.update(other.field_factories)
 
-    # Field factories
-    def update_from_class(self, cls):
-        items = cls.__dict__.items()
+    def update_from_class(self, reahl_fields):
+        items = reahl_fields.__dict__.items()
         for name, value in items:
             if isinstance(value, Field):
                 setattr(self, name, value.copy())
-
+            elif callable(value):
+                self.field_factories[name] = (value, self.storage_object)
 
 
 class StandaloneFieldIndex(FieldIndex):
@@ -234,12 +264,25 @@ class FakeEvent:
         self.name = name
         
 
+class FieldFactory:
+    def __init__(self, name, a_callable_or_field):
+        self.name = name
+        if isinstance(a_callable_or_field, Field):
+            self.callable = lambda i: a_callable_or_field
+        else:
+            self.callable = a_callable_or_field
+
+    def __call__(self, storage_object):
+        return self.callable(storage_object)
+
+    
 class ReahlFields:
     def _find_name(self, cls):
         for name in dir(cls):
             if getattr(cls, name) is self:
                 return name
         raise ProgrammerError('This should never happen')
+    
     def __get__(self, instance, cls):
         if not instance:
             return self
@@ -252,6 +295,9 @@ class ReahlFields:
         setattr(instance, my_name, idx)
         return idx
 
+    def __setattr__(self, name, value):
+        super().__setattr__(name, FieldFactory(name, value))
+        
 
 class ReadRights:
     def __init__(self, access_rights, field):

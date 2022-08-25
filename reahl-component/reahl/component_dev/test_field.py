@@ -379,6 +379,36 @@ def test_helpers_for_fields2(fixture):
 
 
 @with_fixtures(FieldFixture)
+def test_helpers_for_fields2_delayed(fixture):
+    """Blablacoming"""
+
+    class ModelObject:
+        def __init__(self, name):
+            self.name = name
+            
+        fields = ReahlFields()
+        fields.field1 = lambda i: IntegerField(label=i.name)
+        fields.field2 = lambda i: BooleanField(label=i.name)
+
+
+    model_object = ModelObject('john')
+
+    assert model_object.fields.field1.label == 'john'
+
+    model_object.name = 'jane'
+    
+    assert model_object.fields.field1.label == 'john'
+    assert model_object.fields.field2.label == 'jane'
+
+
+    import pdb; pdb.set_trace()
+    assert ModelObject.fields.field1.name == 'field1'
+
+    with expected(AttributeError):
+        ModelObject.events.nonevent
+    
+
+@with_fixtures(FieldFixture)
 def test_re_binding_behaviour_of_field_index(fixture):
     """FieldIndexes wont bind a field if it already is bound."""
 
@@ -429,6 +459,21 @@ def test_helpers_for_events2(fixture):
     with expected(AttributeError):
         ModelObject.events.nonevent
 
+@with_fixtures(FieldFixture)
+def test_helpers_for_events2xxx(fixture):
+    """The @exposed decorator can be used to get FakeEvents at a class level, provided the valid Event names are specified."""
+
+    class ModelObject:
+        events = ReahlFields()
+        events.event1 = lambda i: Event()
+        events.event2 = lambda i: Event()
+
+    import pdb; pdb.set_trace()
+    assert ModelObject.events.event1.name == 'event1'
+
+    with expected(AttributeError):
+        ModelObject.events.nonevent
+        
 
 @with_fixtures(FieldFixture)
 def test_helpers_for_events3(fixture):
