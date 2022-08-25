@@ -88,42 +88,57 @@ class FieldIndex:
     def keys(self):
         return self.fields.keys()
 
+    # can enable_refresh
     def values(self):
         return self.fields.values()
 
+    # Evaluated Fields
     def items(self):
         return self.fields.items()
 
+    # Evaluated Fields
     def as_kwargs(self):
         return dict([(name, field.get_model_value()) for name, field in self.items()])
 
-    def as_input_kwargs(self):
-        return dict([(name, field.as_input()) for name, field in self.items()])
-
+    # Evaluated Fields
+    def as_input_kwargs(self, qualify_names=True):
+        if qualify_names:
+            return dict([(field.name_in_input, field.as_input()) for field in self.values()])
+        else:
+            return dict([(field.name, field.as_input()) for field in self.values()])
+    
+    # Evaluated Fields
     def accept_input(self, input_dict, ignore_validation=False):
         for name, field in self.items():
             field.from_disambiguated_input(input_dict, ignore_validation=ignore_validation)
             
+    # Field factories
     def update(self, other):
         for name, value in other.items():
             setattr(self, name, value)
 
+    # Field factories
     def update_copies(self, other):
         for name, value in other.items():
             setattr(self, name, value.copy())
 
+    # Field factories
     def update_from_class(self, cls):
         items = cls.__dict__.items()
         for name, value in items:
             if isinstance(value, Field):
                 setattr(self, name, value.copy())
 
-    @property
-    def is_empty(self):
-        return self.fields == {}
 
 
 class StandaloneFieldIndex(FieldIndex):
+    @classmethod
+    def from_list(cls, list_of_fields):
+        i = cls()
+        for field in list_of_fields:
+            setattr(i, field.name, field)
+        return i
+        
     def __init__(self, backing_dict=None):
         backing_dict = backing_dict or {}
         super().__init__(ObjectDictAdapter(backing_dict))
