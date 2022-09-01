@@ -263,14 +263,11 @@ class FakeEvent:
     def __init__(self, name):
         self.name = name
         
-
 class FieldFactory:
-    def __init__(self, name, a_callable_or_field):
+    @arg_checks(a_callable=IsCallable(args=(NotYetAvailable('i'),)))
+    def __init__(self, name, a_callable):
         self.name = name
-        if isinstance(a_callable_or_field, Field):
-            self.callable = lambda i: a_callable_or_field
-        else:
-            self.callable = a_callable_or_field
+        self.callable = a_callable
 
     def __call__(self, storage_object):
         return self.callable(storage_object)
