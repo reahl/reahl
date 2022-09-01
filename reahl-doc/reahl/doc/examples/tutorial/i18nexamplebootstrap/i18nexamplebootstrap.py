@@ -82,10 +82,9 @@ class Address(Base):
     name          = Column(UnicodeText)
     added_date    = Column(Date)
 
-    @exposed
-    def fields(self, fields):
-        fields.name = Field(label=_('Name'), required=True)
-        fields.email_address = EmailField(label=_('Email'), required=True)
+    fields = ReahlFields()
+    fields.name = lambda i: Field(label=_('Name'), required=True)
+    fields.email_address = lambda i: EmailField(label=_('Email'), required=True)
 
     def save(self):
         self.added_date = datetime.date.today()

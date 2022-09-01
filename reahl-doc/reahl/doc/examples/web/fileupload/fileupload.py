@@ -47,11 +47,10 @@ class Comment(Base):
     text           = Column(UnicodeText)
     attached_files = relationship('AttachedFile', backref='comment')
     
-    @exposed
-    def fields(self, fields):
-        fields.email_address = EmailField(label='Email address', required=True)
-        fields.text          = Field(label='Comment', required=True)
-        fields.uploaded_files = FileField(allow_multiple=True, max_size_bytes=4*1000*1000, max_files=4, accept=['text/*'])
+    fields = ReahlFields()
+    fields.email_address = lambda i: EmailField(label='Email address', required=True)
+    fields.text          = lambda i: Field(label='Comment', required=True)
+    fields.uploaded_files = lambda i: FileField(allow_multiple=True, max_size_bytes=4*1000*1000, max_files=4, accept=['text/*'])
 
     events = ReahlFields()
     events.submit = lambda i: Event(label='Submit', action=Action(i.submit))

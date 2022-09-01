@@ -42,10 +42,9 @@ class LoginSession(Base):
     current_user_id = Column(Integer, ForeignKey(User.id))
     current_user    = relationship(User)
 
-    @exposed
-    def fields(self, fields):
-        fields.email_address = EmailField(label='Email', required=True)
-        fields.password = PasswordField(label='Password', required=True)
+    fields = ReahlFields()
+    fields.email_address = lambda i: EmailField(label='Email', required=True)
+    fields.password = lambda i: PasswordField(label='Password', required=True)
 
     events = ReahlFields()
     events.log_in = lambda i: Event(label='Log in', action=Action(i.log_in))

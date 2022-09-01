@@ -34,10 +34,9 @@ class Address(Base):
             raise exception_to_raise
         return addresses.one()
 
-    @exposed
-    def fields(self, fields):
-        fields.name = Field(label='Name', required=self.can_be_added(), writable=Action(i.can_be_added))
-        fields.email_address = EmailField(label='Email', required=True, writable=Action(i.can_be_edited))
+    fields = ReahlFields()
+    fields.name = lambda i: Field(label='Name', required=self.can_be_added(), writable=Action(i.can_be_added))
+    fields.email_address = lambda i: EmailField(label='Email', required=True, writable=Action(i.can_be_edited))
 
     events = ReahlFields()
     events.save = lambda i: Event(label='Save', action=Action(i.save))
@@ -83,12 +82,11 @@ class AddressBook(Base):
         visible_books.extend(cls.owned_by(account))
         return visible_books
 
-    @exposed
-    def fields(self, fields):
+    fields = ReahlFields()
         collaborators = [Choice(i.id, IntegerField(label=i.email)) for i in Session.query(EmailAndPasswordSystemAccount).all()]
-        fields.chosen_collaborator = ChoiceField(collaborators, label='Choose collaborator')
-        fields.may_edit_address = BooleanField(label='May edit existing addresses')
-        fields.may_add_address = BooleanField(label='May add new addresses')
+    fields.chosen_collaborator = lambda i: ChoiceField(collaborators, label='Choose collaborator')
+    fields.may_edit_address = lambda i: BooleanField(label='May edit existing addresses')
+    fields.may_add_address = lambda i: BooleanField(label='May add new addresses')
 
     events = ReahlFields()
     events.add_collaborator = lambda i: Event(label='Share', action=Action(i.add_collaborator))

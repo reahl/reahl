@@ -102,14 +102,13 @@ class ShoppingCart(Base):
     paypal_order_id = Column(Integer, ForeignKey(PayPalOrder.id), nullable=True)
     paypal_order = relationship(PayPalOrder)
 
-    @exposed
-    def fields(self, fields):
-        fields.item_name = Field(label='Item name')
-        fields.quantity = IntegerField(min_value=1, max_value=10, label='Quantity')
-        fields.price = NumericField(min_value=1, label='Price')
-        fields.currency_code = ChoiceField([Choice('USD', Field(label='USD')),
-                                            Choice('EUR', Field(label='EUR'))],
-                                           label='Currency')
+    fields = ReahlFields()
+    fields.item_name = lambda i: Field(label='Item name')
+    fields.quantity = lambda i: IntegerField(min_value=1, max_value=10, label='Quantity')
+    fields.price = lambda i: NumericField(min_value=1, label='Price')
+    fields.currency_code = lambda i: ChoiceField([Choice('USD', Field(label='USD')),
+                                                  Choice('EUR', Field(label='EUR'))],
+                                                 label='Currency')
 
     events = ReahlFields()
     events.pay_event = lambda i: Event(label='Pay', action=Action(i.pay))

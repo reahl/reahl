@@ -79,10 +79,9 @@ class Address(Base):
     added_date    = 'TODO'
 #    added_date    = Column(DateTime)
 
-    @exposed
-    def fields(self, fields):
-        fields.name = Field(label='Name', required=True)
-        fields.email_address = EmailField(label='Email', required=True)
+    fields = ReahlFields()
+    fields.name = lambda i: Field(label='Name', required=True)
+    fields.email_address = lambda i: EmailField(label='Email', required=True)
 
     def save(self):
         self.added_date = datetime.now()

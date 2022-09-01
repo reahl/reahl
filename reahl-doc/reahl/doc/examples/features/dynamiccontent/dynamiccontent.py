@@ -25,10 +25,9 @@ class Calculator(Base):
         self.operandB = 4
         self.recalculate()
 
-    @exposed
-    def fields(self, fields):
-        fields.operandA = IntegerField(label='A')
-        fields.operandB = ChoiceField([Choice(4, IntegerField(label='4')),
+    fields = ReahlFields()
+    fields.operandA = lambda i: IntegerField(label='A')
+    fields.operandB = lambda i: ChoiceField([Choice(4, IntegerField(label='4')),
                                        Choice(5, IntegerField(label='5')),
                                        Choice(6, IntegerField(label='6'))],
                                       label='B')

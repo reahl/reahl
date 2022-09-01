@@ -41,7 +41,7 @@ class RefreshedPanel(Div):
 
     @exposed
     def query_fields(self, fields):
-        fields.selected = IntegerField(required=False, default=1)
+    fields.selected = lambda i: IntegerField(required=False, default=1)
 
     def get_bookmark(self, for_selected):
         return Bookmark.for_widget('Select %s' % for_selected, query_arguments={'selected': for_selected}).on_view(self.view)

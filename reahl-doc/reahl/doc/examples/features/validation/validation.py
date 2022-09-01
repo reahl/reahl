@@ -16,9 +16,8 @@ class HomePage(HTML5Page):
 
 
 class Comment:
-    @exposed
-    def fields(self, fields):
-        fields.email_address = EmailField(label='Email address', required=True)
+    fields = ReahlFields()
+    fields.email_address = lambda i: EmailField(label='Email address', required=True)
     
     events = ReahlFields()
     events.do_nothing = lambda i: Event(label='Submit')

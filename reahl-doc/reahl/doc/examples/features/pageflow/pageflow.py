@@ -40,10 +40,9 @@ class PageFlowExampleUI(UserInterface):
 
         
 class Comment:
-    @exposed
-    def fields(self, fields):
-        fields.email_address = EmailField(label='Email address', required=True)
-        fields.text = Field(label='Comment')
+    fields = ReahlFields()
+    fields.email_address = lambda i: EmailField(label='Email address', required=True)
+    fields.text = lambda i: Field(label='Comment')
 
     events = ReahlFields()
     events.submit = lambda i: Event(label='Submit', action=Action(i.submit))

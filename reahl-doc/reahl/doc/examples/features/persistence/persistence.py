@@ -39,10 +39,9 @@ class Comment(Base):
     email_address = Column(UnicodeText)
     text          = Column(UnicodeText)
     
-    @exposed
-    def fields(self, fields):
-        fields.email_address = EmailField(label='Email address', required=True)
-        fields.text          = Field(label='Comment', required=True)
+    fields = ReahlFields()
+    fields.email_address = lambda i: EmailField(label='Email address', required=True)
+    fields.text          = lambda i: Field(label='Comment', required=True)
 
     events = ReahlFields()
     events.submit = lambda i: Event(label='Submit', action=Action(i.submit))

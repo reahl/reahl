@@ -107,12 +107,11 @@ class InvestmentOrder(Base):
     allocations     = relationship('reahl.doc.examples.tutorial.dynamiccontent.dynamiccontent.Allocation',
                                    back_populates='investment_order', lazy='immediate', cascade="all, delete-orphan")
 
-    @exposed
-    def fields(self, fields):
-        fields.amount       = IntegerField(label='Total amount', required=True)
-        fields.amount_or_percentage  = ChoiceField([Choice('amount', Field(label='Amount')),
-                                                    Choice('percentage', Field(label='Percentage'))],
-                                            label='Allocate using', required=True)
+    fields = ReahlFields()
+    fields.amount                = lambda i: IntegerField(label='Total amount', required=True)
+    fields.amount_or_percentage  = lambda i: ChoiceField([Choice('amount', Field(label='Amount')),
+                                                          Choice('percentage', Field(label='Percentage'))],
+                                                         label='Allocate using', required=True)
 
     events = ReahlFields()
     events.submit = lambda i: Event(label='Submit', action=Action(i.submit))
@@ -177,10 +176,9 @@ class Allocation(Base):
     investment_order_id = Column(Integer, ForeignKey(InvestmentOrder.id))
     investment_order  = relationship('reahl.doc.examples.tutorial.dynamiccontent.dynamiccontent.InvestmentOrder', back_populates='allocations')
 
-    @exposed
-    def fields(self, fields):
-        fields.percentage    = IntegerField(label='Percentage', required=True, writable=lambda field: self.is_in_percentage)
-        fields.amount        = IntegerField(label='Amount', required=True, writable=lambda field: self.is_in_amount)
+    fields = ReahlFields()
+    fields.percentage    = lambda i: IntegerField(label='Percentage', required=True, writable=lambda field: self.is_in_percentage)
+    fields.amount        = lambda i: IntegerField(label='Amount', required=True, writable=lambda field: self.is_in_amount)
 
     def __init__(self, investment_order, fund_name):
         super().__init__(investment_order=investment_order)

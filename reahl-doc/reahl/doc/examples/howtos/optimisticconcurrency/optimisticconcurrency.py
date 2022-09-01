@@ -91,9 +91,8 @@ class MyDomainObject(Base):
         self.counter = 0
         self.some_field_value = '123'
 
-    @exposed
-    def fields(self, fields):
-        fields.some_field_value = Field(label='Some value')
+    fields = ReahlFields()
+    fields.some_field_value = lambda i: Field(label='Some value')
 
     events = ReahlFields()
     events.submit = lambda i: Event(label='Submit')

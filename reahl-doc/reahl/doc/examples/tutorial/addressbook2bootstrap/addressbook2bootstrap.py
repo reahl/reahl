@@ -64,10 +64,9 @@ class Address(Base):
     email_address = Column(UnicodeText)
     name          = Column(UnicodeText)
 
-    @exposed
-    def fields(self, fields):
-        fields.name = Field(label='Name', required=True)
-        fields.email_address = EmailField(label='Email', required=True)
+    fields = ReahlFields()
+    fields.name = lambda i: Field(label='Name', required=True)
+    fields.email_address = lambda i: EmailField(label='Email', required=True)
 
     def save(self):
         Session.add(self)

@@ -65,9 +65,8 @@ class Row:
         self.address = address
         self.selected_by_user = False
 
-    @exposed
-    def fields(self, fields):
-        fields.selected_by_user = BooleanField(label='')
+    fields = ReahlFields()
+    fields.selected_by_user = lambda i: BooleanField(label='')
 
     def __getattr__(self, name):
         return getattr(self.address, name)
@@ -164,10 +163,9 @@ class Address(Base):
     email_address = Column(UnicodeText)
     name          = Column(UnicodeText)
 
-    @exposed
-    def fields(self, fields):
-        fields.name = Field(label='Name', required=True)
-        fields.email_address = EmailField(label='Email', required=True)
+    fields = ReahlFields()
+    fields.name = lambda i: Field(label='Name', required=True)
+    fields.email_address = lambda i: EmailField(label='Email', required=True)
 
     events = ReahlFields()
     events.save = lambda i: Event(label='Save', action=Action(i.save))

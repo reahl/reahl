@@ -31,10 +31,9 @@ class LayoutUI(UserInterface):
 
 
 class Comment:
-    @exposed
-    def fields(self, fields):
-        fields.email_address = EmailField(label='Email address', required=True)
-        fields.text = Field(label='Comment text')
+    fields = ReahlFields()
+    fields.email_address = lambda i: EmailField(label='Email address', required=True)
+    fields.text = lambda i: Field(label='Comment text')
 
 
 class CommentForm(Form):

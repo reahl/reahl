@@ -23,9 +23,8 @@ class ChartForm(Form):
         fig = self.create_line_chart_figure(factor)
         return self.add_child(Chart(self.view, fig, 'changing-chart'))
 
-    @exposed
-    def fields(self, fields):
-        fields.factor = ChoiceField([Choice(i, IntegerField(label=str(i))) for i in range(1, 10)])
+    fields = ReahlFields()
+    fields.factor = lambda i: ChoiceField([Choice(c, IntegerField(label=str(c))) for c in range(1, 10)])
 
     def create_line_chart_figure(self, factor):
         x = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']

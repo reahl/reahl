@@ -75,10 +75,9 @@ class Address(Base):
         for address in Session.query(cls).filter_by(added_today=True):
             address.added_today = False
 
-    @exposed
-    def fields(self, fields):
-        fields.name = Field(label='Name', required=True)
-        fields.email_address = EmailField(label='Email', required=True)
+    fields = ReahlFields()
+    fields.name = lambda i: Field(label='Name', required=True)
+    fields.email_address = lambda i: EmailField(label='Email', required=True)
 
     events = ReahlFields()
     events.save = lambda i: Event(label='Save', action=Action(i.save))
