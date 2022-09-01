@@ -91,6 +91,5 @@ class Address(Base):
         self.added_date = datetime.date.today()
         Session.add(self)
 
-    @exposed('save')
-    def events(self, events):
-        events.save = Event(label=_('Save'), action=Action(self.save))
+    events = ReahlFields()
+    events.save = lambda i: Event(label=_('Save'), action=Action(i.save))

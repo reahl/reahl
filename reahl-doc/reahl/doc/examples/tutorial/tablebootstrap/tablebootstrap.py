@@ -114,9 +114,8 @@ class AddressBookPanel(Div):
     def initialise_rows(self):
         return [Row(address) for address in Session.query(Address).all()]
 
-    @exposed
-    def events(self, events):
-        events.delete_selected = Event(label='Delete Selected', action=Action(self.delete_selected))
+    events = ReahlFields()
+    events.delete_selected = lambda i: Event(label='Delete Selected', action=Action(i.delete_selected))
 
     def delete_selected(self):
         for row in self.rows:
@@ -170,10 +169,9 @@ class Address(Base):
         fields.name = Field(label='Name', required=True)
         fields.email_address = EmailField(label='Email', required=True)
 
-    @exposed('save', 'update')
-    def events(self, events):
-        events.save = Event(label='Save', action=Action(self.save))
-        events.update = Event(label='Update')
+    events = ReahlFields()
+    events.save = lambda i: Event(label='Save', action=Action(i.save))
+    events.update = lambda i: Event(label='Update')
 
     def save(self):
         Session.add(self)

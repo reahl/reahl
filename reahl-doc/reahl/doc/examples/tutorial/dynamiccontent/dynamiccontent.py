@@ -114,10 +114,9 @@ class InvestmentOrder(Base):
                                                     Choice('percentage', Field(label='Percentage'))],
                                             label='Allocate using', required=True)
 
-    @exposed('submit')
-    def events(self, events):
-        events.submit = Event(label='Submit', action=Action(self.submit))
-        events.allocation_changed = Event(action=Action(self.recalculate))
+    events = ReahlFields()
+    events.submit = lambda i: Event(label='Submit', action=Action(i.submit))
+    events.allocation_changed = lambda i: Event(action=Action(i.recalculate))
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

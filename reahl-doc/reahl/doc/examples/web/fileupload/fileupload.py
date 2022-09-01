@@ -53,9 +53,8 @@ class Comment(Base):
         fields.text          = Field(label='Comment', required=True)
         fields.uploaded_files = FileField(allow_multiple=True, max_size_bytes=4*1000*1000, max_files=4, accept=['text/*'])
 
-    @exposed
-    def events(self, events):
-        events.submit = Event(label='Submit', action=Action(self.submit))
+    events = ReahlFields()
+    events.submit = lambda i: Event(label='Submit', action=Action(i.submit))
 
     def attach_uploaded_files(self):
         for f in self.uploaded_files:

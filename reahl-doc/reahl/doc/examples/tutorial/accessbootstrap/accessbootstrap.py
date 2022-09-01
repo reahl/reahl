@@ -36,14 +36,13 @@ class Address(Base):
 
     @exposed
     def fields(self, fields):
-        fields.name = Field(label='Name', required=self.can_be_added(), writable=Action(self.can_be_added))
-        fields.email_address = EmailField(label='Email', required=True, writable=Action(self.can_be_edited))
+        fields.name = Field(label='Name', required=self.can_be_added(), writable=Action(i.can_be_added))
+        fields.email_address = EmailField(label='Email', required=True, writable=Action(i.can_be_edited))
 
-    @exposed('save', 'update', 'edit')
-    def events(self, events):
-        events.save = Event(label='Save', action=Action(self.save))
-        events.update = Event(label='Update')
-        events.edit = Event(label='Edit', writable=Action(self.can_be_edited))
+    events = ReahlFields()
+    events.save = lambda i: Event(label='Save', action=Action(i.save))
+    events.update = lambda i: Event(label='Update')
+    events.edit = lambda i: Event(label='Edit', writable=Action(i.can_be_edited))
 
     def save(self):
         Session.add(self)
@@ -91,9 +90,8 @@ class AddressBook(Base):
         fields.may_edit_address = BooleanField(label='May edit existing addresses')
         fields.may_add_address = BooleanField(label='May add new addresses')
 
-    @exposed('add_collaborator')
-    def events(self, events):
-        events.add_collaborator = Event(label='Share', action=Action(self.add_collaborator))
+    events = ReahlFields()
+    events.add_collaborator = lambda i: Event(label='Share', action=Action(i.add_collaborator))
 
     def add_collaborator(self):
         chosen_account = Session.query(EmailAndPasswordSystemAccount).filter_by(id=self.chosen_collaborator).one()

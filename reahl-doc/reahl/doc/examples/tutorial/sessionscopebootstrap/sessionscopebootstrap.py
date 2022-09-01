@@ -47,9 +47,8 @@ class LoginSession(Base):
         fields.email_address = EmailField(label='Email', required=True)
         fields.password = PasswordField(label='Password', required=True)
 
-    @exposed
-    def events(self, events):
-        events.log_in = Event(label='Log in', action=Action(self.log_in))
+    events = ReahlFields()
+    events.log_in = lambda i: Event(label='Log in', action=Action(i.log_in))
 
     def log_in(self):
         matching_users = Session.query(User).filter_by(email_address=self.email_address)

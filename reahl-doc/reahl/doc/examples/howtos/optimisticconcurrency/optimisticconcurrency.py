@@ -95,10 +95,9 @@ class MyDomainObject(Base):
     def fields(self, fields):
         fields.some_field_value = Field(label='Some value')
 
-    @exposed
-    def events(self, events):
-        events.submit = Event(label='Submit')
-        events.increment = Event(label='Increment', action=Action(self.increment))
+    events = ReahlFields()
+    events.submit = lambda i: Event(label='Submit')
+    events.increment = lambda i: Event(label='Increment', action=Action(i.increment))
 
     def increment(self):
         self.counter += 1

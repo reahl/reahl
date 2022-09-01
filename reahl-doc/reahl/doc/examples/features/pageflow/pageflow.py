@@ -45,9 +45,8 @@ class Comment:
         fields.email_address = EmailField(label='Email address', required=True)
         fields.text = Field(label='Comment')
 
-    @exposed
-    def events(self, events):
-        events.submit = Event(label='Submit', action=Action(self.submit))
+    events = ReahlFields()
+    events.submit = lambda i: Event(label='Submit', action=Action(i.submit))
 
     def submit(self):
         print('%s submitted a comment:' % self.email_address)

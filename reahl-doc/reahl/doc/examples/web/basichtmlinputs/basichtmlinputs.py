@@ -70,9 +70,8 @@ class ModelObject:
                                                 label='A RadioButtonSelectInput')
         fields.fuzzy_date_field = DateField(label='A fuzzy TextInput for a Date')
         
-    @exposed
-    def events(self, events):
-        events.do_something = Event(label='A Button')
+    events = ReahlFields()
+    events.do_something = lambda i: Event(label='A Button')
     
 
 class ExampleForm(Form):

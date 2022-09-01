@@ -88,9 +88,8 @@ class Calculator(Base):
         fields.operator   = ChoiceField([Choice('plus', Field(label='+')),
                                           Choice('divide', Field(label='÷'))], required=True)
 
-    @exposed
-    def events(self, events):
-        events.inputs_changed = Event(action=Action(self.recalculate))
+    events = ReahlFields()
+    events.inputs_changed = lambda i: Event(action=Action(i.recalculate))
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

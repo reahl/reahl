@@ -20,9 +20,8 @@ class Comment:
     def fields(self, fields):
         fields.email_address = EmailField(label='Email address', required=True)
     
-    @exposed
-    def events(self, events):
-        events.do_nothing = Event(label='Submit')
+    events = ReahlFields()
+    events.do_nothing = lambda i: Event(label='Submit')
 
 
 class CommentForm(Form):

@@ -33,9 +33,8 @@ class Calculator(Base):
                                        Choice(6, IntegerField(label='6'))],
                                       label='B')
 
-    @exposed
-    def events(self, events):
-        events.input_changed = Event(action=Action(self.recalculate))
+    events = ReahlFields()
+    events.input_changed = lambda i: Event(action=Action(i.recalculate))
 
     def recalculate(self):
         self.sum = self.operandA + self.operandB

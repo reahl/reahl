@@ -148,10 +148,9 @@ class Address(Base):
         fields.email_address = EmailField(label='Email', required=True)
         fields.zip_code = IntegerField(label='Zipcode', required=True)
 
-    @exposed('save', 'update')
-    def events(self, events):
-        events.save = Event(label='Save', action=Action(self.save))
-        events.update = Event(label='Update')
+    events = ReahlFields()
+    events.save = lambda i: Event(label='Save', action=Action(i.save))
+    events.update = lambda i: Event(label='Update')
 
     def save(self):
         Session.add(self)

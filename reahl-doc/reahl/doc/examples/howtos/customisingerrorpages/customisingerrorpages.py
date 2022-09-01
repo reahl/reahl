@@ -93,9 +93,8 @@ class SimpleDomainObject(Base):
 
     id = Column(Integer, primary_key=True)
 
-    @exposed('submit')
-    def events(self, events):
-        events.submit = Event(label='Submit', action=Action(self.submit))
+    events = ReahlFields()
+    events.submit = lambda i: Event(label='Submit', action=Action(i.submit))
 
     def submit(self):
         raise Exception('This error is thrown intentionally')

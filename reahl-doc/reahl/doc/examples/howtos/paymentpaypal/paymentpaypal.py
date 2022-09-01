@@ -111,10 +111,9 @@ class ShoppingCart(Base):
                                             Choice('EUR', Field(label='EUR'))],
                                            label='Currency')
 
-    @exposed
-    def events(self, events):
-        events.pay_event = Event(label='Pay', action=Action(self.pay))
-        events.clear_event = Event(label='Continue shopping', action=Action(self.clear))
+    events = ReahlFields()
+    events.pay_event = lambda i: Event(label='Pay', action=Action(i.pay))
+    events.clear_event = lambda i: Event(label='Continue shopping', action=Action(i.clear))
 
     def pay(self):
         json_dict = self.as_json()

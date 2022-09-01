@@ -80,9 +80,8 @@ class Address(Base):
         fields.name = Field(label='Name', required=True)
         fields.email_address = EmailField(label='Email', required=True)
 
-    @exposed
-    def events(self, events):
-        events.save = Event(label='Save', action=Action(self.save))
+    events = ReahlFields()
+    events.save = lambda i: Event(label='Save', action=Action(i.save))
 
     def save(self):
         Session.add(self)
