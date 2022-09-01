@@ -132,7 +132,7 @@ class FieldIndex:
         for name, field in self.items():
             field.from_disambiguated_input(input_dict, ignore_validation=ignore_validation)
             
-    def update(self, other):
+    def update_from_other(self, other):
         if isinstance(other, dict):
             for name, value in other.items():
                 setattr(self, name, value)
@@ -155,9 +155,7 @@ class FieldIndex:
     def update_from_class(self, reahl_fields):
         items = reahl_fields.__dict__.items()
         for name, value in items:
-            if isinstance(value, Field):
-                setattr(self, name, value.copy())
-            elif callable(value):
+            if callable(value):
                 self.field_factories[name] = (value, self.storage_object)
 
 
@@ -235,7 +233,13 @@ class ExposedDecorator:
             field_index = FieldIndex(model_object)
             for _class in reversed(model_object.__class__.mro()):
                 if hasattr(_class, self.name):
-                    getattr(_class, self.name).func(model_object, field_index)
+                    exposed_declaration = getattr(_class, self.name)
+                    if isinstance(exposed_declaration, ExposedDecorator):
+                        exposed_declaration.func(model_object, field_index)
+                    elif isinstance(exposed_declaration, ReahlFields):
+                        field_index.update_from_class(exposed_declaration)
+                    else:
+                        raise ProgrammerError('%s on %s is not a ReahlFields or ExposedDecorator' % (self.name, _class))
             instance.__exposed__[self] = field_index
 
         self.func(model_object, field_index)
@@ -288,7 +292,14 @@ class ReahlFields:
         idx = FieldIndex(instance)
         for class_ in reversed(cls.mro()):
             if hasattr(class_, my_name):
-                idx.update_from_class(getattr(class_, my_name))
+                exposed_declaration = getattr(class_, my_name)
+                if isinstance(exposed_declaration, ExposedDecorator):
+                    exposed_declaration.func(instance, idx)
+                elif isinstance(exposed_declaration, ReahlFields):
+                    idx.update_from_class(exposed_declaration)
+                else:
+                    raise ProgrammerError('%s on %s is not a ReahlFields or ExposedDecorator' % (my_name, class_))
+                
         setattr(instance, my_name, idx)
         return idx
 

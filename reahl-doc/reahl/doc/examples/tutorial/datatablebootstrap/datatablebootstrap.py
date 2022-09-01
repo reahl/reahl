@@ -15,7 +15,7 @@ from reahl.web.bootstrap.grid import ColumnLayout, ColumnOptions, ResponsiveSize
 from reahl.web.bootstrap.navs import Nav, TabLayout
 from reahl.web.bootstrap.tables import DataTable, TableLayout
 from reahl.web.ui import StaticColumn, DynamicColumn
-from reahl.component.modelinterface import exposed, EmailField, Field, Event, IntegerField, Action, BooleanField
+from reahl.component.modelinterface import ReahlFields, EmailField, Field, Event, IntegerField, Action, BooleanField
 
 
 class AddressBookPage(HTML5Page):

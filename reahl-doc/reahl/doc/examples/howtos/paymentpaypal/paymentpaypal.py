@@ -11,7 +11,7 @@ from reahl.web.bootstrap.page import HTML5Page
 from reahl.web.bootstrap.ui import Alert, P
 from reahl.web.bootstrap.forms import Form, TextInput, Button, FormLayout, SelectInput
 from reahl.web.bootstrap.grid import ColumnLayout, ColumnOptions, ResponsiveSize, Container
-from reahl.component.modelinterface import IntegerField, ChoiceField, Choice, Field, exposed, Event, Action, Not, NumericField
+from reahl.component.modelinterface import IntegerField, ChoiceField, Choice, Field, ReahlFields, Event, Action, Not, NumericField
 from reahl.component.config import Configuration, ConfigSetting
 from reahl.component.context import ExecutionContext
 from reahl.sqlalchemysupport import Session, Base, session_scoped

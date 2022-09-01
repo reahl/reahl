@@ -1,7 +1,7 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 
-from reahl.component.modelinterface import exposed, Event, Action, IntegerField, Choice, ChoiceField
+from reahl.component.modelinterface import ReahlFields, Event, Action, IntegerField, Choice, ChoiceField
 from reahl.sqlalchemysupport import session_scoped, Base, Integer, Column
 from reahl.web.fw import UserInterface
 from reahl.web.bootstrap.page import HTML5Page

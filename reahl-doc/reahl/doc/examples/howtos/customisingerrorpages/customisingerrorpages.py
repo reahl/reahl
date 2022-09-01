@@ -18,7 +18,7 @@
 from sqlalchemy import Column, Integer
 from reahl.sqlalchemysupport import Base
 
-from reahl.component.modelinterface import exposed, Event, Action
+from reahl.component.modelinterface import ReahlFields, Event, Action
 from reahl.web.fw import UserInterface, ErrorWidget, Url
 from reahl.web.layout import PageLayout
 from reahl.web.bootstrap.page import HTML5Page

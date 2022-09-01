@@ -4,7 +4,7 @@ from reahl.web.plotly import Chart
 
 from reahl.web.bootstrap.page import HTML5Page
 from reahl.web.bootstrap.forms import Form, FormLayout, SelectInput
-from reahl.component.modelinterface import ChoiceField, Choice, IntegerField, exposed
+from reahl.component.modelinterface import ChoiceField, Choice, IntegerField, ReahlFields
 
 import plotly.graph_objects as go
 

@@ -17,7 +17,7 @@
 import random
 import string
 
-from reahl.component.modelinterface import exposed, Event, Action, Field
+from reahl.component.modelinterface import ReahlFields, Event, Action, Field
 from reahl.component.exceptions import DomainException
 from reahl.web.fw import UserInterface, ErrorWidget, Url, Widget
 from reahl.web.layout import PageLayout

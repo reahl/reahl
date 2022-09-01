@@ -16,7 +16,7 @@
 
 
 
-from reahl.component.modelinterface import exposed, Field, Event, Action, Choice, IntegerField
+from reahl.component.modelinterface import ReahlFields, Field, Event, Action, Choice, IntegerField
 from reahl.component.exceptions import DomainException
 from reahl.web.fw import UserInterface
 from reahl.web.layout import PageLayout

@@ -16,7 +16,7 @@ from reahl.web.bootstrap.ui import P
 from reahl.web.bootstrap.forms import Form, TextInput, Button, PasswordInput, FormLayout
 from reahl.web.bootstrap.navs import Nav, TabLayout
 from reahl.web.bootstrap.grid import ColumnLayout, ColumnOptions, ResponsiveSize, Container
-from reahl.component.modelinterface import Action, EmailField, Event, PasswordField, exposed
+from reahl.component.modelinterface import Action, EmailField, Event, PasswordField, ReahlFields
 
 
 class User(Base):

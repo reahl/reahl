@@ -1465,7 +1465,7 @@ class HTMLWidget(Widget):
         self.html_representation = None
 
     def enable_refresh(self, *for_fields):
-        self.html_representation.query_fields.update(self.query_fields)
+        self.html_representation.query_fields.update_from_other(self.query_fields)
         self.html_representation.enable_refresh(*for_fields)
 
     @property

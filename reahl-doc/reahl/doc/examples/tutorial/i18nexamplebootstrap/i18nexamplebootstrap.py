@@ -9,7 +9,7 @@ from reahl.web.bootstrap.navbar import Navbar, ResponsiveLayout
 from reahl.web.bootstrap.navs import Nav
 from reahl.web.bootstrap.grid import Container
 from reahl.web.bootstrap.forms import TextInput, Form, FormLayout, Button
-from reahl.component.modelinterface import exposed, Field, EmailField, Action, Event
+from reahl.component.modelinterface import ReahlFields, Field, EmailField, Action, Event
 from reahl.sqlalchemysupport import Session, Base
 from reahl.component.i18n import Catalogue
 from sqlalchemy import Column, Integer, UnicodeText, Date

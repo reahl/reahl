@@ -19,7 +19,7 @@
 from sqlalchemy import Column, ForeignKey, UnicodeText, Integer, LargeBinary
 from sqlalchemy.orm import relationship
 from reahl.sqlalchemysupport import Session, Base
-from reahl.component.modelinterface import exposed, EmailField, Field, Event, Action, FileField
+from reahl.component.modelinterface import ReahlFields, EmailField, Field, Event, Action, FileField
 from reahl.web.fw import UserInterface
 from reahl.web.layout import PageLayout
 from reahl.web.bootstrap.page import HTML5Page

@@ -11,7 +11,7 @@ from reahl.web.bootstrap.page import HTML5Page
 from reahl.web.bootstrap.ui import Div, P, H
 from reahl.web.bootstrap.forms import Form, TextInput, Button, FormLayout, FieldSet
 from reahl.web.bootstrap.grid import ColumnLayout, ColumnOptions, ResponsiveSize, Container
-from reahl.component.modelinterface import exposed, EmailField, Field, Event, Action
+from reahl.component.modelinterface import ReahlFields, EmailField, Field, Event, Action
 from reahl.component.config import Configuration, ConfigSetting
 from reahl.component.context import ExecutionContext
 

@@ -15,7 +15,7 @@ from reahl.web.bootstrap.ui import Div, P, H, A
 from reahl.web.bootstrap.forms import Form, TextInput, Button, PasswordInput, SelectInput, CheckboxInput, \
                          FormLayout, FieldSet
 from reahl.domain.systemaccountmodel import AccountManagementInterface, EmailAndPasswordSystemAccount, LoginSession
-from reahl.component.modelinterface import exposed, IntegerField, BooleanField, Field, EmailField, Event, Action, Choice, ChoiceField
+from reahl.component.modelinterface import ReahlFields, IntegerField, BooleanField, Field, EmailField, Event, Action, Choice, ChoiceField
 
 
 class Address(Base):
@@ -35,7 +35,7 @@ class Address(Base):
         return addresses.one()
 
     fields = ReahlFields()
-    fields.name = lambda i: Field(label='Name', required=self.can_be_added(), writable=Action(i.can_be_added))
+    fields.name = lambda i: Field(label='Name', required=i.can_be_added(), writable=Action(i.can_be_added))
     fields.email_address = lambda i: EmailField(label='Email', required=True, writable=Action(i.can_be_edited))
 
     events = ReahlFields()
@@ -83,8 +83,8 @@ class AddressBook(Base):
         return visible_books
 
     fields = ReahlFields()
-        collaborators = [Choice(i.id, IntegerField(label=i.email)) for i in Session.query(EmailAndPasswordSystemAccount).all()]
-    fields.chosen_collaborator = lambda i: ChoiceField(collaborators, label='Choose collaborator')
+    fields.chosen_collaborator = lambda i: ChoiceField([Choice(i.id, IntegerField(label=i.email)) for i in Session.query(EmailAndPasswordSystemAccount).all()],
+                                                       label='Choose collaborator')
     fields.may_edit_address = lambda i: BooleanField(label='May edit existing addresses')
     fields.may_add_address = lambda i: BooleanField(label='May add new addresses')
 

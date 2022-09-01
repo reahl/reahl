@@ -5,7 +5,7 @@ from reahl.web.bootstrap.page import HTML5Page
 from reahl.web.bootstrap.ui import P, Div, LiteralHTML
 from reahl.web.bootstrap.forms import Form, TextInput, FormLayout, InlineFormLayout
 from reahl.web.bootstrap.grid import ColumnLayout, ColumnOptions, ResponsiveSize, Container
-from reahl.component.modelinterface import exposed, Field, EmailField
+from reahl.component.modelinterface import ReahlFields, Field, EmailField
 
 def lots_of(message):
     return message * 5

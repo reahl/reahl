@@ -9,7 +9,7 @@ from reahl.web.bootstrap.page import HTML5Page
 from reahl.web.bootstrap.ui import Div, P, H
 from reahl.web.bootstrap.forms import Form, TextInput, Button, FieldSet, FormLayout
 from reahl.web.bootstrap.grid import Container
-from reahl.component.modelinterface import exposed, EmailField, Field, Event, Action
+from reahl.component.modelinterface import ReahlFields, EmailField, Field, Event, Action
 
 
 class AddressBookUI(UserInterface):

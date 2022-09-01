@@ -16,7 +16,7 @@
 
 
 
-from reahl.component.modelinterface import exposed, Field, Event, Action, Choice, ChoiceField, IntegerField, BooleanField
+from reahl.component.modelinterface import ReahlFields, Field, Event, Action, Choice, ChoiceField, IntegerField, BooleanField
 from reahl.component.exceptions import DomainException
 from reahl.web.fw import UserInterface
 from reahl.web.ui import StaticColumn, DynamicColumn
@@ -266,8 +266,8 @@ class Allocation(Base):
     investment_order  = relationship('reahl.doc.examples.howtos.responsivedisclosure.responsivedisclosure.InvestmentOrder', back_populates='allocations')
 
     fields = ReahlFields()
-    fields.percentage    = lambda i: IntegerField(label='Percentage', required=True, writable=i.is_in_percentage)
-    fields.amount        = lambda i: IntegerField(label='Amount', required=True, writable=i.is_in_amount)
+    fields.percentage    = lambda i: IntegerField(label='Percentage', required=True, writable=lambda field: i.is_in_percentage)
+    fields.amount        = lambda i: IntegerField(label='Amount', required=True, writable=lambda field: i.is_in_amount)
 
     def __init__(self, investment_order, fund_name):
         super().__init__(investment_order=investment_order)

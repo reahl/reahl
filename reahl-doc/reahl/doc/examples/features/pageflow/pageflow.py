@@ -1,5 +1,5 @@
 
-from reahl.component.modelinterface import exposed, EmailField, Field
+from reahl.component.modelinterface import ReahlFields, EmailField, Field
 from reahl.component.modelinterface import Event, Action, Not
 
 from reahl.web.fw import UserInterface

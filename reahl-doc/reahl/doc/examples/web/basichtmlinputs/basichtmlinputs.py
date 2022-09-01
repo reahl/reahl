@@ -16,7 +16,7 @@
 
 
 
-from reahl.component.modelinterface import exposed, Field, BooleanField, ChoiceField, Choice, ChoiceGroup, \
+from reahl.component.modelinterface import ReahlFields, Field, BooleanField, ChoiceField, Choice, ChoiceGroup, \
     IntegerField, Event, MultiChoiceField, DateField
 from reahl.web.fw import UserInterface
 from reahl.web.bootstrap.page import HTML5Page

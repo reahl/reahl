@@ -5,7 +5,7 @@ from reahl.tofu import expected, NoException
 from sqlalchemy import Column, Integer, UnicodeText
 
 from reahl.sqlalchemysupport import Session, Base, metadata
-from reahl.component.modelinterface import exposed, EmailField, Field, Event, Action
+from reahl.component.modelinterface import ReahlFields, EmailField, Field, Event, Action
 from reahl.component.context import ExecutionContext
 
 
