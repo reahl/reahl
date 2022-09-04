@@ -41,7 +41,7 @@ from babel import UnknownLocaleError, Locale
 
 from reahl.component.eggs import ReahlEgg
 from reahl.component.exceptions import ProgrammerError
-from reahl.component.modelinterface import exposed, Field
+from reahl.component.modelinterface import exposed, ReahlFields, Field
 from reahl.component.context import ExecutionContext
 from reahl.web.fw import Layout, Bookmark, Url
 from reahl.web.ui import AccessRightAttributes, ActiveStateAttributes, HTMLWidget, HTMLAttributeValueOption
@@ -210,9 +210,8 @@ class Nav(Menu):
         self.open_item = None
         super().__init__(view)
 
-    @exposed
-    def query_fields(self, fields):
-        fields.open_item = Field(required=False, default=None)
+    query_fields = ReahlFields()
+    query_fields.open_item = lambda i: Field(required=False, default=None)
 
     def create_html_representation(self):
         ul = super().create_html_representation()

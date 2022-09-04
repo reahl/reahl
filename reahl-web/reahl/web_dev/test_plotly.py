@@ -18,7 +18,7 @@ from reahl.tofu import scenario, Fixture, uses, expected
 from reahl.tofu.pytestsupport import with_fixtures
 from reahl.browsertools.browsertools import XPath, Browser
 from reahl.web_dev.fixtures import WebFixture
-from reahl.web.ui import Div, Form, FormLayout, SelectInput, exposed, ChoiceField, Choice
+from reahl.web.ui import Div, Form, FormLayout, SelectInput, exposed, ReahlFields, ChoiceField, Choice
 from reahl.component.modelinterface import Field, IntegerField
 from reahl.web.plotly import Chart
 
@@ -70,11 +70,10 @@ def test_adding_chart_with_ajax(web_fixture):
             if self.choice == 2:
                 self.add_child(Chart(view, go.Figure(), 'thechart'))
 
-        @exposed
-        def fields(self, fields):
-            fields.choice = ChoiceField([Choice(1, IntegerField(label='Hide chart')),
-                                         Choice(2, IntegerField(label='Show chart'))],
-                                        label='Choice')
+        fields = ReahlFields()
+        fields.choice = lambda i: ChoiceField([Choice(1, IntegerField(label='Hide chart')),
+                                               Choice(2, IntegerField(label='Show chart'))],
+                                              label='Choice')
 
 
     wsgi_app = web_fixture.new_wsgi_app(child_factory=MyForm.factory(), enable_js=True)
@@ -109,11 +108,10 @@ def test_refreshing_chart_data_only(web_fixture):
             chart = self.add_child(Chart(view, fig, 'thechart'))
             select.set_refresh_widget(chart.contents)
 
-        @exposed
-        def fields(self, fields):
-            fields.choice = ChoiceField([Choice('one title', Field(label='One')),
-                                         Choice('another title', Field(label='Two'))],
-                                        label='Choice')
+        fields = ReahlFields()
+        fields.choice = lambda i: ChoiceField([Choice('one title', Field(label='One')),
+                                               Choice('another title', Field(label='Two'))],
+                                              label='Choice')
 
 
     wsgi_app = web_fixture.new_wsgi_app(child_factory=MyForm.factory(), enable_js=True)

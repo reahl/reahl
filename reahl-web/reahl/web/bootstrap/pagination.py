@@ -32,7 +32,7 @@ from functools import partial
 from abc import ABCMeta, abstractmethod
 
 from reahl.component.i18n import Catalogue
-from reahl.component.modelinterface import exposed, IntegerField
+from reahl.component.modelinterface import exposed, ReahlFields, IntegerField
 from reahl.component.decorators import memoized
 from reahl.web.fw import Bookmark
 from reahl.web.ui import AccessRightAttributes, ActiveStateAttributes, HTMLWidget
@@ -94,9 +94,8 @@ class PagedPanel(Div):
         return Bookmark.for_widget(description or '%s' % page_number,
                                    query_arguments={'current_page_number': page_number}).on_view(self.view)
 
-    @exposed
-    def query_fields(self, fields):
-        fields.current_page_number = self.page_index.fields.current_page_number
+    query_fields = ReahlFields()
+    query_fields.current_page_number = lambda i: i.page_index.fields.current_page_number
 
     @property
     def current_contents(self):
@@ -130,10 +129,9 @@ class PageIndex(PageIndexProtocol):
         self.start_page_number = start_page_number
         self.max_page_links = max_page_links
 
-    @exposed
-    def fields(self, fields):
-        fields.current_page_number = IntegerField(required=False, default=1)
-        fields.start_page_number =   IntegerField(required=False, default=1)
+    fields = ReahlFields()
+    fields.current_page_number = lambda i: IntegerField(required=False, default=1)
+    fields.start_page_number =   lambda i: IntegerField(required=False, default=1)
 
     @abstractmethod
     def get_contents_for_page(self, page_number):
@@ -346,10 +344,9 @@ class PageMenu(HTMLWidget):
                                        write_check=lambda: not disabled).on_view(self.view)
         return bookmark
 
-    @exposed
-    def query_fields(self, fields):
-        fields.start_page_number = self.page_index.fields.start_page_number
-        fields.current_page_number = self.paged_panel.query_fields.current_page_number
+    query_fields = ReahlFields()
+    query_fields.start_page_number = lambda i: i.page_index.fields.start_page_number
+    query_fields.current_page_number = lambda i: i.paged_panel.query_fields.current_page_number
 
     @property
     def jquery_selector(self):

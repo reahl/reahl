@@ -29,7 +29,7 @@ from reahl.browsertools.browsertools import WidgetTester, XPath, Browser
 
 from reahl.component.exceptions import DomainException, ProgrammerError, IsInstance
 from reahl.component.modelinterface import IntegerField, EmailField, DateField, \
-    exposed, Field, Event, Action, MultiChoiceField, Choice
+    exposed, ReahlFields, Field, Event, Action, MultiChoiceField, Choice
 from reahl.webdeclarative.webdeclarative import PersistedException, UserInput
 
 from reahl.sqlalchemysupport import Base, Session
@@ -107,9 +107,8 @@ def test_button_submits_only_once(web_fixture):
         def events(self, events):
             events.an_event = Event(label='click me', action=Action(self.clicked))
 
-        @exposed
-        def fields(self, fields):
-            fields.field_name = IntegerField()
+        fields = ReahlFields()
+        fields.field_name = lambda i: IntegerField()
 
     wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=MyForm.factory())
     web_fixture.reahl_server.set_app(wsgi_app)
@@ -230,9 +229,8 @@ def test_basic_field_linkup(web_fixture):
         def events(self, events):
             events.an_event = Event(label='click me', action=Action(self.handle_event))
 
-        @exposed
-        def fields(self, fields):
-            fields.field_name = IntegerField(default=3)
+        fields = ReahlFields()
+        fields.field_name = lambda i: IntegerField(default=3)
 
     model_object = ModelObject()
 
@@ -273,9 +271,8 @@ def test_distinguishing_identical_field_names(web_fixture):
     fixture = web_fixture
 
     class ModelObject:
-        @exposed
-        def fields(self, fields):
-            fields.field_name = IntegerField()
+        fields = ReahlFields()
+        fields.field_name = lambda i: IntegerField()
 
     model_object1 = ModelObject()
     model_object2 = ModelObject()
@@ -368,9 +365,8 @@ def test_exception_handling(reahl_system_fixture, web_fixture, sql_alchemy_fixtu
         @exposed
         def events(self, events):
             events.an_event = Event(label='click me', action=Action(self.handle_event))
-        @exposed
-        def fields(self, fields):
-            fields.field_name = IntegerField(default=3)
+        fields = ReahlFields()
+        fields.field_name = lambda i: IntegerField(default=3)
 
     with sql_alchemy_fixture.persistent_test_classes(ModelObject):
         model_object = ModelObject()
@@ -424,13 +420,13 @@ def test_form_preserves_user_input_after_validation_exceptions_multichoice(web_f
         @exposed
         def events(self, events):
             events.an_event = Event(label='click me')
-        @exposed
-        def fields(self, fields):
-            choices = [Choice(1, IntegerField(label='One')),
-                       Choice(2, IntegerField(label='Two')),
-                       Choice(3, IntegerField(label='Three'))]
-            fields.no_validation_exception_field = MultiChoiceField(choices, label='Make your invalid choice', default=[])
-            fields.validation_exception_field = MultiChoiceField(choices, label='Make your choice', default=[], required=True)
+            
+        choices = [Choice(1, IntegerField(label='One')),
+                   Choice(2, IntegerField(label='Two')),
+                   Choice(3, IntegerField(label='Three'))]
+        fields = ReahlFields()
+        fields.no_validation_exception_field = lambda i: MultiChoiceField(i.choices, label='Make your invalid choice', default=[])
+        fields.validation_exception_field = lambda i: MultiChoiceField(i.choices, label='Make your choice', default=[], required=True)
 
     model_object = ModelObject()
 
@@ -530,9 +526,8 @@ def test_check_missing_form(web_fixture):
     fixture = web_fixture
 
     class ModelObject:
-        @exposed
-        def fields(self, fields):
-            fields.name = Field()
+        fields = ReahlFields()
+        fields.name = lambda i: Field()
 
     class MyPanel(Div):
         def __init__(self, view):
@@ -567,9 +562,8 @@ def test_nested_forms(web_fixture):
         @exposed
         def events(self, events):
             events.nested_event = Event(label='click nested', action=Action(self.handle_event))
-        @exposed
-        def fields(self, fields):
-            fields.nested_field = Field(label='input nested')
+        fields = ReahlFields()
+        fields.nested_field = lambda i: Field(label='input nested')
 
     nested_model_object = NestedModelObject()
     class MyNestedForm(NestedForm):
@@ -623,9 +617,8 @@ def test_form_input_validation(web_fixture):
         @exposed
         def events(self, events):
             events.an_event = Event(label='click me', action=Action(self.handle_event))
-        @exposed
-        def fields(self, fields):
-            fields.field_name = EmailField()
+        fields = ReahlFields()
+        fields.field_name = lambda i: EmailField()
 
     model_object = ModelObject()
 
@@ -901,9 +894,8 @@ def test_remote_field_validation(web_fixture):
     fixture = web_fixture
 
     class ModelObject:
-        @exposed
-        def fields(self, fields):
-            fields.a_field = EmailField()
+        fields = ReahlFields()
+        fields.a_field = lambda i: EmailField()
 
     model_object = ModelObject()
 
@@ -932,9 +924,8 @@ def test_remote_field_formatting(web_fixture):
     fixture = web_fixture
 
     class ModelObject:
-        @exposed
-        def fields(self, fields):
-            fields.a_field = DateField()
+        fields = ReahlFields()
+        fields.a_field = lambda i: DateField()
 
     model_object = ModelObject()
 

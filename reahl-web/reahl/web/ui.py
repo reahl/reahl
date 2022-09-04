@@ -29,7 +29,7 @@ from reahl.component.exceptions import ProgrammerError, DomainException
 from reahl.component.exceptions import arg_checks
 from reahl.component.i18n import Catalogue
 from reahl.component.context import ExecutionContext
-from reahl.component.modelinterface import exposed, ValidationConstraintList, ValidationConstraint, ExpectedInputNotFound,\
+from reahl.component.modelinterface import exposed, ReahlFields, ValidationConstraintList, ValidationConstraint, ExpectedInputNotFound,\
     Field, Event, BooleanField, Choice, UploadedFile, InputParseException, StandaloneFieldIndex, MultiChoiceField, ChoiceField, Action
 from reahl.web.csrf import CSRFTokenField
 from reahl.web.fw import EventChannel, RemoteMethod, JsonResult, Widget, \
@@ -1099,10 +1099,9 @@ class Form(HTMLElement):
     def coactive_widgets(self):
         return super().coactive_widgets + [self.hash_inputs]
 
-    @exposed
-    def fields(self, fields):
-        fields._reahl_database_concurrency_digest = Field().with_validation_constraint(ConcurrentChange(self))
-        fields._reahl_csrf_token = CSRFTokenField(self._reahl_csrf_token)
+    fields = ReahlFields()
+    fields._reahl_database_concurrency_digest = lambda i: Field().with_validation_constraint(ConcurrentChange(i))
+    fields._reahl_csrf_token = lambda i: CSRFTokenField(i._reahl_csrf_token)
 
     @exposed
     def events(self, events):

@@ -39,7 +39,7 @@ from reahl.mailutil.mail import Mailer, MailMessage
 from reahl.component.config import Configuration, ConfigSetting
 from reahl.component.i18n import Catalogue
 from reahl.component.modelinterface import EmailField, PasswordField, BooleanField, EqualToConstraint, \
-                                            Field, Event, exposed, Action
+                                            Field, Event, exposed, ReahlFields, Action
 from reahl.component.context import ExecutionContext
 from reahl.domain.partymodel import Party
 from reahl.domain.workflowmodel import DeferredAction, Requirement
@@ -310,18 +310,16 @@ class AccountManagementInterface(Base):
 
     stay_logged_in = False
 
-    @exposed
-    def fields(self, fields):
-        """See class docstring"""
-        fields.email = EmailField(required=True, label=_('Email'))
-        fields.new_email = EmailField(required=True, label=_('New email'))
-        fields.password = PasswordField(required=True, label=_('Password'))
-        fields.stay_logged_in = BooleanField(default=False, label=_('Remember me?'))
-        fields.secret = Field(required=True, label=_('Secret key'))
-        fields.repeat_password = RepeatPasswordField(fields.password, required=True, label=_('Re-type password'), required_message=_('Please type your password again.'))
-        fields.accept_terms = BooleanField(required=True,
-                                          required_message=_('Please accept the terms of service'),
-                                          default=False, label=_('I accept the terms of service'))
+    fields = ReahlFields()
+    fields.email = lambda i: EmailField(required=True, label=_('Email'))
+    fields.new_email = lambda i: EmailField(required=True, label=_('New email'))
+    fields.password = lambda i: PasswordField(required=True, label=_('Password'))
+    fields.stay_logged_in = lambda i: BooleanField(default=False, label=_('Remember me?'))
+    fields.secret = lambda i: Field(required=True, label=_('Secret key'))
+    fields.repeat_password = lambda i: RepeatPasswordField(i.fields.password, required=True, label=_('Re-type password'), required_message=_('Please type your password again.'))
+    fields.accept_terms = lambda i: BooleanField(required=True,
+                                                 required_message=_('Please accept the terms of service'),
+                                                 default=False, label=_('I accept the terms of service'))
     
     @exposed
     def events(self, events):

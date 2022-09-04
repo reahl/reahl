@@ -31,7 +31,7 @@ from reahl.web.bootstrap.forms import Button, CueInput, TextInput, PasswordInput
     FieldSet, Form, FormLayout, CheckboxInput, TextNode
 from reahl.web.bootstrap.popups import PopupA, CheckCheckboxScript
 
-from reahl.component.modelinterface import RemoteConstraint, Action, exposed
+from reahl.component.modelinterface import RemoteConstraint, Action, exposed, ReahlFields
 from reahl.domain.systemaccountmodel import EmailAndPasswordSystemAccount, NotUniqueException,\
     AccountManagementInterface
 
@@ -174,10 +174,9 @@ class VerifyForm(Form):
         actions = self.add_child(ActionButtonGroup(view))
         actions.add_child(Button(self, account_management_interface.events.verify_event, style='primary'))
 
-    @exposed
-    def query_fields(self, fields):
-        fields.email = self.account_management_interface.fields.email.as_optional()
-        fields.secret = self.account_management_interface.fields.secret.as_optional()
+    query_fields = ReahlFields()
+    query_fields.email = lambda i: i.account_management_interface.fields.email.as_optional()
+    query_fields.secret = lambda i: i.account_management_interface.fields.secret.as_optional()
 
 
 class RegisterHelpWidget(TitledWidget):
@@ -345,10 +344,9 @@ class ChoosePasswordForm(Form):
         actions = self.add_child(ActionButtonGroup(view))
         actions.add_child(Button(self, account_management_interface.events.choose_password_event, style='primary'))
 
-    @exposed
-    def query_fields(self, fields):
-        fields.email = self.account_management_interface.fields.email.as_optional()
-        fields.secret = self.account_management_interface.fields.secret.as_optional()
+    query_fields = ReahlFields()
+    query_fields.email = lambda i: i.account_management_interface.fields.email.as_optional()
+    query_fields.secret = lambda i: i.account_management_interface.fields.secret.as_optional()
 
 
 class PasswordChangedWidget(TitledWidget):

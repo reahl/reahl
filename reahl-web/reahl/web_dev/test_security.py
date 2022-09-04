@@ -21,7 +21,7 @@ from reahl.stubble import EmptyStub
 
 from reahl.browsertools.browsertools import WidgetTester, Browser, XPath
 
-from reahl.component.modelinterface import Action, Allowed, Event, Field, exposed
+from reahl.component.modelinterface import Action, Allowed, Event, Field, exposed, ReahlFields
 from reahl.web.fw import Widget, UserInterface
 from reahl.web.ui import Div, P, HTML5Page
 from reahl.web.ui import Form, TextInput, ButtonInput
@@ -259,9 +259,9 @@ def test_non_writable_input_is_dealt_with_like_invalid_input(web_fixture):
         def events(self, events):
             events.an_event = Event(label='click me')
 
-        @exposed
-        def fields(self, fields):
-            fields.field_name = Field(default='abc', writable=Allowed(False), disallowed_message='you are not allowed to write this')
+        fields = ReahlFields()
+        fields.field_name = lambda i: Field(default='abc', writable=Allowed(False), disallowed_message='you are not allowed to write this')
+        
     model_object = ModelObject()
 
     class TestPanel(Div):

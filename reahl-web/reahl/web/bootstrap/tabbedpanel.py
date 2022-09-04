@@ -25,7 +25,7 @@ panel.
 
 # noinspection PyUnresolvedReferences
 
-from reahl.component.modelinterface import exposed, Field
+from reahl.component.modelinterface import exposed, ReahlFields, Field
 from reahl.web.fw import Widget
 from reahl.web.ui import Div, ActiveStateAttributes, DelegatedAttributes
 from reahl.web.bootstrap.navs import Nav, TabLayout, DropdownMenu
@@ -54,9 +54,8 @@ class TabbedPanel(Widget):
         self.content_panel = self.add_child(Div(view))
         self.content_panel.append_class('tab-content')
 
-    @exposed
-    def query_fields(self, fields):
-        fields.tab = Field(required=False, default=None)
+    query_fields = ReahlFields()
+    query_fields.tab = lambda i: Field(required=False, default=None)
 
     @property
     def active_tab_set(self):

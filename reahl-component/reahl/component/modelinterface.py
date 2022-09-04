@@ -91,7 +91,8 @@ class FieldIndex:
     def __getattr__(self, name):
         factory, storage_object = self.field_factories[name]
         field = factory(storage_object)
-        field.bind(name, storage_object)
+        if not field.is_bound:
+            field.bind(name, storage_object)
         setattr(self, name, field)
         return field
         
@@ -107,9 +108,10 @@ class FieldIndex:
     def instantiate_fields_from_factories(self):
         for name, (factory, storage_object) in self.field_factories.items():
             if name not in self.fields:
-                bound_field = factory(storage_object)
-                bound_field.bind(name, storage_object)
-                setattr(self, name, bound_field)
+                field = factory(storage_object)
+                if not field.is_bound:
+                    field.bind(name, storage_object)
+                setattr(self, name, field)
                 
     def values(self):
         self.instantiate_fields_from_factories()
@@ -226,20 +228,22 @@ class ExposedDecorator:
             instance.__exposed__ = {}
 
         model_object = instance
-
         try:
             return instance.__exposed__[self]
         except KeyError:
+            seen = []
             field_index = FieldIndex(model_object)
             for _class in reversed(model_object.__class__.mro()):
                 if hasattr(_class, self.name):
                     exposed_declaration = getattr(_class, self.name)
-                    if isinstance(exposed_declaration, ExposedDecorator):
-                        exposed_declaration.func(model_object, field_index)
-                    elif isinstance(exposed_declaration, ReahlFields):
-                        field_index.update_from_class(exposed_declaration)
-                    else:
-                        raise ProgrammerError('%s on %s is not a ReahlFields or ExposedDecorator' % (self.name, _class))
+                    if exposed_declaration not in seen:
+                        seen.append(exposed_declaration)
+                        if isinstance(exposed_declaration, ExposedDecorator):
+                            exposed_declaration.func(model_object, field_index)
+                        elif isinstance(exposed_declaration, ReahlFields):
+                            field_index.update_from_class(exposed_declaration)
+                        else:
+                            raise ProgrammerError('%s on %s is not a ReahlFields or ExposedDecorator' % (self.name, _class))
             instance.__exposed__[self] = field_index
 
         self.func(model_object, field_index)
@@ -290,15 +294,18 @@ class ReahlFields:
         my_name = self._find_name(cls)
 
         idx = FieldIndex(instance)
+        seen = []
         for class_ in reversed(cls.mro()):
             if hasattr(class_, my_name):
                 exposed_declaration = getattr(class_, my_name)
-                if isinstance(exposed_declaration, ExposedDecorator):
-                    exposed_declaration.func(instance, idx)
-                elif isinstance(exposed_declaration, ReahlFields):
-                    idx.update_from_class(exposed_declaration)
-                else:
-                    raise ProgrammerError('%s on %s is not a ReahlFields or ExposedDecorator' % (my_name, class_))
+                if exposed_declaration not in seen:
+                    seen.append(exposed_declaration)
+                    if isinstance(exposed_declaration, ExposedDecorator):
+                        exposed_declaration.func(instance, idx)
+                    elif isinstance(exposed_declaration, ReahlFields):
+                        idx.update_from_class(exposed_declaration)
+                    else:
+                        raise ProgrammerError('%s on %s is not a ReahlFields or ExposedDecorator' % (my_name, class_))
                 
         setattr(instance, my_name, idx)
         return idx
@@ -981,6 +988,8 @@ class Field:
                     raise
 
     def bind(self, name, storage_object):
+        if self.is_bound:
+            raise ProgrammerError('%s is already bound to %s' % (self, self.storage_object))
         self._name = name
         if not self.label:
             self.label = name
@@ -1249,6 +1258,7 @@ class Event(Field):
 
     def copy(self):
         new_field = super().copy()
+        new_field.unbind()
         new_field.bind(new_field._name, new_field)
         return new_field
     

@@ -21,7 +21,7 @@ import os.path
 from reahl.tofu import temp_file_with
 from reahl.tofu.pytestsupport import with_fixtures
 
-from reahl.component.modelinterface import FileField, exposed, Event, UploadedFile, ValidationConstraint
+from reahl.component.modelinterface import FileField, exposed, ReahlFields, Event, UploadedFile, ValidationConstraint
 from reahl.web.ui import SimpleFileInput, Form, ButtonInput
 from reahl.browsertools.browsertools import XPath
 
@@ -42,9 +42,8 @@ def test_form_encoding(web_fixture):
     fixture = web_fixture
 
     class DomainObject:
-        @exposed
-        def fields(self, fields):
-            fields.file = FileField(allow_multiple=False, label='Attached files')
+        fields = ReahlFields()
+        fields.file = lambda i: FileField(allow_multiple=False, label='Attached files')
 
     domain_object = DomainObject()
 
@@ -68,9 +67,8 @@ def test_simple_file_input(web_fixture):
         def __init__(self):
            self.file = None
 
-        @exposed
-        def fields(self, fields):
-            fields.file = FileField(allow_multiple=False, label='Attached files')
+        fields = ReahlFields()
+        fields.file = lambda i: FileField(allow_multiple=False, label='Attached files')
 
         @exposed
         def events(self, events):
@@ -119,12 +117,13 @@ def test_simple_file_input_exceptions(web_fixture):
         def __init__(self):
             self.file = None
 
-        @exposed
-        def fields(self, fields):
-            fields.file = FileField(allow_multiple=False, label='Attached files')
+        fields = ReahlFields()
+        def make_field(i):
+            field = FileField(allow_multiple=False, label='Attached files')
             # FailingConstraint is declared in module level scope for it to be pickleable
-            fields.file.add_validation_constraint(failing_constraint)
-
+            field.add_validation_constraint(failing_constraint)
+            return field
+        fields.file = make_field
         @exposed
         def events(self, events):
             events.upload = Event(label='Upload')

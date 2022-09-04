@@ -23,7 +23,7 @@ from reahl.tofu.pytestsupport import with_fixtures
 
 from reahl.browsertools.browsertools import XPath, Browser
 from reahl.browsertools.browsertools import WidgetTester
-from reahl.component.modelinterface import exposed, Field, BooleanField, Event, Choice, ChoiceField,\
+from reahl.component.modelinterface import exposed, ReahlFields, Field, BooleanField, Event, Choice, ChoiceField,\
     MultiChoiceField, IntegerField, Action
 from reahl.component.exceptions import DomainException
 from reahl.web.fw import Url, ValidationException
@@ -74,9 +74,8 @@ class FormLayoutFixture(Fixture):
 
     def new_domain_object(self):
         class StubDomainObject:
-            @exposed
-            def fields(self, fields):
-                fields.an_attribute = Field(label='Some input', required=True)
+            fields = ReahlFields()
+            fields.an_attribute = lambda i: Field(label='Some input', required=True)
         return StubDomainObject()
 
     def form_contains_form_group(self, browser):
@@ -245,9 +244,8 @@ def test_adding_checkboxes(web_fixture, form_layout_fixture):
     """CheckboxInputs are added non-inlined, and by default without labels."""
 
     class DomainObjectWithBoolean:
-        @exposed
-        def fields(self, fields):
-            fields.an_attribute = BooleanField(label='Some input', required=True)
+        fields = ReahlFields()
+        fields.an_attribute = lambda i: BooleanField(label='Some input', required=True)
 
     fixture = form_layout_fixture
 
@@ -278,10 +276,9 @@ class ValidationScenarios(FormLayoutFixture):
             an_attribute = Column(String)
             another_attribute = Column(String)
             
-            @exposed
-            def fields(self, fields):
-                fields.an_attribute = Field(label='Some input', required=True)
-                fields.another_attribute = Field(label='Another input', required=True)
+            fields = ReahlFields()
+            fields.an_attribute = lambda i: Field(label='Some input', required=True)
+            fields.another_attribute = lambda i: Field(label='Another input', required=True)
             @exposed
             def events(self, events):
                 events.submit = Event(label='Submit')
@@ -391,9 +388,8 @@ class CheckboxFixture(Fixture):
     def new_domain_object(self):
         fixture = self
         class ModelObject:
-            @exposed
-            def fields(self, fields):
-                fields.an_attribute = fixture.field
+            fields = ReahlFields()
+            fields.an_attribute = lambda i: fixture.field
             @exposed
             def events(self, events):
                 events.submit = Event(label='Submit')
@@ -700,9 +696,8 @@ def test_alert_for_domain_exception(web_fixture):
     """
 
     class ModelObject:
-        @exposed
-        def fields(self, fields):
-            fields.some_field = Field(label='Some field', default='not changed')
+        fields = ReahlFields()
+        fields.some_field = lambda i: Field(label='Some field', default='not changed')
 
         @exposed
         def events(self, events):

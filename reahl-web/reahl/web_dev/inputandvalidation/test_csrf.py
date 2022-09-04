@@ -25,7 +25,7 @@ from reahl.tofu import Fixture, scenario, expected, uses, NoException
 from reahl.tofu.pytestsupport import with_fixtures
 
 from reahl.component.context import  ExecutionContext
-from reahl.component.modelinterface import Action, Event, exposed, ChoiceField, Choice, IntegerField
+from reahl.component.modelinterface import Action, Event, exposed, ReahlFields, ChoiceField, Choice, IntegerField
 from reahl.web.ui import Form, ButtonInput, FormLayout, SelectInput, P
 from reahl.web.csrf import ExpiredCSRFToken, InvalidCSRFToken, CSRFToken
 from reahl.browsertools.browsertools import XPath
@@ -53,10 +53,9 @@ class CSRFFixture(Fixture):
             def events(self, events):
                 events.submit_break = Event(label='Submit')
 
-            @exposed
-            def fields(self, fields):
-                fields.choice = ChoiceField([Choice(1, IntegerField(label='1')),
-                                             Choice(2, IntegerField(label='2'))])
+            fields = ReahlFields()
+            fields.choice = lambda i: ChoiceField([Choice(1, IntegerField(label='1')),
+                                                   Choice(2, IntegerField(label='2'))])
 
 
         return MyForm
