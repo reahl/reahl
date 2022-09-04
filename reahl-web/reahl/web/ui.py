@@ -1103,9 +1103,8 @@ class Form(HTMLElement):
     fields._reahl_database_concurrency_digest = lambda i: Field().with_validation_constraint(ConcurrentChange(i))
     fields._reahl_csrf_token = lambda i: CSRFTokenField(i._reahl_csrf_token)
 
-    @exposed
-    def events(self, events):
-        events.reset = Event(label=_('Reset input'), action=Action(self.clear_view_data))
+    events = ReahlFields()
+    events.reset = lambda i: Event(label=_('Reset input'), action=Action(i.clear_view_data))
 
     def clear_view_data(self):
         self.clear_all_saved_data()

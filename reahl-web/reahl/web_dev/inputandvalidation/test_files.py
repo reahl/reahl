@@ -70,9 +70,8 @@ def test_simple_file_input(web_fixture):
         fields = ReahlFields()
         fields.file = lambda i: FileField(allow_multiple=False, label='Attached files')
 
-        @exposed
-        def events(self, events):
-            events.upload = Event(label='Upload')
+        events = ReahlFields()
+        events.upload = lambda i: Event(label='Upload')
 
     domain_object = DomainObject()
 
@@ -124,9 +123,8 @@ def test_simple_file_input_exceptions(web_fixture):
             field.add_validation_constraint(failing_constraint)
             return field
         fields.file = make_field
-        @exposed
-        def events(self, events):
-            events.upload = Event(label='Upload')
+        events = ReahlFields()
+        events.upload = lambda i: Event(label='Upload')
 
     domain_object = DomainObject()
 

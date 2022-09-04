@@ -279,9 +279,8 @@ class ValidationScenarios(FormLayoutFixture):
             fields = ReahlFields()
             fields.an_attribute = lambda i: Field(label='Some input', required=True)
             fields.another_attribute = lambda i: Field(label='Another input', required=True)
-            @exposed
-            def events(self, events):
-                events.submit = Event(label='Submit')
+            events = ReahlFields()
+            events.submit = lambda i: Event(label='Submit')
         return ModelObject
 
     def new_Form(self):
@@ -390,9 +389,8 @@ class CheckboxFixture(Fixture):
         class ModelObject:
             fields = ReahlFields()
             fields.an_attribute = lambda i: fixture.field
-            @exposed
-            def events(self, events):
-                events.submit = Event(label='Submit')
+            events = ReahlFields()
+            events.submit = lambda i: Event(label='Submit')
         return ModelObject()
 
     def new_Form(self):
@@ -699,9 +697,8 @@ def test_alert_for_domain_exception(web_fixture):
         fields = ReahlFields()
         fields.some_field = lambda i: Field(label='Some field', default='not changed')
 
-        @exposed
-        def events(self, events):
-            events.submit_break = Event(label='Submit', action=Action(self.always_break))
+        events = ReahlFields()
+        events.submit_break = lambda i: Event(label='Submit', action=Action(i.always_break))
 
         def always_break(self):
             raise ValidationException(message='designed to break')

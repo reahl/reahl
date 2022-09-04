@@ -22,7 +22,7 @@ from reahl.tofu import expected
 from reahl.tofu.pytestsupport import with_fixtures
 
 from reahl.browsertools.browsertools import Browser, XPath
-from reahl.component.modelinterface import Event, Field, Action, exposed, IntegerField
+from reahl.component.modelinterface import Event, Field, Action, exposed, ReahlFields, IntegerField
 from reahl.component.exceptions import ProgrammerError
 
 from reahl.web.fw import UserInterface, ViewPreCondition, Redirect, Detour, Return, IdentityDictionary, UrlBoundView
@@ -167,10 +167,9 @@ def test_transitions_to_parameterised_views(web_fixture):
        the Event should be bound to the arguments to be used for the target View, using .with_arguments()"""
 
     class ModelObject:
-        @exposed
-        def events(self, events):
-            events.an_event = Event(label='click me', event_argument1=IntegerField(),
-                                    event_argument2=IntegerField())
+        events = ReahlFields()
+        events.an_event = lambda i: Event(label='click me', event_argument1=IntegerField(),
+                                          event_argument2=IntegerField())
 
     model_object = ModelObject()
 
@@ -214,9 +213,8 @@ def test_transitions_to_parameterised_views_error(web_fixture):
        expected by the target View, an error is raised."""
 
     class ModelObject:
-        @exposed
-        def events(self, events):
-            events.an_event = Event(label='Click me')
+        events = ReahlFields()
+        events.an_event = lambda i: Event(label='Click me')
 
     model_object = ModelObject()
 

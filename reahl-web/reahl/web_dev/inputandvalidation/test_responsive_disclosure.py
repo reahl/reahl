@@ -404,9 +404,8 @@ def test_form_values_are_not_persisted_until_form_is_submitted(web_fixture, resp
             self.define_event_handler(self.events.submit)
             self.add_child(ButtonInput(self, self.events.submit))
 
-        @exposed
-        def events(self, events):
-            events.submit = Event(label='Submit')
+        events = ReahlFields()
+        events.submit = lambda i: Event(label='Submit')
 
     fixture.MyForm = FormWithButton
 
@@ -455,9 +454,8 @@ class DisclosedInputFixture(Fixture):
                 self.trigger_field = fixture.default_trigger_field_value
                 self.email = None
 
-            @exposed
-            def events(self, events):
-                events.an_event = Event(label='click me', action=Action(self.submit))
+            events = ReahlFields()
+            events.an_event = lambda i: Event(label='click me', action=Action(i.submit))
 
             def submit(self):
                 if fixture.raise_domain_exception_on_submit:
@@ -627,9 +625,8 @@ class TabOrderFixture(Fixture):
                 self.other = None
                 self.edge = None
 
-            @exposed
-            def events(self, events):
-                events.an_event = Event(label='click me')
+            events = ReahlFields()
+            events.an_event = lambda i: Event(label='click me')
 
             fields = ReahlFields()
             fields.trigger_field = lambda i: BooleanField(label='Trigger field')
@@ -918,9 +915,8 @@ def test_browser_back_after_state_changes_goes_to_previous_url(web_fixture, quer
             self.define_event_handler(self.events.submit)
             self.add_child(ButtonInput(self, self.events.submit))
 
-        @exposed
-        def events(self, events):
-            events.submit = Event(label='Submit')
+        events = ReahlFields()
+        events.submit = lambda i: Event(label='Submit')
 
     fixture.MyForm = FormWithButton
 
@@ -969,10 +965,9 @@ class RecalculateWidgetFixture(Fixture):
             def submit(self):
                 raise DomainException(message='An exception happened on submit')
 
-            @exposed
-            def events(self, events):
-                events.choice_changed = Event(action=Action(self.recalculate))
-                events.submit = Event(action=Action(self.submit))
+            events = ReahlFields()
+            events.choice_changed = lambda i: Event(action=Action(i.recalculate))
+            events.submit = lambda i: Event(action=Action(i.submit))
 
             fields = ReahlFields()
             fields.choice = lambda i: ChoiceField([Choice(1, IntegerField(label='One')),
@@ -1209,10 +1204,9 @@ def test_invalid_trigger_inputs(web_fixture, query_string_fixture, sql_alchemy_f
         def submit(self):
             raise DomainException(message='An exception happened on submit')
 
-        @exposed
-        def events(self, events):
-            events.choice_changed = Event(action=Action(self.recalculate))
-            events.submit = Event(action=Action(self.submit))
+        events = ReahlFields()
+        events.choice_changed = lambda i: Event(action=Action(i.recalculate))
+        events.submit = lambda i: Event(action=Action(i.submit))
 
         fields = ReahlFields()
         fields.choice = lambda i: ChoiceField([Choice(1, IntegerField(label='One')),
@@ -1296,10 +1290,9 @@ def test_invalid_non_trigger_input_corner_case(web_fixture, query_string_fixture
         def submit(self):
             raise DomainException(message='An exception happened on submit')
 
-        @exposed
-        def events(self, events):
-            events.choice_changed = Event(action=Action(self.recalculate))
-            events.submit = Event(action=Action(self.submit))
+        events = ReahlFields()
+        events.choice_changed = lambda i: Event(action=Action(i.recalculate))
+        events.submit = lambda i: Event(action=Action(i.submit))
 
         fields = ReahlFields()
         fields.choice = lambda i: ChoiceField([Choice(1, IntegerField(label='One')),

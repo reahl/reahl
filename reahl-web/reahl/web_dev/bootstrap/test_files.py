@@ -46,9 +46,8 @@ class FileInputButtonFixture(Fixture):
             fields = ReahlFields()
             fields.files = lambda i: FileField(allow_multiple=True, label='Attached files')
 
-            @exposed
-            def events(self, events):
-                events.submit = Event(label='Submit')
+            events = ReahlFields()
+            events.submit = lambda i: Event(label='Submit')
 
         return DomainObject()
 
@@ -229,9 +228,8 @@ class FileUploadInputFixture(Fixture):
             fields = ReahlFields()
             fields.files = lambda i: FileField(allow_multiple=True, label='Attached files', required=True)
 
-            @exposed
-            def events(self, events):
-                events.submit = Event(label='Submit', action=Action(self.submit))
+            events = ReahlFields()
+            events.submit = lambda i: Event(label='Submit', action=Action(i.submit))
                 
             def submit(self):
                 if self.throws_exception:
@@ -276,9 +274,8 @@ class ConstrainedFileUploadInputFixture(FileUploadInputFixture):
             fields = ReahlFields()
             fields.files = lambda i: fixture.file_field
 
-            @exposed
-            def events(self, events):
-                events.submit = Event(label='Submit')
+            events = ReahlFields()
+            events.submit = lambda i: Event(label='Submit')
 
         return DomainObject()
 
@@ -332,9 +329,8 @@ class ToggleValidationFixture(FileUploadInputFixture):
                 field.add_validation_constraint(ToggleableConstraint(fixture))
                 return field
             fields.files = make_field
-            @exposed
-            def events(self, events):
-                events.submit = Event(label='Submit')
+            events = ReahlFields()
+            events.submit = lambda i: Event(label='Submit')
                                 
         return DomainObject()
 

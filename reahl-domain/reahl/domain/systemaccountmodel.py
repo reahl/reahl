@@ -321,17 +321,16 @@ class AccountManagementInterface(Base):
                                                  required_message=_('Please accept the terms of service'),
                                                  default=False, label=_('I accept the terms of service'))
     
-    @exposed
-    def events(self, events):
-        events.verify_event = Event(label=_('Verify'), action=Action(self.verify_email))
-        events.register_event = Event(label=_('Register'), action=Action(self.register))
-        events.change_email_event = Event(label=_('Change email address'), action=Action(self.request_email_change))
-        events.investigate_event = Event(label=_('Investigate'))
-        events.choose_password_event = Event(label=_('Set new password'), action=Action(self.choose_new_password))
-        events.reset_password_event = Event(label=_('Reset password'), action=Action(self.request_password_reset))
-        events.login_event = Event(label=_('Log in'), action=Action(self.log_in))
-        events.resend_event = Event(label=_('Send'), action=Action(self.send_activation_notification))
-        events.log_out_event = Event(label=_('Log out'), action=Action(self.log_out))
+    events = ReahlFields()
+    events.verify_event = lambda i: Event(label=_('Verify'), action=Action(i.verify_email))
+    events.register_event = lambda i: Event(label=_('Register'), action=Action(i.register))
+    events.change_email_event = lambda i: Event(label=_('Change email address'), action=Action(i.request_email_change))
+    events.investigate_event = lambda i: Event(label=_('Investigate'))
+    events.choose_password_event = lambda i: Event(label=_('Set new password'), action=Action(i.choose_new_password))
+    events.reset_password_event = lambda i: Event(label=_('Reset password'), action=Action(i.request_password_reset))
+    events.login_event = lambda i: Event(label=_('Log in'), action=Action(i.log_in))
+    events.resend_event = lambda i: Event(label=_('Send'), action=Action(i.send_activation_notification))
+    events.log_out_event = lambda i: Event(label=_('Log out'), action=Action(i.log_out))
     
     def log_in(self):
         EmailAndPasswordSystemAccount.log_in(self.email, self.password, self.stay_logged_in)

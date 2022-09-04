@@ -60,9 +60,8 @@ class SimpleInputFixture2(SimpleInputFixture):
         class ModelObject:
             def handle_event(self):
                 pass
-            @exposed
-            def events(self, events):
-                events.an_event = Event(label='click me', action=Action(self.handle_event))
+            events = ReahlFields()
+            events.an_event = lambda i: Event(label='click me', action=Action(i.handle_event))
             fields = ReahlFields()
             fields.an_attribute = lambda i: fixture.field
         return ModelObject()

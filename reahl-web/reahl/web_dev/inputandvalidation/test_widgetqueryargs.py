@@ -299,9 +299,8 @@ def test_refresh_nested_forms(web_fixture, query_string_fixture):
         query_fields = ReahlFields()
         query_fields.fancy_state = lambda i: IntegerField(required=False, default=1)
 
-        @exposed
-        def events(self, events):
-            events.submit = Event(action=Action(self.submit))
+        events = ReahlFields()
+        events.submit = lambda i: Event(action=Action(i.submit))
 
     wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=MyFancyWidget.factory())
     web_fixture.reahl_server.set_app(wsgi_app)

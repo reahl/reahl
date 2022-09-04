@@ -255,9 +255,8 @@ def test_non_writable_input_is_dealt_with_like_invalid_input(web_fixture):
 
     class ModelObject:
         field_name = 'Original value'
-        @exposed
-        def events(self, events):
-            events.an_event = Event(label='click me')
+        events = ReahlFields()
+        events.an_event = lambda i: Event(label='click me')
 
         fields = ReahlFields()
         fields.field_name = lambda i: Field(default='abc', writable=Allowed(False), disallowed_message='you are not allowed to write this')
@@ -291,10 +290,9 @@ def test_non_writable_events_are_dealt_with_like_invalid_input(web_fixture):
     fixture = web_fixture
 
     class ModelObject:
-        @exposed
-        def events(self, events):
-            events.an_event = Event(label='click me', writable=Allowed(False),
-                                    disallowed_message='you cannot do this')
+        events = ReahlFields()
+        events.an_event = lambda i: Event(label='click me', writable=Allowed(False),
+                                          disallowed_message='you cannot do this')
 
     model_object = ModelObject()
     class TestPanel(Div):
@@ -348,9 +346,8 @@ def test_posting_to_view(web_fixture):
             super().__init__(view, 'myform')
             self.define_event_handler(self.events.an_event)
             self.add_child(ButtonInput(self, self.events.an_event))
-        @exposed
-        def events(self, events):
-            events.an_event = Event(label='Click me')
+        events = ReahlFields()
+        events.an_event = lambda i: Event(label='Click me')
 
     class MainUI(UserInterface):
         def assemble(self):

@@ -54,9 +54,8 @@ def test_basic_event_linkup(web_fixture):
         def handle_event(self):
             self.handled_event = True
 
-        @exposed
-        def events(self, events):
-            events.an_event = Event(label='click me', action=Action(self.handle_event))
+        events = ReahlFields()
+        events.an_event = lambda i: Event(label='click me', action=Action(i.handle_event))
 
     model_object = ModelObject()
 
@@ -103,9 +102,8 @@ def test_button_submits_only_once(web_fixture):
         def clicked(self):
             fixture.click_count += 1
 
-        @exposed
-        def events(self, events):
-            events.an_event = Event(label='click me', action=Action(self.clicked))
+        events = ReahlFields()
+        events.an_event = lambda i: Event(label='click me', action=Action(i.clicked))
 
         fields = ReahlFields()
         fields.field_name = lambda i: IntegerField()
@@ -154,12 +152,11 @@ def test_arguments_to_actions(web_fixture):
         def handle_event(self, *args):
             self.args = args
 
-        @exposed
-        def events(self, events):
-            events.an_event = Event(label='click me',
-                                    action=Action(self.handle_event, ['one_argument', 'another_argument']),
-                                    one_argument=IntegerField(),
-                                    another_argument=Field())
+        events = ReahlFields()
+        events.an_event = lambda i: Event(label='click me',
+                                          action=Action(i.handle_event, ['one_argument', 'another_argument']),
+                                          one_argument=IntegerField(),
+                                          another_argument=Field())
 
     model_object = ModelObject()
 
@@ -192,9 +189,8 @@ def test_validation_of_event_arguments(web_fixture):
     fixture = web_fixture
 
     class ModelObject:
-        @exposed
-        def events(self, events):
-            events.an_event = Event(label='Click me', argument=Field(required=True))
+        events = ReahlFields()
+        events.an_event = lambda i: Event(label='Click me', argument=Field(required=True))
 
     model_object = ModelObject()
 
@@ -225,9 +221,8 @@ def test_basic_field_linkup(web_fixture):
         def handle_event(self):
             pass
 
-        @exposed
-        def events(self, events):
-            events.an_event = Event(label='click me', action=Action(self.handle_event))
+        events = ReahlFields()
+        events.an_event = lambda i: Event(label='click me', action=Action(i.handle_event))
 
         fields = ReahlFields()
         fields.field_name = lambda i: IntegerField(default=3)
@@ -278,9 +273,8 @@ def test_distinguishing_identical_field_names(web_fixture):
     model_object2 = ModelObject()
 
     class MyForm(Form):
-        @exposed
-        def events(self, events):
-            events.an_event = Event(label='click me')
+        events = ReahlFields()
+        events.an_event = lambda i: Event(label='click me')
 
         def __init__(self, view, name):
             super().__init__(view, name)
@@ -326,9 +320,8 @@ def test_define_event_handler_not_called(web_fixture):
     fixture = web_fixture
 
     class ModelObject:
-        @exposed
-        def events(self, events):
-            events.an_event = Event()
+        events = ReahlFields()
+        events.an_event = lambda i: Event()
 
     model_object = ModelObject()
 
@@ -362,9 +355,8 @@ def test_exception_handling(reahl_system_fixture, web_fixture, sql_alchemy_fixtu
         def handle_event(self):
             self.field_name = 1
             raise DomainException()
-        @exposed
-        def events(self, events):
-            events.an_event = Event(label='click me', action=Action(self.handle_event))
+        events = ReahlFields()
+        events.an_event = lambda i: Event(label='click me', action=Action(i.handle_event))
         fields = ReahlFields()
         fields.field_name = lambda i: IntegerField(default=3)
 
@@ -417,9 +409,8 @@ def test_form_preserves_user_input_after_validation_exceptions_multichoice(web_f
     fixture = web_fixture
 
     class ModelObject:
-        @exposed
-        def events(self, events):
-            events.an_event = Event(label='click me')
+        events = ReahlFields()
+        events.an_event = lambda i: Event(label='click me')
             
         choices = [Choice(1, IntegerField(label='One')),
                    Choice(2, IntegerField(label='Two')),
@@ -559,9 +550,8 @@ def test_nested_forms(web_fixture):
         handled_event = False
         def handle_event(self):
             self.handled_event = True
-        @exposed
-        def events(self, events):
-            events.nested_event = Event(label='click nested', action=Action(self.handle_event))
+        events = ReahlFields()
+        events.nested_event = lambda i: Event(label='click nested', action=Action(i.handle_event))
         fields = ReahlFields()
         fields.nested_field = lambda i: Field(label='input nested')
 
@@ -577,9 +567,8 @@ def test_nested_forms(web_fixture):
         handled_event = False
         def handle_event(self):
             self.handled_event = True
-        @exposed
-        def events(self, events):
-            events.outer_event = Event(label='click outer', action=Action(self.handle_event))
+        events = ReahlFields()
+        events.outer_event = lambda i: Event(label='click outer', action=Action(i.handle_event))
     outer_model_object = OuterModelObject()
     class OuterForm(Form):
         def __init__(self, view, name):
@@ -614,9 +603,8 @@ def test_form_input_validation(web_fixture):
     class ModelObject:
         def handle_event(self):
             pass
-        @exposed
-        def events(self, events):
-            events.an_event = Event(label='click me', action=Action(self.handle_event))
+        events = ReahlFields()
+        events.an_event = lambda i: Event(label='click me', action=Action(i.handle_event))
         fields = ReahlFields()
         fields.field_name = lambda i: EmailField()
 
@@ -712,7 +700,7 @@ class QueryStringScenarios(Fixture):
 
     def new_form(self):
         form = Form(self.web_fixture.view, 'some_form')
-        event = Event(label='click me', action=Action(self.action))
+        event = Event(label='click me', action=Action(i.action))
         event.bind('an_event', None)
         form.define_event_handler(event, target=self.target)
         form.add_child(ButtonInput(form, event))
@@ -759,9 +747,8 @@ def test_propagation_of_querystring(web_fixture, query_string_scenarios):
         def handle_event(self):
             if fixture.break_on_submit:
                 raise DomainException()
-        @exposed
-        def events(self, events):
-            events.an_event = Event(label='click me', action=Action(self.handle_event))
+        events = ReahlFields()
+        events.an_event = lambda i: Event(label='click me', action=Action(i.handle_event))
 
     model_object = ModelObject()
 
@@ -804,11 +791,10 @@ def test_event_names_are_canonicalised(web_fixture):
         def handle_event(self, some_argument):
             self.received_argument = some_argument
 
-        @exposed
-        def events(self, events):
-            events.an_event = Event(label='click me',
-                                    action=Action(self.handle_event, ['some_argument']),
-                                    some_argument=Field(default='default value'))
+        events = ReahlFields()
+        events.an_event = lambda i: Event(label='click me',
+                                          action=Action(i.handle_event, ['some_argument']),
+                                          some_argument=Field(default='default value'))
 
     model_object = ModelObject()
 
@@ -847,10 +833,9 @@ def test_alternative_event_trigerring(web_fixture):
         def handle_event(self):
             self.handled_event = True
 
-        @exposed
-        def events(self, events):
-            events.an_event = Event(label='click me',
-                                    action=Action(self.handle_event))
+        events = ReahlFields()
+        events.an_event = lambda i: Event(label='click me',
+                                    action=Action(i.handle_event))
 
     model_object = ModelObject()
 

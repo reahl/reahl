@@ -173,12 +173,11 @@ class FileUploadPanel(Div):
     def bound_field(self):
         return self.file_upload_input.bound_field
 
-    @exposed
-    def events(self, events):
-        events.upload_file = Event(label=_('Upload'), action=Action(self.upload_file))
-        events.remove_file = Event(label=_('Remove'),
-                                   action=Action(self.remove_file, ['filename']),
-                                   filename=Field(required=True))
+    events = ReahlFields()
+    events.upload_file = lambda i: Event(label=_('Upload'), action=Action(i.upload_file))
+    events.remove_file = lambda i: Event(label=_('Remove'),
+                                         action=Action(i.remove_file, ['filename']),
+                                         filename=Field(required=True))
 
     fields = ReahlFields()
     def create_uploaded_file_field(i):

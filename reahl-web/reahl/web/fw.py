@@ -1005,29 +1005,29 @@ class Widget:
         pass
 
     query_fields = ReahlFields() 
-        """Used to declare the arguments of this Widget on its class.
+    """Used to declare the arguments of this Widget on its class.
 
-           Override this class attribute to declare arguments this Widget, each described
-           by a :class:`~reahl.component.modelinterface.Field`. 
+       Override this class attribute to declare arguments this Widget, each described
+       by a :class:`~reahl.component.modelinterface.Field`. 
 
-           When constructed, the Widget uses the names and validation details of each Field to 
-           parse values for its arguments from the current query string. The resultant
-           argument values are set as attributes on this Widget (with names matching the argument names).
+       When constructed, the Widget uses the names and validation details of each Field to 
+       parse values for its arguments from the current query string. The resultant
+       argument values are set as attributes on this Widget (with names matching the argument names).
 
-           To declare arguments on your own Widget class, assign a ReahlFields instance to query_fields
-           and then assign a single-argument callable for each Widget argument to it. This callable
-           will be called with the Widget instance as argument, and should return a 
-           :class:`~reahl.component.modelinterface.Field` describing it::
+       To declare arguments on your own Widget class, assign a ReahlFields instance to query_fields
+       and then assign a single-argument callable for each Widget argument to it. This callable
+       will be called with the Widget instance as argument, and should return a 
+       :class:`~reahl.component.modelinterface.Field` describing it::
 
-              class MyWidget(Widget):
-                  query_fields = ReahlFields()
-                  query_fields.my_argument = lambda i: Field()
+          class MyWidget(Widget):
+              query_fields = ReahlFields()
+              query_fields.my_argument = lambda i: Field()
 
 
-           .. version-changed:: 6.2
-              This used to be set up using a method using an :class:`~reahl.component.modelinterface.exposed` decorator.
+       .. version-changed:: 6.2
+          This used to be set up using a method using an :class:`~reahl.component.modelinterface.exposed` decorator.
 
-        """
+    """
     
     def get_concurrency_hash_digest(self):
         if not self.visible:

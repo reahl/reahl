@@ -49,9 +49,8 @@ class CSRFFixture(Fixture):
                 self.add_child(ButtonInput(self, self.events.submit_break))
                 self.add_child(P(view, 'Chosen: %s' % self.choice))
 
-            @exposed
-            def events(self, events):
-                events.submit_break = Event(label='Submit')
+            events = ReahlFields()
+            events.submit_break = lambda i: Event(label='Submit')
 
             fields = ReahlFields()
             fields.choice = lambda i: ChoiceField([Choice(1, IntegerField(label='1')),
