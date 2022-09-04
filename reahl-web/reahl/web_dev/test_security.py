@@ -21,7 +21,7 @@ from reahl.stubble import EmptyStub
 
 from reahl.browsertools.browsertools import WidgetTester, Browser, XPath
 
-from reahl.component.modelinterface import Action, Allowed, Event, Field, exposed, ReahlFields
+from reahl.component.modelinterface import Action, Allowed, Event, Field, ReahlFields
 from reahl.web.fw import Widget, UserInterface
 from reahl.web.ui import Div, P, HTML5Page
 from reahl.web.ui import Form, TextInput, ButtonInput

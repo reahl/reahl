@@ -32,7 +32,7 @@ from functools import partial
 from abc import ABCMeta, abstractmethod
 
 from reahl.component.i18n import Catalogue
-from reahl.component.modelinterface import exposed, ReahlFields, IntegerField
+from reahl.component.modelinterface import ReahlFields, IntegerField
 from reahl.component.decorators import memoized
 from reahl.web.fw import Bookmark
 from reahl.web.ui import AccessRightAttributes, ActiveStateAttributes, HTMLWidget

@@ -25,7 +25,7 @@ panel.
 
 # noinspection PyUnresolvedReferences
 
-from reahl.component.modelinterface import exposed, ReahlFields, Field
+from reahl.component.modelinterface import ReahlFields, Field
 from reahl.web.fw import Widget
 from reahl.web.ui import Div, ActiveStateAttributes, DelegatedAttributes
 from reahl.web.bootstrap.navs import Nav, TabLayout, DropdownMenu

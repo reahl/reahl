@@ -18,7 +18,7 @@ from reahl.tofu import scenario, Fixture, uses, expected
 from reahl.tofu.pytestsupport import with_fixtures
 from reahl.browsertools.browsertools import XPath, Browser
 from reahl.web_dev.fixtures import WebFixture
-from reahl.web.ui import Div, Form, FormLayout, SelectInput, exposed, ReahlFields, ChoiceField, Choice
+from reahl.web.ui import Div, Form, FormLayout, SelectInput, ReahlFields, ChoiceField, Choice
 from reahl.component.modelinterface import Field, IntegerField
 from reahl.web.plotly import Chart
 

@@ -29,7 +29,7 @@ from reahl.browsertools.browsertools import WidgetTester, XPath, Browser
 
 from reahl.component.exceptions import DomainException, ProgrammerError, IsInstance
 from reahl.component.modelinterface import IntegerField, EmailField, DateField, \
-    exposed, ReahlFields, Field, Event, Action, MultiChoiceField, Choice
+    ReahlFields, Field, Event, Action, MultiChoiceField, Choice
 from reahl.webdeclarative.webdeclarative import PersistedException, UserInput
 
 from reahl.sqlalchemysupport import Base, Session

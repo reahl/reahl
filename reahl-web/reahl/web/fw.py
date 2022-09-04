@@ -70,7 +70,7 @@ from reahl.component.exceptions import ProgrammerError
 from reahl.component.exceptions import arg_checks
 from reahl.component.i18n import Catalogue
 from reahl.component.modelinterface import StandaloneFieldIndex, FieldIndex, Field, Event, ValidationConstraint,\
-                                             Allowed, exposed, ReahlFields, Event, Action
+                                             Allowed, ReahlFields, Event, Action
 from reahl.web.csrf import InvalidCSRFToken, CSRFToken, ExpiredCSRFToken
 
 _ = Catalogue('reahl-web')

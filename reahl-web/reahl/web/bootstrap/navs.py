@@ -41,7 +41,7 @@ from babel import UnknownLocaleError, Locale
 
 from reahl.component.eggs import ReahlEgg
 from reahl.component.exceptions import ProgrammerError
-from reahl.component.modelinterface import exposed, ReahlFields, Field
+from reahl.component.modelinterface import ReahlFields, Field
 from reahl.component.context import ExecutionContext
 from reahl.web.fw import Layout, Bookmark, Url
 from reahl.web.ui import AccessRightAttributes, ActiveStateAttributes, HTMLWidget, HTMLAttributeValueOption

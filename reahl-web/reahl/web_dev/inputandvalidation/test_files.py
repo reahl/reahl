@@ -21,7 +21,7 @@ import os.path
 from reahl.tofu import temp_file_with
 from reahl.tofu.pytestsupport import with_fixtures
 
-from reahl.component.modelinterface import FileField, exposed, ReahlFields, Event, UploadedFile, ValidationConstraint
+from reahl.component.modelinterface import FileField, ReahlFields, Event, UploadedFile, ValidationConstraint
 from reahl.web.ui import SimpleFileInput, Form, ButtonInput
 from reahl.browsertools.browsertools import XPath
 

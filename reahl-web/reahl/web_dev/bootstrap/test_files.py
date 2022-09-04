@@ -25,7 +25,7 @@ from reahl.browsertools.browsertools import XPath
 
 from reahl.sqlalchemysupport import Session
 from reahl.webdeclarative.webdeclarative import PersistedFile
-from reahl.component.modelinterface import exposed, ReahlFields, Event, FileField, Action, ValidationConstraint
+from reahl.component.modelinterface import ReahlFields, Event, FileField, Action, ValidationConstraint
 from reahl.component.exceptions import DomainException
 from reahl.web.bootstrap.forms import Form
 from reahl.web.bootstrap.files import FileUploadInput, FileUploadPanel, Button, FormLayout, FileInput, FileInputButton

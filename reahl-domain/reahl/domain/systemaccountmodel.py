@@ -39,7 +39,7 @@ from reahl.mailutil.mail import Mailer, MailMessage
 from reahl.component.config import Configuration, ConfigSetting
 from reahl.component.i18n import Catalogue
 from reahl.component.modelinterface import EmailField, PasswordField, BooleanField, EqualToConstraint, \
-                                            Field, Event, exposed, ReahlFields, Action
+                                            Field, Event, ReahlFields, Action
 from reahl.component.context import ExecutionContext
 from reahl.domain.partymodel import Party
 from reahl.domain.workflowmodel import DeferredAction, Requirement

@@ -28,7 +28,7 @@ from reahl.browsertools.browsertools import XPath
 from reahl.web.fw import Widget
 from reahl.web.ui import Form, Div, SelectInput, Label, P, RadioButtonSelectInput, CheckboxSelectInput, \
     CheckboxInput, ButtonInput, TextInput, FormLayout
-from reahl.component.modelinterface import Field, BooleanField, MultiChoiceField, ChoiceField, Choice, exposed, ReahlFields, \
+from reahl.component.modelinterface import Field, BooleanField, MultiChoiceField, ChoiceField, Choice, ReahlFields, \
     IntegerField, EmailField, Event, Action, Allowed
 from reahl.component.exceptions import DomainException
 from reahl.web_dev.inputandvalidation.test_widgetqueryargs import QueryStringFixture

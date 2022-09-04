@@ -21,7 +21,7 @@ from reahl.stubble import stubclass
 
 from reahl.component.modelinterface import Field, ValidationConstraint, RequiredConstraint, MinLengthConstraint, \
                              MaxLengthConstraint, PatternConstraint, AllowedValuesConstraint, \
-                             EqualToConstraint, RemoteConstraint, exposed, ReahlFields
+                             EqualToConstraint, RemoteConstraint, ReahlFields
 from reahl.web.ui import PrimitiveInput, HTMLInputElement, Form, TextInput, ButtonInput, FormLayout
 from reahl.browsertools.browsertools import WidgetTester, XPath
 

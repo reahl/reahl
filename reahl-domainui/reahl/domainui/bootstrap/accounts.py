@@ -31,7 +31,7 @@ from reahl.web.bootstrap.forms import Button, CueInput, TextInput, PasswordInput
     FieldSet, Form, FormLayout, CheckboxInput, TextNode
 from reahl.web.bootstrap.popups import PopupA, CheckCheckboxScript
 
-from reahl.component.modelinterface import RemoteConstraint, Action, exposed, ReahlFields
+from reahl.component.modelinterface import RemoteConstraint, Action, ReahlFields
 from reahl.domain.systemaccountmodel import EmailAndPasswordSystemAccount, NotUniqueException,\
     AccountManagementInterface
 

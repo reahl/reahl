@@ -24,6 +24,7 @@ import fnmatch
 import functools
 import sre_constants
 import urllib.parse
+import warnings
 from string import Template
 import inspect
 from contextlib import contextmanager
@@ -36,6 +37,7 @@ from babel.numbers import parse_decimal, format_number
 from wrapt import FunctionWrapper, BoundFunctionWrapper
 
 
+from reahl.component.decorators import deprecated
 from reahl.component.i18n import Catalogue
 from reahl.component.context import ExecutionContext
 from reahl.component.exceptions import AccessRestricted, ProgrammerError, arg_checks, IsInstance, IsCallable, NotYetAvailable
@@ -67,8 +69,12 @@ class FieldIndex:
     """Used to define a set of :class:`Field` instances applicable to an object. In order to declare a
        :class:`Field`, merely assign an instance of :class:`Field` to an attribute of the FieldIndex.
     
-       Programmers should not construct this class, a prepared instance of it will be passed to methods
-       marked as @exposed. (See :class:`ExposedDecorator` )
+       Programmers should not construct this class, an instance is automatically created when accessing
+       a :class:`ReahlFields` class attribute on an instance. (See :class:`ReahlFields` )
+
+       Deprecated: an instance of this class is also passed to methods marked as @exposed. 
+       (See :class:`ExposedDecorator` )
+
     """
     def __init__(self, storage_object):
         super().__init__()
@@ -184,7 +190,8 @@ class StandaloneFieldIndex(FieldIndex):
         for field in self.fields.values():
             field.validate_default()
 
-
+            
+@deprecated('Please use :class:`ReahlFields` instead.')
 class ExposedDecorator:
     """This class has the alias "exposed". Apply it as decorator to a method declaration to indicate that the method defines
        a number of Fields. The decorated method is passed an instance of :class:`FieldIndex` to which each Field should be assigned. 
@@ -192,6 +199,9 @@ class ExposedDecorator:
 
        :param args: A list of names of Fields that will be defined by this method. This is used when accessing the
                     resultant FieldIndex on a class, instead of on an instance.
+
+       .. versionchanged:: 6.2
+          Deprecated: use :class:`ReahlFields` instead.
     """
     def __init__(self, *args):
         self.expected_event_names = []
@@ -282,6 +292,30 @@ class FieldFactory:
 
     
 class ReahlFields:
+    """This class is used to create a namespace on any class within which you declare
+       all the Fields or Events instances of that class has.
+
+       To use it, assign an instance of ReahlFields to a class attribute, such as fields.
+       Then, assign a callable what will create a Field (or Event) to attributes on this
+       instance of ReahlFields. The callable will be passed as single argument, the instance
+       for which the callable should create the Field/Event for.
+
+       For example::
+
+          class Person:
+              def __init__(self, name):
+                  self.name = name
+                  self.age = 0
+
+              fields = ReahlFields()
+              fields.age = lambda i: IntegerField(name='Age of %s' % i.name)
+
+              events = ReahlFields()
+              events.submit = lambda i: Event(Action(i.submit))
+
+              def submit(self):
+                  pass
+    """
     def _find_name(self, cls):
         for name in dir(cls):
             if getattr(cls, name) is self:
@@ -989,7 +1023,8 @@ class Field:
 
     def bind(self, name, storage_object):
         if self.is_bound:
-            raise ProgrammerError('%s is already bound to %s' % (self, self.storage_object))
+            warnings.warn('DEPRECATED: %s is bound to %s already. Call unbind() first if you intend to bind it again. This warning will be an error in 7.0' % (self, self.storage_object), DeprecationWarning, stacklevel=1)
+            #raise ProgrammerError('%s is already bound to %s' % (self, self.storage_object))
         self._name = name
         if not self.label:
             self.label = name

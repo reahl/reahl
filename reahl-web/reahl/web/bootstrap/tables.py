@@ -33,7 +33,7 @@ can also be set up to let a user sort data according to different columns.
 import functools
 
 from reahl.component.exceptions import ProgrammerError
-from reahl.component.modelinterface import exposed, ReahlFields, IntegerField, BooleanField
+from reahl.component.modelinterface import ReahlFields, IntegerField, BooleanField
 from reahl.web.fw import Bookmark, Widget, Layout
 
 from reahl.web.ui import HTMLAttributeValueOption, StaticColumn, ColGroup, Col, Th, Tr, Td, Tbody, Thead, Tfoot, DynamicColumn, Caption

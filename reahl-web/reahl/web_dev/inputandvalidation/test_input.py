@@ -23,7 +23,7 @@ from reahl.stubble import EmptyStub, stubclass
 from reahl.web.ui import HTMLElement, PrimitiveInput, Form, CheckboxInput, TextInput, Label, ButtonInput,\
                           PasswordInput, TextArea, SelectInput, RadioButtonSelectInput, CheckboxSelectInput
 
-from reahl.component.modelinterface import Field, EmailField, BooleanField, Event, Allowed, exposed, ReahlFields, \
+from reahl.component.modelinterface import Field, EmailField, BooleanField, Event, Allowed, ReahlFields, \
     Action, Choice, ChoiceGroup, ChoiceField, IntegerField, MultiChoiceField, DateField
 from reahl.component.exceptions import IsInstance, ProgrammerError
 from reahl.browsertools.browsertools import WidgetTester

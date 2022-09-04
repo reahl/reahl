@@ -22,7 +22,7 @@ from reahl.tofu import expected
 from reahl.tofu.pytestsupport import with_fixtures
 
 from reahl.browsertools.browsertools import Browser, XPath
-from reahl.component.modelinterface import Event, Field, Action, exposed, ReahlFields, IntegerField
+from reahl.component.modelinterface import Event, Field, Action, ReahlFields, IntegerField
 from reahl.component.exceptions import ProgrammerError
 
 from reahl.web.fw import UserInterface, ViewPreCondition, Redirect, Detour, Return, IdentityDictionary, UrlBoundView

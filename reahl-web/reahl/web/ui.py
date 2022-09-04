@@ -29,7 +29,7 @@ from reahl.component.exceptions import ProgrammerError, DomainException
 from reahl.component.exceptions import arg_checks
 from reahl.component.i18n import Catalogue
 from reahl.component.context import ExecutionContext
-from reahl.component.modelinterface import exposed, ReahlFields, ValidationConstraintList, ValidationConstraint, ExpectedInputNotFound,\
+from reahl.component.modelinterface import ReahlFields, ValidationConstraintList, ValidationConstraint, ExpectedInputNotFound,\
     Field, Event, BooleanField, Choice, UploadedFile, InputParseException, StandaloneFieldIndex, MultiChoiceField, ChoiceField, Action
 from reahl.web.csrf import CSRFTokenField
 from reahl.web.fw import EventChannel, RemoteMethod, JsonResult, Widget, \

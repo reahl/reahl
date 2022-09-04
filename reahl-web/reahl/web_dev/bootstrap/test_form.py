@@ -23,7 +23,7 @@ from reahl.tofu.pytestsupport import with_fixtures
 
 from reahl.browsertools.browsertools import XPath, Browser
 from reahl.browsertools.browsertools import WidgetTester
-from reahl.component.modelinterface import exposed, ReahlFields, Field, BooleanField, Event, Choice, ChoiceField,\
+from reahl.component.modelinterface import ReahlFields, Field, BooleanField, Event, Choice, ChoiceField,\
     MultiChoiceField, IntegerField, Action
 from reahl.component.exceptions import DomainException
 from reahl.web.fw import Url, ValidationException

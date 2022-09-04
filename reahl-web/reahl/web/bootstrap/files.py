@@ -24,7 +24,7 @@ Styled Inputs that allow a user to choose or upload files.
 
 
 from reahl.component.i18n import Catalogue
-from reahl.component.modelinterface import exposed, ReahlFields, Action, Event, Field, UploadedFile
+from reahl.component.modelinterface import ReahlFields, Action, Event, Field, UploadedFile
 from reahl.component.context import ExecutionContext
 import reahl.web.ui
 from reahl.web.ui import UniqueFilesConstraint

@@ -20,7 +20,7 @@ from reahl.tofu.pytestsupport import with_fixtures
 
 from reahl.web.fw import Url
 from reahl.web.ui import Form, TextInput
-from reahl.component.modelinterface import EmailField, exposed, ReahlFields
+from reahl.component.modelinterface import EmailField, ReahlFields
 
 from reahl.browsertools.browsertools import Browser, XPath
 

@@ -31,7 +31,7 @@ from reahl.sqlalchemysupport import Session, PersistedField, Base
 from reahl.component.modelinterface import Action
 from reahl.component.modelinterface import CurrentUser
 from reahl.component.modelinterface import Event
-from reahl.component.modelinterface import exposed, ReahlFields
+from reahl.component.modelinterface import ReahlFields
 from reahl.component.modelinterface import secured
 from reahl.domain.partymodel import Party
 

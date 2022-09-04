@@ -21,7 +21,7 @@ from reahl.tofu.pytestsupport import with_fixtures
 
 from reahl.browsertools.browsertools import XPath
 
-from reahl.component.modelinterface import exposed, ReahlFields, Field
+from reahl.component.modelinterface import ReahlFields, Field
 
 from reahl.web.bootstrap.ui import P
 from reahl.web.bootstrap.forms import Form, FormLayout, CueInput, TextInput

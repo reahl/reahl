@@ -22,7 +22,7 @@ from reahl.component.exceptions import ProgrammerError
 
 from reahl.browsertools.browsertools import Browser, XPath
 
-from reahl.component.modelinterface import exposed, ReahlFields, IntegerField, MultiChoiceField, Choice, Action, Event
+from reahl.component.modelinterface import ReahlFields, IntegerField, MultiChoiceField, Choice, Action, Event
 from reahl.web.fw import Bookmark, Widget
 from reahl.web.ui import A, P, Form, TextInput, Div, NestedForm, ButtonInput, FormLayout
 
