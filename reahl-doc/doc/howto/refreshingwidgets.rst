@@ -44,9 +44,13 @@ needs arguments and needs to call
 method.
 
 In the example, RefreshedPanel is given arguments in an
-:class:`~reahl.component.modelinterface.exposed` method named
-:meth:`~reahl.web.fw.Widget.query_fields`. Each argument is defined by
-assigning a |Field| to an attribute of `fields`:
+|ReahlFields| namespace called
+:attr:`~reahl.web.fw.Widget.query_fields`. Each argument is defined by
+assigning a callable for it to an attribute of the |ReahlFields|. The
+callable is called with an instance as argument and should return
+a |Field| describing that argument. The `query_fields` declared on
+RefreshedPanel is merged with that on :attr:`~reahl.web.fw.Widget.query_fields`
+at runtime:
 
 
 .. literalinclude:: ../../reahl/doc/examples/howtos/ajaxbootstrap/ajaxbootstrap.py
@@ -58,7 +62,7 @@ the URL or the default of the |Field|):
 
 .. literalinclude:: ../../reahl/doc/examples/howtos/ajaxbootstrap/ajaxbootstrap.py
    :pyobject: RefreshedPanel
-   :end-before: exposed
+   :end-before: query_fields
 
 A special "in-page" |Bookmark| refers to a |Widget| on the current
 |UrlBoundView|, but with different argument values.

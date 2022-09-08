@@ -11,7 +11,7 @@
 .. |add_validation_constraint| replace:: :meth:`~reahl.component.modelinterface.Field.add_validation_constraint`
 .. |as_input| replace:: :meth:`~reahl.component.modelinterface.Field.as_input`
 .. |Event| replace:: :class:`~reahl.component.modelinterface.Event`
-.. |exposed| replace:: :class:`~reahl.component.modelinterface.exposed`
+.. |ReahlFields| replace:: :class:`~reahl.component.modelinterface.ReahlFields`
 .. |secured| replace:: :class:`~reahl.component.modelinterface.secured`
 .. |Field| replace:: :class:`~reahl.component.modelinterface.Field`
 .. |FieldIndex| replace:: :class:`~reahl.component.modelinterface.FieldIndex`
@@ -263,8 +263,8 @@ hosts information such as the global configuration or current locale.
 In other systems, you may be familiar with using `thread-local storage <https://en.wikipedia.org/wiki/Thread-local_storage>`_
 for this purpose. Reahl's |ExecutionContext| is not local to a thread, it is local to a call stack.
 
-To execute code that needs an |ExecutionContext|, |install| it a top-level method or function, then invoke other code
-that may need it. The |ExecutionContext| is then available to any code lower down in the call stack.
+To execute code that needs an |ExecutionContext|, use the |ExecutionContext| in a *with statement*.
+The |ExecutionContext| is then available to any code inside the *with statement* block.
 
 .. code-block:: python
 
@@ -279,8 +279,9 @@ that may need it. The |ExecutionContext| is then available to any code lower dow
         Example().do_something()   # Breaks, because there's no ExecutionContext
     except:
         pass
-    ExecutionContext().install()
-    Example().do_something()       # Prints en_gb by default
+        
+    with ExecutionContext():
+        Example().do_something()       # Prints en_gb by default
 
 
 
@@ -467,41 +468,47 @@ Fields and FieldIndexes
 A |Field| describes one attribute of an object. There are different |Field| subclasses for things such as email
 addresses, numbers or booleans.
 
-The |exposed| decorator is used to define all the |Field|\s available for user input on a particular class instance.
+The |ReahlFields| class is used to define all the |Field|\s available for user input on a particular class instance.
 
 .. note::
    ORMs like Django ORM and SQLAlchemy use class attributes to define how database columns
-   map to the attributes of an object. Reahl's |exposed| mechanism is purposely different so that it can be used
+   map to the attributes of an object. Reahl's |ReahlFields| mechanism is purposely different so that it can be used
    together with these tools without getting in their way.
 
-A method decorated with |exposed| is always passed a single argument (a |FieldIndex|), and is accessible as a property
-on the instance. Describe each attribute of your object by assigning an instance of |Field| to an attribute of
-|FieldIndex| using the same name as the attribute of the object you are describing.
+To declare the |Field|\s that are bound to instances of a class,
+assign a |ReahlFields| instance to a class attribute, ie,
+`fields`. For each |Field| needed, assign a callable to an attributes
+on the |ReahlFields|.  The callable will be passed a single argument:
+the instance of the class it will be bound to. It should return a
+Field instance.
+
+When the class attribute is accessed on an instance of that class,
+a |FieldIndex| is returned that allows access to |Field| instances
+bound to the given instance.
 
 
-Accessing an object via its |exposed| |Field|\s
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Accessing an object via its |Field|\s
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Given an object with exposed |Field|\s:
+Given an object with bound |Field|\s declared via an |ReahlFields|:
 
 .. code-block:: python
 
    class Order:
-      @exposed
-      def fields(self, fields):
-          fields.processed = BooleanField(label='Processed', true_value='yes', false_value='no')
+      fields = ReahlFields()
+      fields.processed = lambda i: BooleanField(label='Processed', true_value='yes', false_value='no')
 
-You can access it from user interface code using the |from_input| and |as_input| methods:
+You can access |Field|\s from user interface code using the |from_input| and |as_input| methods:
 
 .. code-block:: python
 
-   ExecutionContext().install()      # Because the code lower down need it
-   order = Order()
+   with ExecutionContext():
+       order = Order()
 
-   order.fields.processed.from_input('yes')
-   print(order.processed)                     # prints True
-   order.processed = False
-   print(order.fields.processed.as_input())   # prints 'no'
+       order.fields.processed.from_input('yes')
+       print(order.processed)                     # prints True
+       order.processed = False
+       print(order.fields.processed.as_input())   # prints 'no'
 
 Invalid input raises a |ValidationConstraint| to communicate what is wrong:
 
@@ -552,18 +559,17 @@ An |Event| can optionally be linked to an |Action|.
     class X:
        def exclaim(self): print('whoa')
 
-       @exposed
-       def events(self, events):
-           events.boo = Event(action=Action(self.exclaim))
+       events = ReahlFields()
+       events.boo = lambda i: Event(action=Action(self.exclaim))
 
 To |fire| an |Event|, you first need to receive it as textual input:
 
 .. code-block:: python
 
-    ExecutionContext().install()       # Because the code lower down need it
-    boo = X().events.boo
-    boo.from_input(boo.as_input())
-    boo.fire()
+    with ExecutionContext():
+        boo = X().events.boo
+        boo.from_input(boo.as_input())
+        boo.fire()
 
 An |Event| can be parameterised, which will cause its action to be sent arguments upon firing. These arguments are
 deduced from the input passed to |as_input| above, hence the need for calling |from_input| before |fire|.

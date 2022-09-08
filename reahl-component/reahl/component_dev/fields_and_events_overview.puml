@@ -11,8 +11,9 @@ note as N1
   An Event is a kind of Field representing something the user can trigger.
   Events are made to do something by linking them to Actions.
   Actions wrap a python callable
-  AccessRights are linked to an Action to determine whether a 
-  Field is writeable and another to determine if it is readable.
+  An AccessRights is linked to one Action to determine whether the 
+  Field it belongs to is writeable; AccessRights is linked to another
+  another Action to determine if it is readable.
 end note
 
 

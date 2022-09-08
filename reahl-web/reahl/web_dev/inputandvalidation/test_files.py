@@ -117,7 +117,7 @@ def test_simple_file_input_exceptions(web_fixture):
             self.file = None
 
         fields = ReahlFields()
-        def make_field(i):
+        def make_field(self):
             field = FileField(allow_multiple=False, label='Attached files')
             # FailingConstraint is declared in module level scope for it to be pickleable
             field.add_validation_constraint(failing_constraint)

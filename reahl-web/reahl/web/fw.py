@@ -1024,7 +1024,7 @@ class Widget:
               query_fields.my_argument = lambda i: Field()
 
 
-       .. version-changed:: 6.2
+       .. versionchanged:: 6.1
           This used to be set up using a method using an :class:`~reahl.component.modelinterface.exposed` decorator.
 
     """

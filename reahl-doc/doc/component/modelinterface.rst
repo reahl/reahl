@@ -10,24 +10,34 @@ Module reahl.component.modelinterface
 Fields
 ^^^^^^
 
+Field
+"""""
+
+.. autoclass:: Field
+   :members:
+
+      
+ReahlFields
+"""""""""""
+
+.. autoclass:: ReahlFields
+   :members:
+
+   
 FieldIndex
 """"""""""
 
 .. autoclass:: FieldIndex
    :members:
 
-ReahlFields
-"""""""""""
-
-.. autoclass:: ReahlFields
-   :members:
       
 exposed
 """""""
 
 .. autoclass:: exposed
    :members:
-      
+
+   
 ExposedDecorator
 """"""""""""""""
 
@@ -35,11 +45,6 @@ ExposedDecorator
    :members:
 
 
-Field
-"""""
-
-.. autoclass:: Field
-   :members:
 
 CurrentUser
 """""""""""

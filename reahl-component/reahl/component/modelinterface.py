@@ -66,14 +66,30 @@ class ObjectDictAdapter:
 
 
 class FieldIndex:
-    """Used to define a set of :class:`Field` instances applicable to an object. In order to declare a
-       :class:`Field`, merely assign an instance of :class:`Field` to an attribute of the FieldIndex.
+    """A named collection of :class:`Field` instances applicable to an object. 
     
        Programmers should not construct this class, an instance is automatically created when accessing
        a :class:`ReahlFields` class attribute on an instance. (See :class:`ReahlFields` )
 
-       Deprecated: an instance of this class is also passed to methods marked as @exposed. 
-       (See :class:`ExposedDecorator` )
+       When used in conjuction with :class:`Field`\s declared on a :class:`ReahlFields`, construction
+       of an individual :class:`Field` is delayed until it is accessed on the the FieldIndex::
+
+         def create_field(i):
+             print('creating')
+             return Field()
+           
+         class Person:
+             fields = ReahlFields()
+             fields.name = create_field
+             fields.age = create_field
+
+         person.fields.name # prints 'creating'
+         person.fields.name # does not create it again
+         person.fields.age  # prints 'creating'
+
+       .. versionchanged:: 6.1
+          Deprecated: an instance of this class is also passed to methods marked as @exposed. 
+          (See :class:`ExposedDecorator` )
 
     """
     def __init__(self, storage_object):
@@ -200,7 +216,7 @@ class ExposedDecorator:
        :param args: A list of names of Fields that will be defined by this method. This is used when accessing the
                     resultant FieldIndex on a class, instead of on an instance.
 
-       .. versionchanged:: 6.2
+       .. versionchanged:: 6.1
           Deprecated: use :class:`ReahlFields` instead.
     """
     def __init__(self, *args):
@@ -292,13 +308,15 @@ class FieldFactory:
 
     
 class ReahlFields:
-    """This class is used to create a namespace on any class within which you declare
-       all the Fields or Events instances of that class has.
+    """Use ReahlFields to create a namespace on a class for the purpose of declaring
+       all the Field or all the Event instances bound to an instance of that class.
 
-       To use it, assign an instance of ReahlFields to a class attribute, such as fields.
-       Then, assign a callable what will create a Field (or Event) to attributes on this
-       instance of ReahlFields. The callable will be passed as single argument, the instance
-       for which the callable should create the Field/Event for.
+       To create a namespace, assign an instance of ReahlFields to a class attribute named for
+       the needed namespace (ie, `fields`). For each Field/Event needed, assign a callable 
+       to an attributes on the ReahlFields.
+
+       The callable will be passed a single argument: the instance of the class it will be bound to..
+       It should return a Field or Event instance.
 
        For example::
 
@@ -315,6 +333,43 @@ class ReahlFields:
 
               def submit(self):
                   pass
+
+
+       This is similar to how SqlAlchemy or Django ORM declare columns
+       on a class which are used to save corresponding attributes of
+       an instance to columns in a database table.
+
+       For example, with SQLAlchemy you could have::
+
+          class Person(Base):
+             id = Column(Integer, primary_key=True)
+             name = Column(String)
+             age = Column(Integer)
+
+       ReahlFields is different in that it allows you to declare your Fields or Events
+       in a namespace of their own. ReahlFields can thus be used in conjunction with, say, 
+       SQLAlchemy on the same instance::
+
+          class Person(Base):
+             id = Column(Integer)
+             name = Column(String)
+             age = Column(Integer)
+
+             fields = ReahlFields()
+             fields.name = lambda i: Field(label='Name')
+             fields.age = lambda i: IntegerField(label='Age')
+
+          p = Person()
+          p.name = 'Jane'
+          p.age = 25
+
+          Session.save(p)  # Saves Jane/25 to database with some auto generated id
+  
+          assert p.fields.age.as_input() == '25'
+
+          p.fields.age.from_input('28')  
+          assert p.age == 28  # Which means since SqlAlchemy will save the age attribute, it will now save 28 to the database
+
     """
     def _find_name(self, cls):
         for name in dir(cls):
@@ -811,6 +866,7 @@ class Field:
        of :class:`ValidationConstraint` added to the Field.
        
        The final parsed value of a Field is set as an attribute on a Python object to which the Field is bound.
+       (See also :class:`ReahlFields`).
 
        :keyword default: The default (parsed) value if no user input is given.
        :keyword required: If True, indicates that input is always required for this Field.

@@ -324,7 +324,7 @@ class ToggleValidationFixture(FileUploadInputFixture):
         fixture = self
         class DomainObject:
             fields = ReahlFields()
-            def make_field(i):
+            def make_field(self):
                 field = FileField(allow_multiple=True, label='Attached files')
                 field.add_validation_constraint(ToggleableConstraint(fixture))
                 return field

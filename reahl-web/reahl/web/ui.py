@@ -2115,7 +2115,7 @@ class TextInput(PrimitiveInput):
        .. versionchanged:: 5.0
           Added `ignore_concurrent_change`
 
-       .. versionchanged:: 6.2
+       .. versionchanged:: 6.1
           Changed `placeholder to display the default of the field under certain conditions`
 
     """
