@@ -2,7 +2,6 @@
 
 .. |Migration| replace:: :class:`~reahl.component.migration.Migration`
 .. |ExecutionContext| replace:: :class:`~reahl.component.context.ExecutionContext`
-.. |install| replace:: :meth:`~reahl.component.context.ExecutionContext.install`
 .. |Configuration| replace:: :class:`~reahl.component.config.Configuration`
 .. |StoredConfiguration| replace:: :class:`~reahl.component.config.StoredConfiguration`
 .. |configure| replace:: :meth:`~reahl.component.config.StoredConfiguration.configure`
@@ -327,13 +326,12 @@ environment.
 
       config = StoredConfiguration('/my/directory')
       config.configure()
-      context = ExecutionContext().install()
+      with ExecutionContext() as context:
+         context.config = config
 
-      context.config = config
+         ...
 
-      ...
-
-      ExecutionContext.get_context().config  # To get it anywhere
+         ExecutionContext.get_context().config  # To get it anywhere
 
 In your system, read the config by creating a |StoredConfiguration|, and then calling |configure| on it. Pass
 True to `strict_checking` in production environments in order to turn dangerous defaults into errors instead of
@@ -411,8 +409,8 @@ To make the session available to code, ensure it runs within an |ExecutionContex
         def get_interface_locale(self):
             return self.locale
 
-    context = ExecutionContext().install()
-    context.session = UserSession('en_gb')
+    ExecutionContext() as context:
+        context.session = UserSession('en_gb')
 
 .. note::
    If you set the locale to a language for which you have not supplied translations, messages will just be displayed
