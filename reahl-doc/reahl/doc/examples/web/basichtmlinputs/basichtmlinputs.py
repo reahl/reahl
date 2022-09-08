@@ -16,7 +16,7 @@
 
 
 
-from reahl.component.modelinterface import ReahlFields, Field, BooleanField, ChoiceField, Choice, ChoiceGroup, \
+from reahl.component.modelinterface import ExposedNames, Field, BooleanField, ChoiceField, Choice, ChoiceGroup, \
     IntegerField, Event, MultiChoiceField, DateField
 from reahl.web.fw import UserInterface
 from reahl.web.bootstrap.page import HTML5Page
@@ -39,7 +39,7 @@ class BasicHTMLInputsUI(UserInterface):
 class ModelObject:
     multi_choice_field = [1, 3]
     choice_field = 2
-    fields = ReahlFields()
+    fields = ExposedNames()
     fields.text_input_field = lambda i: Field(label='A TextInput')
     fields.password_field = lambda i: Field(label='A PasswordInput')
     fields.text_area_field = lambda i: Field(label='A TextArea')
@@ -70,7 +70,7 @@ class ModelObject:
                                                       label='A RadioButtonSelectInput')
     fields.fuzzy_date_field = lambda i: DateField(label='A fuzzy TextInput for a Date')
         
-    events = ReahlFields()
+    events = ExposedNames()
     events.do_something = lambda i: Event(label='A Button')
     
 

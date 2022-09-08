@@ -17,7 +17,7 @@
 import random
 import string
 
-from reahl.component.modelinterface import ReahlFields, Event, Action, Field
+from reahl.component.modelinterface import ExposedNames, Event, Action, Field
 from reahl.component.exceptions import DomainException
 from reahl.web.fw import UserInterface, ErrorWidget, Url, Widget
 from reahl.web.layout import PageLayout
@@ -91,10 +91,10 @@ class MyDomainObject(Base):
         self.counter = 0
         self.some_field_value = '123'
 
-    fields = ReahlFields()
+    fields = ExposedNames()
     fields.some_field_value = lambda i: Field(label='Some value')
 
-    events = ReahlFields()
+    events = ExposedNames()
     events.submit = lambda i: Event(label='Submit')
     events.increment = lambda i: Event(label='Increment', action=Action(i.increment))
 

@@ -21,7 +21,7 @@ from reahl.tofu.pytestsupport import with_fixtures
 
 from reahl.browsertools.browsertools import XPath
 
-from reahl.component.modelinterface import ReahlFields, Field
+from reahl.component.modelinterface import ExposedNames, Field
 
 from reahl.web.bootstrap.ui import P
 from reahl.web.bootstrap.forms import Form, FormLayout, CueInput, TextInput
@@ -34,7 +34,7 @@ class CueInputFixture(Fixture):
 
     def new_domain_object(self):
         class DomainObject:
-            fields = ReahlFields()
+            fields = ExposedNames()
             fields.field = lambda i: Field(label='MyField')
         return DomainObject()
 

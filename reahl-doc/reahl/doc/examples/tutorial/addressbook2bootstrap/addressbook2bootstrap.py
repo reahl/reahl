@@ -9,7 +9,7 @@ from reahl.web.bootstrap.page import HTML5Page
 from reahl.web.bootstrap.ui import Div, P, H
 from reahl.web.bootstrap.forms import Form, TextInput, Button, FieldSet, FormLayout
 from reahl.web.bootstrap.grid import Container
-from reahl.component.modelinterface import ReahlFields, EmailField, Field, Event, Action
+from reahl.component.modelinterface import ExposedNames, EmailField, Field, Event, Action
 
 
 class AddressBookUI(UserInterface):
@@ -64,13 +64,13 @@ class Address(Base):
     email_address = Column(UnicodeText)
     name          = Column(UnicodeText)
 
-    fields = ReahlFields()
+    fields = ExposedNames()
     fields.name = lambda i: Field(label='Name', required=True)
     fields.email_address = lambda i: EmailField(label='Email', required=True)
 
     def save(self):
         Session.add(self)
         
-    events = ReahlFields()
+    events = ExposedNames()
     events.save = lambda i: Event(label='Save', action=Action(i.save))
 

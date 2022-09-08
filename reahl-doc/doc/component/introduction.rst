@@ -11,7 +11,7 @@
 .. |add_validation_constraint| replace:: :meth:`~reahl.component.modelinterface.Field.add_validation_constraint`
 .. |as_input| replace:: :meth:`~reahl.component.modelinterface.Field.as_input`
 .. |Event| replace:: :class:`~reahl.component.modelinterface.Event`
-.. |ReahlFields| replace:: :class:`~reahl.component.modelinterface.ReahlFields`
+.. |ExposedNames| replace:: :class:`~reahl.component.modelinterface.ExposedNames`
 .. |secured| replace:: :class:`~reahl.component.modelinterface.secured`
 .. |Field| replace:: :class:`~reahl.component.modelinterface.Field`
 .. |FieldIndex| replace:: :class:`~reahl.component.modelinterface.FieldIndex`
@@ -463,22 +463,22 @@ Fields and FieldIndexes
 .. seealso::
 
   :ref:`Using Fields <fields_explained>`
-     How to use |exposed| to expose |Field| for an object.
+     How to expose |Field|\s for an object.
 
 A |Field| describes one attribute of an object. There are different |Field| subclasses for things such as email
 addresses, numbers or booleans.
 
-The |ReahlFields| class is used to define all the |Field|\s available for user input on a particular class instance.
+The |ExposedNames| class is used to define all the |Field|\s available for user input on a particular class instance.
 
 .. note::
    ORMs like Django ORM and SQLAlchemy use class attributes to define how database columns
-   map to the attributes of an object. Reahl's |ReahlFields| mechanism is purposely different so that it can be used
+   map to the attributes of an object. Reahl's |ExposedNames| mechanism is purposely different so that it can be used
    together with these tools without getting in their way.
 
 To declare the |Field|\s that are bound to instances of a class,
-assign a |ReahlFields| instance to a class attribute, ie,
+assign a |ExposedNames| instance to a class attribute, ie,
 `fields`. For each |Field| needed, assign a callable to an attributes
-on the |ReahlFields|.  The callable will be passed a single argument:
+on the |ExposedNames|.  The callable will be passed a single argument:
 the instance of the class it will be bound to. It should return a
 Field instance.
 
@@ -490,12 +490,12 @@ bound to the given instance.
 Accessing an object via its |Field|\s
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Given an object with bound |Field|\s declared via an |ReahlFields|:
+Given an object with bound |Field|\s declared via an |ExposedNames|:
 
 .. code-block:: python
 
    class Order:
-      fields = ReahlFields()
+      fields = ExposedNames()
       fields.processed = lambda i: BooleanField(label='Processed', true_value='yes', false_value='no')
 
 You can access |Field|\s from user interface code using the |from_input| and |as_input| methods:
@@ -559,7 +559,7 @@ An |Event| can optionally be linked to an |Action|.
     class X:
        def exclaim(self): print('whoa')
 
-       events = ReahlFields()
+       events = ExposedNames()
        events.boo = lambda i: Event(action=Action(self.exclaim))
 
 To |fire| an |Event|, you first need to receive it as textual input:

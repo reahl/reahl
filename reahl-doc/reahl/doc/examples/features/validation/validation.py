@@ -2,7 +2,7 @@
 from reahl.web.fw import UserInterface
 from reahl.web.bootstrap.page import HTML5Page
 from reahl.web.bootstrap.forms import Form, TextInput, FormLayout, ButtonInput
-from reahl.component.modelinterface import ReahlFields, EmailField, Event
+from reahl.component.modelinterface import ExposedNames, EmailField, Event
 
 class ValidationUI(UserInterface):
     def assemble(self):
@@ -16,10 +16,10 @@ class HomePage(HTML5Page):
 
 
 class Comment:
-    fields = ReahlFields()
+    fields = ExposedNames()
     fields.email_address = lambda i: EmailField(label='Email address', required=True)
     
-    events = ReahlFields()
+    events = ExposedNames()
     events.do_nothing = lambda i: Event(label='Submit')
 
 

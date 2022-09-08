@@ -13,7 +13,7 @@ from reahl.web.bootstrap.page import HTML5Page
 from reahl.web.bootstrap.ui import Div, P, H
 from reahl.web.bootstrap.forms import Form, TextInput, Button, FormLayout, FieldSet
 from reahl.web.bootstrap.grid import ColumnLayout, ColumnOptions, ResponsiveSize, Container
-from reahl.component.modelinterface import ReahlFields, EmailField, Field, Event, Action
+from reahl.component.modelinterface import ExposedNames, EmailField, Field, Event, Action
 from reahl.component.migration import Migration
 
 
@@ -79,7 +79,7 @@ class Address(Base):
     added_date    = 'TODO'
 #    added_date    = Column(DateTime)
 
-    fields = ReahlFields()
+    fields = ExposedNames()
     fields.name = lambda i: Field(label='Name', required=True)
     fields.email_address = lambda i: EmailField(label='Email', required=True)
 
@@ -87,6 +87,6 @@ class Address(Base):
         self.added_date = datetime.now()
         Session.add(self)
         
-    events = ReahlFields()
+    events = ExposedNames()
     events.save = lambda i: Event(label='Save', action=Action(i.save))
 

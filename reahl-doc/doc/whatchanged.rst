@@ -20,7 +20,7 @@ new virtualenv, then migrate your database:
 Deprecated functionality
 ------------------------
 - field.bind with break if already bound
-- ReahlFields changes
+- ExposedNames changes
   
 
 Updated dependencies

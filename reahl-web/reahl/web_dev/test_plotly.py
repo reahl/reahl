@@ -18,7 +18,7 @@ from reahl.tofu import scenario, Fixture, uses, expected
 from reahl.tofu.pytestsupport import with_fixtures
 from reahl.browsertools.browsertools import XPath, Browser
 from reahl.web_dev.fixtures import WebFixture
-from reahl.web.ui import Div, Form, FormLayout, SelectInput, ReahlFields, ChoiceField, Choice
+from reahl.web.ui import Div, Form, FormLayout, SelectInput, ExposedNames, ChoiceField, Choice
 from reahl.component.modelinterface import Field, IntegerField
 from reahl.web.plotly import Chart
 
@@ -70,7 +70,7 @@ def test_adding_chart_with_ajax(web_fixture):
             if self.choice == 2:
                 self.add_child(Chart(view, go.Figure(), 'thechart'))
 
-        fields = ReahlFields()
+        fields = ExposedNames()
         fields.choice = lambda i: ChoiceField([Choice(1, IntegerField(label='Hide chart')),
                                                Choice(2, IntegerField(label='Show chart'))],
                                               label='Choice')
@@ -108,7 +108,7 @@ def test_refreshing_chart_data_only(web_fixture):
             chart = self.add_child(Chart(view, fig, 'thechart'))
             select.set_refresh_widget(chart.contents)
 
-        fields = ReahlFields()
+        fields = ExposedNames()
         fields.choice = lambda i: ChoiceField([Choice('one title', Field(label='One')),
                                                Choice('another title', Field(label='Two'))],
                                               label='Choice')

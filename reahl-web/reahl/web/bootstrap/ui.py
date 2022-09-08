@@ -28,7 +28,6 @@ correspondence to HTML elements (or are of similar simplicity).
 
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.i18n import Catalogue
-from reahl.component.modelinterface import exposed
 
 import reahl.web.ui
 # These are imported here for convenience so they can be imported from reahl.web.bootstrap.ui:

@@ -15,7 +15,7 @@ from reahl.web.bootstrap.grid import ColumnLayout, ColumnOptions, ResponsiveSize
 from reahl.web.bootstrap.navs import Nav, TabLayout
 from reahl.web.bootstrap.tables import DataTable, TableLayout
 from reahl.web.ui import StaticColumn, DynamicColumn
-from reahl.component.modelinterface import ReahlFields, EmailField, Field, Event, IntegerField, Action, BooleanField
+from reahl.component.modelinterface import ExposedNames, EmailField, Field, Event, IntegerField, Action, BooleanField
 
 
 class AddressBookPage(HTML5Page):
@@ -65,7 +65,7 @@ class Row:
         self.address = address
         self.selected_by_user = False
 
-    fields = ReahlFields()
+    fields = ExposedNames()
     fields.selected_by_user = lambda i: BooleanField(label='')
 
     def __getattr__(self, name):
@@ -141,12 +141,12 @@ class Address(Base):
     name          = Column(UnicodeText)
     zip_code      = Column(Integer)
 
-    fields = ReahlFields()
+    fields = ExposedNames()
     fields.name = lambda i: Field(label='Name', required=True)
     fields.email_address = lambda i: EmailField(label='Email', required=True)
     fields.zip_code = lambda i: IntegerField(label='Zipcode', required=True)
 
-    events = ReahlFields()
+    events = ExposedNames()
     events.save = lambda i: Event(label='Save', action=Action(i.save))
     events.update = lambda i: Event(label='Update')
 

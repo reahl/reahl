@@ -5,7 +5,7 @@ from reahl.tofu import expected, NoException
 from sqlalchemy import Column, Integer, UnicodeText
 
 from reahl.sqlalchemysupport import Session, Base, metadata
-from reahl.component.modelinterface import ReahlFields, EmailField, Field, Event, Action
+from reahl.component.modelinterface import ExposedNames, EmailField, Field, Event, Action
 from reahl.component.context import ExecutionContext
 
 
@@ -19,11 +19,11 @@ class Address(Base):
     def save(self):
         Session.add(self)
 
-    fields = ReahlFields()
+    fields = ExposedNames()
     fields.name = lambda i: Field(label='Name', required=True)
     fields.email_address = lambda i: EmailField(label='Email', required=True)
 
-    events = ReahlFields()
+    events = ExposedNames()
     events.save = lambda i: Event(label='Save', action=Action(i.save))
 
 

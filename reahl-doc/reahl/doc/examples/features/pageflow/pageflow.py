@@ -1,5 +1,5 @@
 
-from reahl.component.modelinterface import ReahlFields, EmailField, Field
+from reahl.component.modelinterface import ExposedNames, EmailField, Field
 from reahl.component.modelinterface import Event, Action, Not
 
 from reahl.web.fw import UserInterface
@@ -40,11 +40,11 @@ class PageFlowExampleUI(UserInterface):
 
         
 class Comment:
-    fields = ReahlFields()
+    fields = ExposedNames()
     fields.email_address = lambda i: EmailField(label='Email address', required=True)
     fields.text = lambda i: Field(label='Comment')
 
-    events = ReahlFields()
+    events = ExposedNames()
     events.submit = lambda i: Event(label='Submit', action=Action(i.submit))
 
     def submit(self):

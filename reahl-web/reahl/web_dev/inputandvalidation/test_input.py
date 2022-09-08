@@ -23,7 +23,7 @@ from reahl.stubble import EmptyStub, stubclass
 from reahl.web.ui import HTMLElement, PrimitiveInput, Form, CheckboxInput, TextInput, Label, ButtonInput,\
                           PasswordInput, TextArea, SelectInput, RadioButtonSelectInput, CheckboxSelectInput
 
-from reahl.component.modelinterface import Field, EmailField, BooleanField, Event, Allowed, ReahlFields, \
+from reahl.component.modelinterface import Field, EmailField, BooleanField, Event, Allowed, ExposedNames, \
     Action, Choice, ChoiceGroup, ChoiceField, IntegerField, MultiChoiceField, DateField
 from reahl.component.exceptions import IsInstance, ProgrammerError
 from reahl.browsertools.browsertools import WidgetTester
@@ -60,9 +60,9 @@ class SimpleInputFixture2(SimpleInputFixture):
         class ModelObject:
             def handle_event(self):
                 pass
-            events = ReahlFields()
+            events = ExposedNames()
             events.an_event = lambda i: Event(label='click me', action=Action(i.handle_event))
-            fields = ReahlFields()
+            fields = ExposedNames()
             fields.an_attribute = lambda i: fixture.field
         return ModelObject()
 

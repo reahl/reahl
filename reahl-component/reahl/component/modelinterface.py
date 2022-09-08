@@ -69,9 +69,9 @@ class FieldIndex:
     """A named collection of :class:`Field` instances applicable to an object. 
     
        Programmers should not construct this class, an instance is automatically created when accessing
-       a :class:`ReahlFields` class attribute on an instance. (See :class:`ReahlFields` )
+       a :class:`ExposedNames` class attribute on an instance. (See :class:`ExposedNames` )
 
-       When used in conjuction with :class:`Field`\s declared on a :class:`ReahlFields`, construction
+       When used in conjuction with :class:`Field`\s declared on a :class:`ExposedNames`, construction
        of an individual :class:`Field` is delayed until it is accessed on the the FieldIndex::
 
          def create_field(i):
@@ -79,7 +79,7 @@ class FieldIndex:
              return Field()
            
          class Person:
-             fields = ReahlFields()
+             fields = ExposedNames()
              fields.name = create_field
              fields.age = create_field
 
@@ -207,7 +207,7 @@ class StandaloneFieldIndex(FieldIndex):
             field.validate_default()
 
             
-@deprecated('Please use :class:`ReahlFields` instead.')
+@deprecated('Please use :class:`ExposedNames` instead.')
 class ExposedDecorator:
     """This class has the alias "exposed". Apply it as decorator to a method declaration to indicate that the method defines
        a number of Fields. The decorated method is passed an instance of :class:`FieldIndex` to which each Field should be assigned. 
@@ -217,7 +217,7 @@ class ExposedDecorator:
                     resultant FieldIndex on a class, instead of on an instance.
 
        .. versionchanged:: 6.1
-          Deprecated: use :class:`ReahlFields` instead.
+          Deprecated: use :class:`ExposedNames` instead.
     """
     def __init__(self, *args):
         self.expected_event_names = []
@@ -266,10 +266,10 @@ class ExposedDecorator:
                         seen.append(exposed_declaration)
                         if isinstance(exposed_declaration, ExposedDecorator):
                             exposed_declaration.func(model_object, field_index)
-                        elif isinstance(exposed_declaration, ReahlFields):
+                        elif isinstance(exposed_declaration, ExposedNames):
                             field_index.update_from_class(exposed_declaration)
                         else:
-                            raise ProgrammerError('%s on %s is not a ReahlFields or ExposedDecorator' % (self.name, _class))
+                            raise ProgrammerError('%s on %s is not a ExposedNames or ExposedDecorator' % (self.name, _class))
             instance.__exposed__[self] = field_index
 
         self.func(model_object, field_index)
@@ -307,13 +307,13 @@ class FieldFactory:
         return self.callable(storage_object)
 
     
-class ReahlFields:
-    """Use ReahlFields to create a namespace on a class for the purpose of declaring
+class ExposedNames:
+    """Use ExposedNames to create a namespace on a class for the purpose of declaring
        all the Field or all the Event instances bound to an instance of that class.
 
-       To create a namespace, assign an instance of ReahlFields to a class attribute named for
+       To create a namespace, assign an instance of ExposedNames to a class attribute named for
        the needed namespace (ie, `fields`). For each Field/Event needed, assign a callable 
-       to an attributes on the ReahlFields.
+       to an attributes on the ExposedNames.
 
        The callable will be passed a single argument: the instance of the class it will be bound to..
        It should return a Field or Event instance.
@@ -325,10 +325,10 @@ class ReahlFields:
                   self.name = name
                   self.age = 0
 
-              fields = ReahlFields()
+              fields = ExposedNames()
               fields.age = lambda i: IntegerField(name='Age of %s' % i.name)
 
-              events = ReahlFields()
+              events = ExposedNames()
               events.submit = lambda i: Event(Action(i.submit))
 
               def submit(self):
@@ -346,8 +346,8 @@ class ReahlFields:
              name = Column(String)
              age = Column(Integer)
 
-       ReahlFields is different in that it allows you to declare your Fields or Events
-       in a namespace of their own. ReahlFields can thus be used in conjunction with, say, 
+       ExposedNames is different in that it allows you to declare your Fields or Events
+       in a namespace of their own. ExposedNames can thus be used in conjunction with, say, 
        SQLAlchemy on the same instance::
 
           class Person(Base):
@@ -355,7 +355,7 @@ class ReahlFields:
              name = Column(String)
              age = Column(Integer)
 
-             fields = ReahlFields()
+             fields = ExposedNames()
              fields.name = lambda i: Field(label='Name')
              fields.age = lambda i: IntegerField(label='Age')
 
@@ -369,6 +369,8 @@ class ReahlFields:
 
           p.fields.age.from_input('28')  
           assert p.age == 28  # Which means since SqlAlchemy will save the age attribute, it will now save 28 to the database
+
+      .. versionadded:: 6.1
 
     """
     def _find_name(self, cls):
@@ -391,10 +393,10 @@ class ReahlFields:
                     seen.append(exposed_declaration)
                     if isinstance(exposed_declaration, ExposedDecorator):
                         exposed_declaration.func(instance, idx)
-                    elif isinstance(exposed_declaration, ReahlFields):
+                    elif isinstance(exposed_declaration, ExposedNames):
                         idx.update_from_class(exposed_declaration)
                     else:
-                        raise ProgrammerError('%s on %s is not a ReahlFields or ExposedDecorator' % (my_name, class_))
+                        raise ProgrammerError('%s on %s is not a ExposedNames or ExposedDecorator' % (my_name, class_))
                 
         setattr(instance, my_name, idx)
         return idx
@@ -866,7 +868,7 @@ class Field:
        of :class:`ValidationConstraint` added to the Field.
        
        The final parsed value of a Field is set as an attribute on a Python object to which the Field is bound.
-       (See also :class:`ReahlFields`).
+       (See also :class:`ExposedNames`).
 
        :keyword default: The default (parsed) value if no user input is given.
        :keyword required: If True, indicates that input is always required for this Field.

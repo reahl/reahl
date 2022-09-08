@@ -16,7 +16,7 @@ from reahl.web.bootstrap.ui import P
 from reahl.web.bootstrap.forms import Form, TextInput, Button, PasswordInput, FormLayout
 from reahl.web.bootstrap.navs import Nav, TabLayout
 from reahl.web.bootstrap.grid import ColumnLayout, ColumnOptions, ResponsiveSize, Container
-from reahl.component.modelinterface import Action, EmailField, Event, PasswordField, ReahlFields
+from reahl.component.modelinterface import Action, EmailField, Event, PasswordField, ExposedNames
 
 
 class User(Base):
@@ -42,11 +42,11 @@ class LoginSession(Base):
     current_user_id = Column(Integer, ForeignKey(User.id))
     current_user    = relationship(User)
 
-    fields = ReahlFields()
+    fields = ExposedNames()
     fields.email_address = lambda i: EmailField(label='Email', required=True)
     fields.password = lambda i: PasswordField(label='Password', required=True)
 
-    events = ReahlFields()
+    events = ExposedNames()
     events.log_in = lambda i: Event(label='Log in', action=Action(i.log_in))
 
     def log_in(self):

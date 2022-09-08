@@ -18,7 +18,7 @@
 from sqlalchemy import Column, Integer
 from reahl.sqlalchemysupport import Base
 
-from reahl.component.modelinterface import ReahlFields, Event, Action
+from reahl.component.modelinterface import ExposedNames, Event, Action
 from reahl.web.fw import UserInterface, ErrorWidget, Url
 from reahl.web.layout import PageLayout
 from reahl.web.bootstrap.page import HTML5Page
@@ -93,7 +93,7 @@ class SimpleDomainObject(Base):
 
     id = Column(Integer, primary_key=True)
 
-    events = ReahlFields()
+    events = ExposedNames()
     events.submit = lambda i: Event(label='Submit', action=Action(i.submit))
 
     def submit(self):

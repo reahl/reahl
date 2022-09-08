@@ -70,7 +70,7 @@ from reahl.component.exceptions import ProgrammerError
 from reahl.component.exceptions import arg_checks
 from reahl.component.i18n import Catalogue
 from reahl.component.modelinterface import StandaloneFieldIndex, FieldIndex, Field, Event, ValidationConstraint,\
-                                             Allowed, ReahlFields, Event, Action
+                                             Allowed, ExposedNames, Event, Action
 from reahl.web.csrf import InvalidCSRFToken, CSRFToken, ExpiredCSRFToken
 
 _ = Catalogue('reahl-web')
@@ -1004,7 +1004,7 @@ class Widget:
     def fire_on_refresh(self):
         pass
 
-    query_fields = ReahlFields() 
+    query_fields = ExposedNames() 
     """Used to declare the arguments of this Widget on its class.
 
        Override this class attribute to declare arguments this Widget, each described
@@ -1014,13 +1014,13 @@ class Widget:
        parse values for its arguments from the current query string. The resultant
        argument values are set as attributes on this Widget (with names matching the argument names).
 
-       To declare arguments on your own Widget class, assign a ReahlFields instance to query_fields
+       To declare arguments on your own Widget class, assign a ExposedNames instance to query_fields
        and then assign a single-argument callable for each Widget argument to it. This callable
        will be called with the Widget instance as argument, and should return a 
        :class:`~reahl.component.modelinterface.Field` describing it::
 
           class MyWidget(Widget):
-              query_fields = ReahlFields()
+              query_fields = ExposedNames()
               query_fields.my_argument = lambda i: Field()
 
 
@@ -1319,7 +1319,7 @@ class Widget:
 
 
 class ErrorWidget(Widget):
-    query_fields = ReahlFields()
+    query_fields = ExposedNames()
     query_fields.error_message = lambda i: Field(default=_('An error occurred'))
     query_fields.error_source_href = lambda i: Field(default='#')
 

@@ -25,7 +25,7 @@ from reahl.browsertools.browsertools import XPath
 
 from reahl.sqlalchemysupport import Session
 from reahl.webdeclarative.webdeclarative import PersistedFile
-from reahl.component.modelinterface import ReahlFields, Event, FileField, Action, ValidationConstraint
+from reahl.component.modelinterface import ExposedNames, Event, FileField, Action, ValidationConstraint
 from reahl.component.exceptions import DomainException
 from reahl.web.bootstrap.forms import Form
 from reahl.web.bootstrap.files import FileUploadInput, FileUploadPanel, Button, FormLayout, FileInput, FileInputButton
@@ -43,10 +43,10 @@ class FileInputButtonFixture(Fixture):
     def new_domain_object(self):
         class DomainObject:
             files = []
-            fields = ReahlFields()
+            fields = ExposedNames()
             fields.files = lambda i: FileField(allow_multiple=True, label='Attached files')
 
-            events = ReahlFields()
+            events = ExposedNames()
             events.submit = lambda i: Event(label='Submit')
 
         return DomainObject()
@@ -225,10 +225,10 @@ class FileUploadInputFixture(Fixture):
                 self.submitted_file_info = {}
                 self.submitted = False
                
-            fields = ReahlFields()
+            fields = ExposedNames()
             fields.files = lambda i: FileField(allow_multiple=True, label='Attached files', required=True)
 
-            events = ReahlFields()
+            events = ExposedNames()
             events.submit = lambda i: Event(label='Submit', action=Action(i.submit))
                 
             def submit(self):
@@ -271,10 +271,10 @@ class ConstrainedFileUploadInputFixture(FileUploadInputFixture):
     def new_domain_object(self):
         fixture = self
         class DomainObject:
-            fields = ReahlFields()
+            fields = ExposedNames()
             fields.files = lambda i: fixture.file_field
 
-            events = ReahlFields()
+            events = ExposedNames()
             events.submit = lambda i: Event(label='Submit')
 
         return DomainObject()
@@ -323,13 +323,13 @@ class ToggleValidationFixture(FileUploadInputFixture):
     def new_domain_object(self):
         fixture = self
         class DomainObject:
-            fields = ReahlFields()
+            fields = ExposedNames()
             def make_field(self):
                 field = FileField(allow_multiple=True, label='Attached files')
                 field.add_validation_constraint(ToggleableConstraint(fixture))
                 return field
             fields.files = make_field
-            events = ReahlFields()
+            events = ExposedNames()
             events.submit = lambda i: Event(label='Submit')
                                 
         return DomainObject()

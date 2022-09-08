@@ -11,7 +11,7 @@
 .. |TextInput| replace:: :class:`~reahl.web.bootstrap.forms.TextInput`
 .. |Button| replace:: :class:`~reahl.web.bootstrap.forms.Button`
 .. |Field| replace:: :class:`~reahl.component.modelinterface.Field`
-.. |ReahlFields| replace:: :class:`~reahl.component.modelinterface.ReahlFields`
+.. |ExposedNames| replace:: :class:`~reahl.component.modelinterface.ExposedNames`
 .. |EmailField| replace:: :class:`~reahl.component.modelinterface.EmailField`
 .. |Transition| replace:: :class:`~reahl.web.fw.Transition`
 .. |Event| replace:: :class:`~reahl.component.modelinterface.Event`
@@ -73,7 +73,7 @@ address. Invalid input is blocked by the |EmailField| and the
 
 .. _fields_explained:
 
-|Field|\s are defined on Address using a |ReahlFields| namespace:
+|Field|\s are defined on Address using a |ExposedNames| namespace:
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/addressbook2/addressbook2.py
    :pyobject: Address

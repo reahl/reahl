@@ -17,10 +17,10 @@ Field
    :members:
 
       
-ReahlFields
-"""""""""""
+ExposedNames
+""""""""""""
 
-.. autoclass:: ReahlFields
+.. autoclass:: ExposedNames
    :members:
 
    

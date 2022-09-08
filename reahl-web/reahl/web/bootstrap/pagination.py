@@ -32,7 +32,7 @@ from functools import partial
 from abc import ABCMeta, abstractmethod
 
 from reahl.component.i18n import Catalogue
-from reahl.component.modelinterface import ReahlFields, IntegerField
+from reahl.component.modelinterface import ExposedNames, IntegerField
 from reahl.component.decorators import memoized
 from reahl.web.fw import Bookmark
 from reahl.web.ui import AccessRightAttributes, ActiveStateAttributes, HTMLWidget
@@ -94,7 +94,7 @@ class PagedPanel(Div):
         return Bookmark.for_widget(description or '%s' % page_number,
                                    query_arguments={'current_page_number': page_number}).on_view(self.view)
 
-    query_fields = ReahlFields()
+    query_fields = ExposedNames()
     query_fields.current_page_number = lambda i: i.page_index.fields.current_page_number
 
     @property
@@ -129,7 +129,7 @@ class PageIndex(PageIndexProtocol):
         self.start_page_number = start_page_number
         self.max_page_links = max_page_links
 
-    fields = ReahlFields()
+    fields = ExposedNames()
     fields.current_page_number = lambda i: IntegerField(required=False, default=1)
     fields.start_page_number =   lambda i: IntegerField(required=False, default=1)
 
@@ -344,7 +344,7 @@ class PageMenu(HTMLWidget):
                                        write_check=lambda: not disabled).on_view(self.view)
         return bookmark
 
-    query_fields = ReahlFields()
+    query_fields = ExposedNames()
     query_fields.start_page_number = lambda i: i.page_index.fields.start_page_number
     query_fields.current_page_number = lambda i: i.paged_panel.query_fields.current_page_number
 

@@ -24,7 +24,7 @@ Styled Inputs that allow a user to choose or upload files.
 
 
 from reahl.component.i18n import Catalogue
-from reahl.component.modelinterface import ReahlFields, Action, Event, Field, UploadedFile
+from reahl.component.modelinterface import ExposedNames, Action, Event, Field, UploadedFile
 from reahl.component.context import ExecutionContext
 import reahl.web.ui
 from reahl.web.ui import UniqueFilesConstraint
@@ -173,13 +173,13 @@ class FileUploadPanel(Div):
     def bound_field(self):
         return self.file_upload_input.bound_field
 
-    events = ReahlFields()
+    events = ExposedNames()
     events.upload_file = lambda i: Event(label=_('Upload'), action=Action(i.upload_file))
     events.remove_file = lambda i: Event(label=_('Remove'),
                                          action=Action(i.remove_file, ['filename']),
                                          filename=Field(required=True))
 
-    fields = ReahlFields()
+    fields = ExposedNames()
     def create_uploaded_file_field(i):
         field = i.bound_field.unbound_copy()
         field.disallow_multiple()

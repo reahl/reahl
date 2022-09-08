@@ -33,7 +33,7 @@ can also be set up to let a user sort data according to different columns.
 import functools
 
 from reahl.component.exceptions import ProgrammerError
-from reahl.component.modelinterface import ReahlFields, IntegerField, BooleanField
+from reahl.component.modelinterface import ExposedNames, IntegerField, BooleanField
 from reahl.web.fw import Bookmark, Widget, Layout
 
 from reahl.web.ui import HTMLAttributeValueOption, StaticColumn, ColGroup, Col, Th, Tr, Td, Tbody, Thead, Tfoot, DynamicColumn, Caption
@@ -165,7 +165,7 @@ class TablePageIndex(SequentialPageIndex):
 
         return super().get_contents_for_page(page_number)
 
-    fields = ReahlFields()
+    fields = ExposedNames()
     fields.sort_column_number = lambda i: IntegerField(required=False, default=i.sort_column_number)
     fields.sort_descending = lambda i: BooleanField(required=False, default=i.sort_descending)
 
@@ -216,10 +216,10 @@ class PagedTable(PagedPanel):
     def toggle_sort_descending(self):
         return not self.page_index.sort_descending
 
-    fields = ReahlFields()
+    fields = ExposedNames()
     fields.toggle_sort_descending = lambda i: BooleanField(writable=lambda field: False)
         
-    query_fields = ReahlFields()
+    query_fields = ExposedNames()
     query_fields.sort_column_number = lambda i: i.page_index.fields.sort_column_number
     query_fields.sort_descending = lambda i: i.page_index.fields.sort_descending
 

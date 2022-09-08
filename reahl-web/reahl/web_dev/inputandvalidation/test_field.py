@@ -21,7 +21,7 @@ from reahl.stubble import stubclass
 
 from reahl.component.modelinterface import Field, ValidationConstraint, RequiredConstraint, MinLengthConstraint, \
                              MaxLengthConstraint, PatternConstraint, AllowedValuesConstraint, \
-                             EqualToConstraint, RemoteConstraint, ReahlFields
+                             EqualToConstraint, RemoteConstraint, ExposedNames
 from reahl.web.ui import PrimitiveInput, HTMLInputElement, Form, TextInput, ButtonInput, FormLayout
 from reahl.browsertools.browsertools import WidgetTester, XPath
 
@@ -263,7 +263,7 @@ def test_equal_to_constraint_js(web_fixture, constraint_rendering_fixture):
     fixture = constraint_rendering_fixture
 
     class ModelObject:
-        fields = ReahlFields()
+        fields = ExposedNames()
         fields.an_attribute = lambda i: Field(label='an attribute')
         fields.other = lambda i: Field(label='other attribute')
 

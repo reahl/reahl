@@ -4,7 +4,7 @@ from reahl.web.plotly import Chart
 
 from reahl.web.bootstrap.page import HTML5Page
 from reahl.web.bootstrap.forms import Form, FormLayout, SelectInput
-from reahl.component.modelinterface import ChoiceField, Choice, IntegerField, ReahlFields
+from reahl.component.modelinterface import ChoiceField, Choice, IntegerField, ExposedNames
 
 import plotly.graph_objects as go
 
@@ -23,7 +23,7 @@ class ChartForm(Form):
         fig = self.create_line_chart_figure(factor)
         return self.add_child(Chart(self.view, fig, 'changing-chart'))
 
-    fields = ReahlFields()
+    fields = ExposedNames()
     fields.factor = lambda i: ChoiceField([Choice(c, IntegerField(label=str(c))) for c in range(1, 10)])
 
     def create_line_chart_figure(self, factor):

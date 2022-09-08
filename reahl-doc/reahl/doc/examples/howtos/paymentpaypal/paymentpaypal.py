@@ -11,7 +11,7 @@ from reahl.web.bootstrap.page import HTML5Page
 from reahl.web.bootstrap.ui import Alert, P
 from reahl.web.bootstrap.forms import Form, TextInput, Button, FormLayout, SelectInput
 from reahl.web.bootstrap.grid import ColumnLayout, ColumnOptions, ResponsiveSize, Container
-from reahl.component.modelinterface import IntegerField, ChoiceField, Choice, Field, ReahlFields, Event, Action, Not, NumericField
+from reahl.component.modelinterface import IntegerField, ChoiceField, Choice, Field, ExposedNames, Event, Action, Not, NumericField
 from reahl.component.config import Configuration, ConfigSetting
 from reahl.component.context import ExecutionContext
 from reahl.sqlalchemysupport import Session, Base, session_scoped
@@ -102,7 +102,7 @@ class ShoppingCart(Base):
     paypal_order_id = Column(Integer, ForeignKey(PayPalOrder.id), nullable=True)
     paypal_order = relationship(PayPalOrder)
 
-    fields = ReahlFields()
+    fields = ExposedNames()
     fields.item_name = lambda i: Field(label='Item name')
     fields.quantity = lambda i: IntegerField(min_value=1, max_value=10, label='Quantity')
     fields.price = lambda i: NumericField(min_value=1, label='Price')
@@ -110,7 +110,7 @@ class ShoppingCart(Base):
                                                   Choice('EUR', Field(label='EUR'))],
                                                  label='Currency')
 
-    events = ReahlFields()
+    events = ExposedNames()
     events.pay_event = lambda i: Event(label='Pay', action=Action(i.pay))
     events.clear_event = lambda i: Event(label='Continue shopping', action=Action(i.clear))
 

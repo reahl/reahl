@@ -10,7 +10,7 @@ from reahl.web.bootstrap.navbar import Navbar, ResponsiveLayout
 from reahl.web.bootstrap.navs import Nav
 from reahl.web.bootstrap.grid import Container, ColumnLayout, ColumnOptions, ResponsiveSize
 from reahl.web.bootstrap.forms import TextInput, Form, FormLayout, Button, FieldSet
-from reahl.component.modelinterface import ReahlFields, Field, EmailField, Action, Event, IntegerField
+from reahl.component.modelinterface import ExposedNames, Field, EmailField, Action, Event, IntegerField
 from reahl.sqlalchemysupport import Session, Base
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy import Column, Integer, UnicodeText
@@ -109,14 +109,14 @@ class Address(Base):
     email_address = Column(UnicodeText)
     name          = Column(UnicodeText)
 
-    fields = ReahlFields()
+    fields = ExposedNames()
     fields.name = lambda i: Field(label='Name', required=True)
     fields.email_address = lambda i: EmailField(label='Email', required=True)
 
     def save(self):
         Session.add(self)
 
-    events = ReahlFields()
+    events = ExposedNames()
     events.save = lambda i: Event(label='Save', action=Action(i.save))
     events.update = lambda i: Event(label='Update')
     events.edit = lambda i: Event(label='Edit')

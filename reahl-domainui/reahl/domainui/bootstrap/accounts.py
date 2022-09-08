@@ -31,7 +31,7 @@ from reahl.web.bootstrap.forms import Button, CueInput, TextInput, PasswordInput
     FieldSet, Form, FormLayout, CheckboxInput, TextNode
 from reahl.web.bootstrap.popups import PopupA, CheckCheckboxScript
 
-from reahl.component.modelinterface import RemoteConstraint, Action, ReahlFields
+from reahl.component.modelinterface import RemoteConstraint, Action, ExposedNames
 from reahl.domain.systemaccountmodel import EmailAndPasswordSystemAccount, NotUniqueException,\
     AccountManagementInterface
 
@@ -174,7 +174,7 @@ class VerifyForm(Form):
         actions = self.add_child(ActionButtonGroup(view))
         actions.add_child(Button(self, account_management_interface.events.verify_event, style='primary'))
 
-    query_fields = ReahlFields()
+    query_fields = ExposedNames()
     query_fields.email = lambda i: i.account_management_interface.fields.email.as_optional()
     query_fields.secret = lambda i: i.account_management_interface.fields.secret.as_optional()
 
@@ -344,7 +344,7 @@ class ChoosePasswordForm(Form):
         actions = self.add_child(ActionButtonGroup(view))
         actions.add_child(Button(self, account_management_interface.events.choose_password_event, style='primary'))
 
-    query_fields = ReahlFields()
+    query_fields = ExposedNames()
     query_fields.email = lambda i: i.account_management_interface.fields.email.as_optional()
     query_fields.secret = lambda i: i.account_management_interface.fields.secret.as_optional()
 

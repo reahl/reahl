@@ -24,7 +24,7 @@ from reahl.stubble import EmptyStub
 
 from reahl.component.context import ExecutionContext
 from reahl.component.exceptions import ProgrammerError, IsInstance, IsCallable, IncorrectArgumentError
-from reahl.component.modelinterface import Field, FieldIndex, ReahlFields, exposed, Event, \
+from reahl.component.modelinterface import Field, FieldIndex, ExposedNames, exposed, Event, \
     EmailField, PasswordField, BooleanField, IntegerField, \
     DateField, DateConstraint, \
     ValidationConstraint, RequiredConstraint, MinLengthConstraint, \
@@ -351,10 +351,10 @@ def test_helpers_for_fields_deprecated(fixture):
     
 @with_fixtures(FieldFixture)
 def test_helpers_for_fields(fixture):
-    """Use ReahlFields to automatically bind a number of Fields to instances of a given class."""
+    """Use ExposedNames to automatically bind a number of Fields to instances of a given class."""
 
     class ModelObject:
-        fields = ReahlFields()
+        fields = ExposedNames()
         fields.field1 = lambda i: IntegerField()
         fields.field2 = lambda i: BooleanField()
 
@@ -373,7 +373,7 @@ def test_helpers_for_fields_delayed(fixture):
         def __init__(self, name):
             self.name = name
 
-        fields = ReahlFields()
+        fields = ExposedNames()
         fields.field1 = lambda i: IntegerField(label=i.name)
         fields.field2 = lambda i: BooleanField(label=i.name)
         
@@ -392,16 +392,16 @@ def test_helpers_for_fields_delayed(fixture):
 
 @with_fixtures(FieldFixture)
 def test_helpers_for_fields_inheritance(fixture):
-    """The Fields on different ReahlFields instances with the name in an inheritance hierarchy are merged 
+    """The Fields on different ExposedNames instances with the name in an inheritance hierarchy are merged 
        to create the resultant FieldIndex on an instance."""
 
     class ModelObject:
-        fields = ReahlFields()
+        fields = ExposedNames()
         fields.field1 = lambda i: IntegerField()
         fields.field2 = lambda i: BooleanField()
 
     class InheritingModelObject(ModelObject):
-        fields = ReahlFields()
+        fields = ExposedNames()
         fields.field3 = lambda i: IntegerField()
 
     model_object = ModelObject()
@@ -473,10 +473,10 @@ def test_helpers_for_events2_deprecated(fixture):
         
 @with_fixtures(FieldFixture)
 def test_helpers_for_events_class_side(fixture):
-    """The ReahlFields of a class can be accessed class side to yield objects that implement a partial Field/Event interface (implements .name only)."""
+    """The ExposedNames of a class can be accessed class side to yield objects that implement a partial Field/Event interface (implements .name only)."""
 
     class ModelObject:
-        events = ReahlFields()
+        events = ExposedNames()
         events.event1 = lambda i: Event()
         events.event2 = lambda i: Event()
 
@@ -531,7 +531,7 @@ def test_events(fixture):
        a human might label the Event, is also specified."""
 
     class ModelObject:
-        events = ReahlFields()
+        events = ExposedNames()
         events.an_event = lambda i: Event(action=Action(i.do_something), label='human readable label')
 
         def do_something(self):
@@ -556,7 +556,7 @@ def test_arguments_to_actions(fixture):
     expected_kwarg = 45
 
     class ModelObject:
-        events = ReahlFields()
+        events = ExposedNames()
         events.an_event = lambda i: Event(one_argument=IntegerField(required=True),
                                           another_argument=IntegerField(),
                                           unused_argument=IntegerField(),
@@ -621,7 +621,7 @@ class ActionScenarios(Fixture):
             def do_something(self):
                 pass
 
-            events = ReahlFields()
+            events = ExposedNames()
             events.an_event = lambda i: Event(action=Action(i.do_something))
             
         self.model_object = ModelObject()
@@ -643,7 +643,7 @@ class ActionScenarios(Fixture):
             pass
 
         class ModelObject:
-            events = ReahlFields()
+            events = ExposedNames()
             events.an_event = lambda i: Event(action=Action(do_something))
         self.model_object = ModelObject()
         self.rights_flags = self
@@ -689,7 +689,7 @@ def test_event_security2(fixture):
         def allow_write(self):
             return self.allow_write_flag
 
-        events = ReahlFields()
+        events = ExposedNames()
         events.an_event = lambda i: Event(readable=Action(i.allow_read),
                                           writable=Action(i.allow_write))
 
@@ -723,7 +723,7 @@ def test_receiving_events(fixture):
        An Event can only be fired if it occurred."""
 
     class ModelObject:
-        events = ReahlFields()
+        events = ExposedNames()
         events.an_event = lambda i: Event(an_argument=IntegerField())
 
     model_object = ModelObject()
@@ -781,7 +781,7 @@ def test_security_of_receiving_events(field_fixture, allowed_scenarios):
             return fixture.allow_read
         def allow_write(self):
             return fixture.allow_write
-        events = ReahlFields()
+        events = ExposedNames()
         events.an_event = lambda i: Event(readable=Action(i.allow_read), writable=Action(i.allow_write))
 
     model_object = ModelObject()

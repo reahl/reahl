@@ -16,7 +16,7 @@
 
 
 
-from reahl.component.modelinterface import ReahlFields, Field, Event, Action, Choice, ChoiceField, IntegerField
+from reahl.component.modelinterface import ExposedNames, Field, Event, Action, Choice, ChoiceField, IntegerField
 from reahl.component.exceptions import DomainException
 from reahl.web.fw import UserInterface
 from reahl.web.ui import StaticColumn, DynamicColumn
@@ -107,13 +107,13 @@ class InvestmentOrder(Base):
     allocations     = relationship('reahl.doc.examples.tutorial.dynamiccontent.dynamiccontent.Allocation',
                                    back_populates='investment_order', lazy='immediate', cascade="all, delete-orphan")
 
-    fields = ReahlFields()
+    fields = ExposedNames()
     fields.amount                = lambda i: IntegerField(label='Total amount', required=True)
     fields.amount_or_percentage  = lambda i: ChoiceField([Choice('amount', Field(label='Amount')),
                                                           Choice('percentage', Field(label='Percentage'))],
                                                          label='Allocate using', required=True)
 
-    events = ReahlFields()
+    events = ExposedNames()
     events.submit = lambda i: Event(label='Submit', action=Action(i.submit))
     events.allocation_changed = lambda i: Event(action=Action(i.recalculate))
 
@@ -176,7 +176,7 @@ class Allocation(Base):
     investment_order_id = Column(Integer, ForeignKey(InvestmentOrder.id))
     investment_order  = relationship('reahl.doc.examples.tutorial.dynamiccontent.dynamiccontent.InvestmentOrder', back_populates='allocations')
 
-    fields = ReahlFields()
+    fields = ExposedNames()
     fields.percentage    = lambda i: IntegerField(label='Percentage', required=True, writable=lambda field: i.is_in_percentage)
     fields.amount        = lambda i: IntegerField(label='Amount', required=True, writable=lambda field: i.is_in_amount)
 

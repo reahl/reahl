@@ -29,7 +29,7 @@ from reahl.browsertools.browsertools import WidgetTester, XPath, Browser
 
 from reahl.component.exceptions import DomainException, ProgrammerError, IsInstance
 from reahl.component.modelinterface import IntegerField, EmailField, DateField, \
-    ReahlFields, Field, Event, Action, MultiChoiceField, Choice
+    ExposedNames, Field, Event, Action, MultiChoiceField, Choice
 from reahl.webdeclarative.webdeclarative import PersistedException, UserInput
 
 from reahl.sqlalchemysupport import Base, Session
@@ -54,7 +54,7 @@ def test_basic_event_linkup(web_fixture):
         def handle_event(self):
             self.handled_event = True
 
-        events = ReahlFields()
+        events = ExposedNames()
         events.an_event = lambda i: Event(label='click me', action=Action(i.handle_event))
 
     model_object = ModelObject()
@@ -102,10 +102,10 @@ def test_button_submits_only_once(web_fixture):
         def clicked(self):
             fixture.click_count += 1
 
-        events = ReahlFields()
+        events = ExposedNames()
         events.an_event = lambda i: Event(label='click me', action=Action(i.clicked))
 
-        fields = ReahlFields()
+        fields = ExposedNames()
         fields.field_name = lambda i: IntegerField()
 
     wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=MyForm.factory())
@@ -152,7 +152,7 @@ def test_arguments_to_actions(web_fixture):
         def handle_event(self, *args):
             self.args = args
 
-        events = ReahlFields()
+        events = ExposedNames()
         events.an_event = lambda i: Event(label='click me',
                                           action=Action(i.handle_event, ['one_argument', 'another_argument']),
                                           one_argument=IntegerField(),
@@ -189,7 +189,7 @@ def test_validation_of_event_arguments(web_fixture):
     fixture = web_fixture
 
     class ModelObject:
-        events = ReahlFields()
+        events = ExposedNames()
         events.an_event = lambda i: Event(label='Click me', argument=Field(required=True))
 
     model_object = ModelObject()
@@ -221,10 +221,10 @@ def test_basic_field_linkup(web_fixture):
         def handle_event(self):
             pass
 
-        events = ReahlFields()
+        events = ExposedNames()
         events.an_event = lambda i: Event(label='click me', action=Action(i.handle_event))
 
-        fields = ReahlFields()
+        fields = ExposedNames()
         fields.field_name = lambda i: IntegerField(default=3)
 
     model_object = ModelObject()
@@ -266,14 +266,14 @@ def test_distinguishing_identical_field_names(web_fixture):
     fixture = web_fixture
 
     class ModelObject:
-        fields = ReahlFields()
+        fields = ExposedNames()
         fields.field_name = lambda i: IntegerField()
 
     model_object1 = ModelObject()
     model_object2 = ModelObject()
 
     class MyForm(Form):
-        events = ReahlFields()
+        events = ExposedNames()
         events.an_event = lambda i: Event(label='click me')
 
         def __init__(self, view, name):
@@ -320,7 +320,7 @@ def test_define_event_handler_not_called(web_fixture):
     fixture = web_fixture
 
     class ModelObject:
-        events = ReahlFields()
+        events = ExposedNames()
         events.an_event = lambda i: Event()
 
     model_object = ModelObject()
@@ -355,9 +355,9 @@ def test_exception_handling(reahl_system_fixture, web_fixture, sql_alchemy_fixtu
         def handle_event(self):
             self.field_name = 1
             raise DomainException()
-        events = ReahlFields()
+        events = ExposedNames()
         events.an_event = lambda i: Event(label='click me', action=Action(i.handle_event))
-        fields = ReahlFields()
+        fields = ExposedNames()
         fields.field_name = lambda i: IntegerField(default=3)
 
     with sql_alchemy_fixture.persistent_test_classes(ModelObject):
@@ -409,13 +409,13 @@ def test_form_preserves_user_input_after_validation_exceptions_multichoice(web_f
     fixture = web_fixture
 
     class ModelObject:
-        events = ReahlFields()
+        events = ExposedNames()
         events.an_event = lambda i: Event(label='click me')
             
         choices = [Choice(1, IntegerField(label='One')),
                    Choice(2, IntegerField(label='Two')),
                    Choice(3, IntegerField(label='Three'))]
-        fields = ReahlFields()
+        fields = ExposedNames()
         fields.no_validation_exception_field = lambda i: MultiChoiceField(i.choices, label='Make your invalid choice', default=[])
         fields.validation_exception_field = lambda i: MultiChoiceField(i.choices, label='Make your choice', default=[], required=True)
 
@@ -517,7 +517,7 @@ def test_check_missing_form(web_fixture):
     fixture = web_fixture
 
     class ModelObject:
-        fields = ReahlFields()
+        fields = ExposedNames()
         fields.name = lambda i: Field()
 
     class MyPanel(Div):
@@ -550,9 +550,9 @@ def test_nested_forms(web_fixture):
         handled_event = False
         def handle_event(self):
             self.handled_event = True
-        events = ReahlFields()
+        events = ExposedNames()
         events.nested_event = lambda i: Event(label='click nested', action=Action(i.handle_event))
-        fields = ReahlFields()
+        fields = ExposedNames()
         fields.nested_field = lambda i: Field(label='input nested')
 
     nested_model_object = NestedModelObject()
@@ -567,7 +567,7 @@ def test_nested_forms(web_fixture):
         handled_event = False
         def handle_event(self):
             self.handled_event = True
-        events = ReahlFields()
+        events = ExposedNames()
         events.outer_event = lambda i: Event(label='click outer', action=Action(i.handle_event))
     outer_model_object = OuterModelObject()
     class OuterForm(Form):
@@ -603,9 +603,9 @@ def test_form_input_validation(web_fixture):
     class ModelObject:
         def handle_event(self):
             pass
-        events = ReahlFields()
+        events = ExposedNames()
         events.an_event = lambda i: Event(label='click me', action=Action(i.handle_event))
-        fields = ReahlFields()
+        fields = ExposedNames()
         fields.field_name = lambda i: EmailField()
 
     model_object = ModelObject()
@@ -747,7 +747,7 @@ def test_propagation_of_querystring(web_fixture, query_string_scenarios):
         def handle_event(self):
             if fixture.break_on_submit:
                 raise DomainException()
-        events = ReahlFields()
+        events = ExposedNames()
         events.an_event = lambda i: Event(label='click me', action=Action(i.handle_event))
 
     model_object = ModelObject()
@@ -791,7 +791,7 @@ def test_event_names_are_canonicalised(web_fixture):
         def handle_event(self, some_argument):
             self.received_argument = some_argument
 
-        events = ReahlFields()
+        events = ExposedNames()
         events.an_event = lambda i: Event(label='click me',
                                           action=Action(i.handle_event, ['some_argument']),
                                           some_argument=Field(default='default value'))
@@ -833,7 +833,7 @@ def test_alternative_event_trigerring(web_fixture):
         def handle_event(self):
             self.handled_event = True
 
-        events = ReahlFields()
+        events = ExposedNames()
         events.an_event = lambda i: Event(label='click me',
                                     action=Action(i.handle_event))
 
@@ -879,7 +879,7 @@ def test_remote_field_validation(web_fixture):
     fixture = web_fixture
 
     class ModelObject:
-        fields = ReahlFields()
+        fields = ExposedNames()
         fields.a_field = lambda i: EmailField()
 
     model_object = ModelObject()
@@ -909,7 +909,7 @@ def test_remote_field_formatting(web_fixture):
     fixture = web_fixture
 
     class ModelObject:
-        fields = ReahlFields()
+        fields = ExposedNames()
         fields.a_field = lambda i: DateField()
 
     model_object = ModelObject()

@@ -22,7 +22,7 @@ from reahl.component.exceptions import ProgrammerError
 
 from reahl.browsertools.browsertools import Browser, XPath
 
-from reahl.component.modelinterface import ReahlFields, IntegerField, MultiChoiceField, Choice, Action, Event
+from reahl.component.modelinterface import ExposedNames, IntegerField, MultiChoiceField, Choice, Action, Event
 from reahl.web.fw import Bookmark, Widget
 from reahl.web.ui import A, P, Form, TextInput, Div, NestedForm, ButtonInput, FormLayout
 
@@ -82,7 +82,7 @@ def test_query_string_widget_arguments(web_fixture, value_scenarios):
             super().__init__(view)
             self.add_child(P(view, text=str(self.arg_directly_on_widget)))
 
-        query_fields = ReahlFields()
+        query_fields = ExposedNames()
         query_fields.arg_directly_on_widget = lambda i: fixture.field.unbound_copy() # We use a copy, because the Field on the fixture is only constructed once, but we get here more than once during a GET
 
     wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=WidgetWithQueryArguments.factory())
@@ -99,7 +99,7 @@ def test_query_string_prepopulates_form(web_fixture, value_scenarios):
     fixture = value_scenarios
 
     class ModelObject:
-        fields = ReahlFields()
+        fields = ExposedNames()
         fields.arg_on_other_object = lambda i: fixture.field
 
     class FormWithQueryArguments(Form):
@@ -109,7 +109,7 @@ def test_query_string_prepopulates_form(web_fixture, value_scenarios):
             self.use_layout(FormLayout())
             self.layout.add_input(TextInput(self, self.model_object.fields.arg_on_other_object))
 
-        query_fields = ReahlFields()
+        query_fields = ExposedNames()
         query_fields.arg_on_other_object = lambda i: i.model_object.fields.arg_on_other_object
 
     wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=FormWithQueryArguments.factory())
@@ -144,7 +144,7 @@ def test_widgets_with_bookmarkable_state(web_fixture, query_string_fixture, valu
             self.add_child(P(self.view, text='My state is now %s' % self.fancy_state))
             fixture.widget = self
 
-        query_fields = ReahlFields()
+        query_fields = ExposedNames()
         query_fields.fancy_state = lambda i: value_scenarios.field.unbound_copy()
 
     wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=MyFancyWidget.factory())
@@ -197,7 +197,7 @@ def test_refreshing_only_for_specific_args(web_fixture, query_string_fixture):
             self.add_child(P(self.view, text='My non-refreshing state is now %s' % self.non_refreshing_state))
             fixture.widget = self
 
-        query_fields = ReahlFields()
+        query_fields = ExposedNames()
         query_fields.refreshing_state = lambda i: IntegerField(required=False, default=1)
         query_fields.non_refreshing_state = lambda i: IntegerField(required=False, default=2)
 
@@ -239,7 +239,7 @@ def test_coactive_widgets_are_refreshed_when_their_widgets_are(web_fixture, quer
         def coactive_widgets(self):
             return super().coactive_widgets + [self.coactive_div]
 
-        query_fields = ReahlFields()
+        query_fields = ExposedNames()
         query_fields.fancy_state = lambda i: IntegerField(required=False, default=1)
 
 
@@ -296,10 +296,10 @@ def test_refresh_nested_forms(web_fixture, query_string_fixture):
         def submit(self):
             fixture.submitted = True
 
-        query_fields = ReahlFields()
+        query_fields = ExposedNames()
         query_fields.fancy_state = lambda i: IntegerField(required=False, default=1)
 
-        events = ReahlFields()
+        events = ExposedNames()
         events.submit = lambda i: Event(action=Action(i.submit))
 
     wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=MyFancyWidget.factory())

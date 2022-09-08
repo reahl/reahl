@@ -44,9 +44,9 @@ needs arguments and needs to call
 method.
 
 In the example, RefreshedPanel is given arguments in an
-|ReahlFields| namespace called
+|ExposedNames| namespace called
 :attr:`~reahl.web.fw.Widget.query_fields`. Each argument is defined by
-assigning a callable for it to an attribute of the |ReahlFields|. The
+assigning a callable for it to an attribute of the |ExposedNames|. The
 callable is called with an instance as argument and should return
 a |Field| describing that argument. The `query_fields` declared on
 RefreshedPanel is merged with that on :attr:`~reahl.web.fw.Widget.query_fields`

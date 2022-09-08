@@ -21,7 +21,7 @@ from sqlalchemy import Column, Integer, UnicodeText
 from reahl.stubble import stubclass
 from reahl.tofu import Fixture, scenario
 from reahl.tofu.pytestsupport import with_fixtures, uses
-from reahl.component.modelinterface import ReahlFields, Field, Event, PatternConstraint, Action
+from reahl.component.modelinterface import ExposedNames, Field, Event, PatternConstraint, Action
 from reahl.component.exceptions import DomainException
 from reahl.web.fw import Widget
 from reahl.web.ui import Form, ButtonInput, TextInput, FormLayout, PrimitiveInput, HTMLElement, Div
@@ -40,10 +40,10 @@ class OptimisticConcurrencyFixture(Fixture):
             id = Column(Integer, primary_key=True)
             some_field = Column(UnicodeText)
 
-            fields = ReahlFields()
+            fields = ExposedNames()
             fields.some_field = lambda i: Field(label='Some field', default='not set').with_validation_constraint(PatternConstraint('((?!invalidinput).)*'))
 
-            events = ReahlFields()
+            events = ExposedNames()
             events.submit = lambda i: Event(label='Submit')
             events.submit_break = lambda i: Event(label='Submit break', action=Action(i.always_break))
 
@@ -329,7 +329,7 @@ class OptimisticConcurrencyWithAjaxFixture(OptimisticConcurrencyFixture):
         class ModelObject(SuperModelObject):
             some_trigger_field = Column(UnicodeText)
 
-            fields = ReahlFields()
+            fields = ExposedNames()
             fields.some_trigger_field = lambda i: Field(label='Some trigger field', default='not set')
 
         return ModelObject

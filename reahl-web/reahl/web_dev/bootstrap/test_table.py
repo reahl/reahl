@@ -21,7 +21,7 @@ from reahl.tofu.pytestsupport import with_fixtures
 from reahl.browsertools.browsertools import XPath
 
 import reahl.web_dev.widgets.test_table
-from reahl.component.modelinterface import Field, IntegerField, ReahlFields
+from reahl.component.modelinterface import Field, IntegerField, ExposedNames
 from reahl.web.bootstrap.ui import Div
 from reahl.web.bootstrap.tables import Table, StaticColumn, TableLayout, DataTable
 
@@ -128,7 +128,7 @@ def test_table_layout_header_options(web_fixture, layout_scenarios):
 
 
 class DataItem(reahl.web_dev.widgets.test_table.DataItem):
-    fields = ReahlFields()
+    fields = ExposedNames()
     fields.row = lambda i: IntegerField(label='Row', required=True, default=i.row)
     fields.alpha = lambda i: Field(label='Alpha', required=True, default=i.alpha)
 

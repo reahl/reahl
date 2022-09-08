@@ -15,7 +15,7 @@ from reahl.web.bootstrap.grid import ColumnLayout, ColumnOptions, ResponsiveSize
 from reahl.web.bootstrap.navs import Nav, TabLayout
 from reahl.web.bootstrap.tables import Table, TableLayout
 from reahl.web.ui import StaticColumn, DynamicColumn
-from reahl.component.modelinterface import ReahlFields, EmailField, Field, Event, IntegerField, Action, BooleanField
+from reahl.component.modelinterface import ExposedNames, EmailField, Field, Event, IntegerField, Action, BooleanField
 
 
 class AddressBookPage(HTML5Page):
@@ -65,7 +65,7 @@ class Row:
         self.address = address
         self.selected_by_user = False
 
-    fields = ReahlFields()
+    fields = ExposedNames()
     fields.selected_by_user = lambda i: BooleanField(label='')
 
     def __getattr__(self, name):
@@ -113,7 +113,7 @@ class AddressBookPanel(Div):
     def initialise_rows(self):
         return [Row(address) for address in Session.query(Address).all()]
 
-    events = ReahlFields()
+    events = ExposedNames()
     events.delete_selected = lambda i: Event(label='Delete Selected', action=Action(i.delete_selected))
 
     def delete_selected(self):
@@ -163,11 +163,11 @@ class Address(Base):
     email_address = Column(UnicodeText)
     name          = Column(UnicodeText)
 
-    fields = ReahlFields()
+    fields = ExposedNames()
     fields.name = lambda i: Field(label='Name', required=True)
     fields.email_address = lambda i: EmailField(label='Email', required=True)
 
-    events = ReahlFields()
+    events = ExposedNames()
     events.save = lambda i: Event(label='Save', action=Action(i.save))
     events.update = lambda i: Event(label='Update')
 

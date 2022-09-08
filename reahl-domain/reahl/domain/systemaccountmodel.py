@@ -39,7 +39,7 @@ from reahl.mailutil.mail import Mailer, MailMessage
 from reahl.component.config import Configuration, ConfigSetting
 from reahl.component.i18n import Catalogue
 from reahl.component.modelinterface import EmailField, PasswordField, BooleanField, EqualToConstraint, \
-                                            Field, Event, ReahlFields, Action
+                                            Field, Event, ExposedNames, Action
 from reahl.component.context import ExecutionContext
 from reahl.domain.partymodel import Party
 from reahl.domain.workflowmodel import DeferredAction, Requirement
@@ -277,12 +277,12 @@ class EmailAndPasswordSystemAccount(SystemAccount):
 
 @session_scoped
 class AccountManagementInterface(Base):
-    """A session scoped object that @exposes a number of Fields and Events that user interface 
+    """A session scoped object that exposes a number of Fields and Events that user interface 
        Widgets can use to access the functionality of this module.
        
        Obtain an instance of AccountManagementInterface using AccountManagementInterface.for_current_session().
 
-       **@exposed fields:**
+       **exposed fields:**
        
         - email: For input of any email address for use by Events.
         - new_email: For choosing a new email address (see events.change_email_event)
@@ -292,7 +292,7 @@ class AccountManagementInterface(Base):
         - secret: The secret key sent via email to verify the user's identity.
         - accept_terms: Used when registering to indicate whether the user accepts the terms of the application.
 
-       **@exposed events:**
+       **exposed events:**
        
         - verify_event = Ask the system to verify the fields.email address entered.
         - register_event = Register a new account.
@@ -310,7 +310,7 @@ class AccountManagementInterface(Base):
 
     stay_logged_in = False
 
-    fields = ReahlFields()
+    fields = ExposedNames()
     fields.email = lambda i: EmailField(required=True, label=_('Email'))
     fields.new_email = lambda i: EmailField(required=True, label=_('New email'))
     fields.password = lambda i: PasswordField(required=True, label=_('Password'))
@@ -321,7 +321,7 @@ class AccountManagementInterface(Base):
                                                  required_message=_('Please accept the terms of service'),
                                                  default=False, label=_('I accept the terms of service'))
     
-    events = ReahlFields()
+    events = ExposedNames()
     events.verify_event = lambda i: Event(label=_('Verify'), action=Action(i.verify_email))
     events.register_event = lambda i: Event(label=_('Register'), action=Action(i.register))
     events.change_email_event = lambda i: Event(label=_('Change email address'), action=Action(i.request_email_change))

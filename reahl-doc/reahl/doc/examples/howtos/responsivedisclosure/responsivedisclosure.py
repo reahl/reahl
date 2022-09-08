@@ -16,7 +16,7 @@
 
 
 
-from reahl.component.modelinterface import ReahlFields, Field, Event, Action, Choice, ChoiceField, IntegerField, BooleanField
+from reahl.component.modelinterface import ExposedNames, Field, Event, Action, Choice, ChoiceField, IntegerField, BooleanField
 from reahl.component.exceptions import DomainException
 from reahl.web.fw import UserInterface
 from reahl.web.ui import StaticColumn, DynamicColumn
@@ -175,7 +175,7 @@ class InvestmentOrder(Base):
     id_document     = relationship('reahl.doc.examples.howtos.responsivedisclosure.responsivedisclosure.IDDocument',
                                    uselist=False, back_populates='investment_order', cascade="all, delete-orphan")
 
-    fields = ReahlFields()
+    fields = ExposedNames()
     fields.agreed_to_terms = lambda i: BooleanField(label='I agree to the terms and conditions')
     fields.new_or_existing = lambda i: ChoiceField([Choice('new', Field(label='New')),
                                                     Choice('existing', Field(label='Existing'))],
@@ -188,7 +188,7 @@ class InvestmentOrder(Base):
                                                           Choice('percentage', Field(label='Percentage'))],
                                                          label='Allocate using', required=True)
 
-    events = ReahlFields()
+    events = ExposedNames()
     events.submit = lambda i: Event(label='Submit', action=Action(i.submit))
     events.allocation_changed = lambda i: Event(action=Action(i.recalculate))
 
@@ -265,7 +265,7 @@ class Allocation(Base):
     investment_id = Column(Integer, ForeignKey(InvestmentOrder.id))
     investment_order  = relationship('reahl.doc.examples.howtos.responsivedisclosure.responsivedisclosure.InvestmentOrder', back_populates='allocations')
 
-    fields = ReahlFields()
+    fields = ExposedNames()
     fields.percentage    = lambda i: IntegerField(label='Percentage', required=True, writable=lambda field: i.is_in_percentage)
     fields.amount        = lambda i: IntegerField(label='Amount', required=True, writable=lambda field: i.is_in_amount)
 
@@ -313,7 +313,7 @@ class IDDocument(Base):
         super().__init__(**kwargs)
         self.document_type = 'id_card'
 
-    fields = ReahlFields()
+    fields = ExposedNames()
     fields.document_type = lambda i: ChoiceField([Choice('passport', Field(label='Passport')),
                                                   Choice('id_card', Field(label='National ID Card'))],
                                                  label='Type', required=True)
