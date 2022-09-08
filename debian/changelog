@@ -12,6 +12,7 @@ python-reahl (6.1.0) unstable; urgency=low
  * Cache session data on UrlBoundView (#365)
  * Added size to SelectInput (#362)
  * Changed placeholder to display the default of the field under certain conditions (#363).
+ * Deprecated use of @exposed in favour of ExposedNames (#373).
 
  -- Iwan Vosloo <iwan@reahl.org>  Fri, 12 Jul 2022 07:56:00 +0200
 

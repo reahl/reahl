@@ -7,7 +7,7 @@ from reahl.web.fw import UserInterface, Widget
 from reahl.web.bootstrap.forms import Form, FieldSet, TextInput, FormLayout, ButtonInput
 from reahl.web.bootstrap.page import HTML5Page
 from reahl.web.bootstrap.ui import P, Div
-from reahl.component.modelinterface import exposed, EmailField, Field
+from reahl.component.modelinterface import ExposedNames, EmailField, Field
 from reahl.component.modelinterface import Event, Action
 
 
@@ -39,14 +39,12 @@ class Comment(Base):
     email_address = Column(UnicodeText)
     text          = Column(UnicodeText)
     
-    @exposed
-    def fields(self, fields):
-        fields.email_address = EmailField(label='Email address', required=True)
-        fields.text          = Field(label='Comment', required=True)
+    fields = ExposedNames()
+    fields.email_address = lambda i: EmailField(label='Email address', required=True)
+    fields.text          = lambda i: Field(label='Comment', required=True)
 
-    @exposed
-    def events(self, events):
-        events.submit = Event(label='Submit', action=Action(self.submit))
+    events = ExposedNames()
+    events.submit = lambda i: Event(label='Submit', action=Action(i.submit))
 
     def submit(self):
         Session.add(self)

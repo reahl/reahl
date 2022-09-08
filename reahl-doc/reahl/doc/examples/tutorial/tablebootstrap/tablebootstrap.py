@@ -15,7 +15,7 @@ from reahl.web.bootstrap.grid import ColumnLayout, ColumnOptions, ResponsiveSize
 from reahl.web.bootstrap.navs import Nav, TabLayout
 from reahl.web.bootstrap.tables import Table, TableLayout
 from reahl.web.ui import StaticColumn, DynamicColumn
-from reahl.component.modelinterface import exposed, EmailField, Field, Event, IntegerField, Action, BooleanField
+from reahl.component.modelinterface import ExposedNames, EmailField, Field, Event, IntegerField, Action, BooleanField
 
 
 class AddressBookPage(HTML5Page):
@@ -65,9 +65,8 @@ class Row:
         self.address = address
         self.selected_by_user = False
 
-    @exposed
-    def fields(self, fields):
-        fields.selected_by_user = BooleanField(label='')
+    fields = ExposedNames()
+    fields.selected_by_user = lambda i: BooleanField(label='')
 
     def __getattr__(self, name):
         return getattr(self.address, name)
@@ -114,9 +113,8 @@ class AddressBookPanel(Div):
     def initialise_rows(self):
         return [Row(address) for address in Session.query(Address).all()]
 
-    @exposed
-    def events(self, events):
-        events.delete_selected = Event(label='Delete Selected', action=Action(self.delete_selected))
+    events = ExposedNames()
+    events.delete_selected = lambda i: Event(label='Delete Selected', action=Action(i.delete_selected))
 
     def delete_selected(self):
         for row in self.rows:
@@ -165,15 +163,13 @@ class Address(Base):
     email_address = Column(UnicodeText)
     name          = Column(UnicodeText)
 
-    @exposed
-    def fields(self, fields):
-        fields.name = Field(label='Name', required=True)
-        fields.email_address = EmailField(label='Email', required=True)
+    fields = ExposedNames()
+    fields.name = lambda i: Field(label='Name', required=True)
+    fields.email_address = lambda i: EmailField(label='Email', required=True)
 
-    @exposed('save', 'update')
-    def events(self, events):
-        events.save = Event(label='Save', action=Action(self.save))
-        events.update = Event(label='Update')
+    events = ExposedNames()
+    events.save = lambda i: Event(label='Save', action=Action(i.save))
+    events.update = lambda i: Event(label='Update')
 
     def save(self):
         Session.add(self)

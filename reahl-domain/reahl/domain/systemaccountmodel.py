@@ -39,7 +39,7 @@ from reahl.mailutil.mail import Mailer, MailMessage
 from reahl.component.config import Configuration, ConfigSetting
 from reahl.component.i18n import Catalogue
 from reahl.component.modelinterface import EmailField, PasswordField, BooleanField, EqualToConstraint, \
-                                            Field, Event, exposed, Action
+                                            Field, Event, ExposedNames, Action
 from reahl.component.context import ExecutionContext
 from reahl.domain.partymodel import Party
 from reahl.domain.workflowmodel import DeferredAction, Requirement
@@ -277,12 +277,12 @@ class EmailAndPasswordSystemAccount(SystemAccount):
 
 @session_scoped
 class AccountManagementInterface(Base):
-    """A session scoped object that @exposes a number of Fields and Events that user interface 
+    """A session scoped object that exposes a number of Fields and Events that user interface 
        Widgets can use to access the functionality of this module.
        
        Obtain an instance of AccountManagementInterface using AccountManagementInterface.for_current_session().
 
-       **@exposed fields:**
+       **exposed fields:**
        
         - email: For input of any email address for use by Events.
         - new_email: For choosing a new email address (see events.change_email_event)
@@ -292,7 +292,7 @@ class AccountManagementInterface(Base):
         - secret: The secret key sent via email to verify the user's identity.
         - accept_terms: Used when registering to indicate whether the user accepts the terms of the application.
 
-       **@exposed events:**
+       **exposed events:**
        
         - verify_event = Ask the system to verify the fields.email address entered.
         - register_event = Register a new account.
@@ -310,30 +310,27 @@ class AccountManagementInterface(Base):
 
     stay_logged_in = False
 
-    @exposed
-    def fields(self, fields):
-        """See class docstring"""
-        fields.email = EmailField(required=True, label=_('Email'))
-        fields.new_email = EmailField(required=True, label=_('New email'))
-        fields.password = PasswordField(required=True, label=_('Password'))
-        fields.stay_logged_in = BooleanField(default=False, label=_('Remember me?'))
-        fields.secret = Field(required=True, label=_('Secret key'))
-        fields.repeat_password = RepeatPasswordField(fields.password, required=True, label=_('Re-type password'), required_message=_('Please type your password again.'))
-        fields.accept_terms = BooleanField(required=True,
-                                          required_message=_('Please accept the terms of service'),
-                                          default=False, label=_('I accept the terms of service'))
+    fields = ExposedNames()
+    fields.email = lambda i: EmailField(required=True, label=_('Email'))
+    fields.new_email = lambda i: EmailField(required=True, label=_('New email'))
+    fields.password = lambda i: PasswordField(required=True, label=_('Password'))
+    fields.stay_logged_in = lambda i: BooleanField(default=False, label=_('Remember me?'))
+    fields.secret = lambda i: Field(required=True, label=_('Secret key'))
+    fields.repeat_password = lambda i: RepeatPasswordField(i.fields.password, required=True, label=_('Re-type password'), required_message=_('Please type your password again.'))
+    fields.accept_terms = lambda i: BooleanField(required=True,
+                                                 required_message=_('Please accept the terms of service'),
+                                                 default=False, label=_('I accept the terms of service'))
     
-    @exposed
-    def events(self, events):
-        events.verify_event = Event(label=_('Verify'), action=Action(self.verify_email))
-        events.register_event = Event(label=_('Register'), action=Action(self.register))
-        events.change_email_event = Event(label=_('Change email address'), action=Action(self.request_email_change))
-        events.investigate_event = Event(label=_('Investigate'))
-        events.choose_password_event = Event(label=_('Set new password'), action=Action(self.choose_new_password))
-        events.reset_password_event = Event(label=_('Reset password'), action=Action(self.request_password_reset))
-        events.login_event = Event(label=_('Log in'), action=Action(self.log_in))
-        events.resend_event = Event(label=_('Send'), action=Action(self.send_activation_notification))
-        events.log_out_event = Event(label=_('Log out'), action=Action(self.log_out))
+    events = ExposedNames()
+    events.verify_event = lambda i: Event(label=_('Verify'), action=Action(i.verify_email))
+    events.register_event = lambda i: Event(label=_('Register'), action=Action(i.register))
+    events.change_email_event = lambda i: Event(label=_('Change email address'), action=Action(i.request_email_change))
+    events.investigate_event = lambda i: Event(label=_('Investigate'))
+    events.choose_password_event = lambda i: Event(label=_('Set new password'), action=Action(i.choose_new_password))
+    events.reset_password_event = lambda i: Event(label=_('Reset password'), action=Action(i.request_password_reset))
+    events.login_event = lambda i: Event(label=_('Log in'), action=Action(i.log_in))
+    events.resend_event = lambda i: Event(label=_('Send'), action=Action(i.send_activation_notification))
+    events.log_out_event = lambda i: Event(label=_('Log out'), action=Action(i.log_out))
     
     def log_in(self):
         EmailAndPasswordSystemAccount.log_in(self.email, self.password, self.stay_logged_in)

@@ -24,7 +24,7 @@ from reahl.stubble import EmptyStub
 
 from reahl.component.context import ExecutionContext
 from reahl.component.exceptions import ProgrammerError, IsInstance, IsCallable, IncorrectArgumentError
-from reahl.component.modelinterface import Field, FieldIndex, ReahlFields, exposed, Event, \
+from reahl.component.modelinterface import Field, FieldIndex, ExposedNames, exposed, Event, \
     EmailField, PasswordField, BooleanField, IntegerField, \
     DateField, DateConstraint, \
     ValidationConstraint, RequiredConstraint, MinLengthConstraint, \
@@ -333,7 +333,7 @@ def test_namespaces():
 
 
 @with_fixtures(FieldFixture)
-def test_helpers_for_fields(fixture):
+def test_helpers_for_fields_deprecated(fixture):
     """The @exposed decorator makes it simpler to bind Fields to an object."""
 
     class ModelObject:
@@ -348,20 +348,61 @@ def test_helpers_for_fields(fixture):
     assert model_object.fields.field1.bound_to is model_object
     assert model_object.fields.field2.bound_to is model_object
 
-
+    
 @with_fixtures(FieldFixture)
-def test_helpers_for_fields2(fixture):
-    """The ReahlFields class is an alternative way to make it simpler to bind Fields to an object.
-       This reads a bit nicer, BUT does not currently play well with internationalising strings."""
+def test_helpers_for_fields(fixture):
+    """Use ExposedNames to automatically bind a number of Fields to instances of a given class."""
 
     class ModelObject:
-        fields = ReahlFields()
-        fields.field1 = IntegerField()
-        fields.field2 = BooleanField()
+        fields = ExposedNames()
+        fields.field1 = lambda i: IntegerField()
+        fields.field2 = lambda i: BooleanField()
+
+    model_object = ModelObject()
+    assert model_object.fields is model_object.fields
+    assert model_object.fields.field1.bound_to is model_object
+    assert model_object.fields.field2.bound_to is model_object
+
+
+    
+@with_fixtures(FieldFixture)
+def test_helpers_for_fields_delayed(fixture):
+    """Creation of an individual Field is delayed until it is accessed, and you can make use of instance data or internationalised strings when you create it."""
+
+    class ModelObject:
+        def __init__(self, name):
+            self.name = name
+
+        fields = ExposedNames()
+        fields.field1 = lambda i: IntegerField(label=i.name)
+        fields.field2 = lambda i: BooleanField(label=i.name)
+        
+    model_object = ModelObject('john')
+    field1 = model_object.fields.field1
+    model_object.name = 'name subsequently changed'
+    field2 = model_object.fields.field2
+    
+    assert field1.label == 'john'
+    assert field2.label == 'name subsequently changed'
+
+    assert model_object.fields.field1 is field1
+    assert model_object.fields.field2 is field2
+
+    
+
+@with_fixtures(FieldFixture)
+def test_helpers_for_fields_inheritance(fixture):
+    """The Fields on different ExposedNames instances with the name in an inheritance hierarchy are merged 
+       to create the resultant FieldIndex on an instance."""
+
+    class ModelObject:
+        fields = ExposedNames()
+        fields.field1 = lambda i: IntegerField()
+        fields.field2 = lambda i: BooleanField()
 
     class InheritingModelObject(ModelObject):
-        fields = ReahlFields()
-        fields.field3 = IntegerField()
+        fields = ExposedNames()
+        fields.field3 = lambda i: IntegerField()
 
     model_object = ModelObject()
 
@@ -376,7 +417,7 @@ def test_helpers_for_fields2(fixture):
     assert inheriting_object.fields.field1.bound_to is inheriting_object
     assert inheriting_object.fields.field2.bound_to is inheriting_object
     assert inheriting_object.fields.field3.bound_to is inheriting_object
-
+    
 
 @with_fixtures(FieldFixture)
 def test_re_binding_behaviour_of_field_index(fixture):
@@ -396,7 +437,7 @@ def test_re_binding_behaviour_of_field_index(fixture):
 
 
 @with_fixtures(FieldFixture)
-def test_helpers_for_events(fixture):
+def test_helpers_for_events_deprecated(fixture):
     """The @exposed decorator makes it simpler to collect Events on an object similar to how it is used for Fields."""
 
     class ModelObject:
@@ -415,7 +456,7 @@ def test_helpers_for_events(fixture):
 
 
 @with_fixtures(FieldFixture)
-def test_helpers_for_events2(fixture):
+def test_helpers_for_events2_deprecated(fixture):
     """The @exposed decorator can be used to get FakeEvents at a class level, provided the valid Event names are specified."""
 
     class ModelObject:
@@ -429,9 +470,26 @@ def test_helpers_for_events2(fixture):
     with expected(AttributeError):
         ModelObject.events.nonevent
 
+        
+@with_fixtures(FieldFixture)
+def test_helpers_for_events_class_side(fixture):
+    """The ExposedNames of a class can be accessed class side to yield objects that implement a partial Field/Event interface (implements .name only)."""
+
+    class ModelObject:
+        events = ExposedNames()
+        events.event1 = lambda i: Event()
+        events.event2 = lambda i: Event()
+
+    assert ModelObject.events.event1.name == 'event1'
+
+    with expected(AttributeError):
+        ModelObject.events.nonevent
+
+
+        
 
 @with_fixtures(FieldFixture)
-def test_helpers_for_events3(fixture):
+def test_helpers_for_events3_deprecated(fixture):
     """An Event has to be created for each of the names listed to the @exposed decorator, else an error is raised."""
 
     class ModelObject:
@@ -445,7 +503,7 @@ def test_helpers_for_events3(fixture):
 
 
 @with_fixtures(FieldFixture)
-def test_events(fixture):
+def test_events_deprecated(fixture):
     """An Event defines a signal that can be sent to the system, with the intention to
        possibly trigger the execution of an Action by the system. Metadata, such as what
        a human might label the Event, is also specified."""
@@ -454,6 +512,27 @@ def test_events(fixture):
         @exposed
         def events(self, events):
             events.an_event = Event(action=Action(self.do_something), label='human readable label')
+
+        def do_something(self):
+            self.something_done = True
+
+    model_object = ModelObject()
+    event = model_object.events.an_event.with_arguments()
+    event.from_input(event.as_input())
+    event.fire()
+
+    assert model_object.something_done
+    assert model_object.events.an_event.label == 'human readable label'
+    
+@with_fixtures(FieldFixture)
+def test_events(fixture):
+    """An Event defines a signal that can be sent to the system, with the intention to
+       possibly trigger the execution of an Action by the system. Metadata, such as what
+       a human might label the Event, is also specified."""
+
+    class ModelObject:
+        events = ExposedNames()
+        events.an_event = lambda i: Event(action=Action(i.do_something), label='human readable label')
 
         def do_something(self):
             self.something_done = True
@@ -477,14 +556,13 @@ def test_arguments_to_actions(fixture):
     expected_kwarg = 45
 
     class ModelObject:
-        @exposed
-        def events(self, events):
-            events.an_event = Event(one_argument=IntegerField(required=True),
-                                    another_argument=IntegerField(),
-                                    unused_argument=IntegerField(),
-                                    action=Action(self.do_something,
-                                                  ['one_argument'],
-                                                  dict(a_kwarg='another_argument')))
+        events = ExposedNames()
+        events.an_event = lambda i: Event(one_argument=IntegerField(required=True),
+                                          another_argument=IntegerField(),
+                                          unused_argument=IntegerField(),
+                                          action=Action(i.do_something,
+                                                        ['one_argument'],
+                                                        dict(a_kwarg='another_argument')))
 
         def do_something(self, an_arg, a_kwarg=None):
             self.passed_an_arg = an_arg
@@ -543,9 +621,9 @@ class ActionScenarios(Fixture):
             def do_something(self):
                 pass
 
-            @exposed
-            def events(self, events):
-                events.an_event = Event(action=Action(self.do_something))
+            events = ExposedNames()
+            events.an_event = lambda i: Event(action=Action(i.do_something))
+            
         self.model_object = ModelObject()
         self.rights_flags = self.model_object
 
@@ -565,9 +643,8 @@ class ActionScenarios(Fixture):
             pass
 
         class ModelObject:
-            @exposed
-            def events(self, events):
-                events.an_event = Event(action=Action(do_something))
+            events = ExposedNames()
+            events.an_event = lambda i: Event(action=Action(do_something))
         self.model_object = ModelObject()
         self.rights_flags = self
 
@@ -602,18 +679,19 @@ def test_event_security2(fixture):
     """If an Event does not specify an Action, then Actions can be passed for its readable and writable."""
 
     class ModelObject:
-        allow_read_flag = True
-        allow_write_flag = True
+        def __init__(self):
+            self.allow_read_flag = True
+            self.allow_write_flag = True
+            
         def allow_read(self):
             return self.allow_read_flag
-
+        
         def allow_write(self):
             return self.allow_write_flag
 
-        @exposed
-        def events(self, events):
-            events.an_event = Event(readable=Action(self.allow_read),
-                                    writable=Action(self.allow_write))
+        events = ExposedNames()
+        events.an_event = lambda i: Event(readable=Action(i.allow_read),
+                                          writable=Action(i.allow_write))
 
     model_object = ModelObject()
     event = model_object.events.an_event.with_arguments()
@@ -645,9 +723,8 @@ def test_receiving_events(fixture):
        An Event can only be fired if it occurred."""
 
     class ModelObject:
-        @exposed
-        def events(self, events):
-            events.an_event = Event(an_argument=IntegerField())
+        events = ExposedNames()
+        events.an_event = lambda i: Event(an_argument=IntegerField())
 
     model_object = ModelObject()
     event = model_object.events.an_event.with_arguments(an_argument=123)
@@ -704,9 +781,8 @@ def test_security_of_receiving_events(field_fixture, allowed_scenarios):
             return fixture.allow_read
         def allow_write(self):
             return fixture.allow_write
-        @exposed
-        def events(self, events):
-            events.an_event = Event(readable=Action(self.allow_read), writable=Action(self.allow_write))
+        events = ExposedNames()
+        events.an_event = lambda i: Event(readable=Action(i.allow_read), writable=Action(i.allow_write))
 
     model_object = ModelObject()
     event = model_object.events.an_event

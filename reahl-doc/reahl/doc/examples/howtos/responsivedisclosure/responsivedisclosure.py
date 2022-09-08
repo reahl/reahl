@@ -16,7 +16,7 @@
 
 
 
-from reahl.component.modelinterface import exposed, Field, Event, Action, Choice, ChoiceField, IntegerField, BooleanField
+from reahl.component.modelinterface import ExposedNames, Field, Event, Action, Choice, ChoiceField, IntegerField, BooleanField
 from reahl.component.exceptions import DomainException
 from reahl.web.fw import UserInterface
 from reahl.web.ui import StaticColumn, DynamicColumn
@@ -175,24 +175,22 @@ class InvestmentOrder(Base):
     id_document     = relationship('reahl.doc.examples.howtos.responsivedisclosure.responsivedisclosure.IDDocument',
                                    uselist=False, back_populates='investment_order', cascade="all, delete-orphan")
 
-    @exposed
-    def fields(self, fields):
-        fields.agreed_to_terms = BooleanField(label='I agree to the terms and conditions')
-        fields.new_or_existing = ChoiceField([Choice('new', Field(label='New')),
-                                              Choice('existing', Field(label='Existing'))],
-                                             label='Are you a new or existing investor?')
-        fields.existing_account_number = IntegerField(label='Existing account number', required=True)
-        fields.name         = Field(label='Name', required=True)
-        fields.surname      = Field(label='Surname', required=True)
-        fields.amount       = IntegerField(label='Total amount', required=True)
-        fields.amount_or_percentage  = ChoiceField([Choice('amount', Field(label='Amount')),
-                                                    Choice('percentage', Field(label='Percentage'))],
-                                            label='Allocate using', required=True)
+    fields = ExposedNames()
+    fields.agreed_to_terms = lambda i: BooleanField(label='I agree to the terms and conditions')
+    fields.new_or_existing = lambda i: ChoiceField([Choice('new', Field(label='New')),
+                                                    Choice('existing', Field(label='Existing'))],
+                                                   label='Are you a new or existing investor?')
+    fields.existing_account_number = lambda i: IntegerField(label='Existing account number', required=True)
+    fields.name         = lambda i: Field(label='Name', required=True)
+    fields.surname      = lambda i: Field(label='Surname', required=True)
+    fields.amount       = lambda i: IntegerField(label='Total amount', required=True)
+    fields.amount_or_percentage  = lambda i: ChoiceField([Choice('amount', Field(label='Amount')),
+                                                          Choice('percentage', Field(label='Percentage'))],
+                                                         label='Allocate using', required=True)
 
-    @exposed('submit')
-    def events(self, events):
-        events.submit = Event(label='Submit', action=Action(self.submit))
-        events.allocation_changed = Event(action=Action(self.recalculate))
+    events = ExposedNames()
+    events.submit = lambda i: Event(label='Submit', action=Action(i.submit))
+    events.allocation_changed = lambda i: Event(action=Action(i.recalculate))
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -267,10 +265,9 @@ class Allocation(Base):
     investment_id = Column(Integer, ForeignKey(InvestmentOrder.id))
     investment_order  = relationship('reahl.doc.examples.howtos.responsivedisclosure.responsivedisclosure.InvestmentOrder', back_populates='allocations')
 
-    @exposed
-    def fields(self, fields):
-        fields.percentage    = IntegerField(label='Percentage', required=True, writable=lambda field: self.is_in_percentage)
-        fields.amount        = IntegerField(label='Amount', required=True, writable=lambda field: self.is_in_amount)
+    fields = ExposedNames()
+    fields.percentage    = lambda i: IntegerField(label='Percentage', required=True, writable=lambda field: i.is_in_percentage)
+    fields.amount        = lambda i: IntegerField(label='Amount', required=True, writable=lambda field: i.is_in_amount)
 
     def __init__(self, investment_order, fund_name):
         super().__init__(investment_order=investment_order)
@@ -316,31 +313,29 @@ class IDDocument(Base):
         super().__init__(**kwargs)
         self.document_type = 'id_card'
 
-    @exposed
-    def fields(self, fields):
-        types = [Choice('passport', Field(label='Passport')),
-                 Choice('id_card', Field(label='National ID Card'))]
-        fields.document_type = ChoiceField(types, label='Type', required=True)
-        fields.id_card_number  = Field(label='ID card number', required=True)
-        fields.passport_number = Field(label='Passport number', required=True)
-        countries = [
-            Choice('Australia', Field(label='Australia')),
-            Choice('Chile', Field(label='Chile')),
-            Choice('China', Field(label='China')),
-            Choice('France', Field(label='France')),
-            Choice('Germany', Field(label='Germany')),
-            Choice('Ghana', Field(label='Ghana')),
-            Choice('India', Field(label='India')),
-            Choice('Japan', Field(label='Japan')),
-            Choice('Kenya', Field(label='Kenya')),
-            Choice('Namibia', Field(label='Namibia')),
-            Choice('Nigeria', Field(label='Nigeria')),
-            Choice('South Africa', Field(label='South Africa')),
-            Choice('United States', Field(label='United States of America')),
-            Choice('United Kingdom', Field(label='United Kingdom')),
-            Choice('Zimbabwe', Field(label='Zimbabwe'))
-            ]
-        fields.country = ChoiceField(countries, label='Country', required=True)
+    fields = ExposedNames()
+    fields.document_type = lambda i: ChoiceField([Choice('passport', Field(label='Passport')),
+                                                  Choice('id_card', Field(label='National ID Card'))],
+                                                 label='Type', required=True)
+    fields.id_card_number  = lambda i: Field(label='ID card number', required=True)
+    fields.passport_number = lambda i: Field(label='Passport number', required=True)
+    fields.country = lambda i: ChoiceField([
+        Choice('Australia', Field(label='Australia')),
+        Choice('Chile', Field(label='Chile')),
+        Choice('China', Field(label='China')),
+        Choice('France', Field(label='France')),
+        Choice('Germany', Field(label='Germany')),
+        Choice('Ghana', Field(label='Ghana')),
+        Choice('India', Field(label='India')),
+        Choice('Japan', Field(label='Japan')),
+        Choice('Kenya', Field(label='Kenya')),
+        Choice('Namibia', Field(label='Namibia')),
+        Choice('Nigeria', Field(label='Nigeria')),
+        Choice('South Africa', Field(label='South Africa')),
+        Choice('United States', Field(label='United States of America')),
+        Choice('United Kingdom', Field(label='United Kingdom')),
+        Choice('Zimbabwe', Field(label='Zimbabwe'))
+    ], label='Country', required=True)
 
     def __str__(self):
         if self.document_type == 'id_card':

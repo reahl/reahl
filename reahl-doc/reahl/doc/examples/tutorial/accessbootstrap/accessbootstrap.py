@@ -15,7 +15,7 @@ from reahl.web.bootstrap.ui import Div, P, H, A
 from reahl.web.bootstrap.forms import Form, TextInput, Button, PasswordInput, SelectInput, CheckboxInput, \
                          FormLayout, FieldSet
 from reahl.domain.systemaccountmodel import AccountManagementInterface, EmailAndPasswordSystemAccount, LoginSession
-from reahl.component.modelinterface import exposed, IntegerField, BooleanField, Field, EmailField, Event, Action, Choice, ChoiceField
+from reahl.component.modelinterface import ExposedNames, IntegerField, BooleanField, Field, EmailField, Event, Action, Choice, ChoiceField
 
 
 class Address(Base):
@@ -34,16 +34,14 @@ class Address(Base):
             raise exception_to_raise
         return addresses.one()
 
-    @exposed
-    def fields(self, fields):
-        fields.name = Field(label='Name', required=self.can_be_added(), writable=Action(self.can_be_added))
-        fields.email_address = EmailField(label='Email', required=True, writable=Action(self.can_be_edited))
+    fields = ExposedNames()
+    fields.name = lambda i: Field(label='Name', required=i.can_be_added(), writable=Action(i.can_be_added))
+    fields.email_address = lambda i: EmailField(label='Email', required=True, writable=Action(i.can_be_edited))
 
-    @exposed('save', 'update', 'edit')
-    def events(self, events):
-        events.save = Event(label='Save', action=Action(self.save))
-        events.update = Event(label='Update')
-        events.edit = Event(label='Edit', writable=Action(self.can_be_edited))
+    events = ExposedNames()
+    events.save = lambda i: Event(label='Save', action=Action(i.save))
+    events.update = lambda i: Event(label='Update')
+    events.edit = lambda i: Event(label='Edit', writable=Action(i.can_be_edited))
 
     def save(self):
         Session.add(self)
@@ -84,16 +82,14 @@ class AddressBook(Base):
         visible_books.extend(cls.owned_by(account))
         return visible_books
 
-    @exposed
-    def fields(self, fields):
-        collaborators = [Choice(i.id, IntegerField(label=i.email)) for i in Session.query(EmailAndPasswordSystemAccount).all()]
-        fields.chosen_collaborator = ChoiceField(collaborators, label='Choose collaborator')
-        fields.may_edit_address = BooleanField(label='May edit existing addresses')
-        fields.may_add_address = BooleanField(label='May add new addresses')
+    fields = ExposedNames()
+    fields.chosen_collaborator = lambda i: ChoiceField([Choice(i.id, IntegerField(label=i.email)) for i in Session.query(EmailAndPasswordSystemAccount).all()],
+                                                       label='Choose collaborator')
+    fields.may_edit_address = lambda i: BooleanField(label='May edit existing addresses')
+    fields.may_add_address = lambda i: BooleanField(label='May add new addresses')
 
-    @exposed('add_collaborator')
-    def events(self, events):
-        events.add_collaborator = Event(label='Share', action=Action(self.add_collaborator))
+    events = ExposedNames()
+    events.add_collaborator = lambda i: Event(label='Share', action=Action(i.add_collaborator))
 
     def add_collaborator(self):
         chosen_account = Session.query(EmailAndPasswordSystemAccount).filter_by(id=self.chosen_collaborator).one()

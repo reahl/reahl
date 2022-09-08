@@ -15,7 +15,7 @@ from reahl.web.bootstrap.grid import ColumnLayout, ColumnOptions, ResponsiveSize
 from reahl.web.bootstrap.navs import Nav, TabLayout
 from reahl.web.bootstrap.tables import DataTable, TableLayout
 from reahl.web.ui import StaticColumn, DynamicColumn
-from reahl.component.modelinterface import exposed, EmailField, Field, Event, IntegerField, Action, BooleanField
+from reahl.component.modelinterface import ExposedNames, EmailField, Field, Event, IntegerField, Action, BooleanField
 
 
 class AddressBookPage(HTML5Page):
@@ -65,9 +65,8 @@ class Row:
         self.address = address
         self.selected_by_user = False
 
-    @exposed
-    def fields(self, fields):
-        fields.selected_by_user = BooleanField(label='')
+    fields = ExposedNames()
+    fields.selected_by_user = lambda i: BooleanField(label='')
 
     def __getattr__(self, name):
         return getattr(self.address, name)
@@ -142,16 +141,14 @@ class Address(Base):
     name          = Column(UnicodeText)
     zip_code      = Column(Integer)
 
-    @exposed
-    def fields(self, fields):
-        fields.name = Field(label='Name', required=True)
-        fields.email_address = EmailField(label='Email', required=True)
-        fields.zip_code = IntegerField(label='Zipcode', required=True)
+    fields = ExposedNames()
+    fields.name = lambda i: Field(label='Name', required=True)
+    fields.email_address = lambda i: EmailField(label='Email', required=True)
+    fields.zip_code = lambda i: IntegerField(label='Zipcode', required=True)
 
-    @exposed('save', 'update')
-    def events(self, events):
-        events.save = Event(label='Save', action=Action(self.save))
-        events.update = Event(label='Update')
+    events = ExposedNames()
+    events.save = lambda i: Event(label='Save', action=Action(i.save))
+    events.update = lambda i: Event(label='Update')
 
     def save(self):
         Session.add(self)

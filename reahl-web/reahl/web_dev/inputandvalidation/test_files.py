@@ -21,7 +21,7 @@ import os.path
 from reahl.tofu import temp_file_with
 from reahl.tofu.pytestsupport import with_fixtures
 
-from reahl.component.modelinterface import FileField, exposed, Event, UploadedFile, ValidationConstraint
+from reahl.component.modelinterface import FileField, ExposedNames, Event, UploadedFile, ValidationConstraint
 from reahl.web.ui import SimpleFileInput, Form, ButtonInput
 from reahl.browsertools.browsertools import XPath
 
@@ -42,9 +42,8 @@ def test_form_encoding(web_fixture):
     fixture = web_fixture
 
     class DomainObject:
-        @exposed
-        def fields(self, fields):
-            fields.file = FileField(allow_multiple=False, label='Attached files')
+        fields = ExposedNames()
+        fields.file = lambda i: FileField(allow_multiple=False, label='Attached files')
 
     domain_object = DomainObject()
 
@@ -68,13 +67,11 @@ def test_simple_file_input(web_fixture):
         def __init__(self):
            self.file = None
 
-        @exposed
-        def fields(self, fields):
-            fields.file = FileField(allow_multiple=False, label='Attached files')
+        fields = ExposedNames()
+        fields.file = lambda i: FileField(allow_multiple=False, label='Attached files')
 
-        @exposed
-        def events(self, events):
-            events.upload = Event(label='Upload')
+        events = ExposedNames()
+        events.upload = lambda i: Event(label='Upload')
 
     domain_object = DomainObject()
 
@@ -119,15 +116,15 @@ def test_simple_file_input_exceptions(web_fixture):
         def __init__(self):
             self.file = None
 
-        @exposed
-        def fields(self, fields):
-            fields.file = FileField(allow_multiple=False, label='Attached files')
+        fields = ExposedNames()
+        def make_field(self):
+            field = FileField(allow_multiple=False, label='Attached files')
             # FailingConstraint is declared in module level scope for it to be pickleable
-            fields.file.add_validation_constraint(failing_constraint)
-
-        @exposed
-        def events(self, events):
-            events.upload = Event(label='Upload')
+            field.add_validation_constraint(failing_constraint)
+            return field
+        fields.file = make_field
+        events = ExposedNames()
+        events.upload = lambda i: Event(label='Upload')
 
     domain_object = DomainObject()
 

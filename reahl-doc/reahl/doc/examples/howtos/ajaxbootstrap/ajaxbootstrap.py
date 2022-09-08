@@ -6,7 +6,7 @@ from reahl.web.bootstrap.page import HTML5Page
 from reahl.web.bootstrap.ui import P, H, Div
 from reahl.web.bootstrap.navs import Nav, TabLayout
 from reahl.web.bootstrap.grid import ColumnLayout, ColumnOptions, Container, ResponsiveSize
-from reahl.component.modelinterface import exposed, IntegerField
+from reahl.component.modelinterface import ExposedNames, IntegerField
 
 
 
@@ -39,9 +39,9 @@ class RefreshedPanel(Div):
         self.add_child(P(view, text='You selected link number %s' % self.selected))
         self.enable_refresh()
 
-    @exposed
-    def query_fields(self, fields):
-        fields.selected = IntegerField(required=False, default=1)
+
+    query_fields = ExposedNames()
+    query_fields.selected = lambda i: IntegerField(required=False, default=1)
 
     def get_bookmark(self, for_selected):
         return Bookmark.for_widget('Select %s' % for_selected, query_arguments={'selected': for_selected}).on_view(self.view)

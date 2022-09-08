@@ -19,7 +19,7 @@
 from sqlalchemy import Column, ForeignKey, UnicodeText, Integer, LargeBinary
 from sqlalchemy.orm import relationship
 from reahl.sqlalchemysupport import Session, Base
-from reahl.component.modelinterface import exposed, EmailField, Field, Event, Action, FileField
+from reahl.component.modelinterface import ExposedNames, EmailField, Field, Event, Action, FileField
 from reahl.web.fw import UserInterface
 from reahl.web.layout import PageLayout
 from reahl.web.bootstrap.page import HTML5Page
@@ -47,15 +47,13 @@ class Comment(Base):
     text           = Column(UnicodeText)
     attached_files = relationship('AttachedFile', backref='comment')
     
-    @exposed
-    def fields(self, fields):
-        fields.email_address = EmailField(label='Email address', required=True)
-        fields.text          = Field(label='Comment', required=True)
-        fields.uploaded_files = FileField(allow_multiple=True, max_size_bytes=4*1000*1000, max_files=4, accept=['text/*'])
+    fields = ExposedNames()
+    fields.email_address = lambda i: EmailField(label='Email address', required=True)
+    fields.text          = lambda i: Field(label='Comment', required=True)
+    fields.uploaded_files = lambda i: FileField(allow_multiple=True, max_size_bytes=4*1000*1000, max_files=4, accept=['text/*'])
 
-    @exposed
-    def events(self, events):
-        events.submit = Event(label='Submit', action=Action(self.submit))
+    events = ExposedNames()
+    events.submit = lambda i: Event(label='Submit', action=Action(i.submit))
 
     def attach_uploaded_files(self):
         for f in self.uploaded_files:

@@ -21,7 +21,7 @@ from reahl.tofu.pytestsupport import with_fixtures
 
 from reahl.browsertools.browsertools import XPath
 
-from reahl.component.modelinterface import exposed, BooleanField
+from reahl.component.modelinterface import ExposedNames, BooleanField
 
 from reahl.web.bootstrap.ui import Div, P
 from reahl.web.bootstrap.forms import Form, FormLayout, CheckboxInput
@@ -106,9 +106,8 @@ def test_workings_of_check_checkbox_button(web_fixture, popup_a_fixture):
     """A CheckCheckBoxButton checks the checkbox on the original page when clicked."""
 
     class PopupTestPanel(Div):
-        @exposed
-        def fields(self, fields):
-            fields.field = BooleanField(label='a checkbox')
+        fields = ExposedNames()
+        fields.field = lambda i: BooleanField(label='a checkbox')
 
         def __init__(self, view):
             super().__init__(view)

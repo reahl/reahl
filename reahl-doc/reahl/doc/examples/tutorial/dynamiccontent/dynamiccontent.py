@@ -16,7 +16,7 @@
 
 
 
-from reahl.component.modelinterface import exposed, Field, Event, Action, Choice, ChoiceField, IntegerField
+from reahl.component.modelinterface import ExposedNames, Field, Event, Action, Choice, ChoiceField, IntegerField
 from reahl.component.exceptions import DomainException
 from reahl.web.fw import UserInterface
 from reahl.web.ui import StaticColumn, DynamicColumn
@@ -107,17 +107,15 @@ class InvestmentOrder(Base):
     allocations     = relationship('reahl.doc.examples.tutorial.dynamiccontent.dynamiccontent.Allocation',
                                    back_populates='investment_order', lazy='immediate', cascade="all, delete-orphan")
 
-    @exposed
-    def fields(self, fields):
-        fields.amount       = IntegerField(label='Total amount', required=True)
-        fields.amount_or_percentage  = ChoiceField([Choice('amount', Field(label='Amount')),
-                                                    Choice('percentage', Field(label='Percentage'))],
-                                            label='Allocate using', required=True)
+    fields = ExposedNames()
+    fields.amount                = lambda i: IntegerField(label='Total amount', required=True)
+    fields.amount_or_percentage  = lambda i: ChoiceField([Choice('amount', Field(label='Amount')),
+                                                          Choice('percentage', Field(label='Percentage'))],
+                                                         label='Allocate using', required=True)
 
-    @exposed('submit')
-    def events(self, events):
-        events.submit = Event(label='Submit', action=Action(self.submit))
-        events.allocation_changed = Event(action=Action(self.recalculate))
+    events = ExposedNames()
+    events.submit = lambda i: Event(label='Submit', action=Action(i.submit))
+    events.allocation_changed = lambda i: Event(action=Action(i.recalculate))
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -178,10 +176,9 @@ class Allocation(Base):
     investment_order_id = Column(Integer, ForeignKey(InvestmentOrder.id))
     investment_order  = relationship('reahl.doc.examples.tutorial.dynamiccontent.dynamiccontent.InvestmentOrder', back_populates='allocations')
 
-    @exposed
-    def fields(self, fields):
-        fields.percentage    = IntegerField(label='Percentage', required=True, writable=lambda field: self.is_in_percentage)
-        fields.amount        = IntegerField(label='Amount', required=True, writable=lambda field: self.is_in_amount)
+    fields = ExposedNames()
+    fields.percentage    = lambda i: IntegerField(label='Percentage', required=True, writable=lambda field: i.is_in_percentage)
+    fields.amount        = lambda i: IntegerField(label='Amount', required=True, writable=lambda field: i.is_in_amount)
 
     def __init__(self, investment_order, fund_name):
         super().__init__(investment_order=investment_order)

@@ -1,7 +1,7 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 
-from reahl.component.modelinterface import exposed, Event, Action, IntegerField, Choice, ChoiceField
+from reahl.component.modelinterface import ExposedNames, Event, Action, IntegerField, Choice, ChoiceField
 from reahl.sqlalchemysupport import session_scoped, Base, Integer, Column
 from reahl.web.fw import UserInterface
 from reahl.web.bootstrap.page import HTML5Page
@@ -25,17 +25,15 @@ class Calculator(Base):
         self.operandB = 4
         self.recalculate()
 
-    @exposed
-    def fields(self, fields):
-        fields.operandA = IntegerField(label='A')
-        fields.operandB = ChoiceField([Choice(4, IntegerField(label='4')),
+    fields = ExposedNames()
+    fields.operandA = lambda i: IntegerField(label='A')
+    fields.operandB = lambda i: ChoiceField([Choice(4, IntegerField(label='4')),
                                        Choice(5, IntegerField(label='5')),
                                        Choice(6, IntegerField(label='6'))],
                                       label='B')
 
-    @exposed
-    def events(self, events):
-        events.input_changed = Event(action=Action(self.recalculate))
+    events = ExposedNames()
+    events.input_changed = lambda i: Event(action=Action(i.recalculate))
 
     def recalculate(self):
         self.sum = self.operandA + self.operandB

@@ -13,7 +13,7 @@ from reahl.web.bootstrap.page import HTML5Page
 from reahl.web.bootstrap.ui import Div, P, H
 from reahl.web.bootstrap.forms import Form, TextInput, Button, FormLayout, FieldSet
 from reahl.web.bootstrap.grid import ColumnLayout, ColumnOptions, ResponsiveSize, Container
-from reahl.component.modelinterface import exposed, EmailField, Field, Event, Action
+from reahl.component.modelinterface import ExposedNames, EmailField, Field, Event, Action
 from reahl.component.migration import Migration
 
 
@@ -79,16 +79,14 @@ class Address(Base):
     added_date    = 'TODO'
 #    added_date    = Column(DateTime)
 
-    @exposed
-    def fields(self, fields):
-        fields.name = Field(label='Name', required=True)
-        fields.email_address = EmailField(label='Email', required=True)
+    fields = ExposedNames()
+    fields.name = lambda i: Field(label='Name', required=True)
+    fields.email_address = lambda i: EmailField(label='Email', required=True)
 
     def save(self):
         self.added_date = datetime.now()
         Session.add(self)
         
-    @exposed
-    def events(self, events):
-        events.save = Event(label='Save', action=Action(self.save))
+    events = ExposedNames()
+    events.save = lambda i: Event(label='Save', action=Action(i.save))
 

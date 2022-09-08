@@ -18,7 +18,7 @@
 from sqlalchemy import Column, Integer
 from reahl.sqlalchemysupport import Base
 
-from reahl.component.modelinterface import exposed, Event, Action
+from reahl.component.modelinterface import ExposedNames, Event, Action
 from reahl.web.fw import UserInterface, ErrorWidget, Url
 from reahl.web.layout import PageLayout
 from reahl.web.bootstrap.page import HTML5Page
@@ -93,9 +93,8 @@ class SimpleDomainObject(Base):
 
     id = Column(Integer, primary_key=True)
 
-    @exposed('submit')
-    def events(self, events):
-        events.submit = Event(label='Submit', action=Action(self.submit))
+    events = ExposedNames()
+    events.submit = lambda i: Event(label='Submit', action=Action(i.submit))
 
     def submit(self):
         raise Exception('This error is thrown intentionally')

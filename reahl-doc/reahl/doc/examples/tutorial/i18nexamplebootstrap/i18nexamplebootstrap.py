@@ -9,7 +9,7 @@ from reahl.web.bootstrap.navbar import Navbar, ResponsiveLayout
 from reahl.web.bootstrap.navs import Nav
 from reahl.web.bootstrap.grid import Container
 from reahl.web.bootstrap.forms import TextInput, Form, FormLayout, Button
-from reahl.component.modelinterface import exposed, Field, EmailField, Action, Event
+from reahl.component.modelinterface import ExposedNames, Field, EmailField, Action, Event
 from reahl.sqlalchemysupport import Session, Base
 from reahl.component.i18n import Catalogue
 from sqlalchemy import Column, Integer, UnicodeText, Date
@@ -82,15 +82,13 @@ class Address(Base):
     name          = Column(UnicodeText)
     added_date    = Column(Date)
 
-    @exposed
-    def fields(self, fields):
-        fields.name = Field(label=_('Name'), required=True)
-        fields.email_address = EmailField(label=_('Email'), required=True)
+    fields = ExposedNames()
+    fields.name = lambda i: Field(label=_('Name'), required=True)
+    fields.email_address = lambda i: EmailField(label=_('Email'), required=True)
 
     def save(self):
         self.added_date = datetime.date.today()
         Session.add(self)
 
-    @exposed('save')
-    def events(self, events):
-        events.save = Event(label=_('Save'), action=Action(self.save))
+    events = ExposedNames()
+    events.save = lambda i: Event(label=_('Save'), action=Action(i.save))

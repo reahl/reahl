@@ -24,6 +24,7 @@ import fnmatch
 import functools
 import sre_constants
 import urllib.parse
+import warnings
 from string import Template
 import inspect
 from contextlib import contextmanager
@@ -36,6 +37,7 @@ from babel.numbers import parse_decimal, format_number
 from wrapt import FunctionWrapper, BoundFunctionWrapper
 
 
+from reahl.component.decorators import deprecated
 from reahl.component.i18n import Catalogue
 from reahl.component.context import ExecutionContext
 from reahl.component.exceptions import AccessRestricted, ProgrammerError, arg_checks, IsInstance, IsCallable, NotYetAvailable
@@ -64,66 +66,131 @@ class ObjectDictAdapter:
 
 
 class FieldIndex:
-    """Used to define a set of :class:`Field` instances applicable to an object. In order to declare a
-       :class:`Field`, merely assign an instance of :class:`Field` to an attribute of the FieldIndex.
+    """A named collection of :class:`Field` instances applicable to an object. 
     
-       Programmers should not construct this class, a prepared instance of it will be passed to methods
-       marked as @exposed. (See :class:`ExposedDecorator` )
+       Programmers should not construct this class, an instance is automatically created when accessing
+       a :class:`ExposedNames` class attribute on an instance. (See :class:`ExposedNames` )
+
+       When used in conjuction with :class:`Field`\s declared on a :class:`ExposedNames`, construction
+       of an individual :class:`Field` is delayed until it is accessed on the the FieldIndex::
+
+         def create_field(i):
+             print('creating')
+             return Field()
+           
+         class Person:
+             fields = ExposedNames()
+             fields.name = create_field
+             fields.age = create_field
+
+         person.fields.name # prints 'creating'
+         person.fields.name # does not create it again
+         person.fields.age  # prints 'creating'
+
+       .. versionchanged:: 6.1
+          Deprecated: an instance of this class is also passed to methods marked as @exposed. 
+          (See :class:`ExposedDecorator` )
+
     """
     def __init__(self, storage_object):
         super().__init__()
         self.fields = {}
+        self.field_factories = {}
         self.storage_object = storage_object
 
     def __setattr__(self, name, value):
+        assert not isinstance(value, tuple)
         if isinstance(value, Field):
             self.fields[name] = value
             if not value.is_bound:
                 value.bind(str(name), self.storage_object)
-        super().__setattr__(name, value)
 
+        if callable(value):
+            self.field_factories[name] = (value, self.storage_object)
+        else:
+            super().__setattr__(name, value)
+
+    def __getattr__(self, name):
+        factory, storage_object = self.field_factories[name]
+        field = factory(storage_object)
+        if not field.is_bound:
+            field.bind(name, storage_object)
+        setattr(self, name, field)
+        return field
+        
     def set(self, name, value):
         return setattr(self, name, value)
 
     def keys(self):
-        return self.fields.keys()
+        return list(self.fields.keys()) + [key for key in self.field_factories.keys() if key not in self.fields]
 
+    def contains_instantiated_value(self, field):
+        return field in self.fields.values()
+        
+    def instantiate_fields_from_factories(self):
+        for name, (factory, storage_object) in self.field_factories.items():
+            if name not in self.fields:
+                field = factory(storage_object)
+                if not field.is_bound:
+                    field.bind(name, storage_object)
+                setattr(self, name, field)
+                
     def values(self):
+        self.instantiate_fields_from_factories()
         return self.fields.values()
 
     def items(self):
+        self.instantiate_fields_from_factories()
         return self.fields.items()
 
     def as_kwargs(self):
         return dict([(name, field.get_model_value()) for name, field in self.items()])
 
-    def as_input_kwargs(self):
-        return dict([(name, field.as_input()) for name, field in self.items()])
-
+    def as_input_kwargs(self, qualify_names=True):
+        if qualify_names:
+            return dict([(field.name_in_input, field.as_input()) for field in self.values()])
+        else:
+            return dict([(field.name, field.as_input()) for field in self.values()])
+    
     def accept_input(self, input_dict, ignore_validation=False):
         for name, field in self.items():
             field.from_disambiguated_input(input_dict, ignore_validation=ignore_validation)
             
-    def update(self, other):
-        for name, value in other.items():
-            setattr(self, name, value)
+    def update_from_other(self, other):
+        if isinstance(other, dict):
+            for name, value in other.items():
+                setattr(self, name, value)
+        else:
+            self.fields.update(other.fields)
+            for name, value in other.fields.items():
+                setattr(self, name, value)
+            self.field_factories.update(other.field_factories)
 
     def update_copies(self, other):
-        for name, value in other.items():
-            setattr(self, name, value.copy())
-
-    def update_from_class(self, cls):
-        items = cls.__dict__.items()
-        for name, value in items:
-            if isinstance(value, Field):
+        if isinstance(other, dict):
+            for name, value in other.items():
                 setattr(self, name, value.copy())
+        else:
+            for name, value in other.fields.items():
+                self.fields[name] = copied_value = value.copy()
+                setattr(self, name, copied_value)
+            self.field_factories.update(other.field_factories)
 
-    @property
-    def is_empty(self):
-        return self.fields == {}
+    def update_from_class(self, reahl_fields):
+        items = reahl_fields.__dict__.items()
+        for name, value in items:
+            if callable(value):
+                self.field_factories[name] = (value, self.storage_object)
 
 
 class StandaloneFieldIndex(FieldIndex):
+    @classmethod
+    def from_list(cls, list_of_fields):
+        i = cls()
+        for field in list_of_fields:
+            setattr(i, field.name, field)
+        return i
+        
     def __init__(self, backing_dict=None):
         backing_dict = backing_dict or {}
         super().__init__(ObjectDictAdapter(backing_dict))
@@ -139,7 +206,8 @@ class StandaloneFieldIndex(FieldIndex):
         for field in self.fields.values():
             field.validate_default()
 
-
+            
+@deprecated('Please use :class:`ExposedNames` instead.')
 class ExposedDecorator:
     """This class has the alias "exposed". Apply it as decorator to a method declaration to indicate that the method defines
        a number of Fields. The decorated method is passed an instance of :class:`FieldIndex` to which each Field should be assigned. 
@@ -147,6 +215,9 @@ class ExposedDecorator:
 
        :param args: A list of names of Fields that will be defined by this method. This is used when accessing the
                     resultant FieldIndex on a class, instead of on an instance.
+
+       .. versionchanged:: 6.1
+          Deprecated: use :class:`ExposedNames` instead.
     """
     def __init__(self, *args):
         self.expected_event_names = []
@@ -183,14 +254,22 @@ class ExposedDecorator:
             instance.__exposed__ = {}
 
         model_object = instance
-
         try:
             return instance.__exposed__[self]
         except KeyError:
+            seen = []
             field_index = FieldIndex(model_object)
             for _class in reversed(model_object.__class__.mro()):
                 if hasattr(_class, self.name):
-                    getattr(_class, self.name).func(model_object, field_index)
+                    exposed_declaration = getattr(_class, self.name)
+                    if exposed_declaration not in seen:
+                        seen.append(exposed_declaration)
+                        if isinstance(exposed_declaration, ExposedDecorator):
+                            exposed_declaration.func(model_object, field_index)
+                        elif isinstance(exposed_declaration, ExposedNames):
+                            field_index.update_from_class(exposed_declaration)
+                        else:
+                            raise ProgrammerError('%s on %s is not a ExposedNames or ExposedDecorator' % (self.name, _class))
             instance.__exposed__[self] = field_index
 
         self.func(model_object, field_index)
@@ -218,25 +297,113 @@ class FakeEvent:
     def __init__(self, name):
         self.name = name
         
+class FieldFactory:
+    @arg_checks(a_callable=IsCallable(args=(NotYetAvailable('i'),)))
+    def __init__(self, name, a_callable):
+        self.name = name
+        self.callable = a_callable
 
-class ReahlFields:
+    def __call__(self, storage_object):
+        return self.callable(storage_object)
+
+    
+class ExposedNames:
+    """Use ExposedNames to create a namespace on a class for the purpose of declaring
+       all the Field or all the Event instances bound to an instance of that class.
+
+       To create a namespace, assign an instance of ExposedNames to a class attribute named for
+       the needed namespace (ie, `fields`). For each Field/Event needed, assign a callable 
+       to an attributes on the ExposedNames.
+
+       The callable will be passed a single argument: the instance of the class it will be bound to..
+       It should return a Field or Event instance.
+
+       For example::
+
+          class Person:
+              def __init__(self, name):
+                  self.name = name
+                  self.age = 0
+
+              fields = ExposedNames()
+              fields.age = lambda i: IntegerField(name='Age of %s' % i.name)
+
+              events = ExposedNames()
+              events.submit = lambda i: Event(Action(i.submit))
+
+              def submit(self):
+                  pass
+
+
+       This is similar to how SqlAlchemy or Django ORM declare columns
+       on a class which are used to save corresponding attributes of
+       an instance to columns in a database table.
+
+       For example, with SQLAlchemy you could have::
+
+          class Person(Base):
+             id = Column(Integer, primary_key=True)
+             name = Column(String)
+             age = Column(Integer)
+
+       ExposedNames is different in that it allows you to declare your Fields or Events
+       in a namespace of their own. ExposedNames can thus be used in conjunction with, say, 
+       SQLAlchemy on the same instance::
+
+          class Person(Base):
+             id = Column(Integer)
+             name = Column(String)
+             age = Column(Integer)
+
+             fields = ExposedNames()
+             fields.name = lambda i: Field(label='Name')
+             fields.age = lambda i: IntegerField(label='Age')
+
+          p = Person()
+          p.name = 'Jane'
+          p.age = 25
+
+          Session.save(p)  # Saves Jane/25 to database with some auto generated id
+  
+          assert p.fields.age.as_input() == '25'
+
+          p.fields.age.from_input('28')  
+          assert p.age == 28  # Which means since SqlAlchemy will save the age attribute, it will now save 28 to the database
+
+      .. versionadded:: 6.1
+
+    """
     def _find_name(self, cls):
         for name in dir(cls):
             if getattr(cls, name) is self:
                 return name
         raise ProgrammerError('This should never happen')
+    
     def __get__(self, instance, cls):
         if not instance:
             return self
         my_name = self._find_name(cls)
 
         idx = FieldIndex(instance)
+        seen = []
         for class_ in reversed(cls.mro()):
             if hasattr(class_, my_name):
-                idx.update_from_class(getattr(class_, my_name))
+                exposed_declaration = getattr(class_, my_name)
+                if exposed_declaration not in seen:
+                    seen.append(exposed_declaration)
+                    if isinstance(exposed_declaration, ExposedDecorator):
+                        exposed_declaration.func(instance, idx)
+                    elif isinstance(exposed_declaration, ExposedNames):
+                        idx.update_from_class(exposed_declaration)
+                    else:
+                        raise ProgrammerError('%s on %s is not a ExposedNames or ExposedDecorator' % (my_name, class_))
+                
         setattr(instance, my_name, idx)
         return idx
 
+    def __setattr__(self, name, value):
+        super().__setattr__(name, FieldFactory(name, value))
+        
 
 class ReadRights:
     def __init__(self, access_rights, field):
@@ -701,6 +868,7 @@ class Field:
        of :class:`ValidationConstraint` added to the Field.
        
        The final parsed value of a Field is set as an attribute on a Python object to which the Field is bound.
+       (See also :class:`ExposedNames`).
 
        :keyword default: The default (parsed) value if no user input is given.
        :keyword required: If True, indicates that input is always required for this Field.
@@ -912,6 +1080,9 @@ class Field:
                     raise
 
     def bind(self, name, storage_object):
+        if self.is_bound:
+            warnings.warn('DEPRECATED: %s is bound to %s already. Call unbind() first if you intend to bind it again. This warning will be an error in 7.0' % (self, self.storage_object), DeprecationWarning, stacklevel=1)
+            #raise ProgrammerError('%s is already bound to %s' % (self, self.storage_object))
         self._name = name
         if not self.label:
             self.label = name
@@ -1180,6 +1351,7 @@ class Event(Field):
 
     def copy(self):
         new_field = super().copy()
+        new_field.unbind()
         new_field.bind(new_field._name, new_field)
         return new_field
     

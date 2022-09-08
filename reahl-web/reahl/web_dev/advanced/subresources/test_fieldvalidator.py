@@ -20,7 +20,7 @@ from reahl.tofu.pytestsupport import with_fixtures
 
 from reahl.web.fw import Url
 from reahl.web.ui import Form, TextInput
-from reahl.component.modelinterface import EmailField, exposed
+from reahl.component.modelinterface import EmailField, ExposedNames
 
 from reahl.browsertools.browsertools import Browser, XPath
 
@@ -71,9 +71,8 @@ def test_remote_field_validator_handles_GET(web_fixture, validation_scenarios):
 
 
     class ModelObject:
-        @exposed
-        def fields(self, fields):
-            fields.field_name = EmailField()
+        fields = ExposedNames()
+        fields.field_name = lambda i: EmailField()
 
     model_object = ModelObject()
 

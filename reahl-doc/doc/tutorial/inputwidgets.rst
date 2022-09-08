@@ -11,6 +11,7 @@
 .. |TextInput| replace:: :class:`~reahl.web.bootstrap.forms.TextInput`
 .. |Button| replace:: :class:`~reahl.web.bootstrap.forms.Button`
 .. |Field| replace:: :class:`~reahl.component.modelinterface.Field`
+.. |ExposedNames| replace:: :class:`~reahl.component.modelinterface.ExposedNames`
 .. |EmailField| replace:: :class:`~reahl.component.modelinterface.EmailField`
 .. |Transition| replace:: :class:`~reahl.web.fw.Transition`
 .. |Event| replace:: :class:`~reahl.component.modelinterface.Event`
@@ -72,8 +73,7 @@ address. Invalid input is blocked by the |EmailField| and the
 
 .. _fields_explained:
 
-|Field|\s are defined on Address using a method decorated with
-:class:`~reahl.component.modelinterface.exposed`:
+|Field|\s are defined on Address using a |ExposedNames| namespace:
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/addressbook2/addressbook2.py
    :pyobject: Address
@@ -115,10 +115,6 @@ should just stay on the `home` |UrlBoundView|.
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/addressbook2/addressbook2.py
    :pyobject: AddressBookUI
-
-No instance of Address is available at the time |Transition|\s are
-defined. `'save'` is added to the `@exposed` decorator of `Address.events`
-to be able to reference `Address.events.save` instead.
 
 
 

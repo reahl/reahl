@@ -28,7 +28,7 @@ from reahl.browsertools.browsertools import XPath
 from reahl.web.fw import Widget
 from reahl.web.ui import Form, Div, SelectInput, Label, P, RadioButtonSelectInput, CheckboxSelectInput, \
     CheckboxInput, ButtonInput, TextInput, FormLayout
-from reahl.component.modelinterface import Field, BooleanField, MultiChoiceField, ChoiceField, Choice, exposed, \
+from reahl.component.modelinterface import Field, BooleanField, MultiChoiceField, ChoiceField, Choice, ExposedNames, \
     IntegerField, EmailField, Event, Action, Allowed
 from reahl.component.exceptions import DomainException
 from reahl.web_dev.inputandvalidation.test_widgetqueryargs import QueryStringFixture
@@ -44,12 +44,11 @@ class ResponsiveDisclosureFixture(Fixture):
             def __init__(self):
                 self.choice = 1
 
-            @exposed
-            def fields(self, fields):
-                fields.choice = ChoiceField([Choice(1, IntegerField(label='One')),
-                                             Choice(2, IntegerField(label='Two')),
-                                             Choice(3, IntegerField(label='Three'))],
-                                            label='Choice')
+            fields = ExposedNames()
+            fields.choice = lambda i: ChoiceField([Choice(1, IntegerField(label='One')),
+                                                   Choice(2, IntegerField(label='Two')),
+                                                   Choice(3, IntegerField(label='Three'))],
+                                                  label='Choice')
         return ModelObject
 
     def new_MainWidget(self):
@@ -107,10 +106,9 @@ class ResponsiveWidgetScenarios(ResponsiveDisclosureFixture):
         class ModelObject:
             def __init__(self):
                 self.choice = False
-            @exposed
-            def fields(self, fields):
-                fields.choice = BooleanField(label=u'Choice',
-                                             true_value=u'true_value', false_value=u'false_value')
+            fields = ExposedNames()
+            fields.choice = lambda i: BooleanField(label=u'Choice',
+                                                   true_value=u'true_value', false_value=u'false_value')
         self.ModelObject = ModelObject
 
         def create_trigger_input(form, an_object):
@@ -132,12 +130,11 @@ class ResponsiveWidgetScenarios(ResponsiveDisclosureFixture):
             def __init__(self):
                 self.choice = [1]
 
-            @exposed
-            def fields(self, fields):
-                fields.choice = MultiChoiceField([Choice(1, IntegerField(label='One')),
-                                                  Choice(2, IntegerField(label='Two')),
-                                                  Choice(3, IntegerField(label='Three'))],
-                                                 label='Choice')
+            fields = ExposedNames()
+            fields.choice = lambda i: MultiChoiceField([Choice(1, IntegerField(label='One')),
+                                                        Choice(2, IntegerField(label='Two')),
+                                                        Choice(3, IntegerField(label='Three'))],
+                                                       label='Choice')
         self.ModelObject = ModelObject
 
         def create_trigger_input(form, an_object):
@@ -160,10 +157,9 @@ class ResponsiveWidgetScenarios(ResponsiveDisclosureFixture):
             def __init__(self):
                 self.choice = [1]
 
-            @exposed
-            def fields(self, fields):
-                fields.choice = MultiChoiceField([Choice(1, IntegerField(label='One'))],
-                                                 label='Choice')
+            fields = ExposedNames()
+            fields.choice = lambda i: MultiChoiceField([Choice(1, IntegerField(label='One'))],
+                                                       label='Choice')
         self.ModelObject = ModelObject
 
         self.expected_focussed_element = XPath.input_labelled('One')
@@ -180,10 +176,9 @@ class ResponsiveWidgetScenarios(ResponsiveDisclosureFixture):
             def __init__(self):
                 self.choice = []
 
-            @exposed
-            def fields(self, fields):
-                fields.choice = MultiChoiceField([Choice(1, IntegerField(label='One'))],
-                                                 label='Choice')
+            fields = ExposedNames()
+            fields.choice = lambda i: MultiChoiceField([Choice(1, IntegerField(label='One'))],
+                                                       label='Choice')
         self.ModelObject = ModelObject
         #self.MyForm from multi_valued_checkbox_select
 
@@ -200,12 +195,11 @@ class ResponsiveWidgetScenarios(ResponsiveDisclosureFixture):
             def __init__(self):
                 self.choice = [1]
 
-            @exposed
-            def fields(self, fields):
-                fields.choice = MultiChoiceField([Choice(1, IntegerField(label='One')),
-                                                  Choice(2, IntegerField(label='Two')),
-                                                  Choice(3, IntegerField(label='Three'))],
-                                                 label='Choice')
+            fields = ExposedNames()
+            fields.choice = lambda i: MultiChoiceField([Choice(1, IntegerField(label='One')),
+                                                        Choice(2, IntegerField(label='Two')),
+                                                        Choice(3, IntegerField(label='Three'))],
+                                                       label='Choice')
         self.ModelObject = ModelObject
 
         def create_trigger_input(form, an_object):
@@ -302,12 +296,11 @@ def test_overridden_names(web_fixture, query_string_fixture, responsive_disclosu
         def __init__(self):
             self.choice = [1]
 
-        @exposed
-        def fields(self, fields):
-            fields.choice = MultiChoiceField([Choice(1, IntegerField(label='One')),
-                                                Choice(2, IntegerField(label='Two')),
-                                                Choice(3, IntegerField(label='Three'))],
-                                                label='Choice')
+        fields = ExposedNames()
+        fields.choice = lambda i: MultiChoiceField([Choice(1, IntegerField(label='One')),
+                                                    Choice(2, IntegerField(label='Two')),
+                                                    Choice(3, IntegerField(label='Three'))],
+                                                   label='Choice')
     fixture.ModelObject = ModelObject
 
     def create_trigger_input(form, an_object):
@@ -397,12 +390,11 @@ def test_form_values_are_not_persisted_until_form_is_submitted(web_fixture, resp
         id = Column(Integer, primary_key=True)
         choice = Column(Integer, default=1)
 
-        @exposed
-        def fields(self, fields):
-            fields.choice = ChoiceField([Choice(1, IntegerField(label='One')),
-                                         Choice(2, IntegerField(label='Two')),
-                                         Choice(3, IntegerField(label='Three'))],
-                                         label='Choice')
+        fields = ExposedNames()
+        fields.choice = lambda i: ChoiceField([Choice(1, IntegerField(label='One')),
+                                               Choice(2, IntegerField(label='Two')),
+                                               Choice(3, IntegerField(label='Three'))],
+                                              label='Choice')
     fixture.ModelObject = ModelObject
 
     class FormWithButton(fixture.MyForm):
@@ -412,9 +404,8 @@ def test_form_values_are_not_persisted_until_form_is_submitted(web_fixture, resp
             self.define_event_handler(self.events.submit)
             self.add_child(ButtonInput(self, self.events.submit))
 
-        @exposed
-        def events(self, events):
-            events.submit = Event(label='Submit')
+        events = ExposedNames()
+        events.submit = lambda i: Event(label='Submit')
 
     fixture.MyForm = FormWithButton
 
@@ -463,19 +454,17 @@ class DisclosedInputFixture(Fixture):
                 self.trigger_field = fixture.default_trigger_field_value
                 self.email = None
 
-            @exposed
-            def events(self, events):
-                events.an_event = Event(label='click me', action=Action(self.submit))
+            events = ExposedNames()
+            events.an_event = lambda i: Event(label='click me', action=Action(i.submit))
 
             def submit(self):
                 if fixture.raise_domain_exception_on_submit:
                     raise DomainException()
                 fixture.submitted_model_object = self
 
-            @exposed
-            def fields(self, fields):
-                fields.trigger_field = BooleanField(label='Trigger field')
-                fields.email = EmailField(required=True, label='Email')
+            fields = ExposedNames()
+            fields.trigger_field = lambda i: BooleanField(label='Trigger field')
+            fields.email = lambda i: EmailField(required=True, label='Email')
 
         class MyForm(Form):
             def __init__(self, view):
@@ -636,15 +625,13 @@ class TabOrderFixture(Fixture):
                 self.other = None
                 self.edge = None
 
-            @exposed
-            def events(self, events):
-                events.an_event = Event(label='click me')
+            events = ExposedNames()
+            events.an_event = lambda i: Event(label='click me')
 
-            @exposed
-            def fields(self, fields):
-                fields.trigger_field = BooleanField(label='Trigger field')
-                fields.other = Field(label='Other')
-                fields.edge = Field(label='Edge')
+            fields = ExposedNames()
+            fields.trigger_field = lambda i: BooleanField(label='Trigger field')
+            fields.other = lambda i: Field(label='Other')
+            fields.edge = lambda i: Field(label='Edge')
 
         class MyForm(Form):
             def __init__(self, view):
@@ -722,10 +709,9 @@ class TimingFixture(BlockingRefreshFixture):
             def __init__(self):
                 self.choice = 1
 
-            @exposed
-            def fields(self, fields):
-                fields.some_text = Field(label='Some Text')
-                fields.trigger_field = Field(label='Trigger')
+            fields = ExposedNames()
+            fields.some_text = lambda i: Field(label='Some Text')
+            fields.trigger_field = lambda i: Field(label='Trigger')
         return ModelObject
 
     def new_MyForm(self):
@@ -804,10 +790,9 @@ class NestedResponsiveDisclosureFixture(Fixture):
                 self.trigger_field = False
                 self.nested_trigger_field = False
 
-            @exposed
-            def fields(self, fields):
-                fields.trigger_field = BooleanField(label='Trigger field')
-                fields.nested_trigger_field = BooleanField(label='Nested trigger field')
+            fields = ExposedNames()
+            fields.trigger_field = lambda i: BooleanField(label='Trigger field')
+            fields.nested_trigger_field = lambda i: BooleanField(label='Nested trigger field')
 
         return ModelObject
 
@@ -930,9 +915,8 @@ def test_browser_back_after_state_changes_goes_to_previous_url(web_fixture, quer
             self.define_event_handler(self.events.submit)
             self.add_child(ButtonInput(self, self.events.submit))
 
-        @exposed
-        def events(self, events):
-            events.submit = Event(label='Submit')
+        events = ExposedNames()
+        events.submit = lambda i: Event(label='Submit')
 
     fixture.MyForm = FormWithButton
 
@@ -981,18 +965,16 @@ class RecalculateWidgetFixture(Fixture):
             def submit(self):
                 raise DomainException(message='An exception happened on submit')
 
-            @exposed
-            def events(self, events):
-                events.choice_changed = Event(action=Action(self.recalculate))
-                events.submit = Event(action=Action(self.submit))
+            events = ExposedNames()
+            events.choice_changed = lambda i: Event(action=Action(i.recalculate))
+            events.submit = lambda i: Event(action=Action(i.submit))
 
-            @exposed
-            def fields(self, fields):
-                fields.choice = ChoiceField([Choice(1, IntegerField(label='One')),
-                                            Choice(2, IntegerField(label='Two')),
-                                            Choice(3, IntegerField(label='Three'))],
-                                            label='Choice')
-                fields.calculated_state = IntegerField(label='Calculated', writable=Allowed(not fixture.read_only))
+            fields = ExposedNames()
+            fields.choice = lambda i: ChoiceField([Choice(1, IntegerField(label='One')),
+                                                   Choice(2, IntegerField(label='Two')),
+                                                   Choice(3, IntegerField(label='Three'))],
+                                                  label='Choice')
+            fields.calculated_state = lambda i: IntegerField(label='Calculated', writable=Allowed(not fixture.read_only))
         return ModelObject
 
     def new_model_object(self):
@@ -1222,22 +1204,20 @@ def test_invalid_trigger_inputs(web_fixture, query_string_fixture, sql_alchemy_f
         def submit(self):
             raise DomainException(message='An exception happened on submit')
 
-        @exposed
-        def events(self, events):
-            events.choice_changed = Event(action=Action(self.recalculate))
-            events.submit = Event(action=Action(self.submit))
+        events = ExposedNames()
+        events.choice_changed = lambda i: Event(action=Action(i.recalculate))
+        events.submit = lambda i: Event(action=Action(i.submit))
 
-        @exposed
-        def fields(self, fields):
-            fields.choice = ChoiceField([Choice(1, IntegerField(label='One')),
-                                        Choice(2, IntegerField(label='Two')),
-                                        Choice(3, IntegerField(label='Three'))],
-                                        label='Choice')
-            fields.choice2 = ChoiceField([Choice(4, IntegerField(label='Four')),
-                                        Choice(5, IntegerField(label='Five')),
-                                        Choice(6, IntegerField(label='Six'))],
-                                        label='Choice2')
-            fields.calculated_state = IntegerField(label='Calculated', writable=Allowed(False))
+        fields = ExposedNames()
+        fields.choice = lambda i: ChoiceField([Choice(1, IntegerField(label='One')),
+                                               Choice(2, IntegerField(label='Two')),
+                                               Choice(3, IntegerField(label='Three'))],
+                                              label='Choice')
+        fields.choice2 = lambda i: ChoiceField([Choice(4, IntegerField(label='Four')),
+                                                Choice(5, IntegerField(label='Five')),
+                                                Choice(6, IntegerField(label='Six'))],
+                                               label='Choice2')
+        fields.calculated_state = lambda i: IntegerField(label='Calculated', writable=Allowed(False))
 
     class MyForm(Form):
         def __init__(self, view, an_object):
@@ -1310,22 +1290,20 @@ def test_invalid_non_trigger_input_corner_case(web_fixture, query_string_fixture
         def submit(self):
             raise DomainException(message='An exception happened on submit')
 
-        @exposed
-        def events(self, events):
-            events.choice_changed = Event(action=Action(self.recalculate))
-            events.submit = Event(action=Action(self.submit))
+        events = ExposedNames()
+        events.choice_changed = lambda i: Event(action=Action(i.recalculate))
+        events.submit = lambda i: Event(action=Action(i.submit))
 
-        @exposed
-        def fields(self, fields):
-            fields.choice = ChoiceField([Choice(1, IntegerField(label='One')),
-                                        Choice(2, IntegerField(label='Two')),
-                                        Choice(3, IntegerField(label='Three'))],
-                                        label='Choice')
-            fields.choice3 = ChoiceField([Choice(7, IntegerField(label='Seven')),
-                                        Choice(8, IntegerField(label='Eight')),
-                                        Choice(9, IntegerField(label='Nine'))],
-                                        label='Choice3')
-            fields.calculated_state = IntegerField(label='Calculated', writable=Allowed(False))
+        fields = ExposedNames()
+        fields.choice = lambda i: ChoiceField([Choice(1, IntegerField(label='One')),
+                                               Choice(2, IntegerField(label='Two')),
+                                               Choice(3, IntegerField(label='Three'))],
+                                              label='Choice')
+        fields.choice3 = lambda i: ChoiceField([Choice(7, IntegerField(label='Seven')),
+                                                Choice(8, IntegerField(label='Eight')),
+                                                Choice(9, IntegerField(label='Nine'))],
+                                               label='Choice3')
+        fields.calculated_state = lambda i: IntegerField(label='Calculated', writable=Allowed(False))
 
     class MyForm(Form):
         def __init__(self, view, an_object):

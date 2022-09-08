@@ -29,7 +29,7 @@ from reahl.component.exceptions import ProgrammerError, DomainException
 from reahl.component.exceptions import arg_checks
 from reahl.component.i18n import Catalogue
 from reahl.component.context import ExecutionContext
-from reahl.component.modelinterface import exposed, ValidationConstraintList, ValidationConstraint, ExpectedInputNotFound,\
+from reahl.component.modelinterface import ExposedNames, ValidationConstraintList, ValidationConstraint, ExpectedInputNotFound,\
     Field, Event, BooleanField, Choice, UploadedFile, InputParseException, StandaloneFieldIndex, MultiChoiceField, ChoiceField, Action
 from reahl.web.csrf import CSRFTokenField
 from reahl.web.fw import EventChannel, RemoteMethod, JsonResult, Widget, \
@@ -213,9 +213,7 @@ class HashChangeHandler:
 
     @property
     def argument_defaults(self):
-        i = StandaloneFieldIndex()
-        i.update(dict([(field.name_in_input, field) for field in self.for_fields]))
-        field_defaults = i.as_input_kwargs() # TODO: should this not sometimes be i.user_input????
+        field_defaults = self.for_fields.as_input_kwargs() # TODO: should this not sometimes be i.user_input????
         argument_defaults = ['"%s": "%s"' % (name, default_value or '') \
                              for name, default_value in field_defaults.items()]
         return '{%s}' % ','.join(argument_defaults)
@@ -300,9 +298,9 @@ class HTMLElement(Widget):
 
         if not self.css_id_is_set:
             raise ProgrammerError('%s does not have a css_id set. A fixed css_id is mandatory when a Widget self-refreshes' % self)
-        assert all([(field in self.query_fields.values()) for field in for_fields])
+        assert all([(self.query_fields.contains_instantiated_value(field)) for field in for_fields])
 
-        self.add_hash_change_handler(for_fields if for_fields else self.query_fields.values())
+        self.add_hash_change_handler(StandaloneFieldIndex.from_list(for_fields) if for_fields else self.query_fields)
         if on_refresh:
             self.on_refresh = on_refresh
             self.fire_on_refresh()
@@ -1101,14 +1099,12 @@ class Form(HTMLElement):
     def coactive_widgets(self):
         return super().coactive_widgets + [self.hash_inputs]
 
-    @exposed
-    def fields(self, fields):
-        fields._reahl_database_concurrency_digest = Field().with_validation_constraint(ConcurrentChange(self))
-        fields._reahl_csrf_token = CSRFTokenField(self._reahl_csrf_token)
+    fields = ExposedNames()
+    fields._reahl_database_concurrency_digest = lambda i: Field().with_validation_constraint(ConcurrentChange(i))
+    fields._reahl_csrf_token = lambda i: CSRFTokenField(i._reahl_csrf_token)
 
-    @exposed
-    def events(self, events):
-        events.reset = Event(label=_('Reset input'), action=Action(self.clear_view_data))
+    events = ExposedNames()
+    events.reset = lambda i: Event(label=_('Reset input'), action=Action(i.clear_view_data))
 
     def clear_view_data(self):
         self.clear_all_saved_data()
@@ -1467,7 +1463,7 @@ class HTMLWidget(Widget):
         self.html_representation = None
 
     def enable_refresh(self, *for_fields):
-        self.html_representation.query_fields.update(self.query_fields)
+        self.html_representation.query_fields.update_from_other(self.query_fields)
         self.html_representation.enable_refresh(*for_fields)
 
     @property
@@ -2119,7 +2115,7 @@ class TextInput(PrimitiveInput):
        .. versionchanged:: 5.0
           Added `ignore_concurrent_change`
 
-       .. versionchanged:: 6.2
+       .. versionchanged:: 6.1
           Changed `placeholder to display the default of the field under certain conditions`
 
     """

@@ -27,7 +27,7 @@ Bootstrap-styled versions of Forms, Inputs and related Layouts.
 from reahl.component.exceptions import arg_checks, IsInstance, ProgrammerError
 from reahl.component.i18n import Catalogue
 from reahl.component.modelinterface import BooleanField, MultiChoiceField, Choice, Field, ChoiceField
-from reahl.component.modelinterface import exposed, Event, Action
+from reahl.component.modelinterface import Event, Action
 
 import reahl.web.ui
 from reahl.web.fw import Layout, ValidationException
@@ -85,7 +85,7 @@ class TextInput(reahl.web.ui.TextInput):
        .. versionchanged:: 5.0
           Added `ignore_concurrent_change`
 
-       .. versionchanged:: 6.2
+       .. versionchanged:: 6.1
           Changed `placeholder to display the default of the field under certain conditions`
 
     """

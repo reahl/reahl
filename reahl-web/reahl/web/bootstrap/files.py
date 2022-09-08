@@ -24,7 +24,7 @@ Styled Inputs that allow a user to choose or upload files.
 
 
 from reahl.component.i18n import Catalogue
-from reahl.component.modelinterface import exposed, Action, Event, Field, UploadedFile
+from reahl.component.modelinterface import ExposedNames, Action, Event, Field, UploadedFile
 from reahl.component.context import ExecutionContext
 import reahl.web.ui
 from reahl.web.ui import UniqueFilesConstraint
@@ -173,20 +173,21 @@ class FileUploadPanel(Div):
     def bound_field(self):
         return self.file_upload_input.bound_field
 
-    @exposed
-    def events(self, events):
-        events.upload_file = Event(label=_('Upload'), action=Action(self.upload_file))
-        events.remove_file = Event(label=_('Remove'),
-                                   action=Action(self.remove_file, ['filename']),
-                                   filename=Field(required=True))
+    events = ExposedNames()
+    events.upload_file = lambda i: Event(label=_('Upload'), action=Action(i.upload_file))
+    events.remove_file = lambda i: Event(label=_('Remove'),
+                                         action=Action(i.remove_file, ['filename']),
+                                         filename=Field(required=True))
 
-    @exposed
-    def fields(self, fields):
-        fields.uploaded_file = self.bound_field.unbound_copy()
-        fields.uploaded_file.disallow_multiple()
-        fields.uploaded_file.label = _('Add file')
-        fields.uploaded_file.make_optional()
-        fields.uploaded_file.add_validation_constraint(UniqueFilesConstraint(self.input_form, self.bound_field.name_in_input))
+    fields = ExposedNames()
+    def create_uploaded_file_field(i):
+        field = i.bound_field.unbound_copy()
+        field.disallow_multiple()
+        field.label = _('Add file')
+        field.make_optional()
+        field.add_validation_constraint(UniqueFilesConstraint(i.input_form, i.bound_field.name_in_input))
+        return field
+    fields.uploaded_file = create_uploaded_file_field
 
     def attach_jq_widget(self, selector, widget_name, **options):
         def js_repr(value):

@@ -16,7 +16,7 @@
 
 
 
-from reahl.component.modelinterface import exposed, Field, Event, Action, Choice, IntegerField
+from reahl.component.modelinterface import ExposedNames, Field, Event, Action, Choice, IntegerField
 from reahl.component.exceptions import DomainException
 from reahl.web.fw import UserInterface
 from reahl.web.layout import PageLayout
@@ -81,16 +81,14 @@ class Calculator(Base):
     operator        = Column(UnicodeText)
     result          = Column(Integer)
 
-    @exposed
-    def fields(self, fields):
-        fields.operand_a  = IntegerField(label='A', required=True)
-        fields.operand_b  = IntegerField(label='B', required=True)
-        fields.operator   = ChoiceField([Choice('plus', Field(label='+')),
+    fields = ExposedNames()
+    fields.operand_a  = lambda i: IntegerField(label='A', required=True)
+    fields.operand_b  = lambda i: IntegerField(label='B', required=True)
+    fields.operator   = lambda i: ChoiceField([Choice('plus', Field(label='+')),
                                           Choice('divide', Field(label='÷'))], required=True)
 
-    @exposed
-    def events(self, events):
-        events.inputs_changed = Event(action=Action(self.recalculate))
+    events = ExposedNames()
+    events.inputs_changed = lambda i: Event(action=Action(i.recalculate))
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

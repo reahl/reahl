@@ -21,7 +21,7 @@ from sqlalchemy import Column, Integer, UnicodeText
 from reahl.stubble import stubclass
 from reahl.tofu import Fixture, scenario
 from reahl.tofu.pytestsupport import with_fixtures, uses
-from reahl.component.modelinterface import exposed, Field, Event, PatternConstraint, Action
+from reahl.component.modelinterface import ExposedNames, Field, Event, PatternConstraint, Action
 from reahl.component.exceptions import DomainException
 from reahl.web.fw import Widget
 from reahl.web.ui import Form, ButtonInput, TextInput, FormLayout, PrimitiveInput, HTMLElement, Div
@@ -40,14 +40,12 @@ class OptimisticConcurrencyFixture(Fixture):
             id = Column(Integer, primary_key=True)
             some_field = Column(UnicodeText)
 
-            @exposed
-            def fields(self, fields):
-                fields.some_field = Field(label='Some field', default='not set').with_validation_constraint(PatternConstraint('((?!invalidinput).)*'))
+            fields = ExposedNames()
+            fields.some_field = lambda i: Field(label='Some field', default='not set').with_validation_constraint(PatternConstraint('((?!invalidinput).)*'))
 
-            @exposed
-            def events(self, events):
-                events.submit = Event(label='Submit')
-                events.submit_break = Event(label='Submit break', action=Action(self.always_break))
+            events = ExposedNames()
+            events.submit = lambda i: Event(label='Submit')
+            events.submit_break = lambda i: Event(label='Submit break', action=Action(i.always_break))
 
             def always_break(self):
                 raise DomainException('boo')
@@ -81,7 +79,6 @@ class OptimisticConcurrencyFixture(Fixture):
 
     def make_concurrent_change_in_backend(self):
         self.model_object.some_field = 'changed by someone else'
-        delattr(self.model_object, '__exposed__')  # to throw away state from the previous request which in production code won't be there on a subsequent request
 
     def concurrent_change_is_present(self):
         return self.model_object.some_field == 'changed by someone else'
@@ -332,9 +329,8 @@ class OptimisticConcurrencyWithAjaxFixture(OptimisticConcurrencyFixture):
         class ModelObject(SuperModelObject):
             some_trigger_field = Column(UnicodeText)
 
-            @exposed
-            def fields(self, fields):
-                fields.some_trigger_field = Field(label='Some trigger field', default='not set')
+            fields = ExposedNames()
+            fields.some_trigger_field = lambda i: Field(label='Some trigger field', default='not set')
 
         return ModelObject
 

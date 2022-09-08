@@ -31,37 +31,36 @@ from reahl.sqlalchemysupport import Session, PersistedField, Base
 from reahl.component.modelinterface import Action
 from reahl.component.modelinterface import CurrentUser
 from reahl.component.modelinterface import Event
-from reahl.component.modelinterface import exposed
+from reahl.component.modelinterface import ExposedNames
 from reahl.component.modelinterface import secured
 from reahl.domain.partymodel import Party
 
 _ = Catalogue('reahl-domain')
 
 class WorkflowInterface:
-    """An object that @exposes a number of Events that user interface 
+    """An object that exposes a number of Events that user interface 
        Widgets can use to access the functionality of this module.
        
        Obtain an instance of WorkflowInterface by merely instantiating it.
 
-       **@exposed events:**
+       **exposed events:**
        
         - take_task = Requests that the given task be reserved for the account currently logged in.
         - defer_task = Indicates that the current user will tend to the given task later.
         - go_to_task = Indicates that the current user is attending to a task previously deferred.
         - release_task = Releases the current task back into the que for other users to tend to.
     """
-    @exposed
-    def events(self, events):
-        events.take_task = Event(label=_('Take'), 
+    events = ExposedNames()
+    events.take_task = lambda i: Event(label=_('Take'), 
                                  action=Action(Task.reserve_for, ['task', 'party']),
                                  task=PersistedField(Task, required=True),
                                  party=CurrentUser())
-        events.defer_task = Event(label=_('Defer'))
-        events.go_to_task = Event(label=_('Go to'),
+    events.defer_task = lambda i: Event(label=_('Defer'))
+    events.go_to_task = lambda i: Event(label=_('Go to'),
                                   task=PersistedField(Task, required=True),
                                   party=CurrentUser(),
                                   readable=Action(Task.is_reserved_for, ['task', 'party']))
-        events.release_task = Event(label=_('Release'),
+    events.release_task = lambda i: Event(label=_('Release'),
                                     action=Action(Task.release, ['task']),
                                     task=PersistedField(Task, required=True),
                                     party=CurrentUser())
