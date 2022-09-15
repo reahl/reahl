@@ -2344,18 +2344,34 @@ class WidgetResult(MethodResult):
 
        A JavaScript `<script>` tag is rendered also, containing the JavaScript activating code for the 
        new contents of this refreshed Widget.
+
+       .. versionchanged:: 6.1
+       result_widget parameter changed to be a list, renamed to result_widgets.
+       Deprecated kwarg as_json_and_result
     """
 
-    def __init__(self, result_widget, as_json_and_result=False):
+    def __init__(self, result_widgets, as_json_and_result=None):
+        if as_json_and_result is None:
+            as_json_and_result = True
+        else:
+            warnings.warn('DEPRECATED: as_json_and_result kwarg will be removed, and forced to True in 7.0', DeprecationWarning, stacklevel=1)            
+        if not isinstance(result_widgets, list):
+            warnings.warn('DEPRECATED: result_widgets should be a list', DeprecationWarning, stacklevel=1)
+            result_widgets = [result_widgets]
+        if not as_json_and_result and len(result_widgets) > 1:
+            raise ProgrammerError('Only one result_widget allowed when as_json_and_result is True')
+
         mime_type = 'application/json' if as_json_and_result else 'text/html'
         super().__init__(mime_type=mime_type, encoding='utf-8', catch_exception=DomainException, replay_request=True)
-        self.result_widget = result_widget
+        self.result_widgets = result_widgets
         self.as_json_and_result = as_json_and_result
 
     def render_as_json(self, exception):
-        widgets_to_render = set(self.get_coactive_widgets_recursively(self.result_widget))
-        widgets_to_render.add(self.result_widget)
-        rendered_widgets = {widget.css_id: widget.render_contents() + widget.render_contents_js() 
+        widgets_to_render = set()
+        for widget in self.result_widgets:
+            widgets_to_render.add(widget)
+            widgets_to_render.update(self.get_coactive_widgets_recursively(widget))
+        rendered_widgets = {widget.css_id: widget.render_contents() + widget.render_contents_js()
                             for widget in widgets_to_render}
         success = exception is None
         report_exception = str(exception) if exception and not exception.handled_inline else ''
@@ -2390,7 +2406,7 @@ class WidgetResult(MethodResult):
     def render(self, return_value):
         if self.as_json_and_result:
             return self.render_as_json(None)
-        return self.result_widget.render_contents() + self.result_widget.render_contents_js()
+        return self.result_widgets[0].render_contents() + self.result_widgets[0].render_contents_js()
 
     def render_exception(self, exception):
         if self.as_json_and_result:
@@ -2579,7 +2595,7 @@ class EventChannel(RemoteMethod):
 
     def make_result(self, input_values):
         if '_noredirect' in input_values.keys():
-            return WidgetResult(self.form.rendered_form, as_json_and_result=True)
+            return WidgetResult([self.form.rendered_form])
         else:
             return RedirectAfterPost()
 

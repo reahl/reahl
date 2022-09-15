@@ -166,7 +166,7 @@ class HTMLAttributeDict(dict):
 class AjaxMethod(RemoteMethod):
     def __init__(self, widget):
         method_name = 'refresh_%s' % widget.css_id
-        super().__init__(widget.view, method_name, self.fire_ajax_event, WidgetResult(widget, as_json_and_result=True), immutable=True, method='post')
+        super().__init__(widget.view, method_name, self.fire_ajax_event, WidgetResult([widget]), immutable=True, method='post')
         self.widget = widget
         
     def cleanup_after_exception(self, input_values, ex):
