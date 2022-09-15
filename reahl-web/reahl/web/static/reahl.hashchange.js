@@ -120,7 +120,7 @@ $.widget('reahl.hashchange', {
             cache: true,
             errorMessage: 'Ajax error',
             timeoutMessage: 'Ajax timeout',
-            params: []
+            params: {}
     },
 
     _create: function() {
