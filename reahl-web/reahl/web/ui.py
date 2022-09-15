@@ -164,10 +164,9 @@ class HTMLAttributeDict(dict):
 
 
 class AjaxMethod(RemoteMethod):
-    def __init__(self, widget):
-        method_name = 'refresh_%s' % widget.css_id
-        super().__init__(widget.view, method_name, self.fire_ajax_event, WidgetResult([widget]), immutable=True, method='post')
-        self.widget = widget
+    def __init__(self, widgets, method_name):
+        super().__init__(widgets[0].view, method_name, self.fire_ajax_event, WidgetResult(widgets), immutable=True, method='post')
+        self.widgets = widgets
         
     def cleanup_after_exception(self, input_values, ex):
         self.view.save_last_construction_state()
@@ -193,7 +192,8 @@ class AjaxMethod(RemoteMethod):
             widget.accept_disambiguated_input(state)
 
         try:
-            self.widget.fire_on_refresh()
+            for widget in self.widgets:
+                widget.fire_on_refresh()
         finally:
             construction_state = {}
             for widget in self.view.page.contained_widgets():
@@ -208,7 +208,7 @@ class HashChangeHandler:
         self.timeout_message = _('The server took too long to respond. Please try again later.')
         self.widget = widget
         self.for_fields = for_fields
-        self.remote_method = AjaxMethod(widget)
+        self.remote_method = AjaxMethod([widget], 'refresh_%s' % widget.css_id)
         widget.view.add_resource(self.remote_method)
 
     @property
