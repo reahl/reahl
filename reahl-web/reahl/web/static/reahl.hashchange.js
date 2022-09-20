@@ -151,20 +151,20 @@ $.widget('reahl.hashchange', {
         var namespaced_hashchange = 'hashchange.'+this.element.attr('id');
         $(window).off(namespaced_hashchange).on(namespaced_hashchange, function(e) {
             var newState = $.extend(true, getCurrentState(), getTraditionallyNamedFragment());
-            _this.handleStateChanged(newState, function(){}, false);
+            _this.handleStateChanged(_this.options.url, newState, function(){}, false);
         });
         setTimeout(function() { $(window).trigger('hashchange'); }, 0);
     },
-    forceReload: function(afterHandler) { 
-        this.handleStateChanged(getCurrentState(), afterHandler, true);
+    forceReload: function(refreshUrl, afterHandler) {
+        this.handleStateChanged(refreshUrl, getCurrentState(), afterHandler, true);
     },
-    handleStateChanged: function(newState, afterHandler, forceChanged) {
+    handleStateChanged: function(refreshUrl, newState, afterHandler, forceChanged) {
         var relevantFormInputs = this.getFormInputsAsArguments({});
         newState = this.addArgumentsToState(newState, relevantFormInputs);
         history.replaceState(newState, null, null);
         var changedArguments = this.calculateChangedArguments(newState);
         if (forceChanged || this.hasChanged(changedArguments)) {
-            this.triggerChange(newState, changedArguments, afterHandler);
+            this.triggerChange(refreshUrl, newState, changedArguments, afterHandler);
         };
     },
     navigatedHereViaHistoryButtons: function() {
@@ -224,14 +224,14 @@ $.widget('reahl.hashchange', {
             return new WidgetArgument(primitiveInput.getName(), primitiveInput.getCurrentInputValue()); 
         }).filter(function(i,v){ return ! (v.name in values) });
     },
-    triggerChange: function(newState, newArguments, afterHandler) {
+    triggerChange: function(refreshUrl, newState, newArguments, afterHandler) {
         var _this = this;
 
         var data = {};
         data['__reahl_client_side_state__'] = $.param(_this.calculatePOSTFragment(newState, newArguments), true);  
 
         _this.element.block(blockOptions({cursor: 'wait'}));
-        $.ajax({url:     this.options.url,
+        $.ajax({url:     refreshUrl,
                 method:  'POST',
                 cache:   _this.options.cache,
                 data:    data,

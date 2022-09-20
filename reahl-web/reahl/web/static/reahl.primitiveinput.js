@@ -51,8 +51,8 @@
                 });
 
                 this.element.on('change', function(e) {
-                    if (_this.isValid()) { 
-                        $('#'+_this.getRefreshWidgetId()).data('reahlHashchange').forceReload(function(){
+                    if (_this.isValid()) {
+                        $('#'+_this.getRefreshWidgetId()).data('reahlHashchange').forceReload(o.url, function(){
                             _this.resetFocus(_this.lastFocussedElementOnTab || $(e.target));
                             _this.clearTabStatus();
                         });

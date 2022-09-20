@@ -261,6 +261,40 @@ def test_refresh_input_can_be_set_after_input_is_created(web_fixture, query_stri
 
 
 @with_fixtures(WebFixture, QueryStringFixture, ResponsiveDisclosureFixture)
+def test_refresh_can_be_list(web_fixture, query_string_fixture, responsive_disclosure_fixture):
+    """"""
+    fixture = responsive_disclosure_fixture
+
+    class MyForm(Form):
+        def __init__(self, view, an_object):
+            super().__init__(view, 'myform')
+            self.use_layout(FormLayout())
+            trigger_input = self.layout.add_input(SelectInput(self, an_object.fields.choice))
+
+            refreshed_widget1 = self.add_child(P(self.view, text='My state is now %s' % an_object.choice))
+            refreshed_widget1.set_id('refreshing-paragraph1')
+            refreshed_widget1.enable_refresh()
+
+            refreshed_widget2 = self.add_child(P(self.view, text='Another state is now %s' % (an_object.choice*2)))
+            refreshed_widget2.set_id('refreshing-paragraph2')
+            refreshed_widget2.enable_refresh()
+
+            trigger_input.set_refresh_widgets([refreshed_widget1, refreshed_widget2])
+
+    fixture.MyForm = MyForm
+
+    wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=fixture.MainWidget.factory())
+    web_fixture.reahl_server.set_app(wsgi_app)
+    browser = web_fixture.driver_browser
+    browser.open('/')
+
+    assert browser.wait_for(query_string_fixture.is_state_now, 1)
+    assert browser.wait_for(query_string_fixture.is_state_labelled_now, 'Another state',  2)
+    browser.select(XPath.select_labelled('Choice'), 'Three')
+    assert browser.wait_for(query_string_fixture.is_state_now, 3)
+    assert browser.wait_for(query_string_fixture.is_state_labelled_now, 'Another state',  6)
+
+@with_fixtures(WebFixture, QueryStringFixture, ResponsiveDisclosureFixture)
 def test_handle_ajax_error(web_fixture, query_string_fixture, responsive_disclosure_fixture):
     """."""
     fixture = responsive_disclosure_fixture
