@@ -117,9 +117,6 @@ function WidgetArgument(name, defaultValue) {
 $.widget('reahl.hashchange', {
     options: {
             url: '',
-            cache: true,
-            errorMessage: 'Ajax error',
-            timeoutMessage: 'Ajax timeout',
             params: {}
     },
 
@@ -233,7 +230,6 @@ $.widget('reahl.hashchange', {
         _this.element.block(blockOptions({cursor: 'wait'}));
         $.ajax({url:     refreshUrl,
                 method:  'POST',
-                cache:   _this.options.cache,
                 data:    data,
                 success: function(data, status, xhr){
                     if (xhr.getResponseHeader("content-type").startsWith("application/json")) {

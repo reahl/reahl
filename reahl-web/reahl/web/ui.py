@@ -168,9 +168,7 @@ class AjaxMethod(RemoteMethod):
     def __init__(self, widgets, method_name):
         super().__init__(widgets[0].view, method_name, self.fire_ajax_event, WidgetResult(widgets), immutable=True, method='post')
         self.widgets = widgets
-        self.error_message = _('An error occurred when contacting the server. Please try again later.')
-        self.timeout_message = _('The server took too long to respond. Please try again later.')
-        
+
     def cleanup_after_exception(self, input_values, ex):
         self.view.save_last_construction_state()
         self.persist_invalid_input()
@@ -204,7 +202,7 @@ class AjaxMethod(RemoteMethod):
             self.view.set_construction_state_from_state_dict(construction_state)
 
     def as_jquery_parameter(self):
-        return {'url':str(self.get_url()), 'errorMessage': self.error_message, 'timeoutMessage': self.timeout_message}
+        return {'url':str(self.get_url())}
 
 
 # Uses: reahl/web/reahl.hashchange.js
@@ -1655,9 +1653,10 @@ class PrimitiveInput(Input):
 
         .. versionadded:: 6.1
         """
-        # if not refresh_widget.is_refresh_enabled:
-        #     raise ProgrammerError(
-        #         '%s is not set to refresh. You can only refresh widgets on which enable_refresh() was called.' % refresh_widget)
+        for widget in refresh_widgets:
+            if not widget.is_refresh_enabled:
+                raise ProgrammerError(
+                    '%s is not set to refresh. You can only refresh widgets on which enable_refresh() was called.' % refresh_widget)
         self.set_attribute('data-refresh-widget-id', refresh_widgets[0].css_id)
         if self.refresh_widgets:
             raise ProgrammerError('The refresh widgets on %s have already been set' % self)

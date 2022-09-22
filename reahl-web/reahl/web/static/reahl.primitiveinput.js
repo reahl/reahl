@@ -21,10 +21,7 @@
     
     $.widget("reahl.primitiveinput", {
         options: {
-            url: '',
-            cache: true,
-            errorMessage: 'Ajax error',
-            timeoutMessage: 'Ajax timeout'
+            url: ''
         },
 
         _create: function() {
