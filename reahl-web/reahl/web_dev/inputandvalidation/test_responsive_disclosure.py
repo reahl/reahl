@@ -25,9 +25,9 @@ from reahl.tofu.pytestsupport import with_fixtures
 
 from reahl.web_dev.fixtures import WebFixture
 from reahl.browsertools.browsertools import XPath
-from reahl.web.fw import Widget
+from reahl.web.fw import Widget, Url
 from reahl.web.ui import Form, Div, SelectInput, Label, P, RadioButtonSelectInput, CheckboxSelectInput, \
-    CheckboxInput, ButtonInput, TextInput, FormLayout
+    CheckboxInput, ButtonInput, TextInput, FormLayout, A
 from reahl.component.modelinterface import Field, BooleanField, MultiChoiceField, ChoiceField, Choice, ExposedNames, \
     IntegerField, EmailField, Event, Action, Allowed
 from reahl.component.exceptions import DomainException
@@ -267,7 +267,9 @@ def test_refresh_can_be_list(web_fixture, query_string_fixture, responsive_discl
 
     class MyForm(Form):
         def __init__(self, view, an_object):
+            self.arg = 'default'
             super().__init__(view, 'myform')
+            self.enable_refresh()
             self.use_layout(FormLayout())
             trigger_input = self.layout.add_input(SelectInput(self, an_object.fields.choice))
 
@@ -275,11 +277,16 @@ def test_refresh_can_be_list(web_fixture, query_string_fixture, responsive_discl
             refreshed_widget1.set_id('refreshing-paragraph1')
             refreshed_widget1.enable_refresh()
 
-            refreshed_widget2 = self.add_child(P(self.view, text='Another state is now %s' % (an_object.choice*2)))
+            refreshed_widget2 = self.add_child(P(self.view, text='%s Another state is now %s' % (self.arg, an_object.choice*2)))
             refreshed_widget2.set_id('refreshing-paragraph2')
             refreshed_widget2.enable_refresh()
 
             trigger_input.set_refresh_widgets([refreshed_widget1, refreshed_widget2])
+
+            link = self.add_child(A(view, Url('#arg=changed'), description='Hash change link'))
+
+        query_fields = ExposedNames()
+        query_fields.arg = lambda i: Field()
 
     fixture.MyForm = MyForm
 
@@ -289,10 +296,16 @@ def test_refresh_can_be_list(web_fixture, query_string_fixture, responsive_discl
     browser.open('/')
 
     assert browser.wait_for(query_string_fixture.is_state_now, 1)
-    assert browser.wait_for(query_string_fixture.is_state_labelled_now, 'Another state',  2)
+    assert browser.wait_for(query_string_fixture.is_state_labelled_now, 'default Another state',  2)
     browser.select(XPath.select_labelled('Choice'), 'Three')
     assert browser.wait_for(query_string_fixture.is_state_now, 3)
-    assert browser.wait_for(query_string_fixture.is_state_labelled_now, 'Another state',  6)
+    assert browser.wait_for(query_string_fixture.is_state_labelled_now, 'default Another state',  6)
+
+    browser.click(XPath.link().with_text('Hash change link'))
+    assert browser.wait_for(query_string_fixture.is_state_labelled_now, 'changed Another state',  6)
+    browser.select(XPath.select_labelled('Choice'), 'Two')
+    assert browser.wait_for(query_string_fixture.is_state_labelled_now, 'changed Another state',  4)
+
 
 @with_fixtures(WebFixture, QueryStringFixture, ResponsiveDisclosureFixture)
 def test_handle_ajax_error(web_fixture, query_string_fixture, responsive_disclosure_fixture):

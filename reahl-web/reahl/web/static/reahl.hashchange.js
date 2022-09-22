@@ -156,11 +156,15 @@ $.widget('reahl.hashchange', {
         this.handleStateChanged(refreshUrl, getCurrentState(), afterHandler, true);
     },
     handleStateChanged: function(refreshUrl, newState, afterHandler, forceChanged) {
-        var relevantFormInputs = this.getFormInputsAsArguments({});
-        newState = this.addArgumentsToState(newState, relevantFormInputs);
-        history.replaceState(newState, null, null);
         var changedArguments = this.calculateChangedArguments(newState);
         if (forceChanged || this.hasChanged(changedArguments)) {
+
+            var relevantFormInputs = this.getFormInputsAsArguments({});
+            newState = this.addArgumentsToState(newState, relevantFormInputs);
+            newState = this.addArgumentsToState(newState, changedArguments);
+
+            this.filterQueryStringArgsFromState(newState, refreshUrl);
+            history.replaceState(newState, null, null);
             this.triggerChange(refreshUrl, newState, changedArguments, afterHandler);
         };
     },
@@ -204,16 +208,13 @@ $.widget('reahl.hashchange', {
         }
         return values;
     },
-    calculatePOSTFragment(currentState, widgetArguments) {
-        var values = this.addArgumentsToState(currentState, widgetArguments);
-        var urlQueryString = $.deparam.querystring(this.options.url);
+    filterQueryStringArgsFromState: function(state, refreshUrl){
+        var urlQueryString = $.deparam.querystring(refreshUrl);
         for (var i in urlQueryString) {
-            if (i in values){
-                delete values[i];
+            if (i in state){
+                delete state[i];
             }
         };
-        
-        return values;
     },
     getFormInputsAsArguments: function(values){
         return $('.reahl-primitiveinput').map(function(i, v) { 
@@ -225,7 +226,8 @@ $.widget('reahl.hashchange', {
         var _this = this;
 
         var data = {};
-        data['__reahl_client_side_state__'] = $.param(_this.calculatePOSTFragment(newState, newArguments), true);  
+
+        data['__reahl_client_side_state__'] = $.param(newState, true);
 
         _this.element.block(blockOptions({cursor: 'wait'}));
         $.ajax({url:     refreshUrl,

@@ -84,7 +84,7 @@ the one using |XPath| much more explicit and readable?
 
 .. code-block:: python
 
-   browser.click(XPath.link_labelled('News'))
+   browser.click(XPath.link().with_text('News'))
 
 Readable tests
 --------------
