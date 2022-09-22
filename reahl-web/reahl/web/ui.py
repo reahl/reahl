@@ -1657,10 +1657,10 @@ class PrimitiveInput(Input):
             if not widget.is_refresh_enabled:
                 raise ProgrammerError(
                     '%s is not set to refresh. You can only refresh widgets on which enable_refresh() was called.' % refresh_widget)
-        self.set_attribute('data-refresh-widget-id', refresh_widgets[0].css_id)
         if self.refresh_widgets:
             raise ProgrammerError('The refresh widgets on %s have already been set' % self)
         self.refresh_widgets = refresh_widgets
+        self.set_attribute('data-refresh-widget-ids', ','.join(['#%s'%w.css_id for w in self.refresh_widgets]))
         if self.html_control:
             css_id = self.html_control.css_id
         else:

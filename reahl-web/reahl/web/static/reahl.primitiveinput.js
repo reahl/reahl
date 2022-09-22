@@ -32,7 +32,7 @@
     
             this.getAllRelatedFormInputs().data('reahlPrimitiveinput', this);
 
-            if (this.getRefreshWidgetId()) {
+            if (this.getRefreshWidgetIds()) {
                 this.element.on('keydown', function(e) {
                     if ( e.which == 9 ) {;
                         _this.saveTabStatus(e.shiftKey)
@@ -49,7 +49,8 @@
 
                 this.element.on('change', function(e) {
                     if (_this.isValid()) {
-                        $('#'+_this.getRefreshWidgetId()).data('reahlHashchange').forceReload(o.url, function(){
+                        var widgetsToRefresh = $(_this.getRefreshWidgetIds());
+                        widgetsToRefresh.first().data('reahlHashchange').forceReload(o.url, widgetsToRefresh, function(){
                             _this.resetFocus(_this.lastFocussedElementOnTab || $(e.target));
                             _this.clearTabStatus();
                         });
@@ -114,8 +115,8 @@
             return this.getAllRelatedFormInputs().is('input[type="radio"]');
         },
 
-        getRefreshWidgetId: function() {
-            return this.element.attr('data-refresh-widget-id');
+        getRefreshWidgetIds: function() {
+            return this.element.attr('data-refresh-widget-ids');
         },
                     
         isForBooleanValue: function() {

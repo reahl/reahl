@@ -148,14 +148,14 @@ $.widget('reahl.hashchange', {
         var namespaced_hashchange = 'hashchange.'+this.element.attr('id');
         $(window).off(namespaced_hashchange).on(namespaced_hashchange, function(e) {
             var newState = $.extend(true, getCurrentState(), getTraditionallyNamedFragment());
-            _this.handleStateChanged(_this.options.url, newState, function(){}, false);
+            _this.handleStateChanged(_this.options.url, _this.element, newState, function(){}, false);
         });
         setTimeout(function() { $(window).trigger('hashchange'); }, 0);
     },
-    forceReload: function(refreshUrl, afterHandler) {
-        this.handleStateChanged(refreshUrl, getCurrentState(), afterHandler, true);
+    forceReload: function(refreshUrl, widgetsToRefresh, afterHandler) {
+        this.handleStateChanged(refreshUrl, widgetsToRefresh, getCurrentState(), afterHandler, true);
     },
-    handleStateChanged: function(refreshUrl, newState, afterHandler, forceChanged) {
+    handleStateChanged: function(refreshUrl, widgetsToRefresh, newState, afterHandler, forceChanged) {
         var changedArguments = this.calculateChangedArguments(newState);
         if (forceChanged || this.hasChanged(changedArguments)) {
 
@@ -165,7 +165,7 @@ $.widget('reahl.hashchange', {
 
             this.filterQueryStringArgsFromState(newState, refreshUrl);
             history.replaceState(newState, null, null);
-            this.triggerChange(refreshUrl, newState, changedArguments, afterHandler);
+            this.triggerChange(refreshUrl, widgetsToRefresh, newState, changedArguments, afterHandler);
         };
     },
     navigatedHereViaHistoryButtons: function() {
@@ -222,14 +222,14 @@ $.widget('reahl.hashchange', {
             return new WidgetArgument(primitiveInput.getName(), primitiveInput.getCurrentInputValue()); 
         }).filter(function(i,v){ return ! (v.name in values) });
     },
-    triggerChange: function(refreshUrl, newState, newArguments, afterHandler) {
+    triggerChange: function(refreshUrl, widgetsToRefresh, newState, newArguments, afterHandler) {
         var _this = this;
 
         var data = {};
 
         data['__reahl_client_side_state__'] = $.param(newState, true);
 
-        _this.element.block(blockOptions({cursor: 'wait'}));
+        widgetsToRefresh.block(blockOptions({cursor: 'wait'}));
         $.ajax({url:     refreshUrl,
                 method:  'POST',
                 data:    data,
@@ -239,9 +239,6 @@ $.widget('reahl.hashchange', {
                             alert(data.exception)
                             _this.reloadPage();
                         } else {
-                            _this.element.find('form').each(function (i, form) {
-                                $(form).validate().destroy();
-                            });
                             _this.replaceContents(data.result);
                             _this.arguments = newArguments;
                         }
@@ -256,7 +253,7 @@ $.widget('reahl.hashchange', {
                     window.location.href = errorUrl;
                 },
                 complete: function(data){
-                    _this.element.unblock();
+                    widgetsToRefresh.unblock();
                     afterHandler();
                 },
                 traditional: true
@@ -265,6 +262,11 @@ $.widget('reahl.hashchange', {
     replaceContents: function(widgetContents) {
         for (var cssId in widgetContents) {
             var widget = $('#'+cssId);
+
+            widget.find('form').each(function (i, form) {
+                $(form).validate().destroy();
+            });
+
             widget.html(widgetContents[cssId]);
         }
     },
