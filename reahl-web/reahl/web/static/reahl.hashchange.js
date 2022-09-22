@@ -156,6 +156,7 @@ $.widget('reahl.hashchange', {
         this.handleStateChanged(refreshUrl, widgetsToRefresh, getCurrentState(), afterHandler, true);
     },
     handleStateChanged: function(refreshUrl, widgetsToRefresh, newState, afterHandler, forceChanged) {
+        var _this = this;
         var changedArguments = this.calculateChangedArguments(newState);
         if (forceChanged || this.hasChanged(changedArguments)) {
 
@@ -165,7 +166,10 @@ $.widget('reahl.hashchange', {
 
             this.filterQueryStringArgsFromState(newState, refreshUrl);
             history.replaceState(newState, null, null);
-            this.triggerChange(refreshUrl, widgetsToRefresh, newState, changedArguments, afterHandler);
+            var afterContentsReplacedHandler = function(){
+                _this.arguments = changedArguments;
+            };
+            this.triggerChange(refreshUrl, widgetsToRefresh, newState, afterContentsReplacedHandler, afterHandler);
         };
     },
     navigatedHereViaHistoryButtons: function() {
@@ -222,7 +226,7 @@ $.widget('reahl.hashchange', {
             return new WidgetArgument(primitiveInput.getName(), primitiveInput.getCurrentInputValue()); 
         }).filter(function(i,v){ return ! (v.name in values) });
     },
-    triggerChange: function(refreshUrl, widgetsToRefresh, newState, newArguments, afterHandler) {
+    triggerChange: function(refreshUrl, widgetsToRefresh, newState, afterContentsReplacedHandler, afterHandler) {
         var _this = this;
 
         var data = {};
@@ -240,7 +244,7 @@ $.widget('reahl.hashchange', {
                             _this.reloadPage();
                         } else {
                             _this.replaceContents(data.result);
-                            _this.arguments = newArguments;
+                            afterContentsReplacedHandler();
                         }
                     } else {
                         document.open();
