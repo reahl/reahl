@@ -51,6 +51,70 @@ function mapToTraditionalNames(untraditionallyNamedArguments) {
     return traditionallyNamedArguments;
 }
 
+function replaceContents(widgetContents) {
+    for (var cssId in widgetContents) {
+        var widget = $('#'+cssId);
+
+        widget.find('form').each(function (i, form) {
+            $(form).validate().destroy();
+        });
+
+        widget.html(widgetContents[cssId]);
+    }
+}
+
+function reloadPage() {
+    $('body').block(blockOptions({cursor: 'wait'}));
+    window.location.replace(window.location.href.replace('#', '?'));
+//        location.reload(true);
+}
+
+function triggerChange(refreshUrl, widgetsToRefresh, newState, afterContentsReplacedHandler, afterHandler) {
+
+    var data = {};
+    data['__reahl_client_side_state__'] = $.param(newState, true);
+
+    widgetsToRefresh.block(blockOptions({cursor: 'wait'}));
+    
+    $.ajax({url:     refreshUrl,
+            method:  'POST',
+            data:    data,
+            success: function(data, status, xhr){
+                if (xhr.getResponseHeader("content-type").startsWith("application/json")) {
+                    if (data.exception) {
+                        alert(data.exception)
+                        reloadPage();
+                    } else {
+                        replaceContents(data.result);
+                        afterContentsReplacedHandler();
+                    }
+                } else {
+                    document.open();
+                    document.write(data);
+                    document.close();
+                }
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                var errorUrl = window.location.origin+"/error?error_message="+encodeURIComponent(errorThrown)+"&error_source_href="+encodeURIComponent(window.location.href);
+                window.location.href = errorUrl;
+            },
+            complete: function(data){
+                widgetsToRefresh.unblock();
+                afterHandler();
+            },
+            traditional: true
+    });
+}
+
+function filterQueryStringArgsFromState(state, refreshUrl){
+    var urlQueryString = $.deparam.querystring(refreshUrl);
+    for (var i in urlQueryString) {
+        if (i in state){
+            delete state[i];
+        }
+    };
+}
+
 function WidgetArgument(name, defaultValue) {
     this.name = name;
     this.value = defaultValue;
@@ -113,6 +177,41 @@ function WidgetArgument(name, defaultValue) {
     }
 }
 
+function calculateChangedArguments(currentState, arguments_) {
+    var widgetArguments = $.extend(true, [], arguments_);
+    for (var i=0; i<widgetArguments.length; i++) {
+        var argument = widgetArguments[i];
+        argument.updateFromStateObject(currentState);
+    };
+    return widgetArguments;
+}
+
+function hasChanged(newArguments){
+    var changed = false;
+    for (var i=0; i<newArguments.length; i++) {
+        var argument = newArguments[i];
+        if (argument.changed) {
+            changed = true;
+        };
+    }
+    return changed;
+}
+
+function addArgumentsToState(currentState, widgetArguments) {
+    var values = $.extend(true, {}, currentState);
+    for (var i=0; i<widgetArguments.length; i++) {
+        var argument = widgetArguments[i];
+        argument.updateStateObject(values);
+    }
+    return values;
+}
+
+function getFormInputsAsArguments(values){
+    return $('.reahl-primitiveinput').map(function(i, v) { 
+        var primitiveInput = $(v).data('reahlPrimitiveinput');
+        return new WidgetArgument(primitiveInput.getName(), primitiveInput.getCurrentInputValue()); 
+    });
+}
 
 $.widget('reahl.hashchange', {
     options: {
@@ -157,19 +256,18 @@ $.widget('reahl.hashchange', {
     },
     handleStateChanged: function(refreshUrl, widgetsToRefresh, newState, afterHandler, forceChanged) {
         var _this = this;
-        var changedArguments = this.calculateChangedArguments(newState);
-        if (forceChanged || this.hasChanged(changedArguments)) {
+        var changedArguments = calculateChangedArguments(newState, _this.getArguments());
+        if (forceChanged || hasChanged(changedArguments)) {
 
-            var relevantFormInputs = this.getFormInputsAsArguments({});
-            newState = this.addArgumentsToState(newState, relevantFormInputs);
-            newState = this.addArgumentsToState(newState, changedArguments);
+            newState = addArgumentsToState(newState, getFormInputsAsArguments());
+            newState = addArgumentsToState(newState, changedArguments);
 
-            this.filterQueryStringArgsFromState(newState, refreshUrl);
+            filterQueryStringArgsFromState(newState, refreshUrl);
             history.replaceState(newState, null, null);
             var afterContentsReplacedHandler = function(){
                 _this.arguments = changedArguments;
             };
-            this.triggerChange(refreshUrl, widgetsToRefresh, newState, afterContentsReplacedHandler, afterHandler);
+            triggerChange(refreshUrl, widgetsToRefresh, newState, afterContentsReplacedHandler, afterHandler);
         };
     },
     navigatedHereViaHistoryButtons: function() {
@@ -179,11 +277,6 @@ $.widget('reahl.hashchange', {
         } else {
             return (performance.navigation.type == 2);
         }
-    },
-    reloadPage: function() {
-        $('body').block(blockOptions({cursor: 'wait'}));
-        window.location.replace(window.location.href.replace('#', '?'));
-//        location.reload(true);
     },
     getArguments: function() {
         return this.arguments;
@@ -201,99 +294,9 @@ $.widget('reahl.hashchange', {
             partialFragment = $.extend(true, getCurrentState(), handledFragmentPart);
         }
         
-        completeFragment = this.addArgumentsToState(partialFragment, this.getArguments());
+        completeFragment = addArgumentsToState(partialFragment, this.getArguments());
         fragmentInput.val($.param(completeFragment, true));
-    },
-    addArgumentsToState(currentState, widgetArguments) {
-        var values = $.extend(true, {}, currentState);
-        for (var i=0; i<widgetArguments.length; i++) {
-            var argument = widgetArguments[i];
-            argument.updateStateObject(values);
-        }
-        return values;
-    },
-    filterQueryStringArgsFromState: function(state, refreshUrl){
-        var urlQueryString = $.deparam.querystring(refreshUrl);
-        for (var i in urlQueryString) {
-            if (i in state){
-                delete state[i];
-            }
-        };
-    },
-    getFormInputsAsArguments: function(values){
-        return $('.reahl-primitiveinput').map(function(i, v) { 
-            var primitiveInput = $(v).data('reahlPrimitiveinput');
-            return new WidgetArgument(primitiveInput.getName(), primitiveInput.getCurrentInputValue()); 
-        }).filter(function(i,v){ return ! (v.name in values) });
-    },
-    triggerChange: function(refreshUrl, widgetsToRefresh, newState, afterContentsReplacedHandler, afterHandler) {
-        var _this = this;
-
-        var data = {};
-
-        data['__reahl_client_side_state__'] = $.param(newState, true);
-
-        widgetsToRefresh.block(blockOptions({cursor: 'wait'}));
-        $.ajax({url:     refreshUrl,
-                method:  'POST',
-                data:    data,
-                success: function(data, status, xhr){
-                    if (xhr.getResponseHeader("content-type").startsWith("application/json")) {
-                        if (data.exception) {
-                            alert(data.exception)
-                            _this.reloadPage();
-                        } else {
-                            _this.replaceContents(data.result);
-                            afterContentsReplacedHandler();
-                        }
-                    } else {
-                        document.open();
-                        document.write(data);
-                        document.close();
-                    }
-                },
-                error: function(jqXHR, textStatus, errorThrown) {
-                    var errorUrl = window.location.origin+"/error?error_message="+encodeURIComponent(errorThrown)+"&error_source_href="+encodeURIComponent(window.location.href);
-                    window.location.href = errorUrl;
-                },
-                complete: function(data){
-                    widgetsToRefresh.unblock();
-                    afterHandler();
-                },
-                traditional: true
-        });
-    },
-    replaceContents: function(widgetContents) {
-        for (var cssId in widgetContents) {
-            var widget = $('#'+cssId);
-
-            widget.find('form').each(function (i, form) {
-                $(form).validate().destroy();
-            });
-
-            widget.html(widgetContents[cssId]);
-        }
-    },
-    hasChanged: function(newArguments){
-        var _this = this;
-        var changed = false;
-        for (var i=0; i<newArguments.length; i++) {
-            var argument = newArguments[i];
-            if (argument.changed) {
-                changed = true;
-            };
-        }
-        return changed;
-    },
-    calculateChangedArguments: function(currentState) {
-        var _this = this;
-        var widgetArguments = $.extend(true, [], _this.getArguments());
-        for (var i=0; i<widgetArguments.length; i++) {
-            var argument = widgetArguments[i];
-            argument.updateFromStateObject(currentState);
-        };
-        return widgetArguments;
-    },
+    }
 });
 
 $.extend($.reahl.hashchange, {
