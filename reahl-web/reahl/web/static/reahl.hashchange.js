@@ -69,6 +69,16 @@ function reloadPage() {
 //        location.reload(true);
 }
 
+function handleStateChanged(refreshUrl, widgetsToRefresh, newState, afterHandler, changedArguments, afterContentsReplacedHandler) {
+
+    newState = addArgumentsToState(newState, getFormInputsAsArguments());
+    newState = addArgumentsToState(newState, changedArguments);
+
+    filterQueryStringArgsFromState(newState, refreshUrl);
+    history.replaceState(newState, null, null);
+    triggerChange(refreshUrl, widgetsToRefresh, newState, afterContentsReplacedHandler, afterHandler);
+}
+
 function triggerChange(refreshUrl, widgetsToRefresh, newState, afterContentsReplacedHandler, afterHandler) {
 
     var data = {};
@@ -213,6 +223,10 @@ function getFormInputsAsArguments(values){
     });
 }
 
+$.fn.forceReload = function(refreshUrl, widgetsToRefresh, afterHandler) {
+    handleStateChanged(refreshUrl, widgetsToRefresh, getCurrentState(), afterHandler, [], function(){});
+}
+
 $.widget('reahl.hashchange', {
     options: {
             url: '',
@@ -247,28 +261,16 @@ $.widget('reahl.hashchange', {
         var namespaced_hashchange = 'hashchange.'+this.element.attr('id');
         $(window).off(namespaced_hashchange).on(namespaced_hashchange, function(e) {
             var newState = $.extend(true, getCurrentState(), getTraditionallyNamedFragment());
-            _this.handleStateChanged(_this.options.url, _this.element, newState, function(){}, false);
+            var changedArguments = calculateChangedArguments(newState, _this.getArguments());
+            if(hasChanged(changedArguments)){
+                var afterContentsReplacedHandler = function(){
+                    _this.arguments = changedArguments;
+                };
+        
+                handleStateChanged(_this.options.url, _this.element, newState, function(){}, changedArguments, afterContentsReplacedHandler);
+            }
         });
         setTimeout(function() { $(window).trigger('hashchange'); }, 0);
-    },
-    forceReload: function(refreshUrl, widgetsToRefresh, afterHandler) {
-        this.handleStateChanged(refreshUrl, widgetsToRefresh, getCurrentState(), afterHandler, true);
-    },
-    handleStateChanged: function(refreshUrl, widgetsToRefresh, newState, afterHandler, forceChanged) {
-        var _this = this;
-        var changedArguments = calculateChangedArguments(newState, _this.getArguments());
-        if (forceChanged || hasChanged(changedArguments)) {
-
-            newState = addArgumentsToState(newState, getFormInputsAsArguments());
-            newState = addArgumentsToState(newState, changedArguments);
-
-            filterQueryStringArgsFromState(newState, refreshUrl);
-            history.replaceState(newState, null, null);
-            var afterContentsReplacedHandler = function(){
-                _this.arguments = changedArguments;
-            };
-            triggerChange(refreshUrl, widgetsToRefresh, newState, afterContentsReplacedHandler, afterHandler);
-        };
     },
     navigatedHereViaHistoryButtons: function() {
         var performanceEntries = performance.getEntriesByType('navigation');

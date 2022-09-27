@@ -50,7 +50,7 @@
                 this.element.on('change', function(e) {
                     if (_this.isValid()) {
                         var widgetsToRefresh = $(_this.getRefreshWidgetIds());
-                        widgetsToRefresh.first().data('reahlHashchange').forceReload(o.url, widgetsToRefresh, function(){
+                        $.fn.forceReload(o.url, widgetsToRefresh, function(){
                             _this.resetFocus(_this.lastFocussedElementOnTab || $(e.target));
                             _this.clearTabStatus();
                         });
