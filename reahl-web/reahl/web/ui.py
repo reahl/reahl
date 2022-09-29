@@ -25,6 +25,7 @@ import json
 from collections import OrderedDict
 from collections.abc import Callable
 
+from reahl.component.decorators import deprecated
 from reahl.component.exceptions import IsInstance
 from reahl.component.exceptions import ProgrammerError, DomainException
 from reahl.component.exceptions import arg_checks
