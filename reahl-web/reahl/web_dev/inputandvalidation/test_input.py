@@ -296,7 +296,7 @@ class InputScenarios(SimpleInputFixture):
         checked_options = r'<label><input name="test-an_attribute[]" id="id-test-an_attribute-91--93--2" checked="checked" form="test" type="checkbox" value="2">Two</label>'
         checked_options += r'<label><input name="test-an_attribute[]" id="id-test-an_attribute-91--93--3" checked="checked" form="test" type="checkbox" value="3">Three</label>'
         options = not_checked_option + checked_options
-        self.expected_html = r'<div class="reahl-checkbox-input reahl-primitiveinput">%s</div>' % (options)
+        self.expected_html = r'<div id="id-test-an_attribute-91--93-" class="reahl-checkbox-input reahl-primitiveinput">%s</div>' % (options)
         self.bound_field = self.widget.bound_field
 
     @scenario
@@ -319,7 +319,7 @@ class InputScenarios(SimpleInputFixture):
                               'type="radio" value="%s">%s'\
                        '</label>'
 
-        outer_div = '<div class="reahl-primitiveinput reahl-radio-button-input">%s</div>'
+        outer_div = '<div id="id-test-an_attribute" class="reahl-primitiveinput reahl-radio-button-input">%s</div>'
         buttons = (radio_button % ('1', '', '', '1', 'One')) +\
                   (radio_button % ('2', ' checked="checked"', '', '2', 'Two'))
         self.expected_html = outer_div % buttons

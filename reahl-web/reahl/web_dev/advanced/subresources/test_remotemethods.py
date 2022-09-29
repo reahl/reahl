@@ -249,7 +249,7 @@ class ResultScenarios(Fixture):
 
     @scenario
     def widget(self):
-        self.method_result = WidgetResult(self.WidgetStub(self.web_fixture.view))
+        self.method_result = WidgetResult([self.WidgetStub(self.web_fixture.view)], as_json_and_result=False)
         self.value_to_return = 'ignored in this case'
         self.expected_response = '<the widget contents><script type="text/javascript">javascriptsome</script>'
         self.exception_response = Exception
@@ -259,8 +259,8 @@ class ResultScenarios(Fixture):
 
     @scenario
     def widget_as_json(self):
-        self.method_result = WidgetResult(self.WidgetStub(self.web_fixture.view), as_json_and_result=True)
-        self.web_fixture.view.page = self.method_result.result_widget
+        self.method_result = WidgetResult([self.WidgetStub(self.web_fixture.view)])
+        [self.web_fixture.view.page] = self.method_result.result_widgets
 
         self.value_to_return = 'ignored in this case'
         self.expected_response = {'result': {"someid": '<the widget contents><script type="text/javascript">javascriptsome</script>'},
@@ -422,7 +422,7 @@ class WidgetResultScenarios(Fixture):
         class WidgetWithRemoteMethod(Widget):
             def __init__(self, view):
                 super().__init__(view)
-                method_result = WidgetResult(fixture.WidgetStub(view), as_json_and_result=True)
+                method_result = WidgetResult([fixture.WidgetStub(view)])
                 def change_something():
                     fixture.changes_made = True
                     if fixture.exception:
@@ -500,7 +500,7 @@ def test_coactive_widgets(web_fixture):
             coactive_widgets = [self.add_child(CoactiveWidgetStub(view, 'coactive1', [self.add_child(CoactiveWidgetStub(view, 'coactive2', []))]))]
             result_widget = self.add_child(CoactiveWidgetStub(view, 'main', []))
             result_widget.add_child(CoactiveWidgetStub(view, 'child', coactive_widgets))
-            method_result = WidgetResult(result_widget, as_json_and_result=True)
+            method_result = WidgetResult([result_widget])
             remote_method = RemoteMethod(view, 'amethod', lambda: None, default_result=method_result, disable_csrf_check=True)
             view.add_resource(remote_method)
 
@@ -585,7 +585,7 @@ def test_what_is_included_in_coactive_widgets(web_fixture, coactive_scenarios):
     fixture.view.page = fixture.page
 
     with expected(fixture.expected_exception, fixture.expected_exception_regex):
-        coactive_widgets = WidgetResult(fixture.result_widget, as_json_and_result=True).get_coactive_widgets_recursively(fixture.result_widget)
+        coactive_widgets = WidgetResult([fixture.result_widget]).get_coactive_widgets_recursively(fixture.result_widget)
         assert set(coactive_widgets) == set(fixture.expected_coactive_widgets)
 
 

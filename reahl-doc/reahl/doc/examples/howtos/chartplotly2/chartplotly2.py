@@ -17,7 +17,7 @@ class ChartForm(Form):
 
         select_input = self.layout.add_input(SelectInput(self, self.fields.factor))  # Creating the input, sets self.factor
         chart = self.create_chart(self.factor)
-        select_input.set_refresh_widget(chart.contents)
+        select_input.set_refresh_widgets([chart.contents])
 
     def create_chart(self, factor):
         fig = self.create_line_chart_figure(factor)

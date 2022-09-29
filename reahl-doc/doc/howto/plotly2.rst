@@ -5,7 +5,7 @@
 .. |Input| replace:: :class:`~reahl.web.ui.Input`
 .. |SelectInput| replace:: :class:`~reahl.web.ui.SelectInput`
 .. |Field| replace:: :class:`~reahl.component.modelinterface.Field`
-.. |set_refresh_widget| replace:: :meth:`~reahl.web.ui.PrimitiveInput.set_refresh_widget`
+.. |set_refresh_widgets| replace:: :meth:`~reahl.web.ui.PrimitiveInput.set_refresh_widgets`
 
 Interacting with Plotly |Chart|
 ===============================
@@ -38,7 +38,7 @@ The `factor` attribute of `ChartForm` will only be updated in response to user c
 
 This means that you first initialise `factor`, then create the |SelectInput| to possibly update the default value of `factor`.
 After the creation of the |SelectInput|, create the |Chart| (which uses `factor`).
-Lastly, call |set_refresh_widget| to make the |SelectInput| change the contents of the |Chart|:
+Lastly, call |set_refresh_widgets| to make the |SelectInput| change the contents of the |Chart|:
 
 .. note::
    Refreshing only the |contents| of the |Chart| instead of the entire |Chart| updates the screen faster.

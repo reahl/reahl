@@ -106,7 +106,7 @@ def test_refreshing_chart_data_only(web_fixture):
             fig = go.Figure()
             fig.update_layout(title=self.choice)
             chart = self.add_child(Chart(view, fig, 'thechart'))
-            select.set_refresh_widget(chart.contents)
+            select.set_refresh_widgets([chart.contents])
 
         fields = ExposedNames()
         fields.choice = lambda i: ChoiceField([Choice('one title', Field(label='One')),

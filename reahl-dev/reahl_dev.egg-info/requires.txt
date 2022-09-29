@@ -3,6 +3,7 @@ reahl-tofu<6.2,>=6.1
 reahl-stubble<6.2,>=6.1
 reahl-sqlalchemysupport<6.2,>=6.1
 Babel<2.9.999,>=2.1
+Pygments<2.13.999,>=2.1.0
 twine<4.0.9999,>=1.15.0
 wheel>=0.34.0
 tzlocal<4.1.9999,>=2.0.0
