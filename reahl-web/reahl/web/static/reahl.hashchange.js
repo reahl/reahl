@@ -76,16 +76,12 @@ function handleStateChanged(refreshUrl, widgetsToRefresh, newState, afterHandler
 
     filterQueryStringArgsFromState(newState, refreshUrl);
     history.replaceState(newState, null, null);
-    triggerChange(refreshUrl, widgetsToRefresh, newState, afterContentsReplacedHandler, afterHandler);
-}
-
-function triggerChange(refreshUrl, widgetsToRefresh, newState, afterContentsReplacedHandler, afterHandler) {
 
     var data = {};
     data['__reahl_client_side_state__'] = $.param(newState, true);
 
     widgetsToRefresh.block(blockOptions({cursor: 'wait'}));
-    
+
     $.ajax({url:     refreshUrl,
             method:  'POST',
             data:    data,
@@ -114,6 +110,11 @@ function triggerChange(refreshUrl, widgetsToRefresh, newState, afterContentsRepl
             },
             traditional: true
     });
+
+}
+
+$.fn.forceReload = function(refreshUrl, widgetsToRefresh, afterHandler) {
+    handleStateChanged(refreshUrl, widgetsToRefresh, getCurrentState(), afterHandler, [], function(){});
 }
 
 function filterQueryStringArgsFromState(state, refreshUrl){
@@ -221,10 +222,6 @@ function getFormInputsAsArguments(values){
         var primitiveInput = $(v).data('reahlPrimitiveinput');
         return new WidgetArgument(primitiveInput.getName(), primitiveInput.getCurrentInputValue()); 
     });
-}
-
-$.fn.forceReload = function(refreshUrl, widgetsToRefresh, afterHandler) {
-    handleStateChanged(refreshUrl, widgetsToRefresh, getCurrentState(), afterHandler, [], function(){});
 }
 
 $.widget('reahl.hashchange', {

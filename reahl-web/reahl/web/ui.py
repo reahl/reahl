@@ -1630,7 +1630,7 @@ class PrimitiveInput(Input):
         self.refresh_widgets=[]
         if refresh_widget:
             self.set_refresh_widgets([refresh_widget])
-
+    @deprecated('Use set_refresh_widgets instead', '6.1')
     def set_refresh_widget(self, refresh_widget):
         """
         Instructs this :class:`PrimitiveInput` to refresh the given widget when its value changes.
