@@ -37,7 +37,7 @@ from babel.numbers import parse_decimal, format_number
 from wrapt import FunctionWrapper, BoundFunctionWrapper
 
 
-from reahl.component.decorators import deprecated
+from reahl.component.decorators import deprecated, memoized
 from reahl.component.i18n import Catalogue
 from reahl.component.context import ExecutionContext
 from reahl.component.exceptions import AccessRestricted, ProgrammerError, arg_checks, IsInstance, IsCallable, NotYetAvailable
@@ -741,13 +741,24 @@ class PatternConstraint(ValidationConstraint):
        
        :param pattern: The regex to match input against.
        :keyword error_message: (See :class:`ValidationConstraint`)
+
+       .. versionchanged:: 6.1
+          Arg pattern changed to also be able to be a callable to delay the computation of the pattern.
+
     """
     name = 'pattern'
 
     def __init__(self, pattern, error_message=None):
         error_message = error_message or _('$label is invalid')
         super().__init__(error_message)
-        self.pattern = pattern
+        self._pattern = pattern
+
+    @property
+    def pattern(self):
+        if callable(self._pattern):
+            return self._pattern()
+        else:
+            return self._pattern
 
     @property
     def parameters(self):
@@ -770,20 +781,32 @@ class AllowedValuesConstraint(PatternConstraint):
        
        :param allowed_values: A list containing the strings values to be allowed.
        :keyword error_message: (See :class:`ValidationConstraint`)
+
+       .. versionchanged:: 6.1
+          Arg allowed_values changed to also be able to be a callable to delay the fetching of values to be allowed.
+
     """
     def new_for_copy(self):
-        return self.__class__(self.allowed_values, error_message=self.error_message)
+        return self.__class__(self._allowed_values, error_message=self.error_message)
 
     def __init__(self, allowed_values, error_message=None):
         error_message = error_message or _('$label should be one of the following: $allowed')
-        self.allowed_values = allowed_values
-        allowed_regex = '(%s)' % ('|'.join(self.allowed_values))
+        self._allowed_values = allowed_values
+        def allowed_regex():
+            return '(%s)' % self.allowed
         super().__init__(allowed_regex, error_message)
-        
+
+    @property
+    def allowed_values(self):
+        if callable(self._allowed_values):
+            return self._allowed_values()
+        else:
+            return self._allowed_values
+
     @property
     def allowed(self):
         return '|'.join(self.allowed_values)
-
+    
 
 class IntegerConstraint(PatternConstraint):
     """A PatternConstraint that only allows input that represent a valid integer.
@@ -1728,8 +1751,15 @@ class MultiChoiceConstraint(ValidationConstraint):
     def __init__(self, choices, error_message=None):
         error_message = error_message or _('$label should be a subset of $choice_input_values')
         super().__init__(error_message=error_message)
-        self.choices = choices
+        self._choices = choices
 
+    @property
+    def choices(self):
+        if callable(self._choices):
+            return self._choices()
+        else:
+            return self._choices
+ 
     @property
     def choice_input_values(self):
         return [choice.as_input() for choice in self.choices]
@@ -1750,18 +1780,28 @@ class MultiChoiceConstraint(ValidationConstraint):
 class ChoiceField(Field):
     """A Field that only allows the value of one of the given :class:`Choice` instances as input.
     
-       :param grouped_choices: A list of :class:`Choice` or :class:`ChoiceGroup` instances from which
-                               a user should choose a single :class:`Choice`.
+       :param grouped_choices: A list (or callable that will return a list) of :class:`Choice` or :class:`ChoiceGroup` 
+                               instances from which a user should choose a single :class:`Choice`. If a callable,
+                               it will be invoked at the last possible time to ensure an up-to-date list is obtained.
                                
        (For other arguments, see :class:`Field`.)
+
+       .. versionchanged:: 6.1
+          Kwarg grouped_choices changed to also be able to be a callable to delay the fetching of choices.
     """
     def __init__(self, grouped_choices, default=None, required=False, required_message=None, label=None, readable=None, writable=None):
         super().__init__(default, required, required_message, label, readable=readable, writable=writable)
-        if not self.are_choices_unique(self.flatten_choices(grouped_choices)):
-            raise ProgrammerError('Duplicate choices are not allowed')
-        self.grouped_choices = grouped_choices
+        self._grouped_choices = grouped_choices
         self.init_validation_constraints()
-
+        
+    @property
+    @memoized
+    def grouped_choices(self):
+        if callable(self._grouped_choices):
+            return self._grouped_choices()
+        else:
+            return self._grouped_choices
+        
     @property
     def allows_multiple_selections(self):
         return False
@@ -1770,7 +1810,8 @@ class ChoiceField(Field):
         return len(flattened_choices) == len(set([choice.value for choice in flattened_choices]))
 
     def init_validation_constraints(self):
-        allowed_values = [choice.as_input() for choice in self.flattened_choices]
+        def allowed_values():
+            return [choice.as_input() for choice in self.flattened_choices]
         self.add_validation_constraint(AllowedValuesConstraint(allowed_values))
 
     @property
@@ -1781,6 +1822,8 @@ class ChoiceField(Field):
         flattened = []
         for item in grouped_choices:
             flattened.extend(item.choices)
+        if not self.are_choices_unique(flattened):
+            raise ProgrammerError('Duplicate choices are not allowed')
         return flattened
 
     @property
@@ -1840,7 +1883,9 @@ class MultiChoiceField(ChoiceField):
         return True
 
     def init_validation_constraints(self):
-        self.add_validation_constraint(MultiChoiceConstraint(self.flattened_choices))
+        def delayed_choices():
+            return self.flattened_choices
+        self.add_validation_constraint(MultiChoiceConstraint(delayed_choices))
 
     def get_empty_sentinel_name(self, base_name):
         return '%s-' % base_name
