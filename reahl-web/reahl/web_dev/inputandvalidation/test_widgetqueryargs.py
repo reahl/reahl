@@ -123,6 +123,8 @@ def test_query_string_prepopulates_form(web_fixture, value_scenarios):
 class QueryStringFixture(Fixture):
     def is_state_now(self, state):
         return self.is_state_labelled_now('My state', state)
+    def is_state_on_another_widget_now(self, state):
+        return self.is_state_labelled_now('Another widget state', state)
 
     def is_state_labelled_now(self, label, state):
         return self.web_fixture.driver_browser.is_element_present(XPath.paragraph().including_text('%s is now %s' % (label, state)))

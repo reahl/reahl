@@ -21,9 +21,11 @@ from string import Template
 import copy
 import re
 import html
+import json
 from collections import OrderedDict
 from collections.abc import Callable
 
+from reahl.component.decorators import deprecated
 from reahl.component.exceptions import IsInstance
 from reahl.component.exceptions import ProgrammerError, DomainException
 from reahl.component.exceptions import arg_checks
@@ -164,11 +166,10 @@ class HTMLAttributeDict(dict):
 
 
 class AjaxMethod(RemoteMethod):
-    def __init__(self, widget):
-        method_name = 'refresh_%s' % widget.css_id
-        super().__init__(widget.view, method_name, self.fire_ajax_event, WidgetResult(widget, as_json_and_result=True), immutable=True, method='post')
-        self.widget = widget
-        
+    def __init__(self, widgets, method_name):
+        super().__init__(widgets[0].view, method_name, self.fire_ajax_event, WidgetResult(widgets), immutable=True, method='post')
+        self.widgets = widgets
+
     def cleanup_after_exception(self, input_values, ex):
         self.view.save_last_construction_state()
         self.persist_invalid_input()
@@ -193,34 +194,37 @@ class AjaxMethod(RemoteMethod):
             widget.accept_disambiguated_input(state)
 
         try:
-            self.widget.fire_on_refresh()
+            for widget in self.widgets:
+                widget.fire_on_refresh()
         finally:
             construction_state = {}
             for widget in self.view.page.contained_widgets():
                 widget.update_construction_state(construction_state)
             self.view.set_construction_state_from_state_dict(construction_state)
 
+    def as_jquery_parameter(self):
+        return {'url':str(self.get_url())}
+
 
 # Uses: reahl/web/reahl.hashchange.js
 class HashChangeHandler:
     def __init__(self, widget, for_fields):
-        self.error_message = _('An error occurred when contacting the server. Please try again later.')
-        self.timeout_message = _('The server took too long to respond. Please try again later.')
         self.widget = widget
         self.for_fields = for_fields
-        self.remote_method = AjaxMethod(widget)
+        self.remote_method = AjaxMethod([widget], 'refresh_%s' % widget.css_id)
         widget.view.add_resource(self.remote_method)
 
     @property
     def argument_defaults(self):
         field_defaults = self.for_fields.as_input_kwargs() # TODO: should this not sometimes be i.user_input????
-        argument_defaults = ['"%s": "%s"' % (name, default_value or '') \
-                             for name, default_value in field_defaults.items()]
-        return '{%s}' % ','.join(argument_defaults)
+        argument_defaults = OrderedDict([(name, default_value or '')
+                                        for name, default_value in field_defaults.items()])
+        return argument_defaults
 
     def as_jquery_parameter(self):
-        return '{url:"%s", errorMessage: "%s", timeoutMessage: "%s", params: %s}' % \
-               (self.remote_method.get_url(), self.error_message, self.timeout_message, self.argument_defaults)
+        params = self.remote_method.as_jquery_parameter()
+        params['params'] = self.argument_defaults
+        return params
 
 
 class CssId:
@@ -404,7 +408,8 @@ class HTMLElement(Widget):
         if self.is_refresh_enabled:
             js = ['$(%s).hashchange(%s);' % \
                   (self.contextualise_selector(self.jquery_selector, context),
-                   self.ajax_handler.as_jquery_parameter())]
+                   json.dumps(self.ajax_handler.as_jquery_parameter())
+                   )]
         return super().get_js(context=context) + js
 
     def set_title(self, title):
@@ -1615,17 +1620,18 @@ class PrimitiveInput(Input):
 
         self.set_html_representation(self.add_child(self.create_html_widget()))
         if self.html_control:
-            self.html_control.set_id(self.make_html_control_css_id()) 
+            self.html_control.set_id(self.make_html_control_css_id())
+        else:
+            self.set_id(self.make_html_control_css_id())
 
         if not self.is_contained:
             self.add_to_attribute('class', ['reahl-primitiveinput'])
             self.add_input_data_attributes()
 
+        self.refresh_widgets=[]
         if refresh_widget:
-            self.set_refresh_widget(refresh_widget)
-        else:
-            self.refresh_widget = None
-
+            self.set_refresh_widgets([refresh_widget])
+    @deprecated('Use set_refresh_widgets instead', '6.1')
     def set_refresh_widget(self, refresh_widget):
         """
         Instructs this :class:`PrimitiveInput` to refresh the given widget when its value changes.
@@ -1636,11 +1642,32 @@ class PrimitiveInput(Input):
 
         .. versionadded:: 5.2
         """
-        if not refresh_widget.is_refresh_enabled:
-            raise ProgrammerError(
-                '%s is not set to refresh. You can only refresh widgets on which enable_refresh() was called.' % refresh_widget)
-        self.set_attribute('data-refresh-widget-id', refresh_widget.css_id)
-        self.refresh_widget = refresh_widget
+        self.set_refresh_widgets([refresh_widget])
+
+    def set_refresh_widgets(self, refresh_widgets):
+        """
+        Instructs this :class:`PrimitiveInput` to refresh all the given widgets when its value changes.
+
+        All the `refresh_widgets` have to have a css_id, and also needs to have refreshing enabled.
+
+        :param refresh_widgets: A list of :class:`HTMLWidget` or :class:`HTMLElement`.
+
+        .. versionadded:: 6.1
+        """
+        for widget in refresh_widgets:
+            if not widget.is_refresh_enabled:
+                raise ProgrammerError(
+                    '%s is not set to refresh. You can only refresh widgets on which enable_refresh() was called.' % refresh_widget)
+        if self.refresh_widgets:
+            raise ProgrammerError('The refresh widgets on %s have already been set' % self)
+        self.refresh_widgets = refresh_widgets
+        self.set_attribute('data-refresh-widget-ids', ','.join(['#%s'%w.css_id for w in self.refresh_widgets]))
+        if self.html_control:
+            css_id = self.html_control.css_id
+        else:
+            css_id = self.css_id
+        self.ajax_refresh_method = AjaxMethod(refresh_widgets, 'refresh_widgets_%s' % css_id)
+        self.view.add_resource(self.ajax_refresh_method)
 
     def make_html_control_css_id(self):
         return str(CssId.from_dirty_string('id-%s' % (self.name)))
@@ -1685,7 +1712,14 @@ class PrimitiveInput(Input):
         return '''$('input[name="%s"][form="%s"]')''' % (self.name, self.form.css_id)
 
     def get_js(self, context=None):
-        js = ['$(%s).primitiveinput();' % self.html_representation.contextualise_selector('".reahl-primitiveinput"', context)]
+        if self.refresh_widgets:
+            jquery_options = json.dumps(self.ajax_refresh_method.as_jquery_parameter())
+        else:
+            jquery_options = ''
+        js = ['$(%s).primitiveinput(%s);' %
+              (self.html_representation.contextualise_selector('".reahl-primitiveinput"', context),
+                jquery_options
+               )]
         return super().get_js(context=context) + js
 
     @property

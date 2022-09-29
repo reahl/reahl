@@ -25,9 +25,9 @@ from reahl.tofu.pytestsupport import with_fixtures
 
 from reahl.web_dev.fixtures import WebFixture
 from reahl.browsertools.browsertools import XPath
-from reahl.web.fw import Widget
+from reahl.web.fw import Widget, Url
 from reahl.web.ui import Form, Div, SelectInput, Label, P, RadioButtonSelectInput, CheckboxSelectInput, \
-    CheckboxInput, ButtonInput, TextInput, FormLayout
+    CheckboxInput, ButtonInput, TextInput, FormLayout, A
 from reahl.component.modelinterface import Field, BooleanField, MultiChoiceField, ChoiceField, Choice, ExposedNames, \
     IntegerField, EmailField, Event, Action, Allowed
 from reahl.component.exceptions import DomainException
@@ -234,8 +234,7 @@ def test_inputs_can_refresh_parent_widgets(web_fixture, query_string_fixture, re
 
 @with_fixtures(WebFixture, QueryStringFixture, ResponsiveDisclosureFixture)
 def test_refresh_input_can_be_set_after_input_is_created(web_fixture, query_string_fixture, responsive_disclosure_fixture):
-    """If the widget to be refreshed can only be created after the triggering Input, `set_refresh_widget` can be called
-       after construction of the Input to instruct it to refresh a given Widget."""
+    """`set_refresh_widgets` can be called after construction of the Input to instruct it to refresh a given list of Widgets."""
     fixture = responsive_disclosure_fixture
 
     class MyForm(Form):
@@ -246,7 +245,12 @@ def test_refresh_input_can_be_set_after_input_is_created(web_fixture, query_stri
             refreshed_widget = self.add_child(P(self.view, text='My state is now %s' % an_object.choice))
             refreshed_widget.set_id('refreshing-paragraph')
             refreshed_widget.enable_refresh()
-            trigger_input.set_refresh_widget(refreshed_widget)
+            
+            another_widget_to_refresh = self.add_child(P(self.view, text='Another widget state is now %s' % an_object.choice))
+            another_widget_to_refresh.set_id('another-refreshing-paragraph')
+            another_widget_to_refresh.enable_refresh()
+            
+            trigger_input.set_refresh_widgets([refreshed_widget, another_widget_to_refresh])
 
     fixture.MyForm = MyForm
 
@@ -256,8 +260,51 @@ def test_refresh_input_can_be_set_after_input_is_created(web_fixture, query_stri
     browser.open('/')
 
     assert browser.wait_for(query_string_fixture.is_state_now, 1)
+    assert browser.wait_for(query_string_fixture.is_state_on_another_widget_now, 1)
     browser.select(XPath.select_labelled('Choice'), 'Three')
     assert browser.wait_for(query_string_fixture.is_state_now, 3)
+    assert browser.wait_for(query_string_fixture.is_state_on_another_widget_now, 3)
+
+
+@with_fixtures(WebFixture, QueryStringFixture, ResponsiveDisclosureFixture)
+def test_refresh_widgets_with_widget_arguments(web_fixture, query_string_fixture, responsive_disclosure_fixture):
+    """Widget arguemnts are taken into account when widgets are refreshed by an input"""
+    fixture = responsive_disclosure_fixture
+
+    class MyForm(Form):
+        def __init__(self, view, an_object):
+            self.arg = 'default'
+            super().__init__(view, 'myform')
+            self.enable_refresh()
+            self.use_layout(FormLayout())
+            trigger_input = self.layout.add_input(SelectInput(self, an_object.fields.choice))
+
+            refreshed_widget = self.add_child(P(self.view, text='%s My state is now %s' % (self.arg, an_object.choice)))
+            refreshed_widget.set_id('refreshing-paragraph1')
+            refreshed_widget.enable_refresh()
+
+            trigger_input.set_refresh_widgets([refreshed_widget])
+
+            link = self.add_child(A(view, Url('#arg=changed'), description='Hash change link'))
+
+        query_fields = ExposedNames()
+        query_fields.arg = lambda i: Field()
+
+    fixture.MyForm = MyForm
+
+    wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=fixture.MainWidget.factory())
+    web_fixture.reahl_server.set_app(wsgi_app)
+    browser = web_fixture.driver_browser
+    browser.open('/')
+
+    assert browser.wait_for(query_string_fixture.is_state_labelled_now, 'default My state',  1)
+    browser.select(XPath.select_labelled('Choice'), 'Three')
+    assert browser.wait_for(query_string_fixture.is_state_labelled_now, 'default My state',  3)
+
+    browser.click(XPath.link().with_text('Hash change link'))
+    assert browser.wait_for(query_string_fixture.is_state_labelled_now, 'changed My state',  3)
+    browser.select(XPath.select_labelled('Choice'), 'Two')
+    assert browser.wait_for(query_string_fixture.is_state_labelled_now, 'changed My state',  2)
 
 
 @with_fixtures(WebFixture, QueryStringFixture, ResponsiveDisclosureFixture)
