@@ -1244,7 +1244,7 @@ def test_unique_choices(fixture):
                          Choice(1, IntegerField(label='Two')),
                          Choice(3, IntegerField(label='Three'))]
     with expected(ProgrammerError, test='Duplicate choices are not allowed'):
-        ChoiceField(duplicate_choices)
+        ChoiceField(duplicate_choices).flattened_choices
 
 @uses(system_fixture=ReahlSystemFixture)
 class ChoiceScenarios(Fixture):

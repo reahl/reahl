@@ -793,9 +793,9 @@ class AllowedValuesConstraint(PatternConstraint):
         error_message = error_message or _('$label should be one of the following: $allowed')
         self._allowed_values = allowed_values
         def allowed_regex():
-            return '(%s)' % ('|'.join(self.allowed_values))
+            return '(%s)' % self.allowed
         super().__init__(allowed_regex, error_message)
-        
+
     @property
     def allowed_values(self):
         if callable(self._allowed_values):
@@ -803,6 +803,10 @@ class AllowedValuesConstraint(PatternConstraint):
         else:
             return self._allowed_values
 
+    @property
+    def allowed(self):
+        return '|'.join(self.allowed_values)
+    
 
 class IntegerConstraint(PatternConstraint):
     """A PatternConstraint that only allows input that represent a valid integer.
