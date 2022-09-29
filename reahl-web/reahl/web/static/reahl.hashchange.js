@@ -235,7 +235,7 @@ $.widget('reahl.hashchange', {
         var _this = this;
 
         if (this.navigatedHereViaHistoryButtons()) {
-            _this.reloadPage();
+            reloadPage();
         }
         
         for (name in _this.options.params) {
