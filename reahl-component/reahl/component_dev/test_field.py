@@ -1246,6 +1246,37 @@ def test_unique_choices(fixture):
     with expected(ProgrammerError, test='Duplicate choices are not allowed'):
         ChoiceField(duplicate_choices)
 
+@uses(system_fixture=ReahlSystemFixture)
+class ChoiceScenarios(Fixture):
+    @scenario
+    def single_choice(self):
+        self.field_class = ChoiceField
+    
+    @scenario
+    def multi_choice(self):
+        self.field_class = MultiChoiceField
+
+
+@with_fixtures(ChoiceScenarios)
+def test_choice_querying(fixture):
+    """The Choices of a ChoiceField can be delayed to after its construction."""
+
+    model_object = EmptyStub()
+
+    current_choices = [Choice(1, IntegerField(label='One')),
+                       Choice('2', Field(label='Two'))]
+    def choices_getter():
+        return current_choices
+    field = fixture.field_class(choices_getter)
+    field.bind('choice_value', model_object)
+
+#   assert [i.value for i in field.flattened_choices] == [1, '2']  # In the fake world of tests, grouped_choices is memoized, so cached...we can only call it once.
+
+    current_choices = [Choice(4, IntegerField(label='Four'))]
+
+    assert [i.value for i in field.flattened_choices] == [4]
+
+    
 
 @with_fixtures(FieldFixture)
 def test_file_marshalling(fixture):
