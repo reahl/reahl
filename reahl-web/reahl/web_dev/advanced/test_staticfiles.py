@@ -159,17 +159,18 @@ def test_packaged_files(web_fixture):
     pkg_resources.working_set.add(easter_egg)
     easter_egg.location = egg_dir.name
 
-    class MainUI(UserInterface):
-        def assemble(self):
-            list_of_files = [PackagedFile(easter_egg.as_requirement_string(), 'packaged_files', 'packaged_file')]
-            self.define_static_files('/files', list_of_files)
+    with easter_egg.active():
+        class MainUI(UserInterface):
+            def assemble(self):
+                list_of_files = [PackagedFile(easter_egg.as_requirement_string(), 'packaged_files', 'packaged_file')]
+                self.define_static_files('/files', list_of_files)
 
-    wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
-    browser = Browser(wsgi_app)
+        wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
+        browser = Browser(wsgi_app)
 
-    # How the file would be accessed
-    browser.open('/files/packaged_file')
-    assert browser.raw_html == 'contents'
+        # How the file would be accessed
+        browser.open('/files/packaged_file')
+        assert browser.raw_html == 'contents'
 
 class ConcatenateScenarios(Fixture):
     @scenario
@@ -218,13 +219,14 @@ def test_concatenated_files(web_fixture, concatenate_scenarios):
             list_of_files = [ConcatenatedFile(fixture.filename, to_concatenate)]
             self.define_static_files('/files', list_of_files)
 
-    web_fixture.config.reahlsystem.debug = False  # To enable minification
-    wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
-    browser = Browser(wsgi_app)
+    with easter_egg.active():
+        web_fixture.config.reahlsystem.debug = False  # To enable minification
+        wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
+        browser = Browser(wsgi_app)
 
-    # How the first file would be accessed
-    browser.open('/files/%s' % fixture.filename)
-    assert browser.raw_html == fixture.expected_result
+        # How the first file would be accessed
+        browser.open('/files/%s' % fixture.filename)
+        assert browser.raw_html == fixture.expected_result
 
 
 @with_fixtures(WebFixture)
