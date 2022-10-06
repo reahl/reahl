@@ -15,6 +15,7 @@ python-reahl (6.1.0) unstable; urgency=low
  * Deprecated use of @exposed in favour of ExposedNames (#373).
  * Changed ChoiceField to be able to delay fetching the list of Choices (#369).
  * Added set_refresh_widgets to allow refreshing multiple widgets (#365).
+ * Replaced usage of pkg_resources.resource_filename with importlib.resources.files (#390).
 
  -- Iwan Vosloo <iwan@reahl.org>  Fri, 12 Jul 2022 07:56:00 +0200
 

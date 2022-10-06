@@ -46,7 +46,7 @@ class CompiledBootstrap(Library):
     def __init__(self):
         super().__init__('custom')
         self.egg_name = 'bootstrapsass'
-        self.shipped_in_directory = 'dist'
+        self.shipped_in_package = 'dist'
         self.files = [
                       'theme.css',
                       'main.js'

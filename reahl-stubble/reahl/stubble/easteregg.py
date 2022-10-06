@@ -13,7 +13,7 @@
 #
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
+import contextlib
 import sys
 import pkg_resources
 import os
@@ -125,6 +125,14 @@ class EasterEgg(pkg_resources.Distribution):
         if group is not None:
             return epmap.get(group,{})
         return epmap
+
+    @contextlib.contextmanager
+    def active(self):
+        self.activate()
+        try:
+            yield
+        finally:
+            self.deactivate()
 
     def activate(self, **kwargs):
         saved_path = sys.path[:]

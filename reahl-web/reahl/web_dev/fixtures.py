@@ -70,7 +70,7 @@ class FakeQUnit(Library):
     """
     def __init__(self):
         super().__init__('fakequnit')
-        self.shipped_in_directory = '/reahl/web/static'
+        self.shipped_in_package = 'reahl.web.static'
         self.files = []
 
     def footer_only_material(self, rendered_page):

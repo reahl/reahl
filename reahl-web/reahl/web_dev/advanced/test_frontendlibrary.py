@@ -51,7 +51,7 @@ class LibraryFixture(Fixture):
             def __init__(self):
                 super().__init__('mylib')
                 self.files = ['somefile.js', 'somefile.css']
-                self.shipped_in_directory = '/static_files'
+                self.shipped_in_package = 'static_files'
                 self.egg_name = easter_egg.project_name
 
         return MyLibrary
@@ -86,20 +86,21 @@ def test_library_files(web_fixture, library_fixture):
     config.web.frontend_libraries.clear()
     config.web.frontend_libraries.add(library_fixture.MyLibrary())
 
-    browser = Browser(ReahlWSGIApplication(config))
+    with easter_egg.active():
+        browser = Browser(ReahlWSGIApplication(config))
 
-    browser.open('/static/somefile.js')
-    assert browser.raw_html == 'contents - js'
+        browser.open('/static/somefile.js')
+        assert browser.raw_html == 'contents - js'
 
-    browser.open('/static/somefile.css')
-    assert browser.raw_html == 'contents - css'
+        browser.open('/static/somefile.css')
+        assert browser.raw_html == 'contents - css'
 
-    browser.open('/')
-    script_added = browser.get_html_for('//script[@src]')
-    assert script_added == '<script type="text/javascript" src="/static/somefile.js"></script>'
+        browser.open('/')
+        script_added = browser.get_html_for('//script[@src]')
+        assert script_added == '<script type="text/javascript" src="/static/somefile.js"></script>'
 
-    link_added = browser.get_html_for('//link')
-    assert link_added == '<link rel="stylesheet" href="/static/somefile.css" type="text/css">'
+        link_added = browser.get_html_for('//link')
+        assert link_added == '<link rel="stylesheet" href="/static/somefile.css" type="text/css">'
 
 
 @with_fixtures(WebFixture)

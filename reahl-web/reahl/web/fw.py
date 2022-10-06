@@ -73,6 +73,16 @@ from reahl.component.modelinterface import StandaloneFieldIndex, FieldIndex, Fie
                                              Allowed, ExposedNames, Event, Action
 from reahl.web.csrf import InvalidCSRFToken, CSRFToken, ExpiredCSRFToken
 
+USE_PKG_RESOURCES=False
+if sys.version_info < (3, 9):
+    try:
+        import importlib_resources
+    except:
+        USE_PKG_RESOURCES=True        
+else:
+    import importlib.resources as importlib_resources
+
+
 _ = Catalogue('reahl-web')
 
 
@@ -2719,11 +2729,16 @@ class FileFromBlob(ViewableFile):
 
 
 class PackagedFile(FileOnDisk):
-    def __init__(self, egg_name, directory_name, relative_name):
+    def __init__(self, egg_name, package_name, relative_name):
         self.egg_name = egg_name
-        self.directory_name = directory_name
-        egg_relative_name = '/'.join([directory_name, relative_name])
-        full_path = pkg_resources.resource_filename(pkg_resources.Requirement.parse(egg_name), egg_relative_name)
+
+        if USE_PKG_RESOURCES:
+            directory_name = package_name.replace('.', '/')
+            egg_relative_name = '/'.join([directory_name, relative_name])
+            full_path = pkg_resources.resource_filename(pkg_resources.Requirement.parse(egg_name), egg_relative_name)
+        else:
+            full_path = str(importlib_resources.files(package_name) / relative_name)
+
         super().__init__(full_path, relative_name)
 
 

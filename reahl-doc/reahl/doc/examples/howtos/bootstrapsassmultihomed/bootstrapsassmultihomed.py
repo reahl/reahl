@@ -46,7 +46,7 @@ class CompiledBootstrap(Library):
     def __init__(self):
         super().__init__('custom')
         self.egg_name = 'bootstrapsass'
-        self.shipped_in_directory = 'dist'
+        self.shipped_in_package = 'dist'
         self.files = [
                       'theme.css',
                       'main.js'
@@ -58,7 +58,7 @@ class CompiledBootstrap(Library):
         super().__init__('custom')
         self.force_theme = force_theme
         self.egg_name = 'bootstrapsassmultihomed'
-        self.shipped_in_directory = 'dist'
+        self.shipped_in_package = 'dist'
         self.files = [
                       'sitea.com.css',
                       'siteb.com.css',

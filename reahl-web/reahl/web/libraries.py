@@ -40,6 +40,7 @@ from collections import OrderedDict
 
 from reahl.component.context import ExecutionContext
 from reahl.component.exceptions import ProgrammerError
+from reahl.component.decorators import  deprecated
 from reahl.web.fw import PackagedFile, ConcatenatedFile
 
 
@@ -123,22 +124,36 @@ class Library:
     def __init__(self, name):
         self.name = name  #: The unique name of this Library
         self.egg_name = 'reahl-web'  #: The component (egg) that contains the files of this library
-        self.shipped_in_directory = ''  #: The directory that contains the files of this library (relative to the egg root)
-        self.files = []   #: The JavaScript and CSS files that form part of this library (relative to the `shipped_in_directory`)
+        self._shipped_in_directory = ''  #: Deprecated since 6.1: The directory that contains the files of this library (relative to the egg root)
+        self.shipped_in_package = ''  #: The package that contains the files of this library
+        self.files = []   #: The JavaScript and CSS files that form part of this library (relative to the `shipped_in_package`)
+
+    def __getattr__(self, name):
+        if name == 'shipped_in_package':
+            return self.shipped_in_directory.replace('/', '.')
+        else:
+            return super.__getattr__(name)
+    @property
+    def shipped_in_directory(self):
+        return self._shipped_in_directory
+    @shipped_in_directory.setter
+    @deprecated('Use shipped_in_package with dotted notation instead', '6.1')
+    def shipped_in_directory(self, value):
+        self._shipped_in_directory = value
 
     def packaged_files(self):
-        return [PackagedFile(self.egg_name, self.shipped_in_directory, file_name) 
+        return [PackagedFile(self.egg_name, self.shipped_in_package, file_name)
                 for file_name in self.files]
 
     def packaged_files222xxxxxFIXMEIAMDEADButPossibleAlternative(self):
         exposed_files = []
-        js_files_to_include = [PackagedFile(self.egg_name, self.shipped_in_directory, file_name) 
+        js_files_to_include = [PackagedFile(self.egg_name, self.shipped_in_package, file_name)
                                for file_name in self.files
                                if file_name.endswith('.js')]
         if js_files_to_include:
             exposed_files.append(ConcatenatedFile('%s.js' % self.name, js_files_to_include))
 
-        css_files_to_include = [PackagedFile(self.egg_name, self.shipped_in_directory, file_name) 
+        css_files_to_include = [PackagedFile(self.egg_name, self.shipped_in_package, file_name)
                                for file_name in self.files
                                if file_name.endswith('.css')]
         if css_files_to_include:
@@ -187,7 +202,7 @@ class JQuery(Library):
         super().__init__('jquery')
         self.files = ['jquery-3.6.0/jquery-3.6.0.js',
                       'jquery-3.6.0/jquery-3.6.0.min.map']
-        self.shipped_in_directory = 'reahl/web/static'
+        self.shipped_in_package = 'reahl.web.static'
         for i in ['jquery.validate-1.19.3.modified.js',
                   'jquery.ba-bbq-1.3pre.js',
                   'jquery.blockUI-2.70.0.js',
@@ -224,7 +239,7 @@ class JQueryUI(Library):
     """
     def __init__(self):
         super().__init__('jqueryui')
-        self.shipped_in_directory = 'reahl/web/static'
+        self.shipped_in_package = 'reahl.web.static'
         self.files = ['jquery-ui-1.13.1.custom/jquery-ui.js']
 
 
@@ -234,7 +249,7 @@ class HTML5Shiv(Library):
     """
     def __init__(self):
         super().__init__('html5shiv')
-        self.shipped_in_directory = 'reahl/web/static'
+        self.shipped_in_package = 'reahl.web.static'
         self.files = ['html5shiv-printshiv-3.7.3.js']
 
     def footer_only_material(self, rendered_page):
@@ -250,7 +265,7 @@ class IE9(Library):
     """
     def __init__(self):
         super().__init__('IE9')
-        self.shipped_in_directory = 'reahl/web/static'
+        self.shipped_in_package = 'reahl.web.static'
         self.files = ['IE9.js']
 
     def footer_only_material(self, rendered_page):
@@ -267,7 +282,7 @@ class Reahl(Library):
     """
     def __init__(self):
         super().__init__('reahl')
-        self.shipped_in_directory = 'reahl/web/static'
+        self.shipped_in_package = 'reahl.web.static'
         self.files = ['reahl.csrf.js',
                       'reahl.hashchange.js',
                       'reahl.ajaxlink.js',
@@ -287,7 +302,7 @@ class Holder(Library):
     """
     def __init__(self):
         super().__init__('holder')
-        self.shipped_in_directory = 'reahl/web/holder'
+        self.shipped_in_package = 'reahl.web.holder'
         self.files = ['holder-2.9.9.js']
 
 
@@ -296,7 +311,7 @@ class Bootstrap4(Library):
     """
     def __init__(self):
         super().__init__('bootstrap4')
-        self.shipped_in_directory = 'reahl/web/static'
+        self.shipped_in_package = 'reahl.web.static'
         self.files = [
                       'bootstrap-4.6.1/css/bootstrap.css',
                       'bootstrap-4.6.1/css/reahl-patch.css',
@@ -320,7 +335,7 @@ class ReahlBootstrap4Additions(Library):
     """
     def __init__(self):
         super().__init__('bootstrap4.reahladditions')
-        self.shipped_in_directory = 'reahl/web/bootstrap'
+        self.shipped_in_package = 'reahl.web.bootstrap'
         self.files = [
                       'reahl.bootstrapform.js',
                       'reahl.pagination.js',
@@ -340,7 +355,7 @@ class Popper(Library):
     """
     def __init__(self):
         super().__init__('popper')
-        self.shipped_in_directory = 'reahl/web/static'
+        self.shipped_in_package = 'reahl.web.static'
         self.files = [
             'popper-1.16.1/popper.js' #make sure it is the umd edition
         ]
@@ -351,7 +366,7 @@ class Underscore(Library):
     """
     def __init__(self):
         super().__init__('underscore')
-        self.shipped_in_directory = 'reahl/web/static'
+        self.shipped_in_package = 'reahl.web.static'
         self.files = [
             'underscore-umd-min.1.13.2.js'
         ]
@@ -364,7 +379,7 @@ class JsCookie(Library):
     """
     def __init__(self):
         super().__init__('js-cookie')
-        self.shipped_in_directory = 'reahl/web/static'
+        self.shipped_in_package = 'reahl.web.static'
         self.files = [
             'js-cookie-2.2.1/js.cookie.js' #this is the UMD version
         ]
@@ -377,7 +392,7 @@ class PlotlyJS(Library):
     def __init__(self):
         self.active = False
         super().__init__('plotly.js')
-        self.shipped_in_directory = 'reahl/web/static'
+        self.shipped_in_package = 'reahl.web.static'
         self.files = [
             self.javascript_filename
         ]

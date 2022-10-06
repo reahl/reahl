@@ -24,7 +24,7 @@ class PayPalJS(Library):
     def __init__(self):
         super().__init__('reahl-paypal')
         self.egg_name = 'reahl-paypalsupport'
-        self.shipped_in_directory = 'reahl/paypalsupport'
+        self.shipped_in_package = 'reahl.paypalsupport'
         self.files = [
             'reahl-paypalbuttonspanel.js'
         ]
