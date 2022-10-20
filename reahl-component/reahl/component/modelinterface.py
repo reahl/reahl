@@ -1339,6 +1339,7 @@ class Event(Field):
         super().__init__(required=False, required_message=None, label=label, readable=readable, writable=writable, disallowed_message=disallowed_message)
         self.action = action or (lambda *args, **kwargs: None)
         self.event_argument_fields = event_argument_fields
+        self.event_return_argument_name = None
 
     def __str__(self):
         argument_string = (', %s' % str(self.arguments)) if hasattr(self, 'arguments') else ''
@@ -1367,7 +1368,13 @@ class Event(Field):
         """Fire this event - which executes the Action of the event."""
         if not force and not self.occurred:
             raise ProgrammerError('attempted to fire Event that has not occurred: %s' % self)
-        return self.action(self)
+
+        return_value = self.action(self)
+        if self.event_return_argument_name:
+            if self.occurred:
+                self.arguments[self.event_return_argument_name] = return_value
+            else:
+                self.from_disambiguated_input({self.event_return_argument_name: return_value}, ignore_validation=ignore_validation)            
 
     def bind(self, name, storage_object):
         super().bind(name, self)
@@ -1387,6 +1394,21 @@ class Event(Field):
 
         new_field = self.copy()
         new_field.default = arguments
+        return new_field
+    
+    def with_returned_argument(self, event_argument_name):
+        """Returns a new Event exactly like this one, but indicates that the action of this event will return a value for the given argument name.
+
+           .. versionadded:: 6.1
+        """
+        arguments = {event_argument_name:''}
+        for declared_argument_name, argument_field in self.event_argument_fields.items():
+            if declared_argument_name != event_argument_name:
+                arguments[declared_argument_name] = argument_field.default
+
+        new_field = self.copy()
+        new_field.default = arguments
+        new_field.event_return_argument_name = event_argument_name
         return new_field
 
     @property

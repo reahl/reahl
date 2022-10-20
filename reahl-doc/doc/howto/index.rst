@@ -24,6 +24,7 @@ Parameterised views
 
    programmaticparameterised
 .. transitionstoparameterised
+   eventresult
 
 Concurrency
 -----------
