@@ -61,6 +61,7 @@ from reahl.doc.examples.howtos.responsivedisclosure import responsivedisclosure
 from reahl.doc.examples.howtos.optimisticconcurrency import optimisticconcurrency
 from reahl.doc.examples.howtos.bootstrapsass import bootstrapsass
 from reahl.doc.examples.howtos.bootstrapsassmultihomed import bootstrapsassmultihomed
+from reahl.doc.examples.howtos.eventresult import eventresult
 
 from reahl.doc.examples.howtos.chartplotly import chartplotly
 from reahl.doc.examples.howtos.chartplotly2 import chartplotly2
@@ -233,6 +234,10 @@ class ExampleFixture(Fixture):
     @scenario
     def chartplotly2(self):
         self.wsgi_app = self.web_fixture.new_wsgi_app(site_root=chartplotly2.DynamicPlotlyUI, enable_js=True)
+
+    @scenario
+    def eventresult(self):
+        self.wsgi_app = self.web_fixture.new_wsgi_app(site_root=eventresult.AddressBookUI)
 
     @scenario
     def paypal(self):

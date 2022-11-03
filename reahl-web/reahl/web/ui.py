@@ -314,7 +314,8 @@ class HTMLElement(Widget):
         return self.ajax_handler is not None
 
     def fire_on_refresh(self):
-        self.on_refresh.fire(force=True)
+        self.on_refresh.make_occurred()
+        self.on_refresh.fire()
 
     def add_child(self, child):
         assert self.children_allowed, 'You cannot add children to a %s' % type(self)

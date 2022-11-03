@@ -23,6 +23,7 @@ Parameterised views
    :maxdepth: 1
 
    programmaticparameterised
+   eventresult
 .. transitionstoparameterised
 
 Concurrency
