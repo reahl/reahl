@@ -1344,7 +1344,7 @@ class Event(Field):
     def __str__(self):
         argument_string = (', %s' % str(self.arguments)) if hasattr(self, 'arguments') else ''
         return 'Event(%s%s)' % (self.name, argument_string)
-
+    
     def from_input(self, unparsed_input, ignore_validation=False, ignore_access=False):
         # Note: this needs to happen for Events whether you are allowed to write the Event or not,
         #       because during validation, an AccessRightsConstraint is raised
@@ -1364,18 +1364,22 @@ class Event(Field):
     def can_write(self):
         return self.can_read() and super().can_write()
 
-    def fire(self, force=False):
+    def fire(self):
         """Fire this event - which executes the Action of the event."""
-        if not force and not self.occurred:
+        if not self.occurred:
             raise ProgrammerError('attempted to fire Event that has not occurred: %s' % self)
 
         return_value = self.action(self)
         if self.event_return_argument_name:
-            if self.occurred:
-                self.arguments[self.event_return_argument_name] = return_value
-            else:
-                self.from_disambiguated_input({self.event_return_argument_name: return_value}, ignore_validation=ignore_validation)            
+            self.arguments[self.event_return_argument_name] = return_value
 
+    def make_occurred(self):
+        self.bind('arguments', self)
+        arguments = {}
+        self.ensure_values_for_all_arguments(arguments)
+        unparsed_input = self.unparse_input(arguments)
+        self.from_input(unparsed_input, ignore_validation=True)
+        
     def bind(self, name, storage_object):
         super().bind(name, self)
 
@@ -1384,18 +1388,21 @@ class Event(Field):
         new_field.unbind()
         new_field.bind(new_field._name, new_field)
         return new_field
+
+    def ensure_values_for_all_arguments(self, arguments):
+        for declared_argument_name, argument_field in self.event_argument_fields.items():
+            if declared_argument_name not in arguments:
+                arguments[declared_argument_name] = argument_field.default
     
     def with_arguments(self, **event_arguments):
         """Returns a new Event exactly like this one, but with argument values as given."""
         arguments = event_arguments.copy()
-        for declared_argument_name, argument_field in self.event_argument_fields.items():
-            if declared_argument_name not in event_arguments:
-                arguments[declared_argument_name] = argument_field.default
+        self.ensure_values_for_all_arguments(arguments)
 
         new_field = self.copy()
         new_field.default = arguments
         return new_field
-    
+
     def with_returned_argument(self, event_argument_name):
         """Returns a new Event exactly like this one, but indicates that the action of this event will return a value for the given argument name.
 
