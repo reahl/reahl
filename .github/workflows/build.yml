@@ -7,7 +7,7 @@ jobs:
   build:
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Build reahl-dev:latest docker image
         run: docker build --target build-image -t reahl-dev:latest -f Dockerfile .
@@ -16,7 +16,7 @@ jobs:
         run: docker cp $(docker create reahl-dev:latest):/home/developer/.reahlworkspace/dist-egg/ /tmp/wheels
 
       - name: Upload built wheels to cache
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: wheels
           path: /tmp/wheels
@@ -44,8 +44,8 @@ jobs:
           --health-retries 5
 
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -53,7 +53,7 @@ jobs:
         run: python -m pip install --upgrade pip
 
       - name: Download wheels
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: wheels
           path: ~/.reahlworkspace/dist-egg
