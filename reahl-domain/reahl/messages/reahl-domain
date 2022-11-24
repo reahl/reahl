@@ -7,9 +7,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: reahl-domain 5.2.0\n"
+"Project-Id-Version: reahl-domain 6.1.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-03-08 11:52+0000\n"
+"POT-Creation-Date: 2022-11-24 13:23+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,140 +18,140 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.9.1\n"
 
-#: reahl/domain/systemaccountmodel.py:316
+#: reahl/domain/systemaccountmodel.py:314
 msgid "Email"
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:317
+#: reahl/domain/systemaccountmodel.py:315
 msgid "New email"
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:318
+#: reahl/domain/systemaccountmodel.py:316
 msgid "Password"
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:319
+#: reahl/domain/systemaccountmodel.py:317
 msgid "Remember me?"
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:320
+#: reahl/domain/systemaccountmodel.py:318
 msgid "Secret key"
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:321
+#: reahl/domain/systemaccountmodel.py:319
 msgid "Re-type password"
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:321
+#: reahl/domain/systemaccountmodel.py:319
 msgid "Please type your password again."
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:323
+#: reahl/domain/systemaccountmodel.py:321
 msgid "Please accept the terms of service"
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:324
+#: reahl/domain/systemaccountmodel.py:322
 msgid "I accept the terms of service"
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:328
+#: reahl/domain/systemaccountmodel.py:325
 msgid "Verify"
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:329
+#: reahl/domain/systemaccountmodel.py:326
 msgid "Register"
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:330
+#: reahl/domain/systemaccountmodel.py:327
 msgid "Change email address"
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:331
+#: reahl/domain/systemaccountmodel.py:328
 msgid "Investigate"
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:332
+#: reahl/domain/systemaccountmodel.py:329
 msgid "Set new password"
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:333
+#: reahl/domain/systemaccountmodel.py:330
 msgid "Reset password"
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:334
+#: reahl/domain/systemaccountmodel.py:331
 msgid "Log in"
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:335
+#: reahl/domain/systemaccountmodel.py:332
 msgid "Send"
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:336
+#: reahl/domain/systemaccountmodel.py:333
 msgid "Log out"
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:390
+#: reahl/domain/systemaccountmodel.py:387
 msgid "Passwords do not match"
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:396
+#: reahl/domain/systemaccountmodel.py:393
 msgid "Invalid login credentials"
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:402
+#: reahl/domain/systemaccountmodel.py:399
 msgid "The secret key supplied is invalid."
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:408
+#: reahl/domain/systemaccountmodel.py:405
 msgid "The email address supplied is invalid."
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:414
+#: reahl/domain/systemaccountmodel.py:411
 msgid "Could not find an account matching the supplied email address."
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:421
+#: reahl/domain/systemaccountmodel.py:418
 msgid "The email address supplied is not unique."
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:491
+#: reahl/domain/systemaccountmodel.py:488
 #, python-format
 msgid "Could not send registration verification email message to %s: %s."
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:492
+#: reahl/domain/systemaccountmodel.py:489
 msgid " Please contact the site administrator and try again later."
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:652
+#: reahl/domain/systemaccountmodel.py:649
 msgid "Unknown status"
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:659
+#: reahl/domain/systemaccountmodel.py:656
 msgid "Please verify your account before logging in"
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:664
+#: reahl/domain/systemaccountmodel.py:661
 msgid "Account is locked: too many failed attempts"
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:669
+#: reahl/domain/systemaccountmodel.py:666
 msgid "Account is active"
 msgstr ""
 
-#: reahl/domain/workflowmodel.py:55
+#: reahl/domain/workflowmodel.py:54
 msgid "Take"
 msgstr ""
 
-#: reahl/domain/workflowmodel.py:59
+#: reahl/domain/workflowmodel.py:58
 msgid "Defer"
 msgstr ""
 
-#: reahl/domain/workflowmodel.py:60
+#: reahl/domain/workflowmodel.py:59
 msgid "Go to"
 msgstr ""
 
-#: reahl/domain/workflowmodel.py:64
+#: reahl/domain/workflowmodel.py:63
 msgid "Release"
 msgstr ""
 

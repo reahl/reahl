@@ -17,6 +17,7 @@ python-reahl (6.1.0) unstable; urgency=low
  * Added set_refresh_widgets to allow refreshing multiple widgets (#365).
  * Replaced usage of pkg_resources.resource_filename with importlib.resources.files (#390).
  * Added Event.with_returned_argument to allow dynamically supplying argument values to an Event (#371).
+ * Changed DateField to correctly use dayfirst based on the current locale (#194).
 
  -- Iwan Vosloo <iwan@reahl.org>  Fri, 12 Jul 2022 07:56:00 +0200
 

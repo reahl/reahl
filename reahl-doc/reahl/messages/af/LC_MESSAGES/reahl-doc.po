@@ -5,9 +5,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: reahl-doc 4.0.4\n"
+"Project-Id-Version: reahl-doc 6.1.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-03-08 11:52+0000\n"
+"POT-Creation-Date: 2022-11-24 13:23+0000\n"
 "PO-Revision-Date: 2018-12-04 09:39+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: af\n"
@@ -42,15 +42,15 @@ msgid_plural "Addresses"
 msgstr[0] "Adres"
 msgstr[1] "Adresse"
 
-#: reahl/doc/examples/tutorial/i18nexamplebootstrap/i18nexamplebootstrap.py:87
+#: reahl/doc/examples/tutorial/i18nexamplebootstrap/i18nexamplebootstrap.py:86
 msgid "Name"
 msgstr "Naam"
 
-#: reahl/doc/examples/tutorial/i18nexamplebootstrap/i18nexamplebootstrap.py:88
+#: reahl/doc/examples/tutorial/i18nexamplebootstrap/i18nexamplebootstrap.py:87
 msgid "Email"
 msgstr "E-pos"
 
-#: reahl/doc/examples/tutorial/i18nexamplebootstrap/i18nexamplebootstrap.py:96
+#: reahl/doc/examples/tutorial/i18nexamplebootstrap/i18nexamplebootstrap.py:94
 msgid "Save"
 msgstr "Stoor"
 
