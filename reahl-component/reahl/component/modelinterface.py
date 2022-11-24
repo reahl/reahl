@@ -29,6 +29,7 @@ from string import Template
 import inspect
 from contextlib import contextmanager
 import json
+from collections import OrderedDict
 
 import dateutil.parser 
 import babel.dates 
@@ -1664,19 +1665,30 @@ class DateField(Field):
 
        :keyword min_value: The earliest value allowed as valid input.
        :keyword max_value: The latest value allowed as valid input.
-       
+       :keyword date_format: Specify how to format the date. If not given the default format specified by the locale is used.
+                              See `https://babel.pocoo.org/en/latest/api/dates.html#date-and-time-formatting`_
+
        (For other arguments, see :class:`Field`.)
+
+        .. versionchanged:: 6.2
+           Added date_format keyword
     """
-    def __init__(self, default=None, required=False, required_message=None, label=None, readable=None, writable=None, min_value=None, max_value=None):
+    def __init__(self, default=None, date_format='medium', min_value=None, max_value=None, required=False, required_message=None, label=None, readable=None, writable=None):
         label = label or ''
         super().__init__(default, required, required_message, label, readable=readable, writable=writable)
+        self.date_format = date_format
         self.add_validation_constraint(DateConstraint())
         if min_value:
             self.add_validation_constraint(MinValueConstraint(min_value))
         if max_value:
             self.add_validation_constraint(MaxValueConstraint(max_value))
 
-    @property 
+    def is_day_first_in_format_pattern(self):
+        date_pattern = babel.dates.get_date_format(format=self.date_format, locale=_.current_locale)
+        unique_chars = ''.join(OrderedDict.fromkeys(str(date_pattern))).lower()
+        return unique_chars.index('d') < unique_chars.index('m')
+
+    @property
     def parser_info(self):
         class ParserInfo(dateutil.parser.parserinfo):
             WEEKDAYS = [(_('Mon'), _('Monday')),
@@ -1710,15 +1722,21 @@ class DateField(Field):
                     _('at'), _('on'), _('and'), _('ad'), _('m'), _('t'), _('of'),
                     _('st'), _('nd'), _('rd'), _('th')]
         return ParserInfo()
-        
+
     def parse_input(self, unparsed_input):
         try:
-            return dateutil.parser.parse(unparsed_input, dayfirst=True, parserinfo=self.parser_info).date()
+            return dateutil.parser.parse(unparsed_input, dayfirst=self.is_day_first_in_format_pattern(), parserinfo=self.parser_info).date()
+            #Cannot use bable parse reliably. See https://github.com/python-babel/babel/issues/541
+            #babel.dates.parse_date(unparsed_input, format=self.date_format, locale=_.current_locale)
+            #and
+            #print(dateparser.parse('12/12/12', locales=['en-US'])) # does not support en-US
         except (ValueError, TypeError):  # For TypeError, see https://bugs.launchpad.net/dateutil/+bug/1247643
             raise InputParseException()
 
     def unparse_input(self, parsed_value):
-        return babel.dates.format_date(parsed_value, format='medium', locale=_.current_locale)
+        if not parsed_value:
+            return ''
+        return babel.dates.format_date(parsed_value, format=self.date_format, locale=_.current_locale)
 
 
 class Choice:
