@@ -1426,6 +1426,23 @@ def test_date_marshalling(fixture):
     actual_output = field.as_input()
     assert actual_output == '10 Nov 2010'
 
+@with_fixtures(FieldFixture)
+def test_empty_date_value(fixture):
+    """A DateField returns empty string when date is not provided.
+    """
+
+    field = DateField()
+    obj = fixture.model_object
+
+    field.bind('date_value', obj)
+
+    field.from_input('')
+    assert obj.date_value == None
+
+    obj.date_value = None
+    actual_output = field.as_input()
+    assert actual_output == ''
+
 
 @with_fixtures(FieldFixture)
 def test_date_validation(fixture):
