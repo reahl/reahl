@@ -1,4 +1,4 @@
-/*! jQuery UI - v1.13.1 - 2022-03-01
+/*! jQuery UI - v1.13.2 - 2022-12-08
 * http://jqueryui.com
 * Includes: widget.js, focusable.js, tabbable.js
 * Copyright jQuery Foundation and other contributors; Licensed MIT */
@@ -20,11 +20,11 @@
 
 $.ui = $.ui || {};
 
-var version = $.ui.version = "1.13.1";
+var version = $.ui.version = "1.13.2";
 
 
 /*!
- * jQuery UI Widget 1.13.1
+ * jQuery UI Widget 1.13.2
  * http://jqueryui.com
  *
  * Copyright jQuery Foundation and other contributors
@@ -766,7 +766,7 @@ var widget = $.widget;
 
 
 /*!
- * jQuery UI Focusable 1.13.1
+ * jQuery UI Focusable 1.13.2
  * http://jqueryui.com
  *
  * Copyright jQuery Foundation and other contributors
@@ -839,7 +839,7 @@ var focusable = $.ui.focusable;
 
 
 /*!
- * jQuery UI Tabbable 1.13.1
+ * jQuery UI Tabbable 1.13.2
  * http://jqueryui.com
  *
  * Copyright jQuery Foundation and other contributors

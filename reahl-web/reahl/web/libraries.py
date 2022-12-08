@@ -233,14 +233,14 @@ class JQuery(Library):
 
 
 class JQueryUI(Library):
-    """A heavily customised subset of version 1.13.1 of `JQuery UI <https://jqueryui.com>`_.
+    """A heavily customised subset of version 1.13.2 of `JQuery UI <https://jqueryui.com>`_.
     
    Only contains the `Widget Factory <http://api.jqueryui.com/jQuery.widget/>`_ and :tabbable, :focusable Selector.
     """
     def __init__(self):
         super().__init__('jqueryui')
         self.shipped_in_package = 'reahl.web.static'
-        self.files = ['jquery-ui-1.13.1.custom/jquery-ui.js']
+        self.files = ['jquery-ui-1.13.2.custom/jquery-ui.min.js']
 
 
 class HTML5Shiv(Library):
