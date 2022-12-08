@@ -1,6 +1,30 @@
 .. Copyright 2014, 2015, 2016 Reahl Software Services (Pty) Ltd. All rights reserved.
 
 
+.. |with_returned_argument| replace:: :meth:`~reahl.component.modelinterface.Event.with_returned_argument`
+.. |Event| replace:: :class:`~reahl.component.modelinterface.Event`
+.. |Field| replace:: :class:`~reahl.component.modelinterface.Field`
+.. |Form| replace:: :class:`~reahl.web.ui.Form`
+.. |ExposedNames| replace:: :class:`~reahl.component.modelinterface.ExposedNames`
+.. |exposed| replace:: :meth:`~reahl.component.modelinterface.exposed`
+.. |ExecutionContext| replace:: :class:`~reahl.component.context.ExecutionContext`
+.. |get_context| replace:: :meth:`~reahl.component.context.ExecutionContext.get_context`
+.. |install| replace:: :meth:`~reahl.component.context.ExecutionContext.install`
+.. |UrlBoundView| replace:: :class:`~reahl.web.fw.UrlBoundView`
+.. |ButtonInput| replace:: :class:`~reahl.web.ui.ButtonInput`
+.. |TextInput| replace:: :class:`~reahl.web.ui.TextInput`
+.. |HTMLWidget| replace:: :class:`~reahl.web.ui.HTMLWidget`
+.. |SelectInput| replace:: :class:`~reahl.web.ui.SelectInput`
+.. |PasswordInput| replace:: :class:`~reahl.web.ui.PasswordInput`
+.. |PrimitiveInput| replace:: :class:`~reahl.web.ui.PrimitiveInput`
+.. |Action| replace:: :class:`~reahl.component.modelinterface.Action`
+.. |Choice| replace:: :class:`~reahl.component.modelinterface.Choice`
+.. |ChoiceField| replace:: :class:`~reahl.component.modelinterface.ChoiceField`
+.. |NavbarLayout.add| replace:: :meth:`~reahl.web.bootstrap.navbar.NavbarLayout.add`
+.. |InlineFormLayout.add_input| replace:: :meth:`~reahl.web.bootstrap.forms.InlineFormLayout.add_input`
+.. |set_refresh_widgets| replace:: :meth:`~reahl.web.ui.PrimitiveInput.set_refresh_widgets`
+.. |set_refresh_widget| replace:: :meth:`~reahl.web.ui.PrimitiveInput.set_refresh_widget`
+
 
 
 What changed in version 6.1
@@ -104,8 +128,8 @@ Performance-related changes
 ---------------------------
 
 Reahl is a very high level web framework and as such does a lot of
-work under the covers. This release focused on improving performance---
-an aspect which previously took a back seat.
+work under the covers. This release focused on improving
+performance---an aspect which previously took a back seat.
 
 Performance varies depending on what action is performed, the size of
 a page and the number of Input Widgets on the page. 
@@ -178,52 +202,98 @@ it was accepted in this (minor) release.
 
 General UI related changes
 --------------------------
- * Added Event.with_returned_argument to allow dynamically supplying argument values to an Event (#371). examples/howtos/eventresult/
 
- * Added left_aligned kwarg to NavbarLayout.add.
- * Added space_before and space_after to InlineFormLayout.add_input.
- * Added placeholder to PasswordInput.
-       :keyword placeholder: If given a string, placeholder is displayed in the TextInput if the TextInput
-                     is empty in order to provide a hint to the user of what may be entered into the TextInput.
-                     If given True instead of a string, the label of the TextInput is used.
- * Added size to SelectInput (#362)
- * Changed placeholder to display the default of the field under certain conditions (#363).
-   
+Several enhancements were added to ease a number of corner cases:
 
-Ajax
-----
- * Changed ChoiceField to be able to delay fetching the list of Choices (#369).
- * Added set_refresh_widgets to allow refreshing multiple widgets (#375).
+Dynamic |Event| argument values
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-   
-Reahl-component
- * Made create_args for sqlalchemy configurable (#232).
-   
-Reahl-dev/webdev
- * Read and configure test dependencies from fixture (#237).
-   
+:doc:`As explained in the tutorial example
+<tutorial/parameterised>`, when transitioning to an |UrlBoundView|
+which is parameterised, values are supplied to the |Event| to match the
+arguments expected by the destination |UrlBoundview|.
+
+Sometimes this value is not yet known at the time the |Event| is used
+to render a |ButtonInput|, but becomes known as a result of executing
+the |Action| of the |Event|.
+
+In order to handle this scenario, you can now use the return value of the
+|Action| as a parameter value, together with |with_returned_argument|.
+
+
+:doc:`See more in the added howto. <howto/eventresult.rst>`
+
+Automatic display of default as placeholder
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+When creating a |TextInput|, you can now set `placeholder=True`
+(instead of a string).
+
+If the underlying |Field| does not have a value, and is not required,
+submitting the |Form| results in setting that |Field| to its specified
+`default`. With `placeholder=True`, that default is now displayed as a
+placeholder to show the user what will be submitted.
+
+If the |Field| is required, though, the user is forced to enter a
+value, and hence a default does not make sense. In this case, the
+label of the |Field| is displayed as placeholder.
+
+
+Delaying the list of choices of a |ChoiceField|
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In some cases (such as when one |PrimitiveInput| refreshes a |SelectInput| and
+expects the different choices after a refresh, the list of |Choice|\s
+of the |SelectInput| cannot be statically pinned down at the time the
+|ChoiceField| is created. In this case you can now pass a no-arg
+callable for `grouped_choices`. This callable is then called only
+later on to compute the list of |Choice|\s.
+
+
+UI enhancements
+^^^^^^^^^^^^^^^
+
+* The `left_aligned` keyword argument was added to |NavbarLayout.add|.
+* On |InlineFormLayout.add_input| the 'space_before' and 'space_after'
+  keyword arguments were added.
+* The 'placeholder' keyword argument was added |PasswordInput|.
+* A 'size' keyword argument was added to |SelectInput|.
+* An |PrimitiveInput| can now refresh more than one |HTMLWidget| at a
+  time. To facilitate this, |set_refresh_widgets| was added and
+  |set_refresh_widget| was deprecated (and will be removed in a
+  future version).
+
+
+Other enhancements
+^^^^^^^^^^^^^^^^^^
+
+sqlalchemysupport
+  A new config file `sqlalchemy.config.py` can now be created and
+  supports a single setting: `sqlalchemy.engine_create_args`. This is
+  a dictionary of keyword arguments passed to `SqlAlchemy's
+  create_engine method
+  <https://docs.sqlalchemy.org/en/14/core/engines.html#sqlalchemy.create_engine>`_.
+  
+test dependencies
+  Test dependencies declared on Fixtures are now taken into account
+  when running tests. This means their config is read and injections
+  are done correctly when testing.
+
+ 
 Bug fixes
 ---------
- * Listing examples bug fix (#354).
+ * Listing and checking out of examples did not work correctly (#354).
  * Fixed incorrect handling of timeouts (#383).
- * Changed DateField to correctly use dayfirst based on the current locale (#194). (onthou default when not inputted is now '', not today)
- * Fixed in-memory tables for sqlite (#366).
-
-General
--------
- * Replaced usage of pkg_resources.resource_filename with importlib.resources.files (#390).
+ * Changed DateField to correctly use dayfirst based on the current locale. The default is now an empty string instead of the current date. (#194)
+ * Fixed in-memory tables that were not created on the fly when using sqlite (#366).
 
 
-Deprecated functionality
-------------------------
-- field.bind will break in future if already bound
-- ExposedNames changes
-  
 
 Updated dependencies
 --------------------
 
 Some dependencies on thirdparty python packages have been loosened to include a higher max version:
+
 - setuptools should now be 51.0.0 or higher
 - babel should now be between 2.1 and 2.11
 

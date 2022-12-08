@@ -6,13 +6,16 @@
 .. |assemble| replace:: :meth:`~reahl.web.fw.UrlBoundView.assemble`
 .. |Field| replace:: :class:`~reahl.component.modelinterface.Field`
 .. |Bookmark| replace:: :class:`~reahl.web.fw.Bookmark`
+.. |with_returned_argument| replace:: :meth:`~reahl.component.modelinterface.Event.with_returned_argument`
 
 Providing values to the arguments of an Event on the fly
 ========================================================
 
-In order to be able to transition to an |UrlBoundView| which is parameterised, the |Event|
-used to specify the transition should have arguments matching those of the |UrlBoundview| and
-also values for these arguments.
+:doc:`As explained in the tutorial example
+<../tutorial/parameterised>`, when transitioning to an |UrlBoundView|
+which is parameterised, the |Event| used to specify the transition has
+arguments matching those of the destination |UrlBoundview| and also
+values for these arguments.
 
 |Event| argument values are supplied where the |Event| is passed to a |ButtonInput| by calling the
 |with_arguments| method.
