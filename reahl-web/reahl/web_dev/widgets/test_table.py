@@ -15,6 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+from selenium.webdriver.common.by import By
 
 from reahl.stubble import EmptyStub
 from reahl.tofu import Fixture, scenario, uses
@@ -49,19 +50,19 @@ class TableFixture(Fixture):
         return  self.web_fixture.driver_browser.find_element(XPath.table_with_summary(summary))
 
     def table_column_name_is(self, column_number, expected):
-        return self.web_fixture.driver_browser.web_driver.find_element_by_xpath('((//table/thead/tr/th)[%s]/span)[1]' % column_number).text == expected
+        return self.web_fixture.driver_browser.web_driver.find_element(By.XPATH, '((//table/thead/tr/th)[%s]/span)[1]' % column_number).text == expected
 
     def get_table_row(self, row_number):
         row_data = []
         for column_number in list(range(1, self.table_number_columns()+1)):
-            row_data.append(self.web_fixture.driver_browser.web_driver.find_element_by_xpath('((//table/tbody/tr)[%s]/td)[%s]' % (row_number, column_number)).text)
+            row_data.append(self.web_fixture.driver_browser.web_driver.find_element(By.XPATH, '((//table/tbody/tr)[%s]/td)[%s]' % (row_number, column_number)).text)
         return row_data
 
     def table_number_columns(self):
-        return len(self.web_fixture.driver_browser.web_driver.find_elements_by_xpath('//table/thead/tr/th'))
+        return len(self.web_fixture.driver_browser.web_driver.find_elements(By.XPATH, '//table/thead/tr/th'))
 
     def table_number_rows(self):
-        return len(self.web_fixture.driver_browser.web_driver.find_elements_by_xpath('//table/tbody/tr'))
+        return len(self.web_fixture.driver_browser.web_driver.find_elements(By.XPATH, '//table/tbody/tr'))
 
 
 @with_fixtures(WebFixture, TableFixture)

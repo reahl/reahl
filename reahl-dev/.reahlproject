@@ -13,7 +13,7 @@
       <thirdpartyegg name="Pygments" minversion="2.1.0" maxversion="2.13.999"/><!-- because twine depends on Pygments that conflict with ours -->
       <thirdpartyegg name="twine" minversion="1.15.0" maxversion="4.0.9999"/>
       <thirdpartyegg name="wheel" minversion="0.34.0"/>
-      <thirdpartyegg name="tzlocal" minversion="2.0.0" maxversion="4.1.9999"/>
+      <thirdpartyegg name="tzlocal" minversion="2.0.0" maxversion="4.2.9999"/>
       <thirdpartyegg name="setuptools" minversion="51.0.0"/> 
       <thirdpartyegg name="pip" minversion="10.0.0"/> 
       <thirdpartyegg name="toml"/> 

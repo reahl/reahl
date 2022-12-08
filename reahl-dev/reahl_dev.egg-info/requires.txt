@@ -6,7 +6,7 @@ Babel<2.11.999,>=2.1
 Pygments<2.13.999,>=2.1.0
 twine<4.0.9999,>=1.15.0
 wheel>=0.34.0
-tzlocal<4.1.9999,>=2.0.0
+tzlocal<4.2.9999,>=2.0.0
 setuptools>=51.0.0
 pip>=10.0.0
 toml

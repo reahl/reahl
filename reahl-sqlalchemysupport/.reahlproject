@@ -8,7 +8,7 @@
       <egg name="reahl-component" versionlocked="True"/>
       <egg name="reahl-commands" versionlocked="True"/>
       <thirdpartyegg name="SQLAlchemy" minversion="1.2.0" maxversion="1.4.999"/>
-      <thirdpartyegg name="alembic" minversion="0.9.6" maxversion="1.7.999"/>
+      <thirdpartyegg name="alembic" minversion="0.9.6" maxversion="1.8.999"/>
     </deps>
   </version>
 

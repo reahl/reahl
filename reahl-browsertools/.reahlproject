@@ -5,9 +5,9 @@
 
   <version number="6.1">
       <deps purpose="run">
-        <thirdpartyegg name="lxml" minversion="4.2" maxversion="4.7.999"/>
-        <thirdpartyegg name="WebTest" minversion="2.0" maxversion="2.0.999"/>
-        <thirdpartyegg name="selenium" minversion="2.42" maxversion="3.141.9999"/>
+        <thirdpartyegg name="lxml" minversion="4.2" maxversion="4.9.999"/>
+        <thirdpartyegg name="WebTest" minversion="2.0" maxversion="3.0.999"/>
+        <thirdpartyegg name="selenium" minversion="2.42" maxversion="4.7.9999"/>
       </deps>
   </version>
 

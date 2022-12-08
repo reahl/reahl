@@ -15,6 +15,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+from selenium.webdriver.common.by import By
+
 from reahl.tofu import scenario, Fixture
 from reahl.tofu.pytestsupport import with_fixtures
 
@@ -167,11 +169,11 @@ class DataTableFixture(TableFixture):
         return '(//table/thead/tr/th)[%s]/a' % column_number
 
     def does_column_have_sort_link(self, column_number):
-        column_header = self.web_fixture.driver_browser.web_driver.find_element_by_xpath('(//table/thead/tr/th)[%s]' % (column_number))
-        return len(column_header.find_elements_by_tag_name('a')) == 1
+        column_header = self.web_fixture.driver_browser.web_driver.find_element(By.XPATH, '(//table/thead/tr/th)[%s]' % (column_number))
+        return len(column_header.find_elements(By.TAG_NAME, 'a')) == 1
         
     def is_column_sorted(self, column_number, direction):
-        header_link = self.web_fixture.driver_browser.web_driver.find_element_by_xpath('(//table/thead/tr/th)[%s]/a' % (column_number))
+        header_link = self.web_fixture.driver_browser.web_driver.find_element(By.XPATH, '(//table/thead/tr/th)[%s]/a' % (column_number))
         if direction:
             expected_class = 'sorted-%s' % direction
             return expected_class in header_link.get_attribute('class').split(' ')

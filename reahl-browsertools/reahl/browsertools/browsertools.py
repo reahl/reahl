@@ -30,6 +30,7 @@ from lxml import html
 from selenium.webdriver.support.ui import WebDriverWait, Select
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions
 
 # See: https://github.com/Pylons/webtest/issues/8
@@ -833,9 +834,9 @@ class DriverBrowser(BasicBrowser):
         """
         xpath = str(locator)
         if wait:
-            return WebDriverWait(self.web_driver, 2).until(lambda d: d.find_element_by_xpath(xpath), 'waited for %s' % xpath)
+            return WebDriverWait(self.web_driver, 2).until(lambda d: d.find_element(By.XPATH, xpath), 'waited for %s' % xpath)
         else:
-            return self.web_driver.find_element_by_xpath(xpath)
+            return self.web_driver.find_element(By.XPATH, xpath)
 
     def is_element_enabled(self, locator):
         """Answers whether the element found by `locator` is responsive to user activity or not.
@@ -1398,7 +1399,7 @@ class DriverBrowser(BasicBrowser):
 
            :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
         """
-        return len(self.web_driver.find_elements_by_xpath(str(locator)))
+        return len(self.web_driver.find_elements(By.XPATH, str(locator)))
 
     def capture_cropped_screenshot(self, output_file):
         """Takes a screenshot of the current page, and writes it to `output_file`. The image is cropped
