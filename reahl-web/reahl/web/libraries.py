@@ -307,7 +307,7 @@ class Holder(Library):
 
 
 class Bootstrap4(Library):
-    """Version 4.6.1 of `Bootstrap <http://getbootstrap.com/>`_.
+    """Version 4.6.2 of `Bootstrap <http://getbootstrap.com/>`_.
     """
     def __init__(self):
         super().__init__('bootstrap4')
@@ -316,11 +316,8 @@ class Bootstrap4(Library):
                       'bootstrap-4.6.1/css/bootstrap.css',
                       'bootstrap-4.6.1/css/reahl-patch.css',
                       'bootstrap-4.6.1/css/bootstrap.css.map',
-                      # 'bootstrap-4.6.1/css/bootstrap-grid.css',
-                      # 'bootstrap-4.6.1/css/bootstrap-grid.css.map',
-                      # 'bootstrap-4.6.1/css/bootstrap-reboot.css',
-                      # 'bootstrap-4.6.1/css/bootstrap-reboot.css.map',
-                      'bootstrap-4.6.1/js/bootstrap.js'
+                      'bootstrap-4.6.1/js/bootstrap.min.js',
+                      'bootstrap-4.6.1/js/bootstrap.min.js.map'
                       ]
 
 
