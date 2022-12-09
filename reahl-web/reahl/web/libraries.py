@@ -313,11 +313,11 @@ class Bootstrap4(Library):
         super().__init__('bootstrap4')
         self.shipped_in_package = 'reahl.web.static'
         self.files = [
-                      'bootstrap-4.6.1/css/bootstrap.css',
-                      'bootstrap-4.6.1/css/reahl-patch.css',
-                      'bootstrap-4.6.1/css/bootstrap.css.map',
-                      'bootstrap-4.6.1/js/bootstrap.min.js',
-                      'bootstrap-4.6.1/js/bootstrap.min.js.map'
+                      'bootstrap-4.6.2/css/bootstrap.css',
+                      'bootstrap-4.6.2/css/reahl-patch.css',
+                      'bootstrap-4.6.2/css/bootstrap.css.map',
+                      'bootstrap-4.6.2/js/bootstrap.min.js',
+                      'bootstrap-4.6.2/js/bootstrap.min.js.map'
                       ]
 
 
@@ -359,13 +359,13 @@ class Popper(Library):
 
 
 class Underscore(Library):
-    """Version 1.13.2 of `Underscore.js <https://underscorejs.org>`_.
+    """Version 1.13.6 of `Underscore.js <https://underscorejs.org>`_.
     """
     def __init__(self):
         super().__init__('underscore')
         self.shipped_in_package = 'reahl.web.static'
         self.files = [
-            'underscore-umd-min.1.13.2.js'
+            'underscore-umd-min.1.13.6.js'
         ]
     def footer_only_material(self, rendered_page):
         return super().footer_only_material(rendered_page) + '<script>var underscore = _;</script>'
