@@ -294,8 +294,19 @@ Updated dependencies
 
 Some dependencies on thirdparty python packages have been loosened to include a higher max version:
 
+- babel  between 2.1 and 2.11
+- Pillow between 2.5 and 3.9
+- alembic between 0.9.6 and 1.8
+- beautifulsoup4 between 4.6 and 4.11
+- docutils between 0.14 and 0.19
+- lxml between 4.2 and 4.9
+- plotly between 5.1.0 and 5.11
+- prompt_toolkit between 2.0.10 and 3.0
+- selenium between 2.42 and 4.7
+- tzlocal between 2.0 and 4.2
+- watchdog between 0.8.3 and 2.2
+- wrapt between 1.11.0 and 1.14
 - setuptools should now be 51.0.0 or higher
-- babel should now be between 2.1 and 2.11
 
 
 
