@@ -68,12 +68,28 @@ class PostgresqlControl(DatabaseControl):
         login_args['user'] = login_username or getpass.getuser()
         if password:
             login_args['password'] = password
-            
-        with psycopg2.connect(**login_args) as connection:
+
+        #https://stackoverflow.com/questions/68084078/psycopg2-errors-activesqltransaction-create-tablespace-cannot-run-inside-a-tran
+        # https://github.com/psycopg/psycopg2/issues/941
+        # this used to work until pre psycopg 2.8.6. Since 2.9:
+        # with psycopg2.connect(...) as connection:
+        # # This starts a transaction as of v2.9
+        # ...
+        # with psycopg2.connect(**login_args) as connection:
+        #     connection.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
+        #     connection.autocommit = True
+        #     with connection.cursor() as cursor:
+        #         return cursor.execute(sql)
+
+        try:
+            connection = psycopg2.connect(**login_args)
             connection.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
             connection.autocommit = True
             with connection.cursor() as cursor:
                 return cursor.execute(sql)
+        finally:
+            if connection:
+                connection.close()
 
     def get_superuser_password(self):
         return os.environ.get('PGPASSWORD', None)
