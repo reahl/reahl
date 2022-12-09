@@ -357,7 +357,7 @@ class Popper(Library):
         super().__init__('popper')
         self.shipped_in_package = 'reahl.web.static'
         self.files = [
-            'popper-1.16.1/popper.js' #make sure it is the umd edition
+            'popper-1.16.1/popper.min.js' #make sure it is the umd edition
         ]
 
 
