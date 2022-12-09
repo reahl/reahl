@@ -50,6 +50,6 @@ else
   echo "SECRETS NOT available, using fake key for signing"
 fi
 
-import_gpg_keys travis/keys  # We import these anyways for use by tests that sign stuff
+import_gpg_keys scripts/keys  # We import these anyways for use by tests that sign stuff
 
 gpg --list-secret-keys --with-keygrip

@@ -55,10 +55,10 @@ EOF
 
 # User installs and config
 sh -l -c "
-./travis/createTestSshKey.sh;
-./travis/createTestGpgKey.sh;
-./travis/configurePip.sh;
-./travis/setupTestGit.sh
+./scripts/createTestSshKey.sh;
+./scripts/createTestGpgKey.sh;
+./scripts/configurePip.sh;
+./scripts/setupTestGit.sh
 "
 
 

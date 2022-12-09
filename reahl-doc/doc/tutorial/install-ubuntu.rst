@@ -7,7 +7,7 @@ Preparing for installation on Ubuntu
 
    .. code-block:: bash
 
-      sudo apt-get install python3-dev gcc cython python-virtualenv
+      sudo apt-get install python3-dev gcc cython3 python-virtualenv
 
 
 2. Additional necessary packages for a Reahl installation

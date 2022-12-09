@@ -1,4 +1,4 @@
-FROM ubuntu:20.04 as base
+FROM ubuntu:22.04 as base
 
 #For Postgres db
 ENV DB_CLIENT_LIBS=postgresql-client

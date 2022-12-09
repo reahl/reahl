@@ -3,7 +3,7 @@
 PYTHON_DEPS="python3 python3-venv virtualenvwrapper"
 
 PYTHON_DEV="zlib1g-dev libfreetype6-dev dpkg-dev libyaml-dev"
-LXML_DEV="build-essential python3-dev gcc cython libxml2-dev libxslt-dev"
+LXML_DEV="build-essential python3-dev gcc cython3 libxml2-dev libxslt-dev"
 MYSQL_DEV="build-essential python3-dev default-libmysqlclient-dev"
 POSTGRES_DEV="postgresql-server-dev-all"
 
