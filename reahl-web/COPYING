@@ -77,10 +77,10 @@ Copyright HTML5 Shiv v3.7.3 | MIT/GPL2 Licensed,
 see http://opensource.org/licenses/mit-license.php
 or http://opensource.org/licenses/GPL-2.0
 
-reahl-web/reahl/web/static/jquery/jquery-3.6.0/
+reahl-web/reahl/web/static/jquery/jquery-3.6.1/
 ===============================================
 
-jQuery JavaScript Library v3.6.0
+jQuery JavaScript Library v3.6.1
 https://jquery.com/
 
 Includes Sizzle.js
@@ -127,10 +127,10 @@ Copyright 2006 M. Alsup
 Dual licensed under the LGPL-2.1+ or MIT licenses
 https://github.com/jquery-form/form#license
 
-reahl-web/reahl/web/static/jquery/jquery.validate-1.19.3.modified.js
+reahl-web/reahl/web/static/jquery/jquery.validate-1.19.5.modified.js
 ====================================================================
 
-Copyright (c) 2021 Jörn Zaefferer
+Copyright (c) 2022 Jörn Zaefferer
 Released under the MIT license
 
 Which includes http://jqueryvalidation.org/url-method/ :

@@ -185,14 +185,14 @@ class Library:
 
     
 class JQuery(Library):
-    """Version 3.6.0 of `JQuery <https://jquery.com>`_.
+    """Version 3.6.1 of `JQuery <https://jquery.com>`_.
 
     This Library also includes a number of plugins we use internally:
 
     =================== ==================================
      Plugin              Version
     =================== ==================================
-     jquery.validate     1.19.3 (a heavily modified version) (https://github.com/jquery-validation/jquery-validation/releases/tag/1.19.3)
+     jquery.validate     1.19.5 (a heavily modified version) (https://github.com/jquery-validation/jquery-validation/releases/tag/1.19.5)
      jquery.ba-bbq       1.3pre
      jquery.blockUI      2.70.0 (https://github.com/malsup/blockui/releases)
      jquery.form         4.3.0 (https://github.com/jquery-form/form/releases)
@@ -200,10 +200,10 @@ class JQuery(Library):
     """
     def __init__(self):
         super().__init__('jquery')
-        self.files = ['jquery-3.6.0/jquery-3.6.0.js',
-                      'jquery-3.6.0/jquery-3.6.0.min.map']
+        self.files = ['jquery-3.6.1/jquery-3.6.1.min.js',
+                      'jquery-3.6.1/jquery-3.6.1.min.map']
         self.shipped_in_package = 'reahl.web.static'
-        for i in ['jquery.validate-1.19.3.modified.js',
+        for i in ['jquery.validate-1.19.5.modified.js',
                   'jquery.ba-bbq-1.3pre.js',
                   'jquery.blockUI-2.70.0.js',
                   'jquery.form-4.3.0.js']:
