@@ -25,6 +25,14 @@ python-reahl (6.1.0) unstable; urgency=low
  * Added Event.with_returned_argument to allow dynamically supplying argument values to an Event (#371).
  * Changed DateField to correctly use dayfirst based on the current locale (#194).
  * Changed versions of some dependencies to accept newer upper version.
+ * Increased version of Jquery to 3.6.1.
+ * Increased version of Jquery-ui to 1.13.2.
+ * Increased version of jquery-validate to 1.19.5.
+ * Increased version of js-cookie to 3.0.1.
+ * Increased version of bootstrap to 4.6.2.
+ * Increased version of underscore to 1.13.6.
+ * Increased version of plotlyjs to 2.16.4 and plotly to 5.11.0.
+ * Increased min version of pip 21.1.
 
  -- Iwan Vosloo <iwan@reahl.org>  Fri, 12 Jul 2022 07:56:00 +0200
 

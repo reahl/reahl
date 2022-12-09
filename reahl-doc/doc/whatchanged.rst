@@ -308,11 +308,19 @@ Some dependencies on thirdparty python packages have been loosened to include a 
 - wrapt between 1.11.0 and 1.14
 - setuptools should now be 51.0.0 or higher
 
+The dependency on plotly has been upped to version 5.11.0.
 
+The dependency on pip has been upped to minimum version 21.1 in order to work correctly for projects using pyproject.toml.
 
+Some javascript dependencies were updated to newer versions:
 
-
-
+- Jquery to 3.6.1
+- Jquery-ui to 1.13.2
+- jquery-validate to 1.19.5
+- js-cookie to 3.0.1
+- bootstrap to 4.6.2
+- underscore to 1.13.6
+- plotlyjs to 2.16.4
    
 
    

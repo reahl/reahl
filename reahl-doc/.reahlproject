@@ -21,7 +21,7 @@
       <egg name="reahl-paypalsupport" versionlocked="True"/>
       <thirdpartyegg name="pytest" minversion="3.0"/>
       <thirdpartyegg name="setuptools" minversion="51.0.0"/>
-      <thirdpartyegg name="plotly" minversion="5.1.0" maxversion="5.11.99999"/>
+      <thirdpartyegg name="plotly" minversion="5.11.0" maxversion="5.11.99999"/>
     </deps>
   </version>
 
