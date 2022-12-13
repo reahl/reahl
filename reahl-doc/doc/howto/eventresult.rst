@@ -3,10 +3,14 @@
 .. |define_view| replace:: :meth:`~reahl.web.fw.UserInterface.enable_refresh`
 .. |UserInterface| replace:: :class:`~reahl.web.fw.UserInterface`
 .. |UrlBoundView| replace:: :class:`~reahl.web.fw.UrlBoundView`
+.. |ButtonInput| replace:: :class:`~reahl.web.ui.ButtonInput`
 .. |assemble| replace:: :meth:`~reahl.web.fw.UrlBoundView.assemble`
 .. |Field| replace:: :class:`~reahl.component.modelinterface.Field`
+.. |Event| replace:: :class:`~reahl.component.modelinterface.Event`
+.. |Action| replace:: :class:`~reahl.component.modelinterface.Action`
 .. |Bookmark| replace:: :class:`~reahl.web.fw.Bookmark`
 .. |with_returned_argument| replace:: :meth:`~reahl.component.modelinterface.Event.with_returned_argument`
+.. |with_arguments| replace:: :meth:`~reahl.component.modelinterface.Event.with_arguments`
 
 Providing values to the arguments of an Event on the fly
 ========================================================
