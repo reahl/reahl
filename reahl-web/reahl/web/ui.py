@@ -2137,8 +2137,8 @@ class TextInput(PrimitiveInput):
                      is empty in order to provide a hint to the user of what may be entered into the TextInput.
                      If given a string, that string is used.
                      If given True instead of a string, use:
-                        - default of the field when the field is not required
-                        - else, the label.
+                     - default of the field when the field is not required
+                     - else, the label.
        :keyword refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
        :keyword ignore_concurrent_change: (See :class:`~reahl.web.ui.PrimitiveInput`)
 

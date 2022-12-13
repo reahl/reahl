@@ -1666,7 +1666,7 @@ class DateField(Field):
        :keyword min_value: The earliest value allowed as valid input.
        :keyword max_value: The latest value allowed as valid input.
        :keyword date_format: Specify which format (short/medium/long/full) of the current locale to use for dates. 
-                             (See `https://babel.pocoo.org/en/latest/api/dates.html#date-and-time-formatting`_ )
+                             (See https://babel.pocoo.org/en/latest/api/dates.html#date-and-time-formatting )
 
        (For other arguments, see :class:`Field`.)
 
