@@ -1,10 +1,10 @@
-FROM ubuntu:20.04 as base
+FROM ubuntu:22.04 as base
 
 # ---- ENV vars set here are available to all phases of the build going forward
 ENV BOOTSTRAP_REAHL_SOURCE=
 ENV REAHL_USER=developer
 ENV VENV_HOME=/home/$REAHL_USER/.venvs
-ENV VENV_NAME=python3.8
+ENV VENV_NAME=python3.10
 ENV VENV=$VENV_HOME/$VENV_NAME
 ENV REAHLWORKSPACE=/home/$REAHL_USER
 ENV REAHL_SCRIPTS=$REAHLWORKSPACE/reahl
@@ -53,7 +53,6 @@ ENV REAHL_SCRIPTS=/opt/reahl
 RUN mkdir -p $REAHL_SCRIPTS 
 
 COPY ./scripts $REAHL_SCRIPTS/scripts
-COPY ./travis $REAHL_SCRIPTS/travis
 
 RUN $REAHL_SCRIPTS/scripts/installDebs.sh && \
     $REAHL_SCRIPTS/scripts/installDevEnvDebs.sh

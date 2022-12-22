@@ -23,20 +23,20 @@ Several files from other projects are included in this code. See the copyright i
 of each applicable file below:
 
 
-reahl-web/reahl/web/static/bootstrap-4.6.1/
+reahl-web/reahl/web/static/bootstrap-4.6.2/
 ===========================================
 
 /js/
 
-Bootstrap v4.6.1 (https://getbootstrap.com/)
-Copyright 2011-2021 The Bootstrap Authors (https://github.com/twbs/bootstrap/graphs/contributors)
+Bootstrap v4.6.2 (https://getbootstrap.com/)
+Copyright 2011-2022 The Bootstrap Authors (https://github.com/twbs/bootstrap/graphs/contributors)
 Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
 
 /css/
 
-Bootstrap v4.6.1 (https://getbootstrap.com/)
-Copyright 2011-2021 The Bootstrap Authors
-Copyright 2011-2021 Twitter, Inc.
+Bootstrap v4.6.2 (https://getbootstrap.com/)
+Copyright (c) 2011-2022 Twitter, Inc.
+Copyright (c) 2011-2022 The Bootstrap Authors
 Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
 
 
@@ -48,12 +48,12 @@ Copyright (c) 2016 Federico Zivolo and contributors
 FezVrasta/popper.js is licensed under the MIT License
 
 
-reahl/reahl-web/reahl/web/static/underscore-min-1.13.2.js
+reahl/reahl-web/reahl/web/static/underscore-min-1.13.6.js
 =========================================================
 
-Underscore.js 1.13.2
+Underscore.js 1.13.6
 https://underscorejs.org
-(c) 2009-2021 Jeremy Ashkenas, Julian Gonggrijp, and DocumentCloud and Investigative Reporters & Editors
+Copyright (c) 2009-2022 Jeremy Ashkenas, Julian Gonggrijp, and DocumentCloud and Investigative Reporters & Editors
 Underscore may be freely distributed under the MIT license.
 https://github.com/jashkenas/underscore/blob/master/LICENSE
 
@@ -77,10 +77,10 @@ Copyright HTML5 Shiv v3.7.3 | MIT/GPL2 Licensed,
 see http://opensource.org/licenses/mit-license.php
 or http://opensource.org/licenses/GPL-2.0
 
-reahl-web/reahl/web/static/jquery/jquery-3.6.0/
+reahl-web/reahl/web/static/jquery/jquery-3.6.1/
 ===============================================
 
-jQuery JavaScript Library v3.6.0
+jQuery JavaScript Library v3.6.1
 https://jquery.com/
 
 Includes Sizzle.js
@@ -106,15 +106,13 @@ Dual licensed under the MIT and GPL licenses:
 http://www.opensource.org/licenses/mit-license.php
 http://www.gnu.org/licenses/gpl.html
 
-reahl-web/reahl/web/static/js-cookie-2.2.1/js.cookie.js
+reahl-web/reahl/web/static/js-cookie-3.0.1/js.cookie.js
 =======================================================
 
- * JavaScript Cookie v2.2.1
+ * JavaScript Cookie v3.0.1
  * https://github.com/js-cookie/js-cookie
  *
- * Copyright 2006, 2015 Klaus Hartl & Fagner Brack
- *
-Copyright 2006, 2015 Klaus Hartl & Fagner Brack
+Copyright (c) 2018 Copyright 2018 Klaus Hartl, Fagner Brack, GitHub Contributors
 Released under the MIT license
 http://www.opensource.org/licenses/mit-license.php
 
@@ -127,10 +125,10 @@ Copyright 2006 M. Alsup
 Dual licensed under the LGPL-2.1+ or MIT licenses
 https://github.com/jquery-form/form#license
 
-reahl-web/reahl/web/static/jquery/jquery.validate-1.19.3.modified.js
+reahl-web/reahl/web/static/jquery/jquery.validate-1.19.5.modified.js
 ====================================================================
 
-Copyright (c) 2021 Jörn Zaefferer
+Copyright (c) 2022 Jörn Zaefferer
 Released under the MIT license
 
 Which includes http://jqueryvalidation.org/url-method/ :
@@ -141,13 +139,14 @@ see also https://mathiasbynens.be/demo/url-regex
 modified to allow protocol-relative URLs
 
 
-reahl-web/reahl/web/static/jquery-ui-1.13.1.custom/jquery-ui.js
+reahl-web/reahl/web/static/jquery-ui-1.13.2.custom/jquery-ui.js
 ===============================================================
 
-jQuery UI - v1.13.1 - 2022-03-01
+jQuery UI - v1.13.2
 http://jqueryui.com
 Includes: widget.js, focusable.js, tabbable.js
-Copyright jQuery Foundation and other contributors;
+
+Copyright jQuery Foundation and other contributors, https://jquery.org/
 Licensed MIT
 http://www.opensource.org/licenses/mit-license.php
 
@@ -164,13 +163,13 @@ Issues:   https://github.com/imsky/holder/issues
 License:  MIT
 http://www.opensource.org/licenses/mit-license.php
 
-reahl-web/reahl/web/static/plotly-2.9.0.min.js
+reahl-web/reahl/web/static/plotly-2.16.4.min.js
 ==============================================
 
-Plotly.js - 2.9.0
+Plotly.js - 2.16.4
 https://github.com/plotly/plotly.js/
 
-plotly.js v2.9.0
+plotly.js v2.16.4
 Copyright 2012-2022, Plotly, Inc.
 All rights reserved.
 Licensed under the MIT license

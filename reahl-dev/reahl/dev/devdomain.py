@@ -1573,7 +1573,7 @@ class Project:
 
     def extract_messages(self, args):
         if self.translation_package:
-            Executable('pybabel').check_call('extract --input-dirs . --output-file'.split()+[self.pot_filename], cwd=self.directory)
+            Executable('pybabel').check_call(('extract --project=%s --version=%s --input-dirs . --output-file %s' % (self.project_name, self.version, self.pot_filename)).split(), cwd=self.directory)
         else:
             logging.warning('No reahl.translations entry point specified for project: "%s"' % (self.project_name))
 

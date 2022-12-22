@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: reahl-doc 5.2.0\n"
+"Project-Id-Version: reahl-doc 6.1.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-03-08 11:52+0000\n"
+"POT-Creation-Date: 2022-11-24 13:23+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -41,15 +41,15 @@ msgid_plural "Addresses"
 msgstr[0] ""
 msgstr[1] ""
 
-#: reahl/doc/examples/tutorial/i18nexamplebootstrap/i18nexamplebootstrap.py:87
+#: reahl/doc/examples/tutorial/i18nexamplebootstrap/i18nexamplebootstrap.py:86
 msgid "Name"
 msgstr ""
 
-#: reahl/doc/examples/tutorial/i18nexamplebootstrap/i18nexamplebootstrap.py:88
+#: reahl/doc/examples/tutorial/i18nexamplebootstrap/i18nexamplebootstrap.py:87
 msgid "Email"
 msgstr ""
 
-#: reahl/doc/examples/tutorial/i18nexamplebootstrap/i18nexamplebootstrap.py:96
+#: reahl/doc/examples/tutorial/i18nexamplebootstrap/i18nexamplebootstrap.py:94
 msgid "Save"
 msgstr ""
 

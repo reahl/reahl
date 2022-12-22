@@ -22,7 +22,7 @@ jobs:
       GPG_PASSPHRASE:  ${{ secrets.GPG_PASSPHRASE }}
       TWINE_USERNAME:  ${{ secrets.TWINE_USERNAME }}
       TWINE_PASSWORD:  ${{ secrets.TWINE_PASSWORD }}
-    runs-on:  ubuntu-20.04
+    runs-on:  ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
@@ -66,7 +66,7 @@ jobs:
       - name: Publish
         run: |
           ls -la /home/runner/.reahlworkspace/dist-egg/
-          . $HOME/.profile && ./travis/configurePypi.sh && reahl upload -rusdX
+          . $HOME/.profile && ./scripts/configurePypi.sh && reahl upload -rusdX
 
       - name: Cleanup
         if: ${{ always() }}

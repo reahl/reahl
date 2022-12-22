@@ -486,7 +486,7 @@ bound to the given instance.
 
 
 Accessing an object via its |Field|\s
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Given an object with bound |Field|\s declared via an |ExposedNames|:
 

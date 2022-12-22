@@ -185,14 +185,14 @@ class Library:
 
     
 class JQuery(Library):
-    """Version 3.6.0 of `JQuery <https://jquery.com>`_.
+    """Version 3.6.1 of `JQuery <https://jquery.com>`_.
 
     This Library also includes a number of plugins we use internally:
 
     =================== ==================================
      Plugin              Version
     =================== ==================================
-     jquery.validate     1.19.3 (a heavily modified version) (https://github.com/jquery-validation/jquery-validation/releases/tag/1.19.3)
+     jquery.validate     1.19.5 (a heavily modified version) (https://github.com/jquery-validation/jquery-validation/releases/tag/1.19.5)
      jquery.ba-bbq       1.3pre
      jquery.blockUI      2.70.0 (https://github.com/malsup/blockui/releases)
      jquery.form         4.3.0 (https://github.com/jquery-form/form/releases)
@@ -200,10 +200,10 @@ class JQuery(Library):
     """
     def __init__(self):
         super().__init__('jquery')
-        self.files = ['jquery-3.6.0/jquery-3.6.0.js',
-                      'jquery-3.6.0/jquery-3.6.0.min.map']
+        self.files = ['jquery-3.6.1/jquery-3.6.1.min.js',
+                      'jquery-3.6.1/jquery-3.6.1.min.map']
         self.shipped_in_package = 'reahl.web.static'
-        for i in ['jquery.validate-1.19.3.modified.js',
+        for i in ['jquery.validate-1.19.5.modified.js',
                   'jquery.ba-bbq-1.3pre.js',
                   'jquery.blockUI-2.70.0.js',
                   'jquery.form-4.3.0.js']:
@@ -233,14 +233,14 @@ class JQuery(Library):
 
 
 class JQueryUI(Library):
-    """A heavily customised subset of version 1.13.1 of `JQuery UI <https://jqueryui.com>`_.
+    """A heavily customised subset of version 1.13.2 of `JQuery UI <https://jqueryui.com>`_.
     
    Only contains the `Widget Factory <http://api.jqueryui.com/jQuery.widget/>`_ and :tabbable, :focusable Selector.
     """
     def __init__(self):
         super().__init__('jqueryui')
         self.shipped_in_package = 'reahl.web.static'
-        self.files = ['jquery-ui-1.13.1.custom/jquery-ui.js']
+        self.files = ['jquery-ui-1.13.2.custom/jquery-ui.min.js']
 
 
 class HTML5Shiv(Library):
@@ -307,20 +307,17 @@ class Holder(Library):
 
 
 class Bootstrap4(Library):
-    """Version 4.6.1 of `Bootstrap <http://getbootstrap.com/>`_.
+    """Version 4.6.2 of `Bootstrap <http://getbootstrap.com/>`_.
     """
     def __init__(self):
         super().__init__('bootstrap4')
         self.shipped_in_package = 'reahl.web.static'
         self.files = [
-                      'bootstrap-4.6.1/css/bootstrap.css',
-                      'bootstrap-4.6.1/css/reahl-patch.css',
-                      'bootstrap-4.6.1/css/bootstrap.css.map',
-                      # 'bootstrap-4.6.1/css/bootstrap-grid.css',
-                      # 'bootstrap-4.6.1/css/bootstrap-grid.css.map',
-                      # 'bootstrap-4.6.1/css/bootstrap-reboot.css',
-                      # 'bootstrap-4.6.1/css/bootstrap-reboot.css.map',
-                      'bootstrap-4.6.1/js/bootstrap.js'
+                      'bootstrap-4.6.2/css/bootstrap.css',
+                      'bootstrap-4.6.2/css/reahl-patch.css',
+                      'bootstrap-4.6.2/css/bootstrap.css.map',
+                      'bootstrap-4.6.2/js/bootstrap.min.js',
+                      'bootstrap-4.6.2/js/bootstrap.min.js.map'
                       ]
 
 
@@ -357,38 +354,38 @@ class Popper(Library):
         super().__init__('popper')
         self.shipped_in_package = 'reahl.web.static'
         self.files = [
-            'popper-1.16.1/popper.js' #make sure it is the umd edition
+            'popper-1.16.1/popper.min.js' #make sure it is the umd edition
         ]
 
 
 class Underscore(Library):
-    """Version 1.13.2 of `Underscore.js <https://underscorejs.org>`_.
+    """Version 1.13.6 of `Underscore.js <https://underscorejs.org>`_.
     """
     def __init__(self):
         super().__init__('underscore')
         self.shipped_in_package = 'reahl.web.static'
         self.files = [
-            'underscore-umd-min.1.13.2.js'
+            'underscore-umd-min.1.13.6.js'
         ]
     def footer_only_material(self, rendered_page):
         return super().footer_only_material(rendered_page) + '<script>var underscore = _;</script>'
 
 
 class JsCookie(Library):
-    """Version 2.2.1 of `js-cookie <https://github.com/js-cookie/js-cookie>`_.
+    """Version 3.0.1 of `js-cookie <https://github.com/js-cookie/js-cookie>`_.
     """
     def __init__(self):
         super().__init__('js-cookie')
         self.shipped_in_package = 'reahl.web.static'
         self.files = [
-            'js-cookie-2.2.1/js.cookie.js' #this is the UMD version
+            'js-cookie-3.0.1/js.cookie.min.js' #this is the UMD version
         ]
 
 
 class PlotlyJS(Library):
-    """Version 2.9.0 of `plotly.js <https://github.com/plotly/plotly.js/>`_.
+    """Version 2.16.4 of `plotly.js <https://github.com/plotly/plotly.js/>`_.
     """
-    javascript_filename = 'plotly-2.9.0.min.js'
+    javascript_filename = 'plotly-2.16.4.min.js'
     def __init__(self):
         self.active = False
         super().__init__('plotly.js')

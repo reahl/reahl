@@ -1632,6 +1632,7 @@ class PrimitiveInput(Input):
         self.refresh_widgets=[]
         if refresh_widget:
             self.set_refresh_widgets([refresh_widget])
+            
     @deprecated('Use set_refresh_widgets instead', '6.1')
     def set_refresh_widget(self, refresh_widget):
         """
@@ -1981,7 +1982,7 @@ class SelectInput(PrimitiveInput):
        :keyword refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
        :keyword size: Number of rows in the list that should be visible at one time, if the associated field allows multiple selections.
 
-       .. versionchanged: 6.2
+       .. versionchanged: 6.1
           Added keyword parameter size
 
     """
@@ -2136,8 +2137,8 @@ class TextInput(PrimitiveInput):
                      is empty in order to provide a hint to the user of what may be entered into the TextInput.
                      If given a string, that string is used.
                      If given True instead of a string, use:
-                        - default of the field when the field is not required
-                        - else, the label.
+                     - default of the field when the field is not required
+                     - else, the label.
        :keyword refresh_widget: (See :class:`~reahl.web.ui.PrimitiveInput`)
        :keyword ignore_concurrent_change: (See :class:`~reahl.web.ui.PrimitiveInput`)
 

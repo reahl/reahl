@@ -7,7 +7,7 @@
       <deps purpose="run">
         <egg name="reahl-component" versionlocked="True"/>
         <egg name="reahl-commands" versionlocked="True"/>
-        <thirdpartyegg name="psycopg2-binary" minversion="2.8" maxversion="2.8.9999"/>
+        <thirdpartyegg name="psycopg2-binary" minversion="2.8" maxversion="2.9.9999"/>
       </deps>
   </version>
 

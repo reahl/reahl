@@ -13,7 +13,7 @@ fi
 
 # non-python packages
 sudo apt-get install python-virtualenv           # For virtualenv - see below
-sudo apt-get install python-dev gcc cython       # To be able to compile Python modules implemented in C (WebTest, SQLAlchemy, etc)
+sudo apt-get install python-dev gcc cython3       # To be able to compile Python modules implemented in C (WebTest, SQLAlchemy, etc)
 sudo apt-get install libsqlite3-0                # Sqlite
 sudo apt-get install libxml2-dev libxslt-dev     # Header files for compiling WebTest
 # END non-python packages

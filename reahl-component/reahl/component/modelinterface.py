@@ -1665,15 +1665,17 @@ class DateField(Field):
 
        :keyword min_value: The earliest value allowed as valid input.
        :keyword max_value: The latest value allowed as valid input.
-       :keyword date_format: Specify how to format the date. If not given the default format specified by the locale is used.
-                              See `https://babel.pocoo.org/en/latest/api/dates.html#date-and-time-formatting`_
+       :keyword date_format: Specify which format (short/medium/long/full) of the current locale to use for dates. 
+                             (See https://babel.pocoo.org/en/latest/api/dates.html#date-and-time-formatting )
 
        (For other arguments, see :class:`Field`.)
 
-        .. versionchanged:: 6.2
+        .. versionchanged:: 6.1
            Added date_format keyword
     """
     def __init__(self, default=None, date_format='medium', min_value=None, max_value=None, required=False, required_message=None, label=None, readable=None, writable=None):
+        if date_format not in ['short','medium','long','full']:
+            raise ProgrammerError('date_format=%s is not a valid format. Should be one of \'short\',\'medium\',\'long\',\'full\'' % date_format)
         label = label or ''
         super().__init__(default, required, required_message, label, readable=readable, writable=writable)
         self.date_format = date_format

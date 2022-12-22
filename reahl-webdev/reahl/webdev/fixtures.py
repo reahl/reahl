@@ -1,4 +1,4 @@
-# Copyright 2013-2021 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2022 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -86,7 +86,6 @@ class WebServerFixture(Fixture):
         # FF does not fire events when its window is not in focus.
         # Native events used to fix this.
         # After FF34 FF does not support native events anymore
-        # We're on 48.0 now on local machines, but on 31 on travis
 
         fp = FirefoxProfile()
 ##        fp.set_preference("focusmanager.testmode", False)

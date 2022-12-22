@@ -1,6 +1,12 @@
 python-reahl (6.1.0) unstable; urgency=low
 
+ * Updated error message (#360).
  * Listing examples bug fix (#354).
+ * Use newer twine (#355).
+ * Improved exception (#347).
+ * Fixed in-memory tables for sqlite (#366).
+ * Improved CSRF error handling during AJAX (#364).
+ * Removed localising of config settings (#357).
  * Added left_aligned kwarg to NavbarLayout.add.
  * Added space_before and space_after to InlineFormLayout.add_input.
  * Added placeholder to PasswordInput.
@@ -9,14 +15,24 @@ python-reahl (6.1.0) unstable; urgency=low
  * Read and configure test dependencies from fixture (#237).
  * Enable to toggle the execution of runtime checks and other performance enhancements (#358).
  * Implement ExecutionContext with contextvars, mandating it to be used as ContextManager from now on (#359).
- * Cache session data on UrlBoundView (#365)
- * Added size to SelectInput (#362)
+ * Cache session data on UrlBoundView (#365).
+ * Added size to SelectInput (#362).
  * Changed placeholder to display the default of the field under certain conditions (#363).
  * Deprecated use of @exposed in favour of ExposedNames (#373).
  * Changed ChoiceField to be able to delay fetching the list of Choices (#369).
- * Added set_refresh_widgets to allow refreshing multiple widgets (#365).
+ * Added set_refresh_widgets to allow refreshing multiple widgets (#375).
  * Replaced usage of pkg_resources.resource_filename with importlib.resources.files (#390).
  * Added Event.with_returned_argument to allow dynamically supplying argument values to an Event (#371).
+ * Changed DateField to correctly use dayfirst based on the current locale (#194).
+ * Changed versions of some dependencies to accept newer upper version.
+ * Increased version of Jquery to 3.6.1.
+ * Increased version of Jquery-ui to 1.13.2.
+ * Increased version of jquery-validate to 1.19.5.
+ * Increased version of js-cookie to 3.0.1.
+ * Increased version of bootstrap to 4.6.2.
+ * Increased version of underscore to 1.13.6.
+ * Increased version of plotlyjs to 2.16.4 and plotly to 5.11.0.
+ * Increased min version of pip 21.1.
 
  -- Iwan Vosloo <iwan@reahl.org>  Fri, 12 Jul 2022 07:56:00 +0200
 

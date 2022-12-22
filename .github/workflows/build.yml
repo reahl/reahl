@@ -5,7 +5,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
 
@@ -24,10 +24,10 @@ jobs:
 
   test:
     needs: build
-    runs-on:  ubuntu-20.04
+    runs-on:  ubuntu-22.04
     strategy:
       matrix:
-        python-version: [ '3.6', '3.7', '3.8', '3.9', '3.10']
+        python-version: ['3.7', '3.8', '3.9', '3.10', '3.11']
     services:
       postgres:
         image: postgres:12.3
@@ -107,7 +107,7 @@ jobs:
         run: . $HOME/.profile && reahl refresh && reahl select -a
 
       - name: Create db user for Tests
-        run: . $HOME/.profile && reahl createdbuser -U runner travis/etc
+        run: . $HOME/.profile && reahl createdbuser -U runner .github/etc
       - name: Run Tests
         run: . $HOME/.profile && reahl shell -sdXg tox
 

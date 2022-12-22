@@ -6,9 +6,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: reahl-paypalsupport 5.2.0\n"
+"Project-Id-Version: reahl-paypalsupport 6.1.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-03-08 11:51+0000\n"
+"POT-Creation-Date: 2022-11-24 13:23+0000\n"
 "PO-Revision-Date: 2022-03-08 11:28+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: af\n"

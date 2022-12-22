@@ -97,7 +97,7 @@ def fake_distributions_into_existence(project_dirs):
 
 
 def find_all_prerequisits_for(project_dirs):
-    prerequisites = {'tox>=3.14,<3.14.999'} # Nothing depends on tox, but we use it in .travis.yml so it forms part of our basic infrastructure
+    prerequisites = {'tox>=3.14,<3.14.999'} # Nothing depends on tox, but we use it in .github/worfklows so it forms part of our basic infrastructure
     for project_dir in project_dirs:
         prerequisites.update(parse_prerequisites_from(os.path.join(os.getcwd(), project_dir, '.reahlproject')))
     return prerequisites
@@ -190,7 +190,7 @@ def find_missing_dependencies(workspace):
 
 
 def print_final_message(success=True):
-    debs_needed_to_compile_python = ['python3-venv', 'python3-dev', 'gcc', 'cython', 'libxml2-dev', 'libxslt-dev', 'libsqlite3-0', 
+    debs_needed_to_compile_python = ['python3-venv', 'python3-dev', 'gcc', 'cython3', 'libxml2-dev', 'libxslt-dev', 'libsqlite3-0', 
                                     'sqlite3', 'postgresql-server-dev-all', 'zlib1g-dev', 'libjpeg62-dev', 'libfreetype6-dev', 'liblcms2-dev', 
                                     'mysql-client', 'libmysqlclient-dev']
     general_debs_needed = ['openssh-client', 'dpkg-dev', 'firefox', 'firefox-geckodriver']

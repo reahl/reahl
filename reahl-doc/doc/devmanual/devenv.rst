@@ -140,7 +140,7 @@ To know which virtualenv to connect to, run::
 
   docker container exec -u developer reahl bash -l -c 'echo $VIRTUAL_ENV'
 
-The virtualenv is the last line output, something like: /home/developer/.venvs/python3.8
+The virtualenv is the last line output, something like: /home/developer/.venvs/python3.10
    
 Pair programming
 ----------------

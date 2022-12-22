@@ -507,7 +507,7 @@ class ReahlEgg:
                                    if i.extras]
             for basket in basket_requirements:
                 dependencies.extend([pkg_resources.working_set.find(pkg_resources.Requirement.parse(i)) for i in basket.extras])
-            return dependencies
+            return [i for i in dependencies if i]
             
         return DependencyGraph.from_vertices(distributions, find_dependencies).topological_sort()
 
