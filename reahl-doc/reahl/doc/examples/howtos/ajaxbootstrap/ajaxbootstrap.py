@@ -39,7 +39,6 @@ class RefreshedPanel(Div):
         self.add_child(P(view, text='You selected link number %s' % self.selected))
         self.enable_refresh()
 
-
     query_fields = ExposedNames()
     query_fields.selected = lambda i: IntegerField(required=False, default=1)
 

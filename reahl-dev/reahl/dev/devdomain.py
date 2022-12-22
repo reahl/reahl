@@ -1385,32 +1385,32 @@ class SourceControlSystem:
 
     @property
     def last_commit_time(self):
-        if self.project.chicken_project:
+        if self.project.is_sub_project:
             return self.project.chicken_project.source_control.last_commit_time
         return datetime.datetime.fromtimestamp(0)
 
     def is_unchanged(self):
-        if self.project.chicken_project:
+        if self.project.is_sub_project:
             return self.project.chicken_project.source_control.is_unchanged()
         return False
 
     def needs_new_version(self):
-        if self.project.chicken_project:
+        if self.project.is_sub_project:
             return self.project.chicken_project.source_control.needs_new_version()
         return True
 
     def is_version_controlled(self):
-        if self.project.chicken_project:
+        if self.project.is_sub_project:
             return self.project.chicken_project.source_control.is_version_controlled()
         return False
 
     def is_checked_in(self):
-        if self.project.chicken_project:
+        if self.project.is_sub_project:
             return self.project.chicken_project.source_control.is_checked_in()
         return False
 
     def place_tag(self, tag):
-        assert not self.project.chicken_project, 'You cannot tag a subproject'
+        assert not self.project.is_sub_project, 'You cannot tag a subproject'
         return False
 
 
@@ -1458,6 +1458,8 @@ class Project:
     """Instances of Project each represent a Reahl project in a development environment.
     """
     has_children = False
+    is_sub_project = False
+
     @classmethod
     def get_xml_registration_info(cls):
         return ('project', cls, None)
@@ -2013,6 +2015,7 @@ class MigratedSetupCfg:
 
 class EggProject(Project):
     basket_name = None
+    is_sub_project = True
     def __init__(self, workspace, directory, include_package_data):
         super().__init__(workspace, directory)
         self.namespaces = []

@@ -108,7 +108,8 @@ to control the access granted by any |Input| that displays that
 Here it is in the code of Address:
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/accessbootstrap/accessbootstrap.py
-   :pyobject: Address.fields
+   :start-at: fields = 
+   :end-at: fields.email_address = 
 
 The `name` |Field| is required, but that only applies when it is writable.
 
@@ -129,7 +130,9 @@ The same principle applies to the `edit` |Event| of an
 Address, and the |Button| for it:
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/accessbootstrap/accessbootstrap.py
-   :pyobject: Address.events
+   :start-at: events = 
+   :end-at: events.edit = 
+
 
 
 Disable menu items as necessary

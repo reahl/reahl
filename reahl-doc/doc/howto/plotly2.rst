@@ -31,8 +31,8 @@ based on a factor, which the user can select from a |SelectInput|.
 Add a |Field| on `ChartForm` to keep track of the `factor`:
 
 .. literalinclude:: ../../reahl/doc/examples/howtos/chartplotly2/chartplotly2.py
-   :pyobject: ChartForm.fields
-
+   :start-at: fields =
+   :end-at: fields.factor = 
 
 The `factor` attribute of `ChartForm` will only be updated in response to user changes once an |Input| is created for it.
 

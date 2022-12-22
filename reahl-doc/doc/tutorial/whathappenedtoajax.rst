@@ -80,7 +80,8 @@ Specify an `on_refresh` |Event| in your |enable_refresh| call to trigger a recal
    :end-before: self.add_allocation_controls()
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/dynamiccontent/dynamiccontent.py
-   :pyobject: InvestmentOrder.events
+   :start-at: events =
+   :end-at: events.allocation_changed =
    
 .. literalinclude:: ../../reahl/doc/examples/tutorial/dynamiccontent/dynamiccontent.py
    :pyobject: InvestmentOrder.recalculate
