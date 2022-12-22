@@ -8,11 +8,13 @@
 .. |Div| replace:: :class:`~reahl.web.bootstrap.ui.Div`
 .. |Nav| replace:: :class:`~reahl.web.bootstrap.navs.Nav`
 .. |Field| replace:: :class:`~reahl.component.modelinterface.Field`
+.. |ExposedNames| replace:: :class:`~reahl.component.modelinterface.ExposedNames`
 .. |SequentialPageIndex| replace:: :class:`~reahl.web.bootstrap.pagination.SequentialPageIndex`
 .. |PageIndex| replace:: :class:`~reahl.web.bootstrap.pagination.PageIndex`
 .. |PagedPanel| replace:: :class:`~reahl.web.bootstrap.pagination.PagedPanel`
 .. |PageMenu| replace:: :class:`~reahl.web.bootstrap.pagination.PageMenu`
 .. |AnnualPageIndex| replace:: :class:`~reahl.web.bootstrap.pagination.AnnualPageIndex`
+
 
 
 
@@ -54,7 +56,8 @@ at runtime:
 
 
 .. literalinclude:: ../../reahl/doc/examples/howtos/ajaxbootstrap/ajaxbootstrap.py
-   :pyobject: RefreshedPanel.query_fields
+   :start-at: query_fields = 
+   :end-at: query_fields.selected =
 
 This makes the value of `self.selected` available in `RefreshedPanel.__init__` to be
 used when generating the RefreshedPanel (`self.selected` is set from

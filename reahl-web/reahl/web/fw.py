@@ -2356,8 +2356,8 @@ class WidgetResult(MethodResult):
        new contents of this refreshed Widget.
 
        .. versionchanged:: 6.1
-       result_widget parameter changed to be a list, renamed to result_widgets.
-       Deprecated kwarg as_json_and_result
+          result_widget parameter changed to be a list, renamed to result_widgets.
+          Deprecated kwarg as_json_and_result
     """
 
     def __init__(self, result_widgets, as_json_and_result=None):

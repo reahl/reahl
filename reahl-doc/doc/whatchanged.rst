@@ -220,8 +220,7 @@ the |Action| of the |Event|.
 In order to handle this scenario, you can now use the return value of the
 |Action| as a parameter value, together with |with_returned_argument|.
 
-
-:doc:`See more in the added howto. <howto/eventresult.rst>`
+:doc:`See more in the added howto. <howto/eventresult>`
 
 Automatic display of default as placeholder
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
