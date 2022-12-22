@@ -73,13 +73,13 @@ Fixtures
 
 There are a number of Fixture classes we use for Reahl development,
 and that could be useful for any developer using Reahl.  These are
-introduced in more detail in ::doc::`<../devmanual/testing.rst>`.
+introduced in more detail in :doc:`../devmanual/testing`.
 
 
 Docker container
 ^^^^^^^^^^^^^^^^
 
-The easiest way to develop using Reahl is to ::doc::`use our pre-built
-docker image <devmanual/devenv>`.
+The easiest way to develop using Reahl is to :doc:`use our pre-built
+docker image <../devmanual/devenv>`.
 
   
