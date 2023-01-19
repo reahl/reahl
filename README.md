@@ -23,4 +23,18 @@ licensed LGPL and others AGPL (see the relevant licenses in each subdirectory).
 
 More details at our website: [Reahl - the Python-only web framework](http://www.reahl.org)
 
-SPDX-License-Identifier: LGPL-3.0 AND AGPL-3.0
+Licensing
+=========
+
+This project contains several independently licensed projects in its
+source tree.
+
+Please see the LICENSE file in each sub directory for the license that
+applies to that sub directory.
+
+The LICENSE.<package-name> file in the top level is the license file
+for the package it is named for.
+
+Some sub projects include other code. The accompanying licenses of
+such code is listed in the COPYING file of such sub directory.
+
