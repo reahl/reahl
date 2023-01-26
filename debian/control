@@ -27,7 +27,7 @@ Description: The Reahl web framework.
  Install Reahl by installing with extras, eg: pip install "reahl[declarative,sqlite,dev,doc]"
  to install everything needed to run Reahl on sqlite, the dev tools and documentation.
  .
- See http://www.reahl.org/docs/5.2/tutorial/gettingstarted-install.d.html for
+ See http://www.reahl.org/docs/current/tutorial/gettingstarted-install.d.html for
  installation instructions.
 
 Package: python-reahl-component
@@ -156,7 +156,7 @@ Description: Documentation and examples for Reahl.
  .
  Reahl-doc contains documentation and examples of Reahl.
  .
- See http://www.reahl.org/docs/5.2/tutorial/gettingstarted-install.d.html for
+ See http://www.reahl.org/docs/current/tutorial/gettingstarted-install.d.html for
  installation instructions.
 
 Package: python-reahl-postgresqlsupport
@@ -193,7 +193,7 @@ Description: The core Reahl web framework
  .
  This package contains the core of the Reahl framework. 
  .
- See http://www.reahl.org/docs/5.2/tutorial/gettingstarted-install.d.html for
+ See http://www.reahl.org/docs/current/tutorial/gettingstarted-install.d.html for
  installation instructions.
 
 
