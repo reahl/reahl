@@ -9,31 +9,23 @@ Preparing for installation on Mac OS/X
    X" is a tool with which you can easily install certain packages on
    the Mac.
 
-1. Python and basic development tools
+Follow the installation instructions for Python on `The Hitchhiker's guide to Python
+<https://python-guide.readthedocs.io/en/latest/starting/install3/osx/#install3-osx>`_.
 
-   Follow the installation instructions for Python on `The Hitchhiker's guide to Python
-   <https://python-guide.readthedocs.io/en/latest/starting/install3/osx/#install3-osx>`_.
-   
-   Here is the super-short summary:
+Here is the super-short summary:
 
-   - Install Homebrew:
+- Install Homebrew:
 
-     .. code-block:: bash
+  .. code-block:: bash
 
-        /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
-   - Install python:
+- Install python:
 
-     .. code-block:: bash
+  .. code-block:: bash
 
-        brew install python
+     brew install python
 
-   - Have some coffee.
+- Have some coffee.
 
-2. Additional necessary packages for a Reahl installation
-
-     .. code-block:: bash
-
-        brew install libxml2 libxslt sqlite
-
-   Next :ref:`create a virtualenv <install-reahl-itself>`.
+Next :ref:`create a virtualenv <install-reahl-itself>`.
