@@ -34,7 +34,7 @@ python-reahl (6.1.0) unstable; urgency=low
  * Increased version of plotlyjs to 2.16.4 and plotly to 5.11.0.
  * Increased min version of pip 21.1.
 
- -- Iwan Vosloo <iwan@reahl.org>  Thu, 22 Dc 2022 15:52:00 +0200
+ -- Iwan Vosloo <iwan@reahl.org>  Thu, 22 Dec 2022 15:52:00 +0200
 
 python-reahl (6.0.2) unstable; urgency=low
 

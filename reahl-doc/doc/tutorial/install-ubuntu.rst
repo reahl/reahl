@@ -7,27 +7,6 @@ Preparing for installation on Ubuntu
 
    .. code-block:: bash
 
-      sudo apt-get install python3-dev gcc cython3 python-virtualenv
+      sudo apt-get install python3 python3-venv
 
-
-2. Additional necessary packages for a Reahl installation
-
-
-   .. code-block:: bash
-
-      sudo apt-get install libxml2-dev libxslt-dev zlib1g-dev libsqlite3-0
-
-
-
-   The next step is to :ref:`create a virtualenv <install-reahl-itself>`.
-
-
-3. Geckodriver and Firefox (optional)
-
-   If you want to run your own automated selenium tests, install Firefox 
-   and geckodriver(firefox-geckodriver: https://github.com/mozilla/geckodriver/releases ) as well.
-
-   .. code-block:: bash
-
-      sudo apt-get install firefox
 
