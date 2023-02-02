@@ -1,3 +1,9 @@
+python-reahl (6.1.1) unstable; urgency=low
+
+ * Remove memoized decorator in favour of functools.cached_property (#401).
+
+ -- Iwan Vosloo <iwan@reahl.org>  Thu, 02 Feb 2023 15:52:00 +0200
+
 python-reahl (6.1.0) unstable; urgency=low
 
  * Updated error message (#360).

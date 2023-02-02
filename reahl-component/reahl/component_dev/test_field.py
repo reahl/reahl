@@ -1270,7 +1270,7 @@ def test_choice_querying(fixture):
     field = fixture.field_class(choices_getter)
     field.bind('choice_value', model_object)
 
-#   assert [i.value for i in field.flattened_choices] == [1, '2']  # In the fake world of tests, grouped_choices is memoized, so cached...we can only call it once.
+#   assert [i.value for i in field.flattened_choices] == [1, '2']  # In the fake world of tests, grouped_choices is cached...we can only call it once.
 
     current_choices = [Choice(4, IntegerField(label='Four'))]
 

@@ -16,7 +16,11 @@
 
 
 import inspect
-from reahl.component.decorators import  deprecated, memoized
+try:
+    from functools import cached_property
+except ImportError:
+    from cached_property import cached_property
+from reahl.component.decorators import  deprecated
 
 
 try:
@@ -152,8 +156,7 @@ class ExecutionContext:
         del calling_frame
         return self
 
-    @property
-    @memoized
+    @cached_property
     def interface_locale(self):
         """Returns a string identifying the current locale."""
         session = getattr(self, 'session', None)

@@ -27,13 +27,19 @@ menu on which a user can choose to navigate to another section (or page) of the 
 
 """
 
+import functools
+try:
+    from functools import cached_property
+except ImportError:
+    try:
+        from cached_property import cached_property
+    except ImportError:
+        raise ImportError('You are using a python version that does not support functools.cached_property. Please run "pip install cached-property"')
 
-from functools import partial
 from abc import ABCMeta, abstractmethod
 
 from reahl.component.i18n import Catalogue
 from reahl.component.modelinterface import ExposedNames, IntegerField
-from reahl.component.decorators import memoized
 from reahl.web.fw import Bookmark
 from reahl.web.ui import AccessRightAttributes, ActiveStateAttributes, HTMLWidget
 from reahl.web.bootstrap.ui import A, Span, Div
@@ -145,56 +151,47 @@ class PageIndex(PageIndexProtocol):
     def get_description_for_page(self, page_number):
         return str(page_number)
 
-    @property
-    @memoized
+    @cached_property
     def current_page(self):
         return self.get_page_number(self.current_page_number)
 
     def get_page_number(self, page_number):
-        return Page(page_number, self.get_description_for_page(page_number), partial(self.get_contents_for_page, page_number))
+        return Page(page_number, self.get_description_for_page(page_number), functools.partial(self.get_contents_for_page, page_number))
 
-    @property
-    @memoized
+    @cached_property
     def pages_in_range(self):
         return [self.get_page_number(page_number)
                 for page_number in list(range(self.start_page_number, self.end_page.number+1))]
 
-    @property
-    @memoized
+    @cached_property
     def start_page(self):
         return self.get_page_number(self.start_page_number)
 
-    @property
-    @memoized
+    @cached_property
     def end_page(self):
         page_number = self.start_page_number+min(self.max_page_links-1, self.total_number_of_pages-self.start_page_number)
         return self.get_page_number(page_number)
 
-    @property
-    @memoized
+    @cached_property
     def previous_page(self):
         page_number = max(1, self.start_page_number - self.max_page_links)
         return self.get_page_number(page_number)
 
-    @property
-    @memoized
+    @cached_property
     def next_page(self):
         page_number = min(self.end_page.number + 1, self.total_number_of_pages)
         return self.get_page_number(page_number)
 
-    @property
-    @memoized
+    @cached_property
     def last_page(self):
         page_number =  max(self.total_number_of_pages - self.max_page_links + 1, 1)
         return self.get_page_number(page_number)
 
-    @property
-    @memoized
+    @cached_property
     def has_next_page(self):
         return self.end_page.number < self.total_number_of_pages
 
-    @property
-    @memoized
+    @cached_property
     def has_previous_page(self):
         return self.start_page_number > 1
 
@@ -221,8 +218,7 @@ class SequentialPageIndex(PageIndex):
         range_end = range_start+min(self.items_per_page, len(self.items)-range_start)-1
         return self.items[range_start:range_end+1]
 
-    @property
-    @memoized
+    @cached_property
     def total_number_of_pages(self):
         return ((len(self.items)-1) // self.items_per_page)+1
 
@@ -266,8 +262,7 @@ class AnnualPageIndex(PageIndex):
     def years(self):
         return self.annual_item_organiser.get_years()
 
-    @property
-    @memoized
+    @cached_property
     def total_number_of_pages(self):
         return len(self.years)
 

@@ -21,6 +21,15 @@ import os.path
 import re
 import subprocess
 
+try:
+    from functools import cached_property
+except ImportError:
+    try:
+        from cached_property import cached_property
+    except ImportError:
+        raise ImportError('You are using a python version that does not support functools.cached_property. Please run "pip install cached-property"')
+
+
 import pkg_resources
 
 from reahl.dev.devdomain import Project
@@ -30,7 +39,6 @@ from reahl.dev.exceptions import CouldNotConfigureServer
 from reahl.component.shelltools import Executable, Command
 from reahl.component.exceptions import DomainException
 from reahl.component.config import StoredConfiguration
-from reahl.component.decorators import memoized
 from reahl.webdev.webserver import ReahlWebServer, ServerSupervisor
 
 from prompt_toolkit import prompt
@@ -260,8 +268,7 @@ class BasicConfig:
     def get_site_root_from_existing_config(self):
         return self.existing_config.web.site_root
 
-    @property
-    @memoized
+    @cached_property
     def existing_config(self):
         path_exist_validator = Validator.from_callable(os.path.exists,
                                                        error_message='Path does not exist, choose existing path',

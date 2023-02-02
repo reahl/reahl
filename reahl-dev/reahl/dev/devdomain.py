@@ -763,14 +763,16 @@ class Dependency:
 class ThirdpartyDependency(Dependency):
     egg_type = 'thirdpartyegg'
 
-    def __init__(self, project, name, min_version=None, max_version=None):
+    def __init__(self, project, name, min_version=None, max_version=None, only_before_python_version=None):
         super().__init__(project, name, version=min_version)
         self.max_version = VersionNumber(max_version) if max_version else None
+        self.only_before_python_version = only_before_python_version
 
     def inflate_attributes(self, reader, attributes, parent):
         assert 'name' in attributes, 'No name specified'
         self.__init__(parent.project, attributes['name'], min_version=attributes.get('minversion', None),
-                                                          max_version=attributes.get('maxversion', None))
+                                                          max_version=attributes.get('maxversion', None),
+                                                          only_before_python_version=attributes.get('only_before_python_version', None))
 
     @property
     def min_version(self):
@@ -786,6 +788,8 @@ class ThirdpartyDependency(Dependency):
         if self.max_version:
             comma = ',' if self.min_version else ''
             requirement_string += '%s<%s' % (comma, self.max_version)
+        if self.only_before_python_version:
+            requirement_string += 'python_version<"%s"' % self.only_before_python_version
         return requirement_string
 
 
