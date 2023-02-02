@@ -789,7 +789,7 @@ class ThirdpartyDependency(Dependency):
             comma = ',' if self.min_version else ''
             requirement_string += '%s<%s' % (comma, self.max_version)
         if self.only_before_python_version:
-            requirement_string += 'python_version<"%s"' % self.only_before_python_version
+            requirement_string += ';python_version<"%s"' % self.only_before_python_version
         return requirement_string
 
 
