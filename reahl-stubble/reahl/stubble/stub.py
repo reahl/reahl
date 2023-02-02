@@ -78,7 +78,7 @@ class StubClass:
 
         if orig_attribute is attribute:
             return
-        
+
         self.types_match(stub, orig_attribute, attribute)
         if inspect.ismethod(orig_attribute) or inspect.isfunction(orig_attribute):
             self.signatures_match(orig_attribute, attribute)
@@ -90,8 +90,8 @@ class StubClass:
 
     @classmethod
     def signatures_match(cls, orig, stubbed, ignore_self=False, compare_in_signature=['args', 'varargs', 'varkw', 'defaults', 'kwonlyargs', 'kwonlydefaults']):
-        orig_arguments = inspect.getfullargspec(orig)
-        stub_arguments = inspect.getfullargspec(stubbed)
+        orig_arguments = inspect.getfullargspec(cls.get_real_func_or_method(orig))
+        stub_arguments = inspect.getfullargspec(cls.get_real_func_or_method(stubbed))
 
         if ignore_self:
             if 'self' in orig_arguments.args: orig_arguments.args.remove('self')
@@ -108,7 +108,12 @@ class StubClass:
             assert_same(key)
             
         return False
-        
+
+    @classmethod
+    def get_real_func_or_method(cls, func_or_method):
+        if hasattr(func_or_method, '__wrapped__'):
+            return func_or_method.__wrapped__
+        return func_or_method
 
 
 #------------------------------------------------[ Impostor ]
