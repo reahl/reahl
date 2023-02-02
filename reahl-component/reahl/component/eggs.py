@@ -440,7 +440,7 @@ class ReahlEgg:
         return unique_paths.pop()
 
     @classmethod
-    @functools.lru_cache
+    @functools.lru_cache() #called for compatibility with python < 3.8
     def get_languages_supported_by_all(cls, root_egg):
         egg_interfaces = cls.get_all_relevant_interfaces(root_egg)
         default_languages = ['en_gb']
