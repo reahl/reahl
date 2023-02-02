@@ -27,7 +27,7 @@ from reahl.dev.fixtures import ReahlSystemFixture
 from reahl.stubble import EmptyStub
 from reahl.tofu import Fixture, scenario
 from reahl.tofu.pytestsupport import with_fixtures
-from reahl.component.decorators import deprecated, memoized
+from reahl.component.decorators import deprecated
 from reahl.component.exceptions import arg_checks
 
 
@@ -169,76 +169,3 @@ def test_deprecating_a_method(method_deprecation_scenarios):
         
     with expected_deprecation_warnings(['this instance method is deprecated']):
         fixture.NonDeprecatedClass().some_deprecated_instance_method()
-
-
-class MemoizeScenarios(Fixture):
-    @scenario
-    def a_method(self):
-        class SomeClass:
-            @memoized
-            def some_method(self):
-              return EmptyStub()
-
-        an_instance = SomeClass()
-        self.memoized_callable = an_instance.some_method
-
-    @scenario
-    def a_class_method(self):
-        class SomeClass:
-            @memoized
-            @classmethod
-            def some_class_method(cls):
-              return EmptyStub()
-
-        self.memoized_callable = SomeClass.some_class_method
-
-    @scenario
-    def a_class_method_called_via_instance(self):
-        class SomeClass:
-            @memoized
-            @classmethod
-            def some_class_method(cls):
-              return EmptyStub()
-
-        an_instance = SomeClass()
-        self.memoized_callable = an_instance.some_class_method
-
-    @scenario
-    def a_function(self):
-        @memoized
-        def some_function():
-          return EmptyStub()
-
-        self.memoized_callable = some_function
-
-
-@with_fixtures(MemoizeScenarios)
-def test_memoize_caches_call_results(memoize_scenarios):
-    """On a memoized callable, the result of the first call is cached and re-used on subsequent calls"""
-
-    fixture = memoize_scenarios
-    first_call_result = fixture.memoized_callable()
-    next_call_result = fixture.memoized_callable()
-
-    assert first_call_result is next_call_result 
-
-
-def test_memoize_considers_method_args():
-    """The results are cached based on the arguments passed to calls."""
-
-    class SomeClass:
-        @memoized
-        def method_with_args(self, an_arg, a_kwarg=None):
-          return EmptyStub()
-
-    an_instance = SomeClass()
-    result_with_one_set_of_args = an_instance.method_with_args(123, a_kwarg=1)
-    result_with_different_set_of_args = an_instance.method_with_args(456, a_kwarg=1)
-
-    assert result_with_one_set_of_args is not result_with_different_set_of_args 
-
-    second_result_with_same_set_of_args = an_instance.method_with_args(123, a_kwarg=1)
-
-    assert result_with_one_set_of_args is second_result_with_same_set_of_args 
-
-

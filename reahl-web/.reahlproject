@@ -16,6 +16,7 @@
         <thirdpartyegg name="Babel" minversion="2.1" maxversion="2.11.999"/>
         <thirdpartyegg name="setuptools" minversion="51.0.0"/>
         <thirdpartyegg name="lxml" minversion="4.2" maxversion="4.9.999"/>
+        <thirdpartyegg name="cached-property" minversion="1.5" maxversion="1.5.999" only_before_python_version="3.8"/>
       </deps>
   </version>
 

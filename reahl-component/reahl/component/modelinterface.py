@@ -21,7 +21,6 @@ import io
 import copy
 import re
 import fnmatch
-import functools
 import sre_constants
 import urllib.parse
 import warnings
@@ -31,6 +30,15 @@ from contextlib import contextmanager
 import json
 from collections import OrderedDict
 
+import functools
+try:
+    from functools import cached_property
+except ImportError:
+    try:
+        from cached_property import cached_property
+    except ImportError:
+        raise ImportError('You are using a python version that does not support functools.cached_property. Please run "pip install cached-property"')
+
 import dateutil.parser 
 import babel.dates 
 from babel.core import Locale
@@ -38,7 +46,7 @@ from babel.numbers import parse_decimal, format_number
 from wrapt import FunctionWrapper, BoundFunctionWrapper
 
 
-from reahl.component.decorators import deprecated, memoized
+from reahl.component.decorators import deprecated
 from reahl.component.i18n import Catalogue
 from reahl.component.context import ExecutionContext
 from reahl.component.exceptions import AccessRestricted, ProgrammerError, arg_checks, IsInstance, IsCallable, NotYetAvailable
@@ -1843,8 +1851,7 @@ class ChoiceField(Field):
         self._grouped_choices = grouped_choices
         self.init_validation_constraints()
         
-    @property
-    @memoized
+    @cached_property
     def grouped_choices(self):
         if callable(self._grouped_choices):
             return self._grouped_choices()

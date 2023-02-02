@@ -25,7 +25,6 @@ import functools
 
 import pkg_resources
 
-from reahl.component.decorators import memoized
 from reahl.component.exceptions import DomainException, ProgrammerError
 
 
@@ -440,8 +439,8 @@ class ReahlEgg:
             'No translations found for %s, did you specify a translations package and forget to add locales in there?' % translations_entry_point.dist
         return unique_paths.pop()
 
-    @memoized
     @classmethod
+    @functools.lru_cache() #called for compatibility with python < 3.8
     def get_languages_supported_by_all(cls, root_egg):
         egg_interfaces = cls.get_all_relevant_interfaces(root_egg)
         default_languages = ['en_gb']

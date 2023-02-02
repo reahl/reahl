@@ -15,33 +15,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# memoized
-# Adapted from the original:
-# http://code.activestate.com/recipes/577452/ (r1)
-# Original Copyright notice:
-# The MIT License (MIT)
-#
-# Copyright (c) 2010 Daniel Miller
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-# THE SOFTWARE.
-
-
 
 import inspect
 import warnings
@@ -49,24 +22,6 @@ import warnings
 import platform
 import pkg_resources
 import wrapt
-
-@wrapt.decorator
-def memoized(wrapped, instance, args, kwargs):
-    cache_location = instance
-    if instance is None:
-        cache_location = wrapped
-
-    try:
-        cache = cache_location.__cache__
-    except AttributeError:
-        cache = cache_location.__cache__ = {}
-
-    key = (wrapped, args[:], frozenset(kwargs.items()))
-    try:
-        res = cache[key]
-    except KeyError:
-        res = cache[key] = wrapped(*args, **kwargs)
-    return res
 
 def deprecated(message, version='n/a'):
     def catch_wrapped(f):

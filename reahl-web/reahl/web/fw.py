@@ -43,6 +43,14 @@ import warnings
 from collections import OrderedDict
 import urllib.parse
 
+try:
+    from functools import cached_property
+except ImportError:
+    try:
+        from cached_property import cached_property
+    except ImportError:
+        raise ImportError('You are using a python version that does not support functools.cached_property. Please run "pip install cached-property"')
+
 import pkg_resources
 import rjsmin
 import rcssmin
@@ -60,7 +68,6 @@ from webob.multidict import MultiDict
 from reahl.component.config import StoredConfiguration
 from reahl.component.context import ExecutionContext
 from reahl.component.dbutils import SystemControl
-from reahl.component.decorators import memoized
 from reahl.component.exceptions import ArgumentCheckedCallable
 from reahl.component.exceptions import DomainException
 from reahl.component.exceptions import IsInstance
@@ -2012,8 +2019,7 @@ class UrlBoundView(View):
             client_state_string = self._current_POSTed_client_side_state
         return client_state_string
 
-    @property
-    @memoized
+    @cached_property
     def construction_client_side_state_as_dict_of_lists(self):
         return urllib.parse.parse_qs(self.construction_client_side_state, keep_blank_values=True)
 
