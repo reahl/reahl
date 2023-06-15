@@ -172,7 +172,7 @@ want to use:
 - `reahl-mysqlsupport`
 - `reahl-sqlitesupport`
 
-Set the reahlsystem.connection_uri in `reahlsystem.config.py` to an URI matching your database
+Set the reahlsystem.connection_uri in `reahl.config.py` to an URI matching your database
 `as specified by SQLAlchemy <https://docs.sqlalchemy.org/en/14/core/engines.html#database-urls>`_.
 
 List the database support component, `reahl-sqlalchemysupport` and `reahl-component` as dependencies of your component.
