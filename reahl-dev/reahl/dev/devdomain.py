@@ -37,9 +37,9 @@ import configparser
 import tzlocal
 
 try:
-  from setuptools.config.setupcfg import read_configuration
+    from setuptools.config.setupcfg import read_configuration
 except ImportError:
-  from setuptools.config import read_configuration
+    from setuptools.config import read_configuration
 
 import pkg_resources
 import toml
@@ -792,9 +792,9 @@ class ThirdpartyDependency(Dependency):
             requirement_string += ';python_version<"%s"' % self.only_before_python_version
         return requirement_string
 
-
+      
 class XMLDependencyList(list):
-    "Purely for reading related dependencies from XML."""
+    """Purely for reading related dependencies from XML."""
     def __init__(self, project, purpose, version_entry=None):
         super().__init__()
         self.workspace = project.workspace
@@ -842,7 +842,7 @@ class VersionDependencyEntryPointEntry(EntryPointExport):
 
 
 class VersionEntry(object):
-    "Dependencies and migrations for a version of a project."""
+    """Dependencies and migrations for a version of a project."""
     def __init__(self, project, version):
         super(VersionEntry, self).__init__()
         self.project = project
@@ -875,7 +875,7 @@ class VersionEntry(object):
 
 
 class ExtrasList(list):
-    "Purely for reading extras dependencies from XML."""
+    """Purely for reading extras dependencies from XML."""
     def __init__(self, project, name):
         super().__init__()
         self.workspace = project.workspace
@@ -951,7 +951,7 @@ class OrderedClassesList(list):
 
 
 class PersistedClassesList(OrderedClassesList):
-    "Purely for reading a list of persisted classes XML."""
+    """Purely for reading a list of persisted classes XML."""
     @property
     def entry_point(self):
         return 'reahl.persistlist'
@@ -962,7 +962,7 @@ class PersistedClassesList(OrderedClassesList):
 
 
 class MigrationList(OrderedClassesList):
-    "Purely for reading a list of migration classes XML."""
+    """Purely for reading a list of migration classes XML."""
     def __init__(self, version_entry):
         super(MigrationList, self).__init__()
         self.version_entry = version_entry
@@ -1829,7 +1829,7 @@ class AddedOrderDict(collections.OrderedDict):
         super().__setitem__(key, value)
         self.move_to_end(key)
 
-        
+
 class MigratedSetupCfg:
     def __init__(self, project):
         self.project = project
@@ -2228,7 +2228,7 @@ class EggProject(Project):
 
     def generate_migrated_setup_cfg(self):
         MigratedSetupCfg(self).generate()
-
+        
     @property
     def setup_cfg_filename(self):
         return os.path.join(self.directory, 'setup.cfg')

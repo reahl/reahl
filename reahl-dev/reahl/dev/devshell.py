@@ -346,7 +346,7 @@ class MigrateReahlProject(ForAllWorkspaceCommand):
         project.generate_migrated_setup_cfg()
         return 0
 
-        
+    
 class Shell(ForAllWorkspaceCommand):
     """Executes a shell command in each selected project, from each project's own root directory."""
     keyword = 'shell'

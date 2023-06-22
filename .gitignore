@@ -67,6 +67,7 @@ reahl-doc/reahl/doc/examples/tutorial/hellonginx/hellonginx.*-info
 *.mo
 *~
 */.eggs
+dist
 
 .floo
 .flooignore

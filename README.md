@@ -37,4 +37,3 @@ for the package it is named for.
 
 Some sub projects include other code. The accompanying licenses of
 such code is listed in the COPYING file of such sub directory.
-
