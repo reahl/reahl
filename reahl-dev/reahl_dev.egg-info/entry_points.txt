@@ -13,6 +13,7 @@ List = reahl.dev.devshell:List
 ListMissingDependencies = reahl.dev.devshell:ListMissingDependencies
 ListSelections = reahl.dev.devshell:ListSelections
 MarkReleased = reahl.dev.devshell:MarkReleased
+MarsRover = reahl.dev.devshell:MarsRover
 MergeTranslations = reahl.dev.devshell:MergeTranslations
 MigrateReahlProject = reahl.dev.devshell:MigrateReahlProject
 Read = reahl.dev.devshell:Read
@@ -27,4 +28,3 @@ SubstVars = reahl.dev.devshell:SubstVars
 UpdateAptRepository = reahl.dev.devshell:UpdateAptRepository
 UpdateCopyright = reahl.dev.devshell:UpdateCopyright
 Upload = reahl.dev.devshell:Upload
-

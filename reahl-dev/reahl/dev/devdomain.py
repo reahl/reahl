@@ -1144,64 +1144,6 @@ class SetupMetadata(ProjectMetadata):
         return self.config['metadata']['version']
 
 
-        
-class HardcodedMetadata(ProjectMetadata):
-    def __init__(self, parent):
-        super().__init__(parent)
-        self.info = {}
-
-    def __str__(self):
-        return 'Metadata read from a .reahlproject file'
-
-    @classmethod
-    def get_xml_registration_info(cls):
-        return ('metadata', cls, 'reahlproject')
-
-    def inflate_attributes(self, reader, attributes, parent):
-        self.__init__(parent)
-
-    def inflate_child(self, reader, child, tag, parent):
-        assert isinstance(child, MetaInfo), 'Got %s, expected an info' % child
-        self.info[child.name] = child
-
-    @property
-    def version(self):
-        return VersionNumber(self.info['version'].contents.strip())
-
-    @property
-    def project_name(self):
-        try:
-            return self.info['project_name'].contents.strip()
-        except KeyError:
-            return super().project_name
-
-    def get_long_description_for(self, project):
-        return self.info['long_description'].contents.strip()
-
-    def get_description_for(self, project):
-        return self.info['description'].contents.strip()
-
-    def get_url_for(self, project):
-        return self.info['url'].contents.strip()
-
-    @property
-    def maintainer_name(self):
-        return self.info['maintainer_name'].contents.strip()
-
-    @property
-    def maintainer_email(self):
-        return self.info['maintainer_email'].contents.strip()
-
-    def info_readable(self):
-        return self.info_completed()
-
-    def info_completed(self):
-        expected_info = {'project_name', 'url', 'version', 'description', 'long_description', 'maintainer_name', 'maintainer_email'}
-        completed_info = set(self.info.keys())
-        return expected_info == completed_info
-
-
-
 class DebianPackageMetadata(ProjectMetadata):
     def __init__(self, parent, url=None):
         super().__init__(parent)
@@ -1377,119 +1319,23 @@ class DebianControl:
         return description_field.split('\n')[0]
 
 
-
-class SourceControlSystem:
-    def __str__(self):
-        if self.project.chicken_project:
-            return str(self.project.chicken_project.source_control)
-        return 'No source control system selected'
-
-    def __init__(self, project):
-        self.project = project
-
-    @property
-    def last_commit_time(self):
-        if self.project.is_sub_project:
-            return self.project.chicken_project.source_control.last_commit_time
-        return datetime.datetime.fromtimestamp(0)
-
-    def is_unchanged(self):
-        if self.project.is_sub_project:
-            return self.project.chicken_project.source_control.is_unchanged()
-        return False
-
-    def needs_new_version(self):
-        if self.project.is_sub_project:
-            return self.project.chicken_project.source_control.needs_new_version()
-        return True
-
-    def is_version_controlled(self):
-        if self.project.is_sub_project:
-            return self.project.chicken_project.source_control.is_version_controlled()
-        return False
-
-    def is_checked_in(self):
-        if self.project.is_sub_project:
-            return self.project.chicken_project.source_control.is_checked_in()
-        return False
-
-    def place_tag(self, tag):
-        assert not self.project.is_sub_project, 'You cannot tag a subproject'
-        return False
-
-
-
-
-
-class GitSourceControl(SourceControlSystem):
-    def __str__(self):
-        return 'Git source control'
-
-    @classmethod
-    def get_xml_registration_info(cls):
-        return ('sourcecontrol', cls, 'git')
-
-    def inflate_attributes(self, reader, attributes, parent):
-        self.__init__(parent)
-
-    def __init__(self, parent):
-        super().__init__(parent)
-        self.git = Git(self.project.directory)
-
-    @property
-    def last_commit_time(self):
-        return self.git.last_commit_time
-
-    def is_unchanged(self):
-        tag = str(self.project.version)
-        return tag in self.git.get_tags(head_only=True)
-
-    def needs_new_version(self):
-        tag = str(self.project.version)
-        return tag in self.git.get_tags()
-
-    def is_version_controlled(self):
-        return self.git.is_version_controlled()
-
-    def is_checked_in(self):
-        return self.git.is_checked_in()
-
-    def place_tag(self, tag):
-        self.git.tag(tag)
-
-
 class Project:
     """Instances of Project each represent a Reahl project in a development environment.
     """
     has_children = False
-    is_sub_project = False
-
-    @classmethod
-    def get_xml_registration_info(cls):
-        return ('project', cls, None)
 
     def __str__(self):
         return '<%s>' % self.get_xml_registration_info()[0]
 
     @classmethod
     def from_file(cls, workspace, directory):
-        project_filename = os.path.join(directory, '.reahlproject')
         setup_cfg_filename = os.path.join(directory, 'setup.cfg')
-        if os.path.isfile(project_filename):
-            input_file = open(project_filename, 'r')
-            try:
-                reader = XMLReader(all_xml_classes)
-                project = reader.read_file(input_file, (workspace, directory))
-            except (TagNotRegisteredException, ExpatError, InvalidXMLException) as ex:
-                raise InvalidProjectFileException(project_filename, ex)
-            finally:
-                input_file.close()
-        elif os.path.isfile(setup_cfg_filename):
+        if os.path.isfile(setup_cfg_filename):
             config = configparser.ConfigParser()
             config.read(setup_cfg_filename)
             project = Project(workspace, directory, metadata=SetupMetadata(None, config))
         else:
-            raise NotAValidProjectException('Could not find a .reahlproject or a setup.py in %s' % directory)
+            raise NotAValidProjectException('Could not find a setup.cfg in %s' % directory)
 
         return project
 
@@ -1500,9 +1346,21 @@ class Project:
 
         self.packages = []
         self.python_path = []
-        self._tags = []
         self.metadata = metadata or ProjectMetadata(self)
-        self.source_control = SourceControlSystem(self)
+
+        self.namespaces = []
+        self.explicitly_specified_entry_points = []
+        self.excluded_packages = []
+        self.include_package_data = False
+
+        self.extras_required = {}
+        self.build_deps = []
+        self.test_deps = []
+
+        self.persist_list = []
+        self.version_history = []
+        self.scheduled_jobs = []
+
 
     def inflate_attributes(self, reader, attributes, parent):
         workspace, directory = parent
@@ -1513,16 +1371,10 @@ class Project:
             self._tags.append(child.name)
         elif isinstance(child, ProjectMetadata):
             self.metadata = child
-        elif isinstance(child, SourceControlSystem):
-            self.source_control = child
         elif isinstance(child, ExtraPath):
             self.python_path.append(child.path)
         else:
             raise InvalidXMLException('Unexpected type read from XML: %s' % child)
-
-    @property
-    def tags(self):
-        return self._tags
 
     @property
     def distribution_apt_repository(self):
@@ -1531,10 +1383,6 @@ class Project:
     @property
     def distribution_egg_repository(self):
         return self.workspace.distribution_egg_repository
-
-    @property
-    def project_filename(self):
-        return os.path.join(self.directory, '.reahlproject')
 
     @property
     def packages_to_distribute(self):
@@ -1551,9 +1399,6 @@ class Project:
         finally:
             sys.path[:] = path
             os.chdir(cwd)
-
-    def list_missing_dependencies(self, for_development=None):
-        pass
 
     @property
     def locale_dirname(self):
@@ -1716,12 +1561,12 @@ class Project:
         return is_up_to_date
 
     def build(self, sign=True):
-        assert self.packages_to_distribute, 'For %s: No <package>... listed in .reahlproject, nothing to do.' % self.project_name
+        assert self.packages_to_distribute, 'For %s: No <package>... listed in setup.cfg, nothing to do.' % self.project_name
         for i in self.packages_to_distribute:
             i.build(sign=sign)
 
     def sign(self):
-        assert self.packages_to_distribute, 'For %s: No <package>... listed in .reahlproject, nothing to do.' % self.project_name
+        assert self.packages_to_distribute, 'For %s: No <package>... listed in setup.cfg, nothing to do.' % self.project_name
         for i in self.packages_to_distribute:
             i.sign()
             
@@ -1759,6 +1604,236 @@ class Project:
         self.do_release_checks()
         self.check_uploaded()
         self.source_control.place_tag(str(self.version))
+
+    def get_project_in_directory(self, directory):
+        try:
+            return self.workspace.project_in(directory)
+        except ProjectNotFound:
+            return Project.from_file(self.workspace, directory)
+
+    @property
+    def basket(self):
+        baskets = [i for i in self.workspace.projects
+                   if i.contains(self)]
+        if not baskets:
+            return NoBasket(self.workspace)
+        else:
+            # If it breaks here, it means there is more than one basket found in the current workspace which claim
+            #  that this egg belongs to them.
+            # Eggs are not allowed to belong to more than one basket, but this could happen if multiple versions
+            #  of an egg is checked out in the current workspace
+            [basket] = baskets
+            return basket
+
+    def contains(self, other):
+        return False
+
+    def get_build_sources(self):
+        self.setup(['egg_info'])
+
+        sources = []
+        sources_filename = os.path.join(self.egg_info_directory, 'SOURCES.txt')
+
+        with open(sources_filename) as in_file:
+            for line in in_file:
+                sources.append(line)
+        return sources
+
+    @property
+    def egg_info_directory(self):
+        return os.path.join(self.directory, '%s.egg-info' % self.project_name_pythonised)
+
+    def list_missing_dependencies(self, for_development=False):
+        all_deps = self.run_deps_for_setup()
+        if for_development:
+            all_deps = self.run_deps_for_setup()+self.build_deps_for_setup()+self.test_deps_for_setup()+[i for extras in self.extras_require_for_setup().values() for i in extras]
+        def is_installed(dep):
+            try:
+               pkg_resources.require(dep)
+            except:
+               return False
+            return True
+        def is_in_workspace(dep):
+            name = dep.split('<')[0].split('>')[0]
+            return self.workspace.has_project_named(name)
+        missing = [dep for dep in all_deps if (not is_installed(dep)) and (not is_in_workspace(dep))]
+        return [i.replace(' ', '') for i in missing]
+
+    def setup(self, setup_command):
+        with self.paths_set():
+            command = ['python', '-m', 'pip'] + setup_command
+            process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            print(' '.join(['Running (%s):' % os.getcwd() ] + process.args))
+            out, err = process.communicate()
+            sys.stdout.write(out.decode())
+            sys.stderr.write(err.decode())
+
+            return_code = process.returncode
+            if return_code != 0:
+                raise subprocess.CalledProcessError(return_code, command)
+
+    def setup2(self, setup_command):
+        with self.paths_set():
+            command = ['python', '-m', 'pip'] + setup_command
+            process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+            while process.poll():
+                out = process.stdout.read()
+                if out:
+                    sys.stdout.write(out)
+                    sys.stdout.flush()
+                err = process.stderr.read()
+                if err:
+                    sys.stderr.write(err)
+                    sys.stderr.flush()
+    @property
+    def setup_py_filename(self):
+        return os.path.join(self.directory, 'setup.py')
+    @property
+    def pyproject_toml_filename(self):
+        return os.path.join(self.directory, 'pyproject.toml')
+
+    @contextmanager
+    def generated_setup_py(self):
+        self.generate_setup_py()
+        try:
+           yield
+        finally:
+           os.remove(self.setup_py_filename)
+
+    def generate_setup_py(self):
+        with open(self.setup_py_filename, 'w') as setup_file:
+            setup_file.write('from setuptools import setup, Command\n')
+            setup_file.write('class InstallTestDependencies(Command):\n')
+            setup_file.write('    user_options = []\n')
+            setup_file.write('    def run(self):\n')
+            setup_file.write('        import sys\n')
+            setup_file.write('        import subprocess\n')
+            setup_file.write('        if self.distribution.tests_require: subprocess.check_call([sys.executable, "-m", "pip", "install", "-q"]+%s)\n' % repr(self.test_deps_for_setup()))
+            setup_file.write('\n')
+            setup_file.write('    def initialize_options(self):\n')
+            setup_file.write('        pass\n')
+            setup_file.write('\n')
+            setup_file.write('    def finalize_options(self):\n')
+            setup_file.write('        pass\n\n')
+            setup_file.write('setup(\n')
+            setup_file.write('    name=%s,\n' % repr(self.project_name))
+            setup_file.write('    version=\'%s\',\n' % self.version_for_setup())
+            setup_file.write('    description=%s,\n' % repr(self.get_description_for(self)))
+            setup_file.write('    long_description=%s,\n' % repr(self.get_long_description_for(self)))
+            setup_file.write('    url=%s,\n' % repr(self.get_url_for(self))),
+            setup_file.write('    maintainer=%s,\n' % repr(self.maintainer_name))
+            setup_file.write('    maintainer_email=%s,\n' % repr(self.maintainer_email))
+            setup_file.write('    packages=%s,\n' % repr(self.packages_for_setup()))
+            setup_file.write('    py_modules=%s,\n' % repr(self.py_modules_for_setup()))
+            setup_file.write('    include_package_data=%s,\n' % repr(self.include_package_data))
+            setup_file.write('    namespace_packages=%s,\n' % repr(self.namespace_packages_for_setup()))
+            setup_file.write('    install_requires=%s,\n' % repr(self.run_deps_for_setup()))
+            setup_file.write('    setup_requires=%s,\n' % repr(self.build_deps_for_setup()))
+            setup_file.write('    tests_require=%s,\n' % repr(self.test_deps_for_setup()))
+
+            setup_file.write('    extras_require=%s,\n' % repr(self.extras_require_for_setup()) )
+            setup_file.write('    cmdclass={\'install_test_dependencies\': InstallTestDependencies}\n' )
+            setup_file.write(')\n')
+
+    def version_for_setup(self):
+        return str(self.version.as_upstream())
+
+    def generate_migrated_setup_cfg(self):
+        MigratedSetupCfg(self).generate()
+
+    @property
+    def setup_cfg_filename(self):
+        return os.path.join(self.directory, 'setup.cfg')
+
+    @property
+    def run_deps(self):
+        if self.version_history:
+            return list(sorted(self.version_history, key=lambda x : pkg_resources.parse_version(str(x.version))))[-1].run_dependencies
+        else:
+            return []
+
+    def run_deps_for_setup(self):
+        return [dep.as_string_for_egg() for dep in self.run_deps]
+
+    def build_deps_for_setup(self):
+        deps = [dep.as_string_for_egg() for dep in self.build_deps]
+        if os.path.isfile(self.pyproject_toml_filename):
+            toml_config = toml.load(self.pyproject_toml_filename)
+            deps += toml_config['build-system']['requires']
+        return list(sorted(set(deps)))
+
+    @property
+    def setup_cfg(self):
+        if pathlib.Path(self.setup_cfg_filename).exists():
+          return read_configuration(self.setup_cfg_filename)
+        return {}
+
+    def test_deps_for_setup(self):
+        reahlproject_deps = [dep.as_string_for_egg() for dep in self.test_deps]
+        setup_cfg_deps = self.setup_cfg.get('options', {}).get('tests_require', [])
+        return reahlproject_deps + setup_cfg_deps
+
+    def packages_for_setup(self):
+        exclusions = [i.name for i in self.excluded_packages]
+        exclusions += ['%s.*' % i.name for i in self.excluded_packages]
+        # Adding self.namespace_packages... is to work around https://github.com/pypa/setuptools/issues/97
+        ns_packages = self.namespace_packages_for_setup()
+        packages = list(set([i for i in setuptools.find_packages(where=self.directory, exclude=exclusions)]+ns_packages))
+        packages.sort()
+        return packages
+
+    def namespace_packages_for_setup(self):
+        return [i.name for i in self.namespaces]  # Note: this has to return non-str strings for setuptools!
+
+    def py_modules_for_setup(self):
+        return list(set([i[1] for i in pkgutil.iter_modules(['.']) if not i[2]])-{'setup'})
+
+    def package_data_for_setup(self):
+        return {'': ['*/LC_MESSAGES/*.mo']}
+
+    @property
+    def test_suite(self):
+        directories_to_search = [self.directory]+[os.path.join(self.directory,i.path) for i in self.namespaces]
+
+        for directory in directories_to_search:
+            for name in os.listdir(directory):
+                full_path = os.path.join(directory,name)
+                if os.path.isdir(full_path) and name.endswith('_dev'):
+                    path = full_path[len(self.directory)+1:]
+                    return '.'.join(path.split(os.path.sep))
+
+        return 'tests'
+
+    def test_suite_for_setup(self):
+        return self.test_suite
+
+    def extras_require_for_setup(self):
+        return dict( [ (name, [dep.as_string_for_egg() for dep in dependencies])
+                       for name, dependencies in self.extras_required.items()] )
+
+    @property
+    def extras(self):
+        extras = []
+        for dependencies in self.extras_required.values():
+            extras.extend(dependencies)
+        return extras
+
+    def debinstall(self, args):
+        root = os.path.join(self.directory, 'debian', 'python-%s' % self.project_name)
+        executable = '/usr/bin/python'
+        build_directory = os.path.join(self.workspace.build_directory, self.project_name)
+        self.setup(['build', '-b', build_directory, 'build_scripts', '-e', executable, 'install', '--single-version-externally-managed', '--root=%s' % root, '--prefix=/usr'])
+
+    def distributed_python_files(self):
+        package_dirs = [i.replace('.', os.sep) for i in self.packages_for_setup()]
+        py_files = set()
+        for package_dir in package_dirs:
+            for dirname, dirnames, filenames in os.walk(package_dir):
+                for filename in filenames:
+                    if filename.endswith('.py'):
+                        py_files.add(os.path.join(dirname, filename))
+        return list(py_files)
 
 
 class SetupCommandFailed(Exception):
@@ -2016,352 +2091,6 @@ class MigratedSetupCfg:
         
         return head+body
 
-
-class EggProject(Project):
-    basket_name = None
-    is_sub_project = True
-    def __init__(self, workspace, directory, include_package_data):
-        super().__init__(workspace, directory)
-        self.namespaces = []
-        self.explicitly_specified_entry_points = []
-        self.excluded_packages = []
-        self.include_package_data = include_package_data
-
-        self.extras_required = {}
-        self.build_deps = []
-        self.test_deps = []
-
-        self.persist_list = []
-        self.version_history = []
-        self.scheduled_jobs = []
-
-    @property
-    def tags(self):
-        extras = ['component']
-        if not self.chicken_project:
-            extras.append('toplevel')
-        return super().tags + extras
-
-    @property
-    def chicken_project(self):
-        parent_directory = os.path.dirname(self.directory)
-        if not os.path.isfile(os.path.join(parent_directory, '.reahlproject')):
-            return None
-
-        parent_project = self.get_project_in_directory(parent_directory)
-        return parent_project if parent_project.has_children else None
-
-    def get_project_in_directory(self, directory):
-        try:
-            return self.workspace.project_in(directory)
-        except ProjectNotFound:
-            return Project.from_file(self.workspace, directory)
-
-    @classmethod
-    def get_xml_registration_info(cls):
-        return ('project', cls, 'egg')
-
-    def inflate_attributes(self, reader, attributes, parent):
-        workspace, directory = parent
-        include_package_data = False
-        if attributes.get('packagedata', None) == 'included':
-            include_package_data = True
-        if 'basket' in attributes:
-            self.basket_name = attributes['basket']
-        self.__init__(workspace, directory, include_package_data)
-
-    def inflate_child(self, reader, child, tag, parent):
-        if isinstance(child, DistributionPackage):
-            self.packages.append(child)
-        elif isinstance(child, ExtrasList):
-            self.extras_required[child.name] = child
-        elif isinstance(child, XMLDependencyList):
-            if child.purpose not in ['test', 'build']:
-                raise InvalidXMLException('<%s purpose="%s"> given inside a <%s>, only purpose="test" and purpose="build" are allowed in this context' % \
-                    (child.get_xml_registration_info()[0], child.purpose, self.get_xml_registration_info()[0]))
-            list_to_use = getattr(self, '%s_deps' % child.purpose)
-            list_to_use.extend(child)
-        elif isinstance(child, NamespaceList):
-            self.namespaces = child
-        elif isinstance(child, ConfigurationSpec):
-            if any([isinstance(i, ConfigurationSpec) for i in self.explicitly_specified_entry_points]):
-                raise InvalidXMLException('%s is a duplicate <configuration> for egg %s. Each egg may only have one <configuration>.' % (child, self.project_name))
-            self.explicitly_specified_entry_points.append(child)
-        elif isinstance(child, ScheduledJobSpec):
-            self.scheduled_jobs.append(child)
-        elif isinstance(child, EntryPointExport):
-            self.explicitly_specified_entry_points.append(child)
-        elif isinstance(child, PersistedClassesList):
-            self.persist_list = child
-        elif isinstance(child, VersionEntry):
-            self.version_history.append(child)
-        elif isinstance(child, ExcludedPackage):
-            self.excluded_packages.append(child)
-        else:
-            super().inflate_child(reader, child, tag, parent)
-
-    @property
-    def basket(self):
-        baskets = [i for i in self.workspace.projects
-                   if i.contains(self)]
-        if not baskets:
-            return NoBasket(self.workspace)
-        else:
-            # If it breaks here, it means there is more than one basket found in the current workspace which claim
-            #  that this egg belongs to them.
-            # Eggs are not allowed to belong to more than one basket, but this could happen if multiple versions
-            #  of an egg is checked out in the current workspace
-            [basket] = baskets
-            return basket
-
-    def contains(self, other):
-        return False
-
-    def get_build_sources(self):
-        self.setup(['egg_info'])
-
-        sources = []
-        sources_filename = os.path.join(self.egg_info_directory, 'SOURCES.txt')
-
-        with open(sources_filename) as in_file:
-            for line in in_file:
-                sources.append(line)
-        return sources
-
-    @property
-    def egg_info_directory(self):
-        return os.path.join(self.directory, '%s.egg-info' % self.project_name_pythonised)
-
-    def list_missing_dependencies(self, for_development=False):
-        all_deps = self.run_deps_for_setup()
-        if for_development:
-            all_deps = self.run_deps_for_setup()+self.build_deps_for_setup()+self.test_deps_for_setup()+[i for extras in self.extras_require_for_setup().values() for i in extras]
-        def is_installed(dep):
-            try:
-               pkg_resources.require(dep)
-            except:
-               return False
-            return True
-        def is_in_workspace(dep):
-            name = dep.split('<')[0].split('>')[0]
-            return self.workspace.has_project_named(name)
-        missing = [dep for dep in all_deps if (not is_installed(dep)) and (not is_in_workspace(dep))]
-        return [i.replace(' ', '') for i in missing]
-
-    def setup(self, setup_command, script_name=''):
-        with self.paths_set():
-            with SetupMonitor() as monitor:
-                distribution = setuptools.setup(script_name=script_name,
-                     script_args=setup_command,
-                     name=self.project_name,
-                     version=self.version_for_setup(),
-                     description=self.get_description_for(self),
-                     long_description=self.get_long_description_for(self),
-                     url=self.get_url_for(self),
-                     maintainer=self.maintainer_name,
-                     maintainer_email=self.maintainer_email,
-
-                     packages=self.packages_for_setup(),
-                     py_modules=self.py_modules_for_setup(),
-
-                     namespace_packages=self.namespace_packages_for_setup(),
-
-                     install_requires=self.run_deps_for_setup(),
-                     setup_requires=self.build_deps_for_setup(),
-                     tests_require=self.test_deps_for_setup(),
-                     extras_require=self.extras_require_for_setup() 
-                )
-            monitor.check_command_status(distribution.commands)
-
-    @property
-    def setup_py_filename(self):
-        return os.path.join(self.directory, 'setup.py')
-    @property
-    def pyproject_toml_filename(self):
-        return os.path.join(self.directory, 'pyproject.toml')
-    
-    @contextmanager
-    def generated_setup_py(self):
-        self.generate_setup_py()
-        try:
-           yield
-        finally:
-           os.remove(self.setup_py_filename)
-
-    def generate_setup_py(self):
-        with open(self.setup_py_filename, 'w') as setup_file:
-            setup_file.write('from setuptools import setup, Command\n')
-            setup_file.write('class InstallTestDependencies(Command):\n')
-            setup_file.write('    user_options = []\n')
-            setup_file.write('    def run(self):\n')
-            setup_file.write('        import sys\n')
-            setup_file.write('        import subprocess\n')
-            setup_file.write('        if self.distribution.tests_require: subprocess.check_call([sys.executable, "-m", "pip", "install", "-q"]+%s)\n' % repr(self.test_deps_for_setup()))
-            setup_file.write('\n')
-            setup_file.write('    def initialize_options(self):\n')
-            setup_file.write('        pass\n')
-            setup_file.write('\n')
-            setup_file.write('    def finalize_options(self):\n')
-            setup_file.write('        pass\n\n')
-            setup_file.write('setup(\n')
-            setup_file.write('    name=%s,\n' % repr(self.project_name))
-            setup_file.write('    version=\'%s\',\n' % self.version_for_setup())
-            setup_file.write('    description=%s,\n' % repr(self.get_description_for(self)))
-            setup_file.write('    long_description=%s,\n' % repr(self.get_long_description_for(self)))
-            setup_file.write('    url=%s,\n' % repr(self.get_url_for(self))),
-            setup_file.write('    maintainer=%s,\n' % repr(self.maintainer_name))
-            setup_file.write('    maintainer_email=%s,\n' % repr(self.maintainer_email))
-            setup_file.write('    packages=%s,\n' % repr(self.packages_for_setup()))
-            setup_file.write('    py_modules=%s,\n' % repr(self.py_modules_for_setup()))
-            setup_file.write('    include_package_data=%s,\n' % repr(self.include_package_data))
-            setup_file.write('    namespace_packages=%s,\n' % repr(self.namespace_packages_for_setup()))
-            setup_file.write('    install_requires=%s,\n' % repr(self.run_deps_for_setup()))
-            setup_file.write('    setup_requires=%s,\n' % repr(self.build_deps_for_setup()))
-            setup_file.write('    tests_require=%s,\n' % repr(self.test_deps_for_setup()))
-
-            setup_file.write('    extras_require=%s,\n' % repr(self.extras_require_for_setup()) )
-            setup_file.write('    cmdclass={\'install_test_dependencies\': InstallTestDependencies}\n' )
-            setup_file.write(')\n')
-
-    def version_for_setup(self):
-        return str(self.version.as_upstream())
-
-    def generate_migrated_setup_cfg(self):
-        MigratedSetupCfg(self).generate()
-        
-    @property
-    def setup_cfg_filename(self):
-        return os.path.join(self.directory, 'setup.cfg')
-
-    @property
-    def run_deps(self):
-        if self.version_history:
-            return list(sorted(self.version_history, key=lambda x : pkg_resources.parse_version(str(x.version))))[-1].run_dependencies
-        else:
-            return []
-
-    def run_deps_for_setup(self):
-        return [dep.as_string_for_egg() for dep in self.run_deps]
-
-    def build_deps_for_setup(self):
-        deps = [dep.as_string_for_egg() for dep in self.build_deps]
-        if os.path.isfile(self.pyproject_toml_filename):
-            toml_config = toml.load(self.pyproject_toml_filename)
-            deps += toml_config['build-system']['requires']
-        return list(sorted(set(deps)))
-
-    @property
-    def setup_cfg(self):
-        if pathlib.Path(self.setup_cfg_filename).exists():
-          return read_configuration(self.setup_cfg_filename)
-        return {}
-    
-    def test_deps_for_setup(self):
-        reahlproject_deps = [dep.as_string_for_egg() for dep in self.test_deps]
-        setup_cfg_deps = self.setup_cfg.get('options', {}).get('tests_require', [])
-        return reahlproject_deps + setup_cfg_deps
-
-    def packages_for_setup(self):
-        exclusions = [i.name for i in self.excluded_packages]
-        exclusions += ['%s.*' % i.name for i in self.excluded_packages]
-        # Adding self.namespace_packages... is to work around https://github.com/pypa/setuptools/issues/97
-        ns_packages = self.namespace_packages_for_setup()
-        packages = list(set([i for i in setuptools.find_packages(where=self.directory, exclude=exclusions)]+ns_packages))
-        packages.sort()
-        return packages
-
-    def namespace_packages_for_setup(self):
-        return [i.name for i in self.namespaces]  # Note: this has to return non-str strings for setuptools!
-
-    def py_modules_for_setup(self):
-        return list(set([i[1] for i in pkgutil.iter_modules(['.']) if not i[2]])-{'setup'})
-
-    def package_data_for_setup(self):
-        return {'': ['*/LC_MESSAGES/*.mo']}
-
-    @property
-    def test_suite(self):
-        directories_to_search = [self.directory]+[os.path.join(self.directory,i.path) for i in self.namespaces]
-
-        for directory in directories_to_search:
-            for name in os.listdir(directory):
-                full_path = os.path.join(directory,name)
-                if os.path.isdir(full_path) and name.endswith('_dev'):
-                    path = full_path[len(self.directory)+1:]
-                    return '.'.join(path.split(os.path.sep))
-
-        return 'tests'
-
-    def test_suite_for_setup(self):
-        return self.test_suite
-
-    def extras_require_for_setup(self):
-        return dict( [ (name, [dep.as_string_for_egg() for dep in dependencies])
-                       for name, dependencies in self.extras_required.items()] )
-
-    @property
-    def extras(self):
-        extras = []
-        for dependencies in self.extras_required.values():
-            extras.extend(dependencies)
-        return extras
-
-    def debinstall(self, args):
-        root = os.path.join(self.directory, 'debian', 'python-%s' % self.project_name)
-        executable = '/usr/bin/python'
-        build_directory = os.path.join(self.workspace.build_directory, self.project_name)
-        self.setup(['build', '-b', build_directory, 'build_scripts', '-e', executable, 'install', '--single-version-externally-managed', '--root=%s' % root, '--prefix=/usr'])
-
-    def distributed_python_files(self):
-        package_dirs = [i.replace('.', os.sep) for i in self.packages_for_setup()]
-        py_files = set()
-        for package_dir in package_dirs:
-            for dirname, dirnames, filenames in os.walk(package_dir):
-                for filename in filenames:
-                    if filename.endswith('.py'):
-                        py_files.add(os.path.join(dirname, filename))
-        return list(py_files)
-
-
-
-class ChickenProject(EggProject):
-    has_children = True
-    @classmethod
-    def get_xml_registration_info(cls):
-        return ('project', cls, 'chicken')
-
-    @property
-    def egg_project_names(self):
-        return [os.path.basename(os.path.dirname(i))
-                for i in glob.glob(os.path.join(self.directory, '*', '.reahlproject'))]
-
-    @property
-    def egg_projects(self):
-        return [self.workspace.project_named(i) for i in self.egg_project_names]
-
-    def debinstall(self, args):
-        for egg in self.egg_projects:
-            root = os.path.join(self.directory,'debian', 'python-%s' % self.project_name, egg.project_name)
-            executable = '/usr/bin/python'
-            build_directory = os.path.join(self.workspace.build_directory, self.project_name, egg.project_name)
-            egg.setup(['build', '-b', build_directory, 'build_scripts', '-e', executable, 'install', '--single-version-externally-managed', '--root=%s' % root, '--prefix=/usr'])
-
-    def contains_project_named(self, name):
-        return name in self.egg_project_names
-
-    @property
-    def tags(self):
-        return super().tags + ['toplevel']
-
-
-    def packages_for_setup(self):
-        return []
-
-    def namespace_packages_for_setup(self):
-        return []
-
-
-
 class DirectoryList(list):
     """Utility class used to read a list of directory names from a file on disk."""
 
@@ -2426,7 +2155,7 @@ class ProjectList(list):
                             dirs.remove(i)
                         except ValueError:
                             pass
-                if '.reahlproject' in files:
+                if 'setup.cfg' in files:
                     project = Project.from_file(self.workspace, root)
                     self.append(project, ignore_duplicates=True)
                     if not project.has_children:
@@ -2641,9 +2370,4 @@ class SubstvarsFile(list):
     def items(self):
         return [i for i in self]
 
-all_xml_classes = [MetaInfo, HardcodedMetadata, DebianPackageMetadata, GitSourceControl, Project,
-                   ChickenProject, EggProject, DebianPackage, SshRepository, PythonSourcePackage,
-                   PythonWheelPackage, PackageIndex, Dependency, ThirdpartyDependency, XMLDependencyList,
-                   ExtrasList, EntryPointExport, ScriptExport, NamespaceList, NamespaceEntry, PersistedClassesList,
-                   OrderedPersistedClass, MigrationList, ConfigurationSpec, ScheduledJobSpec,
-                   ExcludedPackage, TranslationPackage, ExtraPath, ProjectTag, VersionEntry]
+all_xml_classes = []

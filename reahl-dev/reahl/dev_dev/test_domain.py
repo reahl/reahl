@@ -28,7 +28,7 @@ from reahl.stubble import exempt
 from reahl.stubble import stubclass
 
 from reahl.dev.devdomain import DebianPackage, SshRepository, LocalAptRepository, RepositoryLocalState, Workspace, \
-    ProjectMetadata, EggProject, ChickenProject, Project, SubstvarsFile, \
+    ProjectMetadata, Project, SubstvarsFile, \
     Dependency, ThirdpartyDependency, DebianChangelog, DebianControl, VersionNumber
 from reahl.dev.exceptions import AlreadyUploadedException, NotBuiltException, NotAValidProjectException, \
     InvalidProjectFileException

@@ -23,7 +23,7 @@ import os
 import shutil
 import glob
 import re
-import xml.etree.ElementTree
+import configparser
 
 
 def ask(prompt):
@@ -99,7 +99,7 @@ def fake_distributions_into_existence(project_dirs):
 def find_all_prerequisits_for(project_dirs):
     prerequisites = {'tox>=3.14,<3.14.999', 'build'} # Nothing depends on tox, but we use it in .github/worfklows so it forms part of our basic infrastructure
     for project_dir in project_dirs:
-        prerequisites.update(parse_prerequisites_from(os.path.join(os.getcwd(), project_dir, '.reahlproject')))
+        prerequisites.update(parse_prerequisites_from(os.path.join(os.getcwd(), project_dir, 'setup.cfg')))
     return prerequisites
 
 
@@ -175,11 +175,13 @@ def bootstrap_workspace(workspace_dir, core_project_dirs):
     return workspace, core_projects
 
 def run_setup(workspace, projects, uninstall=False):
-    command = ['develop', '-N']
-    if uninstall:
-        command.append('--uninstall')
 
     for project in projects:
+        if uninstall:
+            command = ['uninstall', '-y', project.project_name]
+        else:
+            command = ['install', '--no-deps', '-e', '.']
+
         project.setup(command)
 
 def find_missing_dependencies(workspace):
@@ -215,21 +217,13 @@ def print_final_message(success=True):
     print('  '+' '.join(debs_needed_to_compile_python)) 
     print('')
 
-def parse_prerequisites_from(dot_project_file):
-    root = xml.etree.ElementTree.parse(dot_project_file).getroot()
-    deps_for_common_version = root.findall('.//version[@number="%s"]//thirdpartyegg' % get_common_version())
-    for node in deps_for_common_version:
-        requirement_string = node.attrib['name']
-        min_version = node.attrib.get('minversion', None)
-        max_version = node.attrib.get('maxversion', None)
-        if min_version:
-            requirement_string += '>=%s' % min_version
-        if max_version:
-            comma = ',' if min_version else ''
-            requirement_string += '%s<%s' % (comma, max_version)
-        yield requirement_string
+def parse_prerequisites_from(setup_cfg_file):
+    parser = configparser.ConfigParser()
+    parser.read(setup_cfg_file)
+    install_requires = parser['options']['install_requires'].split()
+    for r in [i for i in install_requires if not i.startswith('reahl-')]:
+        yield r    
 
-    
 def ensure_script_dependencies_installed():
     missing = find_missing_prerequisites(core_project_dirs)
     if missing and install_prerequisites(missing):
