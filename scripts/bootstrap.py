@@ -18,7 +18,7 @@
 import sys
 import subprocess
 import pkg_resources
-import distutils.sysconfig
+import sysconfig
 import os
 import shutil
 import glob
@@ -62,7 +62,7 @@ def get_venv_basedir():
     running_in_virtualenv = (base_prefix or real_prefix) != sys.prefix
     if not running_in_virtualenv:
         raise AssertionError('You must be in a virtual environment')
-    return distutils.sysconfig.get_config_vars()['exec_prefix']
+    return sysconfig.get_config_vars()['exec_prefix']
 
 
 def clean_workspace(reahl_workspace):
