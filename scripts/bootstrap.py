@@ -97,7 +97,7 @@ def fake_distributions_into_existence(project_dirs):
 
 
 def find_all_prerequisits_for(project_dirs):
-    prerequisites = {'tox>=3.14,<3.14.999', 'build'} # Nothing depends on tox, but we use it in .github/worfklows so it forms part of our basic infrastructure
+    prerequisites = {'tox>=4.6.3', 'build'} # Nothing depends on tox, but we use it in .github/worfklows so it forms part of our basic infrastructure
     for project_dir in project_dirs:
         prerequisites.update(parse_prerequisites_from(os.path.join(os.getcwd(), project_dir, 'setup.cfg')))
     return prerequisites
