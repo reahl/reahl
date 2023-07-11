@@ -124,7 +124,7 @@ class ReahlSystemSessionFixture(ContextAwareFixture):
 
     def new_test_dependencies(self):
         try:
-            return read_configuration('setup.cfg')['options']['tests_require']
+            return read_configuration('setup.cfg')['options']['extras_require']['test']
         except KeyError:
             return []
 
