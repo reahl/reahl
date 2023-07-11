@@ -181,5 +181,6 @@ class WebServerFixture(Fixture):
             self.reahl_server.stop()
 
     def new_test_dependencies(self):
+        assert False, 'Suspected not used'
         return ['reahl-web-declarative']
 

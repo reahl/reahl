@@ -426,13 +426,27 @@ class ReahlEgg:
             job()
 
     @classmethod
+    def get_egg_external_path_for(cls, translations_entry_point):
+        module = translations_entry_point.load()
+        paths = [p for p in module.__path__ if p.find('%s%s' %(translations_entry_point.name,os.path.sep)) > 0]
+        unique_paths = set(paths)
+
+        assert len(unique_paths) <= 1, \
+            'Only one translations package per component is allowed, found %s for %s' % (paths, translations_entry_point.dist)
+        assert len(unique_paths) > 0, \
+            'No translations found for %s, did you specify a translations package and forget to add locales in there?' % translations_entry_point.dist
+        return unique_paths.pop()    \
+
+    @classmethod
     def get_egg_internal_path_for(cls, translations_entry_point):
         module = translations_entry_point.load()
-        dir_or_egg_name = translations_entry_point.dist.location.split(os.sep)[-1]
-        paths = [p for p in module.__path__ if p.find('%s%s' % (dir_or_egg_name, os.path.sep)) > 0]
-        paths = [p for p in paths if not p.startswith(os.path.join(translations_entry_point.dist.location, '.'))]
-        unique_paths = [p.split('%s%s' % (dir_or_egg_name, os.path.sep))[-1] for p in paths]
+        #dir_or_egg_name = translations_entry_point.dist.location.split(os.sep)[-1]
+        paths = [p for p in module.__path__ if p.find(translations_entry_point.name) > 0]
+        #paths = [p for p in paths if not p.startswith(os.path.join(translations_entry_point.dist.location, '.'))]
+        unique_paths = [p.split('%s%s' % (translations_entry_point.dist.location, os.path.sep))[-1] for p in paths]
         unique_paths = set([p for p in unique_paths if '.egg' not in p])
+        if len(unique_paths) > 1:
+            return 'xxx-does-not-exist-xxx'
         assert len(unique_paths) <= 1, \
             'Only one translations package per component is allowed, found %s for %s' % (paths, translations_entry_point.dist)
         assert len(unique_paths) > 0, \
@@ -452,17 +466,29 @@ class ReahlEgg:
         languages_for_eggs = {}
         for translation_entry_point in pkg_resources.iter_entry_points('reahl.translations'):
             requirement = translation_entry_point.dist.as_requirement()
+
             egg_internal_path = cls.get_egg_internal_path_for(translation_entry_point)
+            egg_external_path = cls.get_egg_external_path_for(translation_entry_point)
+            is_editable_install = False
             if pkg_resources.resource_isdir(requirement, egg_internal_path):
                 languages = [d for d in pkg_resources.resource_listdir(requirement, egg_internal_path)
                              if (pkg_resources.resource_isdir(requirement, '%s/%s' % (egg_internal_path, d)) and not d.startswith('__'))]
+            elif os.path.isdir(egg_external_path):
+                languages = [d for d in os.listdir(egg_external_path)
+                             if (os.path.isdir('%s/%s' % (egg_external_path, d)) and not d.startswith('__'))]
+                is_editable_install = True
             else:
                 logging.error('Translations of %s not found in %s' % (requirement, egg_internal_path))
                 languages = []
 
             for language in languages:
-                language_path = '%s/%s/LC_MESSAGES' % (egg_internal_path, language)
-                domains = [d[:-3] for d in pkg_resources.resource_listdir(requirement, language_path) if d.endswith('.mo')]
+                if is_editable_install:
+                    language_path = '%s/%s/LC_MESSAGES' % (egg_external_path, language)
+                    domains = [d[:-3] for d in os.listdir(language_path) if d.endswith('.mo')]
+                else:
+                    language_path = '%s/%s/LC_MESSAGES' % (egg_internal_path, language)
+                    domains = [d[:-3] for d in pkg_resources.resource_listdir(requirement, language_path) if d.endswith('.mo')]
+
                 for domain in domains:
                     if domain in domains_in_use:
                         languages = languages_for_eggs.setdefault(domain, set())

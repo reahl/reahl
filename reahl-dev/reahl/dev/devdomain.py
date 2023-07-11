@@ -1322,7 +1322,6 @@ class DebianControl:
 class Project:
     """Instances of Project each represent a Reahl project in a development environment.
     """
-    has_children = False
 
     def __str__(self):
         return '<%s>' % self.get_xml_registration_info()[0]
@@ -1387,6 +1386,10 @@ class Project:
     @property
     def packages_to_distribute(self):
         return self.packages
+
+    @property
+    def has_children(self):
+        return self.project_name == 'reahl'
 
     @contextmanager
     def paths_set(self):
@@ -2192,7 +2195,7 @@ class ProjectList(list):
             selection = ProjectList(self.workspace)
 
         for i in self:
-            if (not negated) == (all_ or (i.status in states) or (len(set(i.tags) & set(tags))>0)):
+            if (not negated) == (all_ or (len(set(i.tags) & set(tags))>0)):
                 selection.append(i)
         return selection
 
