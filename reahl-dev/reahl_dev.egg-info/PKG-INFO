@@ -10,6 +10,7 @@ Classifier: Intended Audience :: Developers
 Classifier: License :: OSI Approved
 Classifier: Operating System :: OS Independent
 Classifier: Programming Language :: Python :: 3
+Provides-Extra: test
 License-File: LICENSE
 
  Reahl is a web application framework that allows a Python programmer to work in 

@@ -10,3 +10,6 @@ tzlocal<4.2.9999,>=2.0.0
 setuptools>=51.0.0
 pip>=21.1
 toml
+
+[test]
+pytest>=3.0
