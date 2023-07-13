@@ -48,7 +48,6 @@ import setuptools
 from xml.parsers.expat import ExpatError
 
 from reahl.component.shelltools import Executable
-from reahl.dev.xmlreader import XMLReader, TagNotRegisteredException
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.eggs import ReahlEgg
 

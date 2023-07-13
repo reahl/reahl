@@ -4,6 +4,7 @@
 #The module path for these classes upon inspection seem to be sans the namespace prefix.
 #The monkey patch below fixes the pytest issue
 
+import re
 from typing import Optional
 import pathlib
 import _pytest.pathlib
@@ -12,8 +13,7 @@ def apply_patch_for(root_dir_name):
     resolve_pkg_path_orig = _pytest.pathlib.resolve_package_path
 
     root_dir = pathlib.Path(root_dir_name).parent.resolve()
-    namespace_pkg_dirs = [str(d) for d in root_dir.iterdir() if d.is_dir()]
-
+    namespace_pkg_dirs = [str(d) for d in root_dir.iterdir() if d.is_dir() and not (re.match(r'((^(\.|__))|.*egg-info$)', d.name)) ]
 
     def resolve_package_path(path: pathlib.Path) -> Optional[pathlib.Path]:
         result = resolve_pkg_path_orig(path)

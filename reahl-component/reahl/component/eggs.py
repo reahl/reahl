@@ -481,6 +481,11 @@ class ReahlEgg:
                 logging.error('Translations of %s not found in %s' % (requirement, egg_internal_path))
                 languages = []
 
+#            if languages:
+#                import pdb; pdb.set_trace()
+#                from importlib import resources
+#                [ i.name for i in resources.files('reahl.messages').iterdir() if i.is_dir() and ('LC_MESSAGES' in [ii.name for ii in i.iterdir()])]
+                
             for language in languages:
                 if is_editable_install:
                     language_path = '%s/%s/LC_MESSAGES' % (egg_external_path, language)
