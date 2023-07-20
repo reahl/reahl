@@ -97,7 +97,7 @@ version need not be listed.
    [options]
    
    install_requires =
-     reahl-component>=6.0,<6.1
+     reahl-component>=7.0,<7.1
      
    component =
      [versions."1.2"]
@@ -142,7 +142,7 @@ reference`_) to run in order to bring the previous version of the database schem
    [options]
    
    install_requires =
-     reahl-component>=6.0,<6.1
+     reahl-component>=7.0,<7.1
      
    component =
      [versions."1.2"]
@@ -178,7 +178,7 @@ should then be specified, no "install_requires":
    [options]
    
    install_requires =
-     reahl-component>=6.0,<6.1
+     reahl-component>=7.0,<7.1
      
    component =
      [versions."1.3"]
