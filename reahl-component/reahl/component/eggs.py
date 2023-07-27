@@ -440,7 +440,7 @@ class ReahlEgg:
         module = translation_entry_point.load()
         domain = translation_entry_point.name
         major, minor = sys.version.split('.')[:2]
-        if True or major == 3 and minor < 9: 
+        if major == 3 and minor < 9: 
             with importlib.resources.path(module, '') as path:
                 return find_catalogues_in_traversable(path, domain)
         else:
@@ -460,7 +460,7 @@ class ReahlEgg:
         for translation_entry_point in pkg_resources.iter_entry_points('reahl.translations'):
             for catalogue in cls.find_catalogues(translation_entry_point):
                 language = catalogue.parts[-3]
-                domain = re.match(r'^([^.]*)(.mo)?', catalogue.name).group(1)
+                domain = translation_entry_point.name
                 if domain in domains_in_use:
                     languages = languages_for_eggs.setdefault(domain, set())
                     languages.add(language)
