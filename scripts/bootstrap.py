@@ -72,7 +72,7 @@ def clean_workspace(reahl_workspace):
 def clean_egg_info_dirs():
     for current_directory, directories, files in os.walk(os.getcwd()):
         for d in directories:
-            if (d.endswith('egg-info') or d.endswith('dist-info')) and not d in ['reahl_dev.egg-info','reahl_dev.dist-info']:
+            if (d.endswith('egg-info') or d.endswith('dist-info')):
                 shutil.rmtree(os.path.join(current_directory, d))
 
 def remove_versions_from_requirements(requires_file):
@@ -95,6 +95,7 @@ def egg_dirs_for(project_dirs):
 
 
 def fake_distributions_into_existence(project_dirs):
+    xxx
     for egg_dir in egg_dirs_for(project_dirs):
         if not os.path.exists(egg_dir):
             os.mkdir(egg_dir)
@@ -120,6 +121,16 @@ def find_missing_prerequisites(project_dirs):
 def install_with_pip(package_list, upgrade=False):
     args = ['-U'] if upgrade else []
     return subprocess.call([sys.executable, '-m', 'pip', 'install'] + args + package_list)
+
+def uninstall(project_names):
+    for project_name in project_names:
+        subprocess.run(['python', '-m', 'pip', 'uninstall', '-y', project_name])
+    
+def editable_install(project_dirs, with_deps=False):
+    nodeps = [] if with_deps else ['--no-deps']
+    for project_dir in project_dirs:
+        subprocess.run(['python', '-m', 'pip', 'install'] + nodeps + ['-e', '.'], cwd=project_dir)
+
 
 
 def install_prerequisites(missing):
@@ -157,6 +168,7 @@ def get_common_version():
 
 
 def make_core_projects_importable(core_project_dirs):
+    dead
     for d in core_project_dirs:
         project_path = os.path.join(os.getcwd(), d)
         pkg_resources.working_set.add_entry(project_path)
@@ -169,7 +181,6 @@ def make_core_projects_importable(core_project_dirs):
                 pkg_file.write('Version: %s\n' % common_version)
 
 def bootstrap_workspace(workspace_dir, core_project_dirs):
-    make_core_projects_importable(core_project_dirs)
     from reahl.dev.devdomain import Project, Workspace
     workspace = Workspace(workspace_dir)
     for project_dir in core_project_dirs:
@@ -177,16 +188,6 @@ def bootstrap_workspace(workspace_dir, core_project_dirs):
 
     core_projects = [Project.from_file(workspace, os.path.join(os.getcwd(), project_dir)) for project_dir in core_project_dirs]
     return workspace, core_projects
-
-def run_setup(projects, uninstall=False):
-
-    for project in projects:
-        if uninstall:
-            command = ['uninstall', '-y', project.project_name]
-        else:
-            command = ['install', '--no-deps', '-e', '.']
-
-        project.setup(command)
 
 def find_missing_dependencies(workspace):
     missing = set()
@@ -238,21 +239,20 @@ def ensure_script_dependencies_installed():
 
 def ensure_reahl_project_dependencies_installed():
     workspace, core_projects = bootstrap_workspace(reahl_workspace, core_project_dirs)
-    run_setup(core_projects)
     workspace.selection = core_projects
 
     # For good measure, we "setup.py develop" all eggs in reahl
     workspace.refresh(False, [os.getcwd()])
     workspace.select(all_=True)
-    run_setup(workspace.selection)
+    editable_install([i.directory for i in workspace.selection])
 
     missing_dependencies = find_missing_dependencies(workspace)
     if missing_dependencies:
-        run_setup(workspace.selection, uninstall=True)
+        uninstall([i.project_name for i in workspace.selection])
         if install_with_pip(list(set(missing_dependencies).union(find_all_prerequisits_for(core_project_dirs))), upgrade=False) != 0:
             print("Error trying to install one of: " + ','.join(missing_dependencies))
             return False
-        run_setup(workspace.selection)
+        editable_install([i.directory for i in workspace.selection])
     return True
 
 
@@ -266,8 +266,8 @@ clean_virtual_env()
 clean_workspace(reahl_workspace)
 clean_egg_info_dirs()
 
-remove_versions_from_requirements(reahl_dev_requires_file)
-fake_distributions_into_existence(core_project_dirs)
+#remove_versions_from_requirements(reahl_dev_requires_file)
+#fake_distributions_into_existence(core_project_dirs)
 
 
 if "--script-dependencies" in sys.argv:
@@ -275,8 +275,10 @@ if "--script-dependencies" in sys.argv:
    if still_missing:
        print('Failed to install %s - (see pip errors above)' % (' '.join(still_missing)) )
    else:
-       print('Successfully installed prerequisites - please re-run with --pip-installs')
-       
+       print('Successfully installed prerequisites - please re-run with --bootstrap-core-projects')
+elif "--bootstrap-core-projects" in sys.argv:
+    editable_install(core_project_dirs, with_deps=True)
+    print('please re-run with --pip-installs')
 elif "--pip-installs" in sys.argv:
     success = ensure_reahl_project_dependencies_installed()
     print_final_message(success=success)
