@@ -178,7 +178,7 @@ def bootstrap_workspace(workspace_dir, core_project_dirs):
     core_projects = [Project.from_file(workspace, os.path.join(os.getcwd(), project_dir)) for project_dir in core_project_dirs]
     return workspace, core_projects
 
-def run_setup(workspace, projects, uninstall=False):
+def run_setup(projects, uninstall=False):
 
     for project in projects:
         if uninstall:
@@ -238,21 +238,21 @@ def ensure_script_dependencies_installed():
 
 def ensure_reahl_project_dependencies_installed():
     workspace, core_projects = bootstrap_workspace(reahl_workspace, core_project_dirs)
-    run_setup(workspace, core_projects)
+    run_setup(core_projects)
     workspace.selection = core_projects
 
     # For good measure, we "setup.py develop" all eggs in reahl
     workspace.refresh(False, [os.getcwd()])
     workspace.select(all_=True)
-    run_setup(workspace, workspace.selection)
+    run_setup(workspace.selection)
 
     missing_dependencies = find_missing_dependencies(workspace)
     if missing_dependencies:
-        run_setup(workspace, workspace.selection, uninstall=True)
+        run_setup(workspace.selection, uninstall=True)
         if install_with_pip(list(set(missing_dependencies).union(find_all_prerequisits_for(core_project_dirs))), upgrade=False) != 0:
             print("Error trying to install one of: " + ','.join(missing_dependencies))
             return False
-        run_setup(workspace, workspace.selection)
+        run_setup(workspace.selection)
     return True
 
 
