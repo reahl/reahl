@@ -1,8 +1,6 @@
 
 # To run this test do:
-# pytest --pyargs reahl.doc.examples.howtos.ajaxbootstrap.ajaxbootstrap_dev.test_ajaxbootstrap
-# or
-# reahl unit
+# pytest 
 #
 
 
