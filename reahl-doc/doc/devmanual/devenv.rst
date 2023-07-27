@@ -62,7 +62,7 @@ Run an example inside the container:
    cd ~/reahl
    reahl example tutorial.hello
    cd hello
-   reahl setup develop -N
+   python -m pip install --no-deps -e .
    reahl createdbuser etc
    reahl createdb etc
    reahl createdbtables etc
