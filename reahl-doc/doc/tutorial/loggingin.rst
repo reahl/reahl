@@ -74,7 +74,7 @@ registered to play with. To create some, run:
 
 .. code-block:: bash
 
-   reahl demosetup
+   pytest -o python_functions=demo_setup
 
 This creates a user and password using the password and email address in:
 

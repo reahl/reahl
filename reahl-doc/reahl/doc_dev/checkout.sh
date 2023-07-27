@@ -14,7 +14,7 @@ do
     else
         cd $out
         python -m pip install --no-deps -e .
-        if reahl unit 
+        if pytest
         then
             result="."
         fi
