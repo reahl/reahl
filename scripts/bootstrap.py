@@ -80,8 +80,12 @@ def remove_versions_from_requirements(requires_file):
         lines = input_file.readlines()
     with open(requires_file, 'w') as output_file:
         for line in lines:
-            version_stripped_line = re.match('([\w-]+)', line).group(0)
-            output_file.write(version_stripped_line)
+            match = re.search('([\w-]+)', line)
+            if match and match.groups():
+                version_stripped_line = match.group(0)
+                output_file.write(version_stripped_line)
+            else:
+                output_file.write(line)
             output_file.write('\n')
 
 def egg_dirs_for(project_dirs):
