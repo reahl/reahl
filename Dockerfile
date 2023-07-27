@@ -37,7 +37,7 @@ RUN /etc/init.d/ssh start && \
 
 USER $REAHL_USER
 RUN mkdir -p $REAHLWORKSPACE/.reahlworkspace/dist-egg
-RUN bash -l -c "cd $REAHL_SCRIPTS && python scripts/bootstrap.py --script-dependencies && python scripts/bootstrap.py --pip-installs && reahl setup -sdX develop -N"
+RUN bash -l -c "cd $REAHL_SCRIPTS && python scripts/bootstrap.py --script-dependencies && python scripts/bootstrap.py --pip-installs && reahl shell -sdX python -m pip install --no-deps -e ."
 RUN bash -l -c "cd $REAHL_SCRIPTS && pip freeze"
 RUN bash -l -c "cd $REAHL_SCRIPTS && reahl build -sdX -ns; cd reahl-doc/doc; make html"
 
