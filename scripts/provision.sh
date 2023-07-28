@@ -30,7 +30,6 @@ if [ ! -f /.provisioned ]; then
            pip freeze | grep reahl | xargs pip uninstall -y
            cd $BOOTSTRAP_REAHL_SOURCE
            $VENV/bin/python scripts/bootstrap.py --script-dependencies
-           $VENV/bin/python scripts/bootstrap.py --bootstrap-core-projects
            $VENV/bin/python scripts/bootstrap.py --pip-installs
         "'
     fi
