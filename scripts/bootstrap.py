@@ -75,30 +75,10 @@ def clean_egg_info_dirs():
             if (d.endswith('egg-info') or d.endswith('dist-info')):
                 shutil.rmtree(os.path.join(current_directory, d))
 
-def remove_versions_from_requirements(requires_file):
-    with open(requires_file, 'r') as input_file:
-        lines = input_file.readlines()
-    with open(requires_file, 'w') as output_file:
-        for line in lines:
-            match = re.search('([\w-]+)', line)
-            if match and match.groups():
-                version_stripped_line = match.group(0)
-                output_file.write(version_stripped_line)
-            else:
-                output_file.write(line)
-            output_file.write('\n')
-
 def egg_dirs_for(project_dirs):
     for project_dir in project_dirs:
         egg_info = '%s.egg-info' % project_dir.replace('-', '_')
         yield os.path.join(os.getcwd(), project_dir, egg_info)
-
-
-def fake_distributions_into_existence(project_dirs):
-    xxx
-    for egg_dir in egg_dirs_for(project_dirs):
-        if not os.path.exists(egg_dir):
-            os.mkdir(egg_dir)
 
 
 def find_all_prerequisits_for(project_dirs):
@@ -167,19 +147,6 @@ def get_common_version():
     return '.'.join(DebianChangelog('debian/changelog').version.split('.')[:2])
 
 
-def make_core_projects_importable(core_project_dirs):
-    dead
-    for d in core_project_dirs:
-        project_path = os.path.join(os.getcwd(), d)
-        pkg_resources.working_set.add_entry(project_path)
-        sys.path.append(project_path)
-    common_version = get_common_version()
-    for egg_dir in egg_dirs_for(core_project_dirs):
-        pkg_filename = os.path.join(egg_dir, 'PKG-INFO')
-        if not os.path.exists(pkg_filename):
-            with open(pkg_filename, 'w') as pkg_file:
-                pkg_file.write('Version: %s\n' % common_version)
-
 def bootstrap_workspace(workspace_dir, core_project_dirs):
     from reahl.dev.devdomain import Project, Workspace
     workspace = Workspace(workspace_dir)
@@ -238,6 +205,9 @@ def ensure_script_dependencies_installed():
     return []
 
 def ensure_reahl_project_dependencies_installed():
+    editable_install(core_project_dirs, with_deps=True)
+    sys.path[:] = [i for i in core_project_dirs]+sys.path[:]  # To make them importable now
+    
     workspace, core_projects = bootstrap_workspace(reahl_workspace, core_project_dirs)
     workspace.selection = core_projects
 
@@ -266,19 +236,13 @@ clean_virtual_env()
 clean_workspace(reahl_workspace)
 clean_egg_info_dirs()
 
-#remove_versions_from_requirements(reahl_dev_requires_file)
-#fake_distributions_into_existence(core_project_dirs)
-
 
 if "--script-dependencies" in sys.argv:
    still_missing = ensure_script_dependencies_installed()
    if still_missing:
        print('Failed to install %s - (see pip errors above)' % (' '.join(still_missing)) )
    else:
-       print('Successfully installed prerequisites - please re-run with --bootstrap-core-projects')
-elif "--bootstrap-core-projects" in sys.argv:
-    editable_install(core_project_dirs, with_deps=True)
-    print('please re-run with --pip-installs')
+       print('Successfully installed prerequisites - please re-run with --pip-installs')
 elif "--pip-installs" in sys.argv:
     success = ensure_reahl_project_dependencies_installed()
     print_final_message(success=success)
