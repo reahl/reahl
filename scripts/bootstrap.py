@@ -214,7 +214,7 @@ def ensure_reahl_project_dependencies_installed():
     # For good measure, we "setup.py develop" all eggs in reahl
     workspace.refresh(False, [os.getcwd()])
     workspace.select(all_=True)
-    editable_install([i.directory for i in workspace.selection])
+    editable_install([i.directory for i in workspace.selection], with_deps=True)
 
     missing_dependencies = find_missing_dependencies(workspace)
     if missing_dependencies:
@@ -222,7 +222,7 @@ def ensure_reahl_project_dependencies_installed():
         if install_with_pip(list(set(missing_dependencies).union(find_all_prerequisits_for(core_project_dirs))), upgrade=False) != 0:
             print("Error trying to install one of: " + ','.join(missing_dependencies))
             return False
-        editable_install([i.directory for i in workspace.selection])
+        editable_install([i.directory for i in workspace.selection], with_deps=True)
     return True
 
 
@@ -230,7 +230,7 @@ reahl_workspace = read_env_variable('REAHLWORKSPACE',
                     'Please set the environment variable REAHLWORKSPACE to point to a parent directory of %s' \
                           % (os.getcwd()))
 reahl_dev_requires_file = os.path.join(os.getcwd(), 'reahl-dev', 'reahl_dev.egg-info', 'requires.txt')
-core_project_dirs = ['reahl-component-metadata', 'reahl-component', 'reahl-stubble', 'reahl-tofu', 'reahl-dev']
+core_project_dirs = ['reahl-component-metadata', 'reahl-component', 'reahl-stubble', 'reahl-tofu', 'reahl-commands', 'reahl-sqlalchemysupport', 'reahl-dev']
 
 clean_virtual_env()
 clean_workspace(reahl_workspace)
