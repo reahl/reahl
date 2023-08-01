@@ -43,13 +43,9 @@ tests:
 	(cd ..; pytest)
     
 html: $(PNGS)
-	ifeq ($(wildcard sphinx-build),)
-		@echo "Error: your_executable not found."
-	else
-		$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
-		@echo
-		@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
-	endif
+	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
+	@echo
+	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
 
 dirhtml: tests
 	$(SPHINXBUILD) -b dirhtml $(ALLSPHINXOPTS) $(BUILDDIR)/dirhtml
