@@ -352,23 +352,15 @@ class Shell(ForAllWorkspaceCommand):
     keyword = 'shell'
     def assemble(self):
         super().assemble()
-        self.parser.add_argument('-g', '--generate_setup_py', action='store_true', dest='generate_setup_py', default=False,
-                                 help='temporarily generate a setup.py for the duration of the shell command (it is removed afterwards)')
-        self.parser.add_argument('shell_commandline', nargs=argparse.REMAINDER, 
+        self.parser.add_argument('shell_commandline', nargs=argparse.REMAINDER,
                                  help='the shell command (and any arguments) that should be executed')
 
     def format_individual_message(self, project, args, template):
         return template % ('%s %s' % (project.relative_directory, ' '.join(args.shell_commandline)))
     
     def function(self, project, args):
-        @contextmanager
-        def nop_context_manager():
-            yield
-
-        context_manager = project.generated_setup_py if args.generate_setup_py else nop_context_manager
-        with context_manager():
-            command = self.do_shell_expansions(project.directory, args.shell_commandline)
-            return Executable(command[0]).call(command[1:], cwd=project.directory)
+        command = self.do_shell_expansions(project.directory, args.shell_commandline)
+        return Executable(command[0]).call(command[1:], cwd=project.directory)
 
     def do_shell_expansions(self, directory, commandline):
         replaced_command = []
