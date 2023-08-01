@@ -112,7 +112,10 @@ class AlreadyDebianisedException(Exception):
 
 class NotAValidProjectException(Exception):
     def __str__(self):
-        return 'Not a valid project'
+        message = 'Not a valid project'
+        if self.args[0]:
+            message = f'{message}: {self.args[0]}'
+        return message
 
 
 class InvalidProjectFileException(Exception):

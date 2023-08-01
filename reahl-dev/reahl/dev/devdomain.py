@@ -35,6 +35,7 @@ import collections
 import json
 import configparser
 import tzlocal
+import pathlib
 
 try:
     from setuptools.config.setupcfg import read_configuration
@@ -1304,6 +1305,14 @@ class Project:
     def has_children(self):
         return self.project_name == 'reahl'
 
+    @property
+    def egg_projects(self):
+        if not self.has_children:
+            return None
+        all_projects_requirements = read_configuration(self.setup_cfg_filename)['options']['extras_require']['all']
+        return [Project.from_file(self.workspace, os.path.join(os.getcwd(), pkg_resources.Requirement.parse(i).project_name))
+                for i in all_projects_requirements]
+
     @contextmanager
     def paths_set(self):
         cwd = os.getcwd()
@@ -1408,7 +1417,8 @@ class Project:
 
     @property
     def version(self):
-        return self.metadata.version
+        #return self.metadata.version
+        return VersionNumber(self.metadata.version)
 
     def get_url_for(self, project):
         return self.metadata.get_url_for(project)
