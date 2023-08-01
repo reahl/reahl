@@ -24,15 +24,12 @@ import os.path
 import shutil
 import subprocess
 import logging
-import pathlib
-import textwrap
 import email.utils
 from contextlib import contextmanager
 import datetime
 import pkgutil
 from tempfile import TemporaryFile
 import collections
-import json
 import configparser
 import tzlocal
 import pathlib
@@ -46,14 +43,13 @@ import pkg_resources
 import toml
 import babel
 import setuptools
-from xml.parsers.expat import ExpatError
 
 from reahl.component.shelltools import Executable
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.eggs import ReahlEgg
 
 from reahl.dev.exceptions import NoException, StatusException, AlreadyUploadedException, NotAValidProjectException, \
-    InvalidProjectFileException, NotUploadedException, NotVersionedException, NotCheckedInException, \
+    NotUploadedException, NotVersionedException, NotCheckedInException, \
     MetaInformationNotAvailableException, AlreadyDebianisedException, \
     MetaInformationNotReadableException, UnchangedException, NeedsNewVersionException, \
     NotBuiltAfterLastCommitException, NotBuiltException, NotSignedException
@@ -1310,8 +1306,13 @@ class Project:
         if not self.has_children:
             return None
         all_projects_requirements = read_configuration(self.setup_cfg_filename)['options']['extras_require']['all']
-        return [Project.from_file(self.workspace, os.path.join(os.getcwd(), pkg_resources.Requirement.parse(i).project_name))
+        def get_project_dir_for(requirement):
+            return os.path.join(pathlib.Path(self.setup_cfg_filename).parent,
+                            pkg_resources.Requirement.parse(requirement).project_name)
+        return [Project.from_file(self.workspace, get_project_dir_for(i))
                 for i in all_projects_requirements]
+
+
 
     @contextmanager
     def paths_set(self):
@@ -1328,7 +1329,7 @@ class Project:
     @property
     def locale_dirname(self):
         if not self.translation_package:
-            raise DomainError(message='No reahl.translations entry point specified for project: "%s"' % (self.project_name))
+            raise ProgrammerError('No reahl.translations entry point specified for project: "%s"' % (self.project_name))
         module = self.translation_package.load()
         source_paths = [i for i in module.__path__ if i.startswith(self.directory)]
         [source_path] = source_paths
