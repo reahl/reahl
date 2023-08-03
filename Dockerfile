@@ -39,7 +39,7 @@ USER $REAHL_USER
 RUN mkdir -p $REAHLWORKSPACE/.reahlworkspace/dist-egg
 RUN bash -l -c "cd $REAHL_SCRIPTS && python -m pip install -U pip && python scripts/bootstrap.py"
 RUN bash -l -c "cd $REAHL_SCRIPTS && pip freeze"
-RUN bash -l -c "cd $REAHL_SCRIPTS && reahl build -sdX -ns; cd reahl-doc/doc; make html"
+RUN bash -l -c "cd $REAHL_SCRIPTS && reahl refresh && reahl select -a && reahl build -sdX -ns; cd reahl-doc/doc; make html"
 
 
 FROM base as dev-image
