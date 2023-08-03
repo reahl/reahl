@@ -72,7 +72,6 @@ jobs:
 
       - name: Setup Test env
         run: |
-          sudo apt-get install tox
           sudo ./scripts/installDebs.sh
           sudo ./scripts/installDevEnvDebs.sh
           ./scripts/setupDevEnv.sh 
@@ -101,7 +100,7 @@ jobs:
         run: echo $PATH
 
       - name: Install reahl-dev
-        run: pip install --pre reahl-dev reahl-commands reahl-postgresqlsupport #uses wheels as specified in $HOME/.pip/pip.conf
+        run: pip install --pre tox>=4.6.3 reahl-dev reahl-commands reahl-postgresqlsupport #uses wheels as specified in $HOME/.pip/pip.conf
 
       - name: Select all reahl projects
         run: . $HOME/.profile && reahl refresh && reahl select -a
