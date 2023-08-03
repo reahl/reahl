@@ -92,7 +92,7 @@ def print_final_message():
 clean_virtual_env()
 clean_egg_info_dirs()
 
-install_with_pip(['tox>=4.6.3'])  # Nothing depends on tox, but we use it in .github/worfklows so it forms part of our basic infrastructure
+install_with_pip(['tox>=4.6.3', 'build'])  # Nothing depends on tox, but we use it in .github/worfklows so it forms part of our basic infrastructure
 project_paths = [str(i) for i in pathlib.Path().glob('reahl-*')]+['.']
 editable_install(project_paths, with_tests=False)
 editable_install(project_paths, with_tests=True)
