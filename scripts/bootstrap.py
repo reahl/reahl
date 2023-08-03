@@ -17,24 +17,12 @@
 
 import sys
 import subprocess
-import pkg_resources
 import sysconfig
 import os
 import shutil
 import glob
-import re
-import configparser
+import pathlib
 
-
-def ask(prompt):
-    answer = None
-    while answer is None:
-        response = input(prompt)
-        if response.lower() in ('y', 'yes'):
-            answer = True
-        if response.lower() in ('n', 'no'):
-            answer = False
-    return answer
 
 def rm_f(f):
     if os.path.isfile(f):
@@ -46,7 +34,6 @@ def read_env_variable(variable, error_message):
     except KeyError as e:
       raise AssertionError(error_message)
 
-
 def clean_virtual_env():
     virtual_env = get_venv_basedir()
     for f in glob.iglob(os.path.join(virtual_env, 'lib', 'python*', 'site-packages', '*egg-link')):
@@ -54,7 +41,6 @@ def clean_virtual_env():
 
     for f in glob.iglob(os.path.join(virtual_env, 'lib', 'python*', 'site-packages', 'easy-install.pth')):
         rm_f(f)
-
 
 def get_venv_basedir():
     real_prefix = getattr(sys, "real_prefix", None)
@@ -65,105 +51,22 @@ def get_venv_basedir():
     return sysconfig.get_config_vars()['exec_prefix']
 
 
-def clean_workspace(reahl_workspace):
-    rm_f(os.path.join(reahl_workspace, '.reahlworkspace', 'workspace.projects'))
-    rm_f(os.path.join(reahl_workspace, '.reahlworkspace', 'current.selection'))
-
 def clean_egg_info_dirs():
     for current_directory, directories, files in os.walk(os.getcwd()):
         for d in directories:
-            if (d.endswith('egg-info') or d.endswith('dist-info')):
+            if d.endswith('egg-info'):
                 shutil.rmtree(os.path.join(current_directory, d))
-
-def egg_dirs_for(project_dirs):
-    for project_dir in project_dirs:
-        egg_info = '%s.egg-info' % project_dir.replace('-', '_')
-        yield os.path.join(os.getcwd(), project_dir, egg_info)
-
-
-def find_all_prerequisits_for(project_dirs):
-    prerequisites = {'tox>=4.6.3', 'build'} # Nothing depends on tox, but we use it in .github/worfklows so it forms part of our basic infrastructure
-    for project_dir in project_dirs:
-        prerequisites.update(parse_prerequisites_from(os.path.join(os.getcwd(), project_dir, 'setup.cfg')))
-    return prerequisites
-
-
-def find_missing_prerequisites(project_dirs):
-    missing = set()
-    for i in find_all_prerequisits_for(project_dirs):
-        try:
-            pkg_resources.require(i)
-        except (pkg_resources.DistributionNotFound, pkg_resources.VersionConflict):
-            missing.add(i.strip())
-    return list(missing)
-
 
 def install_with_pip(package_list, upgrade=False):
     args = ['-U'] if upgrade else []
     return subprocess.call([sys.executable, '-m', 'pip', 'install'] + args + package_list)
 
-def uninstall(project_names):
-    for project_name in project_names:
-        subprocess.run(['python', '-m', 'pip', 'uninstall', '-y', project_name])
-    
-def editable_install(project_dirs, with_deps=False):
-    nodeps = [] if with_deps else ['--no-deps']
-    for project_dir in project_dirs:
-        subprocess.run(['python', '-m', 'pip', 'install'] + nodeps + ['-e', '.'], cwd=project_dir)
+def editable_install(project_dirs, with_tests=False):
+    test_extra = '[test]' if with_tests else ''
+    subprocess.run(['python', '-m', 'pip', 'install'] + ['-e%s%s' % (i, test_extra) for i in project_dirs], check=True)
 
 
-
-def install_prerequisites(missing):
-    print('----------------------------------------------------------------------------------')
-    print('reahl-dev and its dependencies depend on eggs that are not part of reahl.')
-    print('You need these in order to run this script.')
-    print('Some of these are not installed on your system.')
-    print('The missing eggs are:')
-    print('')
-    print('  '+(' '.join(missing)))
-    print('')
-    print('I will now go ahead and "pip install" the eggs listed above')
-    print('')
-    return install_with_pip(missing, upgrade=True) == 0
-
-
-def get_common_version():
-    def get_debian_changelog_src():
-        src_lines = []
-        src_line = False
-        with open('reahl-dev/reahl/dev/devdomain.py', 'r') as f:
-            for line in f:
-                if line.startswith('# bootstrap.py-begin'):
-                    src_line = True
-                if line.startswith('# bootstrap.py-end'):
-                    src_line = False
-                if src_line:
-                    src_lines.append(line)
-        return '\n'.join(src_lines)
-    tmp_locals = {}
-    exec(get_debian_changelog_src(), {'re': re}, tmp_locals)
-    DebianChangelog = tmp_locals['DebianChangelog']
-
-    return '.'.join(DebianChangelog('debian/changelog').version.split('.')[:2])
-
-
-def bootstrap_workspace(workspace_dir, core_project_dirs):
-    from reahl.dev.devdomain import Project, Workspace
-    workspace = Workspace(workspace_dir)
-    for project_dir in core_project_dirs:
-        Project.from_file(workspace, os.path.join(os.getcwd(), project_dir))
-
-    core_projects = [Project.from_file(workspace, os.path.join(os.getcwd(), project_dir)) for project_dir in core_project_dirs]
-    return workspace, core_projects
-
-def find_missing_dependencies(workspace):
-    missing = set()
-    for project in workspace.selection:
-        missing.update(project.list_missing_dependencies(for_development=True))
-    return list(missing)
-
-
-def print_final_message(success=True):
+def print_final_message():
     debs_needed_to_compile_python = ['python3-venv', 'python3-dev', 'gcc', 'cython3', 'libxml2-dev', 'libxslt-dev', 'libsqlite3-0', 
                                     'sqlite3', 'postgresql-server-dev-all', 'zlib1g-dev', 'libjpeg62-dev', 'libfreetype6-dev', 'liblcms2-dev', 
                                     'mysql-client', 'libmysqlclient-dev']
@@ -171,12 +74,8 @@ def print_final_message(success=True):
 
     print('')
     print('')
-    if success:
-      print('-- ALL DONE --------------------------------------------------------------------------')
-      print('Done. All python dependencies satisfied.')
-    else:
-      print('-- ERROR --------------------------------------------------------------------------')
-      print('Something went wrong....please check that all the dependencies listed here are installed:')
+    print('-- ALL DONE --------------------------------------------------------------------------')
+    print('Done. All python dependencies satisfied.')
     print('')
     print('In order to develop on Reahl, you will need other (non-python) packages as well.')
     print('What these are called may differ depending on your distribution/OS.')
@@ -189,63 +88,14 @@ def print_final_message(success=True):
     print('  '+' '.join(debs_needed_to_compile_python)) 
     print('')
 
-def parse_prerequisites_from(setup_cfg_file):
-    parser = configparser.ConfigParser()
-    parser.read(setup_cfg_file)
-    install_requires = parser['options']['install_requires'].split()
-    for r in [i for i in install_requires if not i.startswith('reahl-')]:
-        yield r    
-
-def ensure_script_dependencies_installed():
-    missing = find_missing_prerequisites(core_project_dirs)
-    if missing and install_prerequisites(missing):
-        return []
-    elif missing:
-        return missing
-    return []
-
-def ensure_reahl_project_dependencies_installed():
-    editable_install(core_project_dirs, with_deps=True)
-    sys.path[:] = [i for i in core_project_dirs]+sys.path[:]  # To make them importable now
-    
-    workspace, core_projects = bootstrap_workspace(reahl_workspace, core_project_dirs)
-    workspace.selection = core_projects
-
-    # For good measure, we "setup.py develop" all eggs in reahl
-    workspace.refresh(False, [os.getcwd()])
-    workspace.select(all_=True)
-    editable_install([i.directory for i in workspace.selection], with_deps=True)
-
-    missing_dependencies = find_missing_dependencies(workspace)
-    if missing_dependencies:
-        uninstall([i.project_name for i in workspace.selection])
-        if install_with_pip(list(set(missing_dependencies).union(find_all_prerequisits_for(core_project_dirs))), upgrade=False) != 0:
-            print("Error trying to install one of: " + ','.join(missing_dependencies))
-            return False
-        editable_install([i.directory for i in workspace.selection], with_deps=True)
-    return True
-
-
-reahl_workspace = read_env_variable('REAHLWORKSPACE',
-                    'Please set the environment variable REAHLWORKSPACE to point to a parent directory of %s' \
-                          % (os.getcwd()))
-reahl_dev_requires_file = os.path.join(os.getcwd(), 'reahl-dev', 'reahl_dev.egg-info', 'requires.txt')
-core_project_dirs = ['reahl-component-metadata', 'reahl-component', 'reahl-stubble', 'reahl-tofu', 'reahl-commands', 'reahl-sqlalchemysupport', 'reahl-dev']
 
 clean_virtual_env()
-clean_workspace(reahl_workspace)
 clean_egg_info_dirs()
 
+install_with_pip(['tox>=4.6.3'])  # Nothing depends on tox, but we use it in .github/worfklows so it forms part of our basic infrastructure
+project_paths = [str(i) for i in pathlib.Path().glob('reahl-*')]+['.']
+editable_install(project_paths, with_tests=False)
+editable_install(project_paths, with_tests=True)
 
-if "--script-dependencies" in sys.argv:
-   still_missing = ensure_script_dependencies_installed()
-   if still_missing:
-       print('Failed to install %s - (see pip errors above)' % (' '.join(still_missing)) )
-   else:
-       print('Successfully installed prerequisites - please re-run with --pip-installs')
-elif "--pip-installs" in sys.argv:
-    success = ensure_reahl_project_dependencies_installed()
-    print_final_message(success=success)
-else:
-    print('Usage: %s [--script-dependencies|--pip-installs]' % sys.argv[0])
-    exit(123)
+print_final_message()
+

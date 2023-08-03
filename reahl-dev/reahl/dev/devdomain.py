@@ -1307,8 +1307,7 @@ class Project:
             return None
         all_projects_requirements = read_configuration(self.setup_cfg_filename)['options']['extras_require']['all']
         def get_project_dir_for(requirement):
-            return os.path.join(pathlib.Path(self.setup_cfg_filename).parent,
-                            pkg_resources.Requirement.parse(requirement).project_name)
+            return str(pathlib.Path(self.directory).joinpath(pkg_resources.Requirement.parse(requirement).project_name))
         return [Project.from_file(self.workspace, get_project_dir_for(i))
                 for i in all_projects_requirements]
 
