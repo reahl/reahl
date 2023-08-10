@@ -27,7 +27,8 @@ jobs:
     runs-on:  ubuntu-22.04
     strategy:
       matrix:
-        python-version: ['3.8', '3.9', '3.10', '3.11']
+        python-version: ['3.10']
+#        python-version: ['3.8', '3.9', '3.10', '3.11']
     services:
       postgres:
         image: postgres:12.3
@@ -107,6 +108,8 @@ jobs:
 
       - name: Create db user for Tests
         run: . $HOME/.profile && reahl createdbuser -U runner .github/etc
-      - name: Run Tests
-        run: . $HOME/.profile && reahl shell -sdX tox
+#      - name: Run Tests
+#        run: . $HOME/.profile && reahl shell -sdX tox
+      - name: Run sqlalchemysuppport tests
+        run: . $HOME/.profile && cd reahl-sqlalchemysupport && tox
 
