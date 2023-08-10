@@ -271,21 +271,21 @@ class ForAllWorkspaceCommand(WorkspaceCommand):
         results = {}
         for i in project_list:
             if delimit_output:
-                print(self.format_individual_message(i, args, '\n--- START %s ---'))
+                print(self.format_individual_message(i, args, '\n--- START %s ---'), flush=True)
             results[i] = self.execute_one(i, args)
             if pause:
-                print('--- PAUSED, hit <enter> to continue, ^D to stop ---')
+                print('--- PAUSED, hit <enter> to continue, ^D to stop ---', flush=True)
                 if not sys.stdin.readline():
-                    print('\n^D pressed, halting immediately')
+                    print('\n^D pressed, halting immediately', flush=True)
                     break
             if delimit_output:
-                print(self.format_individual_message(i, args, '\n--- END %s ---'))
+                print(self.format_individual_message(i, args, '\n--- END %s ---'), flush=True)
 
         if summary:
-            print('\n--- SUMMARY ---')
+            print('\n--- SUMMARY ---', flush=True)
             for i in project_list:
                 print('%s %s' % (results[i], i.relative_directory), file=sys.stdout)
-            print('--- END ---\n')
+            print('--- END ---\n', flush=True)
 
         success = set(results.values()) == {0}
         if success:

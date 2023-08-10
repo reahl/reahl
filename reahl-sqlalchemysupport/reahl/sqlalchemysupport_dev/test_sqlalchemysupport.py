@@ -34,6 +34,11 @@ def test_egg_schema_version_changes(reahl_system_fixture):
 
     old_version_egg = ReahlEggStub('anegg', {'0.0': []})
 
+    from reahl.component.context import ExecutionContext
+    context = ExecutionContext.get_context()
+    context_id = ExecutionContext.get_context_id()
+    print('Context %s, id %s' % (context, context_id), flush=True)
+    
     orm_control.initialise_schema_version_for(old_version_egg)
     current_version = orm_control.schema_version_for(old_version_egg)
     assert current_version == str(old_version_egg.installed_version.version_number)
