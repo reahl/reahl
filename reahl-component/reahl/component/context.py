@@ -83,6 +83,7 @@ class ExecutionContext:
             self.parent_context = parent_context or self.get_context()
         except NoContextFound:
             self.parent_context = None
+        print('INIT context parent (%s:%s) current class (%s:%s)' % (self.parent_context, id(self.parent_context), ExecutionContext, id(ExecutionContext)), flush=True)
         self.id = (self.parent_context.id if isinstance(self.parent_context, ExecutionContext) else id(self))
 
     def copy(self):
