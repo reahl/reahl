@@ -60,7 +60,9 @@ class SqlAlchemyConfig(Configuration):
 
 def reahl_scope():
     try:
-        return ExecutionContext.get_context_id()
+        context_id = ExecutionContext.get_context_id()
+        print('SCOPE: %s (%s) %s' % (ExecutionContext, id(ExecutionContext), context_id), flush=True)
+        return context_id
     except NoContextFound:
         message = 'Database code can normally only be executed by code executed as part of handling a Request.'
         message += ' Such code is then executed within the context of, for example, a database transaction.'
