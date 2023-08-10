@@ -66,6 +66,7 @@ class ExecutionContext:
     @classmethod
     def get_context(cls):
         """Returns the current call context, or raises :class:`NoContextFound` if there is none."""
+        print('get_context ENTER class %s id %s' % (cls, id(cls)), flush=True)
         try:
             context = execution_context_var.get()
         except LookupError:
@@ -73,6 +74,7 @@ class ExecutionContext:
         if not context:
             raise NoContextFound('No %s is active in the call stack' % cls)
 
+        print('get_context EXIT class %s id %s context_id %s' % (context.__class__, id(context.__class__), context.id), flush=True)
         return context
 
     def __init__(self, name=None, parent_context=None):

@@ -20,27 +20,7 @@ from reahl.stubble import EmptyStub
 from reahl.tofu import Fixture, scenario, with_fixtures, set_up, tear_down
 from reahl.component.context import ExecutionContext
 
-class ContextImplementationFixture(Fixture):
-
-    @set_up
-    def record_original_implementation_setting(self):
-        self.original_use_context_var = ExecutionContext.use_context_var
-
-    @tear_down
-    def restore_original_implementation_setting(self):
-        ExecutionContext.use_context_var = self.original_use_context_var
-
-    @scenario
-    def use_frames(self):
-        ExecutionContext.use_context_var = False
-
-    @scenario
-    def use_contextvars(self):
-        ExecutionContext.use_context_var = True
-
-
-@with_fixtures(ContextImplementationFixture)
-def test_execution_context_basics(context_implementation_fixture):
+def test_execution_context_basics():
     """An ExecutionContext is like a global variable for a particular call stack. To create an
        ExecutionContext for a call stack, use it in a with statement."""
 
@@ -56,8 +36,7 @@ def test_execution_context_basics(context_implementation_fixture):
         assert found_context is some_context
 
 
-@with_fixtures(ContextImplementationFixture)
-def test_execution_context_stacking(context_implementation_fixture):
+def test_execution_context_stacking():
     """When an ExecutionContext overrides a deeper one on the call stack, it will retain the same id."""
     with ExecutionContext() as some_context:
 
@@ -71,8 +50,7 @@ def test_execution_context_stacking(context_implementation_fixture):
         assert some_context.id == deeper_context.id
 
 
-@with_fixtures(ContextImplementationFixture)
-def test_contents(context_implementation_fixture):
+def test_contents():
     """A Session, Config or SystemControl may be set on the ExecutionContext."""
     some_context = ExecutionContext()
 
