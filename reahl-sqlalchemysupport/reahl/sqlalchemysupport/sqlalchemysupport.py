@@ -277,6 +277,8 @@ class SqlAlchemyControl(ORMControl):
         self.engine.echo = self.echo
         self.engine.connect()
         metadata.bind = self.engine
+        print('CONNECT %s (%s) id=%s, bind=%s' % (context.__class__, id(context.__class__), context.id, self.engine), flush=True)
+        print('METADATA %s (%s) id=%s' % (metadata, metadata.__class__, id(metadata.__class__)), flush=True)
         Session.configure(bind=self.engine)
 
         self.instrument_classes_for(config.reahlsystem.root_egg)

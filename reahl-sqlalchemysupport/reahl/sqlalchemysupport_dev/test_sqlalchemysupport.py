@@ -38,6 +38,9 @@ def test_egg_schema_version_changes(reahl_system_fixture):
     context = ExecutionContext.get_context()
     context_id = ExecutionContext.get_context_id()
     print('Context %s, id %s' % (context, context_id), flush=True)
+
+    from reahl.sqlalchemysupport import metadata
+    print('METADATA %s (%s) id=%s' % (metadata, metadata.__class__, id(metadata.__class__)), flush=True)
     
     orm_control.initialise_schema_version_for(old_version_egg)
     current_version = orm_control.schema_version_for(old_version_egg)

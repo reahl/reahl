@@ -114,8 +114,3 @@ reahl-sqlalchemysupport/
       - name: Run sqlalchemysuppport tests
         run: . $HOME/.profile && cd reahl-sqlalchemysupport && tox
 
-      - name: Upload logs to cache
-        uses: actions/upload-artifact@v3
-        with:
-          name: logs
-          path: reahl-sqlalchemysupport/.tox/py/logs
