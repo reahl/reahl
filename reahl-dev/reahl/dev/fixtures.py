@@ -53,8 +53,7 @@ class ContextAwareFixture(Fixture):
         raise ProgrammerError('No ExecutionContext defined for %s. You must override new_context() or set an attribute or @property named "context"' % self)
 
     def __enter__(self):
-        #TODO: need tp replace this by calling context.__enter_ explicitly once stop= is removed
-        self.context.install_with_context_vars_or_frames(stop=lambda f: isinstance(f.f_locals.get('self', None), WithFixtureDecorator))
+        self.context.__enter__()
         return super().__enter__()
 
     def __exit__(self, exc_type, exc_val, exc_tb):

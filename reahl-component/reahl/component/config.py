@@ -37,7 +37,6 @@ from contextlib import contextmanager
 import pkg_resources
 
 from reahl.component.eggs import ReahlEgg
-from reahl.component.context import ExecutionContext
 from reahl.component.exceptions import DomainException
 
 
@@ -259,17 +258,6 @@ class ReahlSystemConfig(Configuration):
     translation_packages = EntryPointClassList('reahl.translations', description='All available packages containing translation messages')
     serialise_parallel_requests = ConfigSetting(default=False, description='Whether concurrent requests to the web application should be forcibly serialised')
     runtime_checking_enabled = ConfigSetting(default=True, description='If False, skip runtime programmer checks for enhanced performance.')
-    use_context_var_for_context = ConfigSetting(default=True, description='If True, use python contextvar as scope for ExecutionContext.')
-
-    def do_injections(self, config):
-        if self.use_context_var_for_context:
-            try:
-                import contextvars
-            except:
-                warnings.warn('Ignoring reahlsystem.use_context_var_for_context. Contextvars not available for this platform', UserWarning)
-                ExecutionContext.use_context_var = False
-            else:
-                ExecutionContext.use_context_var = True
 
 
 class ConfigAsDict(dict):
