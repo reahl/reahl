@@ -66,7 +66,6 @@ class ExecutionContext:
     @classmethod
     def get_context(cls):
         """Returns the current call context, or raises :class:`NoContextFound` if there is none."""
-        print('get_context ENTER class %s id %s' % (cls, id(cls)), flush=True)
         try:
             context = execution_context_var.get()
         except LookupError:
@@ -74,7 +73,6 @@ class ExecutionContext:
         if not context:
             raise NoContextFound('No %s is active in the call stack' % cls)
 
-        print('get_context EXIT class %s id %s context_id %s' % (context.__class__, id(context.__class__), context.id), flush=True)
         return context
 
     def __init__(self, name=None, parent_context=None):
@@ -83,9 +81,7 @@ class ExecutionContext:
             self.parent_context = parent_context or self.get_context()
         except NoContextFound:
             self.parent_context = None
-        print('INIT context parent (%s:%s) current class (%s:%s)' % (self.parent_context.__class__, id(self.parent_context.__class__), ExecutionContext, id(ExecutionContext)), flush=True)
         self.id = (self.parent_context.id if isinstance(self.parent_context, ExecutionContext) else id(self))
-        print('PARENT (%s) IS_INSTANCE %s' % (self.parent_context, isinstance(self.parent_context, ExecutionContext)), flush=True)
 
     def copy(self):
         context = self.__class__(name='ExecutionContext.copy()', parent_context=self)

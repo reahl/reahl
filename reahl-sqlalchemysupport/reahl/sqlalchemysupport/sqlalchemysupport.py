@@ -60,9 +60,7 @@ class SqlAlchemyConfig(Configuration):
 
 def reahl_scope():
     try:
-        context_id = ExecutionContext.get_context_id()
-        print('SCOPE: %s (%s) %s' % (ExecutionContext, id(ExecutionContext), context_id), flush=True)
-        return context_id
+        return ExecutionContext.get_context_id()
     except NoContextFound:
         message = 'Database code can normally only be executed by code executed as part of handling a Request.'
         message += ' Such code is then executed within the context of, for example, a database transaction.'
@@ -280,7 +278,6 @@ class SqlAlchemyControl(ORMControl):
         metadata.bind = self.engine
         print('HUNT:CONNECT %s (%s) id=%s, bind=%s' % (context.__class__, id(context.__class__), context.id, self.engine), flush=True)
         print('HUNT:METADATA %s (%s) id=%s' % (metadata, metadata.__class__, id(metadata.__class__)), flush=True)
-        import pdb;pdb.set_trace()
         print('HUNT:Session %s' % Session, flush=True)
         Session.configure(bind=self.engine)
 

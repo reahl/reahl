@@ -355,16 +355,19 @@ class StoredConfiguration(Configuration):
     def read(self, configuration_class):
         new_config = self.create_config(configuration_class)
         file_path = os.path.join(self.config_directory, new_config.filename)
+        print('HUNT:read file_path %s' % file_path, flush=True)
         if os.path.isfile(file_path):
             locals_dict = ConfigAsDict(self)
             with open(file_path) as f:
                 exec(compile(f.read(), file_path, 'exec'), globals(), locals_dict)
             locals_dict.update_required(new_config.config_key)
+            print('HUNT:read new_config.config_key %s' % new_config.config_key, flush=True)
         else:
             message = 'file "%s" not found, using defaults' % file_path
             logging.getLogger(__name__).info(message)
 
         unconfigured = self.composite_get_attr(new_config.config_key.split('.'))
+        print('HUNT:read unconfigured %s' % unconfigured, flush=True)
         unconfigured.configure() 
         unconfigured.do_injections(self) 
 
