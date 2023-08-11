@@ -29,7 +29,7 @@ from reahl.component_dev.test_migration import ReahlEggStub
 
 
 @with_fixtures(ReahlSystemFixture)
-def test_egg_schema_version_changes(reahl_system_fixture):
+def test_github_breakage(reahl_system_fixture):
     orm_control = SqlAlchemyControl()
 
     old_version_egg = ReahlEggStub('anegg', {'0.0': []})
@@ -42,6 +42,15 @@ def test_egg_schema_version_changes(reahl_system_fixture):
     from reahl.sqlalchemysupport import metadata
     print('METADATA %s (%s) id=%s' % (metadata, metadata.__class__, id(metadata.__class__)), flush=True)
     
+    orm_control.initialise_schema_version_for(old_version_egg)
+
+    
+@with_fixtures(ReahlSystemFixture)
+def test_egg_schema_version_changes(reahl_system_fixture):
+    orm_control = SqlAlchemyControl()
+
+    old_version_egg = ReahlEggStub('anegg', {'0.0': []})
+
     orm_control.initialise_schema_version_for(old_version_egg)
     current_version = orm_control.schema_version_for(old_version_egg)
     assert current_version == str(old_version_egg.installed_version.version_number)

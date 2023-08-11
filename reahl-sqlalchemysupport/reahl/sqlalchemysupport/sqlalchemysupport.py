@@ -260,6 +260,7 @@ class SqlAlchemyControl(ORMControl):
     def connect(self, auto_commit=False):
         """Creates the SQLAlchemy Engine, bind it to the metadata and instrument the persisted classes 
            for the current reahlsystem.root_egg."""
+        print('HUNT:connect', flush=True)
         assert not self.connected
         context = ExecutionContext.get_context()
 
@@ -277,8 +278,10 @@ class SqlAlchemyControl(ORMControl):
         self.engine.echo = self.echo
         self.engine.connect()
         metadata.bind = self.engine
-        print('CONNECT %s (%s) id=%s, bind=%s' % (context.__class__, id(context.__class__), context.id, self.engine), flush=True)
-        print('METADATA %s (%s) id=%s' % (metadata, metadata.__class__, id(metadata.__class__)), flush=True)
+        print('HUNT:CONNECT %s (%s) id=%s, bind=%s' % (context.__class__, id(context.__class__), context.id, self.engine), flush=True)
+        print('HUNT:METADATA %s (%s) id=%s' % (metadata, metadata.__class__, id(metadata.__class__)), flush=True)
+        import pdb;pdb.set_trace()
+        print('HUNT:Session %s' % Session, flush=True)
         Session.configure(bind=self.engine)
 
         self.instrument_classes_for(config.reahlsystem.root_egg)
@@ -415,6 +418,7 @@ class SqlAlchemyControl(ORMControl):
             return migrations_required
 
     def initialise_schema_version_for(self, egg=None, egg_name=None, egg_version=None):
+        print('HUNT:initialise_schema_version_for Session %s' % Session, flush=True)
         assert egg or (egg_name and egg_version)
         if egg:
             egg_name = egg.name
