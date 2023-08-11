@@ -527,6 +527,7 @@ class ReahlEgg:
 
         for i in cls.compute_ordered_dependent_distributions(main_egg, include_test_dependencies):
             interface = cls.interface_for(i)
+            print('HUNT:compute_all_relevant_interfaces interface %s .is_component %s' % (interface.name, interface.is_component), flush=True)
             if interface.is_component:
                 interfaces.append(interface)
 
