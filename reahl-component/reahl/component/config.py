@@ -331,7 +331,9 @@ class StoredConfiguration(Configuration):
 
     def configure_components(self, include_test_dependencies):
         eggs = ReahlEgg.get_all_relevant_interfaces(self.reahlsystem.root_egg, include_test_dependencies=include_test_dependencies)
+        print('HUNT:configure_components %s' % (','.join([i.name for i in eggs])), flush=True)
         for egg in reversed(eggs):
+            print('HUNT:configure_components %s' % egg, flush=True)
             logging.getLogger(__name__).debug('going to read config for %s' % egg)
             if egg.configuration_spec:
                 self.read(egg.configuration_spec)
