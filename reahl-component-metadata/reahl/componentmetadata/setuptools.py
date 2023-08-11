@@ -22,6 +22,7 @@ class ComponentMetadata:
         return cls(data)
 
     def __init__(self, data):
+        print('HUNT:ComponentMetadata __init__', flush=True)
         self.data = data
         self.data['metadata_version'] = '1.0.0'
 
@@ -53,11 +54,13 @@ def setup_keyword(dist, attr, value):
     ComponentMetadata.from_string(value).validate()
 
 def dist_info(cmd, basename, filename):
+    print('HUNT:dist_info %s %s %s' % (cmd, basename, filename), flush=True)
     if cmd.distribution.component is not None:
         component_metadata = ComponentMetadata.from_string(cmd.distribution.component)
         component_metadata.validate()
         cmd.write_file('component', filename, component_metadata.as_toml_string())
     else:
+        print('HUNT:dist_info deleting %s' % (filename), flush=True)
         cmd.write_or_delete_file('component', filename, '')
 
 

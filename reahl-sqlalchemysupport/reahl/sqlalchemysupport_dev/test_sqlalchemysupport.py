@@ -30,19 +30,10 @@ from reahl.component_dev.test_migration import ReahlEggStub
 
 @with_fixtures(ReahlSystemFixture)
 def test_github_breakage(reahl_system_fixture):
-    orm_control = SqlAlchemyControl()
-
-    old_version_egg = ReahlEggStub('anegg', {'0.0': []})
-
-    from reahl.component.context import ExecutionContext
-    context = ExecutionContext.get_context()
-    context_id = ExecutionContext.get_context_id()
-    print('Context %s, id %s' % (context, context_id), flush=True)
-
-    from reahl.sqlalchemysupport import metadata
-    print('METADATA %s (%s) id=%s' % (metadata, metadata.__class__, id(metadata.__class__)), flush=True)
-    
-    orm_control.initialise_schema_version_for(old_version_egg)
+    import pkg_resources
+    pkg = pkg_resources.require('reahl-sqlalchemysupport>=7')[0]
+    data = pkg.get_metadata('reahl-component.toml')
+    assert data.startswith('configuration')
 
     
 @with_fixtures(ReahlSystemFixture)
