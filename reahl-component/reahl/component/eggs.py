@@ -488,7 +488,9 @@ class ReahlEgg:
         #  quite expensive and is called often in the tests.)
         interfaces = cls.interface_cache.get((main_egg, '|'.join(include_test_dependencies)), None)
         if interfaces:
+            print('HUNT:get_all_relevant_interfaces using cached', flush=True)
             return interfaces
+        print('HUNT:get_all_relevant_interfaces computing', flush=True)
         interfaces = cls.compute_all_relevant_interfaces(main_egg, include_test_dependencies)
         cls.interface_cache[(main_egg, '|'.join(include_test_dependencies))] = interfaces
         return interfaces
@@ -511,6 +513,8 @@ class ReahlEgg:
     @classmethod 
     def get_eggs_for(cls, main_egg, include_test_dependencies):
         distributions = pkg_resources.require([main_egg]+include_test_dependencies)
+        print('HUNT:get_eggs_for dists %s' % (','.join([str(d) for d in distributions])), flush=True)
+        print('HUNT:get_eggs_for main_egg %s' % (','.join([str(d) for d in (pkg_resources.require([main_egg]))])), flush=True)
         return list(set(distributions)) # To get rid of duplicates
 
     @classmethod
