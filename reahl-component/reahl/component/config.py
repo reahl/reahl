@@ -356,7 +356,10 @@ class StoredConfiguration(Configuration):
         new_config = self.create_config(configuration_class)
         file_path = os.path.join(self.config_directory, new_config.filename)
         print('HUNT:read file_path %s' % file_path, flush=True)
+        print('HUNT:read abs(file_path) %s' % os.path.abspath(file_path), flush=True)
         if os.path.isfile(file_path):
+            with open(file_path) as f:
+                print(f.read(), flush=True)
             locals_dict = ConfigAsDict(self)
             with open(file_path) as f:
                 exec(compile(f.read(), file_path, 'exec'), globals(), locals_dict)
@@ -369,7 +372,7 @@ class StoredConfiguration(Configuration):
         unconfigured = self.composite_get_attr(new_config.config_key.split('.'))
         print('HUNT:read unconfigured %s' % unconfigured, flush=True)
         unconfigured.configure() 
-        unconfigured.do_injections(self) 
+        unconfigured.do_injections(self)
 
     def create_config(self, configuration_class):
         composite_key = configuration_class.config_key
