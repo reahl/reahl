@@ -323,6 +323,7 @@ class ReahlEgg:
             self.validate_version()
 
     def create_metadata(self, distribution):
+        print('HUNT:create_metadata %s %s' % (distribution, ','.join( distribution.metadata_listdir(''))), flush=True)
         if distribution.has_metadata('reahl-component.toml'):
             return toml.loads(distribution.get_metadata('reahl-component.toml'))
         else:
