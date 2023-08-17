@@ -164,11 +164,8 @@ class ReahlSystemFixture(ContextAwareFixture):
 
     @set_up
     def ensure_connected(self): # In case a test nuked the connection
-        print('HUNT:ensure_connected self.system_control.connected:%s' % self.system_control.connected, flush=True)
-        print('HUNT:ensure_connected self.system_control:%s  .orm_control %s' % (self.system_control, self.system_control.orm_control), flush=True)
         if not self.system_control.connected:
             self.system_control.connect()
-        print('HUNT:ensure_connected (end) self.system_control.connected:%s' % self.system_control.connected, flush=True)
 
     def new_context(self, config=None, session=None):
         context = ExecutionContext(parent_context=self.reahl_system_fixture.context)

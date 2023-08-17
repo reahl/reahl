@@ -29,14 +29,6 @@ from reahl.component_dev.test_migration import ReahlEggStub
 
 
 @with_fixtures(ReahlSystemFixture)
-def test_github_breakage(reahl_system_fixture):
-    import pkg_resources
-    pkg = pkg_resources.require('reahl-sqlalchemysupport>=7')[0]
-    data = pkg.get_metadata('reahl-component.toml')
-    assert data.startswith('configuration')
-
-    
-@with_fixtures(ReahlSystemFixture)
 def test_egg_schema_version_changes(reahl_system_fixture):
     orm_control = SqlAlchemyControl()
 
