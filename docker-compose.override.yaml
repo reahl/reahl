@@ -8,7 +8,7 @@ services:
       - $REAHL_EXAMPLE_CHECKOUT_DIR:/tmp/examples
     environment:
       BOOTSTRAP_REAHL_SOURCE: /home/developer/reahl
-      http_proxy: http://192.168.88.20:3142
+#      http_proxy: http://192.168.88.20:3142
 
   postgres:
     container_name: postgres

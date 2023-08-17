@@ -356,8 +356,6 @@ class StoredConfiguration(Configuration):
         new_config = self.create_config(configuration_class)
         file_path = os.path.join(self.config_directory, new_config.filename)
         if os.path.isfile(file_path):
-            with open(file_path) as f:
-                print(f.read(), flush=True)
             locals_dict = ConfigAsDict(self)
             with open(file_path) as f:
                 exec(compile(f.read(), file_path, 'exec'), globals(), locals_dict)
