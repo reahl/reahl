@@ -22,16 +22,19 @@ import os.path
 from reahl.tofu import temp_dir
 from reahl.stubble import stubclass
 
-from reahl.dev.devdomain import SshRepository, RepositoryLocalState
+from reahl.dev.devdomain import PackageIndex, RepositoryLocalState
 
 
 def test_reading_and_writing_repository():
     repository_state_dir = temp_dir()
-    @stubclass(SshRepository)
+    @stubclass(PackageIndex)
     class RepositoryStub:
         @property
         def unique_id(self):
             return 'myid'
+
+        def transfer(self, package):
+            pass
 
         repository_state_directory = repository_state_dir.name
 
