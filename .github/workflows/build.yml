@@ -106,9 +106,6 @@ jobs:
 
       - name: Create db user for Tests
         run: . $HOME/.profile && reahl createdbuser -U runner .github/etc
-#      - name: Run Tests
-#        run: . $HOME/.profile && reahl shell -sdX tox
-      - name: Run sqlalchemysuppport tests
-        run: . $HOME/.profile && cd reahl-sqlalchemysupport && tox
+      - name: Run Tests
+        run: . $HOME/.profile && reahl shell -sdX tox
 
-          
