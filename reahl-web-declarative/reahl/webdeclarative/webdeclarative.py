@@ -175,17 +175,25 @@ class UserSession(Base, UserSessionProtocol):
         self.secure_salt = ''.join([random.choice(alphabet) for x in list(range(40))])        
 
     def get_interface_locale(self):
+        print('HUNT:get_interface_locale ENTER', flush=True)
         context = ExecutionContext.get_context()
         if not hasattr(context, 'request'):
             return 'en_gb'
+        print('HUNT:get_interface_locale has request', flush=True)
 
-        url = Url.get_current_url()
-        possible_locale, path = url.get_locale_split_path()
-        supported_locales = ReahlEgg.get_languages_supported_by_all(context.config.reahlsystem.root_egg)
-        if possible_locale:
-            if possible_locale in supported_locales:
-                return possible_locale
-        return context.config.web.default_url_locale
+        try:
+           url = Url.get_current_url()
+           possible_locale, path = url.get_locale_split_path()
+           supported_locales = ReahlEgg.get_languages_supported_by_all(context.config.reahlsystem.root_egg)
+           if possible_locale:
+               if possible_locale in supported_locales:
+                   return possible_locale
+           return context.config.web.default_url_locale
+        except Exception as ex:
+            print('HUNT:got exception %s' % ex, flush=True)
+            import traceback
+            print(traceback.format_exc(), flush=True)
+            
 
 
 class SessionData(Base):
