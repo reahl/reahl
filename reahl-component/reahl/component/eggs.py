@@ -25,6 +25,7 @@ import itertools
 import toml
 import functools
 import importlib
+import pathlib
 
 import pkg_resources
 
@@ -439,10 +440,16 @@ class ReahlEgg:
 
         module = translation_entry_point.load()
         domain = translation_entry_point.name
-        major, minor = sys.version.split('.')[:2]
-        if major == 3 and minor < 9: 
-            with importlib.resources.path(module, '') as path:
-                return find_catalogues_in_traversable(path, domain)
+        major, minor = [int(i) for i in sys.version.split('.')[:2]]
+
+        if major == 3 and minor < 10:
+            class TraversablePaths:
+               def __init__(self, module):
+                   self.module = module
+               def iterdir(self):
+                   yield from itertools.chain([pathlib.Path(i) for i in self.module.__path__])
+                   
+            return find_catalogues_in_traversable(TraversablePaths(module), domain)
         else:
             return find_catalogues_in_traversable(importlib.resources.files(module), domain)
     
