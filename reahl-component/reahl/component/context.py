@@ -113,7 +113,9 @@ class ExecutionContext:
     @cached_property
     def interface_locale(self):
         """Returns a string identifying the current locale."""
+        print('HUNT:interface_locale ENTER', flush=True)
         session = getattr(self, 'session', None)
+        print('HUNT:interface_locale session %s' % session, flush=True)
         if not session:
             return 'en_gb'
         return self.session.get_interface_locale()
