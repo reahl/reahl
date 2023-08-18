@@ -18,8 +18,10 @@
 import inspect
 try:
     from functools import cached_property
+    print('HUNT: using functools.cached_property', flush=True)
 except ImportError:
     from cached_property import cached_property
+    print('HUNT: using cached_property.cached_property', flush=True)
 from reahl.component.decorators import  deprecated
 
 

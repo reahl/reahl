@@ -107,5 +107,6 @@ jobs:
       - name: Create db user for Tests
         run: . $HOME/.profile && reahl createdbuser -U runner .github/etc
       - name: Run Tests
-        run: . $HOME/.profile && reahl shell -sdX tox
+#        run: . $HOME/.profile && reahl shell -sdX tox
+        run: . $HOME/.profile && cd reahl-web-declarative && tox
 

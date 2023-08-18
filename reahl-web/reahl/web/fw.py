@@ -212,6 +212,8 @@ class Url:
         
     def make_locale_relative(self):
         """Ensures that this URL does not include a starting path indicating locale."""
+        cc = ExecutionContext.get_context()
+        print('HUNT:make_locale_relative %s %s' % (cc, dir(cc)), flush=True)
         locale = ExecutionContext.get_context().interface_locale
         locale, path = self.get_locale_split_path(locale=locale)
         self.path = path
