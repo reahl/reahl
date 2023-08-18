@@ -29,7 +29,6 @@ try:
 except:
     execution_context_var = None
 
-from reahl.component.exceptions import ProgrammerError
 
 class NoContextFound(Exception):
     pass
@@ -116,7 +115,7 @@ class ExecutionContext:
         try:
             return self.session.get_interface_locale()
         except Exception as ex:
-            raise ProgrammerError() from ex
+            raise Exception() from ex
 
     def __getattr__(self, name):
         raise AttributeError('%s has no attribute \'%s\'' % (self, name))
