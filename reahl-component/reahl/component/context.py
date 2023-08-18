@@ -18,10 +18,8 @@
 import inspect
 try:
     from functools import cached_property
-    print('HUNT: using functools.cached_property', flush=True)
 except ImportError:
     from cached_property import cached_property
-    print('HUNT: using cached_property.cached_property', flush=True)
 from reahl.component.decorators import  deprecated
 
 
@@ -31,11 +29,10 @@ try:
 except:
     execution_context_var = None
 
+from reahl.component.exceptions import ProgrammerError
 
 class NoContextFound(Exception):
     pass
-
-
 
 
 class ExecutionContext:
@@ -113,12 +110,13 @@ class ExecutionContext:
     @cached_property
     def interface_locale(self):
         """Returns a string identifying the current locale."""
-        print('HUNT:interface_locale ENTER', flush=True)
         session = getattr(self, 'session', None)
-        print('HUNT:interface_locale session %s' % session, flush=True)
         if not session:
             return 'en_gb'
-        return self.session.get_interface_locale()
+        try:
+            return self.session.get_interface_locale()
+        except Exception as ex:
+            raise ProgrammerError() from ex
 
     def __getattr__(self, name):
         raise AttributeError('%s has no attribute \'%s\'' % (self, name))
