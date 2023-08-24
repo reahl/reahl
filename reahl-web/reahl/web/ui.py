@@ -25,7 +25,6 @@ import json
 from collections import OrderedDict
 from collections.abc import Callable
 
-from reahl.component.decorators import deprecated
 from reahl.component.exceptions import IsInstance
 from reahl.component.exceptions import ProgrammerError, DomainException
 from reahl.component.exceptions import arg_checks
@@ -1604,6 +1603,9 @@ class PrimitiveInput(Input):
 
        .. versionchanged:: 5.0
           Removed `name` kwarg.
+
+       .. versionchanged:: 7.0
+          Removed set_refresh_widget in favour of set_refresh_widgets
     """
     is_for_file = False
     is_contained = False
@@ -1633,19 +1635,6 @@ class PrimitiveInput(Input):
         if refresh_widget:
             self.set_refresh_widgets([refresh_widget])
             
-    @deprecated('Use set_refresh_widgets instead', '6.1')
-    def set_refresh_widget(self, refresh_widget):
-        """
-        Instructs this :class:`PrimitiveInput` to refresh the given widget when its value changes.
-
-        The `refresh_widget` has to have a css_id, and also needs to have refreshing enabled.
-
-        :param refresh_widget: An :class:`HTMLWidget` or :class:`HTMLElement`.
-
-        .. versionadded:: 5.2
-        """
-        self.set_refresh_widgets([refresh_widget])
-
     def set_refresh_widgets(self, refresh_widgets):
         """
         Instructs this :class:`PrimitiveInput` to refresh all the given widgets when its value changes.

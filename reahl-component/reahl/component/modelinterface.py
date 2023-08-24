@@ -46,7 +46,6 @@ from babel.numbers import parse_decimal, format_number
 from wrapt import FunctionWrapper, BoundFunctionWrapper
 
 
-from reahl.component.decorators import deprecated
 from reahl.component.i18n import Catalogue
 from reahl.component.context import ExecutionContext
 from reahl.component.exceptions import AccessRestricted, ProgrammerError, arg_checks, IsInstance, IsCallable, NotYetAvailable
@@ -99,6 +98,9 @@ class FieldIndex:
        .. versionchanged:: 6.1
           Deprecated: an instance of this class is also passed to methods marked as @exposed. 
           (See :class:`ExposedDecorator` )
+       .. versionchanged:: 7.0
+          Removed: the use of @exposed has been removed
+          (See :class:`ExposedNames` )
 
     """
     def __init__(self, storage_object):
@@ -216,96 +218,6 @@ class StandaloneFieldIndex(FieldIndex):
             field.validate_default()
 
             
-@deprecated('Please use :class:`ExposedNames` instead.')
-class ExposedDecorator:
-    """This class has the alias "exposed". Apply it as decorator to a method declaration to indicate that the method defines
-       a number of Fields. The decorated method is passed an instance of :class:`FieldIndex` to which each Field should be assigned. 
-       Each such Field is associated with an similarly named attribute on each instance of the current class.
-
-       :param args: A list of names of Fields that will be defined by this method. This is used when accessing the
-                    resultant FieldIndex on a class, instead of on an instance.
-
-       .. versionchanged:: 6.1
-          Deprecated: use :class:`ExposedNames` instead.
-    """
-    def __init__(self, *args):
-        self.expected_event_names = []
-        if isinstance(args[0], str):
-            self.add_fake_events(args)
-            self.func = None
-        else:
-            self.func = args[0]
-            functools.update_wrapper(self, self.func)
-
-    @property
-    def name(self):
-        return self.func.__name__
-
-    def add_fake_events(self, event_names):
-        events = []
-        self.expected_event_names.extend(event_names)
-        for name in event_names:
-            event = FakeEvent(name)
-            setattr(self, name, event)
-            events.append(event)
-        return events
-
-    def __call__(self, func):
-        self.func = func
-        functools.update_wrapper(self, self.func)
-        return self
-        
-    def __get__(self, instance, owner):
-        if not instance:
-            return self
-
-        if not hasattr(instance, '__exposed__'):
-            instance.__exposed__ = {}
-
-        model_object = instance
-        try:
-            return instance.__exposed__[self]
-        except KeyError:
-            seen = []
-            field_index = FieldIndex(model_object)
-            for _class in reversed(model_object.__class__.mro()):
-                if hasattr(_class, self.name):
-                    exposed_declaration = getattr(_class, self.name)
-                    if exposed_declaration not in seen:
-                        seen.append(exposed_declaration)
-                        if isinstance(exposed_declaration, ExposedDecorator):
-                            exposed_declaration.func(model_object, field_index)
-                        elif isinstance(exposed_declaration, ExposedNames):
-                            field_index.update_from_class(exposed_declaration)
-                        else:
-                            raise ProgrammerError('%s on %s is not a ExposedNames or ExposedDecorator' % (self.name, _class))
-            instance.__exposed__[self] = field_index
-
-        self.func(model_object, field_index)
-
-        if self.expected_event_names:
-            declared_fields = set(field_index.keys())
-            expected_fields = set(self.expected_event_names)
-            missing_fields = expected_fields - declared_fields
-            if missing_fields:
-                raise ProgrammerError('You promised to instantiate "%s" in %s of %s but did not do so' % \
-                                          (','.join(missing_fields), self.func, model_object))
-
-        return field_index
-
-    def __getattr__(self, name):
-        raise AttributeError('%s has no attribute \'%s\' - did you perhaps write @exposed instead of @exposed(\'%s\')?' % \
-                            (self, name, name))
-
-
-exposed = ExposedDecorator
-
-
-class FakeEvent:
-    isEvent = True
-    def __init__(self, name):
-        self.name = name
-        
 class FieldFactory:
     @arg_checks(a_callable=IsCallable(args=(NotYetAvailable('i'),)))
     def __init__(self, name, a_callable):
@@ -400,12 +312,10 @@ class ExposedNames:
                 exposed_declaration = getattr(class_, my_name)
                 if exposed_declaration not in seen:
                     seen.append(exposed_declaration)
-                    if isinstance(exposed_declaration, ExposedDecorator):
-                        exposed_declaration.func(instance, idx)
-                    elif isinstance(exposed_declaration, ExposedNames):
+                    if isinstance(exposed_declaration, ExposedNames):
                         idx.update_from_class(exposed_declaration)
                     else:
-                        raise ProgrammerError('%s on %s is not a ExposedNames or ExposedDecorator' % (my_name, class_))
+                        raise ProgrammerError('%s on %s is not an ExposedNames' % (my_name, class_))
                 
         setattr(instance, my_name, idx)
         return idx
@@ -1113,8 +1023,7 @@ class Field:
 
     def bind(self, name, storage_object):
         if self.is_bound:
-            warnings.warn('DEPRECATED: %s is bound to %s already. Call unbind() first if you intend to bind it again. This warning will be an error in 7.0' % (self, self.storage_object), DeprecationWarning, stacklevel=1)
-            #raise ProgrammerError('%s is already bound to %s' % (self, self.storage_object))
+            raise ProgrammerError('%s is already bound to %s' % (self, self.storage_object))
         self._name = name
         if not self.label:
             self.label = name

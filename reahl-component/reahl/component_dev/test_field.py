@@ -24,7 +24,7 @@ from reahl.stubble import EmptyStub
 
 from reahl.component.context import ExecutionContext
 from reahl.component.exceptions import ProgrammerError, IsInstance, IsCallable, IncorrectArgumentError
-from reahl.component.modelinterface import Field, FieldIndex, ExposedNames, exposed, Event, \
+from reahl.component.modelinterface import Field, FieldIndex, ExposedNames, Event, \
     EmailField, PasswordField, BooleanField, IntegerField, \
     DateField, DateConstraint, \
     ValidationConstraint, RequiredConstraint, MinLengthConstraint, \
@@ -333,23 +333,6 @@ def test_namespaces():
 
 
 @with_fixtures(FieldFixture)
-def test_helpers_for_fields_deprecated(fixture):
-    """The @exposed decorator makes it simpler to bind Fields to an object."""
-
-    class ModelObject:
-        @exposed
-        def fields(self, fields):
-            fields.field1 = IntegerField()
-            fields.field2 = BooleanField()
-
-    model_object = ModelObject()
-
-    assert model_object.fields is model_object.fields
-    assert model_object.fields.field1.bound_to is model_object
-    assert model_object.fields.field2.bound_to is model_object
-
-    
-@with_fixtures(FieldFixture)
 def test_helpers_for_fields(fixture):
     """Use ExposedNames to automatically bind a number of Fields to instances of a given class."""
 
@@ -437,41 +420,6 @@ def test_re_binding_behaviour_of_field_index(fixture):
 
 
 @with_fixtures(FieldFixture)
-def test_helpers_for_events_deprecated(fixture):
-    """The @exposed decorator makes it simpler to collect Events on an object similar to how it is used for Fields."""
-
-    class ModelObject:
-        @exposed
-        def events(self, fields):
-            fields.event1 = Event()
-            fields.event2 = Event()
-
-    model_object = ModelObject()
-
-    assert model_object.events is model_object.events
-    assert model_object.events.event1.bound_to is model_object.events.event1
-    assert model_object.events.event2.bound_to is model_object.events.event2
-
-    assert model_object.events.event1.name == 'event1'
-
-
-@with_fixtures(FieldFixture)
-def test_helpers_for_events2_deprecated(fixture):
-    """The @exposed decorator can be used to get FakeEvents at a class level, provided the valid Event names are specified."""
-
-    class ModelObject:
-        @exposed('event1')
-        def events(self, fields):
-            fields.event1 = Event()
-            fields.event2 = Event()
-
-    assert ModelObject.events.event1.name == 'event1'
-
-    with expected(AttributeError):
-        ModelObject.events.nonevent
-
-        
-@with_fixtures(FieldFixture)
 def test_helpers_for_events_class_side(fixture):
     """The ExposedNames of a class can be accessed class side to yield objects that implement a partial Field/Event interface (implements .name only)."""
 
@@ -486,44 +434,6 @@ def test_helpers_for_events_class_side(fixture):
         ModelObject.events.nonevent
 
 
-        
-
-@with_fixtures(FieldFixture)
-def test_helpers_for_events3_deprecated(fixture):
-    """An Event has to be created for each of the names listed to the @exposed decorator, else an error is raised."""
-
-    class ModelObject:
-        @exposed('event1', 'forgotten')
-        def events(self, fields):
-            fields.event1 = Event()
-            fields.event2 = Event()
-
-    with expected(ProgrammerError, test='You promised to instantiate.*'):
-        ModelObject().events
-
-
-@with_fixtures(FieldFixture)
-def test_events_deprecated(fixture):
-    """An Event defines a signal that can be sent to the system, with the intention to
-       possibly trigger the execution of an Action by the system. Metadata, such as what
-       a human might label the Event, is also specified."""
-
-    class ModelObject:
-        @exposed
-        def events(self, events):
-            events.an_event = Event(action=Action(self.do_something), label='human readable label')
-
-        def do_something(self):
-            self.something_done = True
-
-    model_object = ModelObject()
-    event = model_object.events.an_event.with_arguments()
-    event.from_input(event.as_input())
-    event.fire()
-
-    assert model_object.something_done
-    assert model_object.events.an_event.label == 'human readable label'
-    
 @with_fixtures(FieldFixture)
 def test_events(fixture):
     """An Event defines a signal that can be sent to the system, with the intention to
