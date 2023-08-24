@@ -1292,7 +1292,6 @@ class Event(Field):
             self.arguments[self.event_return_argument_name] = return_value
 
     def make_occurred(self):
-        self.bind('arguments', self)
         arguments = {}
         self.ensure_values_for_all_arguments(arguments)
         unparsed_input = self.unparse_input(arguments)
@@ -1301,6 +1300,10 @@ class Event(Field):
     def bind(self, name, storage_object):
         super().bind(name, self)
 
+    def as_bound(self):
+        self.bind('arguments', None)
+        return self
+        
     def copy(self):
         new_field = super().copy()
         new_field.unbind()

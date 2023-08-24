@@ -270,7 +270,7 @@ class HTMLElement(Widget):
         self.tag_name = tag_name
         self.constant_attributes = HTMLAttributeDict()
         self.ajax_handler = None
-        self.on_refresh = Event()
+        self.on_refresh = Event().as_bound()
         if css_id:
             self.set_id(css_id)
 
