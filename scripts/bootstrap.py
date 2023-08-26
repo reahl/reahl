@@ -61,6 +61,10 @@ def install_with_pip(package_list, upgrade=False):
     args = ['-U'] if upgrade else []
     return subprocess.call([sys.executable, '-m', 'pip', 'install'] + args + package_list)
 
+def build_with_pip(package_dir, upgrade=False):
+    dist_directory = '%s/.reahlworkspace/dist-egg' % os.environ.get('REAHLWORKSPACE', os.environ['HOME'])
+    return subprocess.call([sys.executable, '-m', 'build', '--wheel', '--outdir', dist_directory], cwd=package_dir)
+
 def editable_install(project_dirs, with_tests=False):
     test_extra = '[test]' if with_tests else ''
     subprocess.run(['python', '-m', 'pip', 'install'] + ['-e%s%s' % (i, test_extra) for i in project_dirs], check=True)
@@ -93,7 +97,8 @@ clean_virtual_env()
 clean_egg_info_dirs()
 
 install_with_pip(['tox>=4.6.3', 'build'])  # Nothing depends on tox, but we use it in .github/worfklows so it forms part of our basic infrastructure
-editable_install([pathlib.Path('reahl-component-metadata')], with_tests=False)
+build_with_pip(pathlib.Path('reahl-component-metadata'))
+install_with_pip(['reahl-component-metadata'])
 project_paths = [str(i) for i in pathlib.Path().glob('reahl-*')]+['.']
 editable_install(project_paths, with_tests=False)
 editable_install(project_paths, with_tests=True)
