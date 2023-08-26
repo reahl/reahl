@@ -751,7 +751,7 @@ class ProjectList(list):
                             dirs.remove(i)
                         except ValueError:
                             pass
-                if 'setup.cfg' in files:
+                if ('setup.cfg' in files) or ('pyproject.toml' in files):
                     project = Project.from_file(self.workspace, root)
                     self.append(project, ignore_duplicates=True)
                     if not project.has_children:
