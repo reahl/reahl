@@ -440,6 +440,19 @@ class SetupMetadata(ProjectMetadata):
     def version(self):
         return self.config['metadata']['version']
 
+class PyprojectMetadata(ProjectMetadata):
+    def __init__(self, project, config):
+        super().__init__(project)
+        self.config = config
+
+    @property
+    def project_name(self):
+        return self.config['project']['name']
+
+    @property
+    def version(self):
+        return self.config['project']['version']
+    
 
 class Project:
     """Instances of Project each represent a Reahl project in a development environment.
@@ -451,10 +464,14 @@ class Project:
     @classmethod
     def from_file(cls, workspace, directory):
         setup_cfg_filename = os.path.join(directory, 'setup.cfg')
+        pyproject_filename = os.path.join(directory, 'pyproject.toml')
         if os.path.isfile(setup_cfg_filename):
             config = configparser.ConfigParser()
             config.read(setup_cfg_filename)
             project = Project(workspace, directory, metadata=SetupMetadata(None, config))
+        elif os.path.isfile(pyproject_filename):
+            config = toml.load(pyproject_filename)
+            project = Project(workspace, directory, metadata=PyprojectMetadata(None, config))
         else:
             raise NotAValidProjectException('Could not find a setup.cfg in %s' % directory)
 
