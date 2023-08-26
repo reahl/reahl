@@ -1,3 +1,117 @@
 [build-system]
-requires = ["setuptools >= 68", "wheel","setuptools-git >= 1.1", "pytest-runner", "toml", "reahl-component-metadata"]
+requires = ["setuptools >= 68", "wheel","setuptools-git >= 1.1", "pytest-runner", "toml", "reahl-component-metadata >= 7.0.0"]
 build-backend = "setuptools.build_meta"
+
+  
+[project]
+name = "reahl-web"
+version = "7.0.0"
+authors = [
+    {name = "Iwan Vosloo", email = "iwan@gmail.com"},
+]
+description = "The core Reahl web framework"
+readme = "README.rst"
+requires-python = ">=3.8"
+#keywords = ["one", "two"]
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Framework :: Reahl",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Topic :: Software Development :: Libraries :: Application Frameworks",
+  "Environment :: Web Environment"
+]
+dependencies = [
+  "reahl-component>=7.0,<7.1",
+  "reahl-mailutil>=7.0,<7.1",
+  "ply>=3.8,<3.11.999",
+  "rjsmin>=1.2.0,<1.2.999",
+  "rcssmin>=1.1.0,<1.1.999",
+  "beautifulsoup4>=4.6,<4.11.999",
+  "WebOb>=1.8,<1.8.999",
+  "Babel>=2.1,<2.11.999",
+  "setuptools>=51.0.0",
+  "lxml>=4.2,<4.9.999",
+  "cached-property>=1.5,<1.5.999;python_version<'3.8'"
+]
+
+[project.optional-dependencies]
+test = [
+  "pytest>=3.0",
+  "plotly>=5.1.0,<5.11.99999",
+  "reahl-tofu",
+  "reahl-stubble",
+  "reahl-dev",
+  "reahl-webdev",
+  "reahl-browsertools",
+  "reahl-postgresqlsupport",
+  "reahl-sqlalchemysupport",
+  "reahl-web-declarative",
+  "reahl-domain",
+ ]
+
+
+[project.entry-points."reahl.translations"]
+reahl-web = "reahl.messages"
+
+[tool.setuptools.packages.find]
+exclude = ["etc", "build", "dist"]
+
+[tool.reahl-component]
+configuration = "reahl.web.egg:WebConfig"
+
+[tool.reahl-component.versions.'6.1']
+  install_requires = [
+    "reahl-component>=6.1,<6.2",
+    "reahl-mailutil>=6.1,<6.2"
+  ]
+[tool.reahl-component.versions.'6.0']
+  install_requires = [
+    "reahl-component>=6.0,<6.1",
+    "reahl-mailutil>=6.0,<6.1"
+  ]
+[tool.reahl-component.versions.'5.2']
+  install_requires = [
+    "reahl-component>=5.2,<5.3",
+    "reahl-mailutil>=5.2,<5.3"
+  ]
+[tool.reahl-component.versions.'5.1']
+  install_requires = [
+    "reahl-component>=5.1,<5.2",
+    "reahl-mailutil>=5.1,<5.2"
+  ]
+[tool.reahl-component.versions.'5.0']
+  install_requires = [
+    "reahl-component>=5.0,<5.1",
+    "reahl-mailutil>=5.0,<5.1"
+  ]
+[tool.reahl-component.versions.'4.0']
+  install_requires = [
+    "reahl-component>=4.0,<4.1",
+    "reahl-mailutil>=4.0,<4.1"
+  ]
+[tool.reahl-component.versions.'3.2']
+  install_requires = [
+    "reahl-component>=3.2,<3.3"
+  ]
+[tool.reahl-component.versions.'3.1']
+  install_requires = [
+    "reahl-component>=3.1,<3.2"
+  ]
+[tool.reahl-component.versions.'3.0']
+  install_requires = [
+    "reahl-component>=3.0,<3.1",
+    "reahl-interfaces>=3.0,<3.1"
+  ]
+[tool.reahl-component.versions.'2.1']
+  install_requires = [
+    "reahl-component>=2.1,<2.2",
+    "reahl-interfaces>=2.1,<2.2"
+  ]
+[tool.reahl-component.versions.'2.0']
+  install_requires = [
+    "reahl-component>=2.0,<2.1",
+    "reahl-interfaces>=2.0,<2.1"
+  ]
