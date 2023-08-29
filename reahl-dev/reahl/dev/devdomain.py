@@ -468,14 +468,13 @@ class Project:
         if os.path.isfile(setup_cfg_filename):
             config = configparser.ConfigParser()
             config.read(setup_cfg_filename)
-            project = Project(workspace, directory, metadata=SetupMetadata(None, config))
+            return Project(workspace, directory, metadata=SetupMetadata(None, config))
         elif os.path.isfile(pyproject_filename):
             config = toml.load(pyproject_filename)
-            project = Project(workspace, directory, metadata=PyprojectMetadata(None, config))
-        else:
-            raise NotAValidProjectException('Could not find a setup.cfg in %s' % directory)
-
-        return project
+            if 'project' in config:
+                return Project(workspace, directory, metadata=PyprojectMetadata(None, config))
+            
+        raise NotAValidProjectException('Could not find a setup.cfg or complete pyproject.toml in %s' % directory)
 
     def __init__(self, workspace, directory, metadata=None):
         self.workspace = workspace
