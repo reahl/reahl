@@ -17,7 +17,7 @@
 # Copyright (C) 2006 Reahl Software Services (Pty) Ltd.  All rights reserved. (www.reahl.org)
 
 
-
+import os
 import sys
 import copy
 import pkg_resources
@@ -28,6 +28,9 @@ try:
 except ImportError:
   from setuptools.config import read_configuration
 
+import toml
+
+  
 from reahl.tofu import Fixture, set_up, tear_down, scope, uses
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.context import ExecutionContext
@@ -123,7 +126,10 @@ class ReahlSystemSessionFixture(ContextAwareFixture):
 
     def new_test_dependencies(self):
         try:
-            return read_configuration('setup.cfg')['options']['extras_require']['test']
+            if os.path.isfile('pyproject.toml') and 'project' in toml.load('pyproject.toml'):
+                return toml.load('pyproject.toml')['project']['optional-dependencies']['test']
+            else:
+                return read_configuration('setup.cfg')['options']['extras_require']['test']
         except KeyError:
             return []
 
