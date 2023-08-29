@@ -464,7 +464,7 @@ class Project:
     @classmethod
     def has_complete_pyproject(self, directory):
         pyproject_filename = os.path.join(directory, 'pyproject.toml')
-        return pyproject_filename.exists() and 'project' in toml.load(pyproject_filename)
+        return os.path.isfile(pyproject_filename) and 'project' in toml.load(pyproject_filename)
         
     @classmethod
     def from_file(cls, workspace, directory):
