@@ -462,17 +462,21 @@ class Project:
         return '<project %s %s>' % (self.project_name, self.version)
 
     @classmethod
+    def has_complete_pyproject(self, directory):
+        pyproject_filename = os.path.join(directory, 'pyproject.toml')
+        return pyproject_filename.exists() and 'project' in toml.load(pyproject_filename)
+        
+    @classmethod
     def from_file(cls, workspace, directory):
         setup_cfg_filename = os.path.join(directory, 'setup.cfg')
-        pyproject_filename = os.path.join(directory, 'pyproject.toml')
         if os.path.isfile(setup_cfg_filename):
             config = configparser.ConfigParser()
             config.read(setup_cfg_filename)
             return Project(workspace, directory, metadata=SetupMetadata(None, config))
-        elif os.path.isfile(pyproject_filename):
+        elif cls.has_complete_pyproject(directory):
+            pyproject_filename = os.path.join(directory, 'pyproject.toml')
             config = toml.load(pyproject_filename)
-            if 'project' in config:
-                return Project(workspace, directory, metadata=PyprojectMetadata(None, config))
+            return Project(workspace, directory, metadata=PyprojectMetadata(None, config))
             
         raise NotAValidProjectException('Could not find a setup.cfg or complete pyproject.toml in %s' % directory)
 
@@ -750,7 +754,7 @@ class ProjectList(list):
                             dirs.remove(i)
                         except ValueError:
                             pass
-                if ('setup.cfg' in files) or ('pyproject.toml' in files):
+                if ('setup.cfg' in files) or Project.has_complete_pyproject(root):
                     project = Project.from_file(self.workspace, root)
                     self.append(project, ignore_duplicates=True)
                     if not project.has_children:
