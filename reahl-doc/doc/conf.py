@@ -24,7 +24,7 @@ import sys, os, datetime
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #sys.path.insert(0, os.path.abspath('.'))
 from reahl.dev.devdomain import Workspace, Project
-reahl_chicken_project = Project.from_file(Workspace('/tmp'), '../../')
+reahl_chicken_project = Project.from_file_in(Workspace('/tmp'), '../../')
 for project in reahl_chicken_project.egg_projects:
     sys.path.insert(0, os.path.abspath('../../%s' % project.project_name))
 
