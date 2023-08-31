@@ -470,7 +470,6 @@ class Project:
 
     @classmethod
     def metadata_in(cls, directory):
-        setup_cfg_filename = os.path.join(directory, 'setup.cfg')
         try:
             metadata = SetupMetadata.from_file_in(directory)
         except FileNotFoundError:
@@ -482,7 +481,7 @@ class Project:
     
     @classmethod
     def from_file_in(cls, workspace, directory):
-        metadata = metadata_in(directory)
+        metadata = cls.metadata_in(directory)
             
         if metadata.is_complete:
             return Project(workspace, directory, metadata=metadata)
