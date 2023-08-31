@@ -429,7 +429,7 @@ class SetupMetadata:
 
     @property
     def extras(self):
-        return self.config['options']['extras_require']
+        return self.config.get('options', {}).get('extras_require', {})
 
     
 class PyprojectMetadata:
@@ -458,7 +458,7 @@ class PyprojectMetadata:
     
     @property
     def extras(self):
-        return self.config['project']['optional-dependencies']
+        return self.config['project'].get('optional-dependencies', {})
 
     
 class Project:
