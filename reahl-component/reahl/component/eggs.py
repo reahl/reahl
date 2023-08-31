@@ -440,9 +440,8 @@ class ReahlEgg:
 
         module = translation_entry_point.load()
         domain = translation_entry_point.name
-        major, minor = [int(i) for i in sys.version.split('.')[:2]]
 
-        if major == 3 and minor < 10:
+        if sys.version_info < (3, 10):
             class TraversablePaths:
                def __init__(self, module):
                    self.module = module
