@@ -23,13 +23,6 @@ import copy
 import pkg_resources
 import contextlib
 
-try:
-  from setuptools.config.setupcfg import read_configuration
-except ImportError:
-  from setuptools.config import read_configuration
-
-import toml
-
   
 from reahl.tofu import Fixture, set_up, tear_down, scope, uses
 from reahl.component.exceptions import ProgrammerError
@@ -38,6 +31,7 @@ from reahl.component.dbutils import SystemControl
 from reahl.component.config import StoredConfiguration, ReahlSystemConfig
 from reahl.component.shelltools import Executable
 from reahl.dev.exceptions import CouldNotConfigureServer
+from reahl.dev.devdomain import Project
 from reahl.tofu.pytestsupport import WithFixtureDecorator
 from reahl.stubble import stubclass, exempt, replaced
 
@@ -125,13 +119,7 @@ class ReahlSystemSessionFixture(ContextAwareFixture):
         return SystemControl(self.config)
 
     def new_test_dependencies(self):
-        try:
-            if os.path.isfile('pyproject.toml') and 'project' in toml.load('pyproject.toml'):
-                return toml.load('pyproject.toml')['project']['optional-dependencies']['test']
-            else:
-                return read_configuration('setup.cfg')['options']['extras_require']['test']
-        except KeyError:
-            return []
+        return Project.metadata_in('.').extras.get('test', [])
 
     @set_up
     def init_database(self):

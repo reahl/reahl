@@ -30,7 +30,6 @@ import datetime
 import pkgutil
 from tempfile import TemporaryFile
 import collections
-import configparser
 import tzlocal
 import pathlib
 
@@ -399,39 +398,27 @@ class ProjectMetadata:
             return self.project.chicken_project.version
         return VersionNumber('0.0')
 
-    def get_url_for(self, project):
-        if self.project.chicken_project:
-            return self.project.chicken_project.get_url_for(project)
-        return 'No url provided'
-
-    def get_description_for(self, project):
-        if self.project.chicken_project:
-            return self.project.chicken_project.get_description_for(project)
-        return 'No description provided'
-
-    def get_long_description_for(self, project):
-        if self.project.chicken_project:
-            return self.project.chicken_project.get_long_description_for(project)
-        return 'No description provided'
-
     @property
-    def maintainer_name(self):
-        if self.project.chicken_project:
-            return self.project.chicken_project.maintainer_name
-        return 'No maintainer provided'
+    def extras(self):
+        return {}
 
-    @property
-    def maintainer_email(self):
-        if self.project.chicken_project:
-            return self.project.chicken_project.maintainer_email
-        return 'No maintainer provided'
-
-
-class SetupMetadata(ProjectMetadata):
-    def __init__(self, project, config):
-        super().__init__(project)
+class SetupMetadata:
+    @classmethod
+    def from_file_in(cls, directory):
+        setupcfg_filename = pathlib.Path(directory).joinpath('setup.cfg')
+        if not setupcfg_filename.exists():
+            raise FileNotFoundError(str(setupcfg_filename))
+        
+        config = read_configuration(setupcfg_filename)
+        return cls(config)
+    
+    def __init__(self, config):
         self.config = config
 
+    @property
+    def is_complete(self):
+        return bool(self.config)
+        
     @property
     def project_name(self):
         return self.config['metadata']['name']
@@ -440,11 +427,27 @@ class SetupMetadata(ProjectMetadata):
     def version(self):
         return self.config['metadata']['version']
 
-class PyprojectMetadata(ProjectMetadata):
-    def __init__(self, project, config):
-        super().__init__(project)
+    @property
+    def extras(self):
+        return self.config['options']['extras_require']
+
+    
+class PyprojectMetadata:
+    @classmethod
+    def from_file_in(cls, directory):
+        pyproject_filename = pathlib.Path(directory).joinpath('pyproject.toml')
+        if not pyproject_filename.exists():
+            raise FileNotFoundError(str(pyproject_filename))
+        config = toml.load(pyproject_filename)
+        return cls(config)
+        
+    def __init__(self, config):
         self.config = config
 
+    @property
+    def is_complete(self):
+        return 'project' in self.config
+        
     @property
     def project_name(self):
         return self.config['project']['name']
@@ -453,7 +456,11 @@ class PyprojectMetadata(ProjectMetadata):
     def version(self):
         return self.config['project']['version']
     
+    @property
+    def extras(self):
+        return self.config['project']['optional-dependencies']
 
+    
 class Project:
     """Instances of Project each represent a Reahl project in a development environment.
     """
@@ -462,32 +469,37 @@ class Project:
         return '<project %s %s>' % (self.project_name, self.version)
 
     @classmethod
-    def has_complete_pyproject(self, directory):
-        pyproject_filename = os.path.join(directory, 'pyproject.toml')
-        return os.path.isfile(pyproject_filename) and 'project' in toml.load(pyproject_filename)
-        
-    @classmethod
-    def from_file(cls, workspace, directory):
+    def metadata_in(cls, directory):
         setup_cfg_filename = os.path.join(directory, 'setup.cfg')
-        if os.path.isfile(setup_cfg_filename):
-            config = configparser.ConfigParser()
-            config.read(setup_cfg_filename)
-            return Project(workspace, directory, metadata=SetupMetadata(None, config))
-        elif cls.has_complete_pyproject(directory):
-            pyproject_filename = os.path.join(directory, 'pyproject.toml')
-            config = toml.load(pyproject_filename)
-            return Project(workspace, directory, metadata=PyprojectMetadata(None, config))
+        try:
+            metadata = SetupMetadata.from_file_in(directory)
+        except FileNotFoundError:
+            try:
+                metadata = PyprojectMetadata.from_file_in(directory)
+            except FileNotFoundError:
+                raise NotAValidProjectException('Could not find a setup.cfg or complete pyproject.toml in %s' % directory)
+        return metadata
+    
+    @classmethod
+    def from_file_in(cls, workspace, directory):
+        metadata = metadata_in(directory)
             
-        raise NotAValidProjectException('Could not find a setup.cfg or complete pyproject.toml in %s' % directory)
+        if metadata.is_complete:
+            return Project(workspace, directory, metadata=metadata)
+        else:
+            raise NotAValidProjectException('Could not find a setup.cfg or complete pyproject.toml in %s' % directory)
 
     def __init__(self, workspace, directory, metadata=None):
         self.workspace = workspace
         self.directory = directory
-        self.relative_directory = os.path.relpath(directory, self.workspace.directory)
 
         self.packages = [PythonSourcePackage(self), PythonWheelPackage(self)]
         self.metadata = metadata or ProjectMetadata(self)
 
+    @property
+    def relative_directory(self):
+        return os.path.relpath(self.directory, self.workspace.directory)
+    
     @property
     def distribution_egg_repository(self):
         return self.workspace.distribution_egg_repository
@@ -498,16 +510,16 @@ class Project:
 
     @property
     def has_children(self):
-        return self.project_name == 'reahl'
+        return 'all' in self.metadata.extras
 
     @property
     def egg_projects(self):
         if not self.has_children:
             return None
-        all_projects_requirements = read_configuration(self.setup_cfg_filename)['options']['extras_require']['all']
+        all_projects_requirements = self.metadata.extras['all']
         def get_project_dir_for(requirement):
             return str(pathlib.Path(self.directory).joinpath(pkg_resources.Requirement.parse(requirement).project_name))
-        return [Project.from_file(self.workspace, get_project_dir_for(i))
+        return [Project.from_file_in(self.workspace, get_project_dir_for(i))
                 for i in all_projects_requirements]
 
     @contextmanager
@@ -606,23 +618,10 @@ class Project:
     @property
     def version(self):
         return VersionNumber(self.metadata.version)
-
-    def get_url_for(self, project):
-        return self.metadata.get_url_for(project)
-
-    def get_description_for(self, project):
-        return self.metadata.get_description_for(project)
-
-    def get_long_description_for(self, project):
-        return self.metadata.get_long_description_for(project)
-
+    
     @property
-    def maintainer_name(self):
-        return self.metadata.maintainer_name
-
-    @property
-    def maintainer_email(self):
-        return self.metadata.maintainer_email
+    def extras(self):
+        return self.metadata.extras
 
     def build(self, sign=True):
         assert self.packages_to_distribute, 'For %s: No <package>... listed in setup.cfg, nothing to do.' % self.project_name
@@ -643,7 +642,7 @@ class Project:
         try:
             return self.workspace.project_in(directory)
         except ProjectNotFound:
-            return Project.from_file(self.workspace, directory)
+            return Project.from_file_in(self.workspace, directory)
 
     @property
     def basket(self):
@@ -754,8 +753,8 @@ class ProjectList(list):
                             dirs.remove(i)
                         except ValueError:
                             pass
-                if ('setup.cfg' in files) or Project.has_complete_pyproject(root):
-                    project = Project.from_file(self.workspace, root)
+                if ('setup.cfg' in files) or ('pyproject.toml' in files and PyprojectMetadata.from_file_in(root).is_complete):
+                    project = Project.from_file_in(self.workspace, root)
                     self.append(project, ignore_duplicates=True)
                     if not project.has_children:
                         dirs[:] = []  # This prunes the tree so it does not walk deeper in here
@@ -778,7 +777,7 @@ class ProjectList(list):
         for name in project_dirs:
             full_dir = os.path.join(self.workspace.directory, name)
             if os.path.isdir(full_dir):
-                self.append(Project.from_file(self.workspace, full_dir))
+                self.append(Project.from_file_in(self.workspace, full_dir))
             else:
                 logging.getLogger(__name__).warning('Skipping %s, it does not exist anymore' % name)
 
@@ -799,7 +798,7 @@ class ProjectList(list):
                 selection.append(i)
                 return selection
 
-        selection.append(Project.from_file(self.workspace, directory))
+        selection.append(Project.from_file_in(self.workspace, directory))
         return selection
 
 
