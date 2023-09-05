@@ -1,3 +1,83 @@
 [build-system]
-requires = ["setuptools >= 68", "wheel","setuptools-git >= 1.1", "pytest-runner", "toml", "reahl-component-metadata"]
+requires = [
+  "setuptools >= 68",
+  "wheel",
+  "setuptools-git >= 1.1",
+  "pytest-runner",
+  "toml",
+  "reahl-component-metadata"
+  ]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "reahl-paypalsupport"
+version = "7.0.0"
+description = "Support for payments via PayPal."
+readme = "README.rst"
+requires-python = ">=3.8"
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Framework :: Reahl",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3"
+  ]
+dependencies = [
+  "reahl-component>=7.0,<7.1",
+  "reahl-sqlalchemysupport>=7.0,<7.1",
+  "reahl-web>=7.0,<7.1",
+  "reahl-web-declarative>=7.0,<7.1",
+  "reahl-domain>=7.0,<7.1",
+  "paypal-checkout-serversdk"
+  ]
+authors = [ 
+  {name = "Iwan Vosloo", email = "iwan@reahl.org"},
+  {name = "Craig Sparks", email = "craig@reahl.org"}
+]
+
+[project.optional-dependencies]
+
+[project.entry-points]
+"reahl.translations" = [
+  "reahl-paypalsupport = reahl.messages"
+  ]
+
+[tool.reahl-component]
+configuration = "reahl.paypalsupport.paypalconfig:PayPalSiteConfig"
+persisted = [
+  "reahl.paypalsupport.paypalsupport:PayPalOrder"
+  ]
+
+[tool.reahl-component.versions."6.1"]
+install_requires = [
+  "reahl-component>=6.1,<6.2",
+  "reahl-sqlalchemysupport>=6.1,<6.2",
+  "reahl-web>=6.1,<6.2",
+  "reahl-web-declarative>=6.1,<6.2",
+  "reahl-domain>=6.1,<6.2"
+  ]
+
+[tool.reahl-component.versions."6.0"]
+migrations = [
+  "reahl.paypalsupport.migrations:AdjustJsonForMySqlCompatibility"
+  ]
+install_requires = [
+  "reahl-component>=6.0,<6.1",
+  "reahl-sqlalchemysupport>=6.0,<6.1",
+  "reahl-web>=6.0,<6.1",
+  "reahl-web-declarative>=6.0,<6.1",
+  "reahl-domain>=6.0,<6.1"
+  ]
+
+[tool.reahl-component.versions."5.2"]
+install_requires = [
+  "reahl-component>=5.2,<5.3",
+  "reahl-sqlalchemysupport>=5.2,<5.3",
+  "reahl-web>=5.2,<5.3",
+  "reahl-web-declarative>=5.2,<5.3",
+  "reahl-domain>=5.2,<5.3"
+  ]
+migrations = [
+  "reahl.paypalsupport.migrations:CreatePaypal"
+  ]

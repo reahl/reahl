@@ -1,3 +1,179 @@
 [build-system]
-requires = ["setuptools >= 68", "wheel","setuptools-git >= 1.1", "pytest-runner", "toml", "reahl-component-metadata"]
+requires = [
+  "setuptools >= 68",
+  "wheel",
+  "setuptools-git >= 1.1",
+  "pytest-runner",
+  "toml",
+  "reahl-component-metadata"
+  ]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "reahl-domain"
+version = "7.0.0"
+description = "End-user domain functionality for use with Reahl."
+readme = "README.rst"
+requires-python = ">=3.8"
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Framework :: Reahl",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3"
+  ]
+dependencies = [
+  "reahl-component>=7.0,<7.1",
+  "reahl-mailutil>=7.0,<7.1",
+  "reahl-sqlalchemysupport>=7.0,<7.1",
+  "reahl-web-declarative>=7.0,<7.1",
+  "passlib>=1.7.1,<1.7.9999"
+  ]
+authors = [ 
+  {name = "Iwan Vosloo", email = "iwan@reahl.org"},
+  {name = "Craig Sparks", email = "craig@reahl.org"}
+]
+
+[project.optional-dependencies]
+test = [
+  "pytest>=3.0",
+  "reahl-tofu",
+  "reahl-stubble",
+  "reahl-dev",
+  "reahl-webdev",
+  "reahl-browsertools",
+  "reahl-postgresqlsupport"
+  ]
+
+[project.entry-points]
+"reahl.translations" = [
+  "reahl-domain = reahl.messages"
+  ]
+
+[tool.reahl-component]
+configuration = "reahl.systemaccountmodel:SystemAccountConfig"
+schedule = [
+  "reahl.workflowmodel:DeferredAction.check_deadline"
+  ]
+persisted = [
+  "reahl.partymodel:Party",
+  "reahl.systemaccountmodel:SystemAccount",
+  "reahl.systemaccountmodel:LoginSession",
+  "reahl.systemaccountmodel:EmailAndPasswordSystemAccount",
+  "reahl.systemaccountmodel:AccountManagementInterface",
+  "reahl.systemaccountmodel:VerificationRequest",
+  "reahl.systemaccountmodel:VerifyEmailRequest",
+  "reahl.systemaccountmodel:NewPasswordRequest",
+  "reahl.systemaccountmodel:ActivateAccount",
+  "reahl.systemaccountmodel:ChangeAccountEmail",
+  "reahl.workflowmodel:DeferredAction",
+  "reahl.workflowmodel:Requirement",
+  "reahl.workflowmodel:Queue",
+  "reahl.workflowmodel:Task"
+  ]
+
+[tool.reahl-component.versions."6.1"]
+install_requires = [
+  "reahl-component>=6.1,<6.2",
+  "reahl-mailutil>=6.1,<6.2",
+  "reahl-sqlalchemysupport>=6.1,<6.2",
+  "reahl-web-declarative>=6.1,<6.2"
+  ]
+
+[tool.reahl-component.versions."6.0"]
+install_requires = [
+  "reahl-component>=6.0,<6.1",
+  "reahl-mailutil>=6.0,<6.1",
+  "reahl-sqlalchemysupport>=6.0,<6.1",
+  "reahl-web-declarative>=6.0,<6.1"
+  ]
+
+[tool.reahl-component.versions."5.2"]
+install_requires = [
+  "reahl-component>=5.2,<5.3",
+  "reahl-mailutil>=5.2,<5.3",
+  "reahl-sqlalchemysupport>=5.2,<5.3",
+  "reahl-web-declarative>=5.2,<5.3"
+  ]
+migrations = [
+  "reahl.domain.migrations:AddPolimorphicEntityName"
+  ]
+
+[tool.reahl-component.versions."5.1"]
+install_requires = [
+  "reahl-component>=5.1,<5.2",
+  "reahl-mailutil>=5.1,<5.2",
+  "reahl-sqlalchemysupport>=5.1,<5.2",
+  "reahl-web-declarative>=5.1,<5.2"
+  ]
+
+[tool.reahl-component.versions."5.0"]
+install_requires = [
+  "reahl-component>=5.0,<5.1",
+  "reahl-mailutil>=5.0,<5.1",
+  "reahl-sqlalchemysupport>=5.0,<5.1",
+  "reahl-web-declarative>=5.0,<5.1"
+  ]
+
+[tool.reahl-component.versions."4.0"]
+install_requires = [
+  "reahl-component>=4.0,<4.1",
+  "reahl-mailutil>=4.0,<4.1",
+  "reahl-sqlalchemysupport>=4.0,<4.1",
+  "reahl-web-declarative>=4.0,<4.1"
+  ]
+migrations = [
+  "reahl.domain.migrations:ChangeSchemaToBeMySqlCompatible",
+  "reahl.domain.migrations:ChangePasswordHash",
+  "reahl.domain.migrations:RemoveDeadApacheDigestColumn"
+  ]
+
+[tool.reahl-component.versions."3.2"]
+install_requires = [
+  "reahl-component>=3.2,<3.3",
+  "reahl-mailutil>=3.2,<3.3",
+  "reahl-sqlalchemysupport>=3.2,<3.3",
+  "reahl-web-declarative>=3.2,<3.3"
+  ]
+
+[tool.reahl-component.versions."3.1"]
+install_requires = [
+  "reahl-component>=3.1,<3.2",
+  "reahl-mailutil>=3.1,<3.2",
+  "reahl-sqlalchemysupport>=3.1,<3.2",
+  "reahl-web-declarative>=3.1,<3.2"
+  ]
+migrations = [
+  "reahl.domain.migrations:AddLoginSession"
+  ]
+
+[tool.reahl-component.versions."3.0"]
+install_requires = [
+  "reahl-component>=3.0,<3.1",
+  "reahl-mailutil>=3.0,<3.1",
+  "reahl-interfaces>=3.0,<3.1",
+  "reahl-sqlalchemysupport>=3.0,<3.1"
+  ]
+migrations = [
+  "reahl.domain.migrations:ElixirToDeclarativeDomainChanges"
+  ]
+
+[tool.reahl-component.versions."2.1"]
+install_requires = [
+  "reahl-component>=2.1,<2.2",
+  "reahl-mailutil>=2.1,<2.2",
+  "reahl-interfaces>=2.1,<2.2",
+  "reahl-sqlalchemysupport>=2.1,<2.2"
+  ]
+
+[tool.reahl-component.versions."2.0"]
+install_requires = [
+  "reahl-component>=2.0,<2.1",
+  "reahl-mailutil>=2.0,<2.1",
+  "reahl-interfaces>=2.0,<2.1",
+  "reahl-sqlalchemysupport>=2.0,<2.1"
+  ]
+migrations = [
+  "reahl.domain.migrations:CreateDatabase"
+  ]

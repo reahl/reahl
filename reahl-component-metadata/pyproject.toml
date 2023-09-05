@@ -1,3 +1,53 @@
 [build-system]
-requires = ["setuptools >= 68", "wheel","setuptools-git >= 1.1", "pytest-runner"]
+requires = [
+  "setuptools >= 68",
+  "wheel",
+  "setuptools-git >= 1.1",
+  "pytest-runner"
+  ]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "reahl-component-metadata"
+version = "7.0.0"
+description = "Plugin for build tools to be able to write reahl-component metadata."
+readme = "README.rst"
+requires-python = ">=3.8"
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Framework :: Reahl",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Topic :: Software Development :: Build Tools"
+  ]
+dependencies = [
+  "toml"
+  ]
+authors = [ 
+  {name = "Iwan Vosloo", email = "iwan@reahl.org"},
+  {name = "Craig Sparks", email = "craig@reahl.org"}
+]
+
+[project.optional-dependencies]
+
+[project.entry-points]
+"distutils.setup_keywords" = [
+  "component = reahl.componentmetadata.setuptools:setup_keyword"
+  ]
+"dist_info.writers" = [
+  "reahl-component.toml = reahl.componentmetadata.setuptools:dist_info"
+  ]
+"egg_info.writers" = [
+  "reahl-component.toml = reahl.componentmetadata.setuptools:dist_info"
+  ]
+
+[tool.setuptools]
+
+[tool.packages.find]
+exclude = [
+  "etc",
+  "build",
+  "dist"
+  ]

@@ -1,4 +1,104 @@
 [build-system]
-requires = ["setuptools >= 68", "wheel","setuptools-git >= 1.1", "pytest-runner"]
+requires = [
+  "setuptools >= 68",
+  "wheel",
+  "setuptools-git >= 1.1",
+  "pytest-runner"
+  ]
 build-backend = "setuptools.build_meta"
 
+[project]
+name = "reahl"
+version = "7.0.0"
+description = "The Reahl web framework."
+readme = "README.rst"
+requires-python = ">=3.8"
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Framework :: Reahl",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3"
+  ]
+dependencies = []
+authors = [ 
+  {name = "Iwan Vosloo", email = "iwan@reahl.org"},
+  {name = "Craig Sparks", email = "craig@reahl.org"}
+]
+
+[project.optional-dependencies]
+all = [
+  "reahl-component>=7.0,<7.1",
+  "reahl-web>=7.0,<7.1",
+  "reahl-mailutil>=7.0,<7.1",
+  "reahl-sqlalchemysupport>=7.0,<7.1",
+  "reahl-web-declarative>=7.0,<7.1",
+  "reahl-domain>=7.0,<7.1",
+  "reahl-domainui>=7.0,<7.1",
+  "reahl-postgresqlsupport>=7.0,<7.1",
+  "reahl-sqlitesupport>=7.0,<7.1",
+  "reahl-mysqlsupport>=7.0,<7.1",
+  "reahl-dev>=7.0,<7.1",
+  "reahl-webdev>=7.0,<7.1",
+  "reahl-browsertools>=7.0,<7.1",
+  "reahl-stubble>=7.0,<7.1",
+  "reahl-tofu>=7.0,<7.1",
+  "reahl-doc>=7.0,<7.1",
+  "reahl-commands>=7.0,<7.1",
+  "reahl-paypalsupport>=7.0,<7.1"
+  ]
+web = [
+  "reahl-component>=7.0,<7.1",
+  "reahl-web>=7.0,<7.1",
+  "reahl-mailutil>=7.0,<7.1"
+  ]
+sqlite = [
+  "reahl-sqlitesupport>=7.0,<7.1"
+  ]
+postgresql = [
+  "reahl-postgresqlsupport>=7.0,<7.1"
+  ]
+mysql = [
+  "reahl-mysqlsupport>=7.0,<7.1"
+  ]
+declarative = [
+  "reahl-sqlalchemysupport>=7.0,<7.1",
+  "reahl-web-declarative>=7.0,<7.1",
+  "reahl-domain>=7.0,<7.1",
+  "reahl-domainui>=7.0,<7.1"
+  ]
+dev = [
+  "reahl-dev>=7.0,<7.1",
+  "reahl-webdev>=7.0,<7.1",
+  "reahl-stubble>=7.0,<7.1",
+  "reahl-tofu>=7.0,<7.1",
+  "reahl-webdriver>=7.0,<7.1",
+  "reahl-browsertools>=7.0,<7.1"
+  ]
+doc = [
+  "reahl-doc>=7.0,<7.1"
+  ]
+component = [
+  "reahl-component>=7.0,<7.1"
+  ]
+browsertools = [
+  "reahl-browsertools>=7.0,<7.1"
+  ]
+stubble = [
+  "reahl-stubble>=7.0,<7.1"
+  ]
+tofu = [
+  "reahl-tofu>=7.0,<7.1"
+  ]
+
+[project.entry-points]
+
+[tool.setuptools]
+
+[tool.packages.find]
+exclude = [
+  "etc",
+  "build",
+  "dist"
+  ]
