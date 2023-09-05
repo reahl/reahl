@@ -49,6 +49,9 @@ test = [
 [project.entry-points."reahl.translations"]
 reahl-domain = "reahl.messages"
 
+[tool.setuptools.packages.find]
+exclude = ["etc", "build", "dist"]
+
 [tool.reahl-component]
 configuration = "reahl.systemaccountmodel:SystemAccountConfig"
 schedule = [

@@ -92,7 +92,7 @@ tofu = [
   "reahl-tofu>=7.0,<7.1"
   ]
 
-[tool.packages.find]
+[tool.setuptools.packages.find]
 exclude = [
   "etc",
   "build",

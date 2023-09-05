@@ -26,6 +26,9 @@ authors = [
   {name = "Craig Sparks", email = "craig@reahl.org"}
 ]
 
+[tool.setuptools.packages.find]
+exclude = ["etc", "build", "dist"]
+
 [tool.reahl-component]
 persisted = [
   "reahl.doc.examples.tutorial.accessbootstrap.accessbootstrap:AddressBook",

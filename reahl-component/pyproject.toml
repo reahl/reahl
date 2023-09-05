@@ -63,6 +63,8 @@ RemoveAlias = "reahl.component.shelltools:RemoveAlias"
 [project.entry-points."reahl.component.databasecontrols"]
 NullDatabaseControl = "reahl.component.dbutils:NullDatabaseControl"
 
+[tool.setuptools.packages.find]
+exclude = ["etc", "build", "dist"]
 
 [tool.reahl-component.versions."6.1"]
 install_requires = []

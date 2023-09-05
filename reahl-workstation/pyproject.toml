@@ -44,6 +44,9 @@ test = [
 Xpra = "reahl.workstation.xprasupport:ControlXpra"
 Ngrok = "reahl.workstation.ngroksupport:Ngrok"
 
+[tool.setuptools.packages.find]
+exclude = ["etc", "build", "dist"]
+
 [tool.reahl-component.versions."6.1"]
 install_requires = [
   "reahl-component>=6.1,<6.2"

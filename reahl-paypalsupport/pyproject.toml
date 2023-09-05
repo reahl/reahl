@@ -39,6 +39,9 @@ authors = [
 [project.entry-points."reahl.translations"]
 reahl-paypalsupport = "reahl.messages"
 
+[tool.setuptools.packages.find]
+exclude = ["etc", "build", "dist"]
+
 [tool.reahl-component]
 configuration = "reahl.paypalsupport.paypalconfig:PayPalSiteConfig"
 persisted = [

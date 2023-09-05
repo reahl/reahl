@@ -75,6 +75,9 @@ ServeSMTP = "reahl.dev.mailtest:ServeSMTP"
 UpdateCopyright = "reahl.dev.devshell:UpdateCopyright"
 MigrateReahlProject = "reahl.dev.devshell:MigrateReahlProject"
 
+[tool.setuptools.packages.find]
+exclude = ["etc", "build", "dist"]
+
 [tool.reahl-component.versions."6.1"]
 install_requires = [
   "reahl-component>=6.1,<6.2",

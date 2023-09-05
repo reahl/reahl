@@ -72,6 +72,9 @@ reahl-doc = "reahl.messages"
 GetExample = "reahl.doc.commands:GetExample"
 ListExamples = "reahl.doc.commands:ListExamples"
 
+[tool.setuptools.packages.find]
+exclude = ["etc", "build", "dist"]
+
 [tool.reahl-component]
 configuration = "reahl.doc.examples.tutorial.componentconfigbootstrap.componentconfigbootstrap:AddressConfig"
 persisted = [

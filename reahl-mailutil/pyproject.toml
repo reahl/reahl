@@ -41,6 +41,9 @@ test = [
   "reahl-dev"
   ]
 
+[tool.setuptools.packages.find]
+exclude = ["etc", "build", "dist"]
+
 [tool.reahl-component]
 configuration = "reahl.mailutil.reusableconfig:MailConfig"
 

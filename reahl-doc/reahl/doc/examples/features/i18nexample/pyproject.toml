@@ -27,4 +27,7 @@ authors = [
 [project.entry-points."reahl.translations"]
 i18nexample = "i18nexamplemessages"
 
+[tool.setuptools.packages.find]
+exclude = ["etc", "build", "dist"]
+
 [tool.reahl-component]

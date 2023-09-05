@@ -33,8 +33,6 @@ authors = [
   {name = "Craig Sparks", email = "craig@reahl.org"}
 ]
 
-[project.optional-dependencies]
-
 [project.entry-points."reahl.component.commands"]
   CreateDBUser = "reahl.commands.prodshell:CreateDBUser"
   DropDBUser = "reahl.commands.prodshell:DropDBUser"
@@ -56,6 +54,9 @@ authors = [
   ListVersionHistory = "reahl.commands.prodshell:ListVersionHistory"
   ExportStaticFiles = "reahl.commands.prodshell:ExportStaticFiles"
   ComponentInfo = "reahl.commands.prodshell:ComponentInfo"
+
+[tool.setuptools.packages.find]
+exclude = ["etc", "build", "dist"]
 
 [tool.reahl-component.versions."6.1"]
 install_requires = [

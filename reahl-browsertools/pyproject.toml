@@ -35,9 +35,10 @@ authors = [
   {name = "Craig Sparks", email = "craig@reahl.org"}
 ]
 
-[tool.packages.find]
+[tool.setuptools.packages.find]
 exclude = [
   "etc",
   "build",
   "dist"
   ]
+

@@ -32,10 +32,11 @@ authors = [
   {name = "Craig Sparks", email = "craig@reahl.org"}
 ]
 
-[project.optional-dependencies]
-
 [project.entry-points."reahl.component.databasecontrols"]
 SQLiteControl = "reahl.sqlitesupport:SQLiteControl"
+
+[tool.setuptools.packages.find]
+exclude = ["etc", "build", "dist"]
 
 [tool.reahl-component.versions."6.1"]
 install_requires = [

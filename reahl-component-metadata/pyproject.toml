@@ -39,9 +39,10 @@ reahl-component.toml = "reahl.componentmetadata.setuptools:dist_info"
 [project.entry-points."egg_info.writers"]
 reahl-component.toml = "reahl.componentmetadata.setuptools:dist_info"
 
-[tool.packages.find]
+[tool.setuptools.packages.find]
 exclude = [
   "etc",
   "build",
   "dist"
   ]
+

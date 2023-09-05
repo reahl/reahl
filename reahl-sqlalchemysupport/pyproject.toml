@@ -47,6 +47,9 @@ test = [
   "build"
   ]
 
+[tool.setuptools.packages.find]
+exclude = ["etc", "build", "dist"]
+
 [tool.reahl-component]
 configuration = "reahl.sqlalchemysupport:SqlAlchemyConfig"
 persisted = [

@@ -38,7 +38,7 @@ test = [
   "reahl-dev"
   ]
 
-[tool.packages.find]
+[tool.setuptools.packages.find]
 exclude = [
   "etc",
   "build",

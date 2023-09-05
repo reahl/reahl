@@ -46,6 +46,9 @@ test = [
   "reahl-domain"
   ]
 
+[tool.setuptools.packages.find]
+exclude = ["etc", "build", "dist"]
+
 [tool.reahl-component]
 configuration = "reahl.webdeclarative.webdeclarative:WebDeclarativeConfig"
 persisted = [

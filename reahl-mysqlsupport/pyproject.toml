@@ -38,6 +38,9 @@ authors = [
 [project.entry-points."reahl.component.databasecontrols"]
 MysqlControl = "reahl.mysqlsupport:MysqlControl"
 
+[tool.setuptools.packages.find]
+exclude = ["etc", "build", "dist"]
+
 [tool.reahl-component.versions."6.1"]
 install_requires = [
   "reahl-component>=6.1,<6.2",

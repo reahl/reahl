@@ -54,6 +54,9 @@ reahl-domainui = "reahl.messages"
 [project.entry-points."reahl.workflowui.task_widgets"]
 bootstrap.TaskWidget = "reahl.domainui.bootstrap.workflow:TaskWidget"
 
+[tool.setuptools.packages.find]
+exclude = ["etc", "build", "dist"]
+
 [tool.reahl-component]
 configuration = "reahl.domainuiegg:DomainUiConfig"
 

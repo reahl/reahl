@@ -54,6 +54,9 @@ ServeCurrentProject = "reahl.webdev.commands:ServeCurrentProject"
 SyncFiles = "reahl.webdev.commands:SyncFiles"
 CreateConfig = "reahl.webdev.commands:CreateConfig"
 
+[tool.setuptools.packages.find]
+exclude = ["etc", "build", "dist"]
+
 [tool.reahl-component.versions."6.1"]
 install_requires = [
   "reahl-web>=6.1,<6.2",
