@@ -46,8 +46,6 @@ test = [
   "reahl-domain"
   ]
 
-[project.entry-points]
-
 [tool.reahl-component]
 configuration = "reahl.webdeclarative.webdeclarative:WebDeclarativeConfig"
 persisted = [

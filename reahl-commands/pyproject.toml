@@ -35,29 +35,27 @@ authors = [
 
 [project.optional-dependencies]
 
-[project.entry-points]
-"reahl.component.commands" = [
-  "CreateDBUser = reahl.commands.prodshell:CreateDBUser",
-  "DropDBUser = reahl.commands.prodshell:DropDBUser",
-  "CreateDB = reahl.commands.prodshell:CreateDB",
-  "DropDB = reahl.commands.prodshell:DropDB",
-  "BackupDB = reahl.commands.prodshell:BackupDB",
-  "RestoreDB = reahl.commands.prodshell:RestoreDB",
-  "BackupAllDB = reahl.commands.prodshell:BackupAllDB",
-  "RestoreAllDB = reahl.commands.prodshell:RestoreAllDB",
-  "SizeDB = reahl.commands.prodshell:SizeDB",
-  "RunJobs = reahl.commands.prodshell:RunJobs",
-  "CreateDBTables = reahl.commands.prodshell:CreateDBTables",
-  "DropDBTables = reahl.commands.prodshell:DropDBTables",
-  "MigrateDB = reahl.commands.prodshell:MigrateDB",
-  "DiffDB = reahl.commands.prodshell:DiffDB",
-  "ListConfig = reahl.commands.prodshell:ListConfig",
-  "CheckConfig = reahl.commands.prodshell:CheckConfig",
-  "ListDependencies = reahl.commands.prodshell:ListDependencies",
-  "ListVersionHistory = reahl.commands.prodshell:ListVersionHistory",
-  "ExportStaticFiles = reahl.commands.prodshell:ExportStaticFiles",
-  "ComponentInfo = reahl.commands.prodshell:ComponentInfo"
-  ]
+[project.entry-points."reahl.component.commands"]
+  CreateDBUser = "reahl.commands.prodshell:CreateDBUser"
+  DropDBUser = "reahl.commands.prodshell:DropDBUser"
+  CreateDB = "reahl.commands.prodshell:CreateDB"
+  DropDB = "reahl.commands.prodshell:DropDB"
+  BackupDB = "reahl.commands.prodshell:BackupDB"
+  RestoreDB = "reahl.commands.prodshell:RestoreDB"
+  BackupAllDB = "reahl.commands.prodshell:BackupAllDB"
+  RestoreAllDB = "reahl.commands.prodshell:RestoreAllDB"
+  SizeDB = "reahl.commands.prodshell:SizeDB"
+  RunJobs = "reahl.commands.prodshell:RunJobs"
+  CreateDBTables = "reahl.commands.prodshell:CreateDBTables"
+  DropDBTables = "reahl.commands.prodshell:DropDBTables"
+  MigrateDB = "reahl.commands.prodshell:MigrateDB"
+  DiffDB = "reahl.commands.prodshell:DiffDB"
+  ListConfig = "reahl.commands.prodshell:ListConfig"
+  CheckConfig = "reahl.commands.prodshell:CheckConfig"
+  ListDependencies = "reahl.commands.prodshell:ListDependencies"
+  ListVersionHistory = "reahl.commands.prodshell:ListVersionHistory"
+  ExportStaticFiles = "reahl.commands.prodshell:ExportStaticFiles"
+  ComponentInfo = "reahl.commands.prodshell:ComponentInfo"
 
 [tool.reahl-component.versions."6.1"]
 install_requires = [

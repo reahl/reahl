@@ -35,10 +35,8 @@ authors = [
 
 [project.optional-dependencies]
 
-[project.entry-points]
-"reahl.component.databasecontrols" = [
-  "PostgresqlControl = reahl.postgresqlsupport:PostgresqlControl"
-  ]
+[project.entry-points."reahl.component.databasecontrols"]
+PostgresqlControl = "reahl.postgresqlsupport:PostgresqlControl"
 
 [tool.reahl-component.versions."6.1"]
 install_requires = [

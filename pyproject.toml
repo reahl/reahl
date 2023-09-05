@@ -92,10 +92,6 @@ tofu = [
   "reahl-tofu>=7.0,<7.1"
   ]
 
-[project.entry-points]
-
-[tool.setuptools]
-
 [tool.packages.find]
 exclude = [
   "etc",

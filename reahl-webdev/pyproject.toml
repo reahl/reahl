@@ -49,12 +49,10 @@ test = [
   "reahl-postgresqlsupport"
   ]
 
-[project.entry-points]
-"reahl.component.commands" = [
-  "ServeCurrentProject = reahl.webdev.commands:ServeCurrentProject",
-  "SyncFiles = reahl.webdev.commands:SyncFiles",
-  "CreateConfig = reahl.webdev.commands:CreateConfig"
-  ]
+[project.entry-points."reahl.component.commands"]
+ServeCurrentProject = "reahl.webdev.commands:ServeCurrentProject"
+SyncFiles = "reahl.webdev.commands:SyncFiles"
+CreateConfig = "reahl.webdev.commands:CreateConfig"
 
 [tool.reahl-component.versions."6.1"]
 install_requires = [

@@ -41,8 +41,6 @@ test = [
   "reahl-dev"
   ]
 
-[project.entry-points]
-
 [tool.reahl-component]
 configuration = "reahl.mailutil.reusableconfig:MailConfig"
 

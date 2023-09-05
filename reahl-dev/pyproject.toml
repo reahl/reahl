@@ -47,35 +47,33 @@ test = [
   "pytest>=3.0"
   ]
 
-[project.entry-points]
-"reahl.component.commands" = [
-  "Refresh = reahl.dev.devshell:Refresh",
-  "List = reahl.dev.devshell:List",
-  "Select = reahl.dev.devshell:Select",
-  "ClearSelection = reahl.dev.devshell:ClearSelection",
-  "ListSelections = reahl.dev.devshell:ListSelections",
-  "Save = reahl.dev.devshell:Save",
-  "Read = reahl.dev.devshell:Read",
-  "DeleteSelection = reahl.dev.devshell:DeleteSelection",
-  "Shell = reahl.dev.devshell:Shell",
-  "Setup = reahl.dev.devshell:Setup",
-  "Build = reahl.dev.devshell:Build",
-  "Sign = reahl.dev.devshell:Sign",
-  "ListMissingDependencies = reahl.dev.devshell:ListMissingDependencies",
-  "DebInstall = reahl.dev.devshell:DebInstall",
-  "Upload = reahl.dev.devshell:Upload",
-  "MarkReleased = reahl.dev.devshell:MarkReleased",
-  "SubstVars = reahl.dev.devshell:SubstVars",
-  "Debianise = reahl.dev.devshell:Debianise",
-  "Info = reahl.dev.devshell:Info",
-  "ExtractMessages = reahl.dev.devshell:ExtractMessages",
-  "MergeTranslations = reahl.dev.devshell:MergeTranslations",
-  "CompileTranslations = reahl.dev.devshell:CompileTranslations",
-  "AddLocale = reahl.dev.devshell:AddLocale",
-  "ServeSMTP = reahl.dev.mailtest:ServeSMTP",
-  "UpdateCopyright = reahl.dev.devshell:UpdateCopyright",
-  "MigrateReahlProject = reahl.dev.devshell:MigrateReahlProject"
-  ]
+[project.entry-points."reahl.component.commands"]
+Refresh = "reahl.dev.devshell:Refresh"
+List = "reahl.dev.devshell:List"
+Select = "reahl.dev.devshell:Select"
+ClearSelection = "reahl.dev.devshell:ClearSelection"
+ListSelections = "reahl.dev.devshell:ListSelections"
+Save = "reahl.dev.devshell:Save"
+Read = "reahl.dev.devshell:Read"
+DeleteSelection = "reahl.dev.devshell:DeleteSelection"
+Shell = "reahl.dev.devshell:Shell"
+Setup = "reahl.dev.devshell:Setup"
+Build = "reahl.dev.devshell:Build"
+Sign = "reahl.dev.devshell:Sign"
+ListMissingDependencies = "reahl.dev.devshell:ListMissingDependencies"
+DebInstall = "reahl.dev.devshell:DebInstall"
+Upload = "reahl.dev.devshell:Upload"
+MarkReleased = "reahl.dev.devshell:MarkReleased"
+SubstVars = "reahl.dev.devshell:SubstVars"
+Debianise = "reahl.dev.devshell:Debianise"
+Info = "reahl.dev.devshell:Info"
+ExtractMessages = "reahl.dev.devshell:ExtractMessages"
+MergeTranslations = "reahl.dev.devshell:MergeTranslations"
+CompileTranslations = "reahl.dev.devshell:CompileTranslations"
+AddLocale = "reahl.dev.devshell:AddLocale"
+ServeSMTP = "reahl.dev.mailtest:ServeSMTP"
+UpdateCopyright = "reahl.dev.devshell:UpdateCopyright"
+MigrateReahlProject = "reahl.dev.devshell:MigrateReahlProject"
 
 [tool.reahl-component.versions."6.1"]
 install_requires = [

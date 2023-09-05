@@ -25,10 +25,8 @@ authors = [
   {name = "Craig Sparks", email = "craig@reahl.org"}
 ]
 
-[project.entry-points]
-"reahl.translations" = [
-  "i18nexamplebootstrap = reahl.doc.examples.tutorial.i18nexamplebootstrap.i18nexamplebootstrapmessages"
-  ]
+[project.entry-points."reahl.translations"]
+i18nexamplebootstrap = "reahl.doc.examples.tutorial.i18nexamplebootstrap.i18nexamplebootstrapmessages"
 
 [tool.reahl-component]
 persisted = [

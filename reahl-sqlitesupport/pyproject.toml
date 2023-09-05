@@ -34,10 +34,8 @@ authors = [
 
 [project.optional-dependencies]
 
-[project.entry-points]
-"reahl.component.databasecontrols" = [
-  "SQLiteControl = reahl.sqlitesupport:SQLiteControl"
-  ]
+[project.entry-points."reahl.component.databasecontrols"]
+SQLiteControl = "reahl.sqlitesupport:SQLiteControl"
 
 [tool.reahl-component.versions."6.1"]
 install_requires = [

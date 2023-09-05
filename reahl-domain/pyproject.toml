@@ -46,10 +46,8 @@ test = [
   "reahl-postgresqlsupport"
   ]
 
-[project.entry-points]
-"reahl.translations" = [
-  "reahl-domain = reahl.messages"
-  ]
+[project.entry-points."reahl.translations"]
+reahl-domain = "reahl.messages"
 
 [tool.reahl-component]
 configuration = "reahl.systemaccountmodel:SystemAccountConfig"

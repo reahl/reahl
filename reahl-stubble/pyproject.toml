@@ -38,10 +38,6 @@ test = [
   "reahl-dev"
   ]
 
-[project.entry-points]
-
-[tool.setuptools]
-
 [tool.packages.find]
 exclude = [
   "etc",

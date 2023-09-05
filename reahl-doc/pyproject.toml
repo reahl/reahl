@@ -65,14 +65,12 @@ test = [
   "reahl-mysqlsupport"
   ]
 
-[project.entry-points]
-"reahl.translations" = [
-  "reahl-doc = reahl.messages"
-  ]
-"reahl.component.commands" = [
-  "GetExample = reahl.doc.commands:GetExample",
-  "ListExamples = reahl.doc.commands:ListExamples"
-  ]
+[project.entry-points."reahl.translations"]
+reahl-doc = "reahl.messages"
+
+[project.entry-points."reahl.component.commands"]
+GetExample = "reahl.doc.commands:GetExample"
+ListExamples = "reahl.doc.commands:ListExamples"
 
 [tool.reahl-component]
 configuration = "reahl.doc.examples.tutorial.componentconfigbootstrap.componentconfigbootstrap:AddressConfig"

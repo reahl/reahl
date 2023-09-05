@@ -36,12 +36,8 @@ authors = [
   {name = "Craig Sparks", email = "craig@reahl.org"}
 ]
 
-[project.optional-dependencies]
-
-[project.entry-points]
-"reahl.translations" = [
-  "reahl-paypalsupport = reahl.messages"
-  ]
+[project.entry-points."reahl.translations"]
+reahl-paypalsupport = "reahl.messages"
 
 [tool.reahl-component]
 configuration = "reahl.paypalsupport.paypalconfig:PayPalSiteConfig"

@@ -35,12 +35,6 @@ authors = [
   {name = "Craig Sparks", email = "craig@reahl.org"}
 ]
 
-[project.optional-dependencies]
-
-[project.entry-points]
-
-[tool.setuptools]
-
 [tool.packages.find]
 exclude = [
   "etc",

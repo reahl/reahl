@@ -47,8 +47,6 @@ test = [
   "build"
   ]
 
-[project.entry-points]
-
 [tool.reahl-component]
 configuration = "reahl.sqlalchemysupport:SqlAlchemyConfig"
 persisted = [

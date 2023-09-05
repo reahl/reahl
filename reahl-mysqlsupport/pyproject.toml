@@ -35,10 +35,8 @@ authors = [
 
 [project.optional-dependencies]
 
-[project.entry-points]
-"reahl.component.databasecontrols" = [
-  "MysqlControl = reahl.mysqlsupport:MysqlControl"
-  ]
+[project.entry-points."reahl.component.databasecontrols"]
+MysqlControl = "reahl.mysqlsupport:MysqlControl"
 
 [tool.reahl-component.versions."6.1"]
 install_requires = [

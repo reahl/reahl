@@ -48,13 +48,11 @@ test = [
   "reahl-postgresqlsupport"
   ]
 
-[project.entry-points]
-"reahl.translations" = [
-  "reahl-domainui = reahl.messages"
-  ]
-"reahl.workflowui.task_widgets" = [
-  "bootstrap.TaskWidget = reahl.domainui.bootstrap.workflow:TaskWidget"
-  ]
+[project.entry-points."reahl.translations"]
+reahl-domainui = "reahl.messages"
+
+[project.entry-points."reahl.workflowui.task_widgets"]
+bootstrap.TaskWidget = "reahl.domainui.bootstrap.workflow:TaskWidget"
 
 [tool.reahl-component]
 configuration = "reahl.domainuiegg:DomainUiConfig"

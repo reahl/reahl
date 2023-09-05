@@ -24,9 +24,7 @@ authors = [
   {name = "Craig Sparks", email = "craig@reahl.org"}
 ]
 
-[project.entry-points]
-"reahl.translations" = [
-  "i18nexample = i18nexamplemessages"
-  ]
+[project.entry-points."reahl.translations"]
+i18nexample = "i18nexamplemessages"
 
 [tool.reahl-component]

@@ -40,11 +40,9 @@ test = [
   "reahl-dev"
   ]
 
-[project.entry-points]
-"reahl.component.commands" = [
-  "Xpra = reahl.workstation.xprasupport:ControlXpra",
-  "Ngrok = reahl.workstation.ngroksupport:Ngrok"
-  ]
+[project.entry-points."reahl.component.commands"]
+Xpra = "reahl.workstation.xprasupport:ControlXpra"
+Ngrok = "reahl.workstation.ngroksupport:Ngrok"
 
 [tool.reahl-component.versions."6.1"]
 install_requires = [

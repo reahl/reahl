@@ -30,20 +30,14 @@ authors = [
   {name = "Craig Sparks", email = "craig@reahl.org"}
 ]
 
-[project.optional-dependencies]
+[project.entry-points."distutils.setup_keywords"]
+component = "reahl.componentmetadata.setuptools:setup_keyword"
 
-[project.entry-points]
-"distutils.setup_keywords" = [
-  "component = reahl.componentmetadata.setuptools:setup_keyword"
-  ]
-"dist_info.writers" = [
-  "reahl-component.toml = reahl.componentmetadata.setuptools:dist_info"
-  ]
-"egg_info.writers" = [
-  "reahl-component.toml = reahl.componentmetadata.setuptools:dist_info"
-  ]
+[project.entry-points."dist_info.writers"]
+reahl-component.toml = "reahl.componentmetadata.setuptools:dist_info"
 
-[tool.setuptools]
+[project.entry-points."egg_info.writers"]
+reahl-component.toml = "reahl.componentmetadata.setuptools:dist_info"
 
 [tool.packages.find]
 exclude = [

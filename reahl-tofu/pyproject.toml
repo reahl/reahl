@@ -38,8 +38,6 @@ test = [
   "pytest>=3.0"
   ]
 
-[project.entry-points]
-
 [tool.reahl-component.versions."6.1"]
 install_requires = [
   "reahl-component>=6.1,<6.2"
