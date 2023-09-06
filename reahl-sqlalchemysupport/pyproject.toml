@@ -6,7 +6,7 @@ requires = [
   "setuptools-git >= 1.1",
   "pytest-runner",
   "toml",
-  "reahl-component-metadata"
+  "reahl-component-metadata >= 7.0.0"
   ]
 build-backend = "setuptools.build_meta"
 
