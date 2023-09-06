@@ -8,7 +8,7 @@ requires = [
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "reahl-component-metadata >= 7.0.0"
+name = "reahl-component-metadata"
 version = "7.0.0"
 description = "Plugin for build tools to be able to write reahl-component metadata."
 readme = "README.rst"
