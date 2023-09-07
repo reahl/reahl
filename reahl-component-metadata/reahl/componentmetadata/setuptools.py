@@ -14,19 +14,17 @@ def validate_list_of_str(name, data):
 
 
 class ComponentMetadata:
-    @classmethod
-    @property
     def pyproject_file(cls):
         return pathlib.Path('pyproject.toml')
     
     @classmethod
     def from_pyproject(cls):
         data = {}
-        if cls.pyproject_file.exists():
+        if cls.pyproject_file().exists():
             try:
-                data = toml.load(cls.pyproject_file).get('tool', {}).get('reahl-component', {})
+                data = toml.load(cls.pyproject_file()).get('tool', {}).get('reahl-component', {})
             except Exception as ex:
-                raise DistutilsSetupError('Exception when trying to load %s: %s' % (cls.pyproject_file, ex)) from ex
+                raise DistutilsSetupError('Exception when trying to load %s: %s' % (cls.pyproject_file(), ex)) from ex
         return cls(data)
     
     def __init__(self, data):
