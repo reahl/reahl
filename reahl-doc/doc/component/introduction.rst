@@ -81,39 +81,26 @@ Defining a component
 .. seealso::
 
   :ref:`The 'hello' component <create-component>`
-     How to create a basic component using a `setup.cfg` file.
+     How to create a basic component using a `pyproject.toml` file.
 
-  :doc:`setup.cfg`
-     Reference documentation for a `setup.cfg` file.
+  :doc:`pyproject.toml`
+     Reference documentation for a `pyproject.toml` file.
 
-A Reahl component is just a setuptools package with extra metadata. To make your project a component,
-add a `component =` key to the `[options]` section of your `setup.cfg`. The contents of this key is
+A Reahl component is just a setuptools project with extra metadata. To make your project a component,
+add a `[tool.reahl-component]` table to your `pyproject.toml`. The contents of this table is
 explained a bit more in the next section.
 
-In order to help setuptools grok the `component =` option you also need to have a `pyproject.toml` file
-which lists `setuptools`, `toml`, and `reahl-component-metadata` as build dependencies.
+In order to help setuptools grok the `[tool.reahl-component]` table the `pyproject.toml` file should include
+as build dependencies: 'setuptools > 68', 'toml' and 'reahl-component-metadata >= 7.0'.
 
-Finally, your package itself needs to require `reahl-component` using `install_requires` as usual.
-
-
-Basics of the component option
-------------------------------
-
-The component option expects to receive data in `toml format`_. For this to work in a `setup.cfg`, the contents
-of the component option need to be after a dangling = and indented:
-
-.. code-block:: ini
-
-   [options]
-   component =
-     # contents come here, but this comment can be omitted
+Finally, your package itself needs to require `reahl-component` using `dependencies` as usual.
 
 
-Each time you change `setup.cfg`, be sure to regenerate the component metadata:
+.. note:: Each time you change `pyproject.toml`, be sure to regenerate the component metadata
+          
+    .. code-block:: bash
 
-.. code-block:: bash
-
-   python -m pip install --no-deps -e .
+       python -m pip install --no-deps -e .
 
 
 
@@ -177,7 +164,7 @@ Set the reahlsystem.connection_uri in `reahl.config.py` to an URI matching your 
 
 List the database support component, `reahl-sqlalchemysupport` and `reahl-component` as dependencies of your component.
 
-List each persisted class of your component in the `setup.cfg`\'s component option, as an element in :ref:`the "persisted" key <setup_cfg_persisted>`.
+List each persisted class of your component in the `pyproject.toml`\'s "reahl-component" table, as an element in :ref:`the "persisted" key <pyproject_persisted>`.
 
 You can now use the following commands (amongst others) from `reahl-commands` to manage the database::
 
@@ -220,16 +207,16 @@ Each version of your Reahl component can have its own set of |Migration|\s which
 version from its predecessor. The migration machinery needs access to all |Migration|\s of all versions of all
 components to be able to compute a correct dependency tree.
 
-Add a `table`_ for each minor release of your component :ref:`in the 'setup.cfg' component option <setup_cfg_install_requires>`.
+Add a `table`_ for each minor release of your component :ref:`in the 'pyproject.toml' component option <pyproject_install_requires>`.
 
 For each such version entry, add two entries:
 
- - :ref:`"install_requires" <setup_cfg_install_requires>`: a list of the requirements that version had; and
- - :ref:`"migrations" <setup_cfg_migrations>`: a list of the migration classes that need to run to bring the previous version's schema up to date to this version.
+ - :ref:`"install_requires" <pyproject_install_requires>`: a list of the requirements that version had; and
+ - :ref:`"migrations" <pyproject_migrations>`: a list of the migration classes that need to run to bring the previous version's schema up to date to this version.
 
 To prevent duplication, the version `table`_ matching the current version
 should not contain any requirements, since those are already in
-the standard `install_requires` of `setup.cfg`.
+the standard `dependencies` of `pyproject.toml`.
 
 If the current version does not have any migrations, it need not be
 listed at all.
@@ -309,8 +296,8 @@ A Reahl system has a single config directory with a config file for each compone
 You specify a unique key for the config of your component, as well as what config settings you need and the
 configuration file name to be used for your component:
 
-Inherit a new class from |Configuration|. In the `component` option of your `setup.cfg` register this class by adding
-:ref:`a "configuration" entry <setup_cfg_configuration>` for this class.
+Inherit a new class from |Configuration|. In the `reahl-component` table of your `pyproject.toml` register this class by adding
+:ref:`a "configuration" entry <pyproject_configuration>` for this class.
 
 When defining config settings, you can specify default values for these settings, and also a human readable description
 of each setting. You can mark some config settings as "dangerous defaults": such defaults will produce warnings when
@@ -386,7 +373,7 @@ also provide extra translations for another component.
 
 Before you can use the Reahl command line commands for working with messages, create an empty python package in which
 messages and their translations can be saved. Once created, register this translations package
-in `setup.cfg` as :ref:`an entry point in the "reahl.translations" group <setup_cfg_translations>`.
+in `pyproject.toml` as :ref:`an entry point in the "reahl.translations" group <pyproject_translations>`.
 
 
 Setting the current locale
@@ -427,7 +414,7 @@ The following useful commands from `reahl-dev` related to translations are avail
     reahl compiletranslations
 
 .. note::
-   Remember to `python -m pip install --no-deps -e .` after having changed `setup.cfg` before using these commands.
+   Remember to `python -m pip install --no-deps -e .` after having changed `pyproject.toml` before using these commands.
     
 Describing the interface of your model
 --------------------------------------
@@ -613,8 +600,8 @@ many such components does not want to have to know about all the jobs needed by 
 facilitate this, Reahl has a mechanism by which a component author can register jobs that the system runs on a regular
 basis.
 
-List each callable object that should be run as a scheduled job in :ref:`the "schedule" entry <setup_cfg_schedule>`
-of the `component` option of your `setup.cfg`.
+List each callable object that should be run as a scheduled job in :ref:`the "schedule" entry <pyproject_schedule>`
+of the `reahl-component` table of your `pyproject.toml`.
 
 Whenever `reahl runjobs` is executed on your system's configuration directory, all the registered scheduled jobs of all
 components that are used by your system are executed.

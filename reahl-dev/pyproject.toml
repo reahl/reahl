@@ -73,7 +73,6 @@ CompileTranslations = "reahl.dev.devshell:CompileTranslations"
 AddLocale = "reahl.dev.devshell:AddLocale"
 ServeSMTP = "reahl.dev.mailtest:ServeSMTP"
 UpdateCopyright = "reahl.dev.devshell:UpdateCopyright"
-MigrateReahlProject = "reahl.dev.devshell:MigrateReahlProject"
 
 [tool.setuptools.packages.find]
 exclude = ["etc", "build", "dist"]

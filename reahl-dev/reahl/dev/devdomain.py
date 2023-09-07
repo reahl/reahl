@@ -402,35 +402,6 @@ class ProjectMetadata:
     def extras(self):
         return {}
 
-class SetupMetadata:
-    @classmethod
-    def from_file_in(cls, directory):
-        setupcfg_filename = pathlib.Path(directory).joinpath('setup.cfg')
-        if not setupcfg_filename.exists():
-            raise FileNotFoundError(str(setupcfg_filename))
-        
-        config = read_configuration(setupcfg_filename)
-        return cls(config)
-    
-    def __init__(self, config):
-        self.config = config
-
-    @property
-    def is_complete(self):
-        return bool(self.config)
-        
-    @property
-    def project_name(self):
-        return self.config['metadata']['name']
-
-    @property
-    def version(self):
-        return self.config['metadata']['version']
-
-    @property
-    def extras(self):
-        return self.config.get('options', {}).get('extras_require', {})
-
     
 class PyprojectMetadata:
     @classmethod
@@ -471,13 +442,9 @@ class Project:
     @classmethod
     def metadata_in(cls, directory):
         try:
-            metadata = SetupMetadata.from_file_in(directory)
+            return PyprojectMetadata.from_file_in(directory)
         except FileNotFoundError:
-            try:
-                metadata = PyprojectMetadata.from_file_in(directory)
-            except FileNotFoundError:
-                raise NotAValidProjectException('Could not find a setup.cfg or complete pyproject.toml in %s' % directory)
-        return metadata
+            raise NotAValidProjectException('Could not find a complete pyproject.toml in %s' % directory)
     
     @classmethod
     def from_file_in(cls, workspace, directory):
@@ -486,7 +453,7 @@ class Project:
         if metadata.is_complete:
             return Project(workspace, directory, metadata=metadata)
         else:
-            raise NotAValidProjectException('Could not find a setup.cfg or complete pyproject.toml in %s' % directory)
+            raise NotAValidProjectException('Could not find a complete pyproject.toml in %s' % directory)
 
     def __init__(self, workspace, directory, metadata=None):
         self.workspace = workspace
@@ -623,12 +590,10 @@ class Project:
         return self.metadata.extras
 
     def build(self, sign=True):
-        assert self.packages_to_distribute, 'For %s: No <package>... listed in setup.cfg, nothing to do.' % self.project_name
         for i in self.packages_to_distribute:
             i.build(sign=sign)
 
     def sign(self):
-        assert self.packages_to_distribute, 'For %s: No <package>... listed in setup.cfg, nothing to do.' % self.project_name
         for i in self.packages_to_distribute:
             i.sign()
             
@@ -676,16 +641,6 @@ class Project:
     @property
     def pyproject_toml_filename(self):
         return os.path.join(self.directory, 'pyproject.toml')
-
-    @property
-    def setup_cfg_filename(self):
-        return os.path.join(self.directory, 'setup.cfg')
-
-    @property
-    def setup_cfg(self):
-        if pathlib.Path(self.setup_cfg_filename).exists():
-          return read_configuration(self.setup_cfg_filename)
-        return {}
 
 
 class DirectoryList(list):
@@ -752,7 +707,7 @@ class ProjectList(list):
                             dirs.remove(i)
                         except ValueError:
                             pass
-                if ('setup.cfg' in files) or ('pyproject.toml' in files and PyprojectMetadata.from_file_in(root).is_complete):
+                if 'pyproject.toml' in files and PyprojectMetadata.from_file_in(root).is_complete:
                     project = Project.from_file_in(self.workspace, root)
                     self.append(project, ignore_duplicates=True)
                     if not project.has_children:

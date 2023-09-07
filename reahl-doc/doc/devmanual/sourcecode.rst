@@ -49,8 +49,7 @@ The other components each reside in a subdirectory starting with
 Each such directory is dealt with as if it is a project in its own
 right. Each component has:
 
- - its own `.reahlproject`;
- - its own `setup.cfg`;
+ - its own `pyproject.toml`;
  - a `Python namespace package <https://packaging.python.org/guides/packaging-namespace-packages/>`_ called `reahl`;
  - a `Python package <https://packaging.python.org/glossary/#term-import-package>`_ containing its production code; and
  - a `Python package <https://packaging.python.org/glossary/#term-import-package>`_ containing its testing code and data.

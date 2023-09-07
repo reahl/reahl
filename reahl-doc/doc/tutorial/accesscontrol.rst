@@ -55,7 +55,7 @@ Access control rules
 .. sidebar:: Running the example
 
    To play with the `tutorial.accessbootstrap` example, create 
-   sample data with: `pytest -o python_functions=demo_setup `. 
+   sample data with: `pytest -o python_functions=demo_setup`. 
 
    All users created have the password "topsecret". The one user 
    (johndoe@some.org) has various levels of access to the address 

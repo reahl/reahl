@@ -35,10 +35,11 @@ The `tutorial.jobsbootstrap` example needs its
    :pyobject: Address
 
 
-To register this job with the component, list it in :ref:`the "schedule" entry <setup_cfg_schedule>` of
-the `component` option of your `setup.cfg` file:
+To register this job with the component, list it in :ref:`the "schedule" entry <pyproject_schedule>` of
+the `reahl-component` table of your `pyproject.toml` file:
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/jobsbootstrap/setup.cfg
+.. literalinclude:: ../../reahl/doc/examples/tutorial/jobsbootstrap/pyproject.toml
+   :language: toml
    :start-after:  # Register the job:
 
 

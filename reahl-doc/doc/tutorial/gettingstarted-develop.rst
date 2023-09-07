@@ -105,7 +105,7 @@ The 'hello' project is a :doc:`Reahl component <../component/introduction>`.
      <https://packaging.python.org/glossary/#term-distribution-package>`_ and
      which additionally uses the :doc:`reahl component infrastructure <../component/introduction>`.
 
-Create a component by `creating a setuptools package with 'pyproject.toml' and 'setup.cfg' files <define_component>`_.
+Create a component by `creating a setuptools package with 'pyproject.toml' files <define_component>`_.
 
 You did this above by running::
 
@@ -117,19 +117,22 @@ The directory structure of `hello`::
   hello/
   ├── etc/           - A directory for configuration files
   ├── hello.py       - A Python file containing the source of the app
-  ├── pyproject.toml - The standard (PEP518) python build system configuration
-  └── setup.cfg      - Normal configuration for setuptools 
+  └── pyproject.toml - The standard (PEP621) python build system configuration
 
 
-The `pyproject.toml` file should include as build dependencies: 'setuptools, 'toml' and 'reahl-component-metadata':
+The `pyproject.toml` file should include as build dependencies: 'setuptools, 'toml' and 'reahl-component-metadata >= 7.0':
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/hello/pyproject.toml
+   :language: toml
+   :end-before: [project]                    
 
-The `setup.cfg` file contains info about the component. To start,
-just give your component a name, specify an empty 
-`component =` option and list the requirements of your component:
+The `pyproject.toml` file also contains info about the component. To start,
+just give your project a name and list its dependencies. Also mark it as being a reahl-component
+by adding an empty `[tool.reahl-component]` table:
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/hello/setup.cfg
+.. literalinclude:: ../../reahl/doc/examples/tutorial/hello/pyproject.toml
+   :language: toml
+   :start-at: [project]                    
 
 More information on the Reahl component infrastructure is in :doc:`its own introduction <../component/introduction>`.     
      
@@ -160,8 +163,7 @@ You need one config setting to be able to run an application. In the config dire
   ├── etc/
   │   └── web.config.py
   ├── hello.py
-  ├── pyproject.toml - The standard (PEP518) python build system configuration
-  └── setup.cfg      - Normal configuration for setuptools 
+  └── pyproject.toml - The standard (PEP621) python build system configuration
 
 Config files contain Python code, but you can use dotted notation to
 access settings:
