@@ -14,6 +14,7 @@ def validate_list_of_str(name, data):
 
 
 class ComponentMetadata:
+    @classmethod
     def pyproject_file(cls):
         return pathlib.Path('pyproject.toml')
     
