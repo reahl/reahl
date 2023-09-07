@@ -21,10 +21,12 @@ class ComponentMetadata:
     
     @classmethod
     def from_pyproject(cls):
-        try:
-            data = toml.load(cls.pyproject_file).get('tool', {}).get('reahl-component', {})
-        except Exception as ex:
-            raise DistutilsSetupError('Exception when trying to load %s: %s' % (cls.pyproject_file, ex)) from ex
+        data = {}
+        if cls.pyproject_file.exists():
+            try:
+                data = toml.load(cls.pyproject_file).get('tool', {}).get('reahl-component', {})
+            except Exception as ex:
+                raise DistutilsSetupError('Exception when trying to load %s: %s' % (cls.pyproject_file, ex)) from ex
         return cls(data)
     
     def __init__(self, data):
@@ -63,10 +65,9 @@ def setup_keyword(dist, attr, value):
     ComponentMetadata.from_string(value).validate()
 
 def dist_info(cmd, basename, filename):
-    if ComponentMetadata.pyproject_file.exists():
-        component_metadata = ComponentMetadata.from_pyproject()
-    else:
-        raise DistutilsFileError('No pyproject.toml found. This version of reahl-component-metadata expects all your metadata to be in a PEP 621 pyproject.toml file')
+    if cmd.distribution.component is not None:
+        raise DistutilsFileError('Old metadata found. This version of reahl-component-metadata expects all your metadata to be in a PEP 621 pyproject.toml file')
+    component_metadata = ComponentMetadata.from_pyproject()
     if component_metadata.exists:
         component_metadata.validate()
         cmd.write_file('component', filename, component_metadata.as_toml_string())
