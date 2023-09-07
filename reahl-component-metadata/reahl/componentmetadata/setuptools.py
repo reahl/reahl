@@ -2,7 +2,7 @@ import toml
 import sys
 import pathlib
 
-from distutils.errors import DistutilsSetupError
+from distutils.errors import DistutilsSetupError, DistutilsFileError
 
 
 def validate_list_of_str(name, data):
@@ -15,24 +15,18 @@ def validate_list_of_str(name, data):
 
 class ComponentMetadata:
     @classmethod
-    def from_pyproject(cls):
-        pyproject_file = pathlib.Path('pyproject.toml')
-        data = {}
-        if pyproject_file.exists():
-            try:
-                data = toml.load(pyproject_file).get('tool', {}).get('reahl-component', {})
-            except Exception as ex:
-                raise DistutilsSetupError("component = is not valid toml: %s" % ex)
-        return cls(data)
+    @property
+    def pyproject_file(cls):
+        return pathlib.Path('pyproject.toml')
     
     @classmethod
-    def from_string(cls, toml_string):
+    def from_pyproject(cls):
         try:
-            data = toml.loads(toml_string)
+            data = toml.load(cls.pyproject_file).get('tool', {}).get('reahl-component', {})
         except Exception as ex:
-            raise DistutilsSetupError("component = is not valid toml: %s" % ex)
+            raise DistutilsSetupError('Exception when trying to load %s: %s' % (cls.pyproject_file, ex)) from ex
         return cls(data)
-
+    
     def __init__(self, data):
         self.data = data
         self.data['metadata_version'] = '1.0.0'
@@ -69,10 +63,10 @@ def setup_keyword(dist, attr, value):
     ComponentMetadata.from_string(value).validate()
 
 def dist_info(cmd, basename, filename):
-    if cmd.distribution.component is not None:
-        component_metadata = ComponentMetadata.from_string(cmd.distribution.component)
-    else:
+    if ComponentMetadata.pyproject_file.exists():
         component_metadata = ComponentMetadata.from_pyproject()
+    else:
+        raise DistutilsFileError('No pyproject.toml found. This version of reahl-component-metadata expects all your metadata to be in a PEP 621 pyproject.toml file')
     if component_metadata.exists:
         component_metadata.validate()
         cmd.write_file('component', filename, component_metadata.as_toml_string())
