@@ -2,6 +2,7 @@ python-reahl (7.0.0) unstable; urgency=low
 
  * Change internal packaging to use setup.cfg (#404).
  * Updated documentation (#403).
+ * Fixed incorrect packaging of examples (#406).
 
  -- Iwan Vosloo <iwan@reahl.org>  Thu, 02 Feb 2023 15:52:00 +0200
 
