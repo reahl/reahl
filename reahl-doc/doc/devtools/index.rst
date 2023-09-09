@@ -6,7 +6,6 @@ Development tools
 .. toctree::
    :maxdepth: 2
 
-   xmlref
    tools
    
 

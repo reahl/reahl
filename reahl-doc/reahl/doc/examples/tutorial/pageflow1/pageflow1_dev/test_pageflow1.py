@@ -1,12 +1,8 @@
 # To run this test do:
-# pytest --pyargs reahl.doc.examples.tutorial.pageflow1.pageflow1_dev.test_pageflow1
-# or
-# reahl unit
+# pytest
 #
 # To set up a demo database for playing with, do:
-# pytest -o python_functions=demo_setup --pyargs reahl.doc.examples.tutorial.pageflow1.pageflow1_dev.test_pageflow1
-# or
-# reahl demosetup
+# pytest -o python_functions=demo_setup
 
 
 from reahl.tofu.pytestsupport import with_fixtures

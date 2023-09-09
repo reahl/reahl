@@ -20,14 +20,13 @@ jobs:
         with:
           name: wheels
           path: /tmp/wheels
-
-
+            
   test:
     needs: build
     runs-on:  ubuntu-22.04
     strategy:
       matrix:
-        python-version: ['3.7', '3.8', '3.9', '3.10', '3.11']
+        python-version: ['3.8', '3.9', '3.10', '3.11']
     services:
       postgres:
         image: postgres:12.3
@@ -72,7 +71,6 @@ jobs:
 
       - name: Setup Test env
         run: |
-          sudo apt-get install tox
           sudo ./scripts/installDebs.sh
           sudo ./scripts/installDevEnvDebs.sh
           ./scripts/setupDevEnv.sh 
@@ -101,7 +99,7 @@ jobs:
         run: echo $PATH
 
       - name: Install reahl-dev
-        run: pip install --pre reahl-dev reahl-commands reahl-postgresqlsupport #uses wheels as specified in $HOME/.pip/pip.conf
+        run: pip install --pre tox>=4.6.3 reahl-dev reahl-commands reahl-postgresqlsupport #uses wheels as specified in $HOME/.pip/pip.conf
 
       - name: Select all reahl projects
         run: . $HOME/.profile && reahl refresh && reahl select -a
@@ -109,5 +107,6 @@ jobs:
       - name: Create db user for Tests
         run: . $HOME/.profile && reahl createdbuser -U runner .github/etc
       - name: Run Tests
-        run: . $HOME/.profile && reahl shell -sdXg tox
+        run: . $HOME/.profile && reahl shell -sdX tox
+
 

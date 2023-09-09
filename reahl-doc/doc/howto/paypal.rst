@@ -117,10 +117,10 @@ hardcoding these in the source code of your app.
 .. literalinclude:: ../../reahl/doc/examples/howtos/paymentpaypal/paymentpaypal.py
    :pyobject: PaymentPayPalConfig
 
-Remember to also include this |Configuration| in your `setup.cfg`:
+Remember to also include this |Configuration| in your `pyproject.toml`:
 
-.. literalinclude:: ../../reahl/doc/examples/howtos/paymentpaypal/setup.cfg
-   :language: ini
+.. literalinclude:: ../../reahl/doc/examples/howtos/paymentpaypal/pyproject.toml
+   :language: toml
 
 Create a `paymentpaypal.config.py` file in your configuration directory, with the necessary settings:
 

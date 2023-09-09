@@ -17,7 +17,7 @@ for /F %%i in %EXAMPLE_LIST% do (
             echo ---Example [%%i] is in a directory: !EXAMPLE_DIR_OR_FILE!
             cd !EXAMPLE_DIR_OR_FILE!
             python -m pip install --no-deps -e .
-            reahl unit
+            pytest
             python -m pip uninstall !EXAMPLE_DIR_OR_FILE!
             cd %REAHL_TMP%
         ) else (

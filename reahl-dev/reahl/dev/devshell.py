@@ -28,13 +28,8 @@ import traceback
 
 from reahl.component.shelltools import Command, Executable
 
-from reahl.dev.devdomain import Workspace, Project, ProjectList, ProjectNotFound, LocalAptRepository, SetupCommandFailed
-from reahl.dev.exceptions import StatusException, AlreadyUploadedException, \
-    NotUploadedException, NotVersionedException, NotCheckedInException, \
-    MetaInformationNotAvailableException, AlreadyDebianisedException, \
-    MetaInformationNotReadableException, UnchangedException, NeedsNewVersionException, \
-    AlreadyMarkedAsReleasedException, NotBuiltAfterLastCommitException, NotBuiltException, \
-    NotAValidProjectException
+from reahl.dev.devdomain import Workspace, Project, ProjectList, ProjectNotFound
+from reahl.dev.exceptions import NotAValidProjectException
 from functools import reduce
 
 
@@ -72,14 +67,6 @@ class Refresh(WorkspaceCommand):
         self.workspace.refresh(args.append, args.directories)
 
 
-class ExplainLegend(WorkspaceCommand):
-    """Prints an explanation of project status indicators."""
-    keyword = 'explainlegend'
-    def execute(self, args):
-        for status in StatusException.get_statusses():
-            print('%s\t%s' % (status.legend, str(status())))
-
-
 class Select(WorkspaceCommand):
     """Selects a subset of projects in the workspace based on their state."""
     keyword = 'select'
@@ -89,15 +76,9 @@ class Select(WorkspaceCommand):
                                  help='operate on all projects in the workspace')
         self.parser.add_argument('-A', '--append', action='store_true', dest='append',
                                  help='append to the current selection')
-        self.parser.add_argument('-s', '--state', action='append', dest='states', default=[],
-                                 help='operate on projects with given state')
-        self.parser.add_argument('-n', '--not', action='store_true', dest='negated',
-                                 help='negates a state selection')
-        self.parser.add_argument('-t', '--tagged', action='append', dest='tags', default=[],
-                                 help='operate on projects tagged as specified')
 
     def execute(self, args):
-        self.workspace.select(states=args.states, tags=args.tags, append=args.append, all_=args.all, negated=args.negated)
+        self.workspace.select(append=args.append, all_=args.all)
 
 
 class ClearSelection(WorkspaceCommand):
@@ -121,8 +102,6 @@ class List(WorkspaceCommand):
     keyword = 'list'
     def assemble(self):
         super().assemble()
-        self.parser.add_argument('-s', '--state', action='store_true', dest='with_status',
-                                 help='outputs the status too')
         self.parser.add_argument('-a', '--all', action='store_true', dest='all',
                                  help='lists all, not only selection')
         self.parser.add_argument('-d', '--directories', action='store_true', dest='directories',
@@ -135,15 +114,11 @@ class List(WorkspaceCommand):
             project_list = self.workspace.selection
 
         for i in project_list:
-            status_string = ''
-            if args.with_status:
-                status_string = '%s ' % i.status
-
             if args.directories:
                 ident_string = i.relative_directory
             else:
                 ident_string = i.project_name
-            print('%s%s' % (status_string, ident_string))
+            print(ident_string)
 
 
 class Save(WorkspaceCommand):
@@ -212,7 +187,7 @@ class ForAllWorkspaceCommand(WorkspaceCommand):
 
 
     def execute_one(self, project, args):
-        with project.paths_set():
+        with project.in_project_directory():
             try:
                 retcode = self.function(project, args)
             except SystemExit as ex:
@@ -224,16 +199,6 @@ class ForAllWorkspaceCommand(WorkspaceCommand):
             except OSError as ex:
                 print('\nERROR: Execution failed: %s' % ex, file=sys.stderr)
                 retcode = ex.errno
-            except SetupCommandFailed as ex:
-                print('\nERROR: Execution failed: %s' % ex, file=sys.stderr)
-                retcode = 1
-            except (NotVersionedException, NotCheckedInException, MetaInformationNotAvailableException, AlreadyDebianisedException,
-                    MetaInformationNotReadableException, UnchangedException, NeedsNewVersionException,
-                    NotUploadedException, AlreadyMarkedAsReleasedException,
-                    AlreadyUploadedException, NotBuiltException,
-                    NotBuiltAfterLastCommitException, NotBuiltException) as ex:
-                print(str(ex), file=sys.stderr)
-                retcode = None
             except CalledProcessError as ex:
                 print(str(ex), file=sys.stderr)
                 retcode = ex.returncode
@@ -271,21 +236,21 @@ class ForAllWorkspaceCommand(WorkspaceCommand):
         results = {}
         for i in project_list:
             if delimit_output:
-                print(self.format_individual_message(i, args, '\n--- START %s ---'))
+                print(self.format_individual_message(i, args, '\n--- START %s ---'), flush=True)
             results[i] = self.execute_one(i, args)
             if pause:
-                print('--- PAUSED, hit <enter> to continue, ^D to stop ---')
+                print('--- PAUSED, hit <enter> to continue, ^D to stop ---', flush=True)
                 if not sys.stdin.readline():
-                    print('\n^D pressed, halting immediately')
+                    print('\n^D pressed, halting immediately', flush=True)
                     break
             if delimit_output:
-                print(self.format_individual_message(i, args, '\n--- END %s ---'))
+                print(self.format_individual_message(i, args, '\n--- END %s ---'), flush=True)
 
         if summary:
-            print('\n--- SUMMARY ---')
+            print('\n--- SUMMARY ---', flush=True)
             for i in project_list:
                 print('%s %s' % (results[i], i.relative_directory), file=sys.stdout)
-            print('--- END ---\n')
+            print('--- END ---\n', flush=True)
 
         success = set(results.values()) == {0}
         if success:
@@ -339,36 +304,20 @@ class Info(ForAllWorkspaceCommand):
         return 0
 
 
-class MigrateReahlProject(ForAllWorkspaceCommand):
-    """Writes a hardcoded setup.cfg file from an existing .reahlproject."""
-    keyword = 'migratereahlproject'
-    def function(self, project, args):
-        project.generate_migrated_setup_cfg()
-        return 0
-
-        
 class Shell(ForAllWorkspaceCommand):
     """Executes a shell command in each selected project, from each project's own root directory."""
     keyword = 'shell'
     def assemble(self):
         super().assemble()
-        self.parser.add_argument('-g', '--generate_setup_py', action='store_true', dest='generate_setup_py', default=False,
-                                 help='temporarily generate a setup.py for the duration of the shell command (it is removed afterwards)')
-        self.parser.add_argument('shell_commandline', nargs=argparse.REMAINDER, 
+        self.parser.add_argument('shell_commandline', nargs=argparse.REMAINDER,
                                  help='the shell command (and any arguments) that should be executed')
 
     def format_individual_message(self, project, args, template):
         return template % ('%s %s' % (project.relative_directory, ' '.join(args.shell_commandline)))
     
     def function(self, project, args):
-        @contextmanager
-        def nop_context_manager():
-            yield
-
-        context_manager = project.generated_setup_py if args.generate_setup_py else nop_context_manager
-        with context_manager():
-            command = self.do_shell_expansions(project.directory, args.shell_commandline)
-            return Executable(command[0]).call(command[1:], cwd=project.directory)
+        command = self.do_shell_expansions(project.directory, args.shell_commandline)
+        return Executable(command[0]).call(command[1:], cwd=project.directory)
 
     def do_shell_expansions(self, directory, commandline):
         replaced_command = []
@@ -460,19 +409,9 @@ class Upload(ForAllWorkspaceCommand):
     keyword = 'upload'
     def assemble(self):
         super().assemble()
-        self.parser.add_argument('-k', '--knock', action='append', dest='knocks', default=[],
-                                 help='port to knock on before uploading')
-        self.parser.add_argument('-r', '--ignore-release-checks', action='store_true', dest='ignore_release_checks', default=False,
-                                 help='proceed with uploading despite possible failing release checks')
-        self.parser.add_argument('-u', '--ignore-uploaded-check', action='store_true', dest='ignore_upload_check', default=False,
-                                 help='upload regardless of possible previous uploads')
         
     def function(self, project, args):
-        if args.ignore_release_checks:
-            print('WARNING: Ignoring release checks at your request', file=sys.stderr)
-        if args.ignore_upload_check:
-            print('WARNING: Overwriting possible previous uploads', file=sys.stderr)
-        project.upload(knocks=args.knocks, ignore_release_checks=args.ignore_release_checks, ignore_upload_check=args.ignore_upload_check)
+        project.upload()
         return 0
 
 
@@ -492,22 +431,6 @@ class SubstVars(ForAllWorkspaceCommand):
                'This command is only valid on debian-based projects (with <metadata type="debian"/>)'
         project.metadata.generate_deb_substvars()
         return 0
-
-class UpdateAptRepository(WorkspaceCommand):
-    """Updates the index files of the given apt repository."""
-    keyword = 'updateapt'
-    def assemble(self):
-        super().assemble()
-        self.parser.add_argument('root_directory', help='the root directory of the apt repository')
-
-    def execute(self, args):
-        if not os.path.isdir(args.root_directory):
-            message = '"%s" is not a valid directory from within %s' % (args.root_directory, os.getcwd())
-            raise Exception(message)
-
-        repository = LocalAptRepository(args.root_directory)
-        repository.build_index_files()
-
 
 class ExtractMessages(ForAllWorkspaceCommand):
     """Collects strings marked for translation."""

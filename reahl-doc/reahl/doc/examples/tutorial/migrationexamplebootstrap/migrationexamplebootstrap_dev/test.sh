@@ -36,6 +36,6 @@ reahl migratedb etc
 $( version_is "0.1" ) || fail "Version 0.1 expected"
 $( schema_is_new ) || fail "New schema expected"
 
-python -m pip uninstall $(python -c 'from setuptools.config.setupcfg import read_configuration as c; print(c("setup.cfg")["metadata"]["name"])')
+python -m pip uninstall $(python -c 'from toml import load; print(load("pyproject.toml")["project"]["name"])')
 
 

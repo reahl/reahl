@@ -42,12 +42,12 @@ The user and system account functionality is in the `reahl-domain` component,
 in the module :mod:`reahl.domain.systemaccountmodel`.
 
 To be able to use it in your code, list the `reahl-domain` component as a dependency in the
-`setup.cfg` file of your own project:
+`pyproject.toml` file of your own project:
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/login1bootstrap/setup.cfg
-   :language: ini
+.. literalinclude:: ../../reahl/doc/examples/tutorial/login1bootstrap/pyproject.toml
+   :language: toml
 
-.. note:: Remember, each time you change a `setup.cfg` file, as explained in :doc:`persistence`, you need to
+.. note:: Remember, each time you change a `pyproject.toml` file, as explained in :doc:`persistence`, you need to
           run: ``python -m pip install --no-deps -e .``
 
 
@@ -74,7 +74,7 @@ registered to play with. To create some, run:
 
 .. code-block:: bash
 
-   reahl demosetup
+   pytest -o python_functions=demo_setup
 
 This creates a user and password using the password and email address in:
 

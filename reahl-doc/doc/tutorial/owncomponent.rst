@@ -58,12 +58,12 @@ class attribute of AddressConfig with the name you want:
 
       reahl listconfig -i etc/
 
-In the `setup.cfg` file, AddressConfig is added :ref:`as the "configuration" of the component <setup_cfg_configuration>`:
+In the `pyproject.toml` file, AddressConfig is added :ref:`as the "configuration" of the reahl-component <pyproject_configuration>`:
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/componentconfigbootstrap/setup.cfg
-   :start-after:   component = 
+.. literalinclude:: ../../reahl/doc/examples/tutorial/componentconfigbootstrap/pyproject.toml
+   :language: toml
+   :start-at:      [tool.reahl-component]
    :end-before:    persisted = 
-   :prepend:       component = 
 
 Config files contain Python code. In `componentconfig.config.py` (the
 :attr:`~reahl.component.config.Configuration.filename`) an

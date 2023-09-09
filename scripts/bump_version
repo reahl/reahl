@@ -1,0 +1,4 @@
+sed -i "/\[versions.'6.0'\]/i\  [versions.'6.1']" $(git grep -l "\[versions.'6.0'\]")
+
+sed -i "s|version = 6\.1\.1|version = 7.0.0|g" $(git grep -l "version = 6.1.1")
+

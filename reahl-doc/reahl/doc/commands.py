@@ -64,7 +64,7 @@ class Example:
         examples = []
         for dirpath, dirnames, filenames in os.walk(parent): 
             current_package = dirpath[len(parent)+1:].replace(os.sep, '.')
-            if 'setup.cfg' in filenames:
+            if 'pyproject.toml' in filenames:
                 examples.append(Example('reahl.doc.examples', current_package))
                 dirnames[:] = []
             else:

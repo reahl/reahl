@@ -40,7 +40,7 @@ clean:
 	-rm -rf $(BUILDDIR)/*
 
 tests:
-	(cd ..; reahl unit)
+	(cd ..; pytest)
     
 html: $(PNGS)
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html

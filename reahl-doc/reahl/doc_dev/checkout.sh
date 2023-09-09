@@ -14,11 +14,11 @@ do
     else
         cd $out
         python -m pip install --no-deps -e .
-        if reahl unit 
+        if pytest
         then
             result="."
         fi
-        python -m pip uninstall $(python -c 'from setuptools.config.setupcfg import read_configuration as c; print(c("setup.cfg")["metadata"]["name"])')
+        python -m pip uninstall $(python -c 'from toml import load; print(load("pyproject.toml")["project"]["name"])')
         cd -
     fi
     results["$i"]=$result

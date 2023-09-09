@@ -43,7 +43,6 @@ from reahl.component.exceptions import ProgrammerError
 from reahl.component.context import ExecutionContext, NoContextFound
 from reahl.component.config import StoredConfiguration
 from reahl.component.shelltools import Executable
-from reahl.component.decorators import deprecated
 from reahl.web.fw import ReahlWSGIApplication
 
 
@@ -414,11 +413,6 @@ class ReahlWebServer:
         config.configure()
 
         return cls(config)
-
-    @classmethod
-    @deprecated('renamed to from_config_directory','5.1')
-    def fromConfigDirectory(cls, directory, port):
-        return cls.from_config_directory(directory)
 
     def set_app(self, new_wsgi_app):
         """Changes the currently served application to `new_wsgi_app`."""

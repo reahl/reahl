@@ -1,3 +1,44 @@
 [build-system]
-requires = ["setuptools >= 51.0.0, <= 62.1.0", "wheel","setuptools-git >= 1.1", "pytest-runner", "toml", "reahl-component-metadata"]
+requires = [
+  "setuptools >= 68",
+  "wheel",
+  "setuptools-git >= 1.1",
+  "pytest-runner",
+  "toml",
+  "reahl-component-metadata >= 7.0.0"
+  ]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "reahl-browsertools"
+version = "7.0.0"
+description = "An alternative API for working with Selenium and WebTest."
+readme = "README.rst"
+requires-python = ">=3.8"
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Framework :: Reahl",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Topic :: Software Development :: Testing",
+  "Environment :: Web Environment"
+  ]
+dependencies = [
+  "lxml>=4.2,<4.9.999",
+  "WebTest>=2.0,<3.0.999",
+  "selenium>=2.42,<4.7.9999"
+  ]
+authors = [ 
+  {name = "Iwan Vosloo", email = "iwan@reahl.org"},
+  {name = "Craig Sparks", email = "craig@reahl.org"}
+]
+
+[tool.setuptools.packages.find]
+exclude = [
+  "etc",
+  "build",
+  "dist"
+  ]
+

@@ -29,8 +29,7 @@ if [ ! -f /.provisioned ]; then
         su $REAHL_USER -c 'bash -l -c "
            pip freeze | grep reahl | xargs pip uninstall -y
            cd $BOOTSTRAP_REAHL_SOURCE
-           $VENV/bin/python scripts/bootstrap.py --script-dependencies
-           $VENV/bin/python scripts/bootstrap.py --pip-installs
+           $VENV/bin/python scripts/bootstrap.py 
         "'
     fi
 

@@ -17,17 +17,13 @@
 # Copyright (C) 2006 Reahl Software Services (Pty) Ltd.  All rights reserved. (www.reahl.org)
 
 
-
+import os
 import sys
 import copy
 import pkg_resources
 import contextlib
 
-try:
-  from setuptools.config.setupcfg import read_configuration
-except ImportError:
-  from setuptools.config import read_configuration
-
+  
 from reahl.tofu import Fixture, set_up, tear_down, scope, uses
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.context import ExecutionContext
@@ -35,6 +31,7 @@ from reahl.component.dbutils import SystemControl
 from reahl.component.config import StoredConfiguration, ReahlSystemConfig
 from reahl.component.shelltools import Executable
 from reahl.dev.exceptions import CouldNotConfigureServer
+from reahl.dev.devdomain import Project
 from reahl.tofu.pytestsupport import WithFixtureDecorator
 from reahl.stubble import stubclass, exempt, replaced
 
@@ -53,8 +50,7 @@ class ContextAwareFixture(Fixture):
         raise ProgrammerError('No ExecutionContext defined for %s. You must override new_context() or set an attribute or @property named "context"' % self)
 
     def __enter__(self):
-        #TODO: need tp replace this by calling context.__enter_ explicitly once stop= is removed
-        self.context.install_with_context_vars_or_frames(stop=lambda f: isinstance(f.f_locals.get('self', None), WithFixtureDecorator))
+        self.context.__enter__()
         return super().__enter__()
 
     def __exit__(self, exc_type, exc_val, exc_tb):
@@ -123,10 +119,7 @@ class ReahlSystemSessionFixture(ContextAwareFixture):
         return SystemControl(self.config)
 
     def new_test_dependencies(self):
-        try:
-            return read_configuration('setup.cfg')['options']['tests_require']
-        except KeyError:
-            return []
+        return Project.metadata_in('.').extras.get('test', [])
 
     @set_up
     def init_database(self):

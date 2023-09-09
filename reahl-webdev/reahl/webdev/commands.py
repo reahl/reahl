@@ -64,8 +64,8 @@ class ServeCurrentProject(WorkspaceCommand):
                                  help='the configuration directory of the system to serve')
 
     def execute(self, args):
-        project = Project.from_file(self.workspace, self.workspace.startup_directory)
-        with project.paths_set():
+        project = Project.from_file_in(self.workspace, self.workspace.startup_directory)
+        with project.in_project_directory():
             try:
                 if args.restart:
                     ServerSupervisor(sys.argv[1:]+['--dont-restart'],

@@ -70,21 +70,22 @@ Now change the application to a newer version:
 
 - comment out the 'TODO' version of `added_date` in the Address class, and uncomment the
   version with the Column (this simulates a change in schema)
-- edit the `setup.cfg` file and :ref:`add a new version table <setup_cfg_versions>` for 0.2 which
+- edit the `pyproject.toml` file and :ref:`add a new version table <pyproject_versions>` for 0.2 which
   includes a migration. Also create a version table for 0.1 (the previous version) to keep track
   of what that version used to depend on:
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/migrationexamplebootstrap/setup.cfg.new
+.. literalinclude:: ../../reahl/doc/examples/tutorial/migrationexamplebootstrap/pyproject.toml.new
+   :language: toml
    :start-after:  # List all major.minor versions:
 
 
-- edit the `setup.cfg` file and increase the version of the 
+- edit the `pyproject.toml` file and increase the version of the 
   :ref:`component <create-component>` to 0.2:
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/migrationexamplebootstrap/setup.cfg.new
-   :start-after:  [metadata]
-   :end-before:   [options]
-   :prepend:      [metadata]
+.. literalinclude:: ../../reahl/doc/examples/tutorial/migrationexamplebootstrap/pyproject.toml.new
+   :language: toml
+   :start-at:    [project]
+   :end-before:  requires-python
 
 .. note::
 
@@ -101,7 +102,7 @@ To simulate installing the newer version, run:
    python -m pip install --no-deps -e .
 
 This command regenerates setuptools metadata that is derived from your
-`setup.cfg`. Only after running it will the setuptools machinery
+`pyproject.toml`. Only after running it will the setuptools machinery
 pick up the changed version number and the added |Migration|.
 
 Now that a new version of your component has been installed, run the
@@ -125,11 +126,11 @@ code that makes the schema changes:
 .. literalinclude:: ../../reahl/doc/examples/tutorial/migrationexamplebootstrap/migrationexamplebootstrap.py
    :pyobject: AddDate
 
-Register each of your |Migration|\s :ref:`in the 'setup.cfg' file <setup_cfg_migrations>`, in :ref:`the version table <setup_cfg_versions>` each migration is for:
+Register each of your |Migration|\s :ref:`in the 'pyproject.toml' file <pyproject_migrations>`, in :ref:`the version table <pyproject_versions>` each migration is for:
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/migrationexamplebootstrap/setup.cfg.new
-   :start-after: [versions."0.2"]
-   :end-before:  [versions."0.1"]
+.. literalinclude:: ../../reahl/doc/examples/tutorial/migrationexamplebootstrap/pyproject.toml.new
+   :start-at:    [tool.reahl-component.versions."0.2"]
+   :end-before:  [tool.reahl-component.versions."0.1"]
 
 
 The `migratedb` command checks to see which version of your component
@@ -198,7 +199,7 @@ Execution of these calls happen in a number of predefined
 Dependency management
 ^^^^^^^^^^^^^^^^^^^^^
 
-Declare a dependency on component B in the `setup.cfg` of component A:
+Declare a dependency on component B in the `pyproject.toml` of component A:
 
 - If component A declares a foreign key to a table that belongs to component B
 - If component A imports code from component B

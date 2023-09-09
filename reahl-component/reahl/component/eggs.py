@@ -17,11 +17,15 @@
 """Classes that aid in dealing with Eggs and setting them up."""
 
 import os
+import re
+import sys
 import os.path
 import logging
 import itertools
 import toml
 import functools
+import importlib
+import pathlib
 
 import pkg_resources
 
@@ -426,19 +430,28 @@ class ReahlEgg:
             job()
 
     @classmethod
-    def get_egg_internal_path_for(cls, translations_entry_point):
-        module = translations_entry_point.load()
-        dir_or_egg_name = translations_entry_point.dist.location.split(os.sep)[-1]
-        paths = [p for p in module.__path__ if p.find('%s%s' % (dir_or_egg_name, os.path.sep)) > 0]
-        paths = [p for p in paths if not p.startswith(os.path.join(translations_entry_point.dist.location, '.'))]
-        unique_paths = [p.split('%s%s' % (dir_or_egg_name, os.path.sep))[-1] for p in paths]
-        unique_paths = set([p for p in unique_paths if '.egg' not in p])
-        assert len(unique_paths) <= 1, \
-            'Only one translations package per component is allowed, found %s for %s' % (paths, translations_entry_point.dist)
-        assert len(unique_paths) > 0, \
-            'No translations found for %s, did you specify a translations package and forget to add locales in there?' % translations_entry_point.dist
-        return unique_paths.pop()
+    def find_catalogues(cls, translation_entry_point):
+        def find_catalogues_in_traversable(traversable, catalogue_name):
+            for child in traversable.iterdir():
+                if child.is_dir():
+                    yield from find_catalogues_in_traversable(child, catalogue_name)
+                elif child.parts[-2] == 'LC_MESSAGES' and child.name == '%s.mo' % catalogue_name:
+                    yield child
 
+        module = translation_entry_point.load()
+        domain = translation_entry_point.name
+
+        if sys.version_info < (3, 10):
+            class TraversablePaths:
+               def __init__(self, module):
+                   self.module = module
+               def iterdir(self):
+                   yield from itertools.chain([pathlib.Path(i) for i in self.module.__path__])
+                   
+            return find_catalogues_in_traversable(TraversablePaths(module), domain)
+        else:
+            return find_catalogues_in_traversable(importlib.resources.files(module), domain)
+    
     @classmethod
     @functools.lru_cache() #called for compatibility with python < 3.8
     def get_languages_supported_by_all(cls, root_egg):
@@ -451,23 +464,13 @@ class ReahlEgg:
 
         languages_for_eggs = {}
         for translation_entry_point in pkg_resources.iter_entry_points('reahl.translations'):
-            requirement = translation_entry_point.dist.as_requirement()
-            egg_internal_path = cls.get_egg_internal_path_for(translation_entry_point)
-            if pkg_resources.resource_isdir(requirement, egg_internal_path):
-                languages = [d for d in pkg_resources.resource_listdir(requirement, egg_internal_path)
-                             if (pkg_resources.resource_isdir(requirement, '%s/%s' % (egg_internal_path, d)) and not d.startswith('__'))]
-            else:
-                logging.error('Translations of %s not found in %s' % (requirement, egg_internal_path))
-                languages = []
-
-            for language in languages:
-                language_path = '%s/%s/LC_MESSAGES' % (egg_internal_path, language)
-                domains = [d[:-3] for d in pkg_resources.resource_listdir(requirement, language_path) if d.endswith('.mo')]
-                for domain in domains:
-                    if domain in domains_in_use:
-                        languages = languages_for_eggs.setdefault(domain, set())
-                        languages.add(language)
-
+            for catalogue in cls.find_catalogues(translation_entry_point):
+                language = catalogue.parts[-3]
+                domain = translation_entry_point.name
+                if domain in domains_in_use:
+                    languages = languages_for_eggs.setdefault(domain, set())
+                    languages.add(language)
+                
         if not languages_for_eggs.values():
             return default_languages
         languages = (list(languages_for_eggs.values()))[0].intersection(*languages_for_eggs.values())

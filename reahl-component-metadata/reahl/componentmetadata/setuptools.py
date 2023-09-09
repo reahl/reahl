@@ -1,7 +1,8 @@
 import toml
 import sys
+import pathlib
 
-from distutils.errors import DistutilsSetupError
+from distutils.errors import DistutilsSetupError, DistutilsFileError
 
 
 def validate_list_of_str(name, data):
@@ -14,17 +15,27 @@ def validate_list_of_str(name, data):
 
 class ComponentMetadata:
     @classmethod
-    def from_string(cls, toml_string):
-        try:
-            data = toml.loads(toml_string)
-        except Exception as ex:
-            raise DistutilsSetupError("component = is not valid toml: %s" % ex)
+    def pyproject_file(cls):
+        return pathlib.Path('pyproject.toml')
+    
+    @classmethod
+    def from_pyproject(cls):
+        data = {}
+        if cls.pyproject_file().exists():
+            try:
+                data = toml.load(cls.pyproject_file()).get('tool', {}).get('reahl-component', {})
+            except Exception as ex:
+                raise DistutilsSetupError('Exception when trying to load %s: %s' % (cls.pyproject_file(), ex)) from ex
         return cls(data)
-
+    
     def __init__(self, data):
         self.data = data
         self.data['metadata_version'] = '1.0.0'
 
+    @property
+    def exists(self):
+        return bool(self.data)
+        
     def as_toml_string(self):
         return toml.dumps(self.data)
     
@@ -54,7 +65,9 @@ def setup_keyword(dist, attr, value):
 
 def dist_info(cmd, basename, filename):
     if cmd.distribution.component is not None:
-        component_metadata = ComponentMetadata.from_string(cmd.distribution.component)
+        raise DistutilsFileError('Old metadata found. This version of reahl-component-metadata expects all your metadata to be in a PEP 621 pyproject.toml file')
+    component_metadata = ComponentMetadata.from_pyproject()
+    if component_metadata.exists:
         component_metadata.validate()
         cmd.write_file('component', filename, component_metadata.as_toml_string())
     else:

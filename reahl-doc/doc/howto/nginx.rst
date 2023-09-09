@@ -24,7 +24,7 @@ Preparation
 
 Check out the example on your development machine.
 
-In the checked-out `setup.cfg`, make sure you include all the necessary dependencies. Besides things like
+In the checked-out `pyproject.toml`, make sure you include all the necessary dependencies. Besides things like
 `reahl-web-declarative`, also provide a dependency for Reahl's support of the DB you use, eg `reahl-sqlitesupport`
 for SQLite.
 

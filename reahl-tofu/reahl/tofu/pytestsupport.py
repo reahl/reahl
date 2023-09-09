@@ -101,7 +101,7 @@ class WithFixtureDecorator:
            def new_string(self):
                return 'this is a test'
 
-       @with_fixture(MyFixture)
+       @with_fixtures(MyFixture)
        def test_this(my_fix)
            assert my_fix.string == 'this is a test'
 
@@ -123,7 +123,7 @@ class WithFixtureDecorator:
        def another_string():
            return 'another'
 
-       @with_fixture(MyFixture, MyOtherFixture)
+       @with_fixtures(MyFixture, MyOtherFixture)
        def test_this(my_fix, other, another_string)
            assert my_fix.string == 'this is a test'
            assert other.int == 123

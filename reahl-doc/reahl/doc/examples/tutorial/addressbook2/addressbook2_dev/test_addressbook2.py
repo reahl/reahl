@@ -1,12 +1,9 @@
 # To run this test do:
-# pytest --pyargs reahl.doc.examples.tutorial.addressbook2.addressbook2_dev.test_addressbook2
-# or
-# reahl unit
+# pytest
 #
 # To set up a demo database for playing with, do:
-# pytest -o python_functions=demo_setup --pyargs reahl.doc.examples.tutorial.addressbook2.addressbook2_dev.test_addressbook2
-# or
-# reahl demosetup
+# pytest -o python_functions=demo_setup
+
 
 
 from reahl.tofu.pytestsupport import with_fixtures

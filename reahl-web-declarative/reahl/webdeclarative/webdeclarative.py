@@ -186,6 +186,7 @@ class UserSession(Base, UserSessionProtocol):
             if possible_locale in supported_locales:
                 return possible_locale
         return context.config.web.default_url_locale
+            
 
 
 class SessionData(Base):

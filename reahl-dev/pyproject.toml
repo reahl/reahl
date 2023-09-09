@@ -1,3 +1,146 @@
 [build-system]
-requires = ["setuptools >= 51.0.0, <= 62.1.0", "wheel","setuptools-git >= 1.1", "pytest-runner", "toml", "reahl-component-metadata"]
+requires = [
+  "setuptools >= 68",
+  "wheel",
+  "setuptools-git >= 1.1",
+  "pytest-runner",
+  "toml",
+  "reahl-component-metadata >= 7.0.0"
+  ]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "reahl-dev"
+version = "7.0.0"
+description = "The core Reahl development tools."
+readme = "README.rst"
+requires-python = ">=3.8"
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Framework :: Reahl",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3"
+  ]
+dependencies = [
+  "reahl-component>=7.0,<7.1",
+  "reahl-tofu>=7.0,<7.1",
+  "reahl-stubble>=7.0,<7.1",
+  "reahl-sqlalchemysupport>=7.0,<7.1",
+  "Babel>=2.1,<2.11.999",
+  "Pygments>=2.1.0,<2.13.999",
+  "twine>=1.15.0,<4.0.9999",
+  "wheel>=0.34.0",
+  "tzlocal>=2.0.0,<4.2.9999",
+  "setuptools>=51.0.0",
+  "pip>=21.1",
+  "toml"
+  ]
+authors = [ 
+  {name = "Iwan Vosloo", email = "iwan@reahl.org"},
+  {name = "Craig Sparks", email = "craig@reahl.org"}
+]
+
+[project.optional-dependencies]
+test = [
+  "pytest>=3.0"
+  ]
+
+[project.entry-points."reahl.component.commands"]
+Refresh = "reahl.dev.devshell:Refresh"
+List = "reahl.dev.devshell:List"
+Select = "reahl.dev.devshell:Select"
+ClearSelection = "reahl.dev.devshell:ClearSelection"
+ListSelections = "reahl.dev.devshell:ListSelections"
+Save = "reahl.dev.devshell:Save"
+Read = "reahl.dev.devshell:Read"
+DeleteSelection = "reahl.dev.devshell:DeleteSelection"
+Shell = "reahl.dev.devshell:Shell"
+Setup = "reahl.dev.devshell:Setup"
+Build = "reahl.dev.devshell:Build"
+Sign = "reahl.dev.devshell:Sign"
+ListMissingDependencies = "reahl.dev.devshell:ListMissingDependencies"
+DebInstall = "reahl.dev.devshell:DebInstall"
+Upload = "reahl.dev.devshell:Upload"
+MarkReleased = "reahl.dev.devshell:MarkReleased"
+SubstVars = "reahl.dev.devshell:SubstVars"
+Debianise = "reahl.dev.devshell:Debianise"
+Info = "reahl.dev.devshell:Info"
+ExtractMessages = "reahl.dev.devshell:ExtractMessages"
+MergeTranslations = "reahl.dev.devshell:MergeTranslations"
+CompileTranslations = "reahl.dev.devshell:CompileTranslations"
+AddLocale = "reahl.dev.devshell:AddLocale"
+ServeSMTP = "reahl.dev.mailtest:ServeSMTP"
+UpdateCopyright = "reahl.dev.devshell:UpdateCopyright"
+
+[tool.setuptools.packages.find]
+exclude = ["etc", "build", "dist"]
+
+[tool.reahl-component.versions."6.1"]
+install_requires = [
+  "reahl-component>=6.1,<6.2",
+  "reahl-tofu>=6.1,<6.2",
+  "reahl-stubble>=6.1,<6.2",
+  "reahl-sqlalchemysupport>=6.1,<6.2"
+  ]
+
+[tool.reahl-component.versions."6.0"]
+install_requires = [
+  "reahl-component>=6.0,<6.1",
+  "reahl-tofu>=6.0,<6.1"
+  ]
+
+[tool.reahl-component.versions."5.2"]
+install_requires = [
+  "reahl-component>=5.2,<5.3",
+  "reahl-tofu>=5.2,<5.3"
+  ]
+
+[tool.reahl-component.versions."5.1"]
+install_requires = [
+  "reahl-component>=5.1,<5.2",
+  "reahl-tofu>=5.1,<5.2"
+  ]
+
+[tool.reahl-component.versions."5.0"]
+install_requires = [
+  "reahl-component>=5.0,<5.1",
+  "reahl-tofu>=5.0,<5.1"
+  ]
+
+[tool.reahl-component.versions."4.0"]
+install_requires = [
+  "reahl-component>=4.0,<4.1",
+  "reahl-tofu>=4.0,<4.1"
+  ]
+
+[tool.reahl-component.versions."3.2"]
+install_requires = [
+  "reahl-component>=3.2,<3.3",
+  "reahl-tofu>=3.2,<3.3"
+  ]
+
+[tool.reahl-component.versions."3.1"]
+install_requires = [
+  "reahl-component>=3.1,<3.2",
+  "reahl-tofu>=3.1,<3.2"
+  ]
+
+[tool.reahl-component.versions."3.0"]
+install_requires = [
+  "reahl-component>=3.0,<3.1",
+  "reahl-tofu>=3.0,<3.1"
+  ]
+
+[tool.reahl-component.versions."2.1"]
+install_requires = [
+  "reahl-component>=2.1,<2.2",
+  "reahl-tofu>=2.1,<2.2"
+  ]
+
+[tool.reahl-component.versions."2.0"]
+install_requires = [
+  "reahl-component>=2.0,<2.1",
+  "reahl-tofu>=2.0,<2.1"
+  ]

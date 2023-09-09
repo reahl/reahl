@@ -18,6 +18,7 @@
 
 import inspect
 import warnings
+import sys
 
 import platform
 import pkg_resources
@@ -26,8 +27,12 @@ import wrapt
 def deprecated(message, version='n/a'):
     def catch_wrapped(f):
         def is_init_or_classmethod(member):
-            if inspect.ismethod(member) and member.__self__ is f:
-                return True
+            if sys.version_info.major == 3 and sys.version_info.minor >= 11:
+                if isinstance(member, classmethod): 
+                    return True
+            else:
+                if inspect.ismethod(member) and member.__self__ is f: 
+                    return True
             return (inspect.ismethod(member) or inspect.isfunction(member)) and member.__name__ == '__init__'
 
         @wrapt.decorator
@@ -45,7 +50,12 @@ def deprecated(message, version='n/a'):
             f.__doc__ = '%s\n\n.. deprecated:: %s\n   %s' % (f.__doc__, version, message)
 
         if inspect.isclass(f):
-            for name, method in inspect.getmembers(f, predicate=is_init_or_classmethod):
+            if sys.version_info.major == 3 and sys.version_info.minor >= 11:
+                getmembers = inspect.getmembers_static
+            else:
+                getmembers = inspect.getmembers
+                
+            for name, method in getmembers(f, predicate=is_init_or_classmethod):
                 setattr(f, name, deprecated_wrapper(method))
             return f
         else:

@@ -40,7 +40,6 @@ from collections import OrderedDict
 
 from reahl.component.context import ExecutionContext
 from reahl.component.exceptions import ProgrammerError
-from reahl.component.decorators import  deprecated
 from reahl.web.fw import PackagedFile, ConcatenatedFile
 
 
@@ -124,22 +123,8 @@ class Library:
     def __init__(self, name):
         self.name = name  #: The unique name of this Library
         self.egg_name = 'reahl-web'  #: The component (egg) that contains the files of this library
-        self._shipped_in_directory = ''  #: Deprecated since 6.1: The directory that contains the files of this library (relative to the egg root)
         self.shipped_in_package = ''  #: The package that contains the files of this library
         self.files = []   #: The JavaScript and CSS files that form part of this library (relative to the `shipped_in_package`)
-
-    def __getattr__(self, name):
-        if name == 'shipped_in_package':
-            return self.shipped_in_directory.replace('/', '.')
-        else:
-            return super.__getattr__(name)
-    @property
-    def shipped_in_directory(self):
-        return self._shipped_in_directory
-    @shipped_in_directory.setter
-    @deprecated('Use shipped_in_package with dotted notation instead', '6.1')
-    def shipped_in_directory(self, value):
-        self._shipped_in_directory = value
 
     def packaged_files(self):
         return [PackagedFile(self.egg_name, self.shipped_in_package, file_name)

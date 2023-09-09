@@ -1,3 +1,37 @@
 [build-system]
-requires = ["setuptools >= 51.0.0", "wheel","setuptools-git >= 1.1", "pytest-runner", "toml", "reahl-component-metadata"]
+requires = [
+  "setuptools >= 68",
+  "wheel",
+  "setuptools-git >= 1.1",
+  "pytest-runner",
+  "toml",
+  "reahl-component-metadata >= 7.0.0"
+  ]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "paymentpaypal"
+version = "0.1"
+requires-python = ">=3.8"
+dependencies = [
+  "reahl-web>=7.0,<7.1",
+  "reahl-component>=7.0,<7.1",
+  "reahl-sqlalchemysupport>=7.0,<7.1",
+  "reahl-sqlitesupport>=7.0,<7.1",
+  "reahl-web-declarative>=7.0,<7.1",
+  "reahl-domain>=7.0,<7.1",
+  "reahl-paypalsupport>=7.0,<7.1"
+  ]
+authors = [ 
+  {name = "Iwan Vosloo", email = "iwan@reahl.org"},
+  {name = "Craig Sparks", email = "craig@reahl.org"}
+]
+
+[tool.setuptools.packages.find]
+exclude = ["etc", "build", "dist"]
+
+[tool.reahl-component]
+configuration = "reahl.doc.examples.howtos.paymentpaypal.paymentpaypal:PaymentPayPalConfig"
+persisted = [
+  "reahl.doc.examples.howtos.paymentpaypal.paymentpaypal:ShoppingCart"
+  ]

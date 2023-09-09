@@ -19,5 +19,5 @@ Component framework
    Support for SQLite (reahl.sqlitesupport) <sqlitesupport>
    Support for SQLAlchemy (reahl.sqlalchemysupport) <sqlalchemysupport>
 
-   Reference for setup.cfg (reahl.componentmetadata) <setup.cfg>
+   Reference for pyproject.toml (reahl.componentmetadata) <pyproject.toml>
    

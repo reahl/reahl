@@ -136,7 +136,7 @@ in this method to supply or change the configuration of any component
 that has been read by this time. To ensure that the configuration of
 `reahl-web` is read before that of `reahl-web-declarative`,
 `reahl-web-declarative` is declared to be dependent on `reahl-web` in
-its `setup.cfg` file (an **inverted dependency**).
+its `pyproject.toml` file (an **inverted dependency**).
 
 Here is the :class:`~reahl.component.config.Configuration` of the
 `reahl-web-declarative` component:
