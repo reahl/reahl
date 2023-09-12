@@ -224,7 +224,7 @@ class ForAllWorkspaceCommand(WorkspaceCommand):
                 current_project = self.workspace.project_in(os.getcwd())
             except ProjectNotFound:
                 try:
-                    current_project = Project.from_file(self.workspace, os.getcwd())
+                    current_project = Project.from_file_in(self.workspace, os.getcwd())
                 except NotAValidProjectException:
                     current_project = Project(self.workspace, os.getcwd())
             project_list.append(current_project)
