@@ -29,11 +29,11 @@ dependencies = [
   "reahl-component>=7.0,<7.1",
   "reahl-tofu>=7.0,<7.1",
   "selenium>=2.42,<4.7.9999",
-  "watchdog>=0.8.3,<2.2.999",
+  "watchdog>=0.8.3,<3.0.999",
   "WebOb>=1.8,<1.8.999",
   "setuptools>=51.0.0",
   "prompt_toolkit>=2.0.10,<3.0.999",
-  "cached-property>=1.5,<1.5.999;python_version<\"3.8\""
+  "cached-property>=1.5,<1.5.999;python_version<'3.8'"
   ]
 authors = [ 
   {name = "Iwan Vosloo", email = "iwan@reahl.org"},
