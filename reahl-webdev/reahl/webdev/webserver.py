@@ -341,7 +341,7 @@ class ServerSupervisor(PatternMatchingEventHandler):
         self.request_stop_running = Event()
 
     #override for PatternMatchingEventHandler
-    def on_any_event(self, event):
+    def on_modified(self, event):
         self.files_changed.set()
 
     def start_observing_directories(self):
