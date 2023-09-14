@@ -40,7 +40,7 @@ dependencies = [
 [project.optional-dependencies]
 test = [
   "pytest>=3.0",
-  "plotly>=5.1.0,<5.11.99999",
+  "plotly>=5.1.0,<5.16.99999",
   "reahl-tofu",
   "reahl-stubble",
   "reahl-dev",

@@ -19,7 +19,7 @@ dependencies = [
   "reahl-sqlalchemysupport>=7.0,<7.1",
   "reahl-sqlitesupport>=7.0,<7.1",
   "reahl-web-declarative>=7.0,<7.1",
-  "plotly>=5.1.0,<5.11.99999"
+  "plotly>=5.1.0,<5.16.99999"
   ]
 authors = [ 
   {name = "Iwan Vosloo", email = "iwan@reahl.org"},
