@@ -491,10 +491,13 @@ class Project:
     @contextmanager
     def in_project_directory(self):
         cwd = os.getcwd()
+        oldpath = sys.path[:]
         try:
             os.chdir(self.directory)
+            sys.path.insert(0,self.directory)
             yield
         finally:
+            sys.path[:] = oldpath
             os.chdir(cwd)
 
     @property

@@ -83,6 +83,7 @@ Bug fixes
 ---------
  * Fixes to documentation (#403).
  * Fixed incorrect packaging of examples (#406).
+ * Fixed breaking migration (#407).
 
 
 Updated dependencies

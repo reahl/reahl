@@ -21,7 +21,7 @@ import warnings
 import inspect
 import traceback
 
-from reahl.component.exceptions import ProgrammerError
+from reahl.component.exceptions import ProgrammerError, DomainException
 from reahl.component.eggs import DependencyGraph, DependencyCluster
 
 
@@ -64,7 +64,7 @@ class MigrationPlan:
 
     @classmethod
     def create_cluster_graph(cls, version_graph):
-        clusters = [DependencyCluster(root, contents) for root, contents in version_graph.find_components()]
+        clusters = [DependencyCluster(root, contents) for root, contents in version_graph.find_trees()]
         return DependencyGraph.from_vertices(clusters, lambda c: c.get_dependencies(clusters))
 
     def execute(self):

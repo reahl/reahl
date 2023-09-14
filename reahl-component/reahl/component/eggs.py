@@ -119,6 +119,20 @@ class DependencyGraph:
                 self.search(i)
         return reversed(self.topological_order)
 
+    def find_roots(self):
+        roots = []
+        all_dependencies = set(itertools.chain(*self.graph.values()))
+        for vertex in self.graph.keys():
+            if vertex not in all_dependencies:
+                roots.append(vertex)
+        return roots
+
+    def find_trees(self):
+        trees = {}
+        for root in self.find_roots():
+            trees[root] = self.get_all_reachable_from(root)
+        return list(trees.items())
+        
     def find_components(self):
         components = {}
         all_dependencies = set(itertools.chain(*self.graph.values()))
@@ -177,6 +191,10 @@ class DependencyCluster:
         self.versions = versions
         self.visited = False
 
+    @property
+    def root_version_string(self):
+        return self.root.version_number_string
+        
     def is_dependent_on(self, other):
         deps = []
         for e in self.versions:
