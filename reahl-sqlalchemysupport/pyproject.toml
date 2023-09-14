@@ -28,7 +28,7 @@ dependencies = [
   "reahl-component>=7.0,<7.1",
   "reahl-commands>=7.0,<7.1",
   "SQLAlchemy>=1.2.0,<1.4.999",
-  "alembic>=0.9.6,<1.8.999"
+  "alembic>=0.9.6,<1.12.999"
   ]
 authors = [ 
   {name = "Iwan Vosloo", email = "iwan@reahl.org"},
