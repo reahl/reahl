@@ -25,7 +25,7 @@ classifiers = [
   ]
 dependencies = [
   "reahl-component>=7.0,<7.1",
-  "docutils>=0.14,<0.19.999",
+  "docutils>=0.14,<0.20.999",
   "Pygments>=2.1.0,<2.16.999"
   ]
 authors = [ 
