@@ -163,14 +163,14 @@ Issues:   https://github.com/imsky/holder/issues
 License:  MIT
 http://www.opensource.org/licenses/mit-license.php
 
-reahl-web/reahl/web/static/plotly-2.16.4.min.js
+reahl-web/reahl/web/static/plotly-2.26.0.min.js
 ==============================================
 
-Plotly.js - 2.16.4
+Plotly.js - 2.26.0
 https://github.com/plotly/plotly.js/
 
-plotly.js v2.16.4
-Copyright 2012-2022, Plotly, Inc.
+plotly.js v2.26.0
+Copyright 2012-2023, Plotly, Inc.
 All rights reserved.
 Licensed under the MIT license
 http://www.opensource.org/licenses/mit-license.php
