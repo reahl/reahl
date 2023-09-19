@@ -106,10 +106,10 @@ Dual licensed under the MIT and GPL licenses:
 http://www.opensource.org/licenses/mit-license.php
 http://www.gnu.org/licenses/gpl.html
 
-reahl-web/reahl/web/static/js-cookie-3.0.1/js.cookie.js
+reahl-web/reahl/web/static/js-cookie-3.0.5/js.cookie.js
 =======================================================
 
- * JavaScript Cookie v3.0.1
+ * JavaScript Cookie v3.0.5
  * https://github.com/js-cookie/js-cookie
  *
 Copyright (c) 2018 Copyright 2018 Klaus Hartl, Fagner Brack, GitHub Contributors

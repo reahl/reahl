@@ -357,13 +357,13 @@ class Underscore(Library):
 
 
 class JsCookie(Library):
-    """Version 3.0.1 of `js-cookie <https://github.com/js-cookie/js-cookie>`_.
+    """Version 3.0.5 of `js-cookie <https://github.com/js-cookie/js-cookie>`_.
     """
     def __init__(self):
         super().__init__('js-cookie')
         self.shipped_in_package = 'reahl.web.static'
         self.files = [
-            'js-cookie-3.0.1/js.cookie.min.js' #this is the UMD version
+            'js-cookie-3.0.5/js.cookie.min.js' #this is the UMD version
         ]
 
 
