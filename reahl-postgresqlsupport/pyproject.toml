@@ -25,7 +25,6 @@ classifiers = [
   ]
 dependencies = [
   "reahl-component>=7.0,<7.1",
-  "reahl-commands>=7.0,<7.1",
   "psycopg2-binary>=2.8,<2.9.9999"
   ]
 authors = [ 

@@ -24,8 +24,7 @@ classifiers = [
   "Programming Language :: Python :: 3"
   ]
 dependencies = [
-  "reahl-component>=7.0,<7.1",
-  "reahl-commands>=7.0,<7.1"
+  "reahl-component>=7.0,<7.1"
   ]
 authors = [ 
   {name = "Iwan Vosloo", email = "iwan@reahl.org"},
