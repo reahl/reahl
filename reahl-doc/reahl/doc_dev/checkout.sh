@@ -14,8 +14,9 @@ do
     else
         cd $out
         python -m pip install --no-deps -e .
-        if pytest
-        then
+        pytest
+        exit_code=$?
+        if [ $exit_code -eq 0 ] || [ $exit_code -eq 5 ]; then
             result="."
         fi
         python -m pip uninstall -y $(python -c 'from toml import load; print(load("pyproject.toml")["project"]["name"])')
