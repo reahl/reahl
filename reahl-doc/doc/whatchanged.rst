@@ -15,6 +15,17 @@ new virtualenv, then migrate your database:
    reahl migratedb etc
 
 
+Licensing changes
+-----------------
+
+We're excited to announce a significant change in our project's licensing terms.
+In the past, some components of Reahl were LGPL licensed and others were AGPL licensed.
+In response to your feedback, we are transitioning the remaining AGPL Reahl components to the
+GNU Lesser General Public License (LGPL).
+
+
+
+
 Final move to PEP 621
 ---------------------
 

@@ -16,6 +16,7 @@ python-reahl (7.0.0) unstable; urgency=low
  * Increased version of alembic between 0.9.6 and 1.12
  * Increased version of beautifulsoup4 between 4.6 and 4.12
  * Increased version of watchdog between 0.8.3 and 3.0
+ * Change all Reahl component licenses to LGPL
 
  -- Iwan Vosloo <iwan@reahl.org>  Thu, 21 Sep 2023 15:52:00 +0200
 
