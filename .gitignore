@@ -68,8 +68,11 @@ reahl-doc/reahl/doc/examples/tutorial/hellonginx/hellonginx.*-info
 *~
 */.eggs
 dist
+*.tar.gz
+*.whl
 
 .floo
 .flooignore
 .cache
 .vscode
+

@@ -4,8 +4,20 @@ python-reahl (7.0.0) unstable; urgency=low
  * Updated documentation (#403).
  * Fixed incorrect packaging of examples (#406).
  * Fixed migration issue (#407).
+ * Increased version of Jquery to 3.7.1
+ * Increased version of js-cookie to 3.0.5
+ * Increased version of plotlyjs to 2.26.0
+ * Increased version of Babel  between 2.1 and 2.12
+ * Increased version of wrapt between 1.11.0 and 1.15
+ * Increased version of Pygments between 2.13 and 2.16
+ * Increased version of tzlocal between 2.0 and 5.0
+ * Increased version of plotly between 5.1.0 and 5.16
+ * Increased version of docutils between 0.14 and 0.20
+ * Increased version of alembic between 0.9.6 and 1.12
+ * Increased version of beautifulsoup4 between 4.6 and 4.12
+ * Increased version of watchdog between 0.8.3 and 3.0
 
- -- Iwan Vosloo <iwan@reahl.org>  Thu, 02 Feb 2023 15:52:00 +0200
+ -- Iwan Vosloo <iwan@reahl.org>  Thu, 21 Sep 2023 15:52:00 +0200
 
 python-reahl (6.1.1) unstable; urgency=low
 
@@ -151,13 +163,13 @@ python-reahl (5.0.0) unstable; urgency=low
  * Fixed Widget query_arguments mechanism to work correctly with list-like values.
  * Added fragment getter/setter on DriverBrowser.
  * Added UNDERSCORE.JS
- * Added current_url to Browser and deprecated older methods for compatibility with DriverBrowser. 
+ * Added current_url to Browser and deprecated older methods for compatibility with DriverBrowser.
  * Changed nested_transaction to yield a TransactionVeto object.
  * Changed Inputs to NOT automatically fix name clashes.
  * Changed XPath to be composable from other XPath instances and morphable with special methods.
  * Removed old XPath methods that can now be composed (like _with_text methods).
  * Changed DriverBrowser element getter methods and condition methods to never wait.
- * Changed DriverBrowser interacting methods (like click, type) to consistently trigger onchange and wait for ajax by default. 
+ * Changed DriverBrowser interacting methods (like click, type) to consistently trigger onchange and wait for ajax by default.
  * Renamed is_checked, check, and uncheck methods on DriverBrowser to work for radio buttons too.
  * Removed Browser.location_path, location_scheme, location_query_string in favour of .current_url.
  * Changed Table and Column to allow for table footer content in Columns.

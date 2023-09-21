@@ -18,7 +18,7 @@ do
         then
             result="."
         fi
-        python -m pip uninstall $(python -c 'from toml import load; print(load("pyproject.toml")["project"]["name"])')
+        python -m pip uninstall -y $(python -c 'from toml import load; print(load("pyproject.toml")["project"]["name"])')
         cd -
     fi
     results["$i"]=$result
