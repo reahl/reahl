@@ -17,6 +17,7 @@
 """Classes that aid in dealing with Eggs and setting them up."""
 
 import os
+import pdb
 import re
 import sys
 import os.path
@@ -437,6 +438,10 @@ class ReahlEgg:
     def translation_pot_filename(self):
         translations_package_name = self.translation_package_name
         translations_file_path = translations_package_name.replace('.', '/')
+
+        source_file = pathlib.Path().joinpath(translations_file_path).joinpath(self.name)
+        if source_file.exists():
+            return str(source_file)
         return self.distribution.get_resource_filename(self.distribution, '%s/%s' % (translations_file_path, self.name))
 
     @property

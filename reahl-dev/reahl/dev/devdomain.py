@@ -24,12 +24,9 @@ import os.path
 import shutil
 import subprocess
 import logging
-import email.utils
 from contextlib import contextmanager
 import datetime
-import pkgutil
 from tempfile import TemporaryFile
-import collections
 import tzlocal
 import pathlib
 
@@ -505,7 +502,7 @@ class Project:
         if not self.translation_package:
             raise ProgrammerError('No reahl.translations entry point specified for project: "%s"' % (self.project_name))
         module = self.translation_package.load()
-        source_paths = [i for i in module.__path__ if i.startswith(self.directory)]
+        source_paths = [i for i in set(module.__path__) if i.startswith(self.directory+os.path.sep)]
         [source_path] = source_paths
         return source_path
 
