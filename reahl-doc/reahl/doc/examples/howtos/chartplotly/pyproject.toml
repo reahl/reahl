@@ -26,6 +26,9 @@ authors = [
   {name = "Craig Sparks", email = "craig@reahl.org"}
 ]
 
+[tool.setuptools]
+py-modules = ["chartplotly"]
+
 [tool.setuptools.packages.find]
 exclude = ["etc", "build", "dist"]
 

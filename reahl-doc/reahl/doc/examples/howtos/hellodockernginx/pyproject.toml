@@ -26,6 +26,9 @@ authors = [
   {name = "Craig Sparks", email = "craig@reahl.org"}
 ]
 
+[tool.setuptools]
+py-modules = ["hellodockernginx", "hellodockernginxwsgi"]
+
 [tool.setuptools.packages.find]
 exclude = ["etc", "build", "dist"]
 

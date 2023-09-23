@@ -24,6 +24,9 @@ authors = [
   {name = "Craig Sparks", email = "craig@reahl.org"}
 ]
 
+[tool.setuptools]
+py-modules = ["customisingerrorpages"]
+
 [tool.setuptools.packages.find]
 exclude = ["etc", "build", "dist"]
 

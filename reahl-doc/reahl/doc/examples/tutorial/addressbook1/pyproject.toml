@@ -25,6 +25,9 @@ authors = [
   {name = "Craig Sparks", email = "craig@reahl.org"}
 ]
 
+[tool.setuptools]
+py-modules = ["addressbook1"]
+
 [tool.setuptools.packages.find]
 exclude = ["etc", "build", "dist"]
 
