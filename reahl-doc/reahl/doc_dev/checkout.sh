@@ -26,17 +26,17 @@ do
     rm -rf $out
 done
 
-cd /tmp; reahl example -f tutorial.migrationexample
-cd /tmp/migrationexample
-chmod u+x /tmp/migrationexample/migrationexample_dev/test.sh
-if /tmp/migrationexample/migrationexample_dev/test.sh
+cd /tmp; reahl example -f tutorial.migrationexamplebootstrap
+cd /tmp/migrationexamplebootstrap
+chmod u+x /tmp/migrationexamplebootstrap/migrationexamplebootstrap_dev/test.sh
+if /tmp/migrationexamplebootstrap/migrationexamplebootstrap_dev/test.sh
 then 
-    results["migrationexample (actual migrating)"]="."
+    results["migrationexamplebootstrap (actual migrating)"]="."
 else
-    results["migrationexample (actual migrating)"]="E"
+    results["migrationexamplebootstrap (actual migrating)"]="E"
 fi
 cd -
-rm -rf /tmp/migrationexample
+rm -rf /tmp/migrationexamplebootstrap
 
 for x in "${!results[@]}"
 do
