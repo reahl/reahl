@@ -138,6 +138,7 @@ class Example:
             catalogue_name = 'i18nexamplebootstrap' or self.new_name
             changes.add_replace_text('Catalogue(\'reahl-doc\')', 'Catalogue(\'%s\')' % catalogue_name)
             changes.add_file_rename('reahl-doc.po', '%s.po' % catalogue_name)
+            changes.add_file_rename('reahl-doc.mo', '%s.mo' % catalogue_name)
             changes.add_file_rename('reahl-doc', '%s' % catalogue_name)
         elif self.name == 'features.i18nexample':
             catalogue_name = 'i18nexample' or self.new_name
@@ -159,14 +160,17 @@ class Example:
                     relative_dirpath = relative_dirpath.replace(self.module_name, self.new_name)
                 dest_dirname = os.path.join(dest, relative_dirpath)
                 os.mkdir(dest_dirname)
-                for filename in [f for f in filenames if not re.match('.*(.pyc|~|.mo|.noseids|.db)$', f)]:
+                for filename in [f for f in filenames if not re.match('.*(.pyc|~|.noseids|.db)$', f)]:
                     source_file_path = os.path.join(dirpath, filename)
                     if source_file_path != os.path.join(source, '__init__.py'):
                         dest_file_path = self.checkout_changes.get_output_filename(source_file_path, dest_dirname)
                         if self.new_name:
                             relative_path = dest_file_path[len(dest_dirname):]
                             dest_file_path = dest_dirname + relative_path.replace(self.module_name, self.new_name)
-                        self.sed_file_to(source_file_path, dest_file_path)
+                        if not source_file_path.endswith('.mo'):
+                            self.sed_file_to(source_file_path, dest_file_path)
+                        else:
+                            self.checkout_file_to(source_file_path, dest_file_path)
 
     def sed_file_to(self, source_file_path, dest_file_path):
         print(dest_file_path)
@@ -174,6 +178,10 @@ class Example:
             with codecs.open(dest_file_path, 'w', 'utf-8') as dest_file:
                 for source_line in source_file:
                     dest_file.write(self.checkout_changes.get_output_line(source_line))
+
+    def checkout_file_to(self, source_file_path, dest_file_path):
+        print(dest_file_path)
+        shutil.copy(source_file_path, dest_file_path)
 
     def delete(self):
         if os.path.isdir(self.checkout_dest):
