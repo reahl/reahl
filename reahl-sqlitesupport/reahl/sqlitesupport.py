@@ -19,7 +19,7 @@
 To use SQLite:
 
 - install reahl-sqlitesupport;
-- add it as a dependency in your .reahlproject; and
+- add it as a dependency in your pyproject.toml; and
 - in reahl.config.py, set reahlsystem.connection_uri to a sqlite URI.
 
 URIs are as `defined by SqlAlchemy <http://docs.sqlalchemy.org/en/latest/core/engines.html#database-urls>`_

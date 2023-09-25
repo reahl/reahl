@@ -164,7 +164,8 @@ class Configuration:
     """A collection of ConfigSettings for a component. To supply configuration for your component,
        subclass from this class and assign each wanted ConfigSetting as a class attribute. Assign
        the required `filename` and `config_key` class attributes in your subclass as well. The resultant
-       class should also be listed in the .reahlproject file of your component in a <configuration> element.
+       class should also be listed in the configuration key of the [tool.reahl-component] table in your 
+       pyproject.toml.
     """
     
     filename = None   #: The name of the config file from which this Configuration will be read.

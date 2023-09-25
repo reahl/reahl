@@ -69,14 +69,13 @@ class TaskWidget(HTMLWidget):
        a user needs to see to complete the Task, including the relevant Buttons
        for deferring, or releasing the Task.
        
-       Register each of your TaskWidget subclasses in your .reahlproject file as a class
+       Register each of your TaskWidget subclasses in your pyproject.toml file as a class
        on the entrypoint 'reahl.workflowui.task_widgets'. For example:
        
-       .. code-block:: xml
+       .. code-block:: toml
 
-        <export entrypoint="reahl.workflowui.task_widgets" 
-                name="TaskWidget" 
-                locator="reahl.domainui.bootstrap.workflow:TaskWidget"/>
+          [project.entry-points."reahl.workflowui.task_widgets"]
+          "TaskWidget" = "reahl.domainui.bootstrap.workflow:TaskWidget"
 
     """
     @classmethod
