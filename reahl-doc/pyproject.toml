@@ -36,7 +36,7 @@ dependencies = [
   "reahl-paypalsupport>=7.0,<7.1",
   "pytest>=3.0",
   "setuptools>=51.0.0",
-  "plotly>=5.11.0,<5.11.99999"
+  "plotly>=5.11.0,<5.16.99999"
   ]
 authors = [ 
   {name = "Iwan Vosloo", email = "iwan@reahl.org"},
@@ -112,7 +112,7 @@ schedule = [
   ]
 
 [tool.reahl-component.versions."6.1"]
-install_requires = [
+dependencies = [
   "reahl-web>=6.1,<6.2",
   "reahl-component>=6.1,<6.2",
   "reahl-sqlalchemysupport>=6.1,<6.2",
@@ -125,7 +125,7 @@ install_requires = [
   ]
 
 [tool.reahl-component.versions."6.0"]
-install_requires = [
+dependencies = [
   "reahl-web>=6.0,<6.1",
   "reahl-component>=6.0,<6.1",
   "reahl-sqlalchemysupport>=6.0,<6.1",
@@ -138,7 +138,7 @@ install_requires = [
   ]
 
 [tool.reahl-component.versions."5.2"]
-install_requires = [
+dependencies = [
   "reahl-web>=5.2,<5.3",
   "reahl-component>=5.2,<5.3",
   "reahl-sqlalchemysupport>=5.2,<5.3",
@@ -151,7 +151,7 @@ install_requires = [
   ]
 
 [tool.reahl-component.versions."5.1"]
-install_requires = [
+dependencies = [
   "reahl-web>=5.1,<5.2",
   "reahl-component>=5.1,<5.2",
   "reahl-sqlalchemysupport>=5.1,<5.2",
@@ -163,7 +163,7 @@ install_requires = [
   ]
 
 [tool.reahl-component.versions."5.0"]
-install_requires = [
+dependencies = [
   "reahl-web>=5.0,<5.1",
   "reahl-component>=5.0,<5.1",
   "reahl-sqlalchemysupport>=5.0,<5.1",
@@ -174,7 +174,7 @@ install_requires = [
   ]
 
 [tool.reahl-component.versions."4.0"]
-install_requires = [
+dependencies = [
   "reahl-web>=4.0,<4.1",
   "reahl-component>=4.0,<4.1",
   "reahl-sqlalchemysupport>=4.0,<4.1",
@@ -185,7 +185,7 @@ install_requires = [
   ]
 
 [tool.reahl-component.versions."3.2"]
-install_requires = [
+dependencies = [
   "reahl-web>=3.2,<3.3",
   "reahl-component>=3.2,<3.3",
   "reahl-sqlalchemysupport>=3.2,<3.3",
@@ -195,7 +195,7 @@ install_requires = [
   ]
 
 [tool.reahl-component.versions."3.1"]
-install_requires = [
+dependencies = [
   "reahl-web>=3.1,<3.2",
   "reahl-component>=3.1,<3.2",
   "reahl-sqlalchemysupport>=3.1,<3.2",
@@ -205,7 +205,7 @@ install_requires = [
   ]
 
 [tool.reahl-component.versions."3.0"]
-install_requires = [
+dependencies = [
   "reahl-web>=3.0,<3.1",
   "reahl-component>=3.0,<3.1",
   "reahl-sqlalchemysupport>=3.0,<3.1",
@@ -215,7 +215,7 @@ install_requires = [
   ]
 
 [tool.reahl-component.versions."2.1"]
-install_requires = [
+dependencies = [
   "reahl-web>=2.1,<2.2",
   "reahl-component>=2.1,<2.2",
   "reahl-sqlalchemysupport>=2.1,<2.2",
@@ -225,7 +225,7 @@ install_requires = [
   ]
 
 [tool.reahl-component.versions."2.0"]
-install_requires = [
+dependencies = [
   "reahl-web>=2.0,<2.1",
   "reahl-component>=2.0,<2.1",
   "reahl-sqlalchemysupport>=2.0,<2.1",

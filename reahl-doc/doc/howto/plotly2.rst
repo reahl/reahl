@@ -1,4 +1,4 @@
-.. Copyright 2021 Reahl Software Services (Pty) Ltd. All rights reserved.
+.. Copyright 2021, 2022 Reahl Software Services (Pty) Ltd. All rights reserved.
 
 .. |Chart| replace:: :class:`~reahl.web.plotly.Chart`
 .. |contents| replace:: :attr:`~reahl.web.plotly.Chart.contents`

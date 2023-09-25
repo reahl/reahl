@@ -16,7 +16,7 @@ def validate_list_of_str(name, data):
 class ComponentMetadata:
     @classmethod
     def pyproject_file(cls):
-        return pathlib.Path('pyproject.toml')
+        return pathlib.Path('pyproject.toml').absolute()
     
     @classmethod
     def from_pyproject(cls):
@@ -30,7 +30,7 @@ class ComponentMetadata:
     
     def __init__(self, data):
         self.data = data
-        self.data['metadata_version'] = '1.0.0'
+        self.data['metadata_version'] = '1.1.0'
 
     @property
     def exists(self):
@@ -38,16 +38,16 @@ class ComponentMetadata:
         
     def as_toml_string(self):
         return toml.dumps(self.data)
-    
+
     def validate(self):
         allowed_top_level_keys = set(['metadata_version', 'configuration', 'persisted', 'schedule', 'versions'])
         unsupported_keys = set(self.data.keys()) - allowed_top_level_keys
         if unsupported_keys:
-            raise DistutilsSetupError('Unsupported settings for "component =": %s' % (', '.join(unsupported_keys)))
+            raise DistutilsSetupError('[%s] Unsupported keys for [tool.reahl-component]: %s' % (self.pyproject_file(), ', '.join(unsupported_keys)))
 
         if 'configuration' in self.data:
             if not isinstance(self.data['configuration'], str):
-                raise DistutilsSetupError('"configuration" should be a str')
+                raise DistutilsSetupError('[%s] "configuration" should be a str' % self.pyproject_file())
 
         validate_list_of_str('persisted', self.data)
         validate_list_of_str('schedule', self.data)
@@ -55,9 +55,16 @@ class ComponentMetadata:
         if 'versions' in self.data:
             if not isinstance(self.data['versions'], dict):
                 raise DistutilsSetupError('"versions" should be a dict')
-            for version in self.data['versions']:
+            for version_number, version in self.data['versions'].items():
                 validate_list_of_str('migrations', version)
-                validate_list_of_str('install_requires', version)
+                validate_list_of_str('dependencies', version)
+                if 'install_requires' in version:
+                    raise DistutilsSetupError('[%s] "install_requires" not allowed in [tool.reahl-component.versions."%s"]. Did you mean "dependencies"?' % (self.pyproject_file(), version_number))
+                    
+                unsupported_version_keys = set(version.keys()) - {'migrations', 'dependencies'}
+                if unsupported_version_keys:
+                    raise DistutilsSetupError('[%s] Unsupported keys for [tool.reahl-component.versions."%s"]: %s' % (self.pyproject_file(), version_number, (', '.join(unsupported_version_keys))))
+                    
 
                 
 def setup_keyword(dist, attr, value):

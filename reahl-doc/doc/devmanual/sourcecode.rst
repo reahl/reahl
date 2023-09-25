@@ -1,4 +1,4 @@
-.. Copyright 2017 Reahl Software Services (Pty) Ltd. All rights reserved.
+.. Copyright 2017-2023 Reahl Software Services (Pty) Ltd. All rights reserved.
 
 Reahl source code
 =================
@@ -34,10 +34,13 @@ reproducible, the root directory contains a **docker-compose.yaml**,
 **docker-compose.override.yaml** and a few useful scripts in the 
 `scripts/` subdirectory.
 
-It also contains a `debian/` directory from which we derive the
-version numbers of projects and other metadata, such as project
-descriptions. This is referred to from the `.reahlproject` in the
-root.
+The source tree also contains a `debian/` directory with only a changelog
+file.
+
+The source tree root contains a pyproject.toml for the `reahl` component. It declares
+an extra called 'all' which lists each of the other Reahl components contained in
+subdirectories in the source tree. Each of these components has their own
+pyproject.toml in their respective subdirectories.
 
 
 Other components

@@ -1,17 +1,17 @@
-# Copyright 2013-2022 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2023 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
 #    Reahl is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU Affero General Public License as
+#    it under the terms of the GNU Lesser General Public License as
 #    published by the Free Software Foundation; version 3 of the License.
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU Affero General Public License for more details.
+#    GNU Lesser General Public License for more details.
 #
-#    You should have received a copy of the GNU Affero General Public License
+#    You should have received a copy of the GNU Lesser General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """This module houses the main classes used to understand and manipulate Reahl projects in development."""
@@ -24,12 +24,9 @@ import os.path
 import shutil
 import subprocess
 import logging
-import email.utils
 from contextlib import contextmanager
 import datetime
-import pkgutil
 from tempfile import TemporaryFile
-import collections
 import tzlocal
 import pathlib
 
@@ -491,13 +488,10 @@ class Project:
     @contextmanager
     def in_project_directory(self):
         cwd = os.getcwd()
-        oldpath = sys.path[:]
         try:
             os.chdir(self.directory)
-            sys.path.insert(0,self.directory)
             yield
         finally:
-            sys.path[:] = oldpath
             os.chdir(cwd)
 
     @property
@@ -505,7 +499,7 @@ class Project:
         if not self.translation_package:
             raise ProgrammerError('No reahl.translations entry point specified for project: "%s"' % (self.project_name))
         module = self.translation_package.load()
-        source_paths = [i for i in module.__path__ if i.startswith(self.directory)]
+        source_paths = [i for i in set(module.__path__) if i.startswith(self.directory+os.path.sep)]
         [source_path] = source_paths
         return source_path
 

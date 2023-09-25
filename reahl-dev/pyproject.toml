@@ -28,11 +28,11 @@ dependencies = [
   "reahl-tofu>=7.0,<7.1",
   "reahl-stubble>=7.0,<7.1",
   "reahl-sqlalchemysupport>=7.0,<7.1",
-  "Babel>=2.1,<2.11.999",
-  "Pygments>=2.1.0,<2.13.999",
+  "Babel>=2.1,<2.12.999",
+  "Pygments>=2.1.0,<2.16.999",
   "twine>=1.15.0,<4.0.9999",
   "wheel>=0.34.0",
-  "tzlocal>=2.0.0,<4.2.9999",
+  "tzlocal>=2.0.0,<5.0.9999",
   "setuptools>=51.0.0",
   "pip>=21.1",
   "toml"
@@ -78,7 +78,7 @@ UpdateCopyright = "reahl.dev.devshell:UpdateCopyright"
 exclude = ["etc", "build", "dist"]
 
 [tool.reahl-component.versions."6.1"]
-install_requires = [
+dependencies = [
   "reahl-component>=6.1,<6.2",
   "reahl-tofu>=6.1,<6.2",
   "reahl-stubble>=6.1,<6.2",
@@ -86,61 +86,61 @@ install_requires = [
   ]
 
 [tool.reahl-component.versions."6.0"]
-install_requires = [
+dependencies = [
   "reahl-component>=6.0,<6.1",
   "reahl-tofu>=6.0,<6.1"
   ]
 
 [tool.reahl-component.versions."5.2"]
-install_requires = [
+dependencies = [
   "reahl-component>=5.2,<5.3",
   "reahl-tofu>=5.2,<5.3"
   ]
 
 [tool.reahl-component.versions."5.1"]
-install_requires = [
+dependencies = [
   "reahl-component>=5.1,<5.2",
   "reahl-tofu>=5.1,<5.2"
   ]
 
 [tool.reahl-component.versions."5.0"]
-install_requires = [
+dependencies = [
   "reahl-component>=5.0,<5.1",
   "reahl-tofu>=5.0,<5.1"
   ]
 
 [tool.reahl-component.versions."4.0"]
-install_requires = [
+dependencies = [
   "reahl-component>=4.0,<4.1",
   "reahl-tofu>=4.0,<4.1"
   ]
 
 [tool.reahl-component.versions."3.2"]
-install_requires = [
+dependencies = [
   "reahl-component>=3.2,<3.3",
   "reahl-tofu>=3.2,<3.3"
   ]
 
 [tool.reahl-component.versions."3.1"]
-install_requires = [
+dependencies = [
   "reahl-component>=3.1,<3.2",
   "reahl-tofu>=3.1,<3.2"
   ]
 
 [tool.reahl-component.versions."3.0"]
-install_requires = [
+dependencies = [
   "reahl-component>=3.0,<3.1",
   "reahl-tofu>=3.0,<3.1"
   ]
 
 [tool.reahl-component.versions."2.1"]
-install_requires = [
+dependencies = [
   "reahl-component>=2.1,<2.2",
   "reahl-tofu>=2.1,<2.2"
   ]
 
 [tool.reahl-component.versions."2.0"]
-install_requires = [
+dependencies = [
   "reahl-component>=2.0,<2.1",
   "reahl-tofu>=2.0,<2.1"
   ]

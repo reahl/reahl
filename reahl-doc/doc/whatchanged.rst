@@ -1,30 +1,4 @@
-.. Copyright 2014, 2015, 2016 Reahl Software Services (Pty) Ltd. All rights reserved.
-
-
-.. |with_returned_argument| replace:: :meth:`~reahl.component.modelinterface.Event.with_returned_argument`
-.. |Event| replace:: :class:`~reahl.component.modelinterface.Event`
-.. |Field| replace:: :class:`~reahl.component.modelinterface.Field`
-.. |Form| replace:: :class:`~reahl.web.ui.Form`
-.. |ExposedNames| replace:: :class:`~reahl.component.modelinterface.ExposedNames`
-.. |exposed| replace:: :meth:`~reahl.component.modelinterface.exposed`
-.. |ExecutionContext| replace:: :class:`~reahl.component.context.ExecutionContext`
-.. |get_context| replace:: :meth:`~reahl.component.context.ExecutionContext.get_context`
-.. |install| replace:: :meth:`~reahl.component.context.ExecutionContext.install`
-.. |UrlBoundView| replace:: :class:`~reahl.web.fw.UrlBoundView`
-.. |ButtonInput| replace:: :class:`~reahl.web.ui.ButtonInput`
-.. |TextInput| replace:: :class:`~reahl.web.ui.TextInput`
-.. |HTMLWidget| replace:: :class:`~reahl.web.ui.HTMLWidget`
-.. |SelectInput| replace:: :class:`~reahl.web.ui.SelectInput`
-.. |PasswordInput| replace:: :class:`~reahl.web.ui.PasswordInput`
-.. |PrimitiveInput| replace:: :class:`~reahl.web.ui.PrimitiveInput`
-.. |Action| replace:: :class:`~reahl.component.modelinterface.Action`
-.. |Choice| replace:: :class:`~reahl.component.modelinterface.Choice`
-.. |ChoiceField| replace:: :class:`~reahl.component.modelinterface.ChoiceField`
-.. |NavbarLayout.add| replace:: :meth:`~reahl.web.bootstrap.navbar.NavbarLayout.add`
-.. |InlineFormLayout.add_input| replace:: :meth:`~reahl.web.bootstrap.forms.InlineFormLayout.add_input`
-.. |set_refresh_widgets| replace:: :meth:`~reahl.web.ui.PrimitiveInput.set_refresh_widgets`
-.. |set_refresh_widget| replace:: :meth:`~reahl.web.ui.PrimitiveInput.set_refresh_widget`
-
+.. Copyright 2014-2023 Reahl Software Services (Pty) Ltd. All rights reserved.
 
 
 What changed in version 7.0
@@ -41,13 +15,22 @@ new virtualenv, then migrate your database:
    reahl migratedb etc
 
 
+Licensing changes
+-----------------
+
+We're excited to announce a significant change in our project's licensing terms.
+In the past, some components of Reahl were LGPL licensed and others were AGPL licensed.
+In response to your feedback, we are transitioning the remaining AGPL Reahl components to the
+GNU Lesser General Public License (LGPL).
+
+
 Final move to PEP 621
 ---------------------
 
-Since version 6.0 Reahl projects are defined in a `setup.cfg` file.
+Since version 6.0 Reahl projects were defined in a `setup.cfg` file.
 
 In order to stay breast of changes in the Python packaging infrastructure this version
-requires a project to be defined in a standard PEP 621 `pyproject.toml` file.
+requires a project to be defined in a standard PEP 621 `pyproject.toml` file instead.
 
 See :doc:`component/pyproject.toml.rst`.
 
@@ -89,38 +72,29 @@ Bug fixes
 Updated dependencies
 --------------------
 
-TODO
-
 Some dependencies on thirdparty python packages have been loosened to include a higher max version:
 
-- babel  between 2.1 and 2.11
-- Pillow between 2.5 and 3.9
-- alembic between 0.9.6 and 1.8
-- beautifulsoup4 between 4.6 and 4.11
-- docutils between 0.14 and 0.19
-- lxml between 4.2 and 4.9
-- plotly between 5.1.0 and 5.11
-- prompt_toolkit between 2.0.10 and 3.0
-- selenium between 2.42 and 4.7
-- tzlocal between 2.0 and 4.2
-- watchdog between 0.8.3 and 2.2
-- wrapt between 1.11.0 and 1.14
-- setuptools should now be 51.0.0 or higher
 
-The dependency on plotly has been upped to version 5.11.0.
 
-The dependency on pip has been upped to minimum version 21.1 in order to work correctly for projects using pyproject.toml.
+
+- Babel  between 2.1 and 2.12
+- wrapt between 1.11.0 and 1.15
+- Pygments between 2.13 and 2.16
+- tzlocal between 2.0 and 5.0
+- plotly between 5.1.0 and 5.16
+- docutils between 0.14 and 0.20
+- alembic between 0.9.6 and 1.12
+- beautifulsoup4 between 4.6 and 4.12
+- watchdog between 0.8.3 and 3.0
+
 
 Some javascript dependencies were updated to newer versions:
 
-- Jquery to 3.6.1
-- Jquery-ui to 1.13.2
-- jquery-validate to 1.19.5
-- js-cookie to 3.0.1
-- bootstrap to 4.6.2
-- underscore to 1.13.6
-- plotlyjs to 2.16.4
-   
+- Jquery to 3.7.1
+- js-cookie to 3.0.5
+- plotlyjs to 2.26.0
+
+
 
    
 

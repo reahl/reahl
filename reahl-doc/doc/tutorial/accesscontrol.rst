@@ -1,4 +1,4 @@
-.. Copyright 2013, 2016 Reahl Software Services (Pty) Ltd. All rights reserved.
+.. Copyright 2013-2023 Reahl Software Services (Pty) Ltd. All rights reserved.
 
 .. |Field| replace:: :class:`~reahl.component.modelinterface.Field`
 .. |Event| replace:: :class:`~reahl.component.modelinterface.Event`

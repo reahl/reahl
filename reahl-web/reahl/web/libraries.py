@@ -1,17 +1,17 @@
-# Copyright 2015-2022 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2015-2023 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
 #    Reahl is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU Affero General Public License as
+#    it under the terms of the GNU Lesser General Public License as
 #    published by the Free Software Foundation; version 3 of the License.
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU Affero General Public License for more details.
+#    GNU Lesser General Public License for more details.
 #
-#    You should have received a copy of the GNU Affero General Public License
+#    You should have received a copy of the GNU Lesser General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """.. versionadded:: 3.2
 
@@ -170,7 +170,7 @@ class Library:
 
     
 class JQuery(Library):
-    """Version 3.6.1 of `JQuery <https://jquery.com>`_.
+    """Version 3.7.1 of `JQuery <https://jquery.com>`_.
 
     This Library also includes a number of plugins we use internally:
 
@@ -185,8 +185,8 @@ class JQuery(Library):
     """
     def __init__(self):
         super().__init__('jquery')
-        self.files = ['jquery-3.6.1/jquery-3.6.1.min.js',
-                      'jquery-3.6.1/jquery-3.6.1.min.map']
+        self.files = ['jquery-3.7.1/jquery-3.7.1.min.js',
+                      'jquery-3.7.1/jquery-3.7.1.min.map']
         self.shipped_in_package = 'reahl.web.static'
         for i in ['jquery.validate-1.19.5.modified.js',
                   'jquery.ba-bbq-1.3pre.js',
@@ -357,20 +357,20 @@ class Underscore(Library):
 
 
 class JsCookie(Library):
-    """Version 3.0.1 of `js-cookie <https://github.com/js-cookie/js-cookie>`_.
+    """Version 3.0.5 of `js-cookie <https://github.com/js-cookie/js-cookie>`_.
     """
     def __init__(self):
         super().__init__('js-cookie')
         self.shipped_in_package = 'reahl.web.static'
         self.files = [
-            'js-cookie-3.0.1/js.cookie.min.js' #this is the UMD version
+            'js-cookie-3.0.5/js.cookie.min.js' #this is the UMD version
         ]
 
 
 class PlotlyJS(Library):
-    """Version 2.16.4 of `plotly.js <https://github.com/plotly/plotly.js/>`_.
+    """Version 2.26.0 of `plotly.js <https://github.com/plotly/plotly.js/>`_.
     """
-    javascript_filename = 'plotly-2.16.4.min.js'
+    javascript_filename = 'plotly-2.26.0.min.js'
     def __init__(self):
         self.active = False
         super().__init__('plotly.js')

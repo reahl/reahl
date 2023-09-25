@@ -25,6 +25,9 @@ authors = [
   {name = "Craig Sparks", email = "craig@reahl.org"}
 ]
 
+[tool.setuptools]
+py-modules = ["migrationexamplebootstrap"]
+
 [tool.setuptools.packages.find]
 exclude = ["etc", "build", "dist"]
 
@@ -40,7 +43,7 @@ migrations = [
 ]
     
 [tool.reahl-component.versions."0.1"]
-install_requires = [
+dependencies = [
   "reahl-web>=6.0,<6.1",
   "reahl-component>=6.0,<6.1",
   "reahl-sqlalchemysupport>=6.0,<6.1",

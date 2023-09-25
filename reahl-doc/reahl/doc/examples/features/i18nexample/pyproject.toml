@@ -27,6 +27,9 @@ authors = [
 [project.entry-points."reahl.translations"]
 i18nexample = "i18nexamplemessages"
 
+[tool.setuptools]
+py-modules = ["i18nexample"]
+
 [tool.setuptools.packages.find]
 exclude = ["etc", "build", "dist"]
 

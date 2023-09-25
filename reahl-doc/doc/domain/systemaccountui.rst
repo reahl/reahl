@@ -1,4 +1,4 @@
-.. Copyright 2013, 2014, 2016 Reahl Software Services (Pty) Ltd. All rights reserved.
+.. Copyright 2013-2018 Reahl Software Services (Pty) Ltd. All rights reserved.
 
 Module reahl.domainui.bootstrap.accounts
 ----------------------------------------

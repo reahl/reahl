@@ -1,4 +1,4 @@
-.. Copyright 2016 Reahl Software Services (Pty) Ltd. All rights reserved.
+.. Copyright 2016, 2020 Reahl Software Services (Pty) Ltd. All rights reserved.
  
 Package reahl.web.bootstrap
 ---------------------------

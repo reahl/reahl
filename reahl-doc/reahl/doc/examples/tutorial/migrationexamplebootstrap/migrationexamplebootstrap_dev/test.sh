@@ -19,23 +19,24 @@ function fail() {
 }
 
 python -m pip install --no-deps -e .
-reahl dropdb etc
+reahl dropdb -y etc
 reahl createdb etc
 reahl createdbtables etc
 
-$( version_is "0.0" ) || fail "Version 0.0 expected"
+$( version_is "0.1" ) || fail "Version 0.1 expected"
 $( ! schema_is_new ) || fail "Old schema expected"
 
 
-sed -i 's|<info name="version">0.0</info>|<info name="version">0.1</info>|g' .reahlproject
 sed -Ei 's|^#( *)added_date|\1added_date|g' migrationexamplebootstrap.py
 sed -Ei 's|^(.*)TODO(.*)|#\1TODO\2|g' migrationexamplebootstrap.py
+cp pyproject.toml{,.old}
+cp pyproject.toml{.new,}
 python -m pip install --no-deps -e .
 reahl migratedb etc
 
-$( version_is "0.1" ) || fail "Version 0.1 expected"
+$( version_is "0.2" ) || fail "Version 0.2 expected"
 $( schema_is_new ) || fail "New schema expected"
 
-python -m pip uninstall $(python -c 'from toml import load; print(load("pyproject.toml")["project"]["name"])')
+python -m pip uninstall -y $(python -c 'from toml import load; print(load("pyproject.toml")["project"]["name"])')
 
 

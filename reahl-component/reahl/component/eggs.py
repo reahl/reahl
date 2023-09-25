@@ -1,22 +1,23 @@
-# Copyright 2013-2022 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2023 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
 #    Reahl is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU Affero General Public License as
+#    it under the terms of the GNU Lesser General Public License as
 #    published by the Free Software Foundation; version 3 of the License.
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU Affero General Public License for more details.
+#    GNU Lesser General Public License for more details.
 #
-#    You should have received a copy of the GNU Affero General Public License
+#    You should have received a copy of the GNU Lesser General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """Classes that aid in dealing with Eggs and setting them up."""
 
 import os
+import pdb
 import re
 import sys
 import os.path
@@ -334,7 +335,8 @@ class Version(object):
 
 class ReahlEgg:
     interface_cache = {}
-    metadata_version = pkg_resources.parse_version('1.0.0')
+    metadata_version_min = pkg_resources.parse_version('1.0.0')
+    metadata_version_max = pkg_resources.parse_version('1.1.0')
     def __init__(self, distribution):
         self.distribution = distribution
         self.metadata = self.create_metadata(distribution)
@@ -354,8 +356,8 @@ class ReahlEgg:
             raise ProgrammerError('Component metadata version not found for %s' % self.distribution)
 
         metadata_version = pkg_resources.parse_version(metadata_version_string)
-        supported_version_min = pkg_resources.parse_version('%s.%s' % (self.metadata_version.major, self.metadata_version.minor))
-        supported_version_max = pkg_resources.parse_version('%s.%s' % (self.metadata_version.major, self.metadata_version.minor+1))
+        supported_version_min = pkg_resources.parse_version('%s.%s' % (self.metadata_version_min.major, self.metadata_version_min.minor))
+        supported_version_max = pkg_resources.parse_version('%s.%s' % (self.metadata_version_max.major, self.metadata_version_max.minor+1))
 
         if not(metadata_version >= supported_version_min and metadata_version < supported_version_max):
             raise ProgrammerError('Component metadata version %s for %s is incompatible with the installed version of reahl-component' % (metadata_version, self.distribution))
@@ -401,7 +403,9 @@ class ReahlEgg:
         if str(version) == current_major_minor_string:
             version_dependencies = self.distribution.requires()
         else:
-            version_dependencies = [pkg_resources.Requirement.parse(i) for i in self.metadata.get('versions', {}).get(version, {}).get('install_requires', [])]
+            version_data = self.metadata.get('versions', {}).get(version, {})
+            requirements = version_data.get('install_requires', [])+version_data.get('dependencies', [])
+            version_dependencies = [pkg_resources.Requirement.parse(i) for i in requirements]
         return [Dependency(self, dep) for dep in version_dependencies]
 
     def load(self, locator):
@@ -437,6 +441,10 @@ class ReahlEgg:
     def translation_pot_filename(self):
         translations_package_name = self.translation_package_name
         translations_file_path = translations_package_name.replace('.', '/')
+
+        source_file = pathlib.Path().joinpath(translations_file_path).joinpath(self.name)
+        if source_file.exists():
+            return str(source_file)
         return self.distribution.get_resource_filename(self.distribution, '%s/%s' % (translations_file_path, self.name))
 
     @property

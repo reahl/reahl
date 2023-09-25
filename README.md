@@ -18,8 +18,8 @@ internationalisation and more.
 The other projects support development of (mostly web) applications, 
 regardless of which web framework is used.
 
-Although all the Reahl components reside in one source code tree, some are 
-licensed LGPL and others AGPL (see the relevant licenses in each subdirectory).
+The Reahl components reside in one source code tree, each with its own 
+LGPL license (see the relevant licenses in each subdirectory).
 
 More details at our website: [Reahl - the Python-only web framework](http://www.reahl.org)
 

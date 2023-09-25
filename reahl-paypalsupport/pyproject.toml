@@ -49,7 +49,7 @@ persisted = [
   ]
 
 [tool.reahl-component.versions."6.1"]
-install_requires = [
+dependencies = [
   "reahl-component>=6.1,<6.2",
   "reahl-sqlalchemysupport>=6.1,<6.2",
   "reahl-web>=6.1,<6.2",
@@ -61,7 +61,7 @@ install_requires = [
 migrations = [
   "reahl.paypalsupport.migrations:AdjustJsonForMySqlCompatibility"
   ]
-install_requires = [
+dependencies = [
   "reahl-component>=6.0,<6.1",
   "reahl-sqlalchemysupport>=6.0,<6.1",
   "reahl-web>=6.0,<6.1",
@@ -70,7 +70,7 @@ install_requires = [
   ]
 
 [tool.reahl-component.versions."5.2"]
-install_requires = [
+dependencies = [
   "reahl-component>=5.2,<5.3",
   "reahl-sqlalchemysupport>=5.2,<5.3",
   "reahl-web>=5.2,<5.3",

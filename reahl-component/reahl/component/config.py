@@ -1,17 +1,17 @@
-# Copyright 2013-2022 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2023 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
 #    Reahl is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU Affero General Public License as
+#    it under the terms of the GNU Lesser General Public License as
 #    published by the Free Software Foundation; version 3 of the License.
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU Affero General Public License for more details.
+#    GNU Lesser General Public License for more details.
 #
-#    You should have received a copy of the GNU Affero General Public License
+#    You should have received a copy of the GNU Lesser General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """Classes in this module manage system configuration.
@@ -164,7 +164,8 @@ class Configuration:
     """A collection of ConfigSettings for a component. To supply configuration for your component,
        subclass from this class and assign each wanted ConfigSetting as a class attribute. Assign
        the required `filename` and `config_key` class attributes in your subclass as well. The resultant
-       class should also be listed in the .reahlproject file of your component in a <configuration> element.
+       class should also be listed in the configuration key of the [tool.reahl-component] table in your 
+       pyproject.toml.
     """
     
     filename = None   #: The name of the config file from which this Configuration will be read.

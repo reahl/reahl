@@ -1,4 +1,4 @@
-.. Copyright 2014, 2016 Reahl Software Services (Pty) Ltd. All rights reserved.
+.. Copyright 2014-2022 Reahl Software Services (Pty) Ltd. All rights reserved.
 
 .. |Widget| replace:: :class:`~reahl.web.fw.Widget`
 .. |Input| replace:: :class:`~reahl.web.ui.Input`

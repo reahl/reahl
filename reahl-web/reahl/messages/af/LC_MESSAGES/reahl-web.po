@@ -1,4 +1,4 @@
-# Copyright 2013-2022 Reahl Software Services (Pty) Ltd. All rights
+# Copyright 2013-2023 Reahl Software Services (Pty) Ltd. All rights
 # reserved.
 #
 # Afrikaans translations for reahl-web.
@@ -6,18 +6,18 @@ msgid ""
 msgstr ""
 "Project-Id-Version: reahl-web 6.1.0\n"
 "Report-Msgid-Bugs-To: info@reahl.org\n"
-"POT-Creation-Date: 2022-11-24 13:23+0000\n"
+"POT-Creation-Date: 2023-09-21 11:11+0200\n"
 "PO-Revision-Date: 2012-04-22 10:40+0200\n"
 "Last-Translator: Iwan Vosloo <iwan@reahl.org>\n"
 "Language: af\n"
 "Language-Team: af <info@reahl.org>\n"
-"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.9.1\n"
+"Generated-By: Babel 2.11.0\n"
 
-#: build/lib/reahl/web/csrf.py:45 reahl/web/csrf.py:45
+#: reahl/web/csrf.py:45
 msgid ""
 "This page has expired. For security reasons, please review your input and"
 " retry."
@@ -25,27 +25,25 @@ msgstr ""
 "Hierdie bladsy het verval. Vir sekuriteitsredes, hersien asseblief jou "
 "insette en probeer weer. "
 
-#: build/lib/reahl/web/csrf.py:55 reahl/web/csrf.py:55
+#: reahl/web/csrf.py:55
 msgid "Invalid CSRF token."
 msgstr "Ongeldige CSRF-teken."
 
-#: build/lib/reahl/web/dhtml.py:59 build/lib/reahl/web/fw.py:547
-#: reahl/web/dhtml.py:59 reahl/web/fw.py:558
+#: reahl/web/dhtml.py:59 reahl/web/fw.py:565
 msgid "Untitled"
 msgstr "Ongetiteld"
 
-#: build/lib/reahl/web/fw.py:83 build/lib/reahl/web/fw.py:1312
-#: reahl/web/fw.py:94 reahl/web/fw.py:1333
+#: reahl/web/fw.py:101 reahl/web/fw.py:1340
 msgid "An error occurred"
 msgid_plural "Some errors occurred"
 msgstr[0] "'n Fout het gebeur"
 msgstr[1] "Foute het gebeur"
 
-#: build/lib/reahl/web/fw.py:494 reahl/web/fw.py:505
+#: reahl/web/fw.py:512
 msgid "Error"
 msgstr "Fout"
 
-#: build/lib/reahl/web/fw.py:2861 reahl/web/fw.py:2905
+#: reahl/web/fw.py:2911
 msgid ""
 "Something changed on the server while you were busy. You cannot perform "
 "this action anymore."
@@ -53,28 +51,15 @@ msgstr ""
 "Iets in die bediener het verander terwyl jy besig was. Jy kan hierdie "
 "taak nie meer laat uitvoer nie."
 
-#: build/lib/reahl/web/ui.py:207
-msgid "An error occurred when contacting the server. Please try again later."
-msgstr ""
-"'n Fout het gebeur tydens kommunikasie met die bediener. Probeer "
-"asseblief later weer."
-
-#: build/lib/reahl/web/ui.py:208
-msgid "The server took too long to respond. Please try again later."
-msgstr ""
-"Die bediener het te lank gevat om te antwoord. Probeer asseblief later "
-"weer."
-
-#: build/lib/reahl/web/bootstrap/page.py:43 build/lib/reahl/web/ui.py:605
-#: reahl/web/bootstrap/page.py:43 reahl/web/ui.py:609
+#: reahl/web/bootstrap/page.py:43 reahl/web/ui.py:608
 msgid "An error occurred:"
 msgstr "'n Fout het gebeur:"
 
-#: build/lib/reahl/web/ui.py:607 reahl/web/ui.py:611
+#: reahl/web/ui.py:610
 msgid "Ok"
 msgstr "Ok"
 
-#: build/lib/reahl/web/ui.py:1018 reahl/web/ui.py:1022
+#: reahl/web/ui.py:1021
 msgid ""
 "Some data changed since you opened this page, please reset input to try "
 "again."
@@ -82,79 +67,72 @@ msgstr ""
 "Die data het verander vandat jy laas hierdie bladsy besoek het, herstel "
 "die insetdata, en probeer weer."
 
-#: build/lib/reahl/web/ui.py:1111 reahl/web/ui.py:1113
+#: reahl/web/ui.py:1112
 msgid "Reset input"
 msgstr "Herstel insetdata"
 
-#: build/lib/reahl/web/ui.py:2494 reahl/web/ui.py:2546
+#: reahl/web/ui.py:2536
 msgid "uploaded files should all have different names"
 msgstr "opgelaaide lêers moet almal verskillende name hê"
 
-#: build/lib/reahl/web/bootstrap/carousel.py:141
 #: reahl/web/bootstrap/carousel.py:141
 msgid "Previous"
 msgstr "Vorige"
 
-#: build/lib/reahl/web/bootstrap/carousel.py:141
 #: reahl/web/bootstrap/carousel.py:141
 msgid "Next"
 msgstr "Volgende"
 
-#: build/lib/reahl/web/bootstrap/files.py:59 reahl/web/bootstrap/files.py:59
+#: reahl/web/bootstrap/files.py:59
 msgid "Choose file(s)"
 msgstr "Kies lêer(s)"
 
-#: build/lib/reahl/web/bootstrap/files.py:103
-#: build/lib/reahl/web/bootstrap/files.py:109 reahl/web/bootstrap/files.py:103
-#: reahl/web/bootstrap/files.py:109
+#: reahl/web/bootstrap/files.py:103 reahl/web/bootstrap/files.py:109
 msgid "No files chosen"
 msgstr "Geen lêers gekies"
 
-#: build/lib/reahl/web/bootstrap/files.py:109 reahl/web/bootstrap/files.py:109
+#: reahl/web/bootstrap/files.py:109
 msgid "files chosen"
 msgstr "gekose lêers"
 
-#: build/lib/reahl/web/bootstrap/files.py:178 reahl/web/bootstrap/files.py:177
+#: reahl/web/bootstrap/files.py:177
 msgid "Upload"
 msgstr "Laai op"
 
-#: build/lib/reahl/web/bootstrap/files.py:179 reahl/web/bootstrap/files.py:178
+#: reahl/web/bootstrap/files.py:178
 msgid "Remove"
 msgstr "Neem weg"
 
-#: build/lib/reahl/web/bootstrap/files.py:187 reahl/web/bootstrap/files.py:186
+#: reahl/web/bootstrap/files.py:186
 msgid "Add file"
 msgstr "Voeg lêer by"
 
-#: build/lib/reahl/web/bootstrap/files.py:206 reahl/web/bootstrap/files.py:207
+#: reahl/web/bootstrap/files.py:207
 msgid "an error occurred, please try again later."
 msgstr ""
 "'n Fout het gebeur tydens kommunikasie met die bediener. Probeer "
 "asseblief later weer."
 
-#: build/lib/reahl/web/bootstrap/files.py:208 reahl/web/bootstrap/files.py:209
+#: reahl/web/bootstrap/files.py:209
 msgid "Cancel"
 msgstr "Kanselleer"
 
-#: build/lib/reahl/web/bootstrap/files.py:210 reahl/web/bootstrap/files.py:211
+#: reahl/web/bootstrap/files.py:211
 msgid "Please try again when all files have finished uploading."
 msgstr "Probeer asseblief weer nadat alle lêers opgelaai het."
 
-#: build/lib/reahl/web/bootstrap/navbar.py:49 reahl/web/bootstrap/navbar.py:49
+#: reahl/web/bootstrap/navbar.py:49
 msgid "Toggle navigation"
 msgstr "Skakel navigasie aan of af"
 
-#: build/lib/reahl/web/bootstrap/popups.py:87
-#: build/lib/reahl/web/bootstrap/popups.py:89 reahl/web/bootstrap/popups.py:87
-#: reahl/web/bootstrap/popups.py:89
+#: reahl/web/bootstrap/popups.py:87 reahl/web/bootstrap/popups.py:89
 msgid "Close"
 msgstr "Maak toe"
 
-#: build/lib/reahl/web_dev/test_i18n.py:37 reahl/web_dev/test_i18n.py:37
+#: reahl/web_dev/test_i18n.py:37
 msgid "A View"
 msgstr "'n Oogpunt"
 
-#: build/lib/reahl/web_dev/bootstrap/test_nav.py:251
 #: reahl/web_dev/bootstrap/test_nav.py:251
 msgid "This is an English sentence."
 msgstr "Hierdie is 'n sin in Afrikaans."

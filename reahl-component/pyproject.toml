@@ -25,12 +25,12 @@ classifiers = [
   "Topic :: Software Development :: Build Tools"
   ]
 dependencies = [
-  "Babel>=2.1,<2.11.999",
+  "Babel>=2.1,<2.12.999",
   "python-dateutil>=2.8,<2.8.999",
-  "wrapt>=1.11.0,<1.14.999",
+  "wrapt>=1.11.0,<1.15.999",
   "setuptools>=51.0.0",
   "pip>=21.1",
-  "cached-property>=1.5,<1.5.999;python_version<\"3.8\"",
+  "cached-property>=1.5,<1.5.999;python_version<'3.8'",
   "toml"
   ]
 authors = [ 
@@ -67,7 +67,7 @@ NullDatabaseControl = "reahl.component.dbutils:NullDatabaseControl"
 exclude = ["etc", "build", "dist"]
 
 [tool.reahl-component.versions."6.1"]
-install_requires = []
+dependencies = []
 
 [tool.reahl-component.versions."6.0"]
 

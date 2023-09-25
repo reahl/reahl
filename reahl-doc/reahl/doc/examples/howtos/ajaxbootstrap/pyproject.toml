@@ -25,6 +25,9 @@ authors = [
   {name = "Craig Sparks", email = "craig@reahl.org"}
 ]
 
+[tool.setuptools]
+py-modules = ["ajaxbootstrap"]
+
 [tool.setuptools.packages.find]
 exclude = ["etc", "build", "dist"]
 

@@ -24,11 +24,13 @@ authors = [
   {name = "Craig Sparks", email = "craig@reahl.org"}
 ]
 
+[tool.setuptools]
+py-modules = ["customisingerrorpages"]
+
 [tool.setuptools.packages.find]
 exclude = ["etc", "build", "dist"]
 
 [tool.reahl-component]
 persisted = [
-  "reahl.doc.examples.howtos.dynamiccontent.dynamiccontent:InvestmentOrder",
-  "reahl.doc.examples.howtos.dynamiccontent.dynamiccontent:Allocation"
+  "reahl.doc.examples.howtos.customisingerrorpages.customisingerrorpages:SimpleDomainObject"
   ]

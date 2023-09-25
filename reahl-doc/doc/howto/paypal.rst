@@ -1,4 +1,4 @@
-.. Copyright 2022 Reahl Software Services (Pty) Ltd. All rights reserved.
+.. Copyright 2022, 2023 Reahl Software Services (Pty) Ltd. All rights reserved.
 
 .. |@session_scoped| replace:: :func:`~reahl.sqlalchemysupport.sqlalchemysupport.session_scoped`
 .. |Widget| replace:: :class:`~reahl.web.fw.Widget`
