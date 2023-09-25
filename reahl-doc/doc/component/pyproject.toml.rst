@@ -71,13 +71,13 @@ The current version (1.3 in the example below) is not included in this list **ex
 
 
 
-.. _pyproject_install_requires:
+.. _pyproject_dependencies:
 
 
-install_requires
-""""""""""""""""
+dependencies
+""""""""""""
 
-Each version may have an 'install_requires' array, which lists all other components it requires. For the current
+Each version may have a 'dependencies' array, which lists all other components it requires. For the current
 version, this information is automatically read from the usual `dependencies` key in standard '[project]' table, which is why the current
 version need not be listed.
 
@@ -90,12 +90,12 @@ version need not be listed.
      ]
      
    [tool.reahl-component.versions."1.2"]
-     install_requires = [
+     dependencies = [
        "reahl-component>=1.2,<1.3"
      ]
    
    [tool.reahl-component.versions."1.0"]
-     install_requires = [
+     dependencies = [
        "reahl-component>=0.8,<1.9"
      ]
 
@@ -131,7 +131,7 @@ reference`_) to run in order to bring the previous version of the database schem
 
    
    [tool.reahl-component.versions."1.2"]
-     install_requires = [
+     dependencies = [
        "reahl-component>=1.2,<1.3"
      ]
      migrations = [
@@ -140,7 +140,7 @@ reference`_) to run in order to bring the previous version of the database schem
      ]
      
    [tool.reahl-component.versions."1.0"]
-     install_requires = [
+     dependencies = [
        "reahl-component>=0.8,<1.9"
      ]
      migrations = [
@@ -150,7 +150,7 @@ reference`_) to run in order to bring the previous version of the database schem
 
 
 If the current version of your component has a |Migration|, then it should also be included in the versions listed, but only its migrations
-should then be specified, no "install_requires":
+should then be specified, no "dependencies":
 
 .. code-block:: ini
                 
@@ -166,7 +166,7 @@ should then be specified, no "install_requires":
        "my.one.package:MigrateD"
      ]
    [tool.reahl-component.versions."1.2"]
-     install_requires = [
+     dependencies = [
        "reahl-component>=1.2,<1.3"
      ]
      migrations = [
@@ -175,7 +175,7 @@ should then be specified, no "install_requires":
      ]
      
    [tool.reahl-component.versions."1.0"]
-     install_requires = [
+     dependencies = [
        "reahl-component>=0.8,<1.9"
      ]
      migrations = [

@@ -335,7 +335,8 @@ class Version(object):
 
 class ReahlEgg:
     interface_cache = {}
-    metadata_version = pkg_resources.parse_version('1.0.0')
+    metadata_version_min = pkg_resources.parse_version('1.0.0')
+    metadata_version_max = pkg_resources.parse_version('1.1.0')
     def __init__(self, distribution):
         self.distribution = distribution
         self.metadata = self.create_metadata(distribution)
@@ -355,8 +356,8 @@ class ReahlEgg:
             raise ProgrammerError('Component metadata version not found for %s' % self.distribution)
 
         metadata_version = pkg_resources.parse_version(metadata_version_string)
-        supported_version_min = pkg_resources.parse_version('%s.%s' % (self.metadata_version.major, self.metadata_version.minor))
-        supported_version_max = pkg_resources.parse_version('%s.%s' % (self.metadata_version.major, self.metadata_version.minor+1))
+        supported_version_min = pkg_resources.parse_version('%s.%s' % (self.metadata_version_min.major, self.metadata_version_min.minor))
+        supported_version_max = pkg_resources.parse_version('%s.%s' % (self.metadata_version_max.major, self.metadata_version_max.minor+1))
 
         if not(metadata_version >= supported_version_min and metadata_version < supported_version_max):
             raise ProgrammerError('Component metadata version %s for %s is incompatible with the installed version of reahl-component' % (metadata_version, self.distribution))
@@ -402,7 +403,9 @@ class ReahlEgg:
         if str(version) == current_major_minor_string:
             version_dependencies = self.distribution.requires()
         else:
-            version_dependencies = [pkg_resources.Requirement.parse(i) for i in self.metadata.get('versions', {}).get(version, {}).get('install_requires', [])]
+            version_data = self.metadata.get('versions', {}).get(version, {})
+            requirements = version_data.get('install_requires', [])+version_data.get('dependencies', [])
+            version_dependencies = [pkg_resources.Requirement.parse(i) for i in requirements]
         return [Dependency(self, dep) for dep in version_dependencies]
 
     def load(self, locator):

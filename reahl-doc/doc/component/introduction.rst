@@ -207,11 +207,11 @@ Each version of your Reahl component can have its own set of |Migration|\s which
 version from its predecessor. The migration machinery needs access to all |Migration|\s of all versions of all
 components to be able to compute a correct dependency tree.
 
-Add a `table`_ for each minor release of your component :ref:`in the 'pyproject.toml' component option <pyproject_install_requires>`.
+Add a `table`_ for each minor release of your component :ref:`in the 'pyproject.toml' component option <pyproject_dependencies>`.
 
 For each such version entry, add two entries:
 
- - :ref:`"install_requires" <pyproject_install_requires>`: a list of the requirements that version had; and
+ - :ref:`"dependencies" <pyproject_dependencies>`: a list of the requirements that version had; and
  - :ref:`"migrations" <pyproject_migrations>`: a list of the migration classes that need to run to bring the previous version's schema up to date to this version.
 
 To prevent duplication, the version `table`_ matching the current version

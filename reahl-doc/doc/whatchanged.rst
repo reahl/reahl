@@ -24,8 +24,6 @@ In response to your feedback, we are transitioning the remaining AGPL Reahl comp
 GNU Lesser General Public License (LGPL).
 
 
-
-
 Final move to PEP 621
 ---------------------
 

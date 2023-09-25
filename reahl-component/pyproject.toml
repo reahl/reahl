@@ -67,7 +67,7 @@ NullDatabaseControl = "reahl.component.dbutils:NullDatabaseControl"
 exclude = ["etc", "build", "dist"]
 
 [tool.reahl-component.versions."6.1"]
-install_requires = []
+dependencies = []
 
 [tool.reahl-component.versions."6.0"]
 

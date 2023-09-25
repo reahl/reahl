@@ -75,7 +75,7 @@ persisted = [
   ]
 
 [tool.reahl-component.versions."6.1"]
-install_requires = [
+dependencies = [
   "reahl-component>=6.1,<6.2",
   "reahl-mailutil>=6.1,<6.2",
   "reahl-sqlalchemysupport>=6.1,<6.2",
@@ -83,7 +83,7 @@ install_requires = [
   ]
 
 [tool.reahl-component.versions."6.0"]
-install_requires = [
+dependencies = [
   "reahl-component>=6.0,<6.1",
   "reahl-mailutil>=6.0,<6.1",
   "reahl-sqlalchemysupport>=6.0,<6.1",
@@ -91,7 +91,7 @@ install_requires = [
   ]
 
 [tool.reahl-component.versions."5.2"]
-install_requires = [
+dependencies = [
   "reahl-component>=5.2,<5.3",
   "reahl-mailutil>=5.2,<5.3",
   "reahl-sqlalchemysupport>=5.2,<5.3",
@@ -102,7 +102,7 @@ migrations = [
   ]
 
 [tool.reahl-component.versions."5.1"]
-install_requires = [
+dependencies = [
   "reahl-component>=5.1,<5.2",
   "reahl-mailutil>=5.1,<5.2",
   "reahl-sqlalchemysupport>=5.1,<5.2",
@@ -110,7 +110,7 @@ install_requires = [
   ]
 
 [tool.reahl-component.versions."5.0"]
-install_requires = [
+dependencies = [
   "reahl-component>=5.0,<5.1",
   "reahl-mailutil>=5.0,<5.1",
   "reahl-sqlalchemysupport>=5.0,<5.1",
@@ -118,7 +118,7 @@ install_requires = [
   ]
 
 [tool.reahl-component.versions."4.0"]
-install_requires = [
+dependencies = [
   "reahl-component>=4.0,<4.1",
   "reahl-mailutil>=4.0,<4.1",
   "reahl-sqlalchemysupport>=4.0,<4.1",
@@ -131,7 +131,7 @@ migrations = [
   ]
 
 [tool.reahl-component.versions."3.2"]
-install_requires = [
+dependencies = [
   "reahl-component>=3.2,<3.3",
   "reahl-mailutil>=3.2,<3.3",
   "reahl-sqlalchemysupport>=3.2,<3.3",
@@ -139,7 +139,7 @@ install_requires = [
   ]
 
 [tool.reahl-component.versions."3.1"]
-install_requires = [
+dependencies = [
   "reahl-component>=3.1,<3.2",
   "reahl-mailutil>=3.1,<3.2",
   "reahl-sqlalchemysupport>=3.1,<3.2",
@@ -150,7 +150,7 @@ migrations = [
   ]
 
 [tool.reahl-component.versions."3.0"]
-install_requires = [
+dependencies = [
   "reahl-component>=3.0,<3.1",
   "reahl-mailutil>=3.0,<3.1",
   "reahl-interfaces>=3.0,<3.1",
@@ -161,7 +161,7 @@ migrations = [
   ]
 
 [tool.reahl-component.versions."2.1"]
-install_requires = [
+dependencies = [
   "reahl-component>=2.1,<2.2",
   "reahl-mailutil>=2.1,<2.2",
   "reahl-interfaces>=2.1,<2.2",
@@ -169,7 +169,7 @@ install_requires = [
   ]
 
 [tool.reahl-component.versions."2.0"]
-install_requires = [
+dependencies = [
   "reahl-component>=2.0,<2.1",
   "reahl-mailutil>=2.0,<2.1",
   "reahl-interfaces>=2.0,<2.1",

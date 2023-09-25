@@ -41,62 +41,62 @@ PostgresqlControl = "reahl.postgresqlsupport:PostgresqlControl"
 exclude = ["etc", "build", "dist"]
 
 [tool.reahl-component.versions."6.1"]
-install_requires = [
+dependencies = [
   "reahl-component>=6.1,<6.2",
   "reahl-commands>=6.1,<6.2"
   ]
 
 [tool.reahl-component.versions."6.0"]
-install_requires = [
+dependencies = [
   "reahl-component>=6.0,<6.1",
   "reahl-commands>=6.0,<6.1"
   ]
 
 [tool.reahl-component.versions."5.2"]
-install_requires = [
+dependencies = [
   "reahl-component>=5.2,<5.3",
   "reahl-commands>=5.2,<5.3"
   ]
 
 [tool.reahl-component.versions."5.1"]
-install_requires = [
+dependencies = [
   "reahl-component>=5.1,<5.2",
   "reahl-commands>=5.1,<5.2"
   ]
 
 [tool.reahl-component.versions."5.0"]
-install_requires = [
+dependencies = [
   "reahl-component>=5.0,<5.1",
   "reahl-commands>=5.0,<5.1"
   ]
 
 [tool.reahl-component.versions."4.0"]
-install_requires = [
+dependencies = [
   "reahl-component>=4.0,<4.1",
   "reahl-commands>=4.0,<4.1"
   ]
 
 [tool.reahl-component.versions."3.2"]
-install_requires = [
+dependencies = [
   "reahl-component>=3.2,<3.3"
   ]
 
 [tool.reahl-component.versions."3.1"]
-install_requires = [
+dependencies = [
   "reahl-component>=3.1,<3.2"
   ]
 
 [tool.reahl-component.versions."3.0"]
-install_requires = [
+dependencies = [
   "reahl-component>=3.0,<3.1"
   ]
 
 [tool.reahl-component.versions."2.1"]
-install_requires = [
+dependencies = [
   "reahl-component>=2.1,<2.2"
   ]
 
 [tool.reahl-component.versions."2.0"]
-install_requires = [
+dependencies = [
   "reahl-component>=2.0,<2.1"
   ]
