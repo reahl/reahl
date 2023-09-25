@@ -102,7 +102,7 @@ jobs:
         run: pip install --pre tox>=4.6.3 reahl-dev reahl-commands reahl-postgresqlsupport #uses wheels as specified in $HOME/.pip/pip.conf
 
       - name: Select all reahl projects
-        run: . $HOME/.profile && reahl refresh && reahl select -a
+        run: . $HOME/.profile && reahl refresh $GITHUB_WORKSPACE && reahl select -a
 
       - name: Create db user for Tests
         run: . $HOME/.profile && reahl createdbuser -U runner .github/etc
