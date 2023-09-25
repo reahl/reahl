@@ -1,4 +1,4 @@
-.. Copyright 2013-2016 Reahl Software Services (Pty) Ltd. All rights reserved.
+.. Copyright 2013-2023 Reahl Software Services (Pty) Ltd. All rights reserved.
 
 .. |AccountUI| replace:: :class:`~reahl.domainui.bootstrap.accounts.AccountUI`
 .. |AccountManagementInterface| replace:: :class:`~reahl.domain.systemaccountmodel.AccountManagementInterface`

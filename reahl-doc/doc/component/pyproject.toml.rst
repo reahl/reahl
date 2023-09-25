@@ -1,4 +1,4 @@
-.. Copyright 2022 Reahl Software Services (Pty) Ltd. All rights reserved.
+.. Copyright 2022, 2023 Reahl Software Services (Pty) Ltd. All rights reserved.
 
 .. _entry point object reference: https://packaging.python.org/en/latest/specifications/entry-points/#data-model
 .. _table: https://toml.io/en/v1.0.0#table

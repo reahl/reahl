@@ -490,7 +490,7 @@ class UpdateCopyright(Command):
     def process_file(self, filename, copyright_holder_string):
         with open(filename, encoding='utf-8') as infile:
             first_line = infile.readline()
-            match = re.match('^(?P<start>(#|/[*]|\')\s*Copyright\s*)(?P<years>[0-9, -]+)(?P<end>.*%s.*$)' % copyright_holder_string, first_line)
+            match = re.match('^(?P<start>(#|\.\.|/[*]|\')\s*Copyright\s*)(?P<years>[0-9, -]+)(?P<end>.*%s.*$)' % copyright_holder_string, first_line)
             if match:
                 new_line = '%s%s %s\n' % (match.group('start'), self.get_date_string(filename), match.group('end'))
                 out_filename = '%s.t' % filename

@@ -1,4 +1,4 @@
-.. Copyright 2014, 2015, 2016 Reahl Software Services (Pty) Ltd. All rights reserved.
+.. Copyright 2014-2023 Reahl Software Services (Pty) Ltd. All rights reserved.
 
 
 What changed in version 7.0

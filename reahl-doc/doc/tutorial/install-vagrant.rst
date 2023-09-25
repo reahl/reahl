@@ -1,4 +1,4 @@
-.. Copyright 2014, 2015, 2016 Reahl Software Services (Pty) Ltd. All rights reserved.
+.. Copyright 2017, 2020 Reahl Software Services (Pty) Ltd. All rights reserved.
  
 Using Reahl in Vagrant
 ======================

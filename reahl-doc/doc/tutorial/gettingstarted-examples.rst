@@ -1,4 +1,4 @@
-.. Copyright 2015, 2016 Reahl Software Services (Pty) Ltd. All rights reserved.
+.. Copyright 2015-2022 Reahl Software Services (Pty) Ltd. All rights reserved.
  
 Run more examples
 =================
