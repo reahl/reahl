@@ -48,7 +48,7 @@ jobs:
         run: pip install --pre reahl-dev reahl-commands #uses wheels as specified in $HOME/.pip/pip.conf
 
       - name: Select all reahl projects
-        run: . $HOME/.profile && reahl refresh && reahl select -a
+        run: . $HOME/.profile && reahl refresh $GITHUB_WORKSPACE && reahl select -a
 
       - name: Sign all wheels
         run: |
