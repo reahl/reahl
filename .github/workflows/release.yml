@@ -52,7 +52,7 @@ jobs:
 
       - name: Sign all wheels
         run: |
-          . $HOME/.profile && reahl sign -sdX && reahl list -s
+          . $HOME/.profile && reahl sign -sdX
 
       - name: Extract signed wheels
         run: cp -a /home/runner/.reahlworkspace/dist-egg/ /tmp/signedwheels
