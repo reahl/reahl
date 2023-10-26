@@ -18,7 +18,8 @@ dependencies = [
   "reahl-component>=7.0,<7.1",
   "reahl-sqlitesupport>=7.0,<7.1",
   "reahl-sqlalchemysupport>=7.0,<7.1",
-  "reahl-web-declarative>=7.0,<7.1"
+  "reahl-web-declarative>=7.0,<7.1",
+  "SQLAlchemy>=1.2.0,<1.4.999"
   ]
 authors = [ 
   {name = "Iwan Vosloo", email = "iwan@reahl.org"},
