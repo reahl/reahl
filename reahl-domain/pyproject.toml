@@ -27,7 +27,8 @@ dependencies = [
   "reahl-mailutil>=7.0,<7.1",
   "reahl-sqlalchemysupport>=7.0,<7.1",
   "reahl-web-declarative>=7.0,<7.1",
-  "passlib>=1.7.1,<1.7.9999"
+  "passlib>=1.7.1,<1.7.9999",
+  "SQLAlchemy>=1.2.0,<1.4.999"
   ]
 authors = [ 
   {name = "Iwan Vosloo", email = "iwan@reahl.org"},
