@@ -1,4 +1,4 @@
-.. Copyright 2013-2022 Reahl Software Services (Pty) Ltd. All rights reserved.
+.. Copyright 2013-2023 Reahl Software Services (Pty) Ltd. All rights reserved.
 
 .. |HTMLElement| replace:: :class:`~reahl.web.ui.HTMLElement`
 .. |TextInput| replace:: :class:`~reahl.web.bootstrap.forms.TextInput`

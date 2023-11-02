@@ -1,4 +1,4 @@
-.. Copyright 2020 Reahl Software Services (Pty) Ltd. All rights reserved.
+.. Copyright 2020, 2023 Reahl Software Services (Pty) Ltd. All rights reserved.
 
 .. |Widget| replace:: :class:`~reahl.web.fw.Widget`
 .. |UrlBoundView| replace:: :class:`~reahl.web.fw.UrlBoundView`
