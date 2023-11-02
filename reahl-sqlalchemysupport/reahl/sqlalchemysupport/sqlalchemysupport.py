@@ -227,7 +227,7 @@ class SqlAlchemyControl(ORMControl):
         .. versionchanged:: 5.0
            Changed to yield a TransactionVeto which can be used to override when the transaction will be committed or not.
         """
-        transaction = Session.begin_nested()
+        transaction = Session().begin_nested()
         transaction_veto = TransactionVeto()
         try:
             yield transaction_veto
@@ -307,12 +307,11 @@ class SqlAlchemyControl(ORMControl):
         assert self.connected
         if Session().in_transaction():
             return Session().get_transaction()
-        return Session.begin()
+        return Session().begin()
     
     def finalise_session(self):
-        transaction = Session().get_transaction()
-        nested = transaction and transaction.nested
-        if nested:   
+        nested = Session().in_nested_transaction()
+        if nested:
             # This is necessary to facilitate testing.  When testing, code continually
             # runs in a nested transaction inside a real transaction which will both
             # eventually be rolled back.  This is done so that this method can use the
