@@ -1,4 +1,4 @@
-.. Copyright 2013-2021 Reahl Software Services (Pty) Ltd. All rights reserved.
+.. Copyright 2013-2023 Reahl Software Services (Pty) Ltd. All rights reserved.
 
 Stubble (reahl-stubble)
 =======================

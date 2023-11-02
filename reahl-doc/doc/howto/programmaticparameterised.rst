@@ -1,4 +1,4 @@
-.. Copyright 2018, 2019, 2021 Reahl Software Services (Pty) Ltd. All rights reserved.
+.. Copyright 2018-2023 Reahl Software Services (Pty) Ltd. All rights reserved.
 
 .. |define_view| replace:: :meth:`~reahl.web.fw.UserInterface.enable_refresh`
 .. |UserInterface| replace:: :class:`~reahl.web.fw.UserInterface`

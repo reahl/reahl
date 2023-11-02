@@ -1,4 +1,4 @@
-.. Copyright 2013, 2014, 2017 Reahl Software Services (Pty) Ltd. All rights reserved.
+.. Copyright 2013-2023 Reahl Software Services (Pty) Ltd. All rights reserved.
  
 Module reahl.web.dhtml
 -----------------------
