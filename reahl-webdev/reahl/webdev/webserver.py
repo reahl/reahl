@@ -229,7 +229,10 @@ class SSLCapableWSGIServer(ReahlWSGIServer):
         self.base_environ['HTTPS']='on'
 
     def server_bind(self):
-        self.socket = ssl.wrap_socket(self.socket, server_side=True, certfile=self.certfile)
+        context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+        context.load_cert_chain(certfile=self.certfile)
+        self.socket = context.wrap_socket(self.socket, server_side=True)
+
         super().server_bind()
 
 
