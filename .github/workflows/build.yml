@@ -8,8 +8,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
-        with:
-          ref: ${{ github.ref_name }}
+
       - name: Build reahl-dev:latest docker image
         run: docker build --target build-image -t reahl-dev:latest -f Dockerfile .
 
@@ -45,8 +44,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-        with:
-          ref: ${{ github.ref_name }}
       - uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
