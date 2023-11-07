@@ -23,7 +23,6 @@ from reahl.mailutil.mail import Mailer, MailMessage, InvalidEmailAddressExceptio
 from reahl.dev.mailtest import MailTester
 
 
-# noinspection PyAttributeOutsideInit
 class MailerFixture(Fixture):
     def set_up(self):
         super().set_up()
