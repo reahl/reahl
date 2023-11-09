@@ -21,7 +21,7 @@ dependencies = [
   "reahl-web-declarative>=7.0,<7.1",
   "reahl-domain>=7.0,<7.1",
   "reahl-paypalsupport>=7.0,<7.1",
-  "SQLAlchemy>=2.0.0,<2.1.999"
+  "SQLAlchemy>=1.4,<2.1.999"
   ]
 authors = [ 
   {name = "Iwan Vosloo", email = "iwan@reahl.org"},

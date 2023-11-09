@@ -25,7 +25,7 @@ classifiers = [
   ]
 dependencies = [
   "reahl-component>=7.0,<7.1",
-  "SQLAlchemy>=2.0.0,<2.1.999",
+  "SQLAlchemy>=1.4,<2.1.999",
   "alembic>=0.9.6,<1.12.999"
   ]
 authors = [ 

@@ -27,7 +27,7 @@ import logging
 import pprint
 
 from sqlalchemy import *
-from sqlalchemy.orm import sessionmaker, scoped_session, relationship, DeclarativeBase, DeclarativeMeta, declarative_base
+from sqlalchemy.orm import sessionmaker, scoped_session, relationship, DeclarativeMeta, declarative_base
 from sqlalchemy.exc import InvalidRequestError
 from sqlalchemy import Column, Integer, ForeignKey
 from alembic.runtime.migration import MigrationContext
