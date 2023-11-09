@@ -35,7 +35,7 @@ class EchoSMTPHandler(Sink):
 
         #Parse the message into an email.Message instance
         logging.debug("Recieved Message")
-        m = email.message_from_string(envelope.content.decode('utf8', errors='replace'))
+        m = email.message_from_string(envelope.content.decode('utf8'))
         logging.debug("Parsed Message")
 
         self.current_id = m['Message-Id']
