@@ -11,7 +11,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "reahl-mysqlsupport"
-version = "7.0.1"
+version = "7.0.2"
 description = "Support for using MySQL with Reahl."
 readme = "README.rst"
 requires-python = ">=3.8"
