@@ -1,6 +1,6 @@
 
 
-from sqlalchemy import Column, Integer, UnicodeText
+from sqlalchemy import Column, Integer, UnicodeText, create_engine
 
 from reahl.sqlalchemysupport import Session, Base, metadata
 from reahl.component.context import ExecutionContext
@@ -20,7 +20,7 @@ def test_model():
     with ExecutionContext():
 
         try:
-            metadata.bind = 'sqlite:///:memory:'
+            Session.configure(bind=create_engine('sqlite:///:memory:'))
             metadata.create_all(bind=Session.connection())
 
             Address(name='John', email_address='john@world.com').save()
