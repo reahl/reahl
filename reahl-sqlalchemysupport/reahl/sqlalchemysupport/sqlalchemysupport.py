@@ -26,6 +26,7 @@ from contextlib import contextmanager
 import logging
 import pprint
 
+import sqlalchemy 
 from sqlalchemy import *
 from sqlalchemy.orm import sessionmaker, scoped_session, relationship, DeclarativeMeta, declarative_base
 from sqlalchemy.exc import InvalidRequestError
@@ -435,7 +436,8 @@ class SqlAlchemyControl(ORMControl):
             Session.delete(schema_version_for_egg)
 
     def schema_version_for(self, egg, default=None):
-        if not Session.get_bind().has_table(SchemaVersion.__tablename__):
+        engine = Session().get_bind()
+        if not sqlalchemy.inspect(engine).has_table(SchemaVersion.__tablename__):
             return default
 
         existing_versions = Session.query(SchemaVersion).filter_by(egg_name=egg.name)
