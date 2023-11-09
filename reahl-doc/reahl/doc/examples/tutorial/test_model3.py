@@ -32,7 +32,7 @@ def test_reahl_additions():
 
         try:
             metadata.bind = 'sqlite:///:memory:'
-            metadata.create_all()
+            metadata.create_all(bind=Session.connection())
 
             address = Address()
             Session.add(address)

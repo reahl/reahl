@@ -21,7 +21,7 @@ def test_model():
 
         try:
             metadata.bind = 'sqlite:///:memory:'
-            metadata.create_all()
+            metadata.create_all(bind=Session.connection())
 
             Address(name='John', email_address='john@world.com').save()
             Address(name='Jane', email_address='jane@world.com').save()
