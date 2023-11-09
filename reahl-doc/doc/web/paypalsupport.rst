@@ -1,4 +1,4 @@
-.. Copyright 2022 Reahl Software Services (Pty) Ltd. All rights reserved.
+.. Copyright 2022, 2023 Reahl Software Services (Pty) Ltd. All rights reserved.
  
 Module reahl.paypalsupport
 --------------------------

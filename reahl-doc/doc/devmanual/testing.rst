@@ -1,4 +1,4 @@
-.. Copyright 2013-2022 Reahl Software Services (Pty) Ltd. All rights reserved.
+.. Copyright 2013-2023 Reahl Software Services (Pty) Ltd. All rights reserved.
 
 .. |Browser| replace::  :class:`~reahl.browsertools.browsertools.Browser`
 .. |XPath| replace::  :class:`~reahl.browsertools.browsertools.XPath`

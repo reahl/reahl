@@ -11,7 +11,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "reahl-postgresqlsupport"
-version = "7.0.0"
+version = "7.0.1"
 description = "Support for using PostgreSQL with Reahl."
 readme = "README.rst"
 requires-python = ">=3.8"

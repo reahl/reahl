@@ -9,7 +9,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "reahl"
-version = "7.0.0"
+version = "7.0.1"
 description = "The Reahl web framework."
 readme = "README.rst"
 requires-python = ">=3.8"
@@ -72,7 +72,6 @@ dev = [
   "reahl-webdev>=7.0,<7.1",
   "reahl-stubble>=7.0,<7.1",
   "reahl-tofu>=7.0,<7.1",
-  "reahl-webdriver>=7.0,<7.1",
   "reahl-browsertools>=7.0,<7.1"
   ]
 doc = [

@@ -1,4 +1,4 @@
-.. Copyright 2018, 2020 Reahl Software Services (Pty) Ltd. All rights reserved.
+.. Copyright 2018, 2020, 2023 Reahl Software Services (Pty) Ltd. All rights reserved.
 
 .. |Transition| replace:: :class:`~reahl.web.fw.Transition`
 .. |Event| replace:: :class:`~reahl.component.modelinterface.Event`

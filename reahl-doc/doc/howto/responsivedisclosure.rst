@@ -1,4 +1,4 @@
-.. Copyright 2018, 2019, 2020 Reahl Software Services (Pty) Ltd. All rights reserved.
+.. Copyright 2018-2023 Reahl Software Services (Pty) Ltd. All rights reserved.
 
 .. |enable_refresh| replace:: :meth:`~reahl.web.ui.HTMLElement.enable_refresh`
 .. |RadioButtonSelectInput| replace:: :class:`~reahl.web.bootstrap.forms.RadioButtonSelectInput`
