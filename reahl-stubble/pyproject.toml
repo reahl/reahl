@@ -11,7 +11,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "reahl-stubble"
-version = "7.0.1"
+version = "7.0.2"
 description = "Stub tools for use in unit testing"
 readme = "README.rst"
 requires-python = ">=3.8"
