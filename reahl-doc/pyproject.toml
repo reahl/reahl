@@ -36,7 +36,7 @@ dependencies = [
   "pytest>=3.0",
   "setuptools>=51.0.0",
   "plotly>=5.11.0,<5.16.99999",
-  "SQLAlchemy>=2.0.0,<2.1.999"
+  "SQLAlchemy>=1.4,<2.1.999"
   ]
 authors = [ 
   {name = "Iwan Vosloo", email = "iwan@reahl.org"},
