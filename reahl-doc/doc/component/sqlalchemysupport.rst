@@ -11,7 +11,8 @@ For using SqlAlchemy with Reahl
 
 .. autoattribute:: reahl.sqlalchemysupport.sqlalchemysupport.Session
 
-.. autoattribute:: reahl.sqlalchemysupport.sqlalchemysupport.Base
+.. autoclass:: reahl.sqlalchemysupport.sqlalchemysupport.Base
+   :members:
 
 .. autoattribute:: reahl.sqlalchemysupport.sqlalchemysupport.metadata
 

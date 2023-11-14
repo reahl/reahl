@@ -159,7 +159,7 @@ class EmailAndPasswordSystemAccount(SystemAccount):
     
     @classmethod
     def email_changes_are_pending_for(cls, email):
-        all_pending_requests = Session.query(VerifyEmailRequest).join(VerifyEmailRequest.deferred_actions, ChangeAccountEmail)
+        all_pending_requests = Session.query(VerifyEmailRequest).join(ChangeAccountEmail, VerifyEmailRequest.deferred_actions)
         clashing_requests = all_pending_requests.filter(VerifyEmailRequest.email==email)
         return clashing_requests.count() > 0
     
@@ -237,7 +237,7 @@ class EmailAndPasswordSystemAccount(SystemAccount):
             self.password_hash = new_hash
 
     def send_activation_notification(self):
-        verification_request = Session.query(VerifyEmailRequest).join(VerifyEmailRequest.deferred_actions, ActivateAccount)\
+        verification_request = Session.query(VerifyEmailRequest).join(ActivateAccount, VerifyEmailRequest.deferred_actions)\
                                .filter(ActivateAccount.system_account==self).one()
         verification_request.send_notification()
 

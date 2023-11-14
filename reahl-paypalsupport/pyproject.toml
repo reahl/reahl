@@ -11,7 +11,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "reahl-paypalsupport"
-version = "7.0.1"
+version = "7.0.2"
 description = "Support for payments via PayPal."
 readme = "README.rst"
 requires-python = ">=3.8"
@@ -28,7 +28,8 @@ dependencies = [
   "reahl-web>=7.0,<7.1",
   "reahl-web-declarative>=7.0,<7.1",
   "reahl-domain>=7.0,<7.1",
-  "paypal-checkout-serversdk"
+  "paypal-checkout-serversdk",
+  "SQLAlchemy>=1.4,<2.1.999"
   ]
 authors = [ 
   {name = "Iwan Vosloo", email = "iwan@reahl.org"},

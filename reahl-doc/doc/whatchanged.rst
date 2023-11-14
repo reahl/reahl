@@ -74,9 +74,6 @@ Updated dependencies
 
 Some dependencies on thirdparty python packages have been loosened to include a higher max version:
 
-
-
-
 - Babel  between 2.1 and 2.12
 - wrapt between 1.11.0 and 1.15
 - Pygments between 2.13 and 2.16
@@ -87,6 +84,8 @@ Some dependencies on thirdparty python packages have been loosened to include a 
 - beautifulsoup4 between 4.6 and 4.12
 - watchdog between 0.8.3 and 3.0
 
+
+The dependency on SqlAlchemy has been updated to support 1.4 up to and including 2.0.
 
 Some javascript dependencies were updated to newer versions:
 
