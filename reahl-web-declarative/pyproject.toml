@@ -25,7 +25,8 @@ classifiers = [
 dependencies = [
   "reahl-sqlalchemysupport>=7.0,<7.1",
   "reahl-web>=7.0,<7.1",
-  "reahl-component>=7.0,<7.1"
+  "reahl-component>=7.0,<7.1",
+  "SQLAlchemy>=1.4,<2.1.999"
   ]
 authors = [ 
   {name = "Iwan Vosloo", email = "iwan@reahl.org"},

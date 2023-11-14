@@ -14,7 +14,7 @@ with ExecutionContext() as context:
 
     try:
         context.system_control.orm_control.connect()
-        metadata.create_all()
+        metadata.create_all(bind=Session.connection())
 
         Session.add(Address(name='John Doe', email_address='johndoe@some.org'))
         Session.add(Address(name='Jane Johnson', email_address='janejohnson@some.org'))

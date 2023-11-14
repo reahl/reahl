@@ -20,7 +20,7 @@ Install Reahl
       python3 -m pip install 'reahl[declarative,sqlite,dev,doc]'
 
 
-This version of Reahl requires version 3.6 of Python or greater.
+This version of Reahl requires version 3.8 of Python or greater.
 
 If you know `Docker <https://www.docker.com>`_ then :doc:`use our
 Docker dev box <install-docker>`. It contains a venv with Reahl

@@ -2,7 +2,7 @@
 from reahl.tofu import expected, NoException
 
 
-from sqlalchemy import Column, Integer, UnicodeText
+from sqlalchemy import Column, Integer, UnicodeText, create_engine
 
 from reahl.sqlalchemysupport import Session, Base, metadata
 from reahl.component.modelinterface import ExposedNames, EmailField, Field, Event, Action
@@ -31,8 +31,8 @@ def test_reahl_additions():
     with ExecutionContext():
 
         try:
-            metadata.bind = 'sqlite:///:memory:'
-            metadata.create_all()
+            Session.configure(bind=create_engine('sqlite:///:memory:'))
+            metadata.create_all(bind=Session.connection())
 
             address = Address()
             Session.add(address)

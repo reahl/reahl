@@ -26,9 +26,9 @@ from contextlib import contextmanager
 import logging
 import pprint
 
+import sqlalchemy 
 from sqlalchemy import *
-from sqlalchemy.orm import sessionmaker, scoped_session, relationship
-from sqlalchemy.ext.declarative import instrument_declarative, declarative_base, DeclarativeMeta
+from sqlalchemy.orm import sessionmaker, scoped_session, relationship, DeclarativeMeta, declarative_base
 from sqlalchemy.exc import InvalidRequestError
 from sqlalchemy import Column, Integer, ForeignKey
 from alembic.runtime.migration import MigrationContext
@@ -105,14 +105,17 @@ def ix_name(table_name, column_name):
 Session = scoped_session(sessionmaker(autoflush=True, autocommit=False), scopefunc=reahl_scope) #: A shared SQLAlchemy session, scoped using the current :class:`reahl.component.context.ExecutionContext`
 metadata = MetaData(naming_convention=naming_convention)  #: a metadata for use with other SqlAlchemy tables, shared with declarative classes using Base
 
-
 class DeclarativeABCMeta(DeclarativeMeta, ABCMeta):
     """ Prevent metaclass conflict in subclasses that want multiply inherit from
     ancestors that have ABCMeta as metaclass """
     pass
 
+#class Base(DeclarativeBase, metaclass=DeclarativeABCMeta):
+#    """A Base for using with declarative."""
+#    __abstract__ = True
+#    metadata = metadata
 
-Base = declarative_base(class_registry=weakref.WeakValueDictionary(), metadata=metadata, metaclass=DeclarativeABCMeta)    #: A Base for using with declarative
+Base = declarative_base(class_registry=weakref.WeakValueDictionary(), metadata=metadata, metaclass=DeclarativeABCMeta)    
 
 
 class QueryAsSequence:
@@ -225,7 +228,7 @@ class SqlAlchemyControl(ORMControl):
         .. versionchanged:: 5.0
            Changed to yield a TransactionVeto which can be used to override when the transaction will be committed or not.
         """
-        transaction = Session.begin_nested()
+        transaction = Session().begin_nested()
         transaction_veto = TransactionVeto()
         try:
             yield transaction_veto
@@ -274,7 +277,6 @@ class SqlAlchemyControl(ORMControl):
         self.engine = create_engine(config.reahlsystem.connection_uri, **create_args)
         self.engine.echo = self.echo
         self.engine.connect()
-        metadata.bind = self.engine
         Session.configure(bind=self.engine)
 
         self.instrument_classes_for(config.reahlsystem.root_egg)
@@ -300,37 +302,39 @@ class SqlAlchemyControl(ORMControl):
 
     @property
     def connected(self):
-        return metadata.bind is not None
+        return self.engine
 
     def get_or_initiate_transaction(self):
         assert self.connected
-        return Session().transaction
+        if Session().in_transaction():
+            return Session().get_transaction()
+        return Session().begin()
     
     def finalise_session(self):
-        nested = Session().transaction.nested
-        if nested:   
+        nested = Session().in_nested_transaction()
+        if nested:
             # This is necessary to facilitate testing.  When testing, code continually
             # runs in a nested transaction inside a real transaction which will both
             # eventually be rolled back.  This is done so that this method can use the
             # nested state of the transaction to detect that it is called during a test.
             # If called during a test, this method should NOT commit, and it should NOT
             # nuke the session
-            Session.flush()
+            Session().flush()
             return
 
         self.commit()
 
         context = ExecutionContext.get_context()
         if context.system_control.db_control.is_in_memory:
-            Session.expunge_all()
+            Session().expunge_all()
         else:
             Session.remove()
         
     def disconnect(self):
         """Disposes the current SQLAlchemy Engine and .remove() the Session."""
         assert self.connected
-        metadata.bind.dispose()
-        metadata.bind = None
+        self.engine.dispose()
+        self.engine = None
         Session.remove()
 
     def commit(self):
@@ -432,7 +436,8 @@ class SqlAlchemyControl(ORMControl):
             Session.delete(schema_version_for_egg)
 
     def schema_version_for(self, egg, default=None):
-        if not Session.get_bind().has_table(SchemaVersion.__tablename__):
+        engine = Session().get_bind()
+        if not sqlalchemy.inspect(engine).has_table(SchemaVersion.__tablename__):
             return default
 
         existing_versions = Session.query(SchemaVersion).filter_by(egg_name=egg.name)
