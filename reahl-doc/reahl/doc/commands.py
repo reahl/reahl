@@ -23,6 +23,15 @@ import collections
 
 from reahl.dev.devshell import WorkspaceCommand
 
+import sys
+USE_PKG_RESOURCES=False
+if sys.version_info < (3, 9):
+    try:
+        import importlib_resources
+    except:
+        USE_PKG_RESOURCES=True        
+else:
+    import importlib.resources as importlib_resources
 
 class CheckoutChanges:
     def __init__(self, example):
@@ -60,7 +69,11 @@ class CheckoutChanges:
 class Example:
     @classmethod
     def get_all(cls):
-        parent = pkg_resources.resource_filename('reahl.doc', 'examples')
+        if USE_PKG_RESOURCES:
+            parent = pkg_resources.resource_filename('reahl.doc', 'examples')
+        else:
+            parent = str(importlib_resources.files('reahl.doc') / 'examples')
+            
         examples = []
         for dirpath, dirnames, filenames in os.walk(parent): 
             current_package = dirpath[len(parent)+1:].replace(os.sep, '.')
@@ -88,7 +101,10 @@ class Example:
 
     @property
     def abs_path_to_package(self):
-        return pkg_resources.resource_filename('.'.join([self.containing_package, self.name]), '')
+        if USE_PKG_RESOURCES:
+            return pkg_resources.resource_filename('.'.join([self.containing_package, self.name]), '')
+        else:
+            return str(importlib_resources.files('.'.join([self.containing_package, self.name])) / '')
 
     @property
     def module_name(self):
@@ -104,7 +120,10 @@ class Example:
 
     @property
     def relative_path(self):
-        root_path = pkg_resources.resource_filename(self.containing_package, '')
+        if USE_PKG_RESOURCES:
+            root_path = pkg_resources.resource_filename(self.containing_package, '')
+        else:
+            root_path = str(importlib_resources.files(self.containing_package) / '')
         return str(pathlib.Path(self.absolute_path).relative_to(pathlib.Path(root_path)))
 
     @property

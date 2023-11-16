@@ -45,6 +45,15 @@ from reahl.component.config import StoredConfiguration
 from reahl.component.shelltools import Executable
 from reahl.web.fw import ReahlWSGIApplication
 
+import sys
+USE_PKG_RESOURCES=False
+if sys.version_info < (3, 9):
+    try:
+        import importlib_resources
+    except:
+        USE_PKG_RESOURCES=True        
+else:
+    import importlib.resources as importlib_resources
 
 class WrappedApp:
     """A class in which to wrap a WSGI app, allowing catching of exceptions in the wrapped app.
@@ -433,7 +442,12 @@ class ReahlWebServer:
 
         self.port = int(config.web.default_http_port)
         self.encrypted_port = int(config.web.encrypted_http_port)
-        certfile = pkg_resources.resource_filename(__name__, 'reahl_development_cert.pem')
+        
+        if USE_PKG_RESOURCES:
+            certfile = pkg_resources.resource_filename(__name__, 'reahl_development_cert.pem')
+        else:
+            certfile = str(importlib_resources.files(__package__) / 'reahl_development_cert.pem')
+
         self.reahl_wsgi_app = WrappedApp(ReahlWSGIApplication(config, start_on_first_request=True))
         try:
             self.httpd = ReahlWSGIServer.make_server('', self.port, self.reahl_wsgi_app)

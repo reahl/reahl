@@ -1746,7 +1746,7 @@ class PrimitiveInput(Input):
         return None
 
     def get_value_from_input(self, input_values):
-        """Obtains the value received for this Input from the browser, given a :class:`cgi.FieldStorage`
+        """Obtains the value received for this Input from the browser, given a :class:`reahl.component.modelinterface.UploadedFile`
            containing name, value pairs of user input as sent by the browser.
            Override this method if your Input needs special handling to obtain its value.
 
