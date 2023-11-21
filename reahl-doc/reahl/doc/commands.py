@@ -129,7 +129,10 @@ class Example:
     @property
     def exists(self):
         try:
-            return pkg_resources.resource_exists(self.containing_package, self.relative_path.replace(os.sep, '/'))
+            if USE_PKG_RESOURCES:
+                return pkg_resources.resource_exists(self.containing_package, self.relative_path.replace(os.sep, '/'))
+            else:
+                return importlib_resources.files(self.containing_package).joinpath(self.relative_path.replace(os.sep, '/')).exists()
         except ImportError as ex:
             if ex.name == '.'.join([self.containing_package, self.name]):
                 return False
