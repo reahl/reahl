@@ -46,14 +46,14 @@ from reahl.component.shelltools import Executable
 from reahl.web.fw import ReahlWSGIApplication
 
 import sys
-USE_PKG_RESOURCES=False
 if sys.version_info < (3, 9):
     try:
         import importlib_resources
     except:
-        USE_PKG_RESOURCES=True        
+        raise Exception('You are on an older version of python. Please install importlib-resources')
 else:
     import importlib.resources as importlib_resources
+
 
 class WrappedApp:
     """A class in which to wrap a WSGI app, allowing catching of exceptions in the wrapped app.
@@ -443,20 +443,22 @@ class ReahlWebServer:
         self.port = int(config.web.default_http_port)
         self.encrypted_port = int(config.web.encrypted_http_port)
         
-        if USE_PKG_RESOURCES:
-            certfile = pkg_resources.resource_filename(__name__, 'reahl_development_cert.pem')
-        else:
-            certfile = str(importlib_resources.files(__package__) / 'reahl_development_cert.pem')
+        self.certfile_manager = contextlib.ExitStack()
+        ref = importlib_resources.files(__package__) / 'reahl_development_cert.pem'
+        certfile_path = self.certfile_manager.enter_context(importlib_resources.as_file(ref))
 
         self.reahl_wsgi_app = WrappedApp(ReahlWSGIApplication(config, start_on_first_request=True))
         try:
             self.httpd = ReahlWSGIServer.make_server('', self.port, self.reahl_wsgi_app)
-            self.httpsd = SSLCapableWSGIServer.make_server('', self.encrypted_port, certfile, self.reahl_wsgi_app)
+            self.httpsd = SSLCapableWSGIServer.make_server('', self.encrypted_port, str(certfile_path), self.reahl_wsgi_app)
         except socket.error as ex:
             message = ('Caught socket.error: %s\nThis means that another process is using one of these ports: %s, %s. ' % (ex, self.port, self.encrypted_port)) \
-                     +'\nIf this happens while running tests, it probably means that a browser client did not close its side of a connection to a previous server you had running - and that the server socket now sits in TIME_WAIT state. Is there perhaps a browser hanging around from a previous run? I have no idea how to fix this automatically... see http://hea-www.harvard.edu/~fine/Tech/addrinuse.html'
+                    +'\nIf this happens while running tests, it probably means that a browser client did not close its side of a connection to a previous server you had running - and that the server socket now sits in TIME_WAIT state. Is there perhaps a browser hanging around from a previous run? I have no idea how to fix this automatically... see http://hea-www.harvard.edu/~fine/Tech/addrinuse.html'
 
             raise AssertionError(message)
+
+    def __del__(self):
+        self.certfile_manager.close()
 
     def main_loop(self, context=None):
 

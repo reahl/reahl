@@ -42,6 +42,7 @@ import tempfile
 import warnings
 from collections import OrderedDict
 import urllib.parse
+import pathlib
 
 try:
     from functools import cached_property
@@ -80,12 +81,12 @@ from reahl.component.modelinterface import StandaloneFieldIndex, FieldIndex, Fie
                                              Allowed, ExposedNames, Event, Action
 from reahl.web.csrf import InvalidCSRFToken, CSRFToken, ExpiredCSRFToken
 
-USE_PKG_RESOURCES=False
+
 if sys.version_info < (3, 9):
     try:
         import importlib_resources
     except:
-        USE_PKG_RESOURCES=True        
+        raise Exception('You are on an older version of python. Please install importlib-resources')
 else:
     import importlib.resources as importlib_resources
 
@@ -2682,35 +2683,39 @@ class FileView(View):
 
 
 class ViewableFile:
-    def __init__(self, name, mime_type, encoding, size, mtime):
+    def __init__(self, name, size, mtime, mime_type=None, encoding=None):
         self.name = name
-        self.mime_type = mime_type
-        self.encoding = encoding
+        self.mime_type = mime_type or self.guess_mime_type(name)
+        self.encoding = encoding or self.guess_encoding(name, self.mime_type)
         self.mtime = mtime
-        self.size = size    
+        self.size = size
+
+    def guess_mime_type(self, filename):
+        mime_type, encoding = mimetypes.guess_type(filename)
+        return mime_type or 'application/octet-stream'
+
+    def guess_encoding(self, filename, mime_type):
+        _, encoding = mimetypes.guess_type(filename)
+        if not encoding:
+            # FIXME: This assumes all text files on disk are encoded with the system's preferred
+            # encoding, which is nothing but a guess
+            encoding = locale.getpreferredencoding() if self.is_text(mime_type) else None
+        return encoding
+
+    def is_text(self, mime_type):
+        return mime_type and mime_type.startswith('text/')
 
 
 class FileOnDisk(ViewableFile):
     def __init__(self, full_path, relative_name):
-        mime_type, encoding = mimetypes.guess_type(full_path)
-        self.mime_type = mime_type or 'application/octet-stream' # So you can is_text() below
-        if not encoding:
-            # FIXME: This assumes all text files on disk are encoded with the system's preferred
-            # encoding, which is nothing but a guess
-            encoding = locale.getpreferredencoding() if self.is_text() else None
 
         self.full_path = full_path
         self.relative_name = relative_name
         st = os.stat(full_path)
         super().__init__(
             full_path,
-            self.mime_type,
-            encoding,
             st.st_size,
             st.st_mtime)
-
-    def is_text(self):
-        return self.mime_type and self.mime_type.startswith('text/')
 
     @contextmanager
     def open(self):
@@ -2720,12 +2725,13 @@ class FileOnDisk(ViewableFile):
         finally:
             open_file.close()
 
+
 class FileFromBlob(ViewableFile):
     def __init__(self, name, content_bytes, mime_type, encoding, size, mtime):
         if not isinstance(content_bytes, bytes):
             raise ProgrammerError('content_bytes should be bytes')
 
-        super().__init__(name, mime_type, encoding, size, mtime)
+        super().__init__(name, size, mtime, mime_type=mime_type, encoding=encoding)
         self.content_bytes = content_bytes
         self.relative_name = name
 
@@ -2734,18 +2740,33 @@ class FileFromBlob(ViewableFile):
         yield io.BytesIO(self.content_bytes)
 
 
-class PackagedFile(FileOnDisk):
+class PackagedFile(ViewableFile):
     def __init__(self, egg_name, package_name, relative_name):
         self.egg_name = egg_name
+        self.package_name = package_name
+        self.relative_name = relative_name
 
-        if USE_PKG_RESOURCES:
-            directory_name = package_name.replace('.', '/')
-            egg_relative_name = '/'.join([directory_name, relative_name])
-            full_path = pkg_resources.resource_filename(pkg_resources.Requirement.parse(egg_name), egg_relative_name)
-        else:
-            full_path = str(importlib_resources.files(package_name) / relative_name)
+        path = pathlib.Path(relative_name)
+        with self.extracted_file() as path:
+            size = path.stat().st_size
+            mtime = path.stat().st_mtime
 
-        super().__init__(full_path, relative_name)
+        super().__init__(path.name, size, mtime)
+
+    @contextmanager
+    def open(self, mode='rb'):
+        arguments = {}
+        if 'b' not in mode:
+            arguments['encoding'] = self.encoding
+        with self.extracted_file() as path, \
+             path.open(mode=mode, **arguments) as open_file:
+                yield open_file
+
+    @contextmanager
+    def extracted_file(self):
+        ref = importlib_resources.files(self.package_name) / self.relative_name
+        with importlib_resources.as_file(ref) as path:
+            yield path
 
 
 class ConcatenatedFile(FileOnDisk):
@@ -2803,7 +2824,7 @@ class ConcatenatedFile(FileOnDisk):
     def concatenate(self, relative_name, contents):
         temp_file = self.create_temp_file(relative_name)
         for inner_file in contents:
-            with open(inner_file.full_path) as opened_inner_file:
+            with inner_file.open(mode='r') as opened_inner_file:
                 self.minifier(relative_name).minify(opened_inner_file, temp_file)
         temp_file.flush()
         return temp_file
