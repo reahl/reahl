@@ -15,21 +15,20 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import os
 import shutil
-import pkg_resources
 import codecs
 import re
 import pathlib
 import collections
+import contextlib
 
 from reahl.dev.devshell import WorkspaceCommand
 
 import sys
-USE_PKG_RESOURCES=False
 if sys.version_info < (3, 9):
     try:
         import importlib_resources
     except:
-        USE_PKG_RESOURCES=True        
+        raise Exception('You are on an older version of python. Please install importlib-resources')
 else:
     import importlib.resources as importlib_resources
 
@@ -69,25 +68,24 @@ class CheckoutChanges:
 class Example:
     @classmethod
     def get_all(cls):
-        if USE_PKG_RESOURCES:
-            parent = pkg_resources.resource_filename('reahl.doc', 'examples')
-        else:
-            parent = str(importlib_resources.files('reahl.doc') / 'examples')
-            
-        examples = []
-        for dirpath, dirnames, filenames in os.walk(parent): 
-            current_package = dirpath[len(parent)+1:].replace(os.sep, '.')
-            if 'pyproject.toml' in filenames:
-                examples.append(Example('reahl.doc.examples', current_package))
-                dirnames[:] = []
-            else:
-                for module in [os.path.splitext(f)[0] for f in filenames
-                               if f.endswith('.py') and f != '__init__.py']:
-                    if current_package:
-                        module_path = '%s.%s' % (current_package, module)
-                    else:
-                        module_path = module
-                    examples.append(Example('reahl.doc.examples', module_path))
+
+        with importlib_resources.as_file(importlib_resources.files('reahl.doc')) as path:
+            parent = str(path / 'examples')
+
+            examples = []
+            for dirpath, dirnames, filenames in os.walk(parent): 
+                current_package = dirpath[len(parent)+1:].replace(os.sep, '.')
+                if 'pyproject.toml' in filenames:
+                    examples.append(Example('reahl.doc.examples', current_package))
+                    dirnames[:] = []
+                else:
+                    for module in [os.path.splitext(f)[0] for f in filenames
+                                if f.endswith('.py') and f != '__init__.py']:
+                        if current_package:
+                            module_path = '%s.%s' % (current_package, module)
+                        else:
+                            module_path = module
+                        examples.append(Example('reahl.doc.examples', module_path))
         return examples
 
     def __init__(self, containing_package, name, new_name=None):
@@ -95,52 +93,35 @@ class Example:
         self.new_name = new_name
         self.containing_package = containing_package
 
-    def is_package(self):
-        name_as_path = self.name.replace('.', os.sep)
-        return self.abs_path_to_package.endswith(name_as_path)
+        self.file_manager = contextlib.ExitStack()
+        try:
+            ref = importlib_resources.files('.'.join([self.containing_package, self.name]))
+            self.path = self.file_manager.enter_context(importlib_resources.as_file(ref))
+        except ModuleNotFoundError:
+            self.path = None
+        except TypeError:
+            #cater for modules not in a package
+            p = pathlib.Path(self.name)
+            ref = importlib_resources.files('.'.join([self.containing_package, str(p.stem)]))
+            self.path = self.file_manager.enter_context(importlib_resources.as_file(ref / (p.suffix[1:] +'.py') ) )
 
-    @property
-    def abs_path_to_package(self):
-        if USE_PKG_RESOURCES:
-            return pkg_resources.resource_filename('.'.join([self.containing_package, self.name]), '')
-        else:
-            return str(importlib_resources.files('.'.join([self.containing_package, self.name])) / '')
+    def __del__(self):
+        self.file_manager.close()
+
+    def is_package(self):
+        return self.path.is_dir()
 
     @property
     def module_name(self):
         return self.name.split('.')[-1]
 
     @property
-    def absolute_path(self):
-        if self.is_package():
-            return self.abs_path_to_package
-        else:
-            module_filename = '%s.py' % self.module_name
-            return os.path.join(self.abs_path_to_package, module_filename)
-
-    @property
-    def relative_path(self):
-        if USE_PKG_RESOURCES:
-            root_path = pkg_resources.resource_filename(self.containing_package, '')
-        else:
-            root_path = str(importlib_resources.files(self.containing_package) / '')
-        return str(pathlib.Path(self.absolute_path).relative_to(pathlib.Path(root_path)))
-
-    @property
     def exists(self):
-        try:
-            if USE_PKG_RESOURCES:
-                return pkg_resources.resource_exists(self.containing_package, self.relative_path.replace(os.sep, '/'))
-            else:
-                return importlib_resources.files(self.containing_package).joinpath(self.relative_path.replace(os.sep, '/')).exists()
-        except ImportError as ex:
-            if ex.name == '.'.join([self.containing_package, self.name]):
-                return False
-            raise
+        return bool(self.path) and self.path.exists()
 
     @property
     def checkout_dest(self):
-        return os.path.join(os.getcwd(), self.new_name or os.path.basename(self.absolute_path))
+        return os.path.join(os.getcwd(), self.new_name or self.path.name)
 
     @property
     def is_checked_out(self):
@@ -148,9 +129,9 @@ class Example:
 
     def check_out(self):
         if self.is_package():
-            self.checkout_dir(self.absolute_path, self.checkout_dest)
+            self.checkout_dir(self.path, self.checkout_dest)
         else:
-            self.sed_file_to(self.absolute_path, self.checkout_dest)
+            self.sed_file_to(self.path, self.checkout_dest)
 
     @property
     def checkout_changes(self):
@@ -173,8 +154,8 @@ class Example:
         return changes
 
     def checkout_dir(self, source, dest):
-        for dirpath, dirnames, filenames in os.walk(source):
-            relative_dirpath = dirpath[len(source)+1:]
+        for dirpath, dirnames, filenames in os.walk(str(source)):
+            relative_dirpath = dirpath[len(str(source))+1:]
             if re.match('.idea$', relative_dirpath):
                 dirnames[:] = []
             else:

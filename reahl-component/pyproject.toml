@@ -30,7 +30,8 @@ dependencies = [
   "setuptools>=51.0.0",
   "pip>=21.1",
   "cached-property>=1.5,<1.5.999;python_version<'3.8'",
-  "toml"
+  "toml",
+  "packaging>=23.1"
   ]
 authors = [ 
   {name = "Iwan Vosloo", email = "iwan@reahl.org"},

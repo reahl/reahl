@@ -21,7 +21,7 @@ import contextlib
 import platform
 import itertools
 
-import pkg_resources
+import packaging
 
 from reahl.dev.fixtures import ReahlSystemFixture
 from reahl.stubble import EmptyStub
@@ -103,7 +103,7 @@ def test_deprecating_a_class_docstring():
             """another"""
             pass
 
-    high_python_version = pkg_resources.parse_version(platform.python_version()) > pkg_resources.parse_version('3.6')
+    high_python_version = packaging.version.Version(platform.python_version()) > packaging.version.Version('3.6')
     assert not high_python_version or (ClassWithDocstring.__doc__ == 'A docstring.\n\n.. deprecated:: 1.2\n   this is deprecated') 
     assert not high_python_version or (ClassWithDocstring().do_something.__doc__ == 'another\n\n.. deprecated:: 0.0\n   this also') 
 
