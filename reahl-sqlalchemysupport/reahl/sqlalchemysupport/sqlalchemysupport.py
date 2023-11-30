@@ -28,7 +28,7 @@ import pprint
 
 import sqlalchemy 
 from sqlalchemy import *
-from sqlalchemy.orm import sessionmaker, scoped_session, relationship, DeclarativeMeta, declarative_base
+from sqlalchemy.orm import sessionmaker, scoped_session, relationship
 from sqlalchemy.exc import InvalidRequestError
 from sqlalchemy import Column, Integer, ForeignKey
 from alembic.runtime.migration import MigrationContext
@@ -105,17 +105,28 @@ def ix_name(table_name, column_name):
 Session = scoped_session(sessionmaker(autoflush=True, autocommit=False), scopefunc=reahl_scope) #: A shared SQLAlchemy session, scoped using the current :class:`reahl.component.context.ExecutionContext`
 metadata = MetaData(naming_convention=naming_convention)  #: a metadata for use with other SqlAlchemy tables, shared with declarative classes using Base
 
-class DeclarativeABCMeta(DeclarativeMeta, ABCMeta):
-    """ Prevent metaclass conflict in subclasses that want multiply inherit from
-    ancestors that have ABCMeta as metaclass """
-    pass
 
-#class Base(DeclarativeBase, metaclass=DeclarativeABCMeta):
-#    """A Base for using with declarative."""
-#    __abstract__ = True
-#    metadata = metadata
+try:
 
-Base = declarative_base(class_registry=weakref.WeakValueDictionary(), metadata=metadata, metaclass=DeclarativeABCMeta)    
+    #for sqlalchemy 2.0
+    from sqlalchemy.orm import DeclarativeBaseNoMeta
+    class Base(DeclarativeBaseNoMeta):
+        """A Base for using with declarative."""
+        __abstract__ = True
+        metadata = metadata
+
+except ImportError:
+
+    #for sqlalchemy 1.4
+    from sqlalchemy.orm import DeclarativeMeta, declarative_base
+    class DeclarativeABCMeta(DeclarativeMeta, ABCMeta):
+        """ Prevent metaclass conflict in subclasses that want multiply inherit from
+        ancestors that have ABCMeta as metaclass """
+        pass
+
+    Base = declarative_base(class_registry=weakref.WeakValueDictionary(), metadata=metadata, metaclass=DeclarativeABCMeta)
+
+
 
 
 class QueryAsSequence:

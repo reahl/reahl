@@ -67,9 +67,9 @@ class ComponentMetadata:
                 unsupported_version_keys = set(version.keys()) - {'migrations', 'dependencies'}
                 if unsupported_version_keys:
                     raise SetupError('[%s] Unsupported keys for [tool.reahl-component.versions."%s"]: %s' % (self.pyproject_file(), version_number, (', '.join(unsupported_version_keys))))
-                    
 
-def egg_info(cmd, basename, filename):
+
+def dist_info(cmd, basename, filename):
     component_metadata = ComponentMetadata.from_pyproject()
     if component_metadata.exists:
         component_metadata.validate()
