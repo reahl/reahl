@@ -99,6 +99,10 @@ class DeferredAction(Base):
 
     deadline = Column(DateTime(), nullable=False)
 
+    def __init__(self, requirements=None, deadline=None):
+        super().__init__()
+        self.linked_to(requirements=requirements, deadline=deadline)
+
     def success_action(self):
         """Override this method to supply the code that needs to execute upon all instances of :class:`Requirement` are fulfilled."""
 
@@ -145,6 +149,10 @@ class Requirement(Base):
 
     fulfilled = Column(Boolean, nullable=False, default=False)
     
+    def __init__(self, **kwargs):
+        super().__init__()
+        self.linked_to(**kwargs)
+
     def set_fulfilled(self):
         self.fulfilled = True
         for action in self.deferred_actions:
@@ -185,6 +193,10 @@ class Task(Base):
     title = Column(UnicodeText, nullable=False)
     reserved_by_party_id = Column(Integer, ForeignKey(Party.id), index=True)
     reserved_by = relationship(Party)
+
+    def __init__(self, queue=None, title=None):
+        super().__init__()
+        self.linked_to(queue=queue, title=title)
 
     def is_available(self):
         return self.reserved_by is None

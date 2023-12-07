@@ -205,6 +205,10 @@ class SessionData(Base):
     ui_name = Column(UnicodeText, nullable=False)
     channel_name = Column(UnicodeText, nullable=True)
 
+    def __init__(self, **kwargs):
+        super().__init__()
+        self.linked_to(**kwargs)
+
     @classmethod
     def clear_for_form(cls, form):
         for stale in cls.find_for_cached(form.view, form=form):

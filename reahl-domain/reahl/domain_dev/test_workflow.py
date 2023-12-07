@@ -59,7 +59,8 @@ class DeferredActionFixture(Fixture):
             some_object_key = Column(UnicodeText, nullable=False)
         
             def __init__(self, some_object, **kwargs):
-                super().__init__(some_object_key=some_object.name, **kwargs)
+                super().__init__(**kwargs)
+                self.some_object_key=some_object.name
             def success_action(self):
                 Session.query(fixture.SomeObject).filter_by(name=self.some_object_key).one().make_done()
             def deadline_action(self):
@@ -144,11 +145,11 @@ def test_deferred_action_completes_with_shared_requirements(sql_alchemy_fixture,
         deferred_action1 = fixture.MyDeferredAction(fixture.one_object,
                                                     requirements=requirements2,
                                                     deadline=fixture.future_time)
-        Session.add(deferred_action1)
         deferred_action2 = fixture.MyDeferredAction(fixture.another_object,
                                                     requirements=requirements1+requirements2,
                                                     deadline=fixture.future_time)
 
+        Session.add(deferred_action1)
         Session.add(deferred_action2)
         Session.flush()
         # The requirements are linked back to the correct DeferredActions
@@ -192,11 +193,11 @@ def test_deferred_action_times_out_with_shared_requirements(sql_alchemy_fixture,
         deferred_action1 = fixture.MyDeferredAction(fixture.one_object,
                                                     requirements=requirements2,
                                                     deadline=fixture.future_time)
-        Session.add(deferred_action1)
         deferred_action2 = fixture.MyDeferredAction(fixture.another_object,
                                                     requirements=requirements1+requirements2,
                                                     deadline=fixture.future_time)
 
+        Session.add(deferred_action1)
         Session.add(deferred_action2)
         Session.flush()
 

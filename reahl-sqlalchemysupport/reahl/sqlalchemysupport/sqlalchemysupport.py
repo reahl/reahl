@@ -102,9 +102,8 @@ def ix_name(table_name, column_name):
     return 'ix_%s_%s' % (table_name, column_name)
 
 
-Session = scoped_session(sessionmaker(autoflush=True, autocommit=False), scopefunc=reahl_scope) #: A shared SQLAlchemy session, scoped using the current :class:`reahl.component.context.ExecutionContext`
 metadata = MetaData(naming_convention=naming_convention)  #: a metadata for use with other SqlAlchemy tables, shared with declarative classes using Base
-
+Session = scoped_session(sessionmaker(autoflush=True, autocommit=False), scopefunc=reahl_scope) #: A shared SQLAlchemy session, scoped using the current :class:`reahl.component.context.ExecutionContext`
 
 try:
 
@@ -115,6 +114,34 @@ try:
         __abstract__ = True
         metadata = metadata
 
+        def linked_to(self, **kwargs):
+            persistables = [item for i in kwargs.values() for item in self.get_persistables(i)]
+
+            if len(set([ (self.is_in_session(i)) for i in persistables ])) > 1:
+                session_status = [ '%s[%s]' % (p, self.is_in_session(p)) for p in persistables ]
+                raise ProgrammerError("Session status not consistent for: "+ ', '.join(session_status))
+
+            if self not in Session and any([ i in Session for i in persistables]):
+                Session.add(self)
+
+            for (name, p) in kwargs.items():
+                setattr(self, name, p)
+            return self
+
+        def get_persistables(self, p):
+            if isinstance(p, list):
+                return p
+            elif isinstance(p, Base):
+                return [p]
+            else:
+                return []
+
+        def is_in_session(self, p):
+            if isinstance(p, list):
+                return p and any([i in Session for i in p])
+            else:
+                return p in Session
+
 except ImportError:
 
     #for sqlalchemy 1.4
@@ -124,9 +151,102 @@ except ImportError:
         ancestors that have ABCMeta as metaclass """
         pass
 
-    Base = declarative_base(class_registry=weakref.WeakValueDictionary(), metadata=metadata, metaclass=DeclarativeABCMeta)
+    class Base(declarative_base(class_registry=weakref.WeakValueDictionary(), metadata=metadata, metaclass=DeclarativeABCMeta)):
+        __abstract__ = True
+
+        def linked_to(self, **kwargs):
+            persistables = [item for i in kwargs.values() for item in self.get_persistables(i)]
+
+            if len(set([ (self.is_in_session(i)) for i in persistables ])) > 1:
+                session_status = [ '%s[%s]' % (p, self.is_in_session(p)) for p in persistables ]
+                raise ProgrammerError("Session status not consistent for: "+ ', '.join(session_status))
+
+            if self not in Session and any([ i in Session for i in persistables]):
+                Session.add(self)
+
+            for (name, p) in kwargs.items():
+                setattr(self, name, p)
+            return self
+
+        def get_persistables(self, p):
+            if isinstance(p, list):
+                return p
+            elif isinstance(p, Base):
+                return [p]
+            else:
+                return []
+
+        def is_in_session(self, p):
+            if isinstance(p, list):
+                return p and any([i in Session for i in p])
+            else:
+                return p in Session
 
 
+#-----------------------------------[TODO: TEMP BEGIN]
+from sqlalchemy import event
+from sqlalchemy.orm import object_session
+from sqlalchemy.orm import RelationshipProperty
+
+def configure_listener(class_, key, inst):
+    """an 'attribute_instrument' listener.
+
+    this is from the example at
+    https://docs.sqlalchemy.org/en/14/_modules/examples/custom_attributes/listen_for_events.html
+
+    """
+    if not isinstance(inst.property, RelationshipProperty):
+        return
+
+    @event.listens_for(inst, "append")
+    def append(instance, value, initiator):
+        _set_needs_attach(instance, value)
+
+    @event.listens_for(inst, "set")
+    def set_(instance, value, oldvalue, initiator):
+        _set_needs_attach(instance, value)
+
+
+    def _set_needs_attach(instance, value):
+        """act on "instance.foo = value"
+
+        if "value" is in a session and "instance" isn't, add it to a special
+        collection in that session
+
+        """
+
+        if instance and value:
+            sess = object_session(value)
+            if sess and not object_session(instance):
+                #pass
+                raise Exception("(WIP REMOVE THIS TEMPORARY EXCEPTION  ) -> instance not attached: %s : %s" % (str(instance), str(value)))
+                # if "needs_attach" not in sess.info:
+                #     sess.info["needs_attach"] = set()
+                # sess.info["needs_attach"].add(instance)
+
+
+def update_attached(session, instance):
+    """operate on the after_attach event.  remove the instance from
+    needs_attached"""
+
+    if "needs_attach" in session.info:
+        session.info["needs_attach"].discard(instance)
+
+
+def verify_attached(session):
+    """operate on the before_commit event.   everything should be attached."""
+
+    if "needs_attach" in session.info:
+        assert not session.info[
+            "needs_attach"
+        ], f"objects were unattached : {session.info['needs_attach']}"
+
+
+event.listen(Base, "attribute_instrument", configure_listener)
+event.listen(Session.session_factory, "after_attach", update_attached)
+event.listen(Session.session_factory, "before_commit", verify_attached)
+
+#-----------------------------------[TEMP END]
 
 
 class QueryAsSequence:
@@ -180,14 +300,14 @@ def session_scoped(cls):
        Two classmethods are also added to the decorated class:
 
 
-       **classmethod** for_session(cls, user_session, \*\*kwargs)
+       **classmethod** for_session(cls, user_session, **kwargs)
 
           This method assumes that there should be only one instance of the Entity class
           for a given UserSession. When called, it will return that instance if it exists.
           If it does not exist, it will construct the instance. The kwargs supplied will be
           passed along when creating the instance.
 
-       **classmethod** for_current_session(cls, \*\*kwargs)
+       **classmethod** for_current_session(cls, **kwargs)
 
           Works the same as for_session() except that you need not pass a UserSession, the
           current UserSession is assumed.
@@ -206,8 +326,9 @@ def session_scoped(cls):
         found = Session.query(cls).filter_by(user_session=user_session)
         if found.count() >= 1:
             return found.one()
-        instance = cls(user_session=user_session, **kwargs)
+        instance = cls(**kwargs)
         Session.add(instance)
+        instance.user_session=user_session
         return instance
     cls.for_session = for_session
 
