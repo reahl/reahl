@@ -406,9 +406,10 @@ class SqlAlchemyControl(ORMControl):
         if db_api_connection_creator:
             create_args['creator']=db_api_connection_creator
 
-        self.engine = create_engine(config.reahlsystem.connection_uri, **create_args)
-        self.engine.echo = self.echo
-        self.engine.connect()
+        engine = create_engine(config.reahlsystem.connection_uri, **create_args)
+        engine.echo = self.echo
+        engine.connect()
+        self.engine = engine
         Session.configure(bind=self.engine)
 
         self.instrument_classes_for(config.reahlsystem.root_egg)

@@ -94,16 +94,20 @@ class Example:
         self.containing_package = containing_package
 
         self.file_manager = contextlib.ExitStack()
+        main_module_name = '.'.join([self.containing_package, self.name])
         try:
-            ref = importlib_resources.files('.'.join([self.containing_package, self.name]))
+            ref = importlib_resources.files(main_module_name)
             self.path = self.file_manager.enter_context(importlib_resources.as_file(ref))
-        except ModuleNotFoundError:
-            self.path = None
-        except TypeError:
+        except ModuleNotFoundError as ex:
+            if ex.name == main_module_name:
+                self.path = None
+            else:
+                raise
+        except TypeError as ex:
             #cater for modules not in a package
             p = pathlib.Path(self.name)
-            ref = importlib_resources.files('.'.join([self.containing_package, str(p.stem)]))
-            self.path = self.file_manager.enter_context(importlib_resources.as_file(ref / (p.suffix[1:] +'.py') ) )
+            ref = importlib_resources.files(self.containing_package)
+            self.path = self.file_manager.enter_context(importlib_resources.as_file(ref / (p.name +'.py') ) )
 
     def __del__(self):
         self.file_manager.close()

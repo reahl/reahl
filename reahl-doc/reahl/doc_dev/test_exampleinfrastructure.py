@@ -93,7 +93,8 @@ def test_handling_import_errors(import_error_scenarios):
     import_error_scenarios.example_module.change_contents(import_error_scenarios.example_module_contents)
     import_error_scenarios.containing_egg.activate()
 
-    with SystemOutStub(), import_error_scenarios.checkout_directory.as_cwd():
+#    with SystemOutStub(), import_error_scenarios.checkout_directory.as_cwd():
+    with import_error_scenarios.checkout_directory.as_cwd():
         command = import_error_scenarios.GetExample()
         with expected(import_error_scenarios.expected_exception):
             command.do(import_error_scenarios.command_line)

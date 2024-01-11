@@ -551,7 +551,7 @@ class UserInterface:
            :keyword title: The title to be used for the :class:`View`.
            :keyword page: A :class:`WidgetFactory` that will be used as the page to be rendered for this :class:`View` (if specified).
            :keyword detour: If True, marks this :class:`View` as the start of a detour (A series of
-             :class:`View`\s which can return the user to where the detour was first entered from). 
+             :class:`View` which can return the user to where the detour was first entered from). 
            :keyword view_class: The class of :class:`View` to be constructed (in the case of parameterised :class:`View` s).
            :keyword read_check: A no-arg function returning a boolean value. It will be called to determine whether the current 
              user is allowed to see this :class:`View` or not.
@@ -2365,23 +2365,17 @@ class WidgetResult(MethodResult):
        .. versionchanged:: 6.1
           result_widget parameter changed to be a list, renamed to result_widgets.
           Deprecated kwarg as_json_and_result
+       .. versionchanged:: 7.0
+          Removed kwarg as_json_and_result
     """
 
-    def __init__(self, result_widgets, as_json_and_result=None):
-        if as_json_and_result is None:
-            as_json_and_result = True
-        else:
-            warnings.warn('DEPRECATED: as_json_and_result kwarg will be removed, and forced to True in 7.0', DeprecationWarning, stacklevel=1)            
+    def __init__(self, result_widgets):
         if not isinstance(result_widgets, list):
-            warnings.warn('DEPRECATED: result_widgets should be a list', DeprecationWarning, stacklevel=1)
-            result_widgets = [result_widgets]
-        if not as_json_and_result and len(result_widgets) > 1:
-            raise ProgrammerError('Only one result_widget allowed when as_json_and_result is True')
+            raise ProgrammerError('result_widgets should be a list')
 
-        mime_type = 'application/json' if as_json_and_result else 'text/html'
+        mime_type = 'application/json' 
         super().__init__(mime_type=mime_type, encoding='utf-8', catch_exception=DomainException, replay_request=True)
         self.result_widgets = result_widgets
-        self.as_json_and_result = as_json_and_result
 
     def render_as_json(self, exception):
         widgets_to_render = set()
@@ -2421,14 +2415,10 @@ class WidgetResult(MethodResult):
         return coactive_widgets
 
     def render(self, return_value):
-        if self.as_json_and_result:
-            return self.render_as_json(None)
-        return self.result_widgets[0].render_contents() + self.result_widgets[0].render_contents_js()
+        return self.render_as_json(None)
 
     def render_exception(self, exception):
-        if self.as_json_and_result:
-            return self.render_as_json(exception)
-        return super().render_exception(exception)
+        return self.render_as_json(exception)
 
 
 class RemoteMethod(SubResource): 

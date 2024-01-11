@@ -77,3 +77,4 @@ def dist_info(cmd, basename, filename):
     else:
         cmd.write_or_delete_file('component', filename, '')
 
+egg_info = dist_info
