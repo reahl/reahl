@@ -105,9 +105,8 @@ class Example:
                 raise
         except TypeError as ex:
             #cater for modules not in a package
-            p = pathlib.Path(self.name)
             ref = importlib_resources.files(self.containing_package)
-            self.path = self.file_manager.enter_context(importlib_resources.as_file(ref / (p.name +'.py') ) )
+            self.path = self.file_manager.enter_context(importlib_resources.as_file(ref / (self.name.replace('.', os.path.sep) +'.py') ) )
 
     def __del__(self):
         self.file_manager.close()
