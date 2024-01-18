@@ -183,6 +183,13 @@ except ImportError:
                 return p in Session
 
 
+try:            
+    from sqlalchemy.orm import add_mapped_attribute
+except ImportError:
+    def add_mapped_attribute(target, key, attr):
+        setattr(target, key, attr)
+
+            
 #-----------------------------------[TODO: TEMP BEGIN]
 from sqlalchemy import event
 from sqlalchemy.orm import object_session
@@ -312,8 +319,9 @@ def session_scoped(cls):
           Works the same as for_session() except that you need not pass a UserSession, the
           current UserSession is assumed.
     """
-    cls.user_session_id = Column(Integer, ForeignKey('usersession.id', ondelete='CASCADE'), index=True)
-    cls.user_session = relationship('UserSession')
+
+    add_mapped_attribute(cls, 'user_session_id', Column(Integer, ForeignKey('usersession.id', ondelete='CASCADE'), name='user_session_id', index=True))
+    add_mapped_attribute(cls, 'user_session', relationship('UserSession'))
 
     @classmethod
     def for_current_session(cls, **kwargs):
