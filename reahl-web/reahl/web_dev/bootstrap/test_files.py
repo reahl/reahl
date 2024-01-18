@@ -380,9 +380,12 @@ class LargeFileUploadInputFixture(StubbedFileUploadInputFixture):
         self.simulate_large_file_upload()
 
     def simulate_large_file_upload(self):
-        self.upload_done.wait()
+        print('waiting on Event', flush=True)
+        self.upload_done.wait(timeout=5)
+        print('DONE waiting on Event', flush=True)
 
     def simulate_large_file_upload_done(self):
+        print('Signalling Event Event', flush=True)
         self.upload_done.set()
 
     def new_upload_done(self):
