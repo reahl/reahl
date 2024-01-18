@@ -18,6 +18,8 @@
 import os
 import threading 
 
+from flaky import flaky
+
 from reahl.tofu import scenario, expected, Fixture, temp_file_with, uses
 from reahl.tofu.pytestsupport import with_fixtures
 
@@ -380,12 +382,9 @@ class LargeFileUploadInputFixture(StubbedFileUploadInputFixture):
         self.simulate_large_file_upload()
 
     def simulate_large_file_upload(self):
-        print('waiting on Event', flush=True)
-        self.upload_done.wait(timeout=5)
-        print('DONE waiting on Event', flush=True)
-
+        assert self.upload_done.wait(timeout=5), 'times out waiting for self.upload_done: was simulate_large_file_upload_done called?'
+            
     def simulate_large_file_upload_done(self):
-        print('Signalling Event Event', flush=True)
         self.upload_done.set()
 
     def new_upload_done(self):
@@ -619,6 +618,7 @@ def test_async_in_progress(web_fixture, large_file_upload_input_fixture):
 
 
 @with_fixtures(WebFixture, LargeFileUploadInputFixture)
+@flaky(max_runs=1, min_passes=1)
 def test_cancelling_queued_upload(web_fixture, large_file_upload_input_fixture):
     """Cancelling an upload that is still queued (upload not started yet) removes the file from the list
        and removed it from the queue of uploads.
@@ -800,6 +800,7 @@ def test_async_upload_domain_exception(web_fixture, toggle_validation_fixture):
 
 
 @with_fixtures(WebFixture, LargeFileUploadInputFixture)
+@flaky(max_runs=1, min_passes=1)
 def test_queueing_async_uploads(web_fixture, large_file_upload_input_fixture):
     """Asynchronous uploads do not happen concurrently, they are queued one after another.
     """
