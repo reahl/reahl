@@ -40,6 +40,7 @@ dependencies = [
 test = [
   "pytest>=3.0",
   "plotly>=5.1.0,<5.16.99999",
+  "flaky>=3.7.0",
   "reahl-tofu",
   "reahl-stubble",
   "reahl-dev",
