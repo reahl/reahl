@@ -33,7 +33,7 @@ Pin-Priority: 1001
 ' > /etc/apt/preferences.d/mozilla-firefox
 echo 'Unattended-Upgrade::Allowed-Origins:: "LP-PPA-mozillateam:${distro_codename}";' > /etc/apt/apt.conf.d/51unattended-upgrades-firefox
 apt-get update
-apt install  --no-install-recommends -y firefox
+apt install  --no-install-recommends -y firefox==118.0+build1-0ubuntu0.22.04.1~mt1
 
 #fix for geckodriver not included in ubuntu 22.04 repo (firefox-geckodriver). https://bugs.launchpad.net/ubuntu/+source/firefox/+bug/1968266
 wget https://github.com/mozilla/geckodriver/releases/download/v0.32.0/geckodriver-v0.32.0-linux64.tar.gz

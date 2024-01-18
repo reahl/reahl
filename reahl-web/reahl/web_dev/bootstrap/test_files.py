@@ -606,6 +606,7 @@ def test_async_in_progress(web_fixture, large_file_upload_input_fixture):
     assert not fixture.uploaded_file_is_listed( fixture.file_to_upload1.name ) 
 
     with web_fixture.reahl_server.in_background(wait_till_done_serving=False):
+        import time; time.sleep(1)
         browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload1.name, wait_for_ajax=False) # Upload will block, see fixture
 
     assert browser.is_element_present('//ul/li/progress') 
@@ -638,6 +639,7 @@ def test_cancelling_queued_upload(web_fixture, large_file_upload_input_fixture):
     assert not fixture.uploaded_file_is_listed( fixture.file_to_upload2.name ) 
 
     with web_fixture.reahl_server.in_background(wait_till_done_serving=False):
+        import time; time.sleep(1)
         browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload1.name, wait_for_ajax=False) # Upload will block, see fixture
         browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload2.name, wait_for_ajax=False) # Upload will block, see fixture
 
@@ -701,6 +703,7 @@ def test_prevent_form_submit(web_fixture, large_file_upload_input_fixture):
     browser.open('/')
 
     with web_fixture.reahl_server.in_background(wait_till_done_serving=False):
+        import time; time.sleep(1)
         browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload1.name, wait_for_ajax=False) # Upload will block, see fixture
 
     with browser.no_page_load_expected():
@@ -816,6 +819,7 @@ def test_queueing_async_uploads(web_fixture, large_file_upload_input_fixture):
     assert not fixture.uploaded_file_is_listed(fixture.file_to_upload1.name) 
 
     with web_fixture.reahl_server.in_background(wait_till_done_serving=False):
+        import time; time.sleep(1)
         browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload1.name, wait_for_ajax=False) # Upload will block, see fixture
         browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload2.name, wait_for_ajax=False) # Upload will block, see fixture
 
