@@ -610,7 +610,7 @@ def test_async_in_progress(web_fixture, large_file_upload_input_fixture):
            background_httpd_thread = web_fixture.reahl_server.httpd_thread
            browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload1.name, wait_for_ajax=False) # Upload will block, see fixture
 
-       assert browser.is_element_present('//ul/li/progress') 
+       assert browser.wait_for_element_present('//ul/li/progress') 
        progress = browser.get_attribute('//ul/li/progress', 'value')
        assert progress == '100' 
        browser.click(XPath.button_labelled('Cancel'), wait_for_ajax=False)
