@@ -356,11 +356,14 @@ class StubbedFileUploadInputFixture(FileUploadInputFixture):
             
         class FileUploadPanelStub(FileUploadPanel):
             def upload_file(self):
+              try:  
                 if fixture.run_hook_before:
                     fixture.file_upload_hook()
                 super().upload_file()
                 if fixture.run_hook_after:
                     fixture.file_upload_hook()
+              except DomainException:
+                  pass
 
         class FileUploadForm(Form):
             def __init__(self, view):
@@ -376,15 +379,16 @@ class StubbedFileUploadInputFixture(FileUploadInputFixture):
 
 
 class LargeFileUploadInputFixture(StubbedFileUploadInputFixture):
+    timeout = 5
     def file_upload_hook(self):
         self.simulate_large_file_upload()
 
     def simulate_large_file_upload(self):
-        self.upload_done.wait(timeout=5)
+        self.upload_done.wait(timeout=self.timeout)
             
     def simulate_large_file_upload_done(self):
         self.upload_done.set()
-
+        
     def new_upload_done(self):
         return threading.Event()
 
@@ -587,7 +591,7 @@ def test_async_upload(web_fixture, file_upload_input_fixture):
 
 
 @with_fixtures(WebFixture, LargeFileUploadInputFixture)
-def xxxtest_async_in_progress(web_fixture, large_file_upload_input_fixture):
+def test_async_in_progress(web_fixture, large_file_upload_input_fixture):
     """While a large file is being uploaded, a progress bar and a Cancel button are displayed. Clicking on the Cancel
        button stops the upload and clears the file name from the list of uploaded files.
     """
@@ -603,18 +607,22 @@ def xxxtest_async_in_progress(web_fixture, large_file_upload_input_fixture):
     assert not fixture.file_was_uploaded( fixture.file_to_upload1.name ) 
     assert not fixture.uploaded_file_is_listed( fixture.file_to_upload1.name ) 
 
-#    breakpoint()
-    with web_fixture.reahl_server.in_background(wait_till_done_serving=True):
+    fixture.timeout = None # This is a trick. With timeout of None, the server will be blocked forever. We need that because if we let it
+                           # continue late enough in the process, then it tries to complete the transaction and breaks since whatever interaction
+                           # we have via selenium with the webserver later on will already have done so, but in the main thread.
+                           # This is a consquence of our test framework forcing everything into a single transaction.
+    with web_fixture.reahl_server.in_background(wait_till_done_serving=False):
         browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload1.name, wait_for_ajax=False) # Upload will block, see fixture
 
-        assert browser.wait_for_element_present('//ul/li/progress') 
-        progress = browser.get_attribute('//ul/li/progress', 'value')
-        assert progress == '100' 
-        browser.click(XPath.button_labelled('Cancel'), wait_for_ajax=False)
-        fixture.simulate_large_file_upload_done()
+    assert browser.wait_for_element_present('//ul/li/progress') 
+    progress = browser.get_attribute('//ul/li/progress', 'value')
+    assert progress == '100'
+        
+    browser.click(XPath.button_labelled('Cancel'), wait_for_ajax=False)
 
     assert not fixture.uploaded_file_is_listed( fixture.file_to_upload1.name ) 
     assert not fixture.file_was_uploaded( fixture.file_to_upload1.name )
+    
 
 
 
@@ -637,7 +645,7 @@ def test_cancelling_queued_upload(web_fixture, large_file_upload_input_fixture):
     assert not fixture.file_was_uploaded( fixture.file_to_upload2.name ) 
     assert not fixture.uploaded_file_is_listed( fixture.file_to_upload2.name ) 
 
-    with web_fixture.reahl_server.in_background(wait_till_done_serving=True):
+    with web_fixture.reahl_server.in_background():
         browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload1.name, wait_for_ajax=False) # Upload will block, see fixture
         browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload2.name, wait_for_ajax=False) # Upload will block, see fixture
 
@@ -700,7 +708,7 @@ def test_prevent_form_submit(web_fixture, large_file_upload_input_fixture):
     browser = web_fixture.driver_browser
     browser.open('/')
 
-    with web_fixture.reahl_server.in_background(wait_till_done_serving=True):
+    with web_fixture.reahl_server.in_background():
         browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload1.name, wait_for_ajax=False) # Upload will block, see fixture
 
         with browser.no_page_load_expected():
@@ -816,7 +824,7 @@ def test_queueing_async_uploads(web_fixture, large_file_upload_input_fixture):
     assert not fixture.file_was_uploaded(fixture.file_to_upload1.name) 
     assert not fixture.uploaded_file_is_listed(fixture.file_to_upload1.name) 
 
-    with web_fixture.reahl_server.in_background(wait_till_done_serving=True):
+    with web_fixture.reahl_server.in_background():
         browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload1.name, wait_for_ajax=False) # Upload will block, see fixture
         browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload2.name, wait_for_ajax=False) # Upload will block, see fixture
 
