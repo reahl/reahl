@@ -31,6 +31,14 @@ import pathlib
 import pkg_resources
 import packaging
 
+if sys.version_info < (3, 9):
+    try:
+        import importlib_resources
+    except:
+        raise Exception('You are on an older version of python. Please install importlib-resources')
+else:
+    import importlib.resources as importlib_resources
+
 from reahl.component.exceptions import DomainException, ProgrammerError
 
 
@@ -440,13 +448,9 @@ class ReahlEgg:
 
     @property
     def translation_pot_filename(self):
-        translations_package_name = self.translation_package_name
-        translations_file_path = translations_package_name.replace('.', '/')
-
-        source_file = pathlib.Path().joinpath(translations_file_path).joinpath(self.name)
-        if source_file.exists():
-            return str(source_file)
-        return self.distribution.get_resource_filename(self.distribution, '%s/%s' % (translations_file_path, self.name))
+        ref = importlib_resources.files(self.translation_package_name) / self.name
+        with importlib_resources.as_file(ref) as path:
+            return path
 
     @property
     def scheduled_jobs(self):

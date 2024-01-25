@@ -379,12 +379,11 @@ class StubbedFileUploadInputFixture(FileUploadInputFixture):
 
 
 class LargeFileUploadInputFixture(StubbedFileUploadInputFixture):
-    timeout = 5
     def file_upload_hook(self):
         self.simulate_large_file_upload()
 
     def simulate_large_file_upload(self):
-        self.upload_done.wait(timeout=self.timeout)
+        self.upload_done.wait(timeout=5)
             
     def simulate_large_file_upload_done(self):
         self.upload_done.set()
@@ -607,11 +606,8 @@ def test_async_in_progress(web_fixture, large_file_upload_input_fixture):
     assert not fixture.file_was_uploaded( fixture.file_to_upload1.name ) 
     assert not fixture.uploaded_file_is_listed( fixture.file_to_upload1.name ) 
 
-    fixture.timeout = None # This is a trick. With timeout of None, the server will be blocked forever. We need that because if we let it
-                           # continue late enough in the process, then it tries to complete the transaction and breaks since whatever interaction
-                           # we have via selenium with the webserver later on will already have done so, but in the main thread.
-                           # This is a consquence of our test framework forcing everything into a single transaction.
     with web_fixture.reahl_server.in_background(wait_till_done_serving=False):
+        background_httpd_thread = web_fixture.reahl_server.httpd_thread
         browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload1.name, wait_for_ajax=False) # Upload will block, see fixture
 
     assert browser.wait_for_element_present('//ul/li/progress') 
@@ -622,8 +618,19 @@ def test_async_in_progress(web_fixture, large_file_upload_input_fixture):
 
     assert not fixture.uploaded_file_is_listed( fixture.file_to_upload1.name ) 
     assert not fixture.file_was_uploaded( fixture.file_to_upload1.name )
-    
 
+    # This is a trick. The server running in_background above is blocked until we callfixture.simulate_large_file_upload_done().
+    # We can only do that at this point, however, there will be an exception in the background thread since that thread now tries to
+    # commit the transation which we have already committed during our subsequent interaction via selenium with the webserver, but in the main thread.
+    # This is a consquence of our test framework forcing everything into a single transaction.
+    # We ensure debug is off here temporarily to swallow the exception we dont care about.
+    try:
+        saved = web_fixture.config.reahlsystem.debug
+        web_fixture.config.reahlsystem.debug = False
+        fixture.simulate_large_file_upload_done()
+        background_httpd_thread.join(5)
+    finally:
+        web_fixture.config.reahlsystem.debug = saved
 
 
 @with_fixtures(WebFixture, LargeFileUploadInputFixture)

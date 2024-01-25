@@ -42,16 +42,16 @@ class ComponentInfo(Command):
     def execute(self, args):
         egg = ReahlEgg(pkg_resources.get_distribution(args.component_name))
         print('Name: %s' % egg.name)
-        print('Version: %s' % egg.version)
+        print('Version: %s' % egg.installed_version)
         configuration_class = egg.configuration_spec
         if configuration_class:
             self.print_configuration_info(configuration_class)
-        if egg.translation_package:
+        if egg.translation_package_name:
             self.print_locale_info(egg)
 
     def print_locale_info(self, egg):
         print('\nLocale info:\n')
-        print('\tTranslation package: %s' % egg.translation_package.__name__)
+        print('\tTranslation package: %s' % egg.translation_package_name)
         print('\tTranslation POT: %s' % egg.translation_pot_filename)
 
     def print_configuration_info(self, configuration_class):
