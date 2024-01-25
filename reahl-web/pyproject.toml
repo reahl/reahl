@@ -33,7 +33,8 @@ dependencies = [
   "Babel>=2.1,<2.12.999",
   "setuptools>=51.0.0",
   "lxml>=4.2,<4.9.999",
-  "cached-property>=1.5,<1.5.999;python_version<'3.8'"
+  "cached-property>=1.5,<1.5.999;python_version<'3.8'",
+  "importlib-resources;python_version<'3.9'"
 ]
 
 [project.optional-dependencies]

@@ -25,7 +25,8 @@ classifiers = [
   "Topic :: Software Development"
   ]
 dependencies = [
-  "reahl-component>=7.0,<7.1"
+  "reahl-component>=7.0,<7.1",
+  "importlib-resources;python_version<'3.9'",
   ]
 authors = [ 
   {name = "Iwan Vosloo", email = "iwan@reahl.org"},
