@@ -18,8 +18,6 @@
 import os
 import threading 
 
-from flaky import flaky
-
 from reahl.tofu import scenario, expected, Fixture, temp_file_with, uses
 from reahl.tofu.pytestsupport import with_fixtures
 
@@ -589,7 +587,6 @@ def test_async_upload(web_fixture, file_upload_input_fixture):
 
 
 @with_fixtures(WebFixture, LargeFileUploadInputFixture)
-@flaky(max_runs=1, min_passes=1)
 def xxxtest_async_in_progress(web_fixture, large_file_upload_input_fixture):
     """While a large file is being uploaded, a progress bar and a Cancel button are displayed. Clicking on the Cancel
        button stops the upload and clears the file name from the list of uploaded files.
@@ -622,7 +619,6 @@ def xxxtest_async_in_progress(web_fixture, large_file_upload_input_fixture):
 
 
 @with_fixtures(WebFixture, LargeFileUploadInputFixture)
-@flaky(max_runs=1, min_passes=1)
 def test_cancelling_queued_upload(web_fixture, large_file_upload_input_fixture):
     """Cancelling an upload that is still queued (upload not started yet) removes the file from the list
        and removed it from the queue of uploads.
@@ -694,7 +690,6 @@ def test_prevent_duplicate_upload_js(web_fixture, file_upload_input_fixture):
 
 
 @with_fixtures(WebFixture, LargeFileUploadInputFixture)
-@flaky(max_runs=1, min_passes=1)
 def test_prevent_form_submit(web_fixture, large_file_upload_input_fixture):
     """The user is prevented from submitting the Form while one or more file uploads are still in progress."""
     fixture = large_file_upload_input_fixture
@@ -807,7 +802,6 @@ def test_async_upload_domain_exception(web_fixture, toggle_validation_fixture):
 
 
 @with_fixtures(WebFixture, LargeFileUploadInputFixture)
-@flaky(max_runs=1, min_passes=1)
 def test_queueing_async_uploads(web_fixture, large_file_upload_input_fixture):
     """Asynchronous uploads do not happen concurrently, they are queued one after another.
     """
