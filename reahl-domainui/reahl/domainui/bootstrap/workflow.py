@@ -130,7 +130,7 @@ class InboxUI(UserInterface):
     """
     def assemble(self, login_bookmark=None, get_queues=None):
         self.get_queues = get_queues
-        self.web_session = ExecutionContext.get_context().session 
+        self.web_session = ExecutionContext.get_context().session
         self.first_log_in = ViewPreCondition(LoginSession.for_current_session().is_logged_in, exception=Detour(login_bookmark))
 
         self.workflow_interface = WorkflowInterface()

@@ -21,7 +21,7 @@ import warnings
 import sys
 
 import platform
-import pkg_resources
+import packaging.version
 import wrapt
 
 def deprecated(message, version='n/a'):
@@ -46,7 +46,7 @@ def deprecated(message, version='n/a'):
                 
             return wrapped(*args, **kwargs)
 
-        if pkg_resources.parse_version(platform.python_version()) > pkg_resources.parse_version('3.6') and f.__doc__:
+        if packaging.version.Version(platform.python_version()) > packaging.version.Version('3.6') and f.__doc__:
             f.__doc__ = '%s\n\n.. deprecated:: %s\n   %s' % (f.__doc__, version, message)
 
         if inspect.isclass(f):

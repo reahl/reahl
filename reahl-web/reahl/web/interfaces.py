@@ -251,7 +251,7 @@ class PersistedFileProtocol(object, metaclass=ABCMeta):
     @classmethod
     @abstractmethod
     def add_persisted_for_form(cls, form, input_name, uploaded_file): 
-        """Saves the given `uploaded_file` (a :class:`cgi.FileStorage`) using the given `input_name`
+        """Saves the given `uploaded_file` (a :class:`reahl.component.modelinterface.UploadedFile`) using the given `input_name`
            for the given :class:`reahl.web.ui.Form`.
         """
 

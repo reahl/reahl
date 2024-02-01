@@ -24,16 +24,16 @@ jobs:
       TWINE_PASSWORD:  ${{ secrets.TWINE_PASSWORD }}
     runs-on:  ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
-          python-version: '3.8'
+          python-version: '3.10'
 
       - name: Install dependencies
         run: python -m pip install --upgrade pip packaging
 
       - name: Download wheels
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: wheels
           path: ~/.reahlworkspace/dist-egg
@@ -58,7 +58,7 @@ jobs:
         run: cp -a /home/runner/.reahlworkspace/dist-egg/ /tmp/signedwheels
 
       - name: Upload signed wheels to cache
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: signedwheels
           path: /tmp/signedwheels

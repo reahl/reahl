@@ -81,37 +81,23 @@ class WebServerFixture(Fixture):
 
     def new_firefox_driver(self, javascript_enabled=True):
         assert javascript_enabled, 'Cannot disable javascript anymore, see: https://github.com/seleniumhq/selenium/issues/635'
-        from selenium.webdriver import FirefoxProfile, DesiredCapabilities
-
-        # FF does not fire events when its window is not in focus.
-        # Native events used to fix this.
-        # After FF34 FF does not support native events anymore
-
-        fp = FirefoxProfile()
-##        fp.set_preference("focusmanager.testmode", False)
-##        fp.set_preference('plugins.testmode', False)
-#        fp.set_preference('webdriver_enable_native_events', True)
-#        fp.set_preference('webdriver.enable.native.events', True)
-#        fp.set_preference('enable.native.events', True)
-#        fp.native_events_enabled = True
-
-        fp.set_preference('webdriver.log.file', '/tmp/firefox.webdriver.log')
-        fp.set_preference('webdriver.firefox.logfile', '/tmp/firefox.log')
-        fp.set_preference('network.http.max-connections-per-server', 1)
-        fp.set_preference('network.http.max-persistent-connections-per-server', 0)
-        fp.set_preference('network.http.spdy.enabled', False)
-        fp.set_preference('network.http.pipelining', True)
-        fp.set_preference('network.http.pipelining.maxrequests', 8)
-        fp.set_preference('network.http.pipelining.ssl', True)
-        fp.set_preference('html5.offmainthread', False)
-
-        dc = DesiredCapabilities.FIREFOX.copy()
+        from selenium.webdriver.firefox.options import Options
+        from selenium.webdriver.firefox.service import Service
+        options = Options()
+        options.set_preference('webdriver.log.file', '/tmp/firefox.webdriver.log')
+        options.set_preference('webdriver.firefox.logfile', '/tmp/firefox.log')
+        options.set_preference('network.http.max-connections-per-server', 1)
+        options.set_preference('network.http.max-persistent-connections-per-server', 0)
+        options.set_preference('network.http.spdy.enabled', False)
+        options.set_preference('network.http.pipelining', True)
+        options.set_preference('network.http.pipelining.maxrequests', 8)
+        options.set_preference('network.http.pipelining.ssl', True)
+        options.set_preference('html5.offmainthread', False)
 
         if not javascript_enabled:
-            fp.set_preference('javascript.enabled', False)
-            dc['javascriptEnabled'] = False
+            options.set_preference('javascript.enabled', False)
 
-        wd = webdriver.Firefox(firefox_profile=fp, capabilities=dc)
+        wd = webdriver.Firefox(options=options)
         self.reahl_server.install_handler(wd)
         return wd
 

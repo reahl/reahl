@@ -29,6 +29,15 @@ import importlib
 import pathlib
 
 import pkg_resources
+import packaging
+
+if sys.version_info < (3, 9):
+    try:
+        import importlib_resources
+    except:
+        raise Exception('You are on an older version of python. Please install importlib-resources')
+else:
+    import importlib.resources as importlib_resources
 
 from reahl.component.exceptions import DomainException, ProgrammerError
 
@@ -289,7 +298,7 @@ class Version(object):
 
     @property
     def version_number(self):
-        return pkg_resources.parse_version(self.version_number_string)
+        return packaging.version.Version(self.version_number_string)
 
     def __eq__(self, other):
         return str(self) == str(other)
@@ -306,10 +315,10 @@ class Version(object):
     def matches_versions(self, min_version, max_version):
         if not min_version:
             return True
-        candidate_version = pkg_resources.parse_version(self.version_number_string)
+        candidate_version = packaging.version.Version(self.version_number_string)
         [major, minor] = min_version.split('.')[:2]
-        min_version = pkg_resources.parse_version(min_version)
-        max_version = pkg_resources.parse_version(max_version or '%s.%s.%s' % (major, minor, '9999'))
+        min_version = packaging.version.Version(min_version)
+        max_version = packaging.version.Version(max_version or '%s.%s.%s' % (major, minor, '9999'))
         return min_version <= candidate_version < max_version
 
     def get_migration_classes(self):
@@ -329,14 +338,14 @@ class Version(object):
         return False
 
     def is_up_to_date(self, orm_control):
-        installed_version_number = pkg_resources.parse_version(orm_control.schema_version_for(self.egg, default='0.0'))
+        installed_version_number = packaging.version.Version(orm_control.schema_version_for(self.egg, default='0.0'))
         return installed_version_number >= self.version_number
 
 
 class ReahlEgg:
     interface_cache = {}
-    metadata_version_min = pkg_resources.parse_version('1.0.0')
-    metadata_version_max = pkg_resources.parse_version('1.1.0')
+    metadata_version_min = packaging.version.Version('1.0.0')
+    metadata_version_max = packaging.version.Version('1.1.0')
     def __init__(self, distribution):
         self.distribution = distribution
         self.metadata = self.create_metadata(distribution)
@@ -355,9 +364,9 @@ class ReahlEgg:
         except KeyError:
             raise ProgrammerError('Component metadata version not found for %s' % self.distribution)
 
-        metadata_version = pkg_resources.parse_version(metadata_version_string)
-        supported_version_min = pkg_resources.parse_version('%s.%s' % (self.metadata_version_min.major, self.metadata_version_min.minor))
-        supported_version_max = pkg_resources.parse_version('%s.%s' % (self.metadata_version_max.major, self.metadata_version_max.minor+1))
+        metadata_version = packaging.version.Version(metadata_version_string)
+        supported_version_min = packaging.version.Version('%s.%s' % (self.metadata_version_min.major, self.metadata_version_min.minor))
+        supported_version_max = packaging.version.Version('%s.%s' % (self.metadata_version_max.major, self.metadata_version_max.minor+1))
 
         if not(metadata_version >= supported_version_min and metadata_version < supported_version_max):
             raise ProgrammerError('Component metadata version %s for %s is incompatible with the installed version of reahl-component' % (metadata_version, self.distribution))
@@ -439,13 +448,9 @@ class ReahlEgg:
 
     @property
     def translation_pot_filename(self):
-        translations_package_name = self.translation_package_name
-        translations_file_path = translations_package_name.replace('.', '/')
-
-        source_file = pathlib.Path().joinpath(translations_file_path).joinpath(self.name)
-        if source_file.exists():
-            return str(source_file)
-        return self.distribution.get_resource_filename(self.distribution, '%s/%s' % (translations_file_path, self.name))
+        ref = importlib_resources.files(self.translation_package_name) / self.name
+        with importlib_resources.as_file(ref) as path:
+            return path
 
     @property
     def scheduled_jobs(self):

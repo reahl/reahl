@@ -21,30 +21,26 @@ Copyright (C) 2006 Reahl Software Services (Pty) Ltd.  All rights reserved. (www
 
 """
 
-import asyncore
+import asyncio
+from aiosmtpd.controller import Controller
+from aiosmtpd.handlers import Sink
 import logging
-from smtpd import DebuggingServer, SMTPServer
-from threading import Thread
 import email
 
 from reahl.dev.devshell import WorkspaceCommand
 
-#------------------------------------------------[ utilities ]
 
+class EchoSMTPHandler(Sink):
+    async def handle_DATA(self, server, session, envelope):
 
-class EchoSMTPServer(DebuggingServer):
-    def __init__(self):
-        init_kwargs = dict(decode_data=True)
-        DebuggingServer.__init__(self, ('localhost', 8025), (None, 0), **init_kwargs)
- 
-    def process_message(self, peer, mailfrom, rcpttos, data, **kwargs):
         #Parse the message into an email.Message instance
         logging.debug("Recieved Message")
-        m = email.message_from_string(data)
+        m = email.message_from_string(envelope.content.decode('utf8'))
         logging.debug("Parsed Message")
 
         self.current_id = m['Message-Id']
-        self.process_simple_message(m, mailfrom, rcpttos)
+        self.process_simple_message(m, envelope.mail_from, envelope.rcpt_tos)
+        return '250 Message accepted for delivery'
 
     def process_simple_message(self, message, mailfrom, rcpttos):
         print((self.message_as_text(message)))
@@ -67,25 +63,25 @@ class ServeSMTP(WorkspaceCommand):
     """Runs an SMTP server on port 8025 for testing."""
     keyword = 'servesmtp'
     def execute(self, args):
-        server = EchoSMTPServer()
+
+        loop = asyncio.get_event_loop()
+        controller = Controller(EchoSMTPHandler(), port=8025)
+
+        controller.start()
         print("Running Echo SMTP Server on port 8025, type [ctrl-c] to exit.")
         try:
-            asyncore.loop()
+            loop.run_forever()
         except KeyboardInterrupt:
             pass
+        finally:
+            controller.stop()
         
 
-class FakeSMTPServer(EchoSMTPServer):
+class FakeSMTPServer(EchoSMTPHandler):
 
     def __init__(self, call_back_function=None):
-        EchoSMTPServer.__init__(self)
+        super().__init__()
         self.call_back_function = call_back_function
-
-    #A place to store the current ID of the message that we are processing.
-    current_id = 0
-
-    def handle_close(self):
-        logging.debug("close called")
 
     def process_simple_message(self, message, mailfrom, rcpttos):
         logging.debug(self.message_as_text(message))
@@ -98,24 +94,20 @@ class MailTester:
 
     def __init__(self, call_back_function=None):
         self.call_back_function = call_back_function
-        self.running = False
+        self.loop = asyncio.get_event_loop()
 
-    def main_loop(self):
-        while self.running:
-            logging.debug("mainloop...")
-            asyncore.loop(timeout=1, count=1)
-        self.fake_server.close()
+    async def main_loop(self):
+        fake_server = FakeSMTPServer(self.call_back_function)
+        self.controller = Controller(fake_server, port=8025)
+        self.controller.start()
+        logging.debug("mainloop...")
 
     def start(self):
-        self.fake_server = FakeSMTPServer(self.call_back_function)
-        self.thread = Thread(target=self.main_loop)
-        self.running = True
-        self.thread.start()
+        asyncio.run(self.main_loop())
 
     def stop(self):
         logging.debug("stop called")
-        self.running = False
-        self.thread.join()
+        self.controller.stop()
 
 
 

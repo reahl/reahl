@@ -42,7 +42,7 @@ class SqlAlchemyFixture(Fixture):
             # This is done because finalise_session (real code) is run as part of the test, and it
             # checks for the nested transaction and behaves differently to make testing possible.
             # Session.begin() - this happens implicitly
-            Session.begin_nested()
+            Session().begin_nested()
 
     @tear_down
     def finalise_transaction(self):

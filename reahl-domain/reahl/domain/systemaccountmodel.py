@@ -142,7 +142,8 @@ class EmailAndPasswordSystemAccount(SystemAccount):
     email = Column(Unicode(254), nullable=False, unique=True, index=True) #: The email address of this account
 
     def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+        super().__init__()
+        self.linked_to(**kwargs)
         self.init_on_load()
 
     @reconstructor
@@ -558,8 +559,8 @@ class ActivateAccount(DeferredAction):
     def __init__(self, system_account=None, **kwargs):
         config = ExecutionContext.get_context().config
         deadline = datetime.now() + timedelta(days=config.accounts.request_verification_timeout)
-        self.system_account = system_account
         super().__init__(deadline=deadline, **kwargs)
+        self.linked_to(system_account=system_account)
 
     def success_action(self):
         self.system_account.activate()
@@ -584,9 +585,8 @@ class ChangeAccountEmail(DeferredAction):
                                            email_config='accounts.email_change_email')]
         config = ExecutionContext.get_context().config
         deadline = datetime.now() + timedelta(days=config.accounts.request_verification_timeout)
-        self.system_account = system_account
-        super().__init__(requirements=requirements,
-                                                 deadline=deadline)
+        super().__init__(requirements=requirements, deadline=deadline)
+        self.linked_to(system_account=system_account)
 
     @property
     def verify_email_request(self):

@@ -270,7 +270,8 @@ class Allocation(Base):
     fields.amount        = lambda i: IntegerField(label='Amount', required=True, writable=lambda field: i.is_in_amount)
 
     def __init__(self, investment_order, fund_name):
-        super().__init__(investment_order=investment_order)
+        super().__init__()
+        self.linked_to(investment_order=investment_order)
         self.fund = fund_name
         self.amount = 0
         self.percentage = 0
@@ -310,7 +311,8 @@ class IDDocument(Base):
     investment_order  = relationship('reahl.doc.examples.howtos.responsivedisclosure.responsivedisclosure.InvestmentOrder', back_populates='id_document')
 
     def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+        super().__init__()
+        self.linked_to(**kwargs)
         self.document_type = 'id_card'
 
     fields = ExposedNames()

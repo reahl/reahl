@@ -27,6 +27,10 @@ class Address(Base):
     email_address   = Column(UnicodeText)
     name            = Column(UnicodeText)
 
+    def __init__(self, address_book, **kwargs):
+        super().__init__(**kwargs)
+        self.linked_to(address_book=address_book)
+
     @classmethod
     def by_id(cls, address_id, exception_to_raise):
         addresses = Session.query(cls).filter_by(id=address_id)
@@ -64,6 +68,10 @@ class AddressBook(Base):
     owner      = relationship(EmailAndPasswordSystemAccount)
     collaborators = relationship('reahl.doc.examples.tutorial.accessbootstrap.accessbootstrap.Collaborator', lazy='dynamic',
                                  backref='address_book')
+
+    def __init__(self, owner):
+        super().__init__()
+        self.linked_to(owner=owner)
 
     @classmethod
     def by_id(cls, address_book_id, exception_to_raise):
@@ -105,7 +113,7 @@ class AddressBook(Base):
 
     def allow(self, account, can_add_addresses=False, can_edit_addresses=False):
         Session.query(Collaborator).filter_by(address_book=self, account=account).delete()
-        Collaborator(address_book=self, account=account,
+        Collaborator(self, account,
             can_add_addresses=can_add_addresses,
             can_edit_addresses=can_edit_addresses)
 
@@ -163,6 +171,9 @@ class Collaborator(Base):
     can_add_addresses = Column(Boolean, default=False)
     can_edit_addresses = Column(Boolean, default=False)
 
+    def __init__(self, address_book, account, **kwargs):
+        super().__init__(**kwargs)
+        self.linked_to(address_book=address_book, account=account)
 
 class AddressAppPage(HTML5Page):
     def __init__(self, view, home_bookmark):
@@ -259,7 +270,7 @@ class AddAddressForm(Form):
     def __init__(self, view, address_book):
         super().__init__(view, 'add_form')
 
-        new_address = Address(address_book=address_book)
+        new_address = Address(address_book)
 
         grouped_inputs = self.add_child(FieldSet(view, legend_text='Add an address'))
         grouped_inputs.use_layout(FormLayout())

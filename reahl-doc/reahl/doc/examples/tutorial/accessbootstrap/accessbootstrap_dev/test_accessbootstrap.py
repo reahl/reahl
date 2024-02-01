@@ -41,7 +41,7 @@ class AccessDomainFixture(Fixture):
 
     def new_address_book(self, owner=None):
         owner = owner or self.account
-        address_book = AddressBook(owner=owner)
+        address_book = AddressBook(owner)
         Session.add(address_book)
         return address_book
 
@@ -69,20 +69,20 @@ def demo_setup(sql_alchemy_fixture, access_domain_fixture):
     someone_book.allow(john, can_add_addresses=False, can_edit_addresses=True)
     someone_else_book.allow(john, can_add_addresses=False, can_edit_addresses=False)
 
-    Address(address_book=jane_book, email_address='friend1@some.org', name='Friend1').save()
-    Address(address_book=jane_book, email_address='friend2@some.org', name='Friend2').save()
-    Address(address_book=jane_book, email_address='friend3@some.org', name='Friend3').save()
-    Address(address_book=jane_book, email_address='friend4@some.org', name='Friend4').save()
+    Address(jane_book, email_address='friend1@some.org', name='Friend1').save()
+    Address(jane_book, email_address='friend2@some.org', name='Friend2').save()
+    Address(jane_book, email_address='friend3@some.org', name='Friend3').save()
+    Address(jane_book, email_address='friend4@some.org', name='Friend4').save()
 
-    Address(address_book=someone_book, email_address='friend11@some.org', name='Friend11').save()
-    Address(address_book=someone_book, email_address='friend12@some.org', name='Friend12').save()
-    Address(address_book=someone_book, email_address='friend13@some.org', name='Friend13').save()
-    Address(address_book=someone_book, email_address='friend14@some.org', name='Friend14').save()
+    Address(someone_book, email_address='friend11@some.org', name='Friend11').save()
+    Address(someone_book, email_address='friend12@some.org', name='Friend12').save()
+    Address(someone_book, email_address='friend13@some.org', name='Friend13').save()
+    Address(someone_book, email_address='friend14@some.org', name='Friend14').save()
 
-    Address(address_book=someone_else_book, email_address='friend21@some.org', name='Friend21').save()
-    Address(address_book=someone_else_book, email_address='friend22@some.org', name='Friend22').save()
-    Address(address_book=someone_else_book, email_address='friend23@some.org', name='Friend23').save()
-    Address(address_book=someone_else_book, email_address='friend24@some.org', name='Friend24').save()
+    Address(someone_else_book, email_address='friend21@some.org', name='Friend21').save()
+    Address(someone_else_book, email_address='friend22@some.org', name='Friend22').save()
+    Address(someone_else_book, email_address='friend23@some.org', name='Friend23').save()
+    Address(someone_else_book, email_address='friend24@some.org', name='Friend24').save()
 
 
 @with_fixtures(SqlAlchemyFixture, AccessDomainFixture)
@@ -102,8 +102,8 @@ def test_separate_address_books(sql_alchemy_fixture, access_domain_fixture):
     assert address_book.addresses == []
     assert other_address_book.addresses == []
 
-    address1 = Address(address_book=address_book, email_address='friend1@some.org', name='Friend1')
-    address2 = Address(address_book=address_book, email_address='friend2@some.org', name='Friend2')
+    address1 = Address(address_book, email_address='friend1@some.org', name='Friend1')
+    address2 = Address(address_book, email_address='friend2@some.org', name='Friend2')
 
     address3 = Address(address_book=other_address_book, email_address='friend3@some.org', name='Friend3')
 
@@ -239,7 +239,7 @@ def test_see_other(web_fixture, access_domain_fixture, access_ui_fixture):
 
     other_address_book = access_domain_fixture.other_address_book
     other_address_book.allow(account)
-    Address(address_book=other_address_book, email_address='friend@some.org', name='Friend').save()
+    Address(other_address_book, email_address='friend@some.org', name='Friend').save()
 
     web_fixture.log_in(browser=browser, system_account=account)
     browser.open('/')
@@ -283,7 +283,7 @@ def test_edit_other(web_fixture, access_domain_fixture, access_ui_fixture):
 
     other_address_book = access_domain_fixture.other_address_book
     other_address_book.allow(account, can_edit_addresses=True, can_add_addresses=True)
-    Address(address_book=other_address_book, email_address='friend@some.org', name='Friend').save()
+    Address(other_address_book, email_address='friend@some.org', name='Friend').save()
 
     web_fixture.log_in(browser=browser, system_account=account)
     browser.open('/')
@@ -357,7 +357,7 @@ class ViewScenarios(Fixture):
 
     @scenario
     def edit_address_in_other_address_book(self):
-        address = Address(address_book=self.access_domain_fixture.other_address_book, email_address='somefriend@some.org', name='Friend')
+        address = Address(self.access_domain_fixture.other_address_book, email_address='somefriend@some.org', name='Friend')
         address.save()
         Session.flush()
         self.url = '/edit_address/%s' % address.id

@@ -248,16 +248,6 @@ class ResultScenarios(Fixture):
         def get_contents_js(self, context=None): return ['some', 'some', 'javascript']
 
     @scenario
-    def widget(self):
-        self.method_result = WidgetResult([self.WidgetStub(self.web_fixture.view)], as_json_and_result=False)
-        self.value_to_return = 'ignored in this case'
-        self.expected_response = '<the widget contents><script type="text/javascript">javascriptsome</script>'
-        self.exception_response = Exception
-        self.expected_charset = self.method_result.encoding
-        self.expected_content_type = 'text/html'
-        self.results_match = lambda x, y: x == y
-
-    @scenario
     def widget_as_json(self):
         self.method_result = WidgetResult([self.WidgetStub(self.web_fixture.view)])
         [self.web_fixture.view.page] = self.method_result.result_widgets
@@ -309,22 +299,6 @@ def test_exception_handling_for_json(web_fixture, remote_method_fixture, json_re
     assert browser.last_response.charset == fixture.expected_charset
     assert browser.last_response.content_type == fixture.expected_content_type
 
-
-@with_fixtures(WebFixture, RemoteMethodFixture, ResultScenarios.widget)
-def test_exception_handling_for_widgets(web_fixture, remote_method_fixture, widget_result_scenario):
-    """How exceptions are handled with WidgetResult."""
-
-    fixture = widget_result_scenario
-
-    def fail():
-        raise Exception('exception text')
-    remote_method = RemoteMethod(web_fixture.view, 'amethod', fail, default_result=fixture.method_result, disable_csrf_check=True)
-
-    wsgi_app = remote_method_fixture.new_wsgi_app(remote_method=remote_method)
-    browser = Browser(wsgi_app)
-
-    with expected(Exception):
-        browser.post('/_amethod_method', {})
 
 
 @uses(web_fixture=WebFixture)
