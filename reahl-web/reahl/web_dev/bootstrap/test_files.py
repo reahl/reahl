@@ -385,7 +385,8 @@ class LargeFileUploadInputFixture(StubbedFileUploadInputFixture):
         self.simulate_large_file_upload()
 
     def simulate_large_file_upload(self):
-        self.upload_done.wait(timeout=5)
+        if not self.upload_done.wait(timeout=5):
+            raise Exception('timed out')
             
     def simulate_large_file_upload_done(self):
         self.upload_done.set()
@@ -593,7 +594,7 @@ def test_async_upload(web_fixture, file_upload_input_fixture):
 
 @with_fixtures(WebFixture, LargeFileUploadInputFixture)
 @flaky(max_runs=3, min_passes=1)
-def xxtest_async_in_progress(web_fixture, large_file_upload_input_fixture):
+def test_async_in_progress(web_fixture, large_file_upload_input_fixture):
     """While a large file is being uploaded, a progress bar and a Cancel button are displayed. Clicking on the Cancel
        button stops the upload and clears the file name from the list of uploaded files.
     """
@@ -629,7 +630,7 @@ def xxtest_async_in_progress(web_fixture, large_file_upload_input_fixture):
     # We ensure debug is off here temporarily to swallow the exception we dont care about.
     try:
         saved = web_fixture.config.reahlsystem.debug
-        web_fixture.config.reahlsystem.debug = False
+##        web_fixture.config.reahlsystem.debug = False
         fixture.simulate_large_file_upload_done()
         background_httpd_thread.join(5)
     finally:
