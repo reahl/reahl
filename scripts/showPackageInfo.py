@@ -17,6 +17,8 @@
 """A commandline utility to display package information installed in your environment."""
 
 import urllib
+import urllib.request
+import json
 import argparse
 
 from bs4 import BeautifulSoup
@@ -100,21 +102,18 @@ class PypiPackage:
         return href.split('/')[-1]
 
     def other_version_is_newer(self, other_raw_version):
-        return pkg_resources.parse_version(other_raw_version) > self.installed_version
+        try:
+            return pkg_resources.parse_version(other_raw_version) > self.installed_version
+        except pkg_resources.DistributionNotFound:
+            return False
 
     def available_newer_versions(self):
-        newer_versions = []
-        page = urllib.request.urlopen(self.get_pypi_org_url())
-        soup = BeautifulSoup(page)
-        soup.prettify()
-        for anchor in soup.findAll('a', href=True):
-            href = anchor['href']
-            if href.startswith('/pypi/%s' % package_name):
-                available_raw_version = self.get_version_from_href(href)
-                if self.other_version_is_newer(available_raw_version):
-                    newer_versions.append(available_raw_version)
-        return newer_versions
-
+        url = f"https://pypi.org/pypi/{package_name}/json"
+        response = urllib.request.urlopen(url)
+        data = json.loads(response.read().decode('utf-8'))
+        versions = list(data['releases'].keys())
+        return [v for v in versions if self.other_version_is_newer(v)]
+    
     def __repr__(self):
         return '%s [%s] InstalledLic[%s] PypiLic[%s] newer versions: %s' % (self.package_name, self.installed_version_string, self.installed_license,
                                                        self.pypi_license_for_installed_version(), str(self.available_newer_versions()))
@@ -131,19 +130,31 @@ parser.add_argument('-p', '--package_names', dest='package_names', nargs='*', me
                    help='instead of all installed packages, show the meta information only for a specified list of packages')
 args = parser.parse_args()
 
-packages = args.package_names if args.package_names else [dist.project_name for dist in pip.get_installed_distributions()]
-for package_name in packages:
-    try:
-        pypi_package = PypiPackage(package_name)
 
-        list_of_info_to_display = [pypi_package.package_name_version]
-        if args.show_installed_license:
-            list_of_info_to_display.append('  Licence(Installed): %s' % pypi_package.installed_license)
-        if args.show_pypi_license:
-            list_of_info_to_display.append('  Licence(Pypi): %s' % pypi_package.pypi_license_for_installed_version)
-        if args.show_newer_versions:
-            newer_versions = pypi_package.available_newer_versions()
-            list_of_info_to_display.append('  Newer versions: %s' % ('-' if not newer_versions else ', '.join(newer_versions)))
-        print('\n'.join(list_of_info_to_display))
-    except:
-        print ('Problem retrieving details for package name: %s' % package_name)
+import toml
+import pathlib
+
+
+    
+dependencies = set()
+rootpath = pathlib.Path('.')
+for toml_file in rootpath.rglob('pyproject.toml'):
+    dependencies = dependencies.union(set(toml.load(toml_file)['project']['dependencies']))
+
+packages = [d.split('>')[0].split(';')[0] for d in dependencies if 'reahl' not in d]
+
+#packages = args.package_names if args.package_names else [dist.project_name for dist in pip.get_installed_distributions()]
+for package_name in packages:
+    pypi_package = PypiPackage(package_name)
+
+    list_of_info_to_display = [pypi_package.package_name_version]
+    if args.show_installed_license:
+        list_of_info_to_display.append('  Licence(Installed): %s' % pypi_package.installed_license)
+    if args.show_pypi_license:
+        list_of_info_to_display.append('  Licence(Pypi): %s' % pypi_package.pypi_license_for_installed_version)
+    if args.show_newer_versions:
+        newer_versions = pypi_package.available_newer_versions()
+        list_of_info_to_display.append('  Newer versions: %s' % ('-' if not newer_versions else ', '.join(newer_versions)))
+    print('\n'.join(list_of_info_to_display))
+
+
