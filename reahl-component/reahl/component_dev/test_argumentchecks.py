@@ -133,6 +133,7 @@ def test_checking_arguments(argument_check_fixture):
     with expected(wrapped_exception):
         ArgumentCheckedCallable(fixture.callable, explanation='some message').checkargs(*fixture.args, **fixture.kwargs)
 
+
 class ArgsCheckDisableFixture(Fixture):
 
     def new_config(self):
