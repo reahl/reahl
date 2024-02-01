@@ -374,17 +374,20 @@ class SqlAlchemyControl(ORMControl):
             yield transaction_veto
         except Exception as ex:
             commit = getattr(ex, 'commit', False)
+            abandon_transaction = getattr(ex, 'abandon_transaction', False)
             raise
         else:
             commit = True
+            abandon_transaction = False
         finally:
-            if transaction_veto.has_voted:
-                commit = transaction_veto.should_commit
-            if transaction.is_active:# some sqlalchemy exceptions automatically rollback the current transaction
-                if commit:
-                    transaction.commit()
-                else:
-                    transaction.rollback()
+            if not abandon_transaction:
+                if transaction_veto.has_voted:
+                    commit = transaction_veto.should_commit
+                if transaction.is_active:# some sqlalchemy exceptions automatically rollback the current transaction
+                    if commit:
+                        transaction.commit()
+                    else:
+                        transaction.rollback()
 
     @contextmanager
     def managed_transaction(self):

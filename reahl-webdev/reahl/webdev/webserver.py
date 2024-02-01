@@ -62,6 +62,7 @@ class WrappedApp:
         self.wrapped = wrapped
         self.exception = None
         self.traceback = None
+        self.ignore_exception = None
 
     def __call__(self, environ, start_response):
         app = self.wrapped
@@ -101,6 +102,7 @@ class WrappedApp:
     def clear_exception(self):
         self.exception = None
 
+        
 
 class NoopApp:
     def __init__(self, config=None):
@@ -580,6 +582,4 @@ class ReahlWebServer:
                 self.stop_thread(join=wait_till_done_serving)
             finally:
                 self.reinstall_handlers()
-
-
 

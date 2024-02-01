@@ -381,14 +381,18 @@ class StubbedFileUploadInputFixture(FileUploadInputFixture):
 
 
 class LargeFileUploadInputFixture(StubbedFileUploadInputFixture):
+    with_exception = None
     def file_upload_hook(self):
         self.simulate_large_file_upload()
 
     def simulate_large_file_upload(self):
         if not self.upload_done.wait(timeout=5):
-            raise Exception('timed out')
+            raise Exception('timed out waiting for simulated large file to upload')
+        if self.with_exception:
+            raise self.with_exception
             
-    def simulate_large_file_upload_done(self):
+    def simulate_large_file_upload_done(self, with_exception=None):
+        self.with_exception = with_exception
         self.upload_done.set()
         
     def new_upload_done(self):
@@ -593,7 +597,6 @@ def test_async_upload(web_fixture, file_upload_input_fixture):
 
 
 @with_fixtures(WebFixture, LargeFileUploadInputFixture)
-@flaky(max_runs=3, min_passes=1)
 def test_async_in_progress(web_fixture, large_file_upload_input_fixture):
     """While a large file is being uploaded, a progress bar and a Cancel button are displayed. Clicking on the Cancel
        button stops the upload and clears the file name from the list of uploaded files.
@@ -611,7 +614,6 @@ def test_async_in_progress(web_fixture, large_file_upload_input_fixture):
     assert not fixture.uploaded_file_is_listed( fixture.file_to_upload1.name ) 
 
     with web_fixture.reahl_server.in_background(wait_till_done_serving=False):
-        background_httpd_thread = web_fixture.reahl_server.httpd_thread
         browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload1.name, wait_for_ajax=False) # Upload will block, see fixture
 
     assert browser.wait_for_element_present('//ul/li/progress') 
@@ -624,17 +626,14 @@ def test_async_in_progress(web_fixture, large_file_upload_input_fixture):
     assert not fixture.file_was_uploaded( fixture.file_to_upload1.name )
 
     # This is a trick. The server running in_background above is blocked until we callfixture.simulate_large_file_upload_done().
-    # We can only do that at this point, however, there will be an exception in the background thread since that thread now tries to
-    # commit the transation which we have already committed during our subsequent interaction via selenium with the webserver, but in the main thread.
+    # We can only do that at this point, however, there will be an exception in the background thread - which we cause
+    # in order to prevent it from doing any other processing, such as transaction handling. We just want it to stop without influencing anything further.
     # This is a consquence of our test framework forcing everything into a single transaction.
-    # We ensure debug is off here temporarily to swallow the exception we dont care about.
-    try:
-        saved = web_fixture.config.reahlsystem.debug
-##        web_fixture.config.reahlsystem.debug = False
-        fixture.simulate_large_file_upload_done()
-        background_httpd_thread.join(5)
-    finally:
-        web_fixture.config.reahlsystem.debug = saved
+
+    exception = Exception('Raising exception intentionally to stop background thread')
+    exception.abandon_transaction = True
+    fixture.simulate_large_file_upload_done(with_exception=exception)
+    web_fixture.reahl_server.stop_thread(join=True)
 
 
 @with_fixtures(WebFixture, LargeFileUploadInputFixture)
