@@ -36,7 +36,7 @@ authors = [
 [tool.setuptools.packages.find]
 exclude = [
   "etc",
-  "build",
+  "build*",
   "dist"
   ]
 
