@@ -3,6 +3,7 @@ python-reahl (7.0.2) unstable; urgency=low
  * Added support for SqlAlchemy 2.0 (#421).
  * Added support for Python 3.12 (#415).
  * Increased version of plotlyjs to 2.29.0.
+ * Increased version of lxml to 5.1.0.
  
 
  -- Iwan Vosloo <iwan@reahl.org>  Thu, 2 Nov 2023 15:00:00 +0200
