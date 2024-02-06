@@ -368,9 +368,9 @@ class JsCookie(Library):
 
 
 class PlotlyJS(Library):
-    """Version 2.26.0 of `plotly.js <https://github.com/plotly/plotly.js/>`_.
+    """Version 2.29.0 of `plotly.js <https://github.com/plotly/plotly.js/>`_.
     """
-    javascript_filename = 'plotly-2.26.0.min.js'
+    javascript_filename = 'plotly-2.29.0.min.js'
     def __init__(self):
         self.active = False
         super().__init__('plotly.js')
