@@ -25,7 +25,7 @@ classifiers = [
   ]
 dependencies = [
   "reahl-component>=7.0,<7.1",
-  "wrapt>=1.11.0,<1.15.999"
+  "wrapt>=1.11.0,<1.16.999"
   ]
 authors = [ 
   {name = "Iwan Vosloo", email = "iwan@reahl.org"},

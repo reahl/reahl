@@ -1,8 +1,18 @@
 python-reahl (7.0.2) unstable; urgency=low
 
  * Added support for SqlAlchemy 2.0 (#421).
+ * Added support for Python 3.12 (#415).
+ * Increased version of plotlyjs to 2.29.0.
+ * Increased version of lxml to 5.1.0.
+ * Increased version of mysqlclient 2.2.3.
+ * Increased version of Babel 2.14.
+ * Increased version of Pygments 2.17.
+ * Increased version of tzlocal 5.2.
+ * Increased version of alembic 1.13.
+ * Increased version of selenium to 4.17.
+ * Increased version of wrapt to 1.16.
 
- -- Iwan Vosloo <iwan@reahl.org>  Thu, 2 Nov 2023 15:00:00 +0200
+ -- Iwan Vosloo <iwan@reahl.org>  Thu, 8 Feb 2024 15:00:00 +0200
 
 python-reahl (7.0.1) unstable; urgency=low
 

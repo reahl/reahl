@@ -1,4 +1,4 @@
-# Copyright 2013-2023 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2024 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -1530,11 +1530,11 @@ class NumericField(Field):
         error_message = _('$label should be a valid number')
 
         locale = Locale.parse(ExecutionContext.get_context().interface_locale)
-        plus = locale.number_symbols['plusSign']
-        minus = locale.number_symbols['minusSign']
-        decimal = locale.number_symbols['decimal']
+        plus = babel.numbers.get_plus_sign_symbol(locale=locale)
+        minus = babel.numbers.get_minus_sign_symbol(locale=locale)
+        decimal = babel.numbers.get_decimal_symbol(locale=locale)
         decimal_regex = '\.' if decimal == '.' else decimal
-        group_separator = locale.number_symbols['group']
+        group_separator = babel.numbers.get_group_symbol(locale=locale)
         group_separator_regex = '\.' if group_separator == '.' else group_separator
         regex_str = '[%s%s]?([0-9%s]+%s?[0-9%s]{0,%s})' % (plus, minus, group_separator_regex, decimal_regex, group_separator_regex, precision)
 

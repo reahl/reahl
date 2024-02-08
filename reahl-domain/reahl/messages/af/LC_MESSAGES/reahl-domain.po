@@ -1,4 +1,4 @@
-# Copyright 2013-2023 Reahl Software Services (Pty) Ltd. All rights
+# Copyright 2013-2024 Reahl Software Services (Pty) Ltd. All rights
 # reserved.
 #
 # Afrikaans translations for reahl-domain.
@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: reahl-domain 6.1.0\n"
 "Report-Msgid-Bugs-To: info@reahl.org\n"
-"POT-Creation-Date: 2023-09-21 11:11+0200\n"
+"POT-Creation-Date: 2024-02-08 09:56+0000\n"
 "PO-Revision-Date: 2012-05-31 12:02+0200\n"
 "Last-Translator: Iwan Vosloo <iwan@reahl.org>\n"
 "Language: af\n"
@@ -15,110 +15,110 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.11.0\n"
+"Generated-By: Babel 2.14.0\n"
 
-#: reahl/domain/systemaccountmodel.py:314
+#: reahl/domain/systemaccountmodel.py:315
 msgid "Email"
 msgstr "E-pos"
 
-#: reahl/domain/systemaccountmodel.py:315
+#: reahl/domain/systemaccountmodel.py:316
 msgid "New email"
 msgstr "Nuwe e-pos"
 
-#: reahl/domain/systemaccountmodel.py:316
+#: reahl/domain/systemaccountmodel.py:317
 msgid "Password"
 msgstr "Wagwoord"
 
-#: reahl/domain/systemaccountmodel.py:317
+#: reahl/domain/systemaccountmodel.py:318
 msgid "Remember me?"
 msgstr "Onthou my?"
 
-#: reahl/domain/systemaccountmodel.py:318
+#: reahl/domain/systemaccountmodel.py:319
 msgid "Secret key"
 msgstr "Geheime kodewoord"
 
-#: reahl/domain/systemaccountmodel.py:319
+#: reahl/domain/systemaccountmodel.py:320
 msgid "Re-type password"
 msgstr "Tik wagoord oor"
 
-#: reahl/domain/systemaccountmodel.py:319
+#: reahl/domain/systemaccountmodel.py:320
 msgid "Please type your password again."
 msgstr "Tik asseblief you wagwoord weer."
 
-#: reahl/domain/systemaccountmodel.py:321
+#: reahl/domain/systemaccountmodel.py:322
 msgid "Please accept the terms of service"
 msgstr "Aanvaar asseblief die terme"
 
-#: reahl/domain/systemaccountmodel.py:322
+#: reahl/domain/systemaccountmodel.py:323
 msgid "I accept the terms of service"
 msgstr "Ek aanvaar die terme"
 
-#: reahl/domain/systemaccountmodel.py:325
+#: reahl/domain/systemaccountmodel.py:326
 msgid "Verify"
 msgstr "Verifieer"
 
-#: reahl/domain/systemaccountmodel.py:326
+#: reahl/domain/systemaccountmodel.py:327
 msgid "Register"
 msgstr "Registreer"
 
-#: reahl/domain/systemaccountmodel.py:327
+#: reahl/domain/systemaccountmodel.py:328
 msgid "Change email address"
 msgstr "Verander e-pos adres"
 
-#: reahl/domain/systemaccountmodel.py:328
+#: reahl/domain/systemaccountmodel.py:329
 msgid "Investigate"
 msgstr "Ondersoek"
 
-#: reahl/domain/systemaccountmodel.py:329
+#: reahl/domain/systemaccountmodel.py:330
 msgid "Set new password"
 msgstr "Stel nuwe wagwoord"
 
-#: reahl/domain/systemaccountmodel.py:330
+#: reahl/domain/systemaccountmodel.py:331
 msgid "Reset password"
 msgstr "Herwin wagwoord"
 
-#: reahl/domain/systemaccountmodel.py:331
+#: reahl/domain/systemaccountmodel.py:332
 msgid "Log in"
 msgstr "Teken aan"
 
-#: reahl/domain/systemaccountmodel.py:332
+#: reahl/domain/systemaccountmodel.py:333
 msgid "Send"
 msgstr "Stuur"
 
-#: reahl/domain/systemaccountmodel.py:333
+#: reahl/domain/systemaccountmodel.py:334
 msgid "Log out"
 msgstr "Teken af"
 
-#: reahl/domain/systemaccountmodel.py:387
+#: reahl/domain/systemaccountmodel.py:388
 msgid "Passwords do not match"
 msgstr "Wagwoorde is nie dieselfde nie"
 
-#: reahl/domain/systemaccountmodel.py:393
+#: reahl/domain/systemaccountmodel.py:394
 msgid "Invalid login credentials"
 msgstr "Ongeldige aanteken gegewens"
 
-#: reahl/domain/systemaccountmodel.py:399
+#: reahl/domain/systemaccountmodel.py:400
 msgid "The secret key supplied is invalid."
 msgstr "Die geheime kodewoord wat jy gegee het is ongeldig. "
 
-#: reahl/domain/systemaccountmodel.py:405
+#: reahl/domain/systemaccountmodel.py:406
 msgid "The email address supplied is invalid."
 msgstr "The e-posadres wat jy gegee het is ongeldig."
 
-#: reahl/domain/systemaccountmodel.py:411
+#: reahl/domain/systemaccountmodel.py:412
 msgid "Could not find an account matching the supplied email address."
 msgstr "Kon nie 'n rekening kry wat by daardie e-posadres pas nie."
 
-#: reahl/domain/systemaccountmodel.py:418
+#: reahl/domain/systemaccountmodel.py:419
 msgid "The email address supplied is not unique."
 msgstr "Die e-posadres wat jy gegee het is nie uniek nie."
 
-#: reahl/domain/systemaccountmodel.py:488
+#: reahl/domain/systemaccountmodel.py:489
 #, python-format
 msgid "Could not send registration verification email message to %s: %s."
 msgstr "Kon nie die e-posboodskap vir registrasieverifikasie na %s stuur nie: %s."
 
-#: reahl/domain/systemaccountmodel.py:489
+#: reahl/domain/systemaccountmodel.py:490
 msgid " Please contact the site administrator and try again later."
 msgstr " Probeer die werfadministrateur kontak en probeer later weer."
 

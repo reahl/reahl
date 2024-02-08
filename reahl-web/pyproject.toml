@@ -30,9 +30,9 @@ dependencies = [
   "rcssmin>=1.1.0,<1.1.999",
   "beautifulsoup4>=4.6,<4.12.999",
   "WebOb>=1.8,<1.8.999",
-  "Babel>=2.1,<2.12.999",
+  "Babel>=2.10,<2.14.999",
   "setuptools>=51.0.0",
-  "lxml>=4.2,<4.9.999",
+  "lxml>=4.2,<5.1.999",
   "cached-property>=1.5,<1.5.999;python_version<'3.8'",
   "importlib-resources;python_version<'3.9'"
 ]
@@ -40,7 +40,7 @@ dependencies = [
 [project.optional-dependencies]
 test = [
   "pytest>=3.0",
-  "plotly>=5.1.0,<5.16.99999",
+  "plotly>=5.1.0,<5.18.99999",
   "flaky>=3.7.0",
   "reahl-tofu",
   "reahl-stubble",

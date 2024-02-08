@@ -1,4 +1,4 @@
-# Copyright 2013-2023 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2024 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -132,6 +132,7 @@ def test_checking_arguments(argument_check_fixture):
 
     with expected(wrapped_exception):
         ArgumentCheckedCallable(fixture.callable, explanation='some message').checkargs(*fixture.args, **fixture.kwargs)
+
 
 class ArgsCheckDisableFixture(Fixture):
 

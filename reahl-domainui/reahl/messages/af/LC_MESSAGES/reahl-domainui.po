@@ -1,4 +1,4 @@
-# Copyright 2013-2023 Reahl Software Services (Pty) Ltd. All rights
+# Copyright 2013-2024 Reahl Software Services (Pty) Ltd. All rights
 # reserved.
 #
 # Afrikaans translations for reahl-domainui.
@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: reahl-domainui 6.1.0\n"
 "Report-Msgid-Bugs-To: info@reahl.org\n"
-"POT-Creation-Date: 2023-09-21 11:11+0200\n"
+"POT-Creation-Date: 2024-02-08 09:56+0000\n"
 "PO-Revision-Date: 2012-05-31 12:07+0200\n"
 "Last-Translator: Iwan Vosloo <iwan@reahl.org>\n"
 "Language: af\n"
@@ -15,7 +15,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.11.0\n"
+"Generated-By: Babel 2.14.0\n"
 
 #: reahl/domainui/bootstrap/accounts.py:61
 msgid "Please specify"
@@ -373,7 +373,7 @@ msgid "Thanks for all your troubles"
 msgstr "Dankie vir jou moeite"
 
 #: reahl/domainui/bootstrap/workflow.py:57
-#: reahl/domainui/bootstrap/workflow.py:140
+#: reahl/domainui/bootstrap/workflow.py:139
 msgid "Inbox"
 msgstr "Taak lêer"
 

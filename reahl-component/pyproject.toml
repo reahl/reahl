@@ -24,9 +24,9 @@ classifiers = [
   "Topic :: Software Development :: Build Tools"
   ]
 dependencies = [
-  "Babel>=2.1,<2.12.999",
+  "Babel>=2.10,<2.14.999",
   "python-dateutil>=2.8,<2.8.999",
-  "wrapt>=1.11.0,<1.15.999",
+  "wrapt>=1.11.0,<1.16.999",
   "setuptools>=51.0.0",
   "pip>=21.1",
   "importlib-resources;python_version<'3.9'",

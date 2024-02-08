@@ -1,4 +1,4 @@
-# Copyright 2013-2023 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2024 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -567,7 +567,7 @@ class UserInterface:
         path_argument_fields, passed_kwargs = self.split_fields_and_hardcoded_kwargs(assemble_args)
 
         view_class = view_class or UrlBoundView
-        ArgumentCheckedCallable(view_class.assemble, '.define_view() was called with incorrect arguments for %s' % view_class.assemble).checkargs(NotYetAvailable('self'), **assemble_args)
+        ArgumentCheckedCallable(view_class.assemble, explanation='.define_view() was called with incorrect arguments for %s' % view_class.assemble).checkargs(NotYetAvailable('self'), **assemble_args)
 
         factory = ViewFactory(ParameterisedPath(relative_path, path_argument_fields), title,
                               page_factory=page, detour=detour, view_class=view_class, 

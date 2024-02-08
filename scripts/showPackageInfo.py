@@ -1,4 +1,4 @@
-# Copyright 2015-2023 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2015-2024 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -17,13 +17,15 @@
 """A commandline utility to display package information installed in your environment."""
 
 import urllib
+import urllib.request
+import json
 import argparse
 
 from bs4 import BeautifulSoup
 
 import pip
 import pkg_resources
-
+from packaging.requirements import Requirement
 
 class PypiPackage:
     def __init__(self, package_name):
@@ -100,21 +102,18 @@ class PypiPackage:
         return href.split('/')[-1]
 
     def other_version_is_newer(self, other_raw_version):
-        return pkg_resources.parse_version(other_raw_version) > self.installed_version
+        try:
+            return pkg_resources.parse_version(other_raw_version) > self.installed_version
+        except pkg_resources.DistributionNotFound:
+            return False
 
     def available_newer_versions(self):
-        newer_versions = []
-        page = urllib.request.urlopen(self.get_pypi_org_url())
-        soup = BeautifulSoup(page)
-        soup.prettify()
-        for anchor in soup.findAll('a', href=True):
-            href = anchor['href']
-            if href.startswith('/pypi/%s' % package_name):
-                available_raw_version = self.get_version_from_href(href)
-                if self.other_version_is_newer(available_raw_version):
-                    newer_versions.append(available_raw_version)
-        return newer_versions
-
+        url = f"https://pypi.org/pypi/{package_name}/json"
+        response = urllib.request.urlopen(url)
+        data = json.loads(response.read().decode('utf-8'))
+        versions = list(data['releases'].keys())
+        return [v for v in versions if self.other_version_is_newer(v)]
+    
     def __repr__(self):
         return '%s [%s] InstalledLic[%s] PypiLic[%s] newer versions: %s' % (self.package_name, self.installed_version_string, self.installed_license,
                                                        self.pypi_license_for_installed_version(), str(self.available_newer_versions()))
@@ -127,23 +126,84 @@ parser.add_argument('-L', '--pypi_license', dest='show_pypi_license', action='st
                    help='show the license info found in in pypi for the installed package')
 parser.add_argument('-V', '--newer_versions', dest='show_newer_versions', action='store_true', default=False,
                    help='list newer versions on pypi than the installed version')
+parser.add_argument('-C', '--clients', dest='show_clients', action='store_true', default=False,
+                   help='list the clients that require this depdency')
+parser.add_argument('-I', '--ignore-if-latest-installed', dest='ignore_if_latest_installed', action='store_true', default=False,
+                   help='used with -V arg to ignore listings pf packages already on newest version')
 parser.add_argument('-p', '--package_names', dest='package_names', nargs='*', metavar='package_name',
                    help='instead of all installed packages, show the meta information only for a specified list of packages')
 args = parser.parse_args()
 
-packages = args.package_names if args.package_names else [dist.project_name for dist in pip.get_installed_distributions()]
-for package_name in packages:
-    try:
-        pypi_package = PypiPackage(package_name)
 
-        list_of_info_to_display = [pypi_package.package_name_version]
-        if args.show_installed_license:
-            list_of_info_to_display.append('  Licence(Installed): %s' % pypi_package.installed_license)
-        if args.show_pypi_license:
-            list_of_info_to_display.append('  Licence(Pypi): %s' % pypi_package.pypi_license_for_installed_version)
-        if args.show_newer_versions:
-            newer_versions = pypi_package.available_newer_versions()
+import toml
+import pathlib
+
+class Client:
+    def __init__(self, name):
+        self.name = name
+        self.dependencies = []
+
+    def required_version(self, dependency):
+        found_dep = next((d for d in self.dependencies if d.name == dependency.name), None)
+        return found_dep.requirement_string
+
+class Dependency:
+    def __init__(self, requirement_string):
+        self.requirement = Requirement(dep)
+        self.requirement_string = requirement_string
+        self.clients = []
+
+    @property
+    def name(self):
+        return self.requirement.name
+
+    def add_client(self, client):
+        self.clients.append(client)
+
+
+dependencies = {}
+clients = {}
+rootpath = pathlib.Path('.')
+for toml_file_path in rootpath.rglob('pyproject.toml'):
+    pyproject = toml.load(toml_file_path)
+    client = Client(str(toml_file_path))
+    for dep in pyproject['project']['dependencies']:
+        dependencies.setdefault(dep, Dependency(dep)).add_client(client)
+        client.dependencies.append(dependencies.get(dep))
+
+# for d in dependencies.values():
+#     if 'reahl' not in d.name:
+#         print(d.name)
+#         for c in d.clients:
+#             print('  %s - %s' % (c.name, c.required_version(d)))
+
+
+packages = set([d.split('>')[0].split(';')[0] for d in dependencies if 'reahl' not in d])
+
+#packages = args.package_names if args.package_names else [dist.project_name for dist in pip.get_installed_distributions()]
+for package_name in packages:
+    pypi_package = PypiPackage(package_name)
+
+    list_of_info_to_display = [pypi_package.package_name_version]
+    if args.show_installed_license:
+        list_of_info_to_display.append('  Licence(Installed): %s' % pypi_package.installed_license)
+    if args.show_pypi_license:
+        list_of_info_to_display.append('  Licence(Pypi): %s' % pypi_package.pypi_license_for_installed_version)
+    show_deps = True
+    if args.show_newer_versions:
+        newer_versions = pypi_package.available_newer_versions()
+        if args.ignore_if_latest_installed and not newer_versions:
+            show_deps = False
+            list_of_info_to_display.append('  Newest is installed ')
+        else:
             list_of_info_to_display.append('  Newer versions: %s' % ('-' if not newer_versions else ', '.join(newer_versions)))
-        print('\n'.join(list_of_info_to_display))
-    except:
-        print ('Problem retrieving details for package name: %s' % package_name)
+    if args.show_clients and show_deps:
+        deps = [d for d in dependencies.values() if d.name == package_name]
+        for d in deps:
+            for c in d.clients:
+                list_of_info_to_display.append(' (%s) %s - %s' % (d.requirement_string, c.name, c.required_version(d)))
+
+
+    print('\n'.join(list_of_info_to_display))
+
+
