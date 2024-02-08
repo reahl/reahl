@@ -196,8 +196,11 @@ class IsCallable(ArgumentCheck):
         return '%s: %s should be a callable object (got %s)' % (self.func, self.arg_name, self.value)
 
 class ArgumentCheckedCallable:
-    def __init__(self, target, explanation=None):
+    def __init__(self, target, instance=None, explanation=None):
+        if isinstance(instance, str):
+            breakpoint()
         self.target = target
+        self.instance = instance
         self.explanation = explanation
 
     def __call__(self, *args, **kwargs):
@@ -219,6 +222,8 @@ class ArgumentCheckedCallable:
             to_check = self.target
         elif inspect.isfunction(self.target):
             to_check = self.target
+            if self.instance is not None:
+                args = (NotYetAvailable('self'), )+args
         elif inspect.isclass(self.target):
             to_check = self.target.__init__
             args = (NotYetAvailable('self'), )+args
@@ -260,7 +265,7 @@ def arg_checks(**checks):
                     return wrapped(*args, **kwargs)
             except (NoContextFound, AttributeError):
                 pass
-            return ArgumentCheckedCallable(wrapped)(*args, **kwargs)
+            return ArgumentCheckedCallable(wrapped, instance=instance)(*args, **kwargs)
         return check_call(f)
 
     return catch_wrapped

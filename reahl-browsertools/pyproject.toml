@@ -27,7 +27,7 @@ classifiers = [
 dependencies = [
   "lxml>=4.2,<5.1.999",
   "WebTest>=2.0,<3.0.999",
-  "selenium>=2.42,<4.9.9999"
+  "selenium>=2.42,<4.17.9999"
   ]
 authors = [ 
   {name = "Iwan Vosloo", email = "iwan@reahl.org"},
