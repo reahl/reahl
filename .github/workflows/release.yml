@@ -46,15 +46,6 @@ jobs:
       - name: Select all reahl projects
         run: . $HOME/.profile && reahl refresh $GITHUB_WORKSPACE && reahl select -a
 
-      - name: Extract wheels
-        run: cp -a /home/runner/.reahlworkspace/dist-egg/ /tmp/wheels
-
-      - name: Upload wheels to cache
-        uses: actions/upload-artifact@v4
-        with:
-          name: wheels
-          path: /tmp/wheels
-
       - name: Publish
         run: |
           ls -la /home/runner/.reahlworkspace/dist-egg/
