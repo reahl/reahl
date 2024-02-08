@@ -1,125 +1,125 @@
 # Translations template for reahl-domain.
-# Copyright (C) 2023 ORGANIZATION
+# Copyright (C) 2024 ORGANIZATION
 # This file is distributed under the same license as the reahl-domain
 # project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2023.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2024.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: reahl-domain 7.0.0\n"
+"Project-Id-Version: reahl-domain 7.0.2\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-09-21 11:11+0200\n"
+"POT-Creation-Date: 2024-02-08 09:56+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.11.0\n"
+"Generated-By: Babel 2.14.0\n"
 
-#: reahl/domain/systemaccountmodel.py:314
+#: reahl/domain/systemaccountmodel.py:315
 msgid "Email"
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:315
+#: reahl/domain/systemaccountmodel.py:316
 msgid "New email"
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:316
+#: reahl/domain/systemaccountmodel.py:317
 msgid "Password"
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:317
+#: reahl/domain/systemaccountmodel.py:318
 msgid "Remember me?"
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:318
+#: reahl/domain/systemaccountmodel.py:319
 msgid "Secret key"
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:319
+#: reahl/domain/systemaccountmodel.py:320
 msgid "Re-type password"
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:319
+#: reahl/domain/systemaccountmodel.py:320
 msgid "Please type your password again."
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:321
+#: reahl/domain/systemaccountmodel.py:322
 msgid "Please accept the terms of service"
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:322
+#: reahl/domain/systemaccountmodel.py:323
 msgid "I accept the terms of service"
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:325
+#: reahl/domain/systemaccountmodel.py:326
 msgid "Verify"
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:326
+#: reahl/domain/systemaccountmodel.py:327
 msgid "Register"
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:327
+#: reahl/domain/systemaccountmodel.py:328
 msgid "Change email address"
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:328
+#: reahl/domain/systemaccountmodel.py:329
 msgid "Investigate"
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:329
+#: reahl/domain/systemaccountmodel.py:330
 msgid "Set new password"
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:330
+#: reahl/domain/systemaccountmodel.py:331
 msgid "Reset password"
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:331
+#: reahl/domain/systemaccountmodel.py:332
 msgid "Log in"
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:332
+#: reahl/domain/systemaccountmodel.py:333
 msgid "Send"
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:333
+#: reahl/domain/systemaccountmodel.py:334
 msgid "Log out"
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:387
+#: reahl/domain/systemaccountmodel.py:388
 msgid "Passwords do not match"
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:393
+#: reahl/domain/systemaccountmodel.py:394
 msgid "Invalid login credentials"
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:399
+#: reahl/domain/systemaccountmodel.py:400
 msgid "The secret key supplied is invalid."
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:405
+#: reahl/domain/systemaccountmodel.py:406
 msgid "The email address supplied is invalid."
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:411
+#: reahl/domain/systemaccountmodel.py:412
 msgid "Could not find an account matching the supplied email address."
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:418
+#: reahl/domain/systemaccountmodel.py:419
 msgid "The email address supplied is not unique."
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:488
+#: reahl/domain/systemaccountmodel.py:489
 #, python-format
 msgid "Could not send registration verification email message to %s: %s."
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:489
+#: reahl/domain/systemaccountmodel.py:490
 msgid " Please contact the site administrator and try again later."
 msgstr ""
 
