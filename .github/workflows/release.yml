@@ -16,10 +16,6 @@ jobs:
     environment: release-builds
     env:
       SECURE_ENV_VARS: ${{ secrets.SECURE_ENV_VARS }}
-      GPG_KEY:         ${{ secrets.GPG_KEY }}
-      GPG_KEY_ID:      ${{ secrets.GPG_KEY_ID }}
-      GPG_KEY_TRUST:   ${{ secrets.GPG_KEY_TRUST }}
-      GPG_PASSPHRASE:  ${{ secrets.GPG_PASSPHRASE }}
       TWINE_USERNAME:  ${{ secrets.TWINE_USERNAME }}
       TWINE_PASSWORD:  ${{ secrets.TWINE_PASSWORD }}
     runs-on:  ubuntu-22.04
@@ -50,25 +46,16 @@ jobs:
       - name: Select all reahl projects
         run: . $HOME/.profile && reahl refresh $GITHUB_WORKSPACE && reahl select -a
 
-      - name: Sign all wheels
-        run: |
-          . $HOME/.profile && reahl sign -sdX
+      - name: Extract wheels
+        run: cp -a /home/runner/.reahlworkspace/dist-egg/ /tmp/wheels
 
-      - name: Extract signed wheels
-        run: cp -a /home/runner/.reahlworkspace/dist-egg/ /tmp/signedwheels
-
-      - name: Upload signed wheels to cache
+      - name: Upload wheels to cache
         uses: actions/upload-artifact@v4
         with:
-          name: signedwheels
-          path: /tmp/signedwheels
+          name: wheels
+          path: /tmp/wheels
 
       - name: Publish
         run: |
           ls -la /home/runner/.reahlworkspace/dist-egg/
           . $HOME/.profile && ./scripts/configurePypi.sh && reahl upload -sdX
-
-      - name: Cleanup
-        if: ${{ always() }}
-        run: |
-          find $HOME/.gnupg/ -type f -exec shred -fu {} \;

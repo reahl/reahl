@@ -139,7 +139,7 @@ class PythonSourcePackage(DistributionPackage):
 
     @property
     def package_files(self):
-        return [self.targz_filename, self.sign_filename]
+        return [self.targz_filename]
 
     @property
     def targz_filename(self):
@@ -181,7 +181,7 @@ class PythonWheelPackage(DistributionPackage):
 
     @property
     def package_files(self):
-        return [self.wheel_filename, self.sign_filename]
+        return [self.wheel_filename]
 
     @property
     def wheel_filename(self):

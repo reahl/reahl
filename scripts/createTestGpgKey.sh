@@ -20,15 +20,9 @@ function configure_gnupg {
   gpgconf --reload gpg-agent
 }
 
-function preset_passphrase {
-  # This assumes the keys have already been imported
-  GPG_KEYGRIP=$(gpg --status-fd 2 --with-keygrip --list-secret-key $GPG_KEY_ID | grep Keygrip | head -n 1 | awk '{print $3}')  
-  /usr/lib/gnupg2/gpg-preset-passphrase --preset $GPG_KEYGRIP <<< $GPG_PASSPHRASE
-  gpg-connect-agent 'keyinfo --list' /bye
-}
-
 function import_gpg_keys() {
   from_dir=$1
+  GPG_PASSPHRASE=""
   gpg --status-fd 2 --pinentry-mode loopback --passphrase-fd 0 --import $from_dir/key.secret.asc <<< $GPG_PASSPHRASE
   gpg --status-fd 2 --import-ownertrust < $from_dir/trust.asc
 }
@@ -37,18 +31,6 @@ function import_gpg_keys() {
 rm -f ~/.gnupg/options ~/.gnupg/gpg.conf
 
 configure_gnupg
-
-if [ "$SECURE_ENV_VARS" == 'true' ]; then
-  echo "SECRETS are available, fetching reahl GPG signing key"
-  mkdir /tmp/keys
-  echo "$GPG_KEY" > /tmp/keys/key.secret.asc
-  echo "$GPG_KEY_TRUST" > /tmp/keys/trust.asc
-  import_gpg_keys /tmp/keys
-  preset_passphrase
-  echo "default-key $GPG_KEY_ID" >> ~/.gnupg/gpg.conf
-else
-  echo "SECRETS NOT available, using fake key for signing"
-fi
 
 import_gpg_keys scripts/keys  # We import these anyways for use by tests that sign stuff
 
