@@ -15,7 +15,6 @@ jobs:
     needs: call_build
     environment: release-builds
     env:
-      SECURE_ENV_VARS: ${{ secrets.SECURE_ENV_VARS }}
       TWINE_USERNAME:  ${{ secrets.TWINE_USERNAME }}
       TWINE_PASSWORD:  ${{ secrets.TWINE_PASSWORD }}
     runs-on:  ubuntu-22.04
