@@ -1,3 +1,10 @@
+python-reahl (7.0.3) unstable; urgency=low
+
+ * MailTest bug fix for current event loop. Fixes # 426.
+ * PrimitiveInput javascript url. Fixes # 428.
+
+ -- Iwan Vosloo <iwan@reahl.org>  Thu, 7 Mar 2024 15:50:00 +0200
+
 python-reahl (7.0.2) unstable; urgency=low
 
  * Added support for SqlAlchemy 2.0 (#421).

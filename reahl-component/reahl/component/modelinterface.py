@@ -962,7 +962,7 @@ class Field:
         new_version.add_validation_constraint(validation_constraint)
         return new_version
 
-    def with_label(self, label):
+    def `with_label`(self, label):
         """Returns a new Field which is exactly like this one, except that its label is set to 
            the given text.
 
