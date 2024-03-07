@@ -21,7 +21,6 @@
     
     $.widget("reahl.primitiveinput", {
         options: {
-            url: ''
         },
 
         _create: function() {
@@ -50,7 +49,7 @@
                 this.element.on('change', function(e) {
                     if (_this.isValid()) {
                         var widgetsToRefresh = $(_this.getRefreshWidgetIds());
-                        $.fn.forceReload(o.url, widgetsToRefresh, function(){
+                        $.fn.forceReload(_this.getRefreshUrl(), widgetsToRefresh, function(){
                             _this.resetFocus(_this.lastFocussedElementOnTab || $(e.target));
                             _this.clearTabStatus();
                         });
@@ -115,6 +114,9 @@
             return this.getAllRelatedFormInputs().is('input[type="radio"]');
         },
 
+        getRefreshUrl: function() {
+            return this.element.attr('data-refresh-url');
+        },
         getRefreshWidgetIds: function() {
             return this.element.attr('data-refresh-widget-ids');
         },
