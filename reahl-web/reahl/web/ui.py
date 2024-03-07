@@ -1658,6 +1658,7 @@ class PrimitiveInput(Input):
         else:
             css_id = self.css_id
         self.ajax_refresh_method = AjaxMethod(refresh_widgets, 'refresh_widgets_%s' % css_id)
+        self.set_attribute('data-refresh-url', str(self.ajax_refresh_method.get_url()))
         self.view.add_resource(self.ajax_refresh_method)
 
     def make_html_control_css_id(self):
@@ -1703,14 +1704,7 @@ class PrimitiveInput(Input):
         return '''$('input[name="%s"][form="%s"]')''' % (self.name, self.form.css_id)
 
     def get_js(self, context=None):
-        if self.refresh_widgets:
-            jquery_options = json.dumps(self.ajax_refresh_method.as_jquery_parameter())
-        else:
-            jquery_options = ''
-        js = ['$(%s).primitiveinput(%s);' %
-              (self.html_representation.contextualise_selector('".reahl-primitiveinput"', context),
-                jquery_options
-               )]
+        js = ['$(%s).primitiveinput();' % self.html_representation.contextualise_selector('".reahl-primitiveinput"', context)]
         return super().get_js(context=context) + js
 
     @property
@@ -2091,7 +2085,7 @@ class RadioButtonSelectInput(PrimitiveInput):
         for choice in self.bound_field.flattened_choices:
             self.add_choice_to(main_element, choice)
         return main_element
-
+    
     @property
     def html_control(self):
         return None
