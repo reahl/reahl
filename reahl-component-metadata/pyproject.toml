@@ -9,7 +9,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "reahl-component-metadata"
-version = "7.0.2"
+version = "7.0.3"
 description = "Plugin for build tools to be able to write reahl-component metadata."
 readme = "README.rst"
 requires-python = ">=3.8"

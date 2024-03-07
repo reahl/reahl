@@ -11,7 +11,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "reahl-domainui"
-version = "7.0.2"
+version = "7.0.3"
 description = "A user interface for reahl-domain."
 readme = "README.rst"
 requires-python = ">=3.8"

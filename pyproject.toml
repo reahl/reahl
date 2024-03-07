@@ -9,7 +9,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "reahl"
-version = "7.0.2"
+version = "7.0.3"
 description = "The Reahl web framework."
 readme = "README.rst"
 requires-python = ">=3.8"

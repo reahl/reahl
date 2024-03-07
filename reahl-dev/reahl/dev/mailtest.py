@@ -94,7 +94,6 @@ class MailTester:
 
     def __init__(self, call_back_function=None):
         self.call_back_function = call_back_function
-        self.loop = asyncio.get_event_loop()
 
     async def main_loop(self):
         fake_server = FakeSMTPServer(self.call_back_function)

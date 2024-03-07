@@ -12,7 +12,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "reahl-sqlalchemysupport"
-version = "7.0.2"
+version = "7.0.3"
 description = "Support for using SqlAlchemy with Reahl."
 readme = "README.rst"
 requires-python = ">=3.8"
