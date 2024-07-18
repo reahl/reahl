@@ -472,16 +472,17 @@ class ReahlEgg:
         module = translation_entry_point.load()
         domain = translation_entry_point.name
 
-        if sys.version_info < (3, 10):
+        paths_contain_editable_namespace_package = (any(['__editable__.' in i for i in module.__path__]) and len(module.__path__) > 0)
+        if sys.version_info < (3, 10) or paths_contain_editable_namespace_package:
             class TraversablePaths:
                def __init__(self, module):
                    self.module = module
                def iterdir(self):
-                   yield from itertools.chain([pathlib.Path(i) for i in self.module.__path__])
+                   yield from itertools.chain([pathlib.Path(i) for i in self.module.__path__ if '__editable__' not in i])
                    
             return find_catalogues_in_traversable(TraversablePaths(module), domain)
         else:
-            return find_catalogues_in_traversable(importlib.resources.files(module), domain)
+            return find_catalogues_in_traversable(importlib_resources.files(module), domain)
     
     @classmethod
     @functools.lru_cache() #called for compatibility with python < 3.8

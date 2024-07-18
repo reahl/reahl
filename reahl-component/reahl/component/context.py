@@ -112,6 +112,7 @@ class ExecutionContext:
         session = getattr(self, 'session', None)
         if not session:
             return 'en_gb'
+        return self.session.get_interface_locale()
         try:
             return self.session.get_interface_locale()
         except Exception as ex:
