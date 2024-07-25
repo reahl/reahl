@@ -974,7 +974,8 @@ class Field:
 
     def with_discriminator(self, discriminator):
         """Returns a new Field which is exactly like this one, except that its name is mangled
-        to include the given text as to prevent name clashes.
+        to include the given discriminator in order to prevent name clashes. Name clashes can occur when two Fields
+        with the same name on different objects are used on the same Form. 
 
         .. versionadded:: 5.0
         """

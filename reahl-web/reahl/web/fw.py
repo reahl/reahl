@@ -1080,7 +1080,7 @@ class Widget:
            it did, the page is considered out of date and needs to be refreshed.
 
            By default only :class:`~reahl.web.ui.Input` participate in this algorithm, but you may override
-           this method for your :class:`Widget` subclass to make it participate as well - presuming it
+           this method for your :class:`~reahl.web.fw.Widget` subclass to make it participate as well - presuming it
            can somehow be related to a value in the database.
 
            .. versionadded:: 5.0

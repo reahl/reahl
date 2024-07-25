@@ -32,7 +32,7 @@ Since version 6.0 Reahl projects were defined in a `setup.cfg` file.
 In order to stay breast of changes in the Python packaging infrastructure this version
 requires a project to be defined in a standard PEP 621 `pyproject.toml` file instead.
 
-See :doc:`component/pyproject.toml.rst`.
+See :doc:`component/pyproject.toml`.
 
 
 Migrating your setup.cfg to pyproject.toml
@@ -45,7 +45,7 @@ Migrating your setup.cfg to pyproject.toml
 2. As before, use setuptools as build backend::
    build-backend = "setuptools.build_meta"
 3. For everything configured in the 'component =' option, add the
-   appropriate configuration as per :doc:`component/pyproject.toml.rst`.
+   appropriate configuration as per :doc:`component/pyproject.toml`.
 4. Similarly, translate the rest of your setup.cfg config to pyproject.toml
    as per `the setuptools documentation <https://setuptools.pypa.io/en/latest/userguide/pyproject_config.html>`_\.
    
