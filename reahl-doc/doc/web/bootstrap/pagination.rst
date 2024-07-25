@@ -44,8 +44,15 @@ SequentialPageIndex
 .. autoclass:: SequentialPageIndex
    :members:
 
+
 AnnualPageIndex
 """""""""""""""
 
 .. autoclass:: AnnualPageIndex
+   :members:
+
+AnnualItemOrganiserProtocol
+"""""""""""""""""""""""""""
+
+.. autoclass:: AnnualItemOrganiserProtocol
    :members:

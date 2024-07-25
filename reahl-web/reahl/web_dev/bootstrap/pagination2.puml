@@ -1,14 +1,5 @@
 ' Copyright 2017, 2018, 2022 Reahl Software Services (Pty) Ltd. All rights reserved.
 
-@startuml
-!include ../../../../base.iuml
-
-title Pagination
-
-'│ is ascii-179
-
-
-
 @startsalt
 {+
 
@@ -29,6 +20,6 @@ being displayed here
 
 
 }
-@endsalt
 
-@enduml
+
+@endsalt
