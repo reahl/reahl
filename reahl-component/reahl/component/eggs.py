@@ -361,19 +361,14 @@ class ReahlEgg:
             self.validate_version()
 
     def create_metadata(self, distribution):
-        try:
-            if self.uses_modern_metadata_api:
-                # importlib.metadata distribution
-                if distribution.files:
-                    for file in distribution.files:
-                        if file.name == 'reahl-component.toml':
-                            return toml.loads(distribution.read_text('reahl-component.toml'))
-            else:
-                # pkg_resources distribution
-                if distribution.has_metadata('reahl-component.toml'):
-                    return toml.loads(distribution.get_metadata('reahl-component.toml'))
-        except (FileNotFoundError, KeyError):
-            pass
+        if self.uses_modern_metadata_api:
+            has_file = any(f.name == 'reahl-component.toml' for f in distribution.files) if distribution.files else False
+            if has_file:
+                return toml.loads(distribution.read_text('reahl-component.toml'))
+        else:
+            # pkg_resources distribution
+            if distribution.has_metadata('reahl-component.toml'):
+                return toml.loads(distribution.get_metadata('reahl-component.toml'))
         return None
 
     def validate_version(self):
