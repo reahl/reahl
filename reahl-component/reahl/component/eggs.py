@@ -31,6 +31,14 @@ import pathlib
 import pkg_resources
 import packaging
 
+if sys.version_info < (3, 8):
+    try:
+        import importlib_metadata
+    except:
+        raise Exception('You are on an older version of python. Please install importlib-metadata')
+else:
+    import importlib.metadata as importlib_metadata
+
 if sys.version_info < (3, 9):
     try:
         import importlib_resources
@@ -353,10 +361,20 @@ class ReahlEgg:
             self.validate_version()
 
     def create_metadata(self, distribution):
-        if distribution.has_metadata('reahl-component.toml'):
-            return toml.loads(distribution.get_metadata('reahl-component.toml'))
-        else:
-            return None
+        try:
+            if self.uses_modern_metadata_api:
+                # importlib.metadata distribution
+                if distribution.files:
+                    for file in distribution.files:
+                        if file.name == 'reahl-component.toml':
+                            return toml.loads(distribution.read_text('reahl-component.toml'))
+            else:
+                # pkg_resources distribution
+                if distribution.has_metadata('reahl-component.toml'):
+                    return toml.loads(distribution.get_metadata('reahl-component.toml'))
+        except (FileNotFoundError, KeyError):
+            pass
+        return None
 
     def validate_version(self):
         try:
@@ -371,6 +389,15 @@ class ReahlEgg:
         if not(metadata_version >= supported_version_min and metadata_version < supported_version_max):
             raise ProgrammerError('Component metadata version %s for %s is incompatible with the installed version of reahl-component' % (metadata_version, self.distribution))
 
+    @classmethod
+    def distribution_uses_modern_metadata_api(cls, distribution):
+        """Detect if a distribution uses importlib.metadata API vs pkg_resources API"""
+        return hasattr(distribution, 'metadata') and hasattr(distribution.metadata, '__getitem__')
+    
+    @property
+    def uses_modern_metadata_api(self):
+        """Detect if this distribution uses importlib.metadata API vs pkg_resources API"""
+        return self.distribution_uses_modern_metadata_api(self.distribution)
         
     @property
     def is_component(self):
@@ -381,7 +408,10 @@ class ReahlEgg:
 
     @property
     def name(self):
-        return self.distribution.key
+        if self.uses_modern_metadata_api:
+            return self.distribution.metadata['Name'].lower()
+        else:
+            return self.distribution.key
 
     @property
     def installed_version(self):
@@ -410,7 +440,13 @@ class ReahlEgg:
             raise ProgrammerError('%s is not a reahl component, thus cannot have historical versions' % self.distributions)
         current_major_minor_string = '.'.join(self.distribution.version.split('.')[:2])
         if str(version) == current_major_minor_string:
-            version_dependencies = self.distribution.requires()
+            if self.uses_modern_metadata_api:
+                # importlib.metadata distribution - requires is a property returning strings
+                requires_strings = self.distribution.requires or []
+                version_dependencies = [pkg_resources.Requirement.parse(i) for i in requires_strings]
+            else:
+                # pkg_resources distribution
+                version_dependencies = self.distribution.requires()
         else:
             version_data = self.metadata.get('versions', {}).get(version, {})
             requirements = version_data.get('install_requires', [])+version_data.get('dependencies', [])
@@ -436,11 +472,31 @@ class ReahlEgg:
 
     @property
     def translation_package_entry_point(self):
+        # Try modern importlib.metadata first
+        try:
+            entry_points = importlib_metadata.entry_points(group='reahl.translations')
+            for ep in entry_points:
+                if ep.name == self.name:
+                    # Check if this entry point belongs to our distribution
+                    # by comparing the distribution name
+                    try:
+                        ep_dist = importlib_metadata.distribution(ep.name)
+                        if ep_dist.metadata['Name'].lower() == self.name:
+                            return ep
+                    except importlib_metadata.PackageNotFoundError:
+                        continue
+        except (AttributeError, TypeError):
+            pass
+        
+        # Fallback to pkg_resources
         translation_packages = [translation_entry_point for translation_entry_point in pkg_resources.iter_entry_points('reahl.translations')
-                                if (translation_entry_point.dist is self.distribution) and (translation_entry_point.name == self.name) ]
-        if len(translation_packages) != 1:
-            return None
-        return translation_packages[0]
+                                if hasattr(translation_entry_point, 'dist') and 
+                                (translation_entry_point.dist is self.distribution) and 
+                                (translation_entry_point.name == self.name) ]
+        if len(translation_packages) == 1:
+            return translation_packages[0]
+        
+        return None
     
     @property
     def translation_package_name(self):
@@ -495,13 +551,26 @@ class ReahlEgg:
         domains_in_use = [e.name for e in egg_interfaces]
 
         languages_for_eggs = {}
-        for translation_entry_point in pkg_resources.iter_entry_points('reahl.translations'):
-            for catalogue in cls.find_catalogues(translation_entry_point):
-                language = catalogue.parts[-3]
-                domain = translation_entry_point.name
-                if domain in domains_in_use:
-                    languages = languages_for_eggs.setdefault(domain, set())
-                    languages.add(language)
+        
+        # Try modern importlib.metadata first
+        try:
+            entry_points = importlib_metadata.entry_points(group='reahl.translations')
+            for translation_entry_point in entry_points:
+                for catalogue in cls.find_catalogues(translation_entry_point):
+                    language = catalogue.parts[-3]
+                    domain = translation_entry_point.name
+                    if domain in domains_in_use:
+                        languages = languages_for_eggs.setdefault(domain, set())
+                        languages.add(language)
+        except (AttributeError, TypeError):
+            # Fallback to pkg_resources
+            for translation_entry_point in pkg_resources.iter_entry_points('reahl.translations'):
+                for catalogue in cls.find_catalogues(translation_entry_point):
+                    language = catalogue.parts[-3]
+                    domain = translation_entry_point.name
+                    if domain in domains_in_use:
+                        languages = languages_for_eggs.setdefault(domain, set())
+                        languages.add(language)
                 
         if not languages_for_eggs.values():
             return default_languages
@@ -534,8 +603,31 @@ class ReahlEgg:
     @classmethod
     def topological_sort(cls, distributions):
         def find_dependencies(dist):
-            dependencies = [pkg_resources.working_set.find(i) for i in dist.requires()]
-            my_requirements =  dist.requires()
+            if cls.distribution_uses_modern_metadata_api(dist):
+                # importlib.metadata distribution - requires is a property returning strings
+                requires_strings = dist.requires or []
+                # Filter out requirements with markers that don't evaluate to True
+                filtered_requirements = []
+                for req_str in requires_strings:
+                    req = pkg_resources.Requirement.parse(req_str)
+                    # Include requirement if it has no marker OR if marker evaluates to True
+                    include_requirement = True
+                    if req.marker:
+                        try:
+                            include_requirement = req.marker.evaluate()
+                        except Exception:
+                            # If marker evaluation fails (e.g., undefined 'extra'), skip this requirement
+                            include_requirement = False
+                    
+                    if include_requirement:
+                        filtered_requirements.append(req)
+                my_requirements = filtered_requirements
+                dependencies = [pkg_resources.working_set.find(i) for i in my_requirements]
+            else:
+                # pkg_resources distribution
+                my_requirements = dist.requires()
+                dependencies = [pkg_resources.working_set.find(i) for i in my_requirements]
+            
             #we want the subset of stuff in the basket we actually depend on, not just the basket itself
             basket_requirements = [i for i in my_requirements
                                    if i.extras]
@@ -548,7 +640,19 @@ class ReahlEgg:
 
     @classmethod 
     def get_eggs_for(cls, main_egg, include_test_dependencies):
-        distributions = pkg_resources.require([main_egg]+include_test_dependencies)
+        distributions = []
+        for requirement_str in [main_egg] + include_test_dependencies:
+            # Parse package name from requirement specification 
+            from packaging.requirements import Requirement
+            try:
+                req = Requirement(requirement_str)
+                package_name = req.name
+                # Try modern API first
+                dist = importlib_metadata.distribution(package_name)
+                distributions.append(dist)
+            except (importlib_metadata.PackageNotFoundError, Exception):
+                # Fallback to pkg_resources for EasterEgg and other special cases
+                distributions.extend(pkg_resources.require([requirement_str]))
         return list(set(distributions)) # To get rid of duplicates
 
     @classmethod
