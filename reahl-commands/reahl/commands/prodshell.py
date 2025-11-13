@@ -344,7 +344,7 @@ class ListDependencies(ProductionCommand):
                 deps = ''
                 if args.verbose:
                     deps = '[%s]' % (' | '.join([str(i) for i in distribution.requires()]))
-                print('%s %s' % (distribution, deps))
+                print('%s %s' % (distribution.name, deps))
         return 0
 
 

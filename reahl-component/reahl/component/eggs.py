@@ -30,6 +30,7 @@ import pathlib
 
 import pkg_resources
 import packaging
+import packaging.requirements
 
 if sys.version_info < (3, 8):
     try:
@@ -77,9 +78,10 @@ class InvalidDependencySpecification(DomainException):
 class DependencyGraph:
     @classmethod
     def from_vertices(cls, vertices, find_dependencies):
+        vertices_cache = set(vertices)
         graph = {}
         def add_to_graph(v, graph):
-            dependencies = graph[v] = find_dependencies(v)
+            dependencies = graph[v] = find_dependencies(v, cache=vertices_cache)
             for dep in dependencies:
                 if dep not in graph:
                     add_to_graph(dep, graph)
@@ -246,7 +248,15 @@ class Dependency:
     def __init__(self, for_version, requirement):
         self.for_version = for_version
         self.name = requirement.name
-        self.specs = requirement.specs
+        
+        # Handle both pkg_resources.Requirement and packaging.requirements.Requirement
+        if hasattr(requirement, 'specs'):
+            # pkg_resources.Requirement has specs attribute
+            self.specs = requirement.specs
+        else:
+            # packaging.requirements.Requirement has specifier
+            self.specs = [(spec.operator, spec.version) for spec in requirement.specifier]
+        
         self.min_version = None
         self.max_version = None
         for comparator, version in self.specs:
@@ -388,7 +398,17 @@ class ReahlEgg:
     def distribution_uses_modern_metadata_api(cls, distribution):
         """Detect if a distribution uses importlib.metadata API vs pkg_resources API"""
         return hasattr(distribution, 'metadata') and hasattr(distribution.metadata, '__getitem__')
-    
+
+    @classmethod
+    def can_use_modern_entry_points_api(cls):
+        """Check if the modern importlib.metadata.entry_points() API is available"""
+        try:
+            # Try to call entry_points with group parameter (modern API)
+            importlib_metadata.entry_points(group='test')
+            return True
+        except (AttributeError, TypeError):
+            return False
+
     @property
     def uses_modern_metadata_api(self):
         """Detect if this distribution uses importlib.metadata API vs pkg_resources API"""
@@ -438,14 +458,14 @@ class ReahlEgg:
             if self.uses_modern_metadata_api:
                 # importlib.metadata distribution - requires is a property returning strings
                 requires_strings = self.distribution.requires or []
-                version_dependencies = [pkg_resources.Requirement.parse(i) for i in requires_strings]
+                version_dependencies = [packaging.requirements.Requirement(i) for i in requires_strings]
             else:
                 # pkg_resources distribution
                 version_dependencies = self.distribution.requires()
         else:
             version_data = self.metadata.get('versions', {}).get(version, {})
             requirements = version_data.get('install_requires', [])+version_data.get('dependencies', [])
-            version_dependencies = [pkg_resources.Requirement.parse(i) for i in requirements]
+            version_dependencies = [packaging.requirements.Requirement(i) for i in requirements]
         return [Dependency(self, dep) for dep in version_dependencies]
 
     def load(self, locator):
@@ -467,8 +487,8 @@ class ReahlEgg:
 
     @property
     def translation_package_entry_point(self):
-        # Try modern importlib.metadata first
-        try:
+        if self.can_use_modern_entry_points_api():
+            # Use modern API only
             entry_points = importlib_metadata.entry_points(group='reahl.translations')
             for ep in entry_points:
                 if ep.name == self.name:
@@ -480,17 +500,15 @@ class ReahlEgg:
                             return ep
                     except importlib_metadata.PackageNotFoundError:
                         continue
-        except (AttributeError, TypeError):
-            pass
-        
-        # Fallback to pkg_resources
-        translation_packages = [translation_entry_point for translation_entry_point in pkg_resources.iter_entry_points('reahl.translations')
-                                if hasattr(translation_entry_point, 'dist') and 
-                                (translation_entry_point.dist is self.distribution) and 
-                                (translation_entry_point.name == self.name) ]
-        if len(translation_packages) == 1:
-            return translation_packages[0]
-        
+        else:
+            # Use old API only
+            translation_packages = [translation_entry_point for translation_entry_point in pkg_resources.iter_entry_points('reahl.translations')
+                                    if hasattr(translation_entry_point, 'dist') and
+                                    (translation_entry_point.dist is self.distribution) and
+                                    (translation_entry_point.name == self.name)]
+            if len(translation_packages) == 1:
+                return translation_packages[0]
+
         return None
     
     @property
@@ -547,8 +565,8 @@ class ReahlEgg:
 
         languages_for_eggs = {}
         
-        # Try modern importlib.metadata first
-        try:
+        if cls.can_use_modern_entry_points_api():
+            # Use modern API only
             entry_points = importlib_metadata.entry_points(group='reahl.translations')
             for translation_entry_point in entry_points:
                 for catalogue in cls.find_catalogues(translation_entry_point):
@@ -557,8 +575,8 @@ class ReahlEgg:
                     if domain in domains_in_use:
                         languages = languages_for_eggs.setdefault(domain, set())
                         languages.add(language)
-        except (AttributeError, TypeError):
-            # Fallback to pkg_resources
+        else:
+            # Use old API only
             for translation_entry_point in pkg_resources.iter_entry_points('reahl.translations'):
                 for catalogue in cls.find_catalogues(translation_entry_point):
                     language = catalogue.parts[-3]
@@ -566,7 +584,7 @@ class ReahlEgg:
                     if domain in domains_in_use:
                         languages = languages_for_eggs.setdefault(domain, set())
                         languages.add(language)
-                
+        
         if not languages_for_eggs.values():
             return default_languages
         languages = (list(languages_for_eggs.values()))[0].intersection(*languages_for_eggs.values())
@@ -596,62 +614,113 @@ class ReahlEgg:
         return interfaces
 
     @classmethod
-    def topological_sort(cls, distributions):
-        def find_dependencies(dist):
+    def get_or_cache_distribution(cls, cache, new_dist):
+        """Get cached distribution from cache if available, to ensure single instance per package."""
+        if cache is None:
+            return new_dist
+
+        # Check if this distribution is already in the graph (by name)
+        for cached_dist in cache:
+            if new_dist.name.lower() == cached_dist.name.lower():
+                return cached_dist
+        cache.add(new_dist)
+        return new_dist
+    
+    @classmethod
+    def find_dependencies(cls, dist, cache=None):
+        """Find immediate dependencies of a distribution, handling both modern and old API."""
+        
+        
+        if cls.distribution_uses_modern_metadata_api(dist):
+            # importlib.metadata distribution - requires is a property returning strings
+            requires_strings = dist.requires or []
+            # Filter out requirements with markers that don't evaluate to True
+            filtered_requirements = []
+            for req_str in requires_strings:
+                req = packaging.requirements.Requirement(req_str)
+                # Include requirement if it has no marker OR if marker evaluates to True
+                include_requirement = True
+                if req.marker:
+                    try:
+                        include_requirement = req.marker.evaluate()
+                    except Exception:
+                        # If marker evaluation fails (e.g., undefined 'extra'), skip this requirement
+                        include_requirement = False
+                
+                if include_requirement:
+                    filtered_requirements.append(req)
+            
+            dependencies = []
+            for req in filtered_requirements:
+                dep_dist = importlib_metadata.distribution(req.name)
+                dep_dist = cls.get_or_cache_distribution(cache, dep_dist)
+                dependencies.append(dep_dist)
+            
+            my_requirements = filtered_requirements
+        else:
+            # pkg_resources distribution
+            my_requirements = dist.requires()
+            dependencies = []
+            for req in my_requirements:
+                dep_dist = pkg_resources.working_set.find(req)
+                if dep_dist:
+                    dependencies.append(dep_dist)
+        
+        # Handle extras (basket requirements)
+        basket_requirements = [i for i in my_requirements if i.extras]
+        for basket in basket_requirements:
             if cls.distribution_uses_modern_metadata_api(dist):
-                # importlib.metadata distribution - requires is a property returning strings
-                requires_strings = dist.requires or []
-                # Filter out requirements with markers that don't evaluate to True
-                filtered_requirements = []
-                for req_str in requires_strings:
-                    req = pkg_resources.Requirement.parse(req_str)
-                    # Include requirement if it has no marker OR if marker evaluates to True
-                    include_requirement = True
-                    if req.marker:
-                        try:
-                            include_requirement = req.marker.evaluate()
-                        except Exception:
-                            # If marker evaluation fails (e.g., undefined 'extra'), skip this requirement
-                            include_requirement = False
-                    
-                    if include_requirement:
-                        filtered_requirements.append(req)
-                my_requirements = filtered_requirements
-                dependencies = [pkg_resources.working_set.find(i) for i in my_requirements]
+                for extra_name in basket.extras:
+                    extra_dist = importlib_metadata.distribution(extra_name)
+                    extra_dist = cls.get_or_cache_distribution(cache, extra_dist)
+                    dependencies.append(extra_dist)
             else:
-                # pkg_resources distribution
-                my_requirements = dist.requires()
-                dependencies = [pkg_resources.working_set.find(i) for i in my_requirements]
-            
-            #we want the subset of stuff in the basket we actually depend on, not just the basket itself
-            basket_requirements = [i for i in my_requirements
-                                   if i.extras]
-            for basket in basket_requirements:
-                dependencies.extend([pkg_resources.working_set.find(pkg_resources.Requirement.parse(i)) for i in basket.extras])
-            return [i for i in dependencies if i]
-            
-        return DependencyGraph.from_vertices(distributions, find_dependencies).topological_sort()
+                for req in basket.extras:
+                    extra_dist = pkg_resources.working_set.find(pkg_resources.Requirement.parse(req))
+                    if extra_dist:
+                        dependencies.append(extra_dist)
+        
+        return [i for i in dependencies if i]
+
+    @classmethod
+    def topological_sort(cls, distributions):
+        return DependencyGraph.from_vertices(distributions, cls.find_dependencies).topological_sort()
 
 
     @classmethod 
     def get_eggs_for(cls, main_egg, include_test_dependencies):
-        distributions = []
+        distributions = set()
+        
+        def collect_dependencies_recursively(dist):
+            """Recursively collect distribution and all its dependencies."""
+            if dist in distributions:
+                return
+
+            dependencies = cls.find_dependencies(dist, cache=distributions)
+            distributions.update(set(dependencies))
+            for dep in dependencies:
+                collect_dependencies_recursively(dep)
+        
+        # Process each requirement string
         for requirement_str in [main_egg] + include_test_dependencies:
-            # Parse package name from requirement specification 
-            from packaging.requirements import Requirement
             try:
-                req = Requirement(requirement_str)
+                # Try modern API first - returns single distribution
+                req = packaging.requirements.Requirement(requirement_str)
                 package_name = req.name
-                # Try modern API first
                 dist = importlib_metadata.distribution(package_name)
-                distributions.append(dist)
+                distributions.add(cls.get_or_cache_distribution(distributions, dist))
+                collect_dependencies_recursively(dist)
             except (importlib_metadata.PackageNotFoundError, Exception):
-                # Fallback to pkg_resources for EasterEgg and other special cases
-                distributions.extend(pkg_resources.require([requirement_str]))
-        return list(set(distributions)) # To get rid of duplicates
+                # Fallback to pkg_resources - already returns full dependency tree
+                distributions_from_old_api = pkg_resources.require([requirement_str])
+                # Just add them directly with recursion to build graph
+                for dist in distributions_from_old_api:
+                    collect_dependencies_recursively(dist)
+        
+        return list(distributions) 
 
     @classmethod
-    def compute_ordered_dependent_distributions(cls, main_egg, include_test_dependencies):
+    def compute_ordered_dependent_distributions(cls, main_egg, include_test_dependencies=[]):
         return cls.topological_sort(cls.get_eggs_for(main_egg, include_test_dependencies))
     
     @classmethod

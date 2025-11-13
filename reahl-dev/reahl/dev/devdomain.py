@@ -36,6 +36,7 @@ except ImportError:
     from setuptools.config import read_configuration
 
 import pkg_resources
+import packaging.requirements
 import toml
 import babel
 import setuptools
@@ -481,7 +482,7 @@ class Project:
             return None
         all_projects_requirements = self.metadata.extras['all']
         def get_project_dir_for(requirement):
-            return str(pathlib.Path(self.directory).joinpath(pkg_resources.Requirement.parse(requirement).project_name))
+            return str(pathlib.Path(self.directory).joinpath(packaging.requirements.Requirement(requirement).name))
         return [Project.from_file_in(self.workspace, get_project_dir_for(i))
                 for i in all_projects_requirements]
 
