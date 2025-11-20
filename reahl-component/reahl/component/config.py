@@ -338,8 +338,6 @@ class StoredConfiguration(Configuration):
         self.read(ReahlSystemConfig)
         self.validate_required(ReahlSystemConfig)
 
-        pkg_resources.require(self.reahlsystem.root_egg)
-
         self.configure_components(include_test_dependencies)
         if validate:
             self.validate_components()

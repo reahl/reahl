@@ -160,13 +160,13 @@ class WithFixtureDecorator:
         return list(signature.parameters.keys())[:len(self.requested_fixtures)]
 
     def topological_sort_instances(self, fixture_instances):
-        def find_dependencies(fixture_instance, graph={}):
+        def find_dependencies(fixture_instance, cache=None):
             return fixture_instance.dependencies
         dependency_graph = DependencyGraph.from_vertices(fixture_instances, find_dependencies)
         return reversed(list(dependency_graph.topological_sort()))
 
     def topological_sort_classes(self, fixture_classes):
-        def find_dependencies(fixture_class, graph={}):
+        def find_dependencies(fixture_class, cache=None):
             return fixture_class._options.dependencies.values()
         dependency_graph = DependencyGraph.from_vertices(fixture_classes, find_dependencies)
         return list(dependency_graph.topological_sort())

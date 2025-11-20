@@ -42,7 +42,6 @@ def test_flattened_tree_of_eggs():
     easter_egg.add_dependency('reahl-component')
 
     # All eggs for a root egg can be found in dependency order
-    breakpoint()
     components_in_order = ReahlEgg.compute_ordered_dependent_distributions(easter_egg.as_requirement_string(), [])
     component_names_in_order = [distribution_name(i) for i in components_in_order]
     # (many valid topological sorts are possible and the algorithm is nondeterministic in some aspects that
@@ -95,7 +94,7 @@ def test_interface_with_meta_info():
     easter_egg.add_entry_point_from_line('reahl.translations', '%s = reahl.messages' % easter_egg.project_name)
     assert interface.translation_package_name == 'reahl.messages'
     assert interface.translation_package_entry_point.name == 'test'
-    assert interface.translation_package_entry_point.module_name == 'reahl.messages'
+    assert interface.translation_package_entry_point.module == 'reahl.messages'
     
     # Hooks for allowing a component to do its own housekeeping
     with expected(NoException):

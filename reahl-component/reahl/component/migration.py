@@ -65,7 +65,7 @@ class MigrationPlan:
     @classmethod
     def create_cluster_graph(cls, version_graph):
         clusters = [DependencyCluster(root, contents) for root, contents in version_graph.find_trees()]
-        return DependencyGraph.from_vertices(clusters, lambda c: c.get_dependencies(clusters))
+        return DependencyGraph.from_vertices(clusters, lambda c, cache=None: c.get_dependencies(clusters))
 
     def execute(self):
         for schedule in self.schedules:
@@ -90,7 +90,7 @@ class MigrationPlan:
                 for schedule in schedules:
                     all_schedules.extend(find_schedules(schedule.nested_schedules))
                 return all_schedules
-            schedule_graph = DependencyGraph.from_vertices(find_schedules(self.schedules), lambda r: r.nested_schedules)
+            schedule_graph = DependencyGraph.from_vertices(find_schedules(self.schedules), lambda r, cache=None: r.nested_schedules)
             print('Rendering schedule graph to: schedules.svg')
             schedule_graph.render('schedules')
         else: 

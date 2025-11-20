@@ -67,6 +67,45 @@ class CircularDependencyDetected(Exception):
     def __str__(self):
         return ' -> '.join([str(i) for i in self.cycle])
 
+
+class DistributionCache:
+    """Cache for distribution instances to ensure single instance per package name."""
+
+    def __init__(self, initial_distributions=None):
+        """Initialize cache with optional initial distributions."""
+        self.cache = set(initial_distributions) if initial_distributions else set()
+
+    def get_or_add(self, new_dist):
+        """Get cached distribution if available by name, otherwise add and return new_dist."""
+        # AI: Check if this distribution is already in the cache (by name)
+        new_name = self.get_distribution_name(new_dist)
+        for cached_dist in self.cache:
+            if new_name == self.get_distribution_name(cached_dist):
+                return cached_dist
+
+        # AI: Not found, add to cache and return
+        self.cache.add(new_dist)
+        return new_dist
+
+    def contains_duplicate(self, dist):
+        return any(self.get_distribution_name(dist) == self.get_distribution_name(cached)
+                   for cached in cache.cache)
+    
+    @staticmethod
+    def get_distribution_name(dist):
+        """Get the normalized name of a distribution, handling both API styles."""
+        if hasattr(dist, 'metadata') and hasattr(dist.metadata, '__getitem__'):
+            # AI: Modern API (importlib.metadata)
+            return dist.metadata['Name'].lower()
+        else:
+            # AI: Old API (pkg_resources) - .key is already lowercase
+            return dist.key
+
+    def get_all(self):
+        """Return list of all cached distributions."""
+        return list(self.cache)
+
+
 class InvalidDependencySpecification(DomainException):
     def __init__(self, versions, duplicates):
         self.versions = versions
@@ -78,10 +117,10 @@ class InvalidDependencySpecification(DomainException):
 class DependencyGraph:
     @classmethod
     def from_vertices(cls, vertices, find_dependencies):
-        vertices_cache = set(vertices)
+        cache = DistributionCache(vertices)
         graph = {}
         def add_to_graph(v, graph):
-            dependencies = graph[v] = find_dependencies(v, cache=vertices_cache)
+            dependencies = graph[v] = find_dependencies(v, cache=cache)
             for dep in dependencies:
                 if dep not in graph:
                     add_to_graph(dep, graph)
@@ -227,7 +266,7 @@ class DependencyCluster:
         return [other for other in all_clusters if self.is_dependent_on(other)]
 
     def get_versions_biggest_first(self):
-        def version_dependencies(version):
+        def version_dependencies(version, cache=None):
             return [v for v in self.versions
                     if any([d.name == v.name for d in v.get_dependencies()])]
         version_graph = DependencyGraph.from_vertices(self.versions, version_dependencies)
@@ -372,9 +411,14 @@ class ReahlEgg:
 
     def create_metadata(self, distribution):
         if self.uses_modern_metadata_api:
-            has_file = any(f.name == 'reahl-component.toml' for f in distribution.files) if distribution.files else False
-            if has_file:
-                return toml.loads(distribution.read_text('reahl-component.toml'))
+            # AI: Try to read metadata file even if files list is not available
+            try:
+                content = distribution.read_text('reahl-component.toml')
+                if content is not None:
+                    return toml.loads(content)
+                return None
+            except (FileNotFoundError, KeyError, AttributeError):
+                return None
         else:
             # pkg_resources distribution
             if distribution.has_metadata('reahl-component.toml'):
@@ -513,7 +557,10 @@ class ReahlEgg:
     
     @property
     def translation_package_name(self):
-        return self.translation_package_entry_point.module_name
+        if self.uses_modern_metadata_api:
+            return self.translation_package_entry_point.value
+        else:
+            return self.translation_package_entry_point.module_name
 
     @property
     def translation_pot_filename(self):
@@ -614,23 +661,10 @@ class ReahlEgg:
         return interfaces
 
     @classmethod
-    def get_or_cache_distribution(cls, cache, new_dist):
-        """Get cached distribution from cache if available, to ensure single instance per package."""
-        if cache is None:
-            return new_dist
-
-        # Check if this distribution is already in the graph (by name)
-        for cached_dist in cache:
-            if new_dist.name.lower() == cached_dist.name.lower():
-                return cached_dist
-        cache.add(new_dist)
-        return new_dist
-    
-    @classmethod
     def find_dependencies(cls, dist, cache=None):
         """Find immediate dependencies of a distribution, handling both modern and old API."""
-        
-        
+
+
         if cls.distribution_uses_modern_metadata_api(dist):
             # importlib.metadata distribution - requires is a property returning strings
             requires_strings = dist.requires or []
@@ -646,16 +680,17 @@ class ReahlEgg:
                     except Exception:
                         # If marker evaluation fails (e.g., undefined 'extra'), skip this requirement
                         include_requirement = False
-                
+
                 if include_requirement:
                     filtered_requirements.append(req)
-            
+
             dependencies = []
             for req in filtered_requirements:
                 dep_dist = importlib_metadata.distribution(req.name)
-                dep_dist = cls.get_or_cache_distribution(cache, dep_dist)
+                if cache:
+                    dep_dist = cache.get_or_add(dep_dist)
                 dependencies.append(dep_dist)
-            
+
             my_requirements = filtered_requirements
         else:
             # pkg_resources distribution
@@ -665,21 +700,22 @@ class ReahlEgg:
                 dep_dist = pkg_resources.working_set.find(req)
                 if dep_dist:
                     dependencies.append(dep_dist)
-        
+
         # Handle extras (basket requirements)
         basket_requirements = [i for i in my_requirements if i.extras]
         for basket in basket_requirements:
             if cls.distribution_uses_modern_metadata_api(dist):
                 for extra_name in basket.extras:
                     extra_dist = importlib_metadata.distribution(extra_name)
-                    extra_dist = cls.get_or_cache_distribution(cache, extra_dist)
+                    if cache:
+                        extra_dist = cache.get_or_add(extra_dist)
                     dependencies.append(extra_dist)
             else:
                 for req in basket.extras:
                     extra_dist = pkg_resources.working_set.find(pkg_resources.Requirement.parse(req))
                     if extra_dist:
                         dependencies.append(extra_dist)
-        
+
         return [i for i in dependencies if i]
 
     @classmethod
@@ -687,20 +723,23 @@ class ReahlEgg:
         return DependencyGraph.from_vertices(distributions, cls.find_dependencies).topological_sort()
 
 
-    @classmethod 
+    @classmethod
     def get_eggs_for(cls, main_egg, include_test_dependencies):
-        distributions = set()
-        
+        cache = DistributionCache()
+        processed = set()  # AI: Track which distribution names have been processed
+
         def collect_dependencies_recursively(dist):
             """Recursively collect distribution and all its dependencies."""
-            if dist in distributions:
+            # AI: Check if already processed by name
+            dist_name = DistributionCache.get_distribution_name(dist)
+            if dist_name in processed:
                 return
 
-            dependencies = cls.find_dependencies(dist, cache=distributions)
-            distributions.update(set(dependencies))
+            dependencies = cls.find_dependencies(dist, cache=cache)
+            processed.add(dist_name)  # AI: Mark as processed after collecting dependencies
             for dep in dependencies:
                 collect_dependencies_recursively(dep)
-        
+
         # Process each requirement string
         for requirement_str in [main_egg] + include_test_dependencies:
             try:
@@ -708,7 +747,7 @@ class ReahlEgg:
                 req = packaging.requirements.Requirement(requirement_str)
                 package_name = req.name
                 dist = importlib_metadata.distribution(package_name)
-                distributions.add(cls.get_or_cache_distribution(distributions, dist))
+                dist = cache.get_or_add(dist)
                 collect_dependencies_recursively(dist)
             except (importlib_metadata.PackageNotFoundError, Exception):
                 # Fallback to pkg_resources - already returns full dependency tree
@@ -716,8 +755,8 @@ class ReahlEgg:
                 # Just add them directly with recursion to build graph
                 for dist in distributions_from_old_api:
                     collect_dependencies_recursively(dist)
-        
-        return list(distributions) 
+
+        return cache.get_all() 
 
     @classmethod
     def compute_ordered_dependent_distributions(cls, main_egg, include_test_dependencies=[]):

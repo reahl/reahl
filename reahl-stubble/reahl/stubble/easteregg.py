@@ -84,6 +84,10 @@ class ImportlibEntryPoint:
             return obj
         return module
 
+    @property
+    def module(self):
+        return self.value.split(':')[0]
+    
     def matches(self, **params):
         group = params.get('group')
         name = params.get('name')

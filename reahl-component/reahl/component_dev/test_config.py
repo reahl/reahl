@@ -251,7 +251,7 @@ def test_config_defaults_automatic(config_with_files):
     
     egg_needing_injection = EasterEgg('test-inject')
     fixture.set_config_spec(egg_needing_injection, 'reahl.component_dev.test_config:ConfigWithInjectedSetting')
-    pkg_resources.working_set.add(egg_needing_injection)
+    egg_needing_injection.add_to_working_set()
 
     fixture.set_config_spec(easter_egg, 'reahl.component_dev.test_config:ConfigWhichInjectsSetting')
 
