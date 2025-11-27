@@ -20,10 +20,17 @@
 import os
 import sys
 import copy
-import pkg_resources
 import contextlib
 
-  
+if sys.version_info < (3, 8):
+    try:
+        import importlib_metadata
+    except:
+        raise Exception('You are on an older version of python. Please install importlib-metadata')
+else:
+    import importlib.metadata as importlib_metadata
+
+
 from reahl.tofu import Fixture, set_up, tear_down, scope, uses
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.context import ExecutionContext
@@ -102,7 +109,7 @@ class ReahlSystemSessionFixture(ContextAwareFixture):
         config = StoredConfiguration('etc/')
         try:
             config.configure(include_test_dependencies=self.test_dependencies)
-        except pkg_resources.DistributionNotFound as ex:
+        except importlib_metadata.PackageNotFoundError as ex:
             raise CouldNotConfigureServer(ex).with_traceback(sys.exc_info()[2])
 
         return config

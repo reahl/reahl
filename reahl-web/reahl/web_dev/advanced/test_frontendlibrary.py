@@ -16,8 +16,6 @@
 
 
 
-import pkg_resources
-
 from reahl.tofu import temp_dir, Fixture, set_up, uses
 from reahl.tofu.pytestsupport import with_fixtures
 from reahl.stubble import easter_egg
@@ -44,7 +42,6 @@ class LibraryFixture(Fixture):
 
     def new_MyLibrary(self):
         easter_egg.clear()
-        pkg_resources.working_set.add(easter_egg)
         easter_egg.location = self.egg_dir.name
 
         class MyLibrary(Library):

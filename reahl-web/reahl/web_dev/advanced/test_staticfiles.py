@@ -18,8 +18,6 @@
 import datetime
 import os.path
 
-import pkg_resources
-
 from reahl.tofu import scenario, temp_dir, temp_file_with, Fixture
 from reahl.tofu.pytestsupport import with_fixtures
 from reahl.stubble import easter_egg, stubclass
@@ -156,7 +154,6 @@ def test_packaged_files(web_fixture):
     afile = package_dir.file_with('packaged_file', 'contents')
 
     easter_egg.clear()
-    pkg_resources.working_set.add(easter_egg)
     easter_egg.location = egg_dir.name
 
     with easter_egg.active():
@@ -209,7 +206,6 @@ def test_concatenated_files(web_fixture, concatenate_scenarios):
     afile = package_dir.file_with('packaged_file', fixture.file1_contents)
     another_file = package_dir.file_with('packaged_file2', fixture.file2_contents)
 
-    pkg_resources.working_set.add(easter_egg)
     easter_egg.location = egg_dir.name
 
     class MainUI(UserInterface):

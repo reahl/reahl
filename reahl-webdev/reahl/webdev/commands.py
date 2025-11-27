@@ -29,8 +29,13 @@ except ImportError:
     except ImportError:
         raise ImportError('You are using a python version that does not support functools.cached_property. Please run "pip install cached-property"')
 
-
-import pkg_resources
+if sys.version_info < (3, 8):
+    try:
+        import importlib_metadata
+    except:
+        raise Exception('You are on an older version of python. Please install importlib-metadata')
+else:
+    import importlib.metadata as importlib_metadata
 
 from reahl.dev.devdomain import Project
 from reahl.dev.devshell import WorkspaceCommand
@@ -77,7 +82,7 @@ class ServeCurrentProject(WorkspaceCommand):
                     
                     try:
                         reahl_server = ReahlWebServer.from_config_directory(config_directory)
-                    except pkg_resources.DistributionNotFound as ex:
+                    except importlib_metadata.PackageNotFoundError as ex:
                         terminate_keys = 'Ctrl+Break' if platform.system() == 'Windows' else 'Ctrl+C'
                         print('\nPress %s to terminate\n\n' % terminate_keys, flush=True)
                         raise CouldNotConfigureServer(ex)

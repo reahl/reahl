@@ -146,7 +146,6 @@ def test_widgets_for_tasks(web_fixture, sql_alchemy_fixture, task_queue_fixture,
     """The widget to use for displaying a particular type of task can be set via an entry point."""
     fixture = workflow_web_fixture
 
-    pkg_resources.working_set.add(easter_egg)
     line = 'MyTaskWidget = reahl.domainui_dev.bootstrap.test_workflow:MyTaskWidget'
     easter_egg.add_entry_point_from_line('reahl.workflowui.task_widgets', line)
 

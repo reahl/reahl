@@ -28,7 +28,6 @@ import functools
 import importlib
 import pathlib
 
-import pkg_resources
 import packaging
 import packaging.requirements
 
@@ -93,13 +92,8 @@ class DistributionCache:
     
     @staticmethod
     def get_distribution_name(dist):
-        """Get the normalized name of a distribution, handling both API styles."""
-        if hasattr(dist, 'metadata') and hasattr(dist.metadata, '__getitem__'):
-            # AI: Modern API (importlib.metadata)
-            return dist.metadata['Name'].lower()
-        else:
-            # AI: Old API (pkg_resources) - .key is already lowercase
-            return dist.key
+        """Get the normalized name of a distribution."""
+        return dist.metadata['Name'].lower()
 
     def get_all(self):
         """Return list of all cached distributions."""
@@ -287,15 +281,10 @@ class Dependency:
     def __init__(self, for_version, requirement):
         self.for_version = for_version
         self.name = requirement.name
-        
-        # Handle both pkg_resources.Requirement and packaging.requirements.Requirement
-        if hasattr(requirement, 'specs'):
-            # pkg_resources.Requirement has specs attribute
-            self.specs = requirement.specs
-        else:
-            # packaging.requirements.Requirement has specifier
-            self.specs = [(spec.operator, spec.version) for spec in requirement.specifier]
-        
+
+        # packaging.requirements.Requirement has specifier
+        self.specs = [(spec.operator, spec.version) for spec in requirement.specifier]
+
         self.min_version = None
         self.max_version = None
         for comparator, version in self.specs:
@@ -331,8 +320,8 @@ class Dependency:
     @property
     def distribution(self):
         try:
-            return pkg_resources.get_distribution(self.name)
-        except:
+            return importlib_metadata.distribution(self.name)
+        except importlib_metadata.PackageNotFoundError:
             return None
 
     @property
@@ -410,20 +399,14 @@ class ReahlEgg:
             self.validate_version()
 
     def create_metadata(self, distribution):
-        if self.uses_modern_metadata_api:
-            # AI: Try to read metadata file even if files list is not available
-            try:
-                content = distribution.read_text('reahl-component.toml')
-                if content is not None:
-                    return toml.loads(content)
-                return None
-            except (FileNotFoundError, KeyError, AttributeError):
-                return None
-        else:
-            # pkg_resources distribution
-            if distribution.has_metadata('reahl-component.toml'):
-                return toml.loads(distribution.get_metadata('reahl-component.toml'))
-        return None
+        # AI: Try to read metadata file even if files list is not available
+        try:
+            content = distribution.read_text('reahl-component.toml')
+            if content is not None:
+                return toml.loads(content)
+            return None
+        except (FileNotFoundError, KeyError, AttributeError):
+            return None
 
     def validate_version(self):
         try:
@@ -439,11 +422,6 @@ class ReahlEgg:
             raise ProgrammerError('Component metadata version %s for %s is incompatible with the installed version of reahl-component' % (metadata_version, self.distribution))
 
     @classmethod
-    def distribution_uses_modern_metadata_api(cls, distribution):
-        """Detect if a distribution uses importlib.metadata API vs pkg_resources API"""
-        return hasattr(distribution, 'metadata') and hasattr(distribution.metadata, '__getitem__')
-
-    @classmethod
     def can_use_modern_entry_points_api(cls):
         """Check if the modern importlib.metadata.entry_points() API is available"""
         try:
@@ -454,23 +432,15 @@ class ReahlEgg:
             return False
 
     @property
-    def uses_modern_metadata_api(self):
-        """Detect if this distribution uses importlib.metadata API vs pkg_resources API"""
-        return self.distribution_uses_modern_metadata_api(self.distribution)
-        
-    @property
     def is_component(self):
         return self.metadata is not None
 
     def __repr__(self):
-        return '<%s(pkg_resources.get_distribution(%s))>' % (self.__class__.__name__, repr(self.distribution))
+        return '<%s(importlib_metadata.distribution(%s))>' % (self.__class__.__name__, repr(self.distribution.metadata['Name']))
 
     @property
     def name(self):
-        if self.uses_modern_metadata_api:
-            return self.distribution.metadata['Name'].lower()
-        else:
-            return self.distribution.key
+        return self.distribution.metadata['Name'].lower()
 
     @property
     def installed_version(self):
@@ -499,13 +469,9 @@ class ReahlEgg:
             raise ProgrammerError('%s is not a reahl component, thus cannot have historical versions' % self.distributions)
         current_major_minor_string = '.'.join(self.distribution.version.split('.')[:2])
         if str(version) == current_major_minor_string:
-            if self.uses_modern_metadata_api:
-                # importlib.metadata distribution - requires is a property returning strings
-                requires_strings = self.distribution.requires or []
-                version_dependencies = [packaging.requirements.Requirement(i) for i in requires_strings]
-            else:
-                # pkg_resources distribution
-                version_dependencies = self.distribution.requires()
+            # importlib.metadata distribution - requires is a property returning strings
+            requires_strings = self.distribution.requires or []
+            version_dependencies = [packaging.requirements.Requirement(i) for i in requires_strings]
         else:
             version_data = self.metadata.get('versions', {}).get(version, {})
             requirements = version_data.get('install_requires', [])+version_data.get('dependencies', [])
@@ -532,35 +498,31 @@ class ReahlEgg:
     @property
     def translation_package_entry_point(self):
         if self.can_use_modern_entry_points_api():
-            # Use modern API only
+            # Python 3.9+ API with group parameter
             entry_points = importlib_metadata.entry_points(group='reahl.translations')
-            for ep in entry_points:
-                if ep.name == self.name:
-                    # Check if this entry point belongs to our distribution
-                    # by comparing the distribution name
-                    try:
-                        ep_dist = importlib_metadata.distribution(ep.name)
-                        if ep_dist.metadata['Name'].lower() == self.name:
-                            return ep
-                    except importlib_metadata.PackageNotFoundError:
-                        continue
         else:
-            # Use old API only
-            translation_packages = [translation_entry_point for translation_entry_point in pkg_resources.iter_entry_points('reahl.translations')
-                                    if hasattr(translation_entry_point, 'dist') and
-                                    (translation_entry_point.dist is self.distribution) and
-                                    (translation_entry_point.name == self.name)]
-            if len(translation_packages) == 1:
-                return translation_packages[0]
+            # Python 3.8 API returns dict-like object
+            all_entry_points = importlib_metadata.entry_points()
+            entry_points = all_entry_points.get('reahl.translations', [])
+
+        for ep in entry_points:
+            if ep.name == self.name:
+                # Check if this entry point belongs to our distribution
+                # by comparing the distribution name
+                try:
+                    ep_dist = importlib_metadata.distribution(ep.name)
+                    if ep_dist.metadata['Name'].lower() == self.name:
+                        return ep
+                except importlib_metadata.PackageNotFoundError:
+                    continue
 
         return None
     
     @property
     def translation_package_name(self):
-        if self.uses_modern_metadata_api:
-            return self.translation_package_entry_point.value
-        else:
-            return self.translation_package_entry_point.module_name
+        # AI: Extract module name from entry point value (format: "module:attr" or just "module")
+        value = self.translation_package_entry_point.value
+        return value.split(':')[0] if ':' in value else value
 
     @property
     def translation_pot_filename(self):
@@ -611,27 +573,23 @@ class ReahlEgg:
         domains_in_use = [e.name for e in egg_interfaces]
 
         languages_for_eggs = {}
-        
+
         if cls.can_use_modern_entry_points_api():
-            # Use modern API only
+            # Python 3.9+ API with group parameter
             entry_points = importlib_metadata.entry_points(group='reahl.translations')
-            for translation_entry_point in entry_points:
-                for catalogue in cls.find_catalogues(translation_entry_point):
-                    language = catalogue.parts[-3]
-                    domain = translation_entry_point.name
-                    if domain in domains_in_use:
-                        languages = languages_for_eggs.setdefault(domain, set())
-                        languages.add(language)
         else:
-            # Use old API only
-            for translation_entry_point in pkg_resources.iter_entry_points('reahl.translations'):
-                for catalogue in cls.find_catalogues(translation_entry_point):
-                    language = catalogue.parts[-3]
-                    domain = translation_entry_point.name
-                    if domain in domains_in_use:
-                        languages = languages_for_eggs.setdefault(domain, set())
-                        languages.add(language)
-        
+            # Python 3.8 API returns dict-like object
+            all_entry_points = importlib_metadata.entry_points()
+            entry_points = all_entry_points.get('reahl.translations', [])
+
+        for translation_entry_point in entry_points:
+            for catalogue in cls.find_catalogues(translation_entry_point):
+                language = catalogue.parts[-3]
+                domain = translation_entry_point.name
+                if domain in domains_in_use:
+                    languages = languages_for_eggs.setdefault(domain, set())
+                    languages.add(language)
+
         if not languages_for_eggs.values():
             return default_languages
         languages = (list(languages_for_eggs.values()))[0].intersection(*languages_for_eggs.values())
@@ -662,59 +620,44 @@ class ReahlEgg:
 
     @classmethod
     def find_dependencies(cls, dist, cache=None):
-        """Find immediate dependencies of a distribution, handling both modern and old API."""
+        """Find immediate dependencies of a distribution."""
+        # importlib.metadata distribution - requires is a property returning strings
+        requires_strings = dist.requires or []
+        # Filter out requirements with markers that don't evaluate to True
+        filtered_requirements = []
+        for req_str in requires_strings:
+            req = packaging.requirements.Requirement(req_str)
+            # Include requirement if it has no marker OR if marker evaluates to True
+            include_requirement = True
+            if req.marker:
+                try:
+                    include_requirement = req.marker.evaluate()
+                except Exception:
+                    # If marker evaluation fails (e.g., undefined 'extra'), skip this requirement
+                    include_requirement = False
 
+            if include_requirement:
+                filtered_requirements.append(req)
 
-        if cls.distribution_uses_modern_metadata_api(dist):
-            # importlib.metadata distribution - requires is a property returning strings
-            requires_strings = dist.requires or []
-            # Filter out requirements with markers that don't evaluate to True
-            filtered_requirements = []
-            for req_str in requires_strings:
-                req = packaging.requirements.Requirement(req_str)
-                # Include requirement if it has no marker OR if marker evaluates to True
-                include_requirement = True
-                if req.marker:
-                    try:
-                        include_requirement = req.marker.evaluate()
-                    except Exception:
-                        # If marker evaluation fails (e.g., undefined 'extra'), skip this requirement
-                        include_requirement = False
-
-                if include_requirement:
-                    filtered_requirements.append(req)
-
-            dependencies = []
-            for req in filtered_requirements:
-                dep_dist = importlib_metadata.distribution(req.name)
-                if cache:
-                    dep_dist = cache.get_or_add(dep_dist)
-                dependencies.append(dep_dist)
-
-            my_requirements = filtered_requirements
-        else:
-            # pkg_resources distribution
-            my_requirements = dist.requires()
-            dependencies = []
-            for req in my_requirements:
-                dep_dist = pkg_resources.working_set.find(req)
-                if dep_dist:
-                    dependencies.append(dep_dist)
+        dependencies = []
+        for req in filtered_requirements:
+            dep_dist = importlib_metadata.distribution(req.name)
+            if cache:
+                dep_dist = cache.get_or_add(dep_dist)
+            dependencies.append(dep_dist)
 
         # Handle extras (basket requirements)
-        basket_requirements = [i for i in my_requirements if i.extras]
+        basket_requirements = [i for i in filtered_requirements if i.extras]
         for basket in basket_requirements:
-            if cls.distribution_uses_modern_metadata_api(dist):
-                for extra_name in basket.extras:
+            for extra_name in basket.extras:
+                try:
                     extra_dist = importlib_metadata.distribution(extra_name)
+                except importlib.metadata.PackageNotFoundError:
+                    pass
+                else:
                     if cache:
                         extra_dist = cache.get_or_add(extra_dist)
                     dependencies.append(extra_dist)
-            else:
-                for req in basket.extras:
-                    extra_dist = pkg_resources.working_set.find(pkg_resources.Requirement.parse(req))
-                    if extra_dist:
-                        dependencies.append(extra_dist)
 
         return [i for i in dependencies if i]
 
@@ -742,19 +685,11 @@ class ReahlEgg:
 
         # Process each requirement string
         for requirement_str in [main_egg] + include_test_dependencies:
-            try:
-                # Try modern API first - returns single distribution
-                req = packaging.requirements.Requirement(requirement_str)
-                package_name = req.name
-                dist = importlib_metadata.distribution(package_name)
-                dist = cache.get_or_add(dist)
-                collect_dependencies_recursively(dist)
-            except (importlib_metadata.PackageNotFoundError, Exception):
-                # Fallback to pkg_resources - already returns full dependency tree
-                distributions_from_old_api = pkg_resources.require([requirement_str])
-                # Just add them directly with recursion to build graph
-                for dist in distributions_from_old_api:
-                    collect_dependencies_recursively(dist)
+            req = packaging.requirements.Requirement(requirement_str)
+            package_name = req.name
+            dist = importlib_metadata.distribution(package_name)
+            dist = cache.get_or_add(dist)
+            collect_dependencies_recursively(dist)
 
         return cache.get_all() 
 
