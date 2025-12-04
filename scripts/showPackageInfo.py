@@ -20,12 +20,14 @@ import urllib
 import urllib.request
 import json
 import argparse
+import importlib.metadata
 
 from bs4 import BeautifulSoup
 
 import pip
-import pkg_resources
 from packaging.requirements import Requirement
+from packaging.version import parse as parse_version
+
 
 class PypiPackage:
     def __init__(self, package_name):
@@ -34,8 +36,8 @@ class PypiPackage:
     @property
     def is_installed(self):
         try:
-            pkg_resources.get_distribution(package_name)
-        except pkg_resources.DistributionNotFound as e:
+            importlib.metadata.distribution(self.package_name)
+        except importlib.metadata.PackageNotFoundError:
             return False
         return True
 
@@ -54,7 +56,7 @@ class PypiPackage:
 
     @property
     def distribution(self):
-        return pkg_resources.get_distribution(self.package_name)
+        return importlib.metadata.distribution(self.package_name)
 
     @property
     def installed_version_string(self):
@@ -68,16 +70,14 @@ class PypiPackage:
 
     @property
     def installed_version(self):
-        return self.distribution.parsed_version
+        return parse_version(self.distribution.version)
 
     @property
     def installed_license(self):
         if self.is_installed:
-            metadata_resource_name = self.distribution.PKG_INFO
-            if self.distribution.has_metadata(metadata_resource_name):
-                license_prefix = 'License: '
-                licenses = [l[len(license_prefix):] for l in self.distribution.get_metadata_lines(metadata_resource_name) if l.startswith(license_prefix)]
-                return ','.join(licenses)
+            license_str = self.distribution.metadata.get('License')
+            if license_str:
+                return license_str.strip()
             return '***No license metadata for installed package***'
         return '***Package not installed***'
 
@@ -102,13 +102,12 @@ class PypiPackage:
         return href.split('/')[-1]
 
     def other_version_is_newer(self, other_raw_version):
-        try:
-            return pkg_resources.parse_version(other_raw_version) > self.installed_version
-        except pkg_resources.DistributionNotFound:
+        if not self.is_installed:
             return False
+        return parse_version(other_raw_version) > self.installed_version
 
     def available_newer_versions(self):
-        url = f"https://pypi.org/pypi/{package_name}/json"
+        url = f"https://pypi.org/pypi/{self.package_name}/json"
         response = urllib.request.urlopen(url)
         data = json.loads(response.read().decode('utf-8'))
         versions = list(data['releases'].keys())
@@ -180,7 +179,7 @@ for toml_file_path in rootpath.rglob('pyproject.toml'):
 
 packages = set([d.split('>')[0].split(';')[0] for d in dependencies if 'reahl' not in d])
 
-#packages = args.package_names if args.package_names else [dist.project_name for dist in pip.get_installed_distributions()]
+#packages = args.package_names if args.package_names else [dist.metadata['Name'] for dist in importlib.metadata.distributions()]
 for package_name in packages:
     pypi_package = PypiPackage(package_name)
 

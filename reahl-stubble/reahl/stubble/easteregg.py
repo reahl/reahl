@@ -102,7 +102,7 @@ class ImportlibEntryPoint:
 
 
 class ImportlibEasterEgg:
-    """Stubbed Distribution for importlib.metadata API (no pkg_resources dependency)
+    """Stubbed Distribution for importlib.metadata API
 
        Once an ImportlibEasterEgg has been constructed, it needs to be added to the
        importlib.metadata mock by calling add_to_working_set().
@@ -309,7 +309,6 @@ def _uninstall_patches():
     importlib_metadata.distribution = _original_distribution
 
 
-# Old API classes (only if pkg_resources is available)
 if _HAS_PKG_RESOURCES:
     class FileSystemResourceProvider(pkg_resources.NullProvider):
         def __init__(self, distribution):

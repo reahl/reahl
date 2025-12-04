@@ -52,7 +52,6 @@ except ImportError:
     except ImportError:
         raise ImportError('You are using a python version that does not support functools.cached_property. Please run "pip install cached-property"')
 
-import pkg_resources
 import rjsmin
 import rcssmin
 

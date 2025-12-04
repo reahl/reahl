@@ -203,7 +203,7 @@ class ListedClass2: pass
 
 @with_fixtures(ConfigWithFiles)
 def test_entry_point_class_list(config_with_files):
-    """EntryPointClassList is a special ConfigSetting which reads its value from a pkg_resources
+    """EntryPointClassList is a special ConfigSetting which reads its value from an
        entry point which contains a list of classes published by any (possibly other) egg."""
     fixture = config_with_files
     
