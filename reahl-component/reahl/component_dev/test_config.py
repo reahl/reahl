@@ -15,9 +15,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-import pkg_resources
 import re
 import logging
+from importlib.metadata import PackageNotFoundError, distribution
 
 from reahl.tofu import Fixture, set_up, temp_dir, expected
 from reahl.tofu.pytestsupport import with_fixtures
@@ -207,11 +207,6 @@ def test_entry_point_class_list(config_with_files):
        entry point which contains a list of classes published by any (possibly other) egg."""
     fixture = config_with_files
     
-    # Because we cannot remove EasterEggs from pkg_resources, the next test must happen after
-    # this one. The next check just ensures that we know when that does not happen:
-    with expected(pkg_resources.DistributionNotFound):
-        pkg_resources.require('test-inject')  
-
     fixture.set_config_spec(easter_egg, 'reahl.component_dev.test_config:ConfigWithEntryPointClassList')
 
     # Publish some classes on the entry point being tested
@@ -251,20 +246,20 @@ def test_config_defaults_automatic(config_with_files):
     
     egg_needing_injection = EasterEgg('test-inject')
     fixture.set_config_spec(egg_needing_injection, 'reahl.component_dev.test_config:ConfigWithInjectedSetting')
-    egg_needing_injection.add_to_working_set()
 
-    fixture.set_config_spec(easter_egg, 'reahl.component_dev.test_config:ConfigWhichInjectsSetting')
+    with egg_needing_injection.installed():
+        fixture.set_config_spec(easter_egg, 'reahl.component_dev.test_config:ConfigWhichInjectsSetting')
 
-    easter_egg.add_dependency(egg_needing_injection.as_requirement_string())
+        easter_egg.add_dependency(egg_needing_injection.as_requirement_string())
 
-    # Usually this happens inside other infrastructure, such as the implementation of reahl serve (see reahl-dev)
-    config = StoredConfiguration(fixture.config_dir.name)
-    config.configure()
+        # Usually this happens inside other infrastructure, such as the implementation of reahl serve (see reahl-dev)
+        config = StoredConfiguration(fixture.config_dir.name)
+        config.configure()
 
-    # The default value is still used
-    assert config.some_key.injected_setting == 123 
+        # The default value is still used
+        assert config.some_key.injected_setting == 123
 
-
+        
 class ConfigWithDependentSetting(Configuration):
     filename = 'config_file_for_this_egg.py'
     config_key = 'some_key'

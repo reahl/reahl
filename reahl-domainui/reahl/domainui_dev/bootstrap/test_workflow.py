@@ -14,8 +14,6 @@
 #    You should have received a copy of the GNU Lesser General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import pkg_resources
-
 
 from reahl.tofu import Fixture, set_up, uses
 from reahl.tofu.pytestsupport import with_fixtures

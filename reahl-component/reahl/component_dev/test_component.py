@@ -124,25 +124,18 @@ def xxx_test_all_relevant_interfaces_includes_transitive_dependencies():
     root.stubbed_metadata['reahl-component.toml'] = 'metadata_version = "1.0.0"'
     root.add_to_working_set()
     
-    try:
-        # Get all interfaces - should include entire dependency tree
-        interfaces = ReahlEgg.get_all_relevant_interfaces(root.as_requirement_string(), [])
-        interface_names = [i.name for i in interfaces]
-        
-        # Verify all packages in the chain are found
-        assert 'root-pkg' in interface_names, "Root package should be in interfaces"
-        assert 'pkg-a' in interface_names, "Direct dependency should be in interfaces"
-        assert 'pkg-b' in interface_names, "Transitive dependency should be in interfaces"
-        assert 'reahl-component' in interface_names, "Base component should be in interfaces"
-        
-        # Verify we found at least these 4 packages (there may be more from reahl-component's deps)
-        assert len(interfaces) >= 4, f"Expected at least 4 interfaces, got {len(interfaces)}"
-        
-    finally:
-        # Clean up - remove from working set
-        pkg_resources.working_set.entries.clear()
-        pkg_resources.working_set.entry_keys.clear()
-        pkg_resources.working_set.by_key.clear()
+    # Get all interfaces - should include entire dependency tree
+    interfaces = ReahlEgg.get_all_relevant_interfaces(root.as_requirement_string(), [])
+    interface_names = [i.name for i in interfaces]
+
+    # Verify all packages in the chain are found
+    assert 'root-pkg' in interface_names, "Root package should be in interfaces"
+    assert 'pkg-a' in interface_names, "Direct dependency should be in interfaces"
+    assert 'pkg-b' in interface_names, "Transitive dependency should be in interfaces"
+    assert 'reahl-component' in interface_names, "Base component should be in interfaces"
+
+    # Verify we found at least these 4 packages (there may be more from reahl-component's deps)
+    assert len(interfaces) >= 4, f"Expected at least 4 interfaces, got {len(interfaces)}"
 
 
 def test_compute_ordered_dependent_distributions_finds_transitive_dependencies_via_modern_api():

@@ -188,6 +188,9 @@ class ImportlibEasterEgg:
             _patches_installed = True
         return self
 
+    def remove_from_working_set(self):
+        _unregister_easteregg(self)
+    
     def clear(self):
         """Clear entry points and dependencies"""
         self.entry_points = {}
@@ -205,6 +208,16 @@ class ImportlibEasterEgg:
             return epmap.get(group, {})
         return epmap
 
+    @contextlib.contextmanager
+    def installed(self):
+        self.add_to_working_set()
+        self.activate()
+        try:
+            yield
+        finally:
+            self.deactivate()
+            self.remove_from_working_set()
+            
     @contextlib.contextmanager
     def active(self):
         """Context manager to activate this EasterEgg"""
@@ -229,7 +242,6 @@ class ImportlibEasterEgg:
         for name, module in list(sys.modules.items()):
             if self.contains(module):
                 del sys.modules[name]
-        _unregister_easteregg(self)
 
     def contains(self, module):
         """Check if a module is part of this distribution"""

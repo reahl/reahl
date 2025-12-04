@@ -189,10 +189,9 @@ Python eggs. A correctly initialised global EasterEgg instance is
 constructed as ``reahl.stubble.easter_egg``.  It should suffice for most
 purposes, but you *can* construct additional instances if needed.
 
-Just be sure to always add your EasterEggs to
-``pkg_resources.working_set``  (or similar), else they won't have any
-effect.  Also, each added EasterEgg should be named uniquely (or it
-won't be added).
+Just be sure to always use your EasterEgg inside an  ``with egg.installed()`` block,
+else they won't have any effect. Also, each added EasterEgg should be
+named uniquely (or it won't be added).
 
 
 
@@ -212,8 +211,10 @@ exemplified here::
 Actual code under test would now probably do something like this (and be
 oblivious to the fact that the provided classes are stubs)::
 
+  import importlib.metadata
+
   #  (we just print out each class it finds...)
-  for i in pkg_resources.iter_entry_points(group_name):
+  for i in importlib.metadata.entry_points(group=group_name):
       print(i.load())
 
 
