@@ -34,7 +34,7 @@ except:
 EasterEgg = ImportlibEasterEgg
 
 easter_egg = ImportlibEasterEgg()
-easter_egg.add_to_working_set()  #TODO: why does this not always work anymore??
+easter_egg.register()
 
 
 class EmptyStub:

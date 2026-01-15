@@ -18,7 +18,7 @@
 
 from reahl.tofu import temp_dir, Fixture, set_up, uses
 from reahl.tofu.pytestsupport import with_fixtures
-from reahl.stubble import easter_egg
+from reahl.stubble import ImportlibEasterEgg
 
 from reahl.browsertools.browsertools import Browser
 
@@ -35,21 +35,25 @@ class LibraryFixture(Fixture):
     def new_egg_dir(self):
         egg_dir = temp_dir()
         package_dir = egg_dir.sub_dir('static_files')
-        init_file = package_dir.file_with('__init__.py', '')
-        js_file = package_dir.file_with('somefile.js', 'contents - js')
-        css_file = package_dir.file_with('somefile.css', 'contents - css')
+        package_dir.file_with('__init__.py', '')
+        package_dir.file_with('somefile.js', 'contents - js')
+        package_dir.file_with('somefile.css', 'contents - css')
         return egg_dir
 
+    def new_easter_egg(self):
+        egg = ImportlibEasterEgg(name='test', location=self.egg_dir.name)
+        with egg.installed():
+            yield egg
+
     def new_MyLibrary(self):
-        easter_egg.clear()
-        easter_egg.location = self.egg_dir.name
+        egg_name = self.easter_egg.project_name
 
         class MyLibrary(Library):
             def __init__(self):
                 super().__init__('mylib')
                 self.files = ['somefile.js', 'somefile.css']
                 self.shipped_in_package = 'static_files'
-                self.egg_name = easter_egg.project_name
+                self.egg_name = egg_name
 
         return MyLibrary
 
@@ -83,21 +87,20 @@ def test_library_files(web_fixture, library_fixture):
     config.web.frontend_libraries.clear()
     config.web.frontend_libraries.add(library_fixture.MyLibrary())
 
-    with easter_egg.active():
-        browser = Browser(ReahlWSGIApplication(config))
+    browser = Browser(ReahlWSGIApplication(config))
 
-        browser.open('/static/somefile.js')
-        assert browser.raw_html == 'contents - js'
+    browser.open('/static/somefile.js')
+    assert browser.raw_html == 'contents - js'
 
-        browser.open('/static/somefile.css')
-        assert browser.raw_html == 'contents - css'
+    browser.open('/static/somefile.css')
+    assert browser.raw_html == 'contents - css'
 
-        browser.open('/')
-        script_added = browser.get_html_for('//script[@src]')
-        assert script_added == '<script type="text/javascript" src="/static/somefile.js"></script>'
+    browser.open('/')
+    script_added = browser.get_html_for('//script[@src]')
+    assert script_added == '<script type="text/javascript" src="/static/somefile.js"></script>'
 
-        link_added = browser.get_html_for('//link')
-        assert link_added == '<link rel="stylesheet" href="/static/somefile.css" type="text/css">'
+    link_added = browser.get_html_for('//link')
+    assert link_added == '<link rel="stylesheet" href="/static/somefile.css" type="text/css">'
 
 
 @with_fixtures(WebFixture)

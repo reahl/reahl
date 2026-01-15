@@ -104,38 +104,36 @@ def test_interface_with_meta_info():
 def xxx_test_all_relevant_interfaces_includes_transitive_dependencies():
     """get_all_relevant_interfaces should recursively find all transitive dependencies."""
     from reahl.stubble import EasterEgg
-    
+
     # Create a dependency chain: root -> pkg_a -> pkg_b -> reahl-component
     # This tests that transitive dependencies (pkg_b) are found even though
     # root doesn't directly depend on it
-    
+
     pkg_b = EasterEgg(name='pkg-b')
     pkg_b.add_dependency('reahl-component')
     pkg_b.stubbed_metadata['reahl-component.toml'] = 'metadata_version = "1.0.0"'
-    pkg_b.add_to_working_set()
-    
+
     pkg_a = EasterEgg(name='pkg-a')
     pkg_a.add_dependency('pkg-b')
     pkg_a.stubbed_metadata['reahl-component.toml'] = 'metadata_version = "1.0.0"'
-    pkg_a.add_to_working_set()
-    
+
     root = EasterEgg(name='root-pkg')
     root.add_dependency('pkg-a')
     root.stubbed_metadata['reahl-component.toml'] = 'metadata_version = "1.0.0"'
-    root.add_to_working_set()
-    
-    # Get all interfaces - should include entire dependency tree
-    interfaces = ReahlEgg.get_all_relevant_interfaces(root.as_requirement_string(), [])
-    interface_names = [i.name for i in interfaces]
 
-    # Verify all packages in the chain are found
-    assert 'root-pkg' in interface_names, "Root package should be in interfaces"
-    assert 'pkg-a' in interface_names, "Direct dependency should be in interfaces"
-    assert 'pkg-b' in interface_names, "Transitive dependency should be in interfaces"
-    assert 'reahl-component' in interface_names, "Base component should be in interfaces"
+    with pkg_b.installed(), pkg_a.installed(), root.installed():
+        # Get all interfaces - should include entire dependency tree
+        interfaces = ReahlEgg.get_all_relevant_interfaces(root.as_requirement_string(), [])
+        interface_names = [i.name for i in interfaces]
 
-    # Verify we found at least these 4 packages (there may be more from reahl-component's deps)
-    assert len(interfaces) >= 4, f"Expected at least 4 interfaces, got {len(interfaces)}"
+        # Verify all packages in the chain are found
+        assert 'root-pkg' in interface_names, "Root package should be in interfaces"
+        assert 'pkg-a' in interface_names, "Direct dependency should be in interfaces"
+        assert 'pkg-b' in interface_names, "Transitive dependency should be in interfaces"
+        assert 'reahl-component' in interface_names, "Base component should be in interfaces"
+
+        # Verify we found at least these 4 packages (there may be more from reahl-component's deps)
+        assert len(interfaces) >= 4, f"Expected at least 4 interfaces, got {len(interfaces)}"
 
 
 def test_compute_ordered_dependent_distributions_finds_transitive_dependencies_via_modern_api():

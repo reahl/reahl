@@ -51,8 +51,12 @@ _patches_installed = False
 
 
 def _register_easteregg(egg):
+    global _patches_installed
     if egg not in _active_eastereggs:
         _active_eastereggs.append(egg)
+        if not _patches_installed:
+            _install_patches()
+            _patches_installed = True
 
 
 def _unregister_easteregg(egg):
@@ -104,8 +108,8 @@ class ImportlibEntryPoint:
 class ImportlibEasterEgg:
     """Stubbed Distribution for importlib.metadata API
 
-       Once an ImportlibEasterEgg has been constructed, it needs to be added to the
-       importlib.metadata mock by calling add_to_working_set().
+       Use the installed() context manager to temporarily make this egg discoverable
+       and add its location to sys.path.
 
        :keyword name: A unique name for this Distribution.
        :keyword location: The location on disk where the contents of this Distribution reside.
@@ -180,18 +184,13 @@ class ImportlibEasterEgg:
         """Return as a requirement"""
         return self.as_requirement_string()
 
-    def add_to_working_set(self):
-        """Register this EasterEgg with the modern API mock"""
+    def register(self):
         _register_easteregg(self)
-        global _patches_installed
-        if not _patches_installed:
-            _install_patches()
-            _patches_installed = True
         return self
 
-    def remove_from_working_set(self):
+    def unregister(self):
         _unregister_easteregg(self)
-    
+
     def clear(self):
         """Clear entry points and dependencies"""
         self.entry_points = {}
@@ -211,14 +210,13 @@ class ImportlibEasterEgg:
 
     @contextlib.contextmanager
     def installed(self):
-        self.add_to_working_set()
+        self.register()
         self.activate()
         try:
             yield
         finally:
-            pass
             self.deactivate()
-            self.remove_from_working_set()
+            self.unregister()
             
     @contextlib.contextmanager
     def active(self):
