@@ -17,7 +17,7 @@
 
 from reahl.tofu import Fixture, set_up, uses
 from reahl.tofu.pytestsupport import with_fixtures
-from reahl.stubble import easter_egg
+from reahl.stubble import EasterEgg
 
 from sqlalchemy import Column, Integer, ForeignKey
 
@@ -144,14 +144,16 @@ def test_widgets_for_tasks(web_fixture, sql_alchemy_fixture, task_queue_fixture,
     """The widget to use for displaying a particular type of task can be set via an entry point."""
     fixture = workflow_web_fixture
 
-    line = 'MyTaskWidget = reahl.domainui_dev.bootstrap.test_workflow:MyTaskWidget'
-    easter_egg.add_entry_point_from_line('reahl.workflowui.task_widgets', line)
+    egg = EasterEgg(name='test')
+    with egg.installed():
+        line = 'MyTaskWidget = reahl.domainui_dev.bootstrap.test_workflow:MyTaskWidget'
+        egg.add_entry_point_from_line('reahl.workflowui.task_widgets', line)
 
-    with sql_alchemy_fixture.persistent_test_classes(MyTask):
-        task = MyTask(queue=task_queue_fixture.queue, title='a task')
+        with sql_alchemy_fixture.persistent_test_classes(MyTask):
+            task = MyTask(queue=task_queue_fixture.queue, title='a task')
 
-        browser = Browser(fixture.wsgi_app)
-        web_fixture.log_in(browser=browser)
-        browser.open('/inbox/task/%s' % task.id )
-        html = browser.get_html_for('//div/p')
-        assert html == '<p>my task widget</p>'
+            browser = Browser(fixture.wsgi_app)
+            web_fixture.log_in(browser=browser)
+            browser.open('/inbox/task/%s' % task.id )
+            html = browser.get_html_for('//div/p')
+            assert html == '<p>my task widget</p>'

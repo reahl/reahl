@@ -19,9 +19,9 @@ import re
 import logging
 from importlib.metadata import PackageNotFoundError, distribution
 
-from reahl.tofu import Fixture, set_up, tear_down, temp_dir, expected
+from reahl.tofu import Fixture, temp_dir, expected
 from reahl.tofu.pytestsupport import with_fixtures
-from reahl.stubble import CallMonitor, EasterEgg, easter_egg
+from reahl.stubble import CallMonitor, EasterEgg
 
 from reahl.component.eggs import ReahlEgg
 from reahl.component.config import Configuration, StoredConfiguration, ConfigSetting, \
@@ -31,7 +31,16 @@ from reahl.component.config import Configuration, StoredConfiguration, ConfigSet
 class ConfigWithFiles(Fixture):
     def new_config_dir(self):
         return temp_dir()
-    
+
+    def new_easter_egg(self):
+        self.config_bootstrap_file
+        egg = EasterEgg(name='test')
+        with egg.installed():
+            egg.stubbed_metadata['reahl-component.toml'] = 'metadata_version = "1.0.0"'
+            ReahlEgg.clear_cache()
+            yield egg
+        ReahlEgg.clear_cache()
+
     def new_config_bootstrap_file(self):
         contents = """
 reahlsystem.root_egg = '%s'
@@ -41,25 +50,13 @@ reahlsystem.debug = False
         return self.new_config_file(filename='reahl.config.py', contents=contents)
 
     def new_root_egg_name(self):
-        return easter_egg.as_requirement_string()
+        return 'test'
 
     def new_config_file_name(self):
         return 'some_file.py'
-        
+
     def new_config_file(self, filename=None, contents=''):
         return self.config_dir.file_with(filename or self.config_file_name, contents)
-        
-    @set_up
-    def set_up_easter_egg(self):
-        self.config_bootstrap_file
-        easter_egg.clear()
-        easter_egg.stubbed_metadata['reahl-component.toml'] = 'metadata_version = "1.0.0"'
-        ReahlEgg.clear_cache()
-        
-    @tear_down
-    def tear_down_easter_egg(self):
-        easter_egg.clear()
-        ReahlEgg.clear_cache()
 
     def set_config_spec(self, egg, code_locator_string):
         egg.stubbed_metadata['reahl-component.toml'] = 'metadata_version = "1.0.0"\nconfiguration = "%s"' % code_locator_string
@@ -77,9 +74,9 @@ def test_config_basics(config_with_files):
     """Config is specified per component, via its ReahlEgg interface, and read from its own config file."""
 
     fixture = config_with_files
-    config_file = fixture.new_config_file(filename=ConfigWithSetting.filename, 
+    config_file = fixture.new_config_file(filename=ConfigWithSetting.filename,
                                           contents='some_key.some_setting = 3')
-    fixture.set_config_spec(easter_egg, 'reahl.component_dev.test_config:ConfigWithSetting')
+    fixture.set_config_spec(fixture.easter_egg, 'reahl.component_dev.test_config:ConfigWithSetting')
 
     # Usually this happens inside other infrastructure, such as the implementation of reahl serve (see reahl-dev)
     config = StoredConfiguration(fixture.config_dir.name)
@@ -93,8 +90,8 @@ def test_config_basics(config_with_files):
 def test_missing_settings(config_with_files):
     """An exception is raised if setting do not have values set."""
     fixture = config_with_files
-    
-    fixture.set_config_spec(easter_egg, 'reahl.component_dev.test_config:ConfigWithSetting')
+
+    fixture.set_config_spec(fixture.easter_egg, 'reahl.component_dev.test_config:ConfigWithSetting')
 
     # Usually this happens inside other infrastructure, such as the implementation of reahl serve (see reahl-dev)
     config = StoredConfiguration(fixture.config_dir.name)
@@ -108,9 +105,9 @@ def test_incorrect_settings(config_with_files):
     """An exception is raised when an attempt is made to set a setting that does not exist."""
 
     fixture = config_with_files
-    config_file = fixture.new_config_file(filename=ConfigWithSetting.filename, 
+    config_file = fixture.new_config_file(filename=ConfigWithSetting.filename,
                                           contents='some_key.some_wrong_name = 3')
-    fixture.set_config_spec(easter_egg, 'reahl.component_dev.test_config:ConfigWithSetting')
+    fixture.set_config_spec(fixture.easter_egg, 'reahl.component_dev.test_config:ConfigWithSetting')
 
     # Usually this happens inside other infrastructure, such as the implementation of reahl serve (see reahl-dev)
     config = StoredConfiguration(fixture.config_dir.name)
@@ -124,9 +121,9 @@ def test_incorrect_replacement_of_configuration(config_with_files):
     """An exception is raised when an attempt is made to replace a Configuration with another of the wrong type."""
 
     fixture = config_with_files
-    config_file = fixture.new_config_file(filename=ConfigWithSetting.filename, 
+    config_file = fixture.new_config_file(filename=ConfigWithSetting.filename,
                                           contents='from reahl.component.config import Configuration; some_key = Configuration()')
-    fixture.set_config_spec(easter_egg, 'reahl.component_dev.test_config:ConfigWithSetting')
+    fixture.set_config_spec(fixture.easter_egg, 'reahl.component_dev.test_config:ConfigWithSetting')
 
     # Usually this happens inside other infrastructure, such as the implementation of reahl serve (see reahl-dev)
     config = StoredConfiguration(fixture.config_dir.name)
@@ -146,7 +143,7 @@ def test_config_defaults(config_with_files):
     """If a default is specified for the ConfigSetting, it need not be set in the file."""
 
     fixture = config_with_files
-    fixture.set_config_spec(easter_egg, 'reahl.component_dev.test_config:ConfigWithDefaultedSetting')
+    fixture.set_config_spec(fixture.easter_egg, 'reahl.component_dev.test_config:ConfigWithDefaultedSetting')
 
     # Usually this happens inside other infrastructure, such as the implementation of reahl serve (see reahl-dev)
     config = StoredConfiguration(fixture.config_dir.name)
@@ -164,11 +161,11 @@ class ConfigWithDangerousDefaultedSetting(Configuration):
 
 @with_fixtures(ConfigWithFiles)
 def test_config_defaults_dangerous(config_with_files):
-    """Defaults that are dangerous to leave at their at their settings can be marked as such. 
+    """Defaults that are dangerous to leave at their at their settings can be marked as such.
        This will result in a logged warning."""
 
     fixture = config_with_files
-    fixture.set_config_spec(easter_egg, 'reahl.component_dev.test_config:ConfigWithDangerousDefaultedSetting')
+    fixture.set_config_spec(fixture.easter_egg, 'reahl.component_dev.test_config:ConfigWithDangerousDefaultedSetting')
 
     # Usually this happens inside other infrastructure, such as the implementation of reahl serve (see reahl-dev)
     config = StoredConfiguration(fixture.config_dir.name)
@@ -189,7 +186,7 @@ def test_config_strict_checking(config_with_files):
     """When a Configuration is created with strict_checking=True, dangerous defaulted config is not allowed."""
 
     fixture = config_with_files
-    fixture.set_config_spec(easter_egg, 'reahl.component_dev.test_config:ConfigWithDangerousDefaultedSetting')
+    fixture.set_config_spec(fixture.easter_egg, 'reahl.component_dev.test_config:ConfigWithDangerousDefaultedSetting')
 
     config = StoredConfiguration(fixture.config_dir.name, strict_checking=True)
     with expected(ConfigurationException):
@@ -211,14 +208,14 @@ def test_entry_point_class_list(config_with_files):
     """EntryPointClassList is a special ConfigSetting which reads its value from an
        entry point which contains a list of classes published by any (possibly other) egg."""
     fixture = config_with_files
-    
-    fixture.set_config_spec(easter_egg, 'reahl.component_dev.test_config:ConfigWithEntryPointClassList')
+
+    fixture.set_config_spec(fixture.easter_egg, 'reahl.component_dev.test_config:ConfigWithEntryPointClassList')
 
     # Publish some classes on the entry point being tested
     line = 'ListedClass1 = reahl.component_dev.test_config:ListedClass1'
-    easter_egg.add_entry_point_from_line('some.test.entrypoint', line)
+    fixture.easter_egg.add_entry_point_from_line('some.test.entrypoint', line)
     line = 'ListedClass2 = reahl.component_dev.test_config:ListedClass2'
-    easter_egg.add_entry_point_from_line('some.test.entrypoint', line)
+    fixture.easter_egg.add_entry_point_from_line('some.test.entrypoint', line)
 
     # Usually this happens inside other infrastructure, such as the implementation of reahl serve (see reahl-dev)
     config = StoredConfiguration(fixture.config_dir.name)
@@ -248,14 +245,14 @@ def test_config_defaults_automatic(config_with_files):
        another egg on which it depends."""
 
     fixture = config_with_files
-    
+
     egg_needing_injection = EasterEgg('test-inject')
     fixture.set_config_spec(egg_needing_injection, 'reahl.component_dev.test_config:ConfigWithInjectedSetting')
 
     with egg_needing_injection.installed():
-        fixture.set_config_spec(easter_egg, 'reahl.component_dev.test_config:ConfigWhichInjectsSetting')
+        fixture.set_config_spec(fixture.easter_egg, 'reahl.component_dev.test_config:ConfigWhichInjectsSetting')
 
-        easter_egg.add_dependency(egg_needing_injection.as_requirement_string())
+        fixture.easter_egg.add_dependency(egg_needing_injection.as_requirement_string())
 
         # Usually this happens inside other infrastructure, such as the implementation of reahl serve (see reahl-dev)
         config = StoredConfiguration(fixture.config_dir.name)
@@ -275,9 +272,9 @@ class ConfigWithDependentSetting(Configuration):
 @with_fixtures(ConfigWithFiles)
 def test_config_dependent_defaults(config_with_files):
     """The default of one setting can be dependent on another setting if passed a callable"""
-    
+
     fixture = config_with_files
-    fixture.set_config_spec(easter_egg, 'reahl.component_dev.test_config:ConfigWithDependentSetting')
+    fixture.set_config_spec(fixture.easter_egg, 'reahl.component_dev.test_config:ConfigWithDependentSetting')
 
     # Usually this happens inside other infrastructure, such as the implementation of reahl serve (see reahl-dev)
     config = StoredConfiguration(fixture.config_dir.name)

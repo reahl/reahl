@@ -18,7 +18,7 @@
 
 from reahl.tofu import temp_dir, Fixture, set_up, uses
 from reahl.tofu.pytestsupport import with_fixtures
-from reahl.stubble import ImportlibEasterEgg
+from reahl.stubble import EasterEgg
 
 from reahl.browsertools.browsertools import Browser
 
@@ -41,7 +41,7 @@ class LibraryFixture(Fixture):
         return egg_dir
 
     def new_easter_egg(self):
-        egg = ImportlibEasterEgg(name='test', location=self.egg_dir.name)
+        egg = EasterEgg(name='test', location=self.egg_dir.name)
         with egg.installed():
             yield egg
 

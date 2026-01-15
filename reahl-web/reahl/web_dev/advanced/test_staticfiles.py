@@ -20,7 +20,7 @@ import os.path
 
 from reahl.tofu import scenario, temp_dir, temp_file_with, Fixture
 from reahl.tofu.pytestsupport import with_fixtures
-from reahl.stubble import ImportlibEasterEgg, stubclass
+from reahl.stubble import EasterEgg, stubclass
 
 from reahl.web.fw import FileOnDisk, FileFromBlob, PackagedFile, ConcatenatedFile, FileDownload, UserInterface
 from reahl.browsertools.browsertools import Browser
@@ -151,12 +151,12 @@ def test_packaged_files(web_fixture):
     package_dir.file_with('__init__.py', '')
     package_dir.file_with('packaged_file', 'contents')
 
-    local_egg = ImportlibEasterEgg(name='test', location=egg_dir.name)
+    egg = EasterEgg(name='test', location=egg_dir.name)
 
-    with local_egg.installed():
+    with egg.installed():
         class MainUI(UserInterface):
             def assemble(self):
-                list_of_files = [PackagedFile(local_egg.as_requirement_string(), 'packaged_files', 'packaged_file')]
+                list_of_files = [PackagedFile(egg.as_requirement_string(), 'packaged_files', 'packaged_file')]
                 self.define_static_files('/files', list_of_files)
 
         wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
@@ -201,9 +201,9 @@ def test_concatenated_files(web_fixture, concatenate_scenarios):
     package_dir.file_with('packaged_file', fixture.file1_contents)
     package_dir.file_with('packaged_file2', fixture.file2_contents)
 
-    local_egg = ImportlibEasterEgg(name='test', location=egg_dir.name)
+    egg = EasterEgg(name='test', location=egg_dir.name)
 
-    with local_egg.installed():
+    with egg.installed():
         class MainUI(UserInterface):
             def assemble(self):
                 to_concatenate = [PackagedFile('test==1.0', 'packaged_files', 'packaged_file'),
