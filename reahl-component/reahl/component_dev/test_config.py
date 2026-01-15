@@ -19,7 +19,7 @@ import re
 import logging
 from importlib.metadata import PackageNotFoundError, distribution
 
-from reahl.tofu import Fixture, set_up, temp_dir, expected
+from reahl.tofu import Fixture, set_up, tear_down, temp_dir, expected
 from reahl.tofu.pytestsupport import with_fixtures
 from reahl.stubble import CallMonitor, EasterEgg, easter_egg
 
@@ -54,6 +54,11 @@ reahlsystem.debug = False
         self.config_bootstrap_file
         easter_egg.clear()
         easter_egg.stubbed_metadata['reahl-component.toml'] = 'metadata_version = "1.0.0"'
+        ReahlEgg.clear_cache()
+        
+    @tear_down
+    def tear_down_easter_egg(self):
+        easter_egg.clear()
         ReahlEgg.clear_cache()
 
     def set_config_spec(self, egg, code_locator_string):

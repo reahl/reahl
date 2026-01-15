@@ -119,6 +119,7 @@ class ImportlibEasterEgg:
         self.stubbed_metadata = {}
         self._dep_map = {}
         self.added_paths = set()
+        self.loaded_modules = set()
 
     @property
     def name(self):
@@ -215,6 +216,7 @@ class ImportlibEasterEgg:
         try:
             yield
         finally:
+            pass
             self.deactivate()
             self.remove_from_working_set()
             
@@ -233,6 +235,10 @@ class ImportlibEasterEgg:
         if self.location not in sys.path:
             sys.path.insert(0, self.location)
         self.added_paths = set(sys.path) - set(saved_path)
+        self.loaded_modules = set()
+        for name, module in list(sys.modules.items()):
+            if self.contains(module):
+                self.loaded_modules.add(module)
 
     def deactivate(self):
         """Remove from sys.path and unregister"""
@@ -240,8 +246,9 @@ class ImportlibEasterEgg:
             if i in sys.path:
                 sys.path.remove(i)
         for name, module in list(sys.modules.items()):
-            if self.contains(module):
+            if self.contains(module) and module not in self.loaded_modules:
                 del sys.modules[name]
+        self.loaded_modules = set()
 
     def contains(self, module):
         """Check if a module is part of this distribution"""
