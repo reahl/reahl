@@ -72,32 +72,42 @@ class DistributionCache:
 
     def __init__(self, initial_distributions=None):
         """Initialize cache with optional initial distributions."""
-        self.cache = set(initial_distributions) if initial_distributions else set()
+        self.cache = {}  # AI: Changed from set to dict for O(1) lookup
+        self.name_cache = {}  # AI: Cache for distribution names to avoid repeated metadata access
+        # AI: Pre-populate cache with initial distributions
+        if initial_distributions:
+            for dist in initial_distributions:
+                self.get_or_add(dist)  # AI: Cache for distribution names to avoid repeated metadata access
+        # AI: Don't pre-populate - DependencyGraph is generic and vertices might not be distributions.
+        # Items will be added via get_or_add() when find_dependencies() processes them.
 
     def get_or_add(self, new_dist):
         """Get cached distribution if available by name, otherwise add and return new_dist."""
-        # AI: Check if this distribution is already in the cache (by name)
-        new_name = self.get_distribution_name(new_dist)
-        for cached_dist in self.cache:
-            if new_name == self.get_distribution_name(cached_dist):
-                return cached_dist
+        new_name = self.compute_distribution_name(new_dist)
+
+        # AI: O(1) dict lookup instead of O(n) iteration
+        if new_name in self.cache:
+            return self.cache[new_name]
 
         # AI: Not found, add to cache and return
-        self.cache.add(new_dist)
+        self.cache[new_name] = new_dist
         return new_dist
 
     def contains_duplicate(self, dist):
-        return any(self.get_distribution_name(dist) == self.get_distribution_name(cached)
-                   for cached in cache.cache)
-    
-    @staticmethod
-    def get_distribution_name(dist):
-        """Get the normalized name of a distribution."""
-        return dist.metadata['Name'].lower()
+        """Check if a distribution with the same name already exists in cache."""
+        dist_name = self.compute_distribution_name(dist)
+        return dist_name in self.cache
+
+    def compute_distribution_name(self, dist):
+        """Get the normalized name of a distribution, with caching to avoid repeated metadata access."""
+        # AI: Cache the result using id(dist) as key to avoid repeated metadata access
+        if id(dist) not in self.name_cache:
+            self.name_cache[id(dist)] = dist.metadata['Name'].lower()
+        return self.name_cache[id(dist)]
 
     def get_all(self):
         """Return list of all cached distributions."""
-        return list(self.cache)
+        return list(self.cache.values())
 
 
 class InvalidDependencySpecification(DomainException):
@@ -111,7 +121,7 @@ class InvalidDependencySpecification(DomainException):
 class DependencyGraph:
     @classmethod
     def from_vertices(cls, vertices, find_dependencies):
-        cache = DistributionCache(vertices)
+        cache = DistributionCache()  # AI: Create empty cache, let find_dependencies populate it
         graph = {}
         def add_to_graph(v, graph):
             dependencies = graph[v] = find_dependencies(v, cache=cache)
@@ -667,35 +677,21 @@ class ReahlEgg:
 
 
     @classmethod
-    def get_eggs_for(cls, main_egg, include_test_dependencies):
-        cache = DistributionCache()
-        processed = set()  # AI: Track which distribution names have been processed
+    def compute_ordered_dependent_distributions(cls, main_egg, include_test_dependencies=[]):
+        """Compute topologically sorted list of all dependent distributions.
 
-        def collect_dependencies_recursively(dist):
-            """Recursively collect distribution and all its dependencies."""
-            # AI: Check if already processed by name
-            dist_name = DistributionCache.get_distribution_name(dist)
-            if dist_name in processed:
-                return
-
-            dependencies = cls.find_dependencies(dist, cache=cache)
-            processed.add(dist_name)  # AI: Mark as processed after collecting dependencies
-            for dep in dependencies:
-                collect_dependencies_recursively(dep)
-
-        # Process each requirement string
+        AI: Converts requirement strings to initial distributions, then lets topological_sort
+        discover all dependencies. This eliminates duplicate dependency resolution.
+        """
+        # AI: Convert requirement strings to initial distributions
+        initial_distributions = []
         for requirement_str in [main_egg] + include_test_dependencies:
             req = packaging.requirements.Requirement(requirement_str)
-            package_name = req.name
-            dist = importlib_metadata.distribution(package_name)
-            dist = cache.get_or_add(dist)
-            collect_dependencies_recursively(dist)
+            dist = importlib_metadata.distribution(req.name)
+            initial_distributions.append(dist)
 
-        return cache.get_all() 
-
-    @classmethod
-    def compute_ordered_dependent_distributions(cls, main_egg, include_test_dependencies=[]):
-        return cls.topological_sort(cls.get_eggs_for(main_egg, include_test_dependencies))
+        # AI: Let topological_sort -> from_vertices discover all dependencies (only once)
+        return cls.topological_sort(initial_distributions)
     
     @classmethod
     def compute_all_relevant_interfaces(cls, main_egg, include_test_dependencies):
