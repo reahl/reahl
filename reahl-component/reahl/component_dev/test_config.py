@@ -23,7 +23,7 @@ from reahl.tofu import Fixture, temp_dir, expected
 from reahl.tofu.pytestsupport import with_fixtures
 from reahl.stubble import CallMonitor, EasterEgg
 
-from reahl.component.eggs import ReahlEgg
+from reahl.component.eggs import ReahlEgg, DistributionCache
 from reahl.component.config import Configuration, StoredConfiguration, ConfigSetting, \
                                    ConfigurationException, EntryPointClassList, DeferredDefault
 
@@ -37,8 +37,10 @@ class ConfigWithFiles(Fixture):
         egg = EasterEgg(name='test')
         with egg.installed():
             egg.stubbed_metadata['reahl-component.toml'] = 'metadata_version = "1.0.0"'
+            DistributionCache.clear_cache()
             ReahlEgg.clear_cache()
             yield egg
+        DistributionCache.clear_cache()
         ReahlEgg.clear_cache()
 
     def new_config_bootstrap_file(self):

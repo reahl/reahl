@@ -25,6 +25,7 @@ from reahl.stubble import EasterEgg
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.dbutils import DatabaseControl, SystemControl, CouldNotFindDatabaseControlException
 from reahl.component.config import Configuration, ReahlSystemConfig
+from reahl.component.eggs import ReahlEgg, DistributionCache
 
 
 class StubDatabaseControl(DatabaseControl):
@@ -35,7 +36,11 @@ class DBControlFixture(Fixture):
     def new_easter_egg(self):
         egg = EasterEgg(name='test')
         with egg.installed():
+            DistributionCache.clear_cache()
+            ReahlEgg.clear_cache()
             yield egg
+        DistributionCache.clear_cache()
+        ReahlEgg.clear_cache()
 
     def new_config(self):
         line = 'StubDatabaseControl = reahl.component_dev.test_dbutils:StubDatabaseControl'

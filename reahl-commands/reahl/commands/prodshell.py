@@ -35,7 +35,7 @@ from reahl.component.dbutils import SystemControl
 from reahl.component.shelltools import Command
 from reahl.component.context import ExecutionContext
 from reahl.component.config import ConfigSetting, StoredConfiguration, MissingValue
-from reahl.component.eggs import ReahlEgg
+from reahl.component.eggs import ReahlEgg, DistributionCache
 from reahl.component.exceptions import DomainException
 from reahl.component.migration import MigrationPlan
 
@@ -47,7 +47,8 @@ class ComponentInfo(Command):
         self.parser.add_argument('component_name', type=str,  help='the name of a component')
 
     def execute(self, args):
-        egg = ReahlEgg(importlib_metadata.distribution(args.component_name))
+        dist = DistributionCache.get_instance().get_distribution(args.component_name)
+        egg = ReahlEgg(dist)
         print('Name: %s' % egg.name)
         print('Version: %s' % egg.installed_version)
         configuration_class = egg.configuration_spec
@@ -365,7 +366,8 @@ class ListVersionHistory(ProductionCommand):
         super().execute(args)
         with self.context:
             with self.sys_control.auto_connected():
-                version_graph = MigrationPlan.create_version_graph_for(ReahlEgg(importlib_metadata.distribution(self.config.reahlsystem.root_egg)), self.config.reahlsystem.orm_control)
+                dist = DistributionCache.get_instance().get_distribution(self.config.reahlsystem.root_egg)
+                version_graph = MigrationPlan.create_version_graph_for(ReahlEgg(dist), self.config.reahlsystem.orm_control)
             for key in version_graph.graph:
                 print('%s [%s]' % (key, ' | '.join([str(i) for i in version_graph.graph[key]])))
 

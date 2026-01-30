@@ -35,7 +35,7 @@ else:
     import importlib.metadata as importlib_metadata
 
 from reahl.component.exceptions import ProgrammerError
-from reahl.component.eggs import ReahlEgg
+from reahl.component.eggs import ReahlEgg, DistributionCache
 from reahl.component.migration import MigrationPlan
 
 
@@ -164,7 +164,8 @@ class SystemControl:
 
     def migrate_db(self, explain=False):
         """Runs the database migrations relevant to the current system."""
-        self.orm_control.migrate_db(ReahlEgg.interface_for(importlib_metadata.distribution(self.config.reahlsystem.root_egg)), explain=explain)
+        root_dist = DistributionCache.get_instance().get_distribution(self.config.reahlsystem.root_egg)
+        self.orm_control.migrate_db(ReahlEgg.interface_for(root_dist), explain=explain)
         return 0
 
     def diff_db(self, output_sql=False):

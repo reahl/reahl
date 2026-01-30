@@ -68,46 +68,56 @@ class CircularDependencyDetected(Exception):
 
 
 class DistributionCache:
-    """Cache for distribution instances to ensure single instance per package name."""
+    """Singleton cache for distribution instances to ensure single instance per package name."""
 
-    def __init__(self, initial_distributions=None):
-        """Initialize cache with optional initial distributions."""
-        self.cache = {}  # AI: Changed from set to dict for O(1) lookup
-        self.name_cache = {}  # AI: Cache for distribution names to avoid repeated metadata access
-        # AI: Pre-populate cache with initial distributions
-        if initial_distributions:
-            for dist in initial_distributions:
-                self.get_or_add(dist)  # AI: Cache for distribution names to avoid repeated metadata access
-        # AI: Don't pre-populate - DependencyGraph is generic and vertices might not be distributions.
-        # Items will be added via get_or_add() when find_dependencies() processes them.
+    instance = None
 
-    def get_or_add(self, new_dist):
-        """Get cached distribution if available by name, otherwise add and return new_dist."""
-        new_name = self.compute_distribution_name(new_dist)
+    @classmethod
+    def get_instance(cls):
+        if not cls.instance:
+            cls.instance = DistributionCache()
+        return cls.instance
 
-        # AI: O(1) dict lookup instead of O(n) iteration
-        if new_name in self.cache:
-            return self.cache[new_name]
+    @classmethod
+    def clear_cache(cls):
+        cls.instance = None
 
-        # AI: Not found, add to cache and return
-        self.cache[new_name] = new_dist
-        return new_dist
+    def __init__(self):
+        """Initialize cache."""
+        self.cache = {}  # AI: Maps normalized package name -> Distribution
 
-    def contains_duplicate(self, dist):
-        """Check if a distribution with the same name already exists in cache."""
-        dist_name = self.compute_distribution_name(dist)
-        return dist_name in self.cache
+    def get_distribution(self, requirement_or_name):
+        """Get a distribution, ensuring consistent caching.
 
-    def compute_distribution_name(self, dist):
-        """Get the normalized name of a distribution, with caching to avoid repeated metadata access."""
-        # AI: Cache the result using id(dist) as key to avoid repeated metadata access
-        if id(dist) not in self.name_cache:
-            self.name_cache[id(dist)] = dist.metadata['Name'].lower()
-        return self.name_cache[id(dist)]
+        Args:
+            requirement_or_name: Either a plain package name (e.g., 'requests')
+                                or a requirement string (e.g., 'requests>=2.0')
 
-    def get_all(self):
-        """Return list of all cached distributions."""
-        return list(self.cache.values())
+        Returns:
+            Distribution instance (always same instance for same package name)
+
+        Raises:
+            PackageNotFoundError: If package is not installed
+        """
+        # AI: Extract package name from input
+        try:
+            req = packaging.requirements.Requirement(requirement_or_name)
+            package_name = req.name
+        except Exception:
+            # AI: Not a requirement string, treat as plain package name
+            package_name = requirement_or_name
+
+        # AI: Check cache first by normalized name
+        normalized_name = package_name.lower()
+        if normalized_name in self.cache:
+            return self.cache[normalized_name]
+
+        # AI: Fetch from importlib and cache it
+        dist = importlib_metadata.distribution(package_name)
+        # AI: Normalize the distribution's actual name and cache it
+        dist_normalized_name = dist.metadata['Name'].lower()
+        self.cache[dist_normalized_name] = dist
+        return dist
 
 
 class InvalidDependencySpecification(DomainException):
@@ -120,11 +130,11 @@ class InvalidDependencySpecification(DomainException):
 
 class DependencyGraph:
     @classmethod
-    def from_vertices(cls, vertices, find_dependencies):
-        cache = DistributionCache()  # AI: Create empty cache, let find_dependencies populate it
+    def from_vertices(cls, vertices, find_dependencies, cache=None):
+        # AI: cache parameter kept for backward compatibility but ignored
         graph = {}
         def add_to_graph(v, graph):
-            dependencies = graph[v] = find_dependencies(v, cache=cache)
+            dependencies = graph[v] = find_dependencies(v)
             for dep in dependencies:
                 if dep not in graph:
                     add_to_graph(dep, graph)
@@ -330,7 +340,7 @@ class Dependency:
     @property
     def distribution(self):
         try:
-            return importlib_metadata.distribution(self.name)
+            return DistributionCache.get_instance().get_distribution(self.name)
         except importlib_metadata.PackageNotFoundError:
             return None
 
@@ -520,7 +530,7 @@ class ReahlEgg:
                 # Check if this entry point belongs to our distribution
                 # by comparing the distribution name
                 try:
-                    ep_dist = importlib_metadata.distribution(ep.name)
+                    ep_dist = DistributionCache.get_instance().get_distribution(ep.name)
                     if ep_dist.metadata['Name'].lower() == self.name:
                         return ep
                 except importlib_metadata.PackageNotFoundError:
@@ -631,6 +641,7 @@ class ReahlEgg:
     @classmethod
     def find_dependencies(cls, dist, cache=None):
         """Find immediate dependencies of a distribution."""
+        # AI: cache parameter kept for backward compatibility but ignored - singleton handles caching
         # importlib.metadata distribution - requires is a property returning strings
         requires_strings = dist.requires or []
         # Filter out requirements with markers that don't evaluate to True
@@ -651,9 +662,7 @@ class ReahlEgg:
 
         dependencies = []
         for req in filtered_requirements:
-            dep_dist = importlib_metadata.distribution(req.name)
-            if cache:
-                dep_dist = cache.get_or_add(dep_dist)
+            dep_dist = DistributionCache.get_instance().get_distribution(req.name)
             dependencies.append(dep_dist)
 
         # Handle extras (basket requirements)
@@ -661,18 +670,17 @@ class ReahlEgg:
         for basket in basket_requirements:
             for extra_name in basket.extras:
                 try:
-                    extra_dist = importlib_metadata.distribution(extra_name)
+                    extra_dist = DistributionCache.get_instance().get_distribution(extra_name)
                 except importlib.metadata.PackageNotFoundError:
                     pass
                 else:
-                    if cache:
-                        extra_dist = cache.get_or_add(extra_dist)
                     dependencies.append(extra_dist)
 
         return [i for i in dependencies if i]
 
     @classmethod
-    def topological_sort(cls, distributions):
+    def topological_sort(cls, distributions, cache=None):
+        # AI: cache parameter kept for backward compatibility but ignored
         return DependencyGraph.from_vertices(distributions, cls.find_dependencies).topological_sort()
 
 
@@ -684,10 +692,10 @@ class ReahlEgg:
         discover all dependencies. This eliminates duplicate dependency resolution.
         """
         # AI: Convert requirement strings to initial distributions
+        # AI: Singleton cache handles deduplication automatically
         initial_distributions = []
         for requirement_str in [main_egg] + include_test_dependencies:
-            req = packaging.requirements.Requirement(requirement_str)
-            dist = importlib_metadata.distribution(req.name)
+            dist = DistributionCache.get_instance().get_distribution(requirement_str)
             initial_distributions.append(dist)
 
         # AI: Let topological_sort -> from_vertices discover all dependencies (only once)

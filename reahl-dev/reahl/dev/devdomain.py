@@ -50,7 +50,7 @@ import setuptools
 
 from reahl.component.shelltools import Executable
 from reahl.component.exceptions import ProgrammerError
-from reahl.component.eggs import ReahlEgg
+from reahl.component.eggs import ReahlEgg, DistributionCache
 
 from reahl.dev.exceptions import NotAValidProjectException
 
@@ -513,7 +513,8 @@ class Project:
 
     @property
     def interface(self):
-        return ReahlEgg.interface_for(importlib_metadata.distribution(self.project_name))
+        dist = DistributionCache.get_instance().get_distribution(self.project_name)
+        return ReahlEgg.interface_for(dist)
 
     @property
     def translation_package(self):
@@ -545,7 +546,8 @@ class Project:
     def merge_translations(self):
         for source_dist_spec in self.translated_domains:
             try:
-                source_egg = ReahlEgg.interface_for(importlib_metadata.distribution(source_dist_spec))
+                dist = DistributionCache.get_instance().get_distribution(source_dist_spec)
+                source_egg = ReahlEgg.interface_for(dist)
             except importlib_metadata.PackageNotFoundError:
                 raise EggNotFound(source_dist_spec)
             if not os.path.isdir(self.locale_dirname):
@@ -566,7 +568,9 @@ class Project:
         except ValueError:
             raise InvalidLocaleString(locale)
         try:
-            source_egg = ReahlEgg.interface_for(importlib_metadata.distribution(source_dist_spec or self.project_name))
+            source_name = source_dist_spec or self.project_name
+            dist = DistributionCache.get_instance().get_distribution(source_name)
+            source_egg = ReahlEgg.interface_for(dist)
         except importlib_metadata.PackageNotFoundError:
             raise EggNotFound(source_dist_spec or self.project_name)
         Executable('pybabel').check_call(['init',

@@ -21,7 +21,7 @@ from packaging.requirements import Requirement
 from reahl.tofu import expected, NoException
 from reahl.stubble import EasterEgg
 
-from reahl.component.eggs import ReahlEgg
+from reahl.component.eggs import ReahlEgg, DistributionCache
 
 
 def distribution_name(distribution):
@@ -38,6 +38,9 @@ def dependency_names(distribution):
 def test_flattened_tree_of_eggs():
     """A Reahl application consists of a root egg and all its egg dependencies - with all such components
        often regarded in flattened order of dependence."""
+    DistributionCache.clear_cache()
+    ReahlEgg.clear_cache()
+    
     egg = EasterEgg(name='test')
     with egg.installed():
         egg.add_dependency('reahl-component')
@@ -63,6 +66,8 @@ def test_flattened_tree_of_eggs():
 def test_interface_with_meta_info():
     """A Reahl component can publish a ReahlEgg instance to supply extra meta information about itself.
        Such interfaces with extra information are also often used from a flattened list in dependency order."""
+    DistributionCache.clear_cache()
+    ReahlEgg.clear_cache()
 
     egg = EasterEgg(name='test')
     with egg.installed():
@@ -140,6 +145,8 @@ def xxx_test_all_relevant_interfaces_includes_transitive_dependencies():
 
 def test_compute_ordered_dependent_distributions_finds_transitive_dependencies_via_modern_api():
     """Verify modern API correctly finds all transitive dependencies."""
+    DistributionCache.clear_cache()
+    ReahlEgg.clear_cache()
     
     # Get all distributions for reahl-component
     component_distributions = list(ReahlEgg.compute_ordered_dependent_distributions('reahl-component', []))
