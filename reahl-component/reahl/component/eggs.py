@@ -83,38 +83,16 @@ class DistributionCache:
         cls.instance = None
 
     def __init__(self):
-        """Initialize cache."""
-        self.cache = {}  # AI: Maps normalized package name -> Distribution
+        self.cache = {}  # Maps normalized package name -> Distribution
 
-    def get_distribution(self, requirement_or_name):
-        """Get a distribution, ensuring consistent caching.
+    def get_distribution(self, requirement_string):
+        req = packaging.requirements.Requirement(requirement_string)
 
-        Args:
-            requirement_or_name: Either a plain package name (e.g., 'requests')
-                                or a requirement string (e.g., 'requests>=2.0')
-
-        Returns:
-            Distribution instance (always same instance for same package name)
-
-        Raises:
-            PackageNotFoundError: If package is not installed
-        """
-        # AI: Extract package name from input
-        try:
-            req = packaging.requirements.Requirement(requirement_or_name)
-            package_name = req.name
-        except Exception:
-            # AI: Not a requirement string, treat as plain package name
-            package_name = requirement_or_name
-
-        # AI: Check cache first by normalized name
-        normalized_name = package_name.lower()
+        normalized_name = req.name.lower()
         if normalized_name in self.cache:
             return self.cache[normalized_name]
 
-        # AI: Fetch from importlib and cache it
-        dist = importlib_metadata.distribution(package_name)
-        # AI: Normalize the distribution's actual name and cache it
+        dist = importlib_metadata.distribution(req.name)
         dist_normalized_name = dist.metadata['Name'].lower()
         self.cache[dist_normalized_name] = dist
         return dist
@@ -130,8 +108,7 @@ class InvalidDependencySpecification(DomainException):
 
 class DependencyGraph:
     @classmethod
-    def from_vertices(cls, vertices, find_dependencies, cache=None):
-        # AI: cache parameter kept for backward compatibility but ignored
+    def from_vertices(cls, vertices, find_dependencies):
         graph = {}
         def add_to_graph(v, graph):
             dependencies = graph[v] = find_dependencies(v)
@@ -280,7 +257,7 @@ class DependencyCluster:
         return [other for other in all_clusters if self.is_dependent_on(other)]
 
     def get_versions_biggest_first(self):
-        def version_dependencies(version, cache=None):
+        def version_dependencies(version):
             return [v for v in self.versions
                     if any([d.name == v.name for d in v.get_dependencies()])]
         version_graph = DependencyGraph.from_vertices(self.versions, version_dependencies)
@@ -419,7 +396,6 @@ class ReahlEgg:
             self.validate_version()
 
     def create_metadata(self, distribution):
-        # AI: Try to read metadata file even if files list is not available
         try:
             content = distribution.read_text('reahl-component.toml')
             if content is not None:
@@ -531,16 +507,15 @@ class ReahlEgg:
                 # by comparing the distribution name
                 try:
                     ep_dist = DistributionCache.get_instance().get_distribution(ep.name)
+                except importlib_metadata.PackageNotFoundError:
+                    pass
+                else:
                     if ep_dist.metadata['Name'].lower() == self.name:
                         return ep
-                except importlib_metadata.PackageNotFoundError:
-                    continue
-
         return None
     
     @property
     def translation_package_name(self):
-        # AI: Extract module name from entry point value (format: "module:attr" or just "module")
         value = self.translation_package_entry_point.value
         return value.split(':')[0] if ':' in value else value
 
@@ -639,10 +614,8 @@ class ReahlEgg:
         return interfaces
 
     @classmethod
-    def find_dependencies(cls, dist, cache=None):
+    def find_dependencies(cls, dist):
         """Find immediate dependencies of a distribution."""
-        # AI: cache parameter kept for backward compatibility but ignored - singleton handles caching
-        # importlib.metadata distribution - requires is a property returning strings
         requires_strings = dist.requires or []
         # Filter out requirements with markers that don't evaluate to True
         filtered_requirements = []
@@ -679,26 +652,19 @@ class ReahlEgg:
         return [i for i in dependencies if i]
 
     @classmethod
-    def topological_sort(cls, distributions, cache=None):
-        # AI: cache parameter kept for backward compatibility but ignored
-        return DependencyGraph.from_vertices(distributions, cls.find_dependencies).topological_sort()
-
+    def topological_sort(cls, root_distributions):
+        return DependencyGraph.from_vertices(root_distributions, cls.find_dependencies).topological_sort()
 
     @classmethod
     def compute_ordered_dependent_distributions(cls, main_egg, include_test_dependencies=[]):
         """Compute topologically sorted list of all dependent distributions.
 
-        AI: Converts requirement strings to initial distributions, then lets topological_sort
-        discover all dependencies. This eliminates duplicate dependency resolution.
         """
-        # AI: Convert requirement strings to initial distributions
-        # AI: Singleton cache handles deduplication automatically
         initial_distributions = []
         for requirement_str in [main_egg] + include_test_dependencies:
             dist = DistributionCache.get_instance().get_distribution(requirement_str)
             initial_distributions.append(dist)
 
-        # AI: Let topological_sort -> from_vertices discover all dependencies (only once)
         return cls.topological_sort(initial_distributions)
     
     @classmethod
@@ -706,12 +672,9 @@ class ReahlEgg:
         interfaces = []
 
         for i in cls.compute_ordered_dependent_distributions(main_egg, include_test_dependencies):
-            interface = cls.interface_for(i)
+            interface = cls(i)
             if interface.is_component:
                 interfaces.append(interface)
 
         return interfaces
 
-    @classmethod
-    def interface_for(cls, distribution):
-        return cls(distribution)

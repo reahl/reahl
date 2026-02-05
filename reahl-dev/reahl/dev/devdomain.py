@@ -513,8 +513,7 @@ class Project:
 
     @property
     def interface(self):
-        dist = DistributionCache.get_instance().get_distribution(self.project_name)
-        return ReahlEgg.interface_for(dist)
+        return ReahlEgg.interface_for_named(self.project_name)
 
     @property
     def translation_package(self):
@@ -546,8 +545,7 @@ class Project:
     def merge_translations(self):
         for source_dist_spec in self.translated_domains:
             try:
-                dist = DistributionCache.get_instance().get_distribution(source_dist_spec)
-                source_egg = ReahlEgg.interface_for(dist)
+                source_egg = ReahlEgg.interface_for_named(source_dist_spec)
             except importlib_metadata.PackageNotFoundError:
                 raise EggNotFound(source_dist_spec)
             if not os.path.isdir(self.locale_dirname):
@@ -569,8 +567,7 @@ class Project:
             raise InvalidLocaleString(locale)
         try:
             source_name = source_dist_spec or self.project_name
-            dist = DistributionCache.get_instance().get_distribution(source_name)
-            source_egg = ReahlEgg.interface_for(dist)
+            source_egg = ReahlEgg.interface_for_named(source_name)
         except importlib_metadata.PackageNotFoundError:
             raise EggNotFound(source_dist_spec or self.project_name)
         Executable('pybabel').check_call(['init',

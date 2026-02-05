@@ -164,8 +164,9 @@ class SystemControl:
 
     def migrate_db(self, explain=False):
         """Runs the database migrations relevant to the current system."""
-        root_dist = DistributionCache.get_instance().get_distribution(self.config.reahlsystem.root_egg)
-        self.orm_control.migrate_db(ReahlEgg.interface_for(root_dist), explain=explain)
+        dist = DistributionCache.get_instance().get_distribution(self.config.reahlsystem.root_egg)
+        root_egg = ReahlEgg(dist)
+        self.orm_control.migrate_db(root_egg, explain=explain)
         return 0
 
     def diff_db(self, output_sql=False):

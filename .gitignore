@@ -76,3 +76,5 @@ dist
 .cache
 .vscode
 
+.serena
+.claude
