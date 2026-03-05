@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
   
 [project]
 name = "reahl-web"
-version = "7.0.3"
+version = "7.0.4"
 authors = [
     {name = "Iwan Vosloo", email = "iwan@gmail.com"},
 ]
