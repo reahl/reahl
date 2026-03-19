@@ -18,14 +18,7 @@ import contextlib
 import sys
 import os
 
-# Import modern API (always required)
-if sys.version_info < (3, 8):
-    try:
-        import importlib_metadata
-    except ImportError:
-        raise ImportError('You are on an older version of python. Please install importlib-metadata')
-else:
-    import importlib.metadata as importlib_metadata
+import importlib.metadata as importlib_metadata
 
 # Import old API if available (optional, for backwards compatibility)
 try:
@@ -263,35 +256,15 @@ def _patched_entry_points(**kwargs):
     """Patched entry_points that includes active EasterEggs"""
     group = kwargs.get('group', None)
 
-    # Get real entry points
     real_eps = _original_entry_points(**kwargs)
 
-    # Add EasterEgg entry points
     easteregg_eps = []
     for egg in _get_active_eastereggs():
         for (ep_group, ep_name), entry_point in egg.entry_points.items():
             if group is None or ep_group == group:
                 easteregg_eps.append(entry_point)
 
-    entry_points_type = getattr(importlib_metadata, 'EntryPoints', None)
-    selectable_groups_type = getattr(importlib_metadata, 'SelectableGroups', None)
-
-    if entry_points_type and isinstance(real_eps, entry_points_type):
-        return entry_points_type([*real_eps, *easteregg_eps])
-
-    if selectable_groups_type and isinstance(real_eps, selectable_groups_type):
-        combined = {group: list(entries) for group, entries in real_eps.items()}
-        for entry_point in easteregg_eps:
-            combined.setdefault(entry_point.group, []).append(entry_point)
-        return selectable_groups_type(combined)
-
-    if isinstance(real_eps, dict):  # Legacy API returning mapping
-        combined = {group: list(entries) for group, entries in real_eps.items()}
-        for entry_point in easteregg_eps:
-            combined.setdefault(entry_point.group, []).append(entry_point)
-        return combined
-
-    return list(real_eps) + easteregg_eps
+    return importlib_metadata.EntryPoints([*real_eps, *easteregg_eps])
 
 
 def _patched_distribution(name):

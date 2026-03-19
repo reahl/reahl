@@ -14,7 +14,7 @@ name = "reahl-workstation"
 version = "7.0.4"
 description = "Useful commands to ease development."
 readme = "README.rst"
-requires-python = ">=3.8"
+requires-python = ">=3.10"
 classifiers = [
   "Development Status :: 5 - Production/Stable",
   "Intended Audience :: Developers",
