@@ -34,7 +34,8 @@ authors = [
 [project.optional-dependencies]
 test = [
   "pytest>=3.0",
-  "reahl-dev"
+  "reahl-dev",
+  "pkg-resources-backport"
   ]
 
 [tool.setuptools.packages.find]
