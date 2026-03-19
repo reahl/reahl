@@ -26,8 +26,7 @@ classifiers = [
   ]
 dependencies = [
   "reahl-component>=7.0,<7.1",
-  "importlib-resources;python_version<'3.9'",
-  ]
+]
 authors = [ 
   {name = "Iwan Vosloo", email = "iwan@reahl.org"},
   {name = "Craig Sparks", email = "craig@reahl.org"}
