@@ -254,17 +254,26 @@ _original_distribution = importlib_metadata.distribution
 
 def _patched_entry_points(**kwargs):
     """Patched entry_points that includes active EasterEggs"""
-    group = kwargs.get('group', None)
-
     real_eps = _original_entry_points(**kwargs)
+    if hasattr(real_eps, 'items'):
+        real_eps = [
+            entry_point
+            for entry_points in real_eps.values()
+            for entry_point in entry_points
+        ]
 
-    easteregg_eps = []
+    merged_eps = [
+        entry_point
+        for entry_point in real_eps
+        if entry_point.matches(**kwargs)
+    ]
+
     for egg in _get_active_eastereggs():
-        for (ep_group, ep_name), entry_point in egg.entry_points.items():
-            if group is None or ep_group == group:
-                easteregg_eps.append(entry_point)
+        for entry_point in egg.entry_points.values():
+            if entry_point.matches(**kwargs):
+                merged_eps.append(entry_point)
 
-    return importlib_metadata.EntryPoints([*real_eps, *easteregg_eps])
+    return importlib_metadata.EntryPoints(merged_eps)
 
 
 def _patched_distribution(name):
