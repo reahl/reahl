@@ -28,8 +28,16 @@ import functools
 import importlib
 import pathlib
 
-import pkg_resources
 import packaging
+import packaging.requirements
+
+if sys.version_info < (3, 8):
+    try:
+        import importlib_metadata
+    except:
+        raise Exception('You are on an older version of python. Please install importlib-metadata')
+else:
+    import importlib.metadata as importlib_metadata
 
 if sys.version_info < (3, 9):
     try:
@@ -57,6 +65,38 @@ class CircularDependencyDetected(Exception):
 
     def __str__(self):
         return ' -> '.join([str(i) for i in self.cycle])
+
+
+class DistributionCache:
+    """Singleton cache for distribution instances to ensure single instance per package name."""
+
+    instance = None
+
+    @classmethod
+    def get_instance(cls):
+        if not cls.instance:
+            cls.instance = DistributionCache()
+        return cls.instance
+
+    @classmethod
+    def clear_cache(cls):
+        cls.instance = None
+
+    def __init__(self):
+        self.cache = {}  # Maps normalized package name -> Distribution
+
+    def get_distribution(self, requirement_string):
+        req = packaging.requirements.Requirement(requirement_string)
+
+        normalized_name = req.name.lower()
+        if normalized_name in self.cache:
+            return self.cache[normalized_name]
+
+        dist = importlib_metadata.distribution(req.name)
+        dist_normalized_name = dist.metadata['Name'].lower()
+        self.cache[dist_normalized_name] = dist
+        return dist
+
 
 class InvalidDependencySpecification(DomainException):
     def __init__(self, versions, duplicates):
@@ -238,7 +278,10 @@ class Dependency:
     def __init__(self, for_version, requirement):
         self.for_version = for_version
         self.name = requirement.name
-        self.specs = requirement.specs
+
+        # packaging.requirements.Requirement has specifier
+        self.specs = [(spec.operator, spec.version) for spec in requirement.specifier]
+
         self.min_version = None
         self.max_version = None
         for comparator, version in self.specs:
@@ -274,8 +317,8 @@ class Dependency:
     @property
     def distribution(self):
         try:
-            return pkg_resources.get_distribution(self.name)
-        except:
+            return DistributionCache.get_instance().get_distribution(self.name)
+        except importlib_metadata.PackageNotFoundError:
             return None
 
     @property
@@ -353,9 +396,12 @@ class ReahlEgg:
             self.validate_version()
 
     def create_metadata(self, distribution):
-        if distribution.has_metadata('reahl-component.toml'):
-            return toml.loads(distribution.get_metadata('reahl-component.toml'))
-        else:
+        try:
+            content = distribution.read_text('reahl-component.toml')
+            if content is not None:
+                return toml.loads(content)
+            return None
+        except (FileNotFoundError, KeyError, AttributeError):
             return None
 
     def validate_version(self):
@@ -371,17 +417,26 @@ class ReahlEgg:
         if not(metadata_version >= supported_version_min and metadata_version < supported_version_max):
             raise ProgrammerError('Component metadata version %s for %s is incompatible with the installed version of reahl-component' % (metadata_version, self.distribution))
 
-        
+    @classmethod
+    def can_use_modern_entry_points_api(cls):
+        """Check if the modern importlib.metadata.entry_points() API is available"""
+        try:
+            # Try to call entry_points with group parameter (modern API)
+            importlib_metadata.entry_points(group='test')
+            return True
+        except (AttributeError, TypeError):
+            return False
+
     @property
     def is_component(self):
         return self.metadata is not None
 
     def __repr__(self):
-        return '<%s(pkg_resources.get_distribution(%s))>' % (self.__class__.__name__, repr(self.distribution))
+        return '<%s(importlib_metadata.distribution(%s))>' % (self.__class__.__name__, repr(self.distribution.metadata['Name']))
 
     @property
     def name(self):
-        return self.distribution.key
+        return self.distribution.metadata['Name'].lower()
 
     @property
     def installed_version(self):
@@ -410,11 +465,13 @@ class ReahlEgg:
             raise ProgrammerError('%s is not a reahl component, thus cannot have historical versions' % self.distributions)
         current_major_minor_string = '.'.join(self.distribution.version.split('.')[:2])
         if str(version) == current_major_minor_string:
-            version_dependencies = self.distribution.requires()
+            # importlib.metadata distribution - requires is a property returning strings
+            requires_strings = self.distribution.requires or []
+            version_dependencies = [packaging.requirements.Requirement(i) for i in requires_strings]
         else:
             version_data = self.metadata.get('versions', {}).get(version, {})
             requirements = version_data.get('install_requires', [])+version_data.get('dependencies', [])
-            version_dependencies = [pkg_resources.Requirement.parse(i) for i in requirements]
+            version_dependencies = [packaging.requirements.Requirement(i) for i in requirements]
         return [Dependency(self, dep) for dep in version_dependencies]
 
     def load(self, locator):
@@ -436,15 +493,31 @@ class ReahlEgg:
 
     @property
     def translation_package_entry_point(self):
-        translation_packages = [translation_entry_point for translation_entry_point in pkg_resources.iter_entry_points('reahl.translations')
-                                if (translation_entry_point.dist is self.distribution) and (translation_entry_point.name == self.name) ]
-        if len(translation_packages) != 1:
-            return None
-        return translation_packages[0]
+        if self.can_use_modern_entry_points_api():
+            # Python 3.9+ API with group parameter
+            entry_points = importlib_metadata.entry_points(group='reahl.translations')
+        else:
+            # Python 3.8 API returns dict-like object
+            all_entry_points = importlib_metadata.entry_points()
+            entry_points = all_entry_points.get('reahl.translations', [])
+
+        for ep in entry_points:
+            if ep.name == self.name:
+                # Check if this entry point belongs to our distribution
+                # by comparing the distribution name
+                try:
+                    ep_dist = DistributionCache.get_instance().get_distribution(ep.name)
+                except importlib_metadata.PackageNotFoundError:
+                    pass
+                else:
+                    if ep_dist.metadata['Name'].lower() == self.name:
+                        return ep
+        return None
     
     @property
     def translation_package_name(self):
-        return self.translation_package_entry_point.module_name
+        value = self.translation_package_entry_point.value
+        return value.split(':')[0] if ':' in value else value
 
     @property
     def translation_pot_filename(self):
@@ -495,14 +568,23 @@ class ReahlEgg:
         domains_in_use = [e.name for e in egg_interfaces]
 
         languages_for_eggs = {}
-        for translation_entry_point in pkg_resources.iter_entry_points('reahl.translations'):
+
+        if cls.can_use_modern_entry_points_api():
+            # Python 3.9+ API with group parameter
+            entry_points = importlib_metadata.entry_points(group='reahl.translations')
+        else:
+            # Python 3.8 API returns dict-like object
+            all_entry_points = importlib_metadata.entry_points()
+            entry_points = all_entry_points.get('reahl.translations', [])
+
+        for translation_entry_point in entry_points:
             for catalogue in cls.find_catalogues(translation_entry_point):
                 language = catalogue.parts[-3]
                 domain = translation_entry_point.name
                 if domain in domains_in_use:
                     languages = languages_for_eggs.setdefault(domain, set())
                     languages.add(language)
-                
+
         if not languages_for_eggs.values():
             return default_languages
         languages = (list(languages_for_eggs.values()))[0].intersection(*languages_for_eggs.values())
@@ -532,40 +614,67 @@ class ReahlEgg:
         return interfaces
 
     @classmethod
-    def topological_sort(cls, distributions):
-        def find_dependencies(dist):
-            dependencies = [pkg_resources.working_set.find(i) for i in dist.requires()]
-            my_requirements =  dist.requires()
-            #we want the subset of stuff in the basket we actually depend on, not just the basket itself
-            basket_requirements = [i for i in my_requirements
-                                   if i.extras]
-            for basket in basket_requirements:
-                dependencies.extend([pkg_resources.working_set.find(pkg_resources.Requirement.parse(i)) for i in basket.extras])
-            return [i for i in dependencies if i]
-            
-        return DependencyGraph.from_vertices(distributions, find_dependencies).topological_sort()
+    def find_dependencies(cls, dist):
+        """Find immediate dependencies of a distribution."""
+        requires_strings = dist.requires or []
+        # Filter out requirements with markers that don't evaluate to True
+        filtered_requirements = []
+        for req_str in requires_strings:
+            req = packaging.requirements.Requirement(req_str)
+            # Include requirement if it has no marker OR if marker evaluates to True
+            include_requirement = True
+            if req.marker:
+                try:
+                    include_requirement = req.marker.evaluate()
+                except Exception:
+                    # If marker evaluation fails (e.g., undefined 'extra'), skip this requirement
+                    include_requirement = False
 
+            if include_requirement:
+                filtered_requirements.append(req)
 
-    @classmethod 
-    def get_eggs_for(cls, main_egg, include_test_dependencies):
-        distributions = pkg_resources.require([main_egg]+include_test_dependencies)
-        return list(set(distributions)) # To get rid of duplicates
+        dependencies = []
+        for req in filtered_requirements:
+            dep_dist = DistributionCache.get_instance().get_distribution(req.name)
+            dependencies.append(dep_dist)
+
+        # Handle extras (basket requirements)
+        basket_requirements = [i for i in filtered_requirements if i.extras]
+        for basket in basket_requirements:
+            for extra_name in basket.extras:
+                try:
+                    extra_dist = DistributionCache.get_instance().get_distribution(extra_name)
+                except importlib.metadata.PackageNotFoundError:
+                    pass
+                else:
+                    dependencies.append(extra_dist)
+
+        return [i for i in dependencies if i]
 
     @classmethod
-    def compute_ordered_dependent_distributions(cls, main_egg, include_test_dependencies):
-        return cls.topological_sort(cls.get_eggs_for(main_egg, include_test_dependencies))
+    def topological_sort(cls, root_distributions):
+        return DependencyGraph.from_vertices(root_distributions, cls.find_dependencies).topological_sort()
+
+    @classmethod
+    def compute_ordered_dependent_distributions(cls, main_egg, include_test_dependencies=[]):
+        """Compute topologically sorted list of all dependent distributions.
+
+        """
+        initial_distributions = []
+        for requirement_str in [main_egg] + include_test_dependencies:
+            dist = DistributionCache.get_instance().get_distribution(requirement_str)
+            initial_distributions.append(dist)
+
+        return cls.topological_sort(initial_distributions)
     
     @classmethod
     def compute_all_relevant_interfaces(cls, main_egg, include_test_dependencies):
         interfaces = []
 
         for i in cls.compute_ordered_dependent_distributions(main_egg, include_test_dependencies):
-            interface = cls.interface_for(i)
+            interface = cls(i)
             if interface.is_component:
                 interfaces.append(interface)
 
         return interfaces
 
-    @classmethod
-    def interface_for(cls, distribution):
-        return cls(distribution)

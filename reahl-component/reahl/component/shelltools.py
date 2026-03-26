@@ -129,10 +129,22 @@ class ReahlCommandlineConfig(Configuration):
 class CompositeCommand(Command):
     def __init__(self):
         super().__init__()
-        self.parser.epilog = '"%s help-commands" gives a list of available commands' % self.parser.prog
+        composite = self
+        def custom_print_help(file=None):
+            composite.print_help(file or sys.stdout)
+        self.parser.print_help = custom_print_help
 
     def assemble(self):
         super().assemble()
+        
+        composite = self
+        class RecursiveHelpAction(argparse.Action):
+            def __call__(self, parser, namespace, values, option_string=None):
+                composite.print_help_recursively(sys.stdout)
+                parser.exit()
+        
+        self.parser.add_argument('-H', '--help-all', action=RecursiveHelpAction, nargs=0,
+                                help='show all commands recursively')
         self.parser.add_argument('command', help='a command')
         self.parser.add_argument('command_args', nargs=argparse.REMAINDER)
 
@@ -159,11 +171,9 @@ class CompositeCommand(Command):
         try:
             command = self.command_named(args.command)
         except CommandNotFound:
-            out_stream = sys.stdout
+            out_stream = sys.stderr
             command_name = args.command
-            if command_name != 'help-commands':
-                out_stream = sys.stderr
-                print('No such command: %s' % command_name, file=out_stream)
+            print('No such command: %s' % command_name, file=out_stream)
             self.print_help(out_stream)
             return 2
             
@@ -175,6 +185,24 @@ class CompositeCommand(Command):
         max_len = max([len(command.keyword) for command in self.commands])
         for command in sorted(self.commands, key=lambda x: x.keyword):
             self.print_command(command.keyword, command.format_description(), max_len, out_stream)
+
+    def print_help_recursively(self, out_stream, indent=0):
+        if indent == 0:
+            print(self.parser.format_help(), file=out_stream)
+            print('\nCommands:\n', file=out_stream)
+        
+        max_len = max([len(command.keyword) for command in self.commands]) if self.commands else 0
+        for command in sorted(self.commands, key=lambda x: x.keyword):
+            keyword_indent = '  ' * indent
+            keyword_column = keyword_indent + command.keyword
+            description = command.format_description()
+            
+            padding = ' ' * (max_len - len(command.keyword) + 2)
+            print(f'{keyword_column}{padding}{description}', file=out_stream)
+            
+            command_instance = command() if inspect.isclass(command) else command
+            if isinstance(command_instance, CompositeCommand):
+                command_instance.print_help_recursively(out_stream, indent + 1)
 
     def print_command(self, keyword, description, max_len, out_stream):
         keyword_column = ('{0: <%s}  ' % max_len).format(keyword)

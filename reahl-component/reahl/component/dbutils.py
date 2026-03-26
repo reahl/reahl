@@ -21,14 +21,21 @@
 """
 
 
+import sys
 import re
 from contextlib import contextmanager
 import urllib.parse
 
-import pkg_resources 
+if sys.version_info < (3, 8):
+    try:
+        import importlib_metadata
+    except:
+        raise Exception('You are on an older version of python. Please install importlib-metadata')
+else:
+    import importlib.metadata as importlib_metadata
 
 from reahl.component.exceptions import ProgrammerError
-from reahl.component.eggs import ReahlEgg
+from reahl.component.eggs import ReahlEgg, DistributionCache
 from reahl.component.migration import MigrationPlan
 
 
@@ -157,7 +164,9 @@ class SystemControl:
 
     def migrate_db(self, explain=False):
         """Runs the database migrations relevant to the current system."""
-        self.orm_control.migrate_db(ReahlEgg.interface_for(pkg_resources.get_distribution(self.config.reahlsystem.root_egg)), explain=explain)
+        dist = DistributionCache.get_instance().get_distribution(self.config.reahlsystem.root_egg)
+        root_egg = ReahlEgg(dist)
+        self.orm_control.migrate_db(root_egg, explain=explain)
         return 0
 
     def diff_db(self, output_sql=False):

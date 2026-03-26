@@ -29,7 +29,6 @@ import ssl
 import contextlib
 import logging
 import functools
-import pkg_resources
 
 from http.client import CannotSendRequest
 

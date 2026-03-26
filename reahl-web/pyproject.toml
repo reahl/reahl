@@ -5,13 +5,13 @@ build-backend = "setuptools.build_meta"
   
 [project]
 name = "reahl-web"
-version = "7.0.3"
+version = "7.0.4"
 authors = [
     {name = "Iwan Vosloo", email = "iwan@gmail.com"},
 ]
 description = "The core Reahl web framework"
 readme = "README.rst"
-requires-python = ">=3.8"
+requires-python = ">=3.10"
 #keywords = ["one", "two"]
 classifiers = [
   "Development Status :: 5 - Production/Stable",
@@ -32,9 +32,7 @@ dependencies = [
   "WebOb>=1.8,<1.8.999",
   "Babel>=2.10,<2.14.999",
   "setuptools>=51.0.0",
-  "lxml>=4.2,<5.1.999",
-  "cached-property>=1.5,<1.5.999;python_version<'3.8'",
-  "importlib-resources;python_version<'3.9'"
+  "lxml>=5.2"
 ]
 
 [project.optional-dependencies]

@@ -12,7 +12,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "hellodockernginx"
 version = "0.1"
-requires-python = ">=3.8"
+requires-python = ">=3.10"
 dependencies = [
   "reahl-component>=7.0,<7.1",
   "reahl-web>=7.0,<7.1",

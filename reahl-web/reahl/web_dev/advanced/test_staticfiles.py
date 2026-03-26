@@ -18,11 +18,9 @@
 import datetime
 import os.path
 
-import pkg_resources
-
 from reahl.tofu import scenario, temp_dir, temp_file_with, Fixture
 from reahl.tofu.pytestsupport import with_fixtures
-from reahl.stubble import easter_egg, stubclass
+from reahl.stubble import EasterEgg, stubclass
 
 from reahl.web.fw import FileOnDisk, FileFromBlob, PackagedFile, ConcatenatedFile, FileDownload, UserInterface
 from reahl.browsertools.browsertools import Browser
@@ -148,27 +146,22 @@ def test_files_from_database(web_fixture):
 def test_packaged_files(web_fixture):
     """Files can also be served straight from a python egg."""
 
-
-    # Create an egg with package packaged_files, containing the file packaged_file
     egg_dir = temp_dir()
     package_dir = egg_dir.sub_dir('packaged_files')
-    init_file = package_dir.file_with('__init__.py', '')
-    afile = package_dir.file_with('packaged_file', 'contents')
+    package_dir.file_with('__init__.py', '')
+    package_dir.file_with('packaged_file', 'contents')
 
-    easter_egg.clear()
-    pkg_resources.working_set.add(easter_egg)
-    easter_egg.location = egg_dir.name
+    egg = EasterEgg(name='test', location=egg_dir.name)
 
-    with easter_egg.active():
+    with egg.installed():
         class MainUI(UserInterface):
             def assemble(self):
-                list_of_files = [PackagedFile(easter_egg.as_requirement_string(), 'packaged_files', 'packaged_file')]
+                list_of_files = [PackagedFile(egg.as_requirement_string(), 'packaged_files', 'packaged_file')]
                 self.define_static_files('/files', list_of_files)
 
         wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
 
-        # How the file would be accessed
         browser.open('/files/packaged_file')
         assert browser.raw_html == 'contents'
 
@@ -202,29 +195,26 @@ def test_concatenated_files(web_fixture, concatenate_scenarios):
 
     fixture = concatenate_scenarios
 
-    # Make an egg with a package called packaged_files, and two files in there.
     egg_dir = temp_dir()
     package_dir = egg_dir.sub_dir('packaged_files')
-    init_file = package_dir.file_with('__init__.py', '')
-    afile = package_dir.file_with('packaged_file', fixture.file1_contents)
-    another_file = package_dir.file_with('packaged_file2', fixture.file2_contents)
+    package_dir.file_with('__init__.py', '')
+    package_dir.file_with('packaged_file', fixture.file1_contents)
+    package_dir.file_with('packaged_file2', fixture.file2_contents)
 
-    pkg_resources.working_set.add(easter_egg)
-    easter_egg.location = egg_dir.name
+    egg = EasterEgg(name='test', location=egg_dir.name)
 
-    class MainUI(UserInterface):
-        def assemble(self):
-            to_concatenate = [PackagedFile('test==1.0', 'packaged_files', 'packaged_file'),
-                              PackagedFile('test==1.0', 'packaged_files', 'packaged_file2')]
-            list_of_files = [ConcatenatedFile(fixture.filename, to_concatenate)]
-            self.define_static_files('/files', list_of_files)
+    with egg.installed():
+        class MainUI(UserInterface):
+            def assemble(self):
+                to_concatenate = [PackagedFile('test==1.0', 'packaged_files', 'packaged_file'),
+                                  PackagedFile('test==1.0', 'packaged_files', 'packaged_file2')]
+                list_of_files = [ConcatenatedFile(fixture.filename, to_concatenate)]
+                self.define_static_files('/files', list_of_files)
 
-    with easter_egg.active():
-        web_fixture.config.reahlsystem.debug = False  # To enable minification
+        web_fixture.config.reahlsystem.debug = False
         wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
 
-        # How the first file would be accessed
         browser.open('/files/%s' % fixture.filename)
         assert browser.raw_html == fixture.expected_result
 

@@ -35,14 +35,22 @@ try:
 except ImportError:
     from setuptools.config import read_configuration
 
-import pkg_resources
+if sys.version_info < (3, 8):
+    try:
+        import importlib_metadata
+    except:
+        raise Exception('You are on an older version of python. Please install importlib-metadata')
+else:
+    import importlib.metadata as importlib_metadata
+
+import packaging.requirements
 import toml
 import babel
 import setuptools
 
 from reahl.component.shelltools import Executable
 from reahl.component.exceptions import ProgrammerError
-from reahl.component.eggs import ReahlEgg
+from reahl.component.eggs import ReahlEgg, DistributionCache
 
 from reahl.dev.exceptions import NotAValidProjectException
 
@@ -481,7 +489,7 @@ class Project:
             return None
         all_projects_requirements = self.metadata.extras['all']
         def get_project_dir_for(requirement):
-            return str(pathlib.Path(self.directory).joinpath(pkg_resources.Requirement.parse(requirement).project_name))
+            return str(pathlib.Path(self.directory).joinpath(packaging.requirements.Requirement(requirement).name))
         return [Project.from_file_in(self.workspace, get_project_dir_for(i))
                 for i in all_projects_requirements]
 
@@ -505,7 +513,7 @@ class Project:
 
     @property
     def interface(self):
-        return ReahlEgg.interface_for(pkg_resources.get_distribution(self.project_name))
+        return ReahlEgg.interface_for_named(self.project_name)
 
     @property
     def translation_package(self):
@@ -537,8 +545,8 @@ class Project:
     def merge_translations(self):
         for source_dist_spec in self.translated_domains:
             try:
-                source_egg = ReahlEgg.interface_for(pkg_resources.get_distribution(source_dist_spec))
-            except pkg_resources.DistributionNotFound:
+                source_egg = ReahlEgg.interface_for_named(source_dist_spec)
+            except importlib_metadata.PackageNotFoundError:
                 raise EggNotFound(source_dist_spec)
             if not os.path.isdir(self.locale_dirname):
                 os.mkdir(self.locale_dirname)
@@ -558,8 +566,9 @@ class Project:
         except ValueError:
             raise InvalidLocaleString(locale)
         try:
-            source_egg = ReahlEgg.interface_for(pkg_resources.get_distribution(source_dist_spec or self.project_name))
-        except pkg_resources.DistributionNotFound:
+            source_name = source_dist_spec or self.project_name
+            source_egg = ReahlEgg.interface_for_named(source_name)
+        except importlib_metadata.PackageNotFoundError:
             raise EggNotFound(source_dist_spec or self.project_name)
         Executable('pybabel').check_call(['init',
                                           '--input-file', source_egg.translation_pot_filename,

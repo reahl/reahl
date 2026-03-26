@@ -22,7 +22,7 @@ if [ ! -f /.provisioned ]; then
     /etc/init.d/ssh start
 
     # Update localhost known_hosts
-    su $REAHL_USER -c 'bash -l -c "ssh-keyscan -t rsa localhost > ~/.ssh/known_hosts"'
+    su $REAHL_USER -c 'bash -c "ssh-keyscan -4 -t rsa localhost > ~/.ssh/known_hosts"'
 
     if [ ! -z "$BOOTSTRAP_REAHL_SOURCE" ]; then
         $REAHL_SCRIPTS/scripts/installBuildDebs.sh

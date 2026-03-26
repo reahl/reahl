@@ -17,18 +17,25 @@
 """The Reahl production commandline utility."""
 
 
+import sys
 import os.path
 import os
 import shutil
 import inspect
 
-import pkg_resources
+if sys.version_info < (3, 8):
+    try:
+        import importlib_metadata
+    except:
+        raise Exception('You are on an older version of python. Please install importlib-metadata')
+else:
+    import importlib.metadata as importlib_metadata
 
 from reahl.component.dbutils import SystemControl
 from reahl.component.shelltools import Command
 from reahl.component.context import ExecutionContext
 from reahl.component.config import ConfigSetting, StoredConfiguration, MissingValue
-from reahl.component.eggs import ReahlEgg
+from reahl.component.eggs import ReahlEgg, DistributionCache
 from reahl.component.exceptions import DomainException
 from reahl.component.migration import MigrationPlan
 
@@ -40,7 +47,8 @@ class ComponentInfo(Command):
         self.parser.add_argument('component_name', type=str,  help='the name of a component')
 
     def execute(self, args):
-        egg = ReahlEgg(pkg_resources.get_distribution(args.component_name))
+        dist = DistributionCache.get_instance().get_distribution(args.component_name)
+        egg = ReahlEgg(dist)
         print('Name: %s' % egg.name)
         print('Version: %s' % egg.installed_version)
         configuration_class = egg.configuration_spec
@@ -77,7 +85,7 @@ class ProductionCommand(Command):
     def create_context(self, config_directory):
         try:
             self.context = ExecutionContext.for_config_directory(config_directory)
-        except pkg_resources.DistributionNotFound as ex:
+        except importlib_metadata.PackageNotFoundError as ex:
             ex.args = ('%s (In development? Did you forget to do a "python -m pip install --no-deps -e ."?)' % ex.args[0],)
             raise
         with self.context:
@@ -344,7 +352,7 @@ class ListDependencies(ProductionCommand):
                 deps = ''
                 if args.verbose:
                     deps = '[%s]' % (' | '.join([str(i) for i in distribution.requires()]))
-                print('%s %s' % (distribution, deps))
+                print('%s %s' % (distribution.name, deps))
         return 0
 
 
@@ -358,7 +366,8 @@ class ListVersionHistory(ProductionCommand):
         super().execute(args)
         with self.context:
             with self.sys_control.auto_connected():
-                version_graph = MigrationPlan.create_version_graph_for(ReahlEgg(pkg_resources.get_distribution(self.config.reahlsystem.root_egg)), self.config.reahlsystem.orm_control)
+                dist = DistributionCache.get_instance().get_distribution(self.config.reahlsystem.root_egg)
+                version_graph = MigrationPlan.create_version_graph_for(ReahlEgg(dist), self.config.reahlsystem.orm_control)
             for key in version_graph.graph:
                 print('%s [%s]' % (key, ' | '.join([str(i) for i in version_graph.graph[key]])))
 

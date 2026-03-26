@@ -24,10 +24,17 @@ from reahl.stubble.stub import Exempt as exempt
 from reahl.stubble.stub import SlotConstrained as slotconstrained
 from reahl.stubble.stub import CheckedInstance as checkedinstance
 
-from .easteregg import EasterEgg
+from .easteregg import ImportlibEasterEgg
+try:
+    from .easteregg import PkgResourcesEasterEgg
+except:
+    pass
 
-easter_egg = EasterEgg()
-easter_egg.add_to_working_set()  #TODO: why does this not always work anymore??
+# Backward compatibility: EasterEgg now refers to ImportlibEasterEgg
+EasterEgg = ImportlibEasterEgg
+
+easter_egg = ImportlibEasterEgg()
+easter_egg.register()
 
 
 class EmptyStub:

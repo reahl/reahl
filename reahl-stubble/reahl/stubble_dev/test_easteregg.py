@@ -21,7 +21,7 @@ import pkg_resources
 
 import pytest
 
-from reahl.stubble import EasterEgg
+from reahl.stubble.easteregg import PkgResourcesEasterEgg as EasterEgg
 
 
 class TestClass2:

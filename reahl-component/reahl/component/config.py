@@ -34,7 +34,15 @@ import inspect
 import logging.config
 from contextlib import contextmanager
 
-import pkg_resources
+import packaging.requirements
+
+if sys.version_info < (3, 8):
+    try:
+        import importlib_metadata
+    except:
+        raise Exception('You are on an older version of python. Please install importlib-metadata')
+else:
+    import importlib.metadata as importlib_metadata
 
 from reahl.component.eggs import ReahlEgg
 from reahl.component.exceptions import DomainException
@@ -143,15 +151,24 @@ class EntryPointClassList(ConfigSetting):
         
     def __get__(self, instance, owner):
         classes = []
-        for i in pkg_resources.iter_entry_points(self.name):
+
+        if ReahlEgg.can_use_modern_entry_points_api():
+            # Python 3.9+ API with group parameter
+            entry_points = importlib_metadata.entry_points(group=self.name)
+        else:
+            # Python 3.8 API returns dict-like object
+            all_entry_points = importlib_metadata.entry_points()
+            entry_points = all_entry_points.get(self.name, [])
+
+        for i in entry_points:
             try:
                 classes.append(i.load())
             except ImportError as e:
-                print('\nWARNING: Cannot import %s, from %s' % (i, i.dist), file=sys.stderr)
+                print('\nWARNING: Cannot import %s' % (i,), file=sys.stderr)
                 print(e, file=sys.stderr)
-            except pkg_resources.DistributionNotFound as e:
-                print('\nWARNING: Cannot find %s, required by %s' % (e, i.dist), file=sys.stderr)
-                
+            except importlib_metadata.PackageNotFoundError as e:
+                print('\nWARNING: Cannot find distribution: %s' % (e,), file=sys.stderr)
+
         return classes
 
 
@@ -252,7 +269,7 @@ class ReahlSystemConfig(Configuration):
     config_key = 'reahlsystem'
     root_egg = ConfigSetting(description='The root egg of the project', default=os.path.basename(os.getcwd()), dangerous=True)
     connection_uri = ConfigSetting(description='The database connection URI',
-                                   default=DeferredDefault(lambda c: 'sqlite:///%s.db' % (os.path.join(os.getcwd(), pkg_resources.Requirement.parse(c.root_egg).project_name))), dangerous=True)
+                                   default=DeferredDefault(lambda c: 'sqlite:///%s.db' % (os.path.join(os.getcwd(), packaging.requirements.Requirement(c.root_egg).name))), dangerous=True)
     orm_control = ConfigSetting(default=NullORMControl(), description='The ORM control object to be used', automatic=True)
     debug = ConfigSetting(default=True, description='Enables more verbose logging', dangerous=True)
     databasecontrols = EntryPointClassList('reahl.component.databasecontrols', description='All available DatabaseControl classes')
@@ -314,8 +331,6 @@ class StoredConfiguration(Configuration):
 
         self.read(ReahlSystemConfig)
         self.validate_required(ReahlSystemConfig)
-
-        pkg_resources.require(self.reahlsystem.root_egg)
 
         self.configure_components(include_test_dependencies)
         if validate:

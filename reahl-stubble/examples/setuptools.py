@@ -19,7 +19,7 @@
 # Please see the README file for more info.
 #
 
-import pkg_resources
+import importlib.metadata
 
 from reahl.stubble import EasterEgg
 
@@ -36,7 +36,7 @@ class StubClass2:
 
 #then, we initialise the EasterEgg:
 stub_egg = EasterEgg()
-pkg_resources.working_set.add(stub_egg)
+stub_egg.add_to_working_set()
 
 
 #then, use 1 of two methods to add the stubbed entry point classes:
@@ -46,6 +46,6 @@ stub_egg.add_entry_point(group_name, 'test2', StubClass2)
 
 #now, the actual code (which is presumably being tested)
 #  (we just print out each class it finds...)
-for i in pkg_resources.iter_entry_points(group_name):
+for i in importlib.metadata.entry_points(group=group_name):
     print(i.load())
 

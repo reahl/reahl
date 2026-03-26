@@ -11,10 +11,10 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "reahl-browsertools"
-version = "7.0.3"
+version = "7.0.4"
 description = "An alternative API for working with Selenium and WebTest."
 readme = "README.rst"
-requires-python = ">=3.8"
+requires-python = ">=3.10"
 classifiers = [
   "Development Status :: 5 - Production/Stable",
   "Intended Audience :: Developers",
@@ -25,7 +25,7 @@ classifiers = [
   "Environment :: Web Environment"
   ]
 dependencies = [
-  "lxml>=4.2,<5.1.999",
+  "lxml>=5.2",
   "WebTest>=2.0,<3.0.999",
   "selenium>=2.42,<4.17.9999"
   ]
