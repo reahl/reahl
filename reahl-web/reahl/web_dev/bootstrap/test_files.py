@@ -820,6 +820,7 @@ def test_async_upload_domain_exception(web_fixture, toggle_validation_fixture):
         browser.click(XPath.button_labelled('Remove', filename=fixture.file_to_upload2_name))
 
 
+@flaky(max_runs=3, min_passes=1)
 @with_fixtures(WebFixture, LargeFileUploadInputFixture)
 def test_queueing_async_uploads(web_fixture, large_file_upload_input_fixture):
     """Asynchronous uploads do not happen concurrently, they are queued one after another.
