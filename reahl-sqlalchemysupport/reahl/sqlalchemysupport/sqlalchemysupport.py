@@ -29,7 +29,7 @@ import pprint
 import sqlalchemy 
 from sqlalchemy import *
 from sqlalchemy.orm import sessionmaker, scoped_session, relationship
-from sqlalchemy.exc import InvalidRequestError
+from sqlalchemy.exc import InvalidRequestError, SQLAlchemyError
 from sqlalchemy import Column, Integer, ForeignKey
 from alembic.runtime.migration import MigrationContext
 from alembic.operations import Operations
@@ -466,13 +466,18 @@ class SqlAlchemyControl(ORMControl):
             Session().flush()
             return
 
-        self.commit()
-
         context = ExecutionContext.get_context()
-        if context.system_control.db_control.is_in_memory:
-            Session().expunge_all()
-        else:
-            Session.remove()
+        try:
+            self.commit()
+        except SQLAlchemyError:
+            if Session().in_transaction():
+                self.rollback()
+            raise
+        finally:
+            if context.system_control.db_control.is_in_memory:
+                Session().expunge_all()
+            else:
+                Session.remove()
         
     def disconnect(self):
         """Disposes the current SQLAlchemy Engine and .remove() the Session."""
@@ -641,5 +646,4 @@ class SchemaVersion(Base):
     id = Column(Integer, primary_key=True)
     version = Column(String(50))
     egg_name = Column(String(80))
-
 

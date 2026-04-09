@@ -16,11 +16,14 @@
 
 
 
-from sqlalchemy import Column, String
+from contextlib import contextmanager
 
-from reahl.tofu import Fixture, uses
+from sqlalchemy import Column, String
+from sqlalchemy.exc import IntegrityError
+
+from reahl.tofu import Fixture, uses, expected
 from reahl.tofu.pytestsupport import with_fixtures
-from reahl.sqlalchemysupport import SqlAlchemyControl, QueryAsSequence, Session, Base
+from reahl.sqlalchemysupport import SqlAlchemyControl, QueryAsSequence, Session, Base, metadata
 
 from reahl.dev.fixtures import ReahlSystemFixture
 from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
@@ -77,6 +80,37 @@ class QueryFixture(Fixture):
         
     def new_query_as_sequence(self):
         return QueryAsSequence(Session.query(self.MyObject))
+
+
+@uses(reahl_system_fixture=ReahlSystemFixture)
+class SessionFinalisationFixture(Fixture):
+    def new_MyObject(self):
+        class MyObject(Base):
+            __tablename__ = 'finalise_session_object'
+            name = Column(String, primary_key=True)
+
+            def __init__(self, name):
+                self.name = name
+        return MyObject
+
+    @contextmanager
+    def persistent_test_classes(self, *entities):
+        try:
+            metadata.create_all(bind=Session.connection())
+            yield
+        finally:
+            Session.expunge_all()
+            for entity in entities:
+                if hasattr(entity, '__table__'):
+                    entity.__table__.drop(bind=Session.connection())
+                    entity.__table__.metadata.remove(entity.__table__)
+                    if hasattr(entity, 'registry'):
+                        if entity.__name__ in entity.registry._class_registry:
+                            del entity.registry._class_registry[entity.__name__]
+                    else:
+                        if entity.__name__ in entity._decl_class_registry:
+                            del entity._decl_class_registry[entity.__name__]
+            Session.remove()
 
 
 @with_fixtures(SqlAlchemyFixture, QueryFixture)
@@ -146,3 +180,19 @@ def test_query_as_sequence_chained_sorts(sql_alchemy_fixture, query_fixture):
         sorted_items = [item for item in query_as_sequence]
         assert sorted_items == [object3, object1, object2]
 
+
+@with_fixtures(ReahlSystemFixture, SessionFinalisationFixture)
+def test_finalise_session_rolls_back_and_clears_session_after_commit_failure(reahl_system_fixture, session_finalisation_fixture):
+    """A failed commit during session finalisation is rolled back and the scoped session is cleared."""
+    fixture = session_finalisation_fixture
+
+    with fixture.persistent_test_classes(fixture.MyObject):
+        Session.add(fixture.MyObject('duplicate'))
+        reahl_system_fixture.system_control.commit()
+        Session.add(fixture.MyObject('duplicate'))
+
+        with expected(IntegrityError):
+            reahl_system_fixture.system_control.finalise_session()
+
+        assert not Session.registry.has()
+        assert Session.query(fixture.MyObject).count() == 1
