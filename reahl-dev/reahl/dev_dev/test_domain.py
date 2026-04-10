@@ -19,10 +19,11 @@
 import os
 import os.path
 
-from reahl.tofu import temp_dir
+from reahl.tofu import Fixture, scenario, temp_dir
+from reahl.tofu.pytestsupport import with_fixtures
 from reahl.stubble import stubclass
 
-from reahl.dev.devdomain import PackageIndex, RepositoryLocalState
+from reahl.dev.devdomain import PackageIndex, PythonSourcePackage, PythonWheelPackage, RepositoryLocalState
 
 
 def test_reading_and_writing_repository():
@@ -58,3 +59,40 @@ def test_reading_and_writing_repository():
     local_state.uploaded_project_ids = set([])
     local_state.read()
     assert local_state.uploaded_project_ids == {'someid1', 'someid2'}
+
+
+class PackageFilenameFixture(Fixture):
+    @property
+    def package(self):
+        return self.package_class(self.project)
+
+    @property
+    def project(self):
+        class ProjectStub:
+            project_name = 'reahl-tofu'
+            project_name_pythonised = 'reahl_tofu'
+            distribution_name = 'reahl_tofu'
+            version = '7.0.4'
+
+        return ProjectStub()
+
+
+class PackageFilenameScenarios(Fixture):
+    @scenario
+    def source_distribution(self):
+        """AI: Source distribution filenames follow the build backend's normalised distribution name."""
+        self.package_class = PythonSourcePackage
+        self.expected_filename = 'reahl_tofu-7.0.4.tar.gz'
+
+    @scenario
+    def wheel_distribution(self):
+        """AI: Wheel filenames follow the normalised distribution name used for built artifacts."""
+        self.package_class = PythonWheelPackage
+        self.expected_filename = 'reahl_tofu-7.0.4-py3-none-any.whl'
+
+
+@with_fixtures(PackageFilenameFixture, PackageFilenameScenarios)
+def test_distribution_package_filenames_use_normalised_distribution_name(fixture, scenario):
+    """Hyphenated project names are normalised to the filenames emitted by the build backend."""
+    fixture.package_class = scenario.package_class
+    assert fixture.package.package_files == [scenario.expected_filename]

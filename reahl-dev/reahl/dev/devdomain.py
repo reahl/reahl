@@ -162,7 +162,7 @@ class PythonSourcePackage(DistributionPackage):
         return [self.targz_filename]
 
     def targz_filename_for(self, project):
-        return '%s-%s.tar.gz' % (project.project_name, project.version)
+        return '%s-%s.tar.gz' % (project.distribution_name, project.version)
 
     @property
     def files_to_distribute(self):
@@ -204,7 +204,7 @@ class PythonWheelPackage(DistributionPackage):
         return [self.wheel_filename]
 
     def wheel_filename_for(self, project):
-        return '%s-%s-py3-none-any.whl' % (project.project_name_pythonised, project.version)
+        return '%s-%s-py3-none-any.whl' % (project.distribution_name, project.version)
 
     @property
     def files_to_distribute(self):
@@ -588,6 +588,10 @@ class Project:
         return self.project_name.replace('-', '_')
 
     @property
+    def distribution_name(self):
+        return self.project_name_pythonised
+
+    @property
     def version(self):
         return VersionNumber(self.metadata.version)
     
@@ -877,6 +881,5 @@ class Workspace:
     def get_saved_selections(self):
         filenames = glob.glob(os.path.join(self.reahl_directory, '*.selection'))
         return [os.path.splitext(os.path.basename(i))[0] for i in filenames]
-
 
 
