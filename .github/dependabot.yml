@@ -1,0 +1,16 @@
+version: 2
+updates:
+  - package-ecosystem: 'pip'
+    directories:
+      - '/reahl-dev'
+      - '/reahl-mailutil'
+    schedule:
+      interval: 'weekly'
+    labels:
+      - 'dependencies'
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+    labels:
+      - 'dependencies'
