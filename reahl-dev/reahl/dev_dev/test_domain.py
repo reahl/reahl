@@ -62,12 +62,10 @@ def test_reading_and_writing_repository():
 
 
 class PackageFilenameFixture(Fixture):
-    @property
-    def package(self):
+    def new_package(self):
         return self.package_class(self.project)
 
-    @property
-    def project(self):
+    def new_project(self):
         class ProjectStub:
             project_name = 'reahl-tofu'
             project_name_pythonised = 'reahl_tofu'
