@@ -71,6 +71,7 @@ class PackageFilenameFixture(Fixture):
             project_name_pythonised = 'reahl_tofu'
             distribution_name = 'reahl_tofu'
             version = '7.0.4'
+            workspace = None
 
         return ProjectStub()
 
