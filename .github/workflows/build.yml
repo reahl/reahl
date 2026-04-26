@@ -16,7 +16,7 @@ jobs:
         run: docker cp $(docker create reahl-dev:latest):/home/developer/.reahlworkspace/dist-egg/ /tmp/wheels
 
       - name: Upload built wheels to cache
-        uses: actions/upload-artifact@v7.0.0
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: wheels
           path: /tmp/wheels
